@@ -287,6 +287,31 @@ class TableSchema
     }
 
     /**
+     * If the table has one or more relational interfaces
+     *
+     * @param $tableName
+     * @param array $columns
+     * @param bool $skipAcl
+     *
+     * @return bool
+     */
+    public static function hasSomeRelational($tableName, array $columns, $skipAcl = false)
+    {
+        $tableSchema = static::getTableSchema($tableName, [], false, $skipAcl);
+        $relationalColumns = $tableSchema->getRelationalColumnsName();
+
+        $has = false;
+        foreach ($relationalColumns as $column) {
+            if (in_array($column, $columns)) {
+                $has = true;
+                break;
+            }
+        }
+
+        return $has;
+    }
+
+    /**
      * Gets tehe column relationship type
      *
      * @param $tableName

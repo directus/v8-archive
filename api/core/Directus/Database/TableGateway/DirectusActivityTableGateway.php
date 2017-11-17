@@ -60,7 +60,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         parent::__construct(self::$_tableName, $adapter, $acl);
     }
 
-    public function fetchFeed($params = null)
+    public function fetchFeed($params = [])
     {
         $params['order'] = ['id' => 'DESC'];
         $params = $this->applyDefaultEntriesSelectParams($params);
@@ -95,7 +95,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
             ->OR
             ->equalTo('type', 'FILES');
 
-        return $this->loadMetadata($this->parseRecord($rowset));
+        return $this->wrapData($this->parseRecord($rowset), false, ArrayUtils::get($params, 'meta', 0));
     }
 
     public function fetchRevisions($row_id, $table_name)

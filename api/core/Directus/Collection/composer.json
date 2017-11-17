@@ -13,10 +13,5 @@
     "psr-4": {
       "Directus\\Collection\\": ""
     }
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-version/6.4": "0.9.x-dev"
-    }
   }
 }

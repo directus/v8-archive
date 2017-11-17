@@ -1,27 +1,17 @@
 <?php
 
-/**
- * Directus – <http://getdirectus.com>
- *
- * @link      The canonical repository – <https://github.com/directus/directus>
- * @copyright Copyright 2006-2017 RANGER Studio, LLC – <http://rangerstudio.com>
- * @license   GNU General Public License (v3) – <http://www.gnu.org/copyleft/gpl.html>
- */
-
 namespace Directus\Authentication;
 
 use Directus\Application\Application;
+use Directus\Application\Container;
 use Directus\Config\Config;
 
-/**
- * @author Welling Guzmán <welling@rngr.org>
- */
 abstract class AbstractSocialProvider implements SocialProviderInterface
 {
     /**
-     * @var Application
+     * @var Container
      */
-    protected $app;
+    protected $container;
 
     /**
      * @var Config
@@ -38,9 +28,15 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
      */
     protected $token = null;
 
-    public function __construct(Application $app, array $config)
+    /**
+     * AbstractSocialProvider constructor.
+     *
+     * @param Container $container
+     * @param array $config
+     */
+    public function __construct(Container $container, array $config)
     {
-        $this->app = $app;
+        $this->container = $container;
         $this->config = new Config($config);
 
         $this->createProvider();
@@ -79,6 +75,8 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
      */
     public function getRedirectUrl($name)
     {
+        // TODO: Fix redirection
+        // request is not available and won't be
         $request = Application::getInstance()->request();
 
         return rtrim($request->getUrl(), '/') . '/auth/' . $name . '/receive';

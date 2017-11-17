@@ -1,106 +1,102 @@
 <?php
 
-/**
- * Directus – <http://getdirectus.com>
- *
- * @link      The canonical repository – <https://github.com/directus/directus>
- * @copyright Copyright 2006-2017 RANGER Studio, LLC – <http://rangerstudio.com>
- * @license   GNU General Public License (v3) – <http://www.gnu.org/copyleft/gpl.html>
- */
-
 namespace Directus\Application;
 
-use Directus\Bootstrap;
+use Directus\Config\Config;
 use Directus\Hook\Payload;
 use Directus\Util\ArrayUtils;
-use Slim\Http\Util;
-use Slim\Slim;
+use Psr\Container\ContainerInterface;
+use Slim\App;
+use Slim\Exception\InvalidMethodException;
 
-/**
- * Application
- *
- * @author Welling Guzmán <welling@rngr.org>
- */
-class Application extends Slim
+class Application extends App
 {
     /**
      * Directus version
      *
      * @var string
      */
-    const DIRECTUS_VERSION = '6.4.3';
+    const DIRECTUS_VERSION = '7.0.0-dev';
 
     /**
+     * NOT USED
+     *
      * @var bool
      */
     protected $booted = false;
 
     /**
+     * NOT USED
+     *
      * @var array
      */
-    protected $providers = [];
+    protected $providers = [
+
+    ];
+
+    protected static $instance = null;
 
     /**
-     * Application constructor.
-     *
-     * @param array $userSettings
+     * @inheritdoc
      */
-
-    public function __construct(array $userSettings)
+    public function __construct(array $container = [])
     {
-        parent::__construct($userSettings);
 
-        $this->container->singleton('environment', function () {
-            return Environment::getInstance();
-        });
+        if (is_array($container)) {
+            $container = $this->createConfig($container);
 
-        $this->container->singleton('response', function () {
-            return new BaseResponse();
-        });
+            $container = new Container($container);
+        }
 
-        // Default request
-        $this->container->singleton('request', function ($c) {
-            return new BaseRequest($c['environment']);
-        });
+        static::$instance = $this;
 
-        $this->hook('slim.before.router', [$this, 'guessOutputFormat']);
+        parent::__construct($container);
     }
 
     /**
-     * Gets an application instance with the given name
+     * Gets the application instance (singleton)
      *
-     * @param string $name
-     *
-     * @return null|Application
-     */
-    public static function getInstance($name = 'default')
-    {
-        return isset(static::$apps[$name]) ? static::$apps[$name] : null;
-    }
-
-    /**
-     * Register a provider
-     *
-     * @param ServiceProviderInterface $provider
+     * This is a temporary solution until we get rid of the Bootstrap object
      *
      * @return $this
      */
-    public function register(ServiceProviderInterface $provider)
+    public static function getInstance()
     {
-        $provider->register($this);
-
-        $this->providers[] = $provider;
-
-        return $this;
+        return static::$instance;
     }
 
-    public function run()
+    /**
+     * Creates the user configuration based on its configuration
+     *
+     * Mainly just separating the Slim settings with the Directus settings and adding paths
+     *
+     * @param array $appConfig
+     *
+     * @return array
+     */
+    protected function createConfig(array $appConfig)
+    {
+        return [
+            'settings' => ArrayUtils::get($appConfig, 'settings', []),
+            'config' => function () use ($appConfig) {
+                return new Config($appConfig);
+            },
+            'api_path' => API_PATH,
+            'root_path' => ROOT_PATH,
+            'log_path' => LOG_PATH
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function run($silent = false)
     {
         if (!$this->booted) {
             $this->boot();
         }
 
-        parent::run();
+        return parent::run($silent);
     }
 
     public function boot()
@@ -109,9 +105,9 @@ class Application extends Slim
             return;
         }
 
-        foreach($this->providers as $provider) {
-            $provider->boot($this);
-        }
+        // foreach ($this->providers as $provider) {
+        //     $provider->boot($this);
+        // }
 
         $this->booted = true;
     }
@@ -153,7 +149,7 @@ class Application extends Slim
      */
     public function triggerFilter($name, $payload)
     {
-        return $this->container->get('hookEmitter')->apply($name, $payload);
+        return $this->getContainer()->get('hookEmitter')->apply($name, $payload);
     }
 
     /**
@@ -172,7 +168,7 @@ class Application extends Slim
 
         array_unshift($params, $name);
 
-        call_user_func_array([$this->container->get('hookEmitter'), 'run'], $params);
+        call_user_func_array([$this->getContainer()->get('hookEmitter'), 'run'], $params);
     }
 
     public function onMissingRequirements(Callable $callback)
@@ -232,79 +228,6 @@ class Application extends Slim
         return $payload->getData();
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function mapRoute($args)
-    {
-        $pattern = array_shift($args);
-        $callable = $this->resolveCallable(array_pop($args));
-        $route = new \Slim\Route($pattern, $callable);
-        $this->router->map($route);
-        if (count($args) > 0) {
-            $route->setMiddleware($args);
-        }
-
-        return $route;
-    }
-
-    /**
-     * Resolve toResolve into a closure that that the router can dispatch.
-     *
-     * If toResolve is of the format 'class:method', then try to extract 'class'
-     * from the container otherwise instantiate it and then dispatch 'method'.
-     *
-     * @param mixed $toResolve
-     *
-     * @return callable
-     *
-     * @throws \RuntimeException if the callable does not exist
-     * @throws \RuntimeException if the callable is not resolvable
-     */
-    public function resolveCallable($toResolve)
-    {
-        $resolved = $toResolve;
-
-        if (!is_callable($toResolve) && is_string($toResolve)) {
-            // check for slim callable as "class:method"
-            $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
-            if (preg_match($callablePattern, $toResolve, $matches)) {
-                $class = $matches[1];
-                $method = $matches[2];
-
-                if ($this->container->has($class)) {
-                    $resolved = [$this->container->get($class), $method];
-                } else {
-                    if (!class_exists($class)) {
-                        throw new \RuntimeException(sprintf('Callable %s does not exist', $class));
-                    }
-                    $resolved = [new $class($this), $method];
-                }
-            } else {
-                // check if string is something in the DIC that's callable or is a class name which
-                // has an __invoke() method
-                $class = $toResolve;
-                if ($this->container->has($class)) {
-                    $resolved = $this->container->get($class);
-                } else {
-                    if (!class_exists($class)) {
-                        throw new \RuntimeException(sprintf('Callable %s does not exist', $class));
-                    }
-                    $resolved = new $class($this);
-                }
-            }
-        }
-
-        if (!is_callable($resolved)) {
-            throw new \RuntimeException(sprintf(
-                '%s is not resolvable',
-                is_array($toResolve) || is_object($toResolve) ? json_encode($toResolve) : $toResolve
-            ));
-        }
-
-        return $resolved;
-    }
-
     protected function guessOutputFormat()
     {
         $app = $this;
@@ -313,7 +236,7 @@ class Application extends Slim
 
         if ($this->requestHasOutputFormat()) {
             $outputFormat = $this->getOutputFormat();
-            // @TODO: create a replace last/first ocurrence
+            // TODO: create a replace last/first occurrence
             $pos = strrpos($requestUri, '.' . $outputFormat);
             $newRequestUri = substr_replace($requestUri, '', $pos, strlen('.' . $outputFormat));
             $env = $app->environment();

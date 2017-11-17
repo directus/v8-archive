@@ -4,12 +4,13 @@
   "keywords": [
     "directus",
     "container",
-    "colllection"
+    "collection"
   ],
   "license": "MIT",
   "require": {
     "php": ">=5.4.0",
-    "directus/collection": "dev-d64"
+    "directus/collection": "^1.0",
+    "pimple/pimple": "^3.0"
   },
   "autoload": {
     "psr-4": {

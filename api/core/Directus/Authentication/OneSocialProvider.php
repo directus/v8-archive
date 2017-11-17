@@ -1,19 +1,9 @@
 <?php
 
-/**
- * Directus – <http://getdirectus.com>
- *
- * @link      The canonical repository – <https://github.com/directus/directus>
- * @copyright Copyright 2006-2017 RANGER Studio, LLC – <http://rangerstudio.com>
- * @license   GNU General Public License (v3) – <http://www.gnu.org/copyleft/gpl.html>
- */
-
 namespace Directus\Authentication;
 
 /**
- * Provider for oAuth 1.0
- *
- * @author Welling Guzmán <welling@rngr.org>
+ * Provider for OAuth 1.0
  */
 abstract class OneSocialProvider extends AbstractSocialProvider
 {
@@ -26,7 +16,7 @@ abstract class OneSocialProvider extends AbstractSocialProvider
         $temporaryCredentials = $this->provider->getTemporaryCredentials();
 
         // Store the credentials in the session.
-        $session = $this->app->container->get('session');
+        $session = $this->container->get('session');
         $session->set('oauth1cred', serialize($temporaryCredentials));
 
         // resource owner to the login screen on the server.
@@ -45,7 +35,7 @@ abstract class OneSocialProvider extends AbstractSocialProvider
             throw new \Exception('Invalid request');
         }
 
-        $session = $this->app->container->get('session');
+        $session = $this->container->get('session');
 
         // Retrieve the temporary credentials from step 2
         $temporaryCredentials = unserialize($session->get('oauth1cred'));

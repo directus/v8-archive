@@ -121,7 +121,7 @@ if (!$authentication->loggedIn()) {
     if ($authenticated) {
         $session->set('on_invitation', true);
         $showWelcomeWindow = true;
-        $invitationUser = $authentication->getUserRecord();
+        $invitationUser = $authentication->getUserAttributes();
 
         $privilegesTable = new DirectusPrivilegesTableGateway($ZendDb, $acl);
         $privileges = $privilegesTable->getGroupPrivileges($invitationUser['group']);
@@ -136,7 +136,7 @@ if (!$authentication->loggedIn()) {
 }
 
 if (!$showWelcomeWindow) {
-    $authenticatedUser = $authentication->getUserRecord();
+    $authenticatedUser = $authentication->getUserAttributes();
     if ($authenticatedUser['invite_accepted'] === 0) {
         $showWelcomeWindow = true;
     }

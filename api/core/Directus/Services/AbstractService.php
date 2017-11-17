@@ -3,6 +3,7 @@
 namespace Directus\Services;
 
 use Directus\Application\Application;
+use Directus\Application\Container;
 use Directus\Database\SchemaManager;
 use Directus\Permissions\Acl;
 use Directus\Database\TableGateway\RelationalTableGateway as TableGateway;
@@ -10,21 +11,21 @@ use Directus\Database\TableGateway\RelationalTableGateway as TableGateway;
 // @note: this is a temporary solution to implement services into Directus
 abstract class AbstractService
 {
-    protected $app;
+    protected $container;
 
-    public function __construct(Application $app)
+    public function __construct(Container $container)
     {
-        $this->app = $app;
+        $this->container = $container;
     }
 
     /**
      * Gets application container
      *
-     * @return \Slim\Helper\Set
+     * @return Container
      */
     protected function getContainer()
     {
-        return $this->app->container;
+        return $this->container;
     }
 
     /**

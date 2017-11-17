@@ -59,14 +59,28 @@ if (!function_exists('uc_convert')) {
 }
 
 if (!function_exists('ping_route')) {
+    /**
+     * Rreturns a ping route
+     *
+     * @param \Directus\Application\Application $app
+     *
+     * @return Closure
+     */
     function ping_route($app)
     {
-        return function () use ($app) {
-            if ('production' === DIRECTUS_ENV) {
-                return $app->halt('404');
+        return function (\Slim\Http\Request $request, \Slim\Http\Response $response) {
+            /** @var \Directus\Container\Container $container */
+            $container = $this->getContainer();
+
+            if ($container->get('env') === 'production') {
+                $response->withStatus(404);
+            } else {
+                $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+                $body->write('pong');
+                $response = $response->withBody($body);
             }
 
-            return $app->response()->setBody('pong');
+            return $response;
         };
     }
 }
@@ -77,16 +91,14 @@ if (!function_exists('create_ping_route')) {
      *
      * @param $app
      *
-     * @return \Slim\Slim
+     * @return \Directus\Application\Application
      */
     function create_ping_route($app)
     {
         /**
          * Ping the server
          */
-        $apiVersion = defined('API_VERSION') ? API_VERSION : '1.1';
-
-        $app->get('/' . $apiVersion . '/ping/?', ping_route($app))->name('ping_server');
+        $app->get('/ping/?', ping_route($app))->name('ping_server');
 
         return $app;
     }
@@ -94,24 +106,20 @@ if (!function_exists('create_ping_route')) {
 
 if (!function_exists('create_ping_server')) {
     /**
-     * Create a simple Slim app
+     * Creates a simple app
      *
-     * @return \Slim\Slim
+     * @return \Directus\Application\Application
      */
     function create_ping_server()
     {
-        if (!defined('DIRECTUS_ENV')) {
-            define('DIRECTUS_ENV', 'development');
-        }
-
-        if (!defined('APPLICATION_PATH')) {
-            define('APPLICATION_PATH', __DIR__);
-        }
-
-        $app = \Directus\Bootstrap::get('app');
+        $app = new \Directus\Application\Application([
+            'settings' => [
+                'debug' => false,
+                'env' => 'production'
+            ]
+        ]);
 
         create_ping_route($app);
-        $app->run();
 
         return $app;
     }
@@ -343,12 +351,13 @@ if (!function_exists('load_registered_hooks')) {
                 $handlers = [$handlers];
             }
 
-            $emitter = \Directus\Bootstrap::get('hookEmitter');
+            // TODO: Temporary with global app
+            $hookEmitter = \Directus\Application\Application::getInstance()->getContainer()->get('hook_emitter');
             foreach ($handlers as $handler) {
                 if (!$areFilters) {
-                    $emitter->addAction($event, $handler);
+                    $hookEmitter->addAction($event, $handler);
                 } else {
-                    $emitter->addFilter($event, $handler);
+                    $hookEmitter->addFilter($event, $handler);
                 }
             }
         }
@@ -424,7 +433,7 @@ if (!function_exists('get_auth_info')) {
             return null;
         }
 
-        $userInfo = $authentication->getUserRecord();
+        $userInfo = $authentication->getUserAttributes();
 
         return isset($userInfo[$attribute]) ? $userInfo[$attribute] : null;
     }
@@ -1559,6 +1568,35 @@ if (!function_exists('column_identifier_reverse')) {
     }
 }
 
+if (!function_exists('compact_sort_to_array')) {
+    /**
+     * Converts compact sorting column to array
+     *
+     * Example: -<field> to [field => 'DESC']
+     *
+     * @param $field
+     *
+     * @return array
+     *
+     * @throws \Directus\Exception\Exception
+     */
+    function compact_sort_to_array($field)
+    {
+        if (!is_string($field)) {
+            throw new \Directus\Exception\Exception(sprintf('field is expected to be string, %s given.', gettype($field)));
+        }
+
+        $order = 'ASC';
+        if (substr($field, 0, 1) === '-') {
+            $order = 'DESC';
+            $field = substr($field, 1);
+        }
+
+        return [
+            $field => $order
+        ];
+    }
+}
 
 if (!function_exists('slugify')) {
     /**

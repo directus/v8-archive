@@ -11,6 +11,7 @@ use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
 use Cache\Adapter\Void\VoidCachePool;
 use Directus\Application\Application;
+use Directus\Application\Container;
 use Directus\Authentication\FacebookProvider;
 use Directus\Authentication\GitHubProvider;
 use Directus\Authentication\GoogleProvider;
@@ -18,7 +19,9 @@ use Directus\Authentication\Provider as AuthProvider;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Social;
 use Directus\Authentication\TwitterProvider;
+use Directus\Authentication\User\Provider\UserTableGatewayProvider;
 use Directus\Cache\Response as ResponseCache;
+use Directus\Cache\Response;
 use Directus\Config\Config;
 use Directus\Database\Connection;
 use Directus\Database\Object\Table;
@@ -54,6 +57,7 @@ use Directus\Util\StringUtils;
 use Directus\View\Twig\DirectusTwigExtension;
 use Slim\Extras\Views\Twig;
 use League\Flysystem\Adapter\Local;
+use Slim\Helper\Set;
 
 
 /**
@@ -66,10 +70,12 @@ class Bootstrap
     /**
      * Returns the instance of the specified singleton, instantiating one if it
      * doesn't yet exist.
+     *
      * @param  string $key The name of the singleton / singleton factory function
      * @param  mixed $arg An argument to be passed to the singleton factory function
-     * @param  bool $newInsnce return new instance rather than singleton instance (useful for long running scripts to get a new Db Conn)
-     * @return mixed           The singleton with the specified name
+     * @param  bool $newInstance return new instance rather than singleton instance (useful for long running scripts to get a new Db Conn)
+     *
+     * @return mixed The singleton with the specified name
      */
     public static function get($key, $arg = null, $newInstance = false)
     {
@@ -115,35 +121,18 @@ class Bootstrap
     }
 
     /**
-     * Used to interrupt the bootstrapping of a singleton if the constants it
-     * requires aren't defined.
-     * @param  string|array $constants One or more constant names
-     * @param  string $dependentFunctionName The name of the function establishing the dependency.
-     * @return  null
-     * @throws  Exception If the specified constants are not defined
-     */
-    private static function requireConstants($constants, $dependentFunctionName)
-    {
-        if (!is_array($constants)) {
-            $constants = [$constants];
-        }
-        foreach ($constants as $constant) {
-            if (!defined($constant)) {
-                throw new \Exception(__CLASS__ . '#' . $dependentFunctionName . 'depends on undefined constant ' . $constant);
-            }
-        }
-    }
-
-    /**
      * SINGLETON FACTORY FUNCTIONS
      */
 
     /**
      * Make Slim app.
+     *
      * @return Application
      */
     private static function app()
     {
+        // TODO: Temporary, until we get rid of this Bootstrap object
+        return Application::getInstance();
         self::requireConstants(['DIRECTUS_ENV', 'APPLICATION_PATH'], __FUNCTION__);
         $loggerSettings = [
             'path' => APPLICATION_PATH . '/api/logs'
@@ -169,24 +158,8 @@ class Bootstrap
             return Bootstrap::get('hookEmitter');
         });
 
-        $app->container->singleton('authService', function () use ($app) {
-            return new AuthService($app);
-        });
-
         $app->container->singleton('session', function () {
             return Bootstrap::get('session');
-        });
-
-        $app->container->singleton('auth', function () {
-            return Bootstrap::get('auth');
-        });
-
-        $app->container->singleton('acl', function () {
-            return Bootstrap::get('acl');
-        });
-
-        $app->container->singleton('zendDb', function () {
-            return Bootstrap::get('zendDb');
         });
 
         $app->container->singleton('socialAuth', function() {
@@ -195,18 +168,6 @@ class Bootstrap
 
         $config = defined('BASE_PATH') ? Bootstrap::get('config') : new Config();
         $app->container->set('config', $config);
-
-        $app->container->singleton('schemaManager', function () {
-            return Bootstrap::get('schemaManager');
-        });
-
-        $app->container->singleton('app.settings', function () {
-            return Bootstrap::get('settings');
-        });
-
-        $app->container->singleton('hashManager', function () {
-            return Bootstrap::get('hashManager');
-        });
 
         $app->container->singleton('cache', function() {
             return Bootstrap::get('cache');
@@ -227,17 +188,9 @@ class Bootstrap
             }
         }
 
-        BaseTableGateway::setHookEmitter($app->container->get('hookEmitter'));
-        BaseTableGateway::setContainer($app->container);
-        TableGatewayFactory::setContainer($app->container);
-
-        // @NOTE: Trying to separate the configuration from bootstrap, bit by bit.
+        // NOTE: Trying to separate the configuration from bootstrap, bit by bit.
         TableSchema::setConfig(static::get('config'));
         $app->register(new FilesServiceProvider());
-
-        $app->container->singleton('zenddb', function() {
-            return Bootstrap::get('ZendDb');
-        });
 
         $app->container->singleton('filesystem', function() {
             return Bootstrap::get('filesystem');
@@ -269,19 +222,6 @@ class Bootstrap
         }
 
         return new Config($config);
-    }
-
-    private static function settings()
-    {
-        $DirectusSettingsTableGateway = new \Zend\Db\TableGateway\TableGateway('directus_settings', Bootstrap::get('zendDb'));
-        $rowSet = $DirectusSettingsTableGateway->select();
-
-        $settings = [];
-        foreach ($rowSet as $setting) {
-            $settings[$setting['collection']][$setting['name']] = $setting['value'];
-        }
-
-        return $settings;
     }
 
     private static function status()
@@ -338,122 +278,19 @@ class Bootstrap
         return self::get('app')->getLog();
     }
 
-    private static function zendDbSlave()
+    private static function zendDb()
     {
-        if (!defined('DB_HOST_SLAVE')) {
-            return self::zenddb();
-        }
-        self::requireConstants(['DIRECTUS_ENV', 'DB_HOST_SLAVE', 'DB_NAME', 'DB_USER_SLAVE', 'DB_PASSWORD_SLAVE'], __FUNCTION__);
-        $dbConfig = [
-            'driver' => 'Pdo_Mysql',
-            'host' => DB_HOST_SLAVE,
-            'database' => DB_NAME,
-            'username' => DB_USER_SLAVE,
-            'password' => DB_PASSWORD_SLAVE,
-            'charset' => 'utf8',
-            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-            \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
-        ];
-        $db = new \Zend\Db\Adapter\Adapter($dbConfig);
-        return $db;
-    }
+        /** @var Application $app */
+        $app = static::get('app');
 
-
-    private static function zendDbSlaveCron()
-    {
-        if (!defined('DB_HOST_SLAVE')) {
-            return self::zenddb();
-        }
-        self::requireConstants(['DIRECTUS_ENV', 'DB_HOST_SLAVE', 'DB_NAME', 'DB_USER_SLAVE_CRON', 'DB_PASSWORD_SLAVE_CRON'], __FUNCTION__);
-        $dbConfig = [
-            'driver' => 'Pdo_Mysql',
-            'host' => DB_HOST_SLAVE,
-            'database' => DB_NAME,
-            'username' => DB_USER_SLAVE_CRON,
-            'password' => DB_PASSWORD_SLAVE_CRON,
-            'charset' => 'utf8',
-            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-            \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
-        ];
-        $db = new \Zend\Db\Adapter\Adapter($dbConfig);
-        return $db;
-    }
-
-    /**
-     * Construct ZendDb adapter.
-     * @param  array $dbConfig
-     * @return \Zend\Db\Adapter
-     */
-    private static function zenddb()
-    {
-        self::requireConstants(['DIRECTUS_ENV', 'DB_TYPE', 'DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'], __FUNCTION__);
-
-        // TODO: Store default default charset somewhere
-        $charset = defined('DB_CHARSET') ? DB_CHARSET : 'utf8mb4';
-        $dbConfig = [
-            'driver' => 'Pdo_' . DB_TYPE,
-            'host' => DB_HOST,
-            'port' => DB_PORT,
-            'database' => DB_NAME,
-            'username' => DB_USER,
-            'password' => DB_PASSWORD,
-            'charset' => $charset,
-            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-            \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
-        ];
-
-        try {
-            $db = new Connection($dbConfig);
-            $db->connect();
-        } catch (\Exception $e) {
-            echo 'Database connection failed.';
-            exit;
-        }
-
-        return $db;
+        return $app->getContainer()->get('database');
     }
 
     private static function schemaManager()
     {
-        return new SchemaManager(static::get('schemaAdapter'));
-    }
+        $app = static::get('app');
 
-    private static function schemaAdapter()
-    {
-        $adapter = self::get('ZendDb');
-        $databaseName = $adapter->getPlatform()->getName();
-
-        switch ($databaseName) {
-            case 'MySQL':
-                return new \Directus\Database\Schemas\Sources\MySQLSchema($adapter);
-            // case 'SQLServer':
-            //    return new SQLServerSchema($adapter);
-            // case 'SQLite':
-            //     return new \Directus\Database\Schemas\Sources\SQLiteSchema($adapter);
-            // case 'PostgreSQL':
-            //     return new PostgresSchema($adapter);
-        }
-
-        throw new \Exception('Unknown/Unsupported database: ' . $databaseName);
-    }
-
-    private static function schema()
-    {
-        $adapter = self::get('ZendDb');
-        $databaseName = $adapter->getPlatform()->getName();
-
-        switch ($databaseName) {
-            case 'MySQL':
-                return new MySQLSchema($adapter);
-            // case 'SQLServer':
-            //    return new SQLServerSchema($adapter);
-            case 'SQLite':
-                return new SQLiteSchema($adapter);
-            // case 'PostgreSQL':
-            //     return new PostgresSchema($adapter);
-        }
-
-        throw new \Exception('Unknown/Unsupported database: ' . $databaseName);
+        return $app->getContainer()->get('schema_manager');
     }
 
     /**
@@ -462,41 +299,14 @@ class Bootstrap
      */
     private static function acl()
     {
-        $acl = new Acl();
-        $auth = self::get('auth');
-        $db = self::get('ZendDb');
-
-        /** @var Table[] $tables */
-        $tables = TableSchema::getTablesSchema([
-            'include_columns' => true
-        ], true);
-
-        // $tableRecords = $DirectusTablesTableGateway->memcache->getOrCache(MemcacheProvider::getKeyDirectusTables(), $getTables, 1800);
-
-        $magicOwnerColumnsByTable = [];
-        foreach ($tables as $table) {
-            $magicOwnerColumnsByTable[$table->getName()] = $table->getUserCreateColumn();
-        }
-
-        // TODO: Move this to a method
-        $acl::$cms_owner_columns_by_table = array_merge($magicOwnerColumnsByTable, $acl::$cms_owner_columns_by_table);
-
-        if ($auth->loggedIn()) {
-            $currentUser = $auth->getUserInfo();
-            $Users = new DirectusUsersTableGateway($db, $acl);
-            $cacheFn = function () use ($currentUser, $Users) {
-                return $Users->find($currentUser['id']);
-            };
-            // $cacheKey = MemcacheProvider::getKeyDirectusUserFind($currentUser['id']);
-            // $currentUser = $Users->memcache->getOrCache($cacheKey, $cacheFn, 10800);
-            $currentUser = $cacheFn();
-            if ($currentUser) {
-                $privilegesTable = new DirectusPrivilegesTableGateway($db, $acl);
-                $acl->setGroupPrivileges($privilegesTable->getGroupPrivileges($currentUser['group']));
-            }
-        }
+        $acl = static::get('app')->getContainer()->get('acl');
 
         return $acl;
+    }
+
+    private static function auth()
+    {
+        return static::get('app')->getContainer()->get('auth');
     }
 
     private static function filesystem()
@@ -690,7 +500,7 @@ class Bootstrap
      *
      * @return Emitter
      */
-    private static function hookEmitter()
+    private static function hookEmittersssss()
     {
         $emitter = new Emitter();
 
@@ -1133,50 +943,6 @@ class Bootstrap
         $emitter->addFilter('table.update.directus_files:before', $beforeSavingFiles);
         $emitter->addFilter('table.delete.directus_files:before', $beforeSavingFiles);
 
-        // NOTE: Adding the translation key into as array key, return a not valid array (json)
-        // so instead of creating each element as model, backbone thinks those are attributes of a model
-        // $emitter->addFilter('load.relational.onetomany', function($payload) {
-        //     $rows = $payload->data;
-        //     $column = $payload->column;
-        //
-        //     if ($column->getUi() !== 'translation') {
-        //         return $payload;
-        //     }
-        //
-        //     $options = $column->getOptions();
-        //     $code = ArrayUtils::get($options, 'languages_code_column', 'id');
-        //     $languagesTable = ArrayUtils::get($options, 'languages_table');
-        //     $languageIdColumn = ArrayUtils::get($options, 'left_column_name');
-        //
-        //     if (!$languagesTable) {
-        //         throw new \Exception('Translations language table not defined for ' . $languageIdColumn);
-        //     }
-        //
-        //     $tableSchema = TableSchema::getTableSchema($languagesTable);
-        //     $primaryKeyColumn = 'id';
-        //     foreach($tableSchema->getColumns() as $column) {
-        //         if ($column->isPrimary()) {
-        //             $primaryKeyColumn = $column->getName();
-        //             break;
-        //         }
-        //     }
-        //
-        //     $newData = [];
-        //     foreach($rows['data'] as $row) {
-        //         $index = $row[$languageIdColumn];
-        //         if (is_array($row[$languageIdColumn])) {
-        //             $index = $row[$languageIdColumn]['data'][$code];
-        //             $row[$languageIdColumn] = $row[$languageIdColumn]['data'][$primaryKeyColumn];
-        //         }
-        //
-        //         $newData[$index] = $row;
-        //     }
-        //
-        //     $payload->data['data'] = $newData;
-        //
-        //     return $payload;
-        // }, $emitter::P_HIGH);
-
         return $emitter;
     }
 
@@ -1185,91 +951,8 @@ class Bootstrap
         return new Session(new NativeSessionStorage());
     }
 
-    private static function auth()
-    {
-        $zendDb = self::get('zendDb');
-        $session = self::get('session');
-        $config = self::get('config');
-        $prefix = $config->get('session.prefix', 'directus_');
-        $table = new DirectusUsersTableGateway($zendDb);
-
-        return new AuthProvider($table, $session, $prefix);
-    }
-
     private static function socialAuth()
     {
         return new Social();
     }
-
-    private static function cache()
-    {
-        $config = self::get('config');
-        $poolConfig = $config->get('cache.pool');
-
-        if(!$poolConfig || (!is_object($poolConfig) && empty($poolConfig['adapter']))) {
-            $poolConfig = ['adapter' => 'void'];
-        }
-
-        if(is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
-            $pool = $poolConfig;
-        } else {
-            if(!in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'redis', 'void'])) {
-                throw new \Exception("Valid cache adapters are 'apc', 'apcu', 'filesystem', 'memcached', 'redis'");
-            }
-
-            $pool = new VoidCachePool();
-
-            $adapter = $poolConfig['adapter'];
-
-            if($adapter == 'apc') {
-                $pool = new ApcCachePool();
-            }
-
-            if($adapter == 'apcu') {
-                $pool = new ApcuCachePool();
-            }
-
-            if($adapter == 'array') {
-                $pool = new ArrayCachePool();
-            }
-
-            if($adapter == 'filesystem') {
-                if(empty($poolConfig['path'])) {
-                    throw new \Exception("'cache.pool.path' parameter is required for 'filesystem' adapter");
-                }
-
-                $filesystemAdapter = new Local(__DIR__.'/../../'.$poolConfig['path']);
-                $filesystem        = new \League\Flysystem\Filesystem($filesystemAdapter);
-
-                $pool = new FilesystemCachePool($filesystem);
-            }
-
-            if($adapter == 'memcached') {
-                $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
-                $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 11211;
-
-                $client = new \Memcached();
-                $client->addServer($host, $port);
-                $pool = new MemcachedCachePool($client);
-            }
-
-            if($adapter == 'redis') {
-                $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
-                $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 6379;
-
-                $client = new \Redis();
-                $client->connect($host, $port);
-                $pool = new RedisCachePool($client);
-            }
-        }
-
-        return $pool;
-    }
-
-    private static function responseCache()
-    {
-        return new ResponseCache(self::get('cache'), self::get('config')->get('cache.response_ttl'));
-    }
-
-
 }

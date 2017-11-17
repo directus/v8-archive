@@ -44,6 +44,40 @@ class Config extends Collection implements ConfigInterface
     }
 
     /**
+     * Get all statuses value
+     *
+     * @param array $statusMapping
+     *
+     * @return array
+     */
+    public function getAllStatuses($statusMapping = [])
+    {
+        if (empty($statusMapping)) {
+            $statusMapping = $this->getGlobalStatusMapping();
+        }
+
+        $statuses = [];
+
+        foreach ($statusMapping as $value => $status) {
+            if (is_array($status)) {
+                $statuses[] = $value;
+            }
+        }
+
+        return $statuses;
+    }
+
+    /**
+     * The global status mapping
+     *
+     * @return array
+     */
+    protected function getGlobalStatusMapping()
+    {
+        return $this->get('statusMapping', []);
+    }
+
+    /**
      * Get statuses list by the given type
      *
      * @param $type
@@ -54,7 +88,7 @@ class Config extends Collection implements ConfigInterface
     protected function getStatuses($type, $statusMapping = [])
     {
         if (empty($statusMapping)) {
-            $statusMapping = $this->get('statusMapping', []);
+            $statusMapping = $this->getGlobalStatusMapping();
         }
 
         $statuses = [];

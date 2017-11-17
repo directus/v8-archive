@@ -2,6 +2,7 @@
 
 namespace Directus\Application;
 
+use Directus\Application\Http\Response;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -9,23 +10,40 @@ use Directus\Hook\Payload;
 abstract class Route
 {
     /**
-     * @var \Slim\Slim
+     * @var Container
      */
-    protected $app;
+    protected $container;
 
-    public function __construct(Application $app)
+    public function __construct(Container $container)
     {
-        $this->app = $app;
+        $this->container = $container;
+    }
+
+    /**
+     * Parse the output data
+     *
+     * @param Response $response
+     * @param array $data
+     * @param array $options
+     *
+     * @return Response
+     */
+    public function withData(Response $response, array $data, array $options = [])
+    {
+        // TODO: Event parsing output
+        // This event can guess/change the output from json to xml
+
+        return $response->withJson($data);
     }
 
     protected function tagResponseCache($tags)
     {
-        $this->app->container->get('responseCache')->tag($tags);
+        $this->container->get('response_cache')->tag($tags);
     }
 
     protected function invalidateCacheTags($tags)
     {
-        $this->app->container->get('cache')->getPool()->invalidateTags($tags);
+        $this->container->get('cache')->getPool()->invalidateTags($tags);
     }
 
     /**
@@ -47,7 +65,7 @@ abstract class Route
      */
     protected function getDataAndSetResponseCacheTags(Callable $callable, array $callableParams = [], $pkName = null)
     {
-        $container = $this->app->container;
+        $container = $this->container;
 
         if(is_array($callable) && $callable[0] instanceof RelationalTableGateway) {
             /** @var $callable[0] RelationalTableGateway */
@@ -68,7 +86,7 @@ abstract class Route
         };
 
         /** @var Emitter $hookEmitter */
-        $hookEmitter = $container->get('hookEmitter');
+        $hookEmitter = $container->get('hook_emitter');
 
         $listenerId = $hookEmitter->addFilter('table.select', $setIdTags, Emitter::P_LOW);
         $result = call_user_func_array($callable, $callableParams);

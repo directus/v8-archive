@@ -15,6 +15,13 @@ class DateUtils
     const DAY_IN_SECONDS = 86400;
 
     /**
+     * Seconds in a week
+     *
+     * @var int
+     */
+    const WEEK_IN_SECONDS = self::DAY_IN_SECONDS * 7;
+
+    /**
      * DateTime modifier format days into the future
      *
      * @var string

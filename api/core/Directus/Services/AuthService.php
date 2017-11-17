@@ -2,58 +2,66 @@
 
 namespace Directus\Services;
 
-use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
-use Directus\Database\TableGateway\DirectusUsersTableGateway;
+use Directus\Authentication\Provider;
+use Directus\Authentication\User\UserInterface;
 
 class AuthService extends AbstractService
 {
     /**
      * Gets the user token using the authentication email/password combination
      *
-     * @param $email
-     * @param $password
+     * @param string $email
+     * @param string $password
      *
-     * @return null|string
+     * @return UserInterface
      */
-    public function requestToken($email, $password)
+    public function loginWithCredentials($email, $password)
     {
-        $auth = $this->app->container->get('auth');
+        /** @var Provider $auth */
+        $auth = $this->container->get('auth');
 
+        $user = null;
         if ($email && $password) {
-            $user = $auth->getUserByAuthentication($email, $password);
-
-            if ($user) {
-                return $user['token'];
-            }
+            /** @var UserInterface $user */
+            $user = $auth->login([
+                'email' => $email,
+                'password' => $password
+            ]);
         }
-
-        return null;
-    }
-
-    public function authenticateUserWithEmail($email)
-    {
-        $container = $this->app->container;
-
-        $dbConnection = $container->get('zenddb');
-        $acl = $container->get('acl');
-        $Users = new DirectusUsersTableGateway($dbConnection, $acl);
-        $user = $Users->findOneBy('email', $email);
-
-        if (!$user) {
-            throw new \InvalidArgumentException(sprintf('User with email "%s" not found.', $email));
-        }
-
-        $authentication = $container->get('auth');
-        $authentication->setLoggedUser($user['id']);
-
-        $privilegesTable = new DirectusPrivilegesTableGateway($dbConnection, $acl);
-        $privileges = $privilegesTable->getGroupPrivileges($user['group']);
-        $acl->setGroupPrivileges($privileges);
-
-        // @TODO: Adding an user should auto set its ID and GROUP
-        $acl->setUserId($user['id']);
-        $acl->setGroupId($user['group']);
 
         return $user;
+    }
+
+    /**
+     * @param $token
+     *
+     * @return UserInterface
+     */
+    public function authenticateWithToken($token)
+    {
+        return $this->getAuthProvider()->authenticateWithToken($token);
+    }
+
+    /**
+     * Generates JWT Token
+     *
+     * @param UserInterface $user
+     *
+     * @return string
+     */
+    public function generateToken(UserInterface $user)
+    {
+        /** @var Provider $auth */
+        $auth = $this->container->get('auth');
+
+        return $auth->generateToken($user);
+    }
+
+    /**
+     * @return Provider
+     */
+    protected function getAuthProvider()
+    {
+        return $this->container->get('auth');
     }
 }

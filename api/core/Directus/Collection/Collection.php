@@ -12,11 +12,6 @@ namespace Directus\Collection;
 
 use Directus\Util\ArrayUtils;
 
-/**
- * Collection
- *
- * @author Welling Guzmán <welling@rngr.org>
- */
 class Collection implements CollectionInterface
 {
     /**

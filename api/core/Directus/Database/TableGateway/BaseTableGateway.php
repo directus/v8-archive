@@ -2,6 +2,7 @@
 
 namespace Directus\Database\TableGateway;
 
+use Directus\Config\Config;
 use Directus\Database\Exception\DuplicateEntryException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
 use Directus\Database\Object\Table;
@@ -127,7 +128,7 @@ class BaseTableGateway extends TableGateway
         parent::__construct($table, $adapter, $features, $resultSetPrototype, $sql);
 
         if (static::$container) {
-            $this->schemaManager = static::$container->get('schemaManager');
+            $this->schemaManager = static::$container->get('schema_manager');
         }
     }
 
@@ -1472,21 +1473,58 @@ class BaseTableGateway extends TableGateway
         return $deletedValue;
     }
 
+    /**
+     * Get the table statuses
+     *
+     * @return array
+     */
+    public function getAllStatuses()
+    {
+        $statuses = [];
+
+        if (static::$container && TableSchema::hasStatusColumn($this->table, true)) {
+            /** @var Config $config */
+            $config = static::$container->get('config');
+            $statusMapping = $this->getTableSchema()->getStatusMapping() ?: [];
+            $statuses = $config->getAllStatuses($statusMapping);
+        }
+
+        return $statuses;
+    }
+
+    /**
+     * Gets the table published statuses
+     *
+     * @return array
+     */
     public function getPublishedStatuses()
     {
         return $this->getStatuses('published');
     }
 
+    /**
+     * Get the table deleted statuses
+     *
+     * @return array
+     */
     public function getDeletedStatuses()
     {
         return $this->getStatuses('deleted');
     }
 
+    /**
+     * Gets the table statuses with the given type
+     *
+     * @param $type
+     *
+     * @return array
+     */
     protected function getStatuses($type)
     {
         $statuses = [];
 
         if (static::$container && TableSchema::hasStatusColumn($this->table, true)) {
+            /** @var Config $config */
             $config = static::$container->get('config');
             $statusMapping = $this->getTableSchema()->getStatusMapping() ?: [];
 

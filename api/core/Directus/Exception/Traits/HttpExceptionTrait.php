@@ -27,5 +27,4 @@ trait HttpExceptionTrait
     {
         return $this->httpHeaders ?: '';
     }
-
 }
