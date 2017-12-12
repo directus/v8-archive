@@ -1,6 +1,20 @@
 <?php
 
-class EmitterTest extends PHPUnit_Framework_TestCase
+namespace Directus\Tests\Api\Hook;
+
+use Directus\Hook\Payload;
+
+class HookListener
+{
+    public function __invoke(Payload $payload)
+    {
+        $payload->set('called', true);
+
+        return $payload;
+    }
+}
+
+class EmitterTest extends \PHPUnit_Framework_TestCase
 {
     public function testEmitter()
     {
@@ -16,51 +30,91 @@ class EmitterTest extends PHPUnit_Framework_TestCase
         // =========================================================
         // Expect Action callback to be called once
         // =========================================================
-        $actionMock = $this->getMock('stdClass', array('actionCallback'));
+        $actionMock = create_mock($this, 'stdClass', ['actionCallback']);
         $actionMock->expects($this->at(1))
             ->method('actionCallback')
             ->with($this->equalTo(2))
             ->will($this->returnValue(true));
 
+        $this->assertFalse($emitter->hasActionListeners('removed'));
+
         $emitter->addAction('removed', [$actionMock, 'actionCallback']);
 
         // Using Hook Interface
-        $actionHookMock = $this->getMock('\Directus\Hook\HookInterface', array('handle'));
+        $actionHookMock = create_mock($this, '\Directus\Hook\HookInterface', array('handle'));
         $actionHookMock->expects($this->at(0))
             ->method('handle');
 
         $emitter->addAction('removed', [$actionMock, 'actionCallback']);
         $emitter->addAction('removed', $actionHookMock, $emitter::P_HIGH);
         $emitter->run('removed', 2);
+        $emitter->execute('removed', 2);
+
+        $this->assertTrue($emitter->hasActionListeners('removed'));
 
         // =========================================================
         // Expect Filter callback to be called once
         // and change the value
         // =========================================================
-        $filterMock = $this->getMock('stdClass', array('filterCallback'));
-        $filterMock->expects($this->once())
-            ->method('filterCallback')
-            ->with($this->equalTo('RNGR'))
-            ->will($this->returnValue(strrev('RNGR')));
+        $data = ['string' => 'rngr'];
 
-        // Using Hook Interface
-        $filterHookMock = $this->getMock('\Directus\Hook\HookInterface', array('handle'));
-        $filterHookMock->expects($this->at(0))
-            ->method('handle')
-            ->with($this->equalTo('rngr'))
-            ->will($this->returnValue('RNGR'));
+        $this->assertFalse($emitter->hasFilterListeners('fetched'));
+        $emitter->addFilter('fetched', function (\Directus\Hook\Payload $payload) {
+            $payload->set('string', $payload->get('string') . 'a');
 
-        $filterHookMock->expects($this->at(1))
-            ->method('handle')
-            ->with($this->equalTo('RGNR'))
-            ->will($this->returnValue(strtolower('RGNR')));
+            return $payload;
+        });
 
-        $emitter->addFilter('fetched', [$filterMock, 'filterCallback']);
-        $emitter->addFilter('fetched', $filterHookMock, $emitter::P_LOW);
-        $emitter->addFilter('fetched', $filterHookMock, $emitter::P_HIGH);
+        $emitter->addFilter('fetched', function (\Directus\Hook\Payload $payload) {
+            $payload->set('string', $payload->get('string') . 'b');
 
-        $result = $emitter->apply('fetched', 'rngr');
-        $this->assertSame('rgnr', $result);
+            return $payload;
+        }, $emitter::P_LOW);
+
+        $index = $emitter->addFilter('fetched', function (\Directus\Hook\Payload $payload) {
+            $payload->set('string', $payload->get('string') . 'c');
+
+            return $payload;
+        }, $emitter::P_HIGH);
+
+        $this->assertTrue($emitter->hasFilterListeners('fetched'));
+
+        $result = $emitter->apply('fetched', $data);
+        $this->assertSame('rngrcab', $result['string']);
+
+        $data = ['string' => 'rngr'];
+        $emitter->removeListenerWithIndex($index);
+        $result = $emitter->apply('fetched', $data);
+        $this->assertSame('rngrab', $result['string']);
+    }
+
+    public function testStringListener()
+    {
+        $emitter = new \Directus\Hook\Emitter();
+
+        $data = [];
+        $emitter->addFilter('filter', HookListener::class);
+
+        $data = $emitter->apply('filter', $data);
+        $this->assertArrayHasKey('called', $data);
+        $this->assertTrue($data['called']);
+    }
+
+    public function testPayload()
+    {
+        $payload = new Payload(['name' => 'john'], ['age' => 25]);
+
+        $this->assertSame('john', $payload->get('name'));
+        $this->assertSame(25, $payload->attribute('age'));
+
+        $payload->set('country', 'us');
+        $this->assertSame('us', $payload->get('country'));
+
+        $data = $payload->getData();
+        $this->assertArrayHasKey('name', $data);
+        $this->assertArrayHasKey('country', $data);
+        $this->assertSame('john', $data['name']);
+        $this->assertSame('us', $data['country']);
     }
 
     /**

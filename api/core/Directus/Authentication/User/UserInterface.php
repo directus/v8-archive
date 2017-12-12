@@ -28,6 +28,13 @@ interface UserInterface
     public function getEmail();
 
     /**
+     * Gets the user group id
+     *
+     * @return int
+     */
+    public function getGroupId();
+
+    /**
      * Array representation of the object
      *
      * @return array

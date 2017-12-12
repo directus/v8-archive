@@ -26,11 +26,13 @@ class Utils extends Route
      *
      * @return Response
      */
-    protected function hash(Request $request, Response $response)
+    public function hash(Request $request, Response $response)
     {
         $string = $request->getParam('string');
         $hasher = $request->getParam('hasher', 'core');
         $options = $request->getParam('options', []);
+
+        $this->validate(['string' => $string], ['string' => 'required|string']);
 
         if (!is_array($options)) {
             $options = [$options];
@@ -62,11 +64,14 @@ class Utils extends Route
      *
      * @return Response
      */
-    protected function randomString(Request $request, Response $response)
+    public function randomString(Request $request, Response $response)
     {
         // TODO: Create a service/function that shared the same code with other part of Directus
         // default random string length
-        $length = (int)$request->getParam('length', 32);
+        $length = $request->getParam('length', 32);
+
+        $this->validate(['length' => $length], ['length' => 'numeric']);
+
         $randomString = StringUtils::randomString($length);
 
         return $this->withData($response, [

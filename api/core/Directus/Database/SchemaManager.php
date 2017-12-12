@@ -672,7 +672,7 @@ class SchemaManager
             $column['ui'] = $this->getColumnDefaultInterface($column['type']);
         }
 
-        $column = $this->parseCoreTablesColumn($column);
+        $column = $this->parseSystemTablesColumn($column);
 
         $options = json_decode(ArrayUtils::get($column, 'options', ''), true);
         $column['options'] = $options ? $options : [];

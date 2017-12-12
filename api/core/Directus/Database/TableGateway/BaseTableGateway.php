@@ -3,6 +3,7 @@
 namespace Directus\Database\TableGateway;
 
 use Directus\Config\Config;
+use Directus\Container\Container;
 use Directus\Database\Exception\DuplicateEntryException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
 use Directus\Database\Object\Table;
@@ -55,7 +56,7 @@ class BaseTableGateway extends TableGateway
     protected static $emitter = null;
 
     /**
-     * @var object
+     * @var Container
      */
     protected static $container;
 
@@ -1310,6 +1311,14 @@ class BaseTableGateway extends TableGateway
     public static function setContainer($container)
     {
         static::$container = $container;
+    }
+
+    /**
+     * @return Container
+     */
+    public static function getContainer()
+    {
+        return static::$container;
     }
 
     public static function setHookEmitter($emitter)

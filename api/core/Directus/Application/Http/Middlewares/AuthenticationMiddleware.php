@@ -9,6 +9,7 @@ use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserIsNotLoggedInException;
 use Directus\Authentication\Provider;
 use Directus\Authentication\User\User;
+use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Database\TableGateway\DirectusGroupsTableGateway;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
@@ -55,7 +56,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
         // TODO: Whitelist path
         // TODO: Check whitelist
-        $whitelisted = ['auth/login'];
+        $whitelisted = ['auth/login', 'auth/refresh'];
         if (in_array($request->getUri()->getPath(), $whitelisted)) {
             return $next($request, $response);
         }
@@ -115,7 +116,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
      *
      * @param Request $request
      *
-     * @return bool
+     * @return UserInterface
      */
     protected function authenticate(Request $request)
     {

@@ -7,6 +7,7 @@ use Directus\Application\Container;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Authentication\Provider;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Exception\Http\BadRequestException;
@@ -20,16 +21,6 @@ class Users extends Route
     /** @var $usersGateway DirectusUsersTableGateway */
     protected $usersGateway;
 
-    public function __construct(Container $container)
-    {
-        parent::__construct($container);
-
-        $this->usersGateway = TableGatewayFactory::create('directus_users', [
-            'acl' => $this->container->get('acl'),
-            'adapter' => $this->container->geT('database')
-        ]);
-    }
-
     /**
      * @param Application $app
      */
@@ -39,7 +30,8 @@ class Users extends Route
         $app->post('', [$this, 'create']);
         $app->get('/{id)}', [$this, 'one']);
         $app->post('/invite', [$this, 'invite']);
-        $app->map(['DELETE', 'PUT', 'PATCH'], '/{id}', [$this, 'update']);
+        $app->map(['PUT', 'PATCH'], '/{id}', [$this, 'update']);
+        $app->delete('/{id}', [$this, 'update']); // move separated method
     }
 
     /**
@@ -48,7 +40,7 @@ class Users extends Route
      *
      * @return Response
      */
-    protected function all(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
         $params = $request->getQueryParams();
         $data = $this->findUsers($params);
@@ -62,13 +54,13 @@ class Users extends Route
      *
      * @return Response
      */
-    protected function create(Request $request, Response $response)
+    public function create(Request $request, Response $response)
     {
-        $usersGateway = $this->usersGateway;
+        $usersGateway = $this->getTableGateway();
         $payload = $request->getParsedBody();
         $email = $request->getParsedBodyParam('email');
 
-        $this->validateEmailOrFail($email);
+        $this->validateRequest($request, $this->createConstraintFor('directus_users'));
 
         $user = $usersGateway->findOneBy('email', $email);
         if ($user) {
@@ -76,12 +68,12 @@ class Users extends Route
             $payload['status'] = $usersGateway::STATUS_ACTIVE;
         }
 
-        if (!empty($requestPayload['email'])) {
+        if (!empty($payload['email'])) {
             $avatar = DirectusUsersTableGateway::get_avatar($payload['email']);
             $payload['avatar'] = $avatar;
         }
 
-        $user = $usersGateway->updateRecord($requestPayload);
+        $user = $usersGateway->updateRecord($payload);
 
         $data = $this->findUsers(['id' => $user['id']]);
 
@@ -94,7 +86,7 @@ class Users extends Route
      *
      * @return Response
      */
-    protected function one(Request $request, Response $response)
+    public function one(Request $request, Response $response)
     {
         $params = $request->getQueryParams();
         $params['id'] = $this->getUserId($request->getAttribute('id'));
@@ -110,10 +102,15 @@ class Users extends Route
      *
      * @return Response
      */
-    protected function invite(Request $request, Response $response)
+    public function invite(Request $request, Response $response)
     {
         $email = $request->getParsedBodyParam('email');
         $emails = explode(',', $email);
+
+        foreach ($emails as $email) {
+            $data = ['email' => $email];
+            $this->validate($data, ['email' => 'required|email']);
+        }
 
         foreach ($emails as $email) {
             $this->sendInvitationTo($email);
@@ -128,16 +125,14 @@ class Users extends Route
      *
      * @return Response
      */
-    protected function update(Request $request, Response $response)
+    public function update(Request $request, Response $response)
     {
         $id = $this->getUserId($request->getAttribute('id'));
-        $usersGateway = $this->usersGateway;
+        $usersGateway = $this->getTableGateway();
         $payload = $request->getParsedBody();
         $email = $request->getParsedBodyParam('email');
 
-        if ($email) {
-            $this->validateEmailOrFail($email);
-        }
+        $this->validateRequestWithTable($request, 'directus_users');
 
         switch ($request->getMethod()) {
             case 'DELETE':
@@ -147,13 +142,18 @@ class Users extends Route
                 break;
             case 'PATCH':
             case 'PUT':
+                $columnsToValidate = [];
+                if ($request->isPatch()) {
+                    $columnsToValidate = array_keys($payload);
+                }
+                $this->createConstraintFor('directus_users', $columnsToValidate);
                 $payload['id'] = $id;
                 break;
         }
 
         if (!empty($email)) {
             $avatar = DirectusUsersTableGateway::get_avatar($email);
-            $requestPayload['avatar'] = $avatar;
+            $payload['avatar'] = $avatar;
         }
 
         $user = $usersGateway->updateRecord($payload);
@@ -168,28 +168,35 @@ class Users extends Route
      */
     protected function sendInvitationTo($email)
     {
-        $this->validateEmailOrFail($email);
-        // @TODO: Builder/Service to get table gateway
+        // TODO: Builder/Service to get table gateway
         // $usersRepository = $repositoryCollection->get('users');
         // $usersRepository->add();
-        $ZendDb = $this->container->get('zenddb');
+        $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
+        /** @var Provider $auth */
         $auth = $this->container->get('auth');
-        $tableGateway = new DirectusUsersTableGateway($ZendDb, $acl);
+        $tableGateway = new DirectusUsersTableGateway($dbConnection, $acl);
 
-        $token = StringUtils::randomString(128);
-        $result = $tableGateway->insert([
-            'status' => STATUS_DRAFT_NUM,
-            'email' => $email,
-            'token' => StringUtils::randomString(32),
-            'invite_token' => $token,
-            'invite_date' => DateUtils::now(),
-            'invite_sender' => $auth->getUserInfo('id'),
-            'invite_accepted' => 0
-        ]);
+        $invitationToken = StringUtils::randomString(128);
 
-        if ($result) {
-            send_user_invitation_email($email, $token);
+        $user = $tableGateway->findOneBy('email', $email);
+
+        // TODO: Throw exception when email exists
+        // Probably resend if the email exists?
+        if (!$user) {
+            $result = $tableGateway->insert([
+                'status' => STATUS_DRAFT_NUM,
+                'email' => $email,
+                'token' => StringUtils::randomString(32),
+                'invite_token' => $invitationToken,
+                'invite_date' => DateUtils::now(),
+                'invite_sender' => $auth->getUserAttributes('id'),
+                'invite_accepted' => 0
+            ]);
+
+            if ($result) {
+                send_user_invitation_email($email, $invitationToken);
+            }
         }
     }
 
@@ -200,7 +207,7 @@ class Users extends Route
      *
      * @return int|null
      */
-    protected function getUserId($id = null)
+    public function getUserId($id = null)
     {
         if ($id === 'me') {
             /** @var Acl $acl */
@@ -216,20 +223,26 @@ class Users extends Route
      *
      * @return array
      */
-    protected function findUsers(array $params = [])
+    public function findUsers(array $params = [])
     {
-        return $this->getEntriesAndSetResponseCacheTags($this->usersGateway, $params);
+        return $this->getEntriesAndSetResponseCacheTags($this->getTableGateway(), $params);
     }
 
     /**
-     * @param $email
+     * Gets the user table gateway
      *
-     * @throws BadRequestException
+     * @return DirectusUsersTableGateway
      */
-    protected function validateEmailOrFail($email)
+    protected function getTableGateway()
     {
-        if (!Validator::email($email)) {
-            throw new BadRequestException(__t('invalid_email'));
+        if (!$this->usersGateway) {
+            $this->usersGateway = TableGatewayFactory::create('directus_users', [
+                'container' => $this->container,
+                'acl' => $this->container->get('acl'),
+                'adapter' => $this->container->geT('database')
+            ]);
         }
+
+        return $this->usersGateway;
     }
 }

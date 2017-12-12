@@ -2,7 +2,6 @@
 
 namespace Directus\Services;
 
-use Directus\Application\Application;
 use Directus\Application\Container;
 use Directus\Database\SchemaManager;
 use Directus\Permissions\Acl;
@@ -35,7 +34,7 @@ abstract class AbstractService
      */
     protected function getConnection()
     {
-        return $this->getContainer()->get('zenddb');
+        return $this->getContainer()->get('database');
     }
 
     /**
@@ -45,7 +44,7 @@ abstract class AbstractService
      */
     public function getSchemaManager()
     {
-        return $this->getContainer()->get('schemaManager');
+        return $this->getContainer()->get('schema_manager');
     }
 
     /**

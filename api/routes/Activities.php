@@ -31,20 +31,16 @@ class Activities extends Route
         $acl = $this->container->get('acl');
         $params = $request->getQueryParams();
 
-        $Activity = new DirectusActivityTableGateway($dbConnection, $acl);
-        // TODO: Move this to backbone collection
-        if (!ArrayUtils::has($params, 'filters')) {
-            $params['filters'] = [];
-        }
+        $activityTableGateway = new DirectusActivityTableGateway($dbConnection, $acl);
 
         // a way to get records last updated from activity
         if (ArrayUtils::get($params, 'last_updated')) {
             $table = key($params['last_updated']);
             $ids = ArrayUtils::get($params, 'last_updated.' . $table);
             $arrayOfIds = $ids ? explode(',', $ids) : [];
-            $data = $Activity->getLastUpdated($table, $arrayOfIds);
+            $data = $activityTableGateway->getLastUpdated($table, $arrayOfIds);
         } else {
-            $data = $Activity->fetchFeed($params);
+            $data = $activityTableGateway->fetchFeed($params);
         }
 
         return $this->withData($response, $data);

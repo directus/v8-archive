@@ -21,6 +21,7 @@ use Directus\Database\Object\Table;
 use Directus\Database\SchemaManager;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
+use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
@@ -47,6 +48,7 @@ class CoreServicesProvider
         $container['phpErrorHandler']   = $this->getErrorHandler();
         $container['schema_adapter']    = $this->getSchemaAdapter();
         $container['schema_manager']    = $this->getSchemaManager();
+        $container['hash_manager']      = $this->getHashManager();
 
         // Move this separately to avoid clogging one class
         $container['cache']             = $this->getCache();
@@ -71,7 +73,7 @@ class CoreServicesProvider
             $formatter->includeStacktraces();
 
             $handler = new StreamHandler(
-                $container->get('path')->get('log') . '/debug.' . date('Y-m') . '.log',
+                $container->get('path_log') . '/debug.' . date('Y-m') . '.log',
                 Logger::DEBUG,
                 false
             );
@@ -80,7 +82,7 @@ class CoreServicesProvider
             $logger->pushHandler($handler);
 
             $handler = new StreamHandler(
-                $container->get('path')->get('log') . '/error.' . date('Y-m') . '.log',
+                $container->get('path_log') . '/error.' . date('Y-m') . '.log',
                 Logger::CRITICAL,
                 false
             );
@@ -100,11 +102,11 @@ class CoreServicesProvider
     protected function getErrorHandler()
     {
         /**
-         * @param \Directus\Container\Container $container
+         * @param Container $container
          *
          * @return ErrorHandler
          */
-        $errorHandler = function ($container) {
+        $errorHandler = function (Container $container) {
             $hookEmitter = $container['hook_emitter'];
             return new ErrorHandler($hookEmitter);
         };
@@ -117,8 +119,9 @@ class CoreServicesProvider
      */
     protected function getEmitter()
     {
-        return function () {
+        return function (Container $container) {
             $emitter = new Emitter();
+            $cachePool = $container->get('cache');
 
             // TODO: Move this separately, this is temporary while we move things around
             $emitter->addFilter('load.relational.onetomany', function (Payload $payload) {
@@ -163,6 +166,360 @@ class CoreServicesProvider
 
                 return $payload;
             }, $emitter::P_HIGH);
+
+            // Cache subscriptions
+            $emitter->addAction('postUpdate', function (RelationalTableGateway $gateway, $data) use ($cachePool) {
+                if(isset($data[$gateway->primaryKeyFieldName])) {
+                    $cachePool->invalidateTags(['entity_'.$gateway->getTable().'_'.$data[$gateway->primaryKeyFieldName]]);
+                }
+            });
+
+            $cacheTableTagInvalidator = function ($tableName) use ($cachePool) {
+                $cachePool->invalidateTags(['table_'.$tableName]);
+            };
+
+            foreach (['table.update:after', 'table.drop:after'] as $action) {
+                $emitter->addAction($action, $cacheTableTagInvalidator);
+            }
+
+            $emitter->addAction('table.remove:after', function ($tableName, $ids) use ($cachePool){
+                foreach ($ids as $id) {
+                    $cachePool->invalidateTags(['entity_'.$tableName.'_'.$id]);
+                }
+            });
+
+            $emitter->addAction('table.update.directus_privileges:after', function ($data) use($container, $cachePool) {
+                $acl = $container->get('acl');
+                $dbConnection = $container->get('database');
+                $privileges = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+                $record = $privileges->fetchById($data['id']);
+                $cachePool->invalidateTags(['privilege_table_'.$record['table_name'].'_group_'.$record['group_id']]);
+            });
+            // /Cache subscriptions
+
+            $emitter->addAction('application.error', function ($e) use($container) {
+                /** @var \Throwable|\Exception $exception */
+                $exception = $e;
+                /** @var Logger $logger */
+                $logger = $container->get('logger');
+
+                $logger->error($exception->getMessage());
+            });
+            $emitter->addFilter('response', function (Payload $payload) {
+                $acl = Bootstrap::get('acl');
+                if ($acl->isPublic()) {
+                    $payload->set('public', true);
+                }
+                return $payload;
+            });
+            $emitter->addAction('table.insert.directus_groups', function ($data) {
+                $acl = Bootstrap::get('acl');
+                $zendDb = Bootstrap::get('zendDb');
+                $privilegesTable = new DirectusPrivilegesTableGateway($zendDb, $acl);
+                $privilegesTable->insertPrivilege([
+                    'group_id' => $data['id'],
+                    'allow_view' => 1,
+                    'allow_add' => 0,
+                    'allow_edit' => 1,
+                    'allow_delete' => 0,
+                    'allow_alter' => 0,
+                    'table_name' => 'directus_users',
+                    'read_field_blacklist' => 'token',
+                    'write_field_blacklist' => 'group,token'
+                ]);
+            });
+            $emitter->addFilter('table.insert:before', function (Payload $payload) {
+                $tableName = $payload->attribute('tableName');
+                $tableObject = TableSchema::getTableSchema($tableName);
+                /** @var Acl $acl */
+                $acl = Bootstrap::get('acl');
+                if ($dateCreated = $tableObject->getDateCreateColumn()) {
+                    $payload[$dateCreated] = DateUtils::now();
+                }
+                if ($dateCreated = $tableObject->getDateUpdateColumn()) {
+                    $payload[$dateCreated] = DateUtils::now();
+                }
+                // Directus Users created user are themselves (primary key)
+                // populating that field will be a duplicated primary key violation
+                if ($tableName !== 'directus_users') {
+                    if ($userCreated = $tableObject->getUserCreateColumn()) {
+                        $payload[$userCreated] = $acl->getUserId();
+                    }
+                    if ($userModified = $tableObject->getUserUpdateColumn()) {
+                        $payload[$userModified] = $acl->getUserId();
+                    }
+                }
+                return $payload;
+            }, Emitter::P_HIGH);
+            $emitter->addFilter('table.update:before', function (Payload $payload) {
+                $tableName = $payload->attribute('tableName');
+                $tableObject = TableSchema::getTableSchema($tableName);
+                /** @var Acl $acl */
+                $acl = Bootstrap::get('acl');
+                if ($dateModified = $tableObject->getDateUpdateColumn()) {
+                    $payload[$dateModified] = DateUtils::now();
+                }
+                if ($userModified = $tableObject->getUserUpdateColumn()) {
+                    $payload[$userModified] = $acl->getUserId();
+                }
+                // NOTE: exclude date_uploaded from updating a file record
+                if ($payload->attribute('tableName') === 'directus_files') {
+                    $payload->remove('date_uploaded');
+                }
+                return $payload;
+            }, Emitter::P_HIGH);
+            $emitter->addFilter('table.insert:before', function (Payload $payload) {
+                if ($payload->attribute('tableName') === 'directus_files') {
+                    $auth = Bootstrap::get('auth');
+                    $payload->remove('data');
+                    $payload->set('user', $auth->getUserInfo('id'));
+                }
+                return $payload;
+            });
+            $addFilesUrl = function ($rows) {
+                foreach ($rows as &$row) {
+                    $config = Bootstrap::get('config');
+                    $fileURL = $config['filesystem']['root_url'];
+                    $thumbnailURL = $config['filesystem']['root_thumb_url'];
+                    $thumbnailFilenameParts = explode('.', $row['name']);
+                    $thumbnailExtension = array_pop($thumbnailFilenameParts);
+                    $row['url'] = $fileURL . '/' . $row['name'];
+                    if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
+                        $thumbnailExtension = Thumbnail::defaultFormat();
+                    }
+                    $thumbnailFilename = $row['id'] . '.' . $thumbnailExtension;
+                    $row['thumbnail_url'] = $thumbnailURL . '/' . $thumbnailFilename;
+                    // filename-ext-100-100-true.jpg
+                    // @TODO: This should be another hook listener
+                    $filename = implode('.', $thumbnailFilenameParts);
+                    if (isset($row['type']) && $row['type'] == 'embed/vimeo') {
+                        $oldThumbnailFilename = $row['name'] . '-vimeo-220-124-true.jpg';
+                    } else {
+                        $oldThumbnailFilename = $filename . '-' . $thumbnailExtension . '-160-160-true.jpg';
+                    }
+                    // 314551321-vimeo-220-124-true.jpg
+                    // hotfix: there's not thumbnail for this file
+                    $row['old_thumbnail_url'] = $thumbnailURL . '/' . $oldThumbnailFilename;
+                    $embedManager = Bootstrap::get('embedManager');
+                    $provider = isset($row['type']) ? $embedManager->getByType($row['type']) : null;
+                    $row['html'] = null;
+                    if ($provider) {
+                        $row['html'] = $provider->getCode($row);
+                        $row['embed_url'] = $provider->getUrl($row);
+                    }
+                }
+                return $rows;
+            };
+            $emitter->addFilter('table.select.directus_files:before', function (Payload $payload) {
+                $columns = $payload->get('columns');
+                if (!in_array('name', $columns)) {
+                    $columns[] = 'name';
+                    $payload->set('columns', $columns);
+                }
+                return $payload;
+            });
+            // Add file url and thumb url
+            $emitter->addFilter('table.select', function (Payload $payload) use ($addFilesUrl) {
+                $selectState = $payload->attribute('selectState');
+                $rows = $payload->getData();
+                if ($selectState['table'] == 'directus_files') {
+                    $rows = $addFilesUrl($rows);
+                } else if ($selectState['table'] === 'directus_messages') {
+                    $filesIds = [];
+                    foreach ($rows as &$row) {
+                        if (!ArrayUtils::has($row, 'attachment')) {
+                            continue;
+                        }
+                        $ids = array_filter(StringUtils::csv((string) $row['attachment'], true));
+                        $row['attachment'] = ['data' => []];
+                        foreach ($ids as  $id) {
+                            $row['attachment']['data'][$id] = [];
+                            $filesIds[] = $id;
+                        }
+                    }
+                    $filesIds = array_filter($filesIds);
+                    if ($filesIds) {
+                        $ZendDb = Bootstrap::get('zenddb');
+                        $acl = Bootstrap::get('acl');
+                        $table = new RelationalTableGateway('directus_files', $ZendDb, $acl);
+                        $filesEntries = $table->loadItems([
+                            'in' => ['id' => $filesIds]
+                        ]);
+                        $entries = [];
+                        foreach($filesEntries as $id => $entry) {
+                            $entries[$entry['id']] = $entry;
+                        }
+                        foreach ($rows as &$row) {
+                            if (ArrayUtils::has($row, 'attachment') && $row['attachment']) {
+                                foreach ($row['attachment']['data'] as $id => $attachment) {
+                                    $row['attachment']['data'][$id] = $entries[$id];
+                                }
+                                $row['attachment']['data'] = array_values($row['attachment']['data']);
+                            }
+                        }
+                    }
+                }
+                $payload->replace($rows);
+                return $payload;
+            });
+            $emitter->addFilter('table.select.directus_users', function (Payload $payload) {
+                $acl = Bootstrap::get('acl');
+                $auth = Bootstrap::get('auth');
+                $rows = $payload->getData();
+                $userId = null;
+                $groupId = null;
+                if ($auth->loggedIn()) {
+                    $userId = $acl->getUserId();
+                    $groupId = $acl->getGroupId();
+                }
+                foreach ($rows as &$row) {
+                    $omit = [
+                        'password',
+                        'salt',
+                    ];
+                    // Authenticated user can see their private info
+                    // Admin can see all users private info
+                    if ($groupId !== 1 && $userId !== $row['id']) {
+                        $omit = array_merge($omit, [
+                            'token',
+                            'access_token',
+                            'reset_token',
+                            'reset_expiration',
+                            'email_messages',
+                            'last_access',
+                            'last_page'
+                        ]);
+                    }
+                    $row = ArrayUtils::omit($row, $omit);
+                }
+                $payload->replace($rows);
+                return $payload;
+            });
+            $hashUserPassword = function (Payload $payload) {
+                if ($payload->has('password')) {
+                    $auth = Bootstrap::get('auth');
+                    $payload['salt'] = StringUtils::randomString();
+                    $payload['password'] = $auth->hashPassword($payload['password'], $payload['salt']);
+                }
+                return $payload;
+            };
+            $slugifyString = function ($insert, Payload $payload) {
+                $tableName = $payload->attribute('tableName');
+                $tableObject = TableSchema::getTableSchema($tableName);
+                $data = $payload->getData();
+                foreach ($tableObject->getColumns() as $column) {
+                    if ($column->getUI() !== 'slug') {
+                        continue;
+                    }
+                    $parentColumnName = $column->getOptions('mirrored_field');
+                    if (!ArrayUtils::has($data, $parentColumnName)) {
+                        continue;
+                    }
+                    $onCreationOnly = boolval($column->getOptions('only_on_creation'));
+                    if (!$insert && $onCreationOnly) {
+                        continue;
+                    }
+                    $payload->set($column->getName(), slugify(ArrayUtils::get($data, $parentColumnName, '')));
+                }
+                return $payload;
+            };
+            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($slugifyString) {
+                return $slugifyString(true, $payload);
+            });
+            $emitter->addFilter('table.update:before', function (Payload $payload) use ($slugifyString) {
+                return $slugifyString(false, $payload);
+            });
+            // TODO: Merge with hash user password
+            $hashPasswordInterface = function (Payload $payload) {
+                /** @var Provider $auth */
+                $auth = Bootstrap::get('auth');
+                $tableName = $payload->attribute('tableName');
+                if (TableSchema::isSystemTable($tableName)) {
+                    return $payload;
+                }
+                $tableObject = TableSchema::getTableSchema($tableName);
+                $data = $payload->getData();
+                foreach ($data as $key => $value) {
+                    $columnObject = $tableObject->getColumn($key);
+                    if (!$columnObject) {
+                        continue;
+                    }
+                    if ($columnObject->getUI() === 'password') {
+                        // TODO: Use custom password hashing method
+                        $payload->set($key, $auth->hashPassword($value));
+                    }
+                }
+                return $payload;
+            };
+            $emitter->addFilter('table.update.directus_users:before', function (Payload $payload) {
+                $acl = Bootstrap::get('acl');
+                $currentUserId = $acl->getUserId();
+                if ($currentUserId != $payload->get('id')) {
+                    return $payload;
+                }
+                // ----------------------------------------------------------------------------
+                // TODO: Add enforce method to ACL
+                $adapter = Bootstrap::get('zendDb');
+                $userTable = new BaseTableGateway('directus_users', $adapter);
+                $groupTable = new BaseTableGateway('directus_groups', $adapter);
+                $user = $userTable->find($payload->get('id'));
+                $group = $groupTable->find($user['group']);
+                if (!$group || !$acl->canEdit('directus_users')) {
+                    throw new ForbiddenException('you are not allowed to update your user information');
+                }
+                // ----------------------------------------------------------------------------
+                return $payload;
+            });
+            $emitter->addFilter('table.insert.directus_users:before', $hashUserPassword);
+            $emitter->addFilter('table.update.directus_users:before', $hashUserPassword);
+            // Hash value to any non system table password interface column
+            $emitter->addFilter('table.insert:before', $hashPasswordInterface);
+            $emitter->addFilter('table.update:before', $hashPasswordInterface);
+            $preventUsePublicGroup = function (Payload $payload) {
+                $data = $payload->getData();
+                if (!ArrayUtils::has($data, 'group')) {
+                    return $payload;
+                }
+                $groupId = ArrayUtils::get($data, 'group');
+                if (is_array($groupId)) {
+                    $groupId = ArrayUtils::get($groupId, 'id');
+                }
+                if (!$groupId) {
+                    return $payload;
+                }
+                $zendDb = static::get('zendDb');
+                $acl = static::get('acl');
+                $tableGateway = new Database\TableGateway\BaseTableGateway('directus_groups', $zendDb, $acl);
+                $row = $tableGateway->select(['id' => $groupId])->current();
+                if (strtolower($row->name) == 'public') {
+                    throw new ForbiddenException(__t('exception_users_cannot_be_added_into_public_group'));
+                }
+                return $payload;
+            };
+            $emitter->addFilter('table.insert.directus_users:before', $preventUsePublicGroup);
+            $emitter->addFilter('table.update.directus_users:before', $preventUsePublicGroup);
+            $beforeSavingFiles = function ($payload) {
+                $acl = Bootstrap::get('acl');
+                $currentUserId = $acl->getUserId();
+                // ----------------------------------------------------------------------------
+                // TODO: Add enforce method to ACL
+                $adapter = Bootstrap::get('zendDb');
+                $userTable = new BaseTableGateway('directus_users', $adapter);
+                $groupTable = new BaseTableGateway('directus_groups', $adapter);
+                $user = $userTable->find($currentUserId);
+                $group = $groupTable->find($user['group']);
+                if (!$group || !$acl->canEdit('directus_files')) {
+                    throw new ForbiddenException('you are not allowed to upload, edit or delete files');
+                }
+                // ----------------------------------------------------------------------------
+                return $payload;
+            };
+            $emitter->addAction('files.saving', $beforeSavingFiles);
+            $emitter->addAction('files.thumbnail.saving', $beforeSavingFiles);
+            // TODO: Make insert actions and filters
+            $emitter->addFilter('table.insert.directus_files:before', $beforeSavingFiles);
+            $emitter->addFilter('table.update.directus_files:before', $beforeSavingFiles);
+            $emitter->addFilter('table.delete.directus_files:before', $beforeSavingFiles);
 
             return $emitter;
         };
@@ -406,9 +763,12 @@ class CoreServicesProvider
     /**
      * Register all services
      *
-     * @param Container $container
+     * @param Container $mainContainer
      *
      * @return \Closure
+     *
+     * @internal param Container $container
+     *
      */
     protected function getServices(Container $mainContainer)
     {

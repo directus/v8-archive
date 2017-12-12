@@ -9,7 +9,6 @@ use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Authentication\Exception\UserIsNotLoggedInException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\User\Provider\UserProviderInterface;
-use Directus\Authentication\User\User;
 use Directus\Authentication\User\UserInterface;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
@@ -45,6 +44,11 @@ class Provider
      * @var UserProviderInterface
      */
     protected $userProvider;
+
+    /**
+     * @var string
+     */
+    protected $secretKey;
 
     public function __construct(UserProviderInterface $userProvider, $secretKey)
     {
@@ -87,14 +91,15 @@ class Provider
         // TODO: email and password are required
 
         // Verify Credentials
-        if (!($user = $this->verify($email, $password))) {
-            // TODO: Add exception message
-            throw new InvalidUserCredentialsException();
-        }
+        // TODO: Call this something else, we are not just verifying
+        // we are also getting the user data
+        $user = $this->verify($email, $password);
 
         if (!$this->isActive($user)) {
             throw new UserInactiveException();//__t('login_error_user_is_not_active'));
         }
+
+        $this->authenticated = true;
 
         return $user;
     }
@@ -156,41 +161,13 @@ class Provider
         ];
 
         $this->user = $this->userProvider->findWhere($conditions);
-        if (!$this->user->id) {
+        if ($this->user->getId() === null) {
             throw new InvalidTokenException();
         }
 
+        $this->authenticated = true;
+
         return $this->user;
-    }
-
-    /**
-     * Gets the user information
-     *
-     * @param $email
-     * @param $password
-     *
-     * @return UserInterface
-     *
-     * @throws InvalidUserCredentialsException
-     */
-    public function getUserByAuthentication($email, $password)
-    {
-        // TODO: Should we prevent the private info everywhere at all cost?
-        $user = $this->userProvider->findByEmail($email);
-        $correct = false;
-
-        if ($user->password) {
-            $passwordHash = $user->password;
-            $correct = password_verify($password, $passwordHash);
-        }
-
-        if (!$user || !$correct) {
-            throw new InvalidUserCredentialsException();
-        }
-
-        $this->user = $user;
-
-        return $user;
     }
 
     /**
@@ -206,18 +183,13 @@ class Provider
      */
     public function authenticateWithInvitation($invitationCode)
     {
-        $correct = false;
         $user = $this->userProvider->findWhere(['invite_token' => $invitationCode]);
 
-        if ($user->id) {
-            $this->setLoggedUser($user);
-            $correct = true;
-        }
-
-        if (!$correct) {
+        if ($user->getId() === null) {
             throw new InvalidInvitationCodeException();
         }
 
+        $this->forceUserLogin($user);
         $this->user = $user;
 
         return $this->user;
@@ -234,19 +206,16 @@ class Provider
      *
      * @throws UserNotFoundException
      */
-    public function setLoggedUser(UserInterface $user)
+    public function forceUserLogin(UserInterface $user)
     {
-        $this->authenticated = true;
-
-        $user = $this->userProvider->find($user->getId());
-
-        if (!$user->id) {
+        if ($user->getId() === null) {
             throw new UserNotFoundException();
         }
 
+        $this->authenticated = true;
         $this->user = $user;
 
-        return $user;
+        return $this->user;
     }
 
     /**
@@ -304,11 +273,28 @@ class Provider
         $algo = 'HS256';
         // TODO: Parse data types
         $payload = [
-            'id' => (int)$user->getId(),
-            'group' => (int)$user->get('group'),
+            'id' => $user->getId(),
+            'group' => $user->get('group'),
             // Expires in 2 days
-            'exp' => time() + (DateUtils::DAY_IN_SECONDS * 2)
+            'exp' => $this->getNewExpirationTime()
         ];
+
+        return JWT::encode($payload, $this->getSecretKey(), $algo);
+    }
+
+    /**
+     * Refresh valid token expiration
+     *
+     * @param $token
+     *
+     * @return string
+     */
+    public function refreshToken($token)
+    {
+        $algo = 'HS256';
+        $payload = JWT::decode($token, $this->getSecretKey(), [$algo]);
+
+        $payload->exp = $this->getNewExpirationTime();
 
         return JWT::encode($payload, $this->getSecretKey(), $algo);
     }
@@ -317,11 +303,10 @@ class Provider
      * Run the hashing algorithm on a password and salt value.
      *
      * @param  string $password
-     * @param  string $salt
      *
      * @return string
      */
-    public function hashPassword($password, $salt = '')
+    public function hashPassword($password)
     {
         // TODO: Create a library to hash/verify passwords up to the user which algorithm to use
         return password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
@@ -335,5 +320,13 @@ class Provider
     public function getSecretKey()
     {
         return $this->secretKey;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNewExpirationTime()
+    {
+        return time() + (DateUtils::DAY_IN_SECONDS * 2);
     }
 }

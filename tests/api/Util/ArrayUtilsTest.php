@@ -254,4 +254,80 @@ class ArrayUtilsTest extends PHPUnit_Framework_TestCase
         $this->assertSame(20, $array['full_name']);
         $this->assertFalse(isset($array['age']));
     }
+
+    public function testPull()
+    {
+        $array = [
+            'name' => 'John',
+            'age' => 22
+        ];
+
+        $age = ArrayUtils::pull($array, 'age');
+        $this->assertSame(22, $age);
+
+        $this->assertFalse(array_key_exists('age', $array));
+    }
+
+    public function testIsNumericKey()
+    {
+        $array = [
+            'one',
+            'two',
+            'three'
+        ];
+
+        $this->assertTrue(ArrayUtils::isNumericKeys($array));
+
+        $array2 = [
+            'name' => 'john'
+        ];
+
+        $this->assertFalse(ArrayUtils::isNumericKeys($array2));
+    }
+
+    public function testPushPopShift()
+    {
+        $array = [
+            'one',
+            'two',
+            'three'
+        ];
+
+        // Unshift
+        $count = ArrayUtils::unshift($array, 'zero');
+        $this->assertCount($count, $array);
+        $this->assertSame('zero', ArrayUtils::get($array, 0));
+
+        // Shift
+        $zero = ArrayUtils::shift($array);
+        $this->assertCount(3, $array);
+        $this->assertSame('zero', $zero);
+
+        // Push
+        $count = ArrayUtils::push($array, 'four');
+        $this->assertCount($count, $array);
+        $this->assertSame('four', ArrayUtils::get($array, 3));
+
+        // Pop
+        $four = ArrayUtils::pop($array);
+        $this->assertCount(3, $array);
+        $this->assertSame('four', $four);
+    }
+
+    public function testDeepLevel()
+    {
+        $array = [
+            'one' => [
+                'one.one' => 1
+            ],
+            'two' => [
+                'two.one' => 2,
+                'two.two' => [
+                    'name' => 'ballerina'
+                ]
+            ]
+        ];
+
+        $this->assertSame(2, ArrayUtils::deepLevel($array));
+    }
 }

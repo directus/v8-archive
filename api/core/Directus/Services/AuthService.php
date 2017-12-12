@@ -57,6 +57,14 @@ class AuthService extends AbstractService
         return $auth->generateToken($user);
     }
 
+    public function refreshToken($token)
+    {
+        /** @var Provider $auth */
+        $auth = $this->container->get('auth');
+
+        return $auth->refreshToken($token);
+    }
+
     /**
      * @return Provider
      */

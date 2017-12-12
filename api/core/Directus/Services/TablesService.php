@@ -44,12 +44,13 @@ class TablesService extends AbstractService
             $columns = [$columns];
         }
 
-        $this->app->triggerAction('table.create:before', $name);
+        $hookEmitter = $this->container->get('hook_emitter');
+        $hookEmitter->run('table.create:before', $name);
 
         $schema->createTable($name, $columns);
 
-        $this->app->triggerAction('table.create', $name);
-        $this->app->triggerAction('table.create:after', $name);
+        $hookEmitter->run('table.create', $name);
+        $hookEmitter->run('table.create:after', $name);
 
         // ----------------------------------------------------------------------------
         // Create system columns interface information

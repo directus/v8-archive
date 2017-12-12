@@ -11,12 +11,11 @@ class EntriesService extends AbstractService
 {
     public function createEntry($table, $payload, $params = [])
     {
-        $app = $this->app;
-        $ZendDb = $app->container->get('zenddb');
-        $acl = $app->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $acl = $this->container->get('acl');
         $id = null;
         $params['table_name'] = $table;
-        $TableGateway = new TableGateway($table, $ZendDb, $acl);
+        $TableGateway = new TableGateway($table, $dbConnection, $acl);
         $payloadCount = count($payload);
         $hasPrimaryKeyData = ArrayUtils::has($payload, $TableGateway->primaryKeyFieldName);
 
@@ -26,7 +25,7 @@ class EntriesService extends AbstractService
 
         // any CREATE requests should md5 the email
         if ('directus_users' === $table &&
-            in_array($app->request()->getMethod(), ['POST']) &&
+            // in_array($app->request()->getMethod(), ['POST']) &&
             array_key_exists('email', $payload)
         ) {
             $avatar = DirectusUsersTableGateway::get_avatar($payload['email']);

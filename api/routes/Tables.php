@@ -35,7 +35,7 @@ class Tables extends Route
      *
      * @return Response
      */
-    protected function all(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
         $params = $request->getQueryParams();
         $tables = TableSchema::getTablenames($params);
@@ -61,7 +61,7 @@ class Tables extends Route
      *
      * @return Response
      */
-    protected function one(Request $request, Response $response)
+    public function one(Request $request, Response $response)
     {
         $data = $this->getInfo($request->getAttribute('table'), $request->getQueryParams());
 
@@ -74,7 +74,7 @@ class Tables extends Route
      *
      * @return Response
      */
-    protected function update(Request $request, Response $response)
+    public function update(Request $request, Response $response)
     {
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
@@ -124,8 +124,10 @@ class Tables extends Route
     {
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
-        $tableName = $request->getParsedBodyParam('name');
+        $tableName = $request->getParsedBodyParam('table_name');
         $systemColumns = $request->getParsedBodyParam('columns', []);
+
+        $this->validateRequestWithTable($request, 'directus_tables');
 
         if ($acl->getGroupId() != 1) {
             throw new \Exception(__t('permission_denied'));
@@ -165,7 +167,7 @@ class Tables extends Route
      *
      * @return Response
      */
-    protected function delete(Request $request, Response $response)
+    public function delete(Request $request, Response $response)
     {
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
@@ -199,7 +201,7 @@ class Tables extends Route
      *
      * @return array
      */
-    protected function getInfo($tableName, $params = [])
+    public function getInfo($tableName, $params = [])
     {
         $this->tagResponseCache(['tableSchema_'.$tableName, 'table_directus_columns']);
         $result = TableSchema::getTable($tableName);

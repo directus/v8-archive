@@ -2,16 +2,11 @@
 
 namespace Directus\Application;
 
-use Directus\Application\ErrorHandlers\ErrorHandler;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Container;
+// use Slim\Container;
 use Slim\Http\Headers;
 
 class DefaultServicesProvider extends \Slim\DefaultServicesProvider

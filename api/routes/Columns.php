@@ -21,17 +21,17 @@ class Columns extends Route
      */
     public function __invoke(Application $app)
     {
-        $app->post('/columns/{table}', [$this, 'create']);
-        $app->get('/columns/{table}', [$this, 'all']);
-        $app->get('/columns/{table}/{column}', [$this, 'one']);
-        $app->map(['PUT', 'PATCH'], '/columns/{table}/{column}', [$this, 'update']);
-        $app->post('/columns/{table}/{column}', [$this, 'post']);
-        $app->delete('/columns/{table}/{column}', [$this, 'delete']);
-        $app->map(['PATCH', 'PUT'], '/columns/{table}/bulk', [$this, 'batch']);
+        $app->post('/{table}', [$this, 'create']);
+        $app->get('/{table}', [$this, 'all']);
+        $app->get('/{table}/{column}', [$this, 'one']);
+        $app->map(['PUT', 'PATCH'], '/{table}/{column}', [$this, 'update']);
+        $app->post('/{table}/{column}', [$this, 'post']);
+        $app->delete('/{table}/{column}', [$this, 'delete']);
+        $app->map(['PATCH', 'PUT'], '/{table}/bulk', [$this, 'batch']);
 
         // Interfaces
-        $app->get('/columns/{table}/{column}/{ui}', [$this, 'ui']);
-        $app->map(['POST', 'PUT', 'PATCH'], '/columns/{table}/{column}/{ui}', [$this, 'updateUi']);
+        $app->get('/{table}/{column}/{ui}', [$this, 'ui']);
+        $app->map(['POST', 'PUT', 'PATCH'], '/{table}/{column}/{ui}', [$this, 'updateUi']);
     }
 
     /**
@@ -42,7 +42,7 @@ class Columns extends Route
      *
      * @throws UnauthorizedTableAlterException
      */
-    protected function create(Request $request, Response $response)
+    public function create(Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $payload = $request->getParsedBody();
@@ -50,6 +50,11 @@ class Columns extends Route
         $tableName = $request->getAttribute('table');
 
         $params['table_name'] = $tableName;
+
+        $payload['table_name'] = $tableName;
+        // TODO: Length is required by some data types, which make this validation not working fully for columns
+        // TODO: Create new constraint that validates the column data type to be one of the list supported
+        $this->validateDataWithTable($request, $payload, 'directus_columns');
 
         /**
          * TODO: check if a column by this name already exists
@@ -69,7 +74,7 @@ class Columns extends Route
             $data['meta'] = ['type' => 'item', 'table' => 'directus_columns'];
         }
 
-        $data['data'] = TableSchema::getColumnSchema($tableName, $params['column_name'])->toArray();
+        $data['data'] = TableSchema::getColumnSchema($tableName, $params['column_name'], true)->toArray();
 
         return $this->withData($response, $data);
     }
@@ -84,7 +89,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function all(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
         $params = $request->getQueryParams();
         $tableName = $request->getAttribute('table');
@@ -111,7 +116,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function post(Request $request, Response $response)
+    public function post(Request $request, Response $response)
     {
         $container = $this->container;
         $dbConnection = $container->get('database');
@@ -151,7 +156,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function one(Request $request, Response $response)
+    public function one(Request $request, Response $response)
     {
         $tableName = $request->getAttribute('table');
         $columnName = $request->getAttribute('column');
@@ -166,7 +171,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function update(Request $request, Response $response)
+    public function update(Request $request, Response $response)
     {
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
@@ -206,7 +211,7 @@ class Columns extends Route
      *
      * @throws \Exception
      */
-    protected function batch(Request $request, Response $response)
+    public function batch(Request $request, Response $response)
     {
         $container = $this->container;
         $dbConnection = $container->get('database');
@@ -280,7 +285,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function delete(Request $request, Response $response)
+    public function delete(Request $request, Response $response)
     {
         $params = $request->getQueryParams();
         $tableName = $request->getAttribute('table');
@@ -336,7 +341,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function updateUi(Request $request, Response $response)
+    public function updateUi(Request $request, Response $response)
     {
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
@@ -380,7 +385,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function ui(Request $request, Response $response)
+    public function ui(Request $request, Response $response)
     {
         $tableName = $request->getAttribute('table');
         $columnName = $request->getAttribute('column');
@@ -397,7 +402,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function getColumnInfo(Response $response, $tableName, $columnName, array $params = [])
+    public function getColumnInfo(Response $response, $tableName, $columnName, array $params = [])
     {
         $result = $this->fetchColumnInfo($tableName, $columnName);
 
@@ -428,7 +433,7 @@ class Columns extends Route
      *
      * @return Column
      */
-    protected function fetchColumnInfo($tableName, $columnName)
+    public function fetchColumnInfo($tableName, $columnName)
     {
         $this->tagResponseCache(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
 
@@ -444,7 +449,7 @@ class Columns extends Route
      *
      * @return Response
      */
-    protected function getUiInfo($response, $tableName, $columnName, $ui, $params = [])
+    public function getUiInfo($response, $tableName, $columnName, $ui, $params = [])
     {
         $result = $this->fetchUiInfo($tableName, $columnName);
 
@@ -479,7 +484,7 @@ class Columns extends Route
      *
      * @return null|array
      */
-    protected function fetchUiInfo($tableName, $columnName)
+    public function fetchUiInfo($tableName, $columnName)
     {
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');

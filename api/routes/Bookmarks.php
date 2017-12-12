@@ -3,13 +3,13 @@
 namespace Directus\Api\Routes;
 
 use Directus\Application\Application;
+use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusBookmarksTableGateway;
 use Directus\Database\TableGateway\DirectusPreferencesTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Permissions\Acl;
-use Slim\Http\Request;
 
 class Bookmarks extends Route
 {
@@ -32,7 +32,7 @@ class Bookmarks extends Route
      *
      * @return Response
      */
-    protected function all(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
@@ -51,9 +51,9 @@ class Bookmarks extends Route
      *
      * @return Response
      */
-    protected function create(Request $request, Response $response)
+    public function create(Request $request, Response $response)
     {
-        return $this->all($request, $response);
+        return $this->one($request, $response);
     }
 
     /**
@@ -62,7 +62,7 @@ class Bookmarks extends Route
      *
      * @return Response
      */
-    protected function one(Request $request, Response $response)
+    public function one(Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
@@ -72,6 +72,8 @@ class Bookmarks extends Route
         $currentUserId = $acl->getUserId();
         $bookmarks = new DirectusBookmarksTableGateway($dbConnection, $acl);
         $preferences = new DirectusPreferencesTableGateway($dbConnection, null);
+
+        $this->validateRequestWithTable($request, 'directus_bookmarks');
 
         switch ($request->getMethod()) {
             case 'PATCH':
@@ -119,7 +121,7 @@ class Bookmarks extends Route
      *
      * @return Response
      */
-    protected function user(Request $request, Response $response)
+    public function user(Request $request, Response $response)
     {
         $id = $request->getAttribute('id');
 
@@ -132,7 +134,7 @@ class Bookmarks extends Route
      *
      * @return Response
      */
-    protected function mine(Request $request, Response $response)
+    public function mine(Request $request, Response $response)
     {
         /** @var Acl $acl */
         $acl = $this->container->get('acl');
@@ -147,7 +149,7 @@ class Bookmarks extends Route
      *
      * @return Response
      */
-    protected function preferences(Request $request, Response $response)
+    public function preferences(Request $request, Response $response)
     {
         /** @var Acl $acl */
         $acl = $this->container->get('acl');
@@ -173,7 +175,7 @@ class Bookmarks extends Route
      *
      * @return Response
      */
-    protected function processUserBookmarks($userId, Request $request, Response $response)
+    public function processUserBookmarks($userId, Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');

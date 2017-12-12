@@ -309,15 +309,15 @@ class AclTest extends PHPUnit_Framework_TestCase
     protected function getMockAdapter()
     {
         // mock the adapter, driver, and parts
-        $mockResult = $this->getMock('Zend\Db\Adapter\Driver\ResultInterface');
-        $mockStatement = $this->getMock('Zend\Db\Adapter\Driver\StatementInterface');
+        $mockResult = create_mock($this, 'Zend\Db\Adapter\Driver\ResultInterface');
+        $mockStatement = create_mock($this,'Zend\Db\Adapter\Driver\StatementInterface');
         $mockStatement->expects($this->any())->method('execute')->will($this->returnValue($mockResult));
-        $mockConnection = $this->getMock('Zend\Db\Adapter\Driver\ConnectionInterface');
-        $mockDriver = $this->getMock('Zend\Db\Adapter\Driver\DriverInterface');
+        $mockConnection = create_mock($this,'Zend\Db\Adapter\Driver\ConnectionInterface');
+        $mockDriver = create_mock($this,'Zend\Db\Adapter\Driver\DriverInterface');
         $mockDriver->expects($this->any())->method('createStatement')->will($this->returnValue($mockStatement));
         $mockDriver->expects($this->any())->method('getConnection')->will($this->returnValue($mockConnection));
 
         // setup mock adapter
-        return $this->getMock('Zend\Db\Adapter\Adapter', null, [$mockDriver]);
+        return create_mock($this,'Zend\Db\Adapter\Adapter', null, [$mockDriver]);
     }
 }

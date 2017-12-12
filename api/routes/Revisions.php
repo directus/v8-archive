@@ -24,7 +24,7 @@ class Revisions extends Route
      *
      * @return Response
      */
-    protected function all(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');

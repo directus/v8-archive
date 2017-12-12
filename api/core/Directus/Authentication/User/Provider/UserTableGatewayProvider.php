@@ -26,7 +26,6 @@ class UserTableGatewayProvider implements UserProviderInterface
      */
     public function findWhere(array $conditions)
     {
-        $attributes = [];
         $user = null;
 
         $select = new Select($this->tableGateway->getTable());

@@ -290,7 +290,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         // Yield record object
         $recordGateway = new BaseRowGateway($TableGateway->primaryKeyFieldName, $tableName, $this->adapter, $this->acl);
-        $fullRecordData = $this->schemaManager->castRecordValues($fullRecordData, $tableSchema->getColumns());
+        $fullRecordData = $this->getSchemaManager()->castRecordValues($fullRecordData, $tableSchema->getColumns());
         $recordGateway->populate($fullRecordData, true);
 
         return $recordGateway;
@@ -636,7 +636,8 @@ class RelationalTableGateway extends BaseTableGateway
             $defaultParams['limit'] = $rowsPerPage;
         }
 
-        if (ArrayUtils::has($params, 'id') && count(StringUtils::csv(ArrayUtils::get($params, 'id'))) == 1) {
+        $id = ArrayUtils::get($params, 'id');
+        if ($id && count(StringUtils::csv((string) $id)) == 1) {
             $params['single'] = true;
         }
 
@@ -1581,7 +1582,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function loadOneToManyRelationships($entries, $depth = 0, $columns, array $params = [])
     {
-        $visibleColumns = $this->getTableSchema()->getColumns(array_keys($columns));
+        $visibleColumns = $this->getVisibleColumns($depth, array_keys($columns));
         foreach ($visibleColumns as $alias) {
             if (!$alias->isAlias() || !$alias->isOneToMany()) {
                 continue;
@@ -1673,7 +1674,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function loadManyToManyRelationships($entries, $depth = 0, $columns, array $params = [])
     {
-        $visibleColumns = $this->getTableSchema()->getColumns(array_keys($columns));
+        $visibleColumns = $this->getVisibleColumns($depth, array_keys($columns));
         foreach ($visibleColumns as $alias) {
             if (!$alias->isAlias() || !$alias->isManyToMany()) {
                 continue;
@@ -1821,7 +1822,7 @@ class RelationalTableGateway extends BaseTableGateway
                 }, $data);
 
                 $junctionTableGateway = new RelationalTableGateway($junctionTableName, $this->getAdapter(), $this->acl);
-                $junctionData = $this->schemaManager->castRecordValues($junctionData, TableSchema::getTableSchema($junctionTableName)->getColumns());
+                $junctionData = $this->getSchemaManager()->castRecordValues($junctionData, TableSchema::getTableSchema($junctionTableName)->getColumns());
 
                 // Sorting junction data by its sorting column or ID column
                 // NOTE: All the junction table are fetched all together from all the rows IDs
@@ -1887,7 +1888,8 @@ class RelationalTableGateway extends BaseTableGateway
     public function loadManyToOneRelationships($entries, $depth = 0, $columns, array $params = [])
     {
         // Identify the ManyToOne columns
-        $visibleColumns = $this->getTableSchema()->getColumns(array_keys($columns));
+        $visibleColumns = $this->getVisibleColumns($depth, array_keys($columns));
+
         foreach ($visibleColumns as $column) {
             if (!$column->isManyToOne()) {
                 continue;
@@ -2130,5 +2132,22 @@ class RelationalTableGateway extends BaseTableGateway
         $stats['total_entries'] = array_sum($stats);
 
         return $stats;
+    }
+
+    /**
+     * @param int $depth
+     * @param array $names
+     *
+     * @return array
+     */
+    protected function getVisibleColumns($depth, array $names = [])
+    {
+        if ($depth > 0) {
+            $columns = $this->getTableSchema()->getColumns($names);
+        } else {
+            $columns = $this->getTableSchema()->getNonRelationalColumns($names);
+        }
+
+        return $columns;
     }
 }

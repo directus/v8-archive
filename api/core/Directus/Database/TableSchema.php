@@ -894,7 +894,7 @@ class TableSchema
         $allTables = $schema->getTables();
         if ($includeColumns === true) {
             $columns = $schema->getAllColumnsByTable();
-            foreach($columns as $table => $column) {
+            foreach ($columns as $table => $column) {
                 // Make sure the table exists
                 if (isset($allTables[$table])) {
                     $allTables[$table]->setColumns($column);

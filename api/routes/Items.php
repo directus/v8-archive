@@ -21,7 +21,8 @@ class Items extends Route
     {
         $app->map(['GET', 'POST'], '/{table}', [$this, 'all']);
         $app->map(['POST', 'PATCH', 'PUT', 'DELETE'], '/{table}/batch', [$this, 'batch']);
-        $app->map(['DELETE', 'PUT', 'PATCH', 'GET'], '/{table}/{id}', [$this, 'one']);
+        $app->map(['PUT', 'PATCH', 'GET'], '/{table}/{id}', [$this, 'one']);
+        $app->delete('/{table}/{id}', [$this, 'one']); // move the code to 'delete' method
         $app->get('/{table}/{id}/meta', [$this, 'meta']);
 
         // NOTE: /tables/:table/typeahead Removed. Make it work with filters. Otherwise will be added
@@ -38,6 +39,7 @@ class Items extends Route
     {
         $tableName = $request->getAttribute('table');
         $params = $request->getQueryParams();
+
         // TODO: Use repository instead of tablegateway
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
@@ -45,9 +47,12 @@ class Items extends Route
         $primaryKey = $tableGateway->primaryKeyFieldName;
 
         if ($request->isPost()) {
+            $this->validateRequestWithTable($request, $tableName);
+
             $entriesService = new EntriesService($this->container);
             $newRecord = $entriesService->createEntry($tableName, $request->getParams(), $params);
             $params['id'] = ArrayUtils::get($newRecord->toArray(), $primaryKey);
+            $params['status'] = null;
         }
 
         $data = $this->getEntriesAndSetResponseCacheTags($tableGateway, $params);
@@ -168,6 +173,7 @@ class Items extends Route
     {
         $tableName = $request->getAttribute('table');
         $id = $request->getAttribute('id');
+
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
         $payload = $request->getParsedBody();
@@ -180,6 +186,7 @@ class Items extends Route
             // PUT an updated table entry
             case 'PATCH':
             case 'PUT':
+                $this->validateRequestWithTable($request, $tableName);
                 $payload[$TableGateway->primaryKeyFieldName] = $id;
                 $TableGateway->updateRecord($payload, $this->getActivityMode());
                 break;

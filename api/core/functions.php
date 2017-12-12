@@ -344,22 +344,68 @@ if (!function_exists('debug')) {
 }
 
 if (!function_exists('load_registered_hooks')) {
-    function load_registered_hooks($listeners, $areFilters = false)
+    /**
+     * Load all registered hooks
+     *
+     * @param \Directus\Application\Application $app
+     */
+    function load_registered_hooks(\Directus\Application\Application $app)
     {
+        $config = $app->getConfig();
+        if ($config->has('hooks')) {
+            load_hooks($app, $config->get('hooks'), false);
+        }
+
+        // if ($config->get('filters')) {
+        //     // Set seconds parameter "true" to add as filters
+        //     load_hooks($app, $config->get('filters'), true);
+        // }
+    }
+}
+
+if (!function_exists('load_hooks')) {
+    /**
+     * Load one or multiple listeners
+     *
+     * @param \Directus\Application\Application $app
+     * @param array|Closure $listeners
+     * @param bool $areFilters
+     */
+    function load_hooks(\Directus\Application\Application $app, $listeners, $areFilters = false)
+    {
+        $hookEmitter = $app->getContainer()->get('hook_emitter');
+
+        if (!is_array($listeners)) {
+            $listeners = [$listeners];
+        }
+
         foreach ($listeners as $event => $handlers) {
             if (!is_array($handlers)) {
                 $handlers = [$handlers];
             }
 
-            // TODO: Temporary with global app
-            $hookEmitter = \Directus\Application\Application::getInstance()->getContainer()->get('hook_emitter');
             foreach ($handlers as $handler) {
-                if (!$areFilters) {
-                    $hookEmitter->addAction($event, $handler);
-                } else {
-                    $hookEmitter->addFilter($event, $handler);
-                }
+                register_hook($hookEmitter, $event, $handler, $areFilters);
             }
+        }
+    }
+}
+
+if (!function_exists('register_hook')) {
+    /**
+     * Register a hook listeners
+     *
+     * @param \Directus\Hook\Emitter $emitter
+     * @param string $name
+     * @param array|Closure $listener
+     * @param bool $areFilters
+     */
+    function register_hook(\Directus\Hook\Emitter $emitter, $name, $listener, $areFilters = false)
+    {
+        if (!$areFilters) {
+            $emitter->addAction($name, $listener);
+        } else {
+            $emitter->addFilter($name, $listener);
         }
     }
 }

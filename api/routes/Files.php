@@ -32,7 +32,7 @@ class Files extends Route
      *
      * @return Response
      */
-    protected function all(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
@@ -130,7 +130,8 @@ class Files extends Route
             ];
         }
 
-        return $this->withData($response, $data);
+        // return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $data);
     }
 
     /**
@@ -139,7 +140,7 @@ class Files extends Route
      *
      * @return Files
      */
-    protected function upload(Request $request, Response $response)
+    public function upload(Request $request, Response $response)
     {
         $Files = $this->container->get('files');
         $result = [];
@@ -157,7 +158,7 @@ class Files extends Route
      *
      * @return Response
      */
-    protected function uploadLink(Request $request, Response $response)
+    public function uploadLink(Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $Files = $this->container->get('files');

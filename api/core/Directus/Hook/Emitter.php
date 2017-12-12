@@ -73,7 +73,7 @@ class Emitter
      * @param $listener
      * @param int $priority
      *
-     * @return int Listener's index {@see removeListener}
+     * @return int Listener's index {@see removeListenerWithIndex}
      */
     public function addAction($name, $listener, $priority = self::P_NORMAL)
     {
@@ -87,7 +87,7 @@ class Emitter
      * @param $listener
      * @param int $priority
      *
-     * @return int Listener's index {@see removeListener}
+     * @return int Listener's index {@see removeListenerWithIndex}
      */
     public function addFilter($name, $listener, $priority = self::P_NORMAL)
     {
@@ -99,7 +99,7 @@ class Emitter
      *
      * @param $index
      */
-    public function removeListener($index)
+    public function removeListenerWithIndex($index)
     {
         $this->listenersList[$index] = null;
     }
@@ -135,20 +135,23 @@ class Emitter
      *
      * A Filter execute the given listener and return a modified given value
      *
-     * @param $name
-     * @param null $data
+     * @param string $name
+     * @param array $data
+     * @param array $attributes
      *
      * @return mixed
      */
-    public function apply($name, $data = null)
+    public function apply($name, array $data = [], array $attributes = [])
     {
         $listeners = $this->getFilterListeners($name);
 
+        $payload = new Payload($data, $attributes);
+
         if ($listeners) {
-            $data = $this->executeListeners($listeners, $data, self::TYPE_FILTER);
+            $payload = $this->executeListeners($listeners, $payload, self::TYPE_FILTER);
         }
 
-        return $data;
+        return $payload->getData();
     }
 
     /**
@@ -207,7 +210,7 @@ class Emitter
      * @param int $priority
      * @param int $type
      *
-     * @return int Listener's index {@see removeListener}
+     * @return int Listener's index {@see removeListenerWithIndex}
      */
     protected function addListener($name, $listener, $priority = self::P_NORMAL, $type = self::TYPE_ACTION)
     {

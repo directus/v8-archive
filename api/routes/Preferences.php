@@ -28,7 +28,7 @@ class Preferences extends Route
      *
      * @return Response
      */
-    protected function all(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();

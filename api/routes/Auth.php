@@ -9,8 +9,11 @@ use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusGroupsTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
+use Directus\Exception\BadRequestException;
+use Directus\Exception\Exception;
 use Directus\Services\AuthService;
 use Directus\Util\DateUtils;
+use Directus\Validator\Validator;
 
 class Auth extends Route
 {
@@ -20,6 +23,7 @@ class Auth extends Route
     public function __invoke(Application $app)
     {
         $app->post('/login', [$this, 'login']);
+        $app->post('/refresh', [$this, 'refresh']);
     }
 
     /**
@@ -32,6 +36,12 @@ class Auth extends Route
      */
     public function login(Request $request, Response $response)
     {
+        // throws an exception if the constraints are not met
+        $this->validateRequest($request, [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
 
@@ -70,6 +80,30 @@ class Auth extends Route
         }
 
         return $this->withData($response, $responseBody);
+    }
+
+    /**
+     * Refresh valid JWT token
+     *
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function refresh(Request $request, Response $response)
+    {
+        $this->validateRequest($request, [
+            'token' => 'required'
+        ]);
+
+        /** @var AuthService $authService */
+        $authService = $this->container->get('services')->get('auth');
+
+        $token = $authService->refreshToken(
+            $request->getParsedBodyParam('token')
+        );
+
+        return $this->withData($response, ['token' => $token]);
     }
 
     public function resetPassword($token)

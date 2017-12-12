@@ -6,7 +6,7 @@ $app = require __DIR__ . '/bootstrap.php';
 // =============================================================================
 // TODO: User-defined endpoints
 // TODO: User-defined extensions endpoints
-// TODO: Customized Method not allowed
+// TODO: Customized Method not allowed error
 // =============================================================================
 
 $app->group('/activities', \Directus\Api\Routes\Activities::class);

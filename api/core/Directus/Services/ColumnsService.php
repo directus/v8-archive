@@ -162,8 +162,8 @@ class ColumnsService extends AbstractService
     public function getTableGateway()
     {
         if (!$this->tableGateway) {
-            $container = $this->app->container;
-            $dbConnection = $container->get('zenddb');
+            $container = $this->container;
+            $dbConnection = $container->get('database');
             $acl = $container->get('acl');
 
             $this->tableGateway = new TableGateway('directus_columns', $dbConnection, $acl);

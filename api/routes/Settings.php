@@ -26,7 +26,7 @@ class Settings extends Route
      *
      * @return Response
      */
-    protected function all(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
         $container = $this->container;
         $acl = $container->get('acl');

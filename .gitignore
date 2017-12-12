@@ -1,6 +1,5 @@
 # Ignore configuration files
 api/config.php
-api/configuration.php
 
 documents
 

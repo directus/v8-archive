@@ -4,6 +4,7 @@ namespace Directus\Application\ErrorHandlers;
 
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
+use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
 use Directus\Exception\HttpExceptionInterface;
 use Directus\Hook\Emitter;
@@ -66,9 +67,13 @@ class ErrorHandler
         }
 
         $httpCode = 500;
-        if ($exception instanceof HttpExceptionInterface) {
-            $httpCode = $exception->getHttpStatus();
+        if ($exception instanceof BadRequestException) {
+            $httpCode = 400;
         }
+
+        // if ($exception instanceof HttpExceptionInterface) {
+        //     $httpCode = $exception->getHttpStatus();
+        // }
 
         $data = ['message' => $message];
         if (!$productionMode) {
@@ -80,7 +85,7 @@ class ErrorHandler
                 // Do not output the trace
                 // it can be so long or complex
                 // that json_encode fails
-                // 'trace' => $exception->getTrace(),
+                'trace' => $exception->getTrace(),
                 // maybe as string, but let's get rid of them, for the best
                 // and look at the logs instead
                 // 'traceAsString' => $exception->getTraceAsString(),

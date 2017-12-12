@@ -62,7 +62,7 @@ class Groups extends Route
      *
      * @return Response
      */
-    protected function one(Request $request, Response $response)
+    public function one(Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
@@ -91,7 +91,7 @@ class Groups extends Route
      *
      * @return Response
      */
-    protected function patch(Request $request, Response $response)
+    public function patch(Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('zenddb');
@@ -117,7 +117,7 @@ class Groups extends Route
      *
      * @return Response
      */
-    protected function delete(Request $request, Response $response)
+    public function delete(Request $request, Response $response)
     {
         $groupService = new GroupsService($this->container);
         $id = $request->getAttribute('id');

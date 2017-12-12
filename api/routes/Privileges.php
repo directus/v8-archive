@@ -28,7 +28,7 @@ class Privileges extends Route
      *
      * @throws ForbiddenException
      */
-    protected function show(Request $request, Response $response)
+    public function show(Request $request, Response $response)
     {
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');

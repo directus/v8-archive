@@ -405,12 +405,28 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
     /**
      * Gets all relational columns
      *
+     * @param array $names
+     *
      * @return Column[]
      */
-    public function getRelationalColumns()
+    public function getRelationalColumns(array $names = [])
     {
-        return array_filter($this->getColumns(), function(Column $column) {
+        return array_filter($this->getColumns($names), function(Column $column) {
             return $column->hasRelationship();
+        });
+    }
+
+    /**
+     * Gets all relational columns
+     *
+     * @param array $names
+     *
+     * @return Column[]
+     */
+    public function getNonRelationalColumns(array $names = [])
+    {
+        return array_filter($this->getColumns($names), function(Column $column) {
+            return !$column->hasRelationship();
         });
     }
 

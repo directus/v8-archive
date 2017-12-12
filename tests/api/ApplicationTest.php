@@ -16,42 +16,42 @@ class CallableClass
     }
 }
 
-class AServiceProvider implements \Directus\Application\ServiceProviderInterface
-{
-    protected $booted = false;
-    protected $app;
-
-    public function boot(\Directus\Application\Application $app)
-    {
-        $this->booted = true;
-    }
-
-    public function register(\Directus\Application\Application $app)
-    {
-        $this->app = $app;
-    }
-
-    public function getApp()
-    {
-        return $this->app;
-    }
-
-    public function isBooted()
-    {
-        return $this->booted;
-    }
-
-    public function setBooted($booted)
-    {
-        return $this->booted = (bool) $booted;
-    }
-}
+// class AServiceProvider implements \Directus\Application\ServiceProviderInterface
+// {
+//     protected $booted = false;
+//     protected $app;
+//
+//     public function boot(\Directus\Application\Application $app)
+//     {
+//         $this->booted = true;
+//     }
+//
+//     public function register(\Directus\Application\Application $app)
+//     {
+//         $this->app = $app;
+//     }
+//
+//     public function getApp()
+//     {
+//         return $this->app;
+//     }
+//
+//     public function isBooted()
+//     {
+//         return $this->booted;
+//     }
+//
+//     public function setBooted($booted)
+//     {
+//         return $this->booted = (bool) $booted;
+//     }
+// }
 
 class ApplicationTests extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        \Slim\Environment::mock(array(
+        \Slim\Http\Environment::mock(array(
             'SERVER_NAME' => 'getdirectus.com',
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/foo', //<-- Physical
@@ -60,145 +60,89 @@ class ApplicationTests extends PHPUnit_Framework_TestCase
         ));
     }
 
-    public function testApplication()
+    public function testApplicationContainer()
     {
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-
         // callable class:method combination
-        $app = new \Directus\Application\Application([]);
-        $route = $app->get('/bar', $mw1, $mw2, '\RouteClass:name');
-        $app->call();
-        $this->assertEquals('foobarxyz', $app->response()->body());
+        $app = new \Directus\Application\Application(__DIR__);
+        $this->assertInstanceOf(\Directus\Application\Container::class, $app->getContainer());
 
-        // callable class:method combination in the container
-        $app = new \Directus\Application\Application([]);
-        $app->container->set('RouteClass', function() use ($app) {
-            return new RouteClass($app);
-        });
-        $route = $app->get('/bar', $mw1, $mw2, 'RouteClass:name');
-        $app->call();
-        $this->assertEquals('foobarxyz', $app->response()->body());
-
-        // callable function
-        $app = new \Directus\Application\Application([]);
-        $callable = function() { echo "xyz"; };
-        $route = $app->get('/bar', $mw1, $mw2, $callable);
-        $app->call();
-        $this->assertEquals('foobarxyz', $app->response()->body());
-        $this->assertSame($callable, $route->getCallable());
-
-        // callable class
-        $app = new \Directus\Application\Application([]);
-        $route = $app->get('/bar', $mw1, $mw2, '\CallableClass');
-        $app->call();
-        $this->assertEquals('foobarxyz', $app->response()->body());
-
-        // callable in the container
-        $app = new \Directus\Application\Application([]);
-        $app->container->set('callable', function() {
-            return function() {
-                echo 'xyz';
-            };
-        });
-        $route = $app->get('/bar', $mw1, $mw2, 'callable');
-        $app->call();
-        $this->assertEquals('foobarxyz', $app->response()->body());
+        $app = new \Directus\Application\Application(__DIR__, ['something' => 2]);
+        $config = $app->getConfig();
+        $this->assertSame(2, $config->get('something'));
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testInvalidCallable()
+    public function testApp()
     {
-        $app = new \Directus\Application\Application([]);
-        $callable = 'one';
-        $app->get('/bar', $callable);
-        $app->call();
+        $app = new \Directus\Application\Application(__DIR__);
+        $this->assertSame($app, \Directus\Application\Application::getInstance());
+
+        $this->assertInternalType('string', $app->getVersion());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testInvalidCallable2()
+    public function testRun()
     {
-        $app = new \Directus\Application\Application([]);
-        $callable = [];
-        $app->get('/bar', $callable);
-        $app->call();
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testInvalidCallable3()
-    {
-        $app = new \Directus\Application\Application([]);
-        $app->get('/bar', '\RouteMainClass:name');
-        $app->call();
-    }
-
-    public function testProviders()
-    {
-        $app = new \Directus\Application\Application([]);
-        $app->get('/bar', function() {
-            echo 'xyz';
-        });
-
-        $provider = new AServiceProvider();
-
-        $this->assertFalse($provider->isBooted());
-        $this->assertNull($provider->getApp());
-
-        $app->register($provider);
-
-        $this->assertFalse($provider->isBooted());
-
-        ob_start(); $app->run(); ob_clean();
-
-        $this->assertTrue($provider->isBooted());
-        $this->assertSame($app, $provider->getApp());
-
-        $provider->setBooted(false);
-
-        ob_start(); $app->run(); ob_clean();
-        $this->assertFalse($provider->isBooted());
-
-        $app->boot();
-        $this->assertFalse($provider->isBooted());
-    }
-
-    public function testPostData()
-    {
-        \Slim\Environment::mock(array(
-            'SERVER_NAME' => 'getdirectus.com',
+        $app = new \Directus\Application\Application(__DIR__);
+        // Prepare request and response objects
+        $env = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'CONTENT_TYPE' => 'application/json',
-            'slim.input' => '{"name": "john"}',
-        ));
-
-        $app = new \Directus\Application\Application([]);
-        $post = $app->request();
-        $this->assertSame($post->post('name'), 'john');
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($env);
+        $headers = \Slim\Http\Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $req = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new \Slim\Http\Response();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+        $app->get('/foo', function ($req, $res) {
+            echo 'bar';
+        });
+        ob_start();
+        $app->run();
+        $resOut = ob_get_clean();
+        $this->assertEquals('bar', (string)$resOut);
     }
 
-    public function testOutputFormat()
+    public function testHooks()
     {
-        \Slim\Environment::mock(array(
-            'SERVER_NAME' => 'getdirectus.com',
-            'REQUEST_METHOD' => 'GET',
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar.json', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-        ));
+        $app = new \Directus\Application\Application(__DIR__);
+        $object = (object)['called' => false];
+        $data = ['updated' => false];
 
-        $app = new \Directus\Application\Application([]);
-        $callable = function() { echo "xyz"; };
-        $route = $app->get('/bar', $callable);
-        $app->call();
-        $this->assertEquals('xyz', $app->response()->body());
+        /** @var \Directus\Hook\Emitter $emitter */
+        $emitter = $app->getContainer()->get('hook_emitter');
+        $emitter->addAction('test', function ($object) {
+            $object->called = true;
+        });
+
+        $emitter->addFilter('test', function (\Directus\Hook\Payload $payload) {
+            $payload->set('updated', true);
+
+            return $payload;
+        });
+
+        $app->triggerAction('test', $object);
+        $data = $app->triggerFilter('test', $data);
+
+        $this->assertSame(true, $object->called);
+        $this->assertArrayHasKey('updated', $data);
+        $this->assertTrue($data['updated']);
+    }
+
+    public function testMissingRequirements()
+    {
+        $app = new \Directus\Application\Application(__DIR__);
+        $data = (object)['called' => false];
+        $app->setCheckRequirementsFunction(function () {
+            return ['error'];
+        });
+        $app->onMissingRequirements(function () use ($data) {
+            $data->called = true;
+        });
+
+        $this->assertTrue($data->called);
     }
 }

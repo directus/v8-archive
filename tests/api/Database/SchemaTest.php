@@ -174,7 +174,9 @@ class SchemaTest extends PHPUnit_Framework_TestCase
 
     public function testGetColumns()
     {
-        $adapter = get_mysql_schema($this);
+        $adapter = get_mysql_schema($this, [
+            'result_data' => []
+        ]);
         $schema = new Schema($adapter);
 
         $this->assertInternalType('array', $schema->getColumns('files'));

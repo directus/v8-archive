@@ -418,17 +418,17 @@ class ArrayUtils
         }
     }
 
-    /**
-     * Swaps element values
-     *
-     * @param array $array
-     * @param string $from
-     * @param string $to
-     *
-     * @return int
-     */
-    public static function swap(array &$array, $from, $to)
-    {
+    // /**
+    //  * Swaps element values
+    //  *
+    //  * @param array $array
+    //  * @param string $from
+    //  * @param string $to
+    //  *
+    //  * @return int
+    //  */
+    // public static function swap(array &$array, $from, $to)
+    // {
         // TODO: Swap values
         // if (!isset($array[$to])) {
         //     static::rename($array, $from, $to);
@@ -437,7 +437,7 @@ class ArrayUtils
         //     $array[$from] = ArrayUtils::get($array, $to);
         //     $array[$to] = $temp;
         // }
-    }
+    // }
 
     /**
      * Pushes a new element at the end of the given array
@@ -474,6 +474,18 @@ class ArrayUtils
     public static function shift(array &$array)
     {
         return array_shift($array);
+    }
+
+    /**
+     * Adds a new element at the beginning of the given array
+     *
+     * @param array $array
+     *
+     * @return mixed
+     */
+    public static function unshift(array &$array, $value)
+    {
+        return array_unshift($array, $value);
     }
 
     /**

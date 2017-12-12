@@ -34,19 +34,30 @@ class Application extends App
 
     ];
 
+    /**
+     * @var string
+     */
+    protected $basePath;
+
+    /**
+     * @var \Closure
+     */
+    protected $checkRequirementsFunction;
+
     protected static $instance = null;
 
     /**
-     * @inheritdoc
+     * Application constructor.
+     *
+     * @param string $basePath
+     * @param array $container
      */
-    public function __construct(array $container = [])
+    public function __construct($basePath, array $container = [])
     {
+        $this->setBasePath($basePath);
 
-        if (is_array($container)) {
-            $container = $this->createConfig($container);
-
-            $container = new Container($container);
-        }
+        $container = $this->createConfig($container);
+        $container = new Container($container);
 
         static::$instance = $this;
 
@@ -66,6 +77,55 @@ class Application extends App
     }
 
     /**
+     * Sets the application base path
+     *
+     * @param $path
+     */
+    public function setBasePath($path)
+    {
+        $this->basePath = rtrim($path, '/');
+
+        $this->updatePaths();
+    }
+
+    protected function updatePaths()
+    {
+        $container = $this->getContainer();
+        $container['path_base'] = $this->basePath;
+        $container['path_api'] = realpath($this->basePath . '/api');
+        $container['path_log'] = realpath($container['path_api'] . '/logs');
+
+        // define('BOOTSTRAP_PATH', __DIR__);
+        // define('API_PATH', realpath(__DIR__ . '/../'));
+        // define('ROOT_PATH', realpath(API_PATH . '/../'));
+        // define('LOG_PATH', API_PATH . '/logs');
+
+        // TODO: REMOVE THIS, IT'S TEMPORARY
+        // BASE_PATH will be base path of directus relative to the host
+        // define('BASE_PATH', ROOT_PATH);
+    }
+
+    /**
+     * Application configuration object
+     *
+     * @return Config
+     */
+    public function getConfig()
+    {
+        return $this->getContainer()->get('config');
+    }
+
+    /**
+     * Sets the function that checks the requirements
+     *
+     * @param \Closure $function
+     */
+    public function setCheckRequirementsFunction(\Closure $function)
+    {
+        $this->checkRequirementsFunction = $function;
+    }
+
+    /**
      * Creates the user configuration based on its configuration
      *
      * Mainly just separating the Slim settings with the Directus settings and adding paths
@@ -77,13 +137,10 @@ class Application extends App
     protected function createConfig(array $appConfig)
     {
         return [
-            'settings' => ArrayUtils::get($appConfig, 'settings', []),
+            'settings' => ArrayUtils::pull($appConfig, 'settings', []),
             'config' => function () use ($appConfig) {
                 return new Config($appConfig);
-            },
-            'api_path' => API_PATH,
-            'root_path' => ROOT_PATH,
-            'log_path' => LOG_PATH
+            }
         ];
     }
 
@@ -101,15 +158,13 @@ class Application extends App
 
     public function boot()
     {
-        if ($this->booted) {
-            return;
+        if (!$this->booted) {
+            // foreach ($this->providers as $provider) {
+            //     $provider->boot($this);
+            // }
+
+            $this->booted = true;
         }
-
-        // foreach ($this->providers as $provider) {
-        //     $provider->boot($this);
-        // }
-
-        $this->booted = true;
     }
 
     /**
@@ -122,23 +177,6 @@ class Application extends App
         return static::DIRECTUS_VERSION;
     }
 
-    public function response()
-    {
-        $response = parent::response();
-
-        if (func_num_args() > 0) {
-            $data = ArrayUtils::get(func_get_args(), 0);
-            $options = ArrayUtils::get(func_get_args(), 1);
-
-            $data = $this->triggerResponseFilter($data, (array) $options);
-
-            // @TODO: Response will support xml
-            $response->setBody(json_encode($data));
-        }
-
-        return $response;
-    }
-
     /**
      * Trigger Filter by name with its payload
      *
@@ -149,7 +187,7 @@ class Application extends App
      */
     public function triggerFilter($name, $payload)
     {
-        return $this->getContainer()->get('hookEmitter')->apply($name, $payload);
+        return $this->getContainer()->get('hook_emitter')->apply($name, $payload);
     }
 
     /**
@@ -168,99 +206,22 @@ class Application extends App
 
         array_unshift($params, $name);
 
-        call_user_func_array([$this->getContainer()->get('hookEmitter'), 'run'], $params);
-    }
-
-    public function onMissingRequirements(Callable $callback)
-    {
-        $errors = get_missing_requirements();
-
-        if ($errors) {
-            $callback($errors);
-            exit; // Stop
-        }
+        call_user_func_array([$this->getContainer()->get('hook_emitter'), 'run'], $params);
     }
 
     /**
-     * Trigger a response filter
+     * Calls the given callable if there are missing requirements
      *
-     * @param $data
-     * @param array $options
-     *
-     * @return mixed
+     * @param callable $callback
      */
-    protected function triggerResponseFilter($data, array $options)
+    public function onMissingRequirements(Callable $callback)
     {
-        $uriParts = explode('/', trim($this->request()->getResourceUri(), '/'));
-        $apiVersion = (float) array_shift($uriParts);
+        $errors = $this->checkRequirementsFunction
+            ? call_user_func($this->checkRequirementsFunction)
+            : get_missing_requirements();
 
-        if ($apiVersion > 1) {
-            $meta = ArrayUtils::get($data, 'meta');
-        } else {
-            $meta = [
-                'type' => array_key_exists('rows', $data) ? 'collection' : 'item',
-                'table' => ArrayUtils::get($options, 'table')
-            ];
+        if ($errors) {
+            $callback($errors);
         }
-
-        $attributes = [
-            'meta' => $meta,
-            'apiVersion' => $apiVersion,
-            'request' => [
-                'path' => $this->request()->getResourceUri(),
-                'method' => $this->request()->getMethod()
-            ]
-        ];
-
-        $payload = new Payload($data, $attributes);
-
-        $method = strtolower($this->request()->getMethod());
-        $payload = $this->triggerFilter('response', $payload);
-        $payload = $this->triggerFilter('response.' . $method, $payload);
-        if ($meta['table']) {
-            $payload = $this->triggerFilter('response.' . $meta['table'], $payload);
-            $payload = $this->triggerFilter(sprintf('response.%s.%s',
-                $meta['table'],
-                $method
-            ), $payload);
-        }
-
-        return $payload->getData();
-    }
-
-    protected function guessOutputFormat()
-    {
-        $app = $this;
-        $outputFormat = 'json';
-        $requestUri = $app->request->getResourceUri();
-
-        if ($this->requestHasOutputFormat()) {
-            $outputFormat = $this->getOutputFormat();
-            // TODO: create a replace last/first occurrence
-            $pos = strrpos($requestUri, '.' . $outputFormat);
-            $newRequestUri = substr_replace($requestUri, '', $pos, strlen('.' . $outputFormat));
-            $env = $app->environment();
-            $env['PATH_INFO'] = $newRequestUri;
-        }
-
-        return $outputFormat;
-    }
-
-    protected function requestHasOutputFormat()
-    {
-        $matches = $this->getOutputFormat();
-
-        return $matches ? true : false;
-    }
-
-    protected function getOutputFormat()
-    {
-        $requestUri = trim($this->request->getResourceUri(), '/');
-
-        // @TODO: create a startsWith and endsWith using regex
-        $matches = [];
-        preg_match('#\.[\w]+$#', $requestUri, $matches);
-
-        return isset($matches[0]) ? substr($matches[0], 1) : null;
     }
 }

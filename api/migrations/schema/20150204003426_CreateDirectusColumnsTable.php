@@ -53,11 +53,11 @@ class CreateDirectusColumnsTable extends Ruckusing_Migration_Base
         ]);
         $t->column('data_type', 'string', [
             'limit' => 64,
-            'default' => NULL
+            'null' => false
         ]);
         $t->column('ui', 'string', [
             'limit' => 64,
-            'default' => NULL
+            'null' => false
         ]);
         $t->column('relationship_type', 'enum', [
             'values' => ['MANYTOONE', 'MANYTOMANY', 'ONETOMANY'],
