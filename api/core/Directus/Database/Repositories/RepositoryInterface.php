@@ -31,6 +31,6 @@ interface RepositoryInterface
      *
      * @return array|BaseRowGateway
      */
-    public function findById($id);
+    public function find($id);
 
 }

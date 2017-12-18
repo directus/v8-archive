@@ -2,10 +2,10 @@
 
 // Url path to Directus
 define('DIRECTUS_PATH', '/');
-define('STATUS_DELETED_NUM', 0);
-define('STATUS_ACTIVE_NUM', 1);
-define('STATUS_DRAFT_NUM', 2);
-define('STATUS_COLUMN_NAME', 'status');
+// define('STATUS_DELETED_NUM', 0);
+// define('STATUS_ACTIVE_NUM', 1);
+// define('STATUS_DRAFT_NUM', 2);
+// define('STATUS_COLUMN_NAME', 'status');
 
 
 // Temporary
@@ -123,39 +123,45 @@ return [
     // These tables will not be loaded in the directus schema
     'tableBlacklist' => [],
 
-    'statusMapping' => [
-        0 => [
-            'name' => 'Deleted',
-            'text_color' => '#FFFFFF',
-            'background_color' => '#F44336',
-            'subdued_in_listing' => true,
-            'show_listing_badge' => true,
-            'hidden_globally' => true,
-            'hard_delete' => false,
-            'published' => false,
-            'sort' => 3
-        ],
-        1 => [
-            'name' => 'Published',
-            'text_color' => '#FFFFFF',
-            'background_color' => '#3498DB',
-            'subdued_in_listing' => false,
-            'show_listing_badge' => false,
-            'hidden_globally' => false,
-            'hard_delete' => false,
-            'published' => true,
-            'sort' => 1
-        ],
-        2 => [
-            'name' => 'Draft',
-            'text_color' => '#999999',
-            'background_color' => '#EEEEEE',
-            'subdued_in_listing' => true,
-            'show_listing_badge' => true,
-            'hidden_globally' => false,
-            'hard_delete' => false,
-            'published' => false,
-            'sort' => 2
+    'status' => [
+        'deleted_value' => 0,
+        'publish_value' => 1,
+        'draft_value' => 2,
+        'name' => 'status',
+        'mapping' => [
+            0 => [
+                'name' => 'Deleted',
+                'text_color' => '#FFFFFF',
+                'background_color' => '#F44336',
+                'subdued_in_listing' => true,
+                'show_listing_badge' => true,
+                'hidden_globally' => true,
+                'hard_delete' => false,
+                'published' => false,
+                'sort' => 3
+            ],
+            1 => [
+                'name' => 'Published',
+                'text_color' => '#FFFFFF',
+                'background_color' => '#3498DB',
+                'subdued_in_listing' => false,
+                'show_listing_badge' => false,
+                'hidden_globally' => false,
+                'hard_delete' => false,
+                'published' => true,
+                'sort' => 1
+            ],
+            2 => [
+                'name' => 'Draft',
+                'text_color' => '#999999',
+                'background_color' => '#EEEEEE',
+                'subdued_in_listing' => true,
+                'show_listing_badge' => true,
+                'hidden_globally' => false,
+                'hard_delete' => false,
+                'published' => false,
+                'sort' => 2
+            ]
         ]
     ],
 

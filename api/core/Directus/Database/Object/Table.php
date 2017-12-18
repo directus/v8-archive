@@ -11,6 +11,7 @@
 namespace Directus\Database\Object;
 
 use Directus\Collection\Arrayable;
+use Directus\Config\StatusMapping;
 use Directus\Database\SchemaManager;
 use Directus\Util\Traits\ArrayPropertyAccess;
 use Directus\Util\Traits\ArrayPropertyToArray;
@@ -95,7 +96,7 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
     protected $defaultStatus;
 
     /**
-     * @var array
+     * @var StatusMapping
      */
     protected $statusMapping;
 
@@ -315,8 +316,7 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
                 $this->setSortColumn($column->getName());
             } else if (!$this->getStatusColumn() && $column->getUI() === SchemaManager::INTERFACE_STATUS) {
                 $this->setStatusColumn($column->getName());
-                $statusMapping = @json_decode($column->getOptions('status_mapping'), true);
-                $this->setStatusMapping($statusMapping);
+                $this->setStatusMapping($column->getOptions('status_mapping'));
             } else if (!$this->getDateCreateColumn() && $column->getUI() === SchemaManager::INTERFACE_DATE_CREATED) {
                 $this->setDateCreateColumn($column->getName());
             } else if (!$this->getUserCreateColumn() && $column->getUI() === SchemaManager::INTERFACE_USER_CREATED) {
@@ -763,13 +763,19 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
     /**
      * Set the table customs status mapping
      *
-     * @param $mapping
+     * @param string $mapping
      *
      * @return Table
      */
     public function setStatusMapping($mapping)
     {
-        $this->statusMapping = $mapping;
+        if (!is_array($mapping)) {
+            $mapping = @json_decode($mapping, true);
+        }
+
+        if (is_array($mapping)) {
+            $this->statusMapping = new StatusMapping($mapping);
+        }
 
         return $this;
     }
@@ -781,7 +787,7 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
      */
     public function getStatusMapping()
     {
-        return $this->statusMapping;
+        return $this->statusMapping->toArray();
     }
 
     /**

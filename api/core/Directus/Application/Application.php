@@ -54,14 +54,14 @@ class Application extends App
      */
     public function __construct($basePath, array $container = [])
     {
-        $this->setBasePath($basePath);
-
         $container = $this->createConfig($container);
         $container = new Container($container);
 
         static::$instance = $this;
 
         parent::__construct($container);
+
+        $this->setBasePath($basePath);
     }
 
     /**
@@ -94,15 +94,6 @@ class Application extends App
         $container['path_base'] = $this->basePath;
         $container['path_api'] = realpath($this->basePath . '/api');
         $container['path_log'] = realpath($container['path_api'] . '/logs');
-
-        // define('BOOTSTRAP_PATH', __DIR__);
-        // define('API_PATH', realpath(__DIR__ . '/../'));
-        // define('ROOT_PATH', realpath(API_PATH . '/../'));
-        // define('LOG_PATH', API_PATH . '/logs');
-
-        // TODO: REMOVE THIS, IT'S TEMPORARY
-        // BASE_PATH will be base path of directus relative to the host
-        // define('BASE_PATH', ROOT_PATH);
     }
 
     /**

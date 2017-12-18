@@ -51,6 +51,15 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $collection->appendCollection($anotherCollection);
         $this->assertTrue($collection->has('language'));
 
+        $collection->replace([
+            'product_name' => 'Product 1',
+            'product_cost' => 99
+        ]);
+
+        $this->assertSame(2, $collection->count());
+        $this->assertSame('Product 1', $collection->get('product_name'));
+        $this->assertSame(99, $collection->get('product_cost'));
+
         $collection->clear();
         $this->assertSame(0, $collection->count());
         $this->assertTrue($collection->isEmpty());

@@ -664,8 +664,6 @@ class RelationalTableGateway extends BaseTableGateway
 
         if (!ArrayUtils::has($params, 'status')) {
             $defaultParams['status'] = $this->getPublishedStatuses();
-        } else if (ArrayUtils::get($params, 'status') === '*') {
-            $params['status'] = $this->getAllStatuses();
         }
 
         $params = array_merge($defaultParams, $params);
@@ -1486,7 +1484,10 @@ class RelationalTableGateway extends BaseTableGateway
                 }, explode(',', $params['status']));
             }
 
-            $statuses = array_filter($statuses);
+            $statuses = array_filter($statuses, function ($value) {
+                return is_numeric($value);
+            });
+
             if ($statuses) {
                 $query->whereIn(TableSchema::getStatusColumn(
                     $this->getTable(),

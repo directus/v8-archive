@@ -6,7 +6,6 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
-use Directus\Exception\HttpExceptionInterface;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 

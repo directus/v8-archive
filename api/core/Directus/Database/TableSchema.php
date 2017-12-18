@@ -152,7 +152,7 @@ class TableSchema
         $statusMapping = $tableObject->getStatusMapping();
 
         if (!$statusMapping) {
-            $statusMapping = static::$config->get('statusMapping', []);
+            $statusMapping = static::$config->getAllStatuses();
         }
 
         if ($statusMapping) {

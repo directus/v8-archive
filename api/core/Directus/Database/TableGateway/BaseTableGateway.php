@@ -12,7 +12,6 @@ use Directus\Database\SchemaManager;
 use Directus\Database\TableGatewayFactory;
 use Directus\Database\TableSchema;
 use Directus\Filesystem\Thumbnail;
-use Directus\Hook\Payload;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\UnauthorizedTableBigDeleteException;
 use Directus\Permissions\Exception\UnauthorizedTableBigEditException;
@@ -32,7 +31,6 @@ use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\SqlInterface;
 use Zend\Db\Sql\Update;
-use Zend\Db\Sql\Where;
 use Zend\Db\TableGateway\Feature;
 use Zend\Db\TableGateway\Feature\RowGatewayFeature;
 use Zend\Db\TableGateway\TableGateway;
@@ -1377,9 +1375,7 @@ class BaseTableGateway extends TableGateway
                 $data = $resultSet->toArray();
             }
 
-            $payload = new Payload($data, $attributes);
-            $payload = static::$emitter->apply($name, $payload);
-            $data = $payload->getData();
+            $data = static::$emitter->apply($name, $data, $attributes);
 
             if ($isResultSet && $resultSet) {
                 $data = new \ArrayObject($data);
@@ -1495,7 +1491,7 @@ class BaseTableGateway extends TableGateway
             /** @var Config $config */
             $config = static::$container->get('config');
             $statusMapping = $this->getTableSchema()->getStatusMapping() ?: [];
-            $statuses = $config->getAllStatuses($statusMapping);
+            $statuses = $config->getAllStatusesValue($statusMapping);
         }
 
         return $statuses;
@@ -1539,10 +1535,10 @@ class BaseTableGateway extends TableGateway
 
             switch ($type) {
                 case 'published':
-                    $statuses = $config->getPublishedStatuses($statusMapping);
+                    $statuses = $config->getPublishedStatusesValue($statusMapping);
                     break;
                 case 'deleted':
-                    $statuses = $config->getDeletedStatuses($statusMapping);
+                    $statuses = $config->getDeletedStatusesValue($statusMapping);
                     break;
             }
         }

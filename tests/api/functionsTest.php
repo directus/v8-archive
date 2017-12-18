@@ -156,8 +156,6 @@ class FunctionsTest extends PHPUnit_Framework_TestCase
         $phpFilesFound = find_php_files($path, true);
         $this->assertSame(3, count($phpFilesFound));
 
-        $this->assertInternalType('array', find_templates());
-
         $this->removeTempFiles();
     }
 
@@ -361,6 +359,60 @@ class FunctionsTest extends PHPUnit_Framework_TestCase
         $expected = 'aaaaaacccdeeeeeeeeiiiinnoooooorrstuuuuuyyzaaaaaacccdeeeeeeeeiiiinnooooooorrstuuuuuyyzbbddbaa-';
 
         $this->assertSame($expected, slugify($original));
+    }
+
+    public function testPingRoute()
+    {
+        $env = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/ping',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($env);
+        $headers = \Slim\Http\Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $req = new \Directus\Application\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new \Directus\Application\Http\Response();
+
+        $app = create_ping_server();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+        $resOut = $app($req, $res);
+
+        $this->assertEmpty($resOut->getBody()->getContents());
+        $this->assertSame(404, $resOut->getStatusCode());
+    }
+
+    public function testPingRouteProduction()
+    {
+        $env = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/ping',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($env);
+        $headers = \Slim\Http\Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $req = new \Directus\Application\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new \Directus\Application\Http\Response();
+
+        $app = create_ping_server([
+            'settings' => [
+                'debug' => false,
+                'env' => 'development'
+            ]
+        ]);
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+        ob_start();
+        $app->run();
+        $resOut = ob_get_clean();
+
+        $this->assertSame('pong', $resOut);
     }
 
     protected $files = [

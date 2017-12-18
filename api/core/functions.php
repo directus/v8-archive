@@ -66,14 +66,15 @@ if (!function_exists('ping_route')) {
      *
      * @return Closure
      */
-    function ping_route($app)
+    function ping_route(\Directus\Application\Application $app)
     {
-        return function (\Slim\Http\Request $request, \Slim\Http\Response $response) {
+        return function (\Directus\Application\Http\Request $request, \Directus\Application\Http\Response $response) {
             /** @var \Directus\Container\Container $container */
-            $container = $this->getContainer();
+            $container = $this;
+            $settings = $container->has('settings') ? $container->get('settings') : new \Directus\Collection\Collection();
 
-            if ($container->get('env') === 'production') {
-                $response->withStatus(404);
+            if ($settings->get('env', 'development') === 'production') {
+                $response = $response->withStatus(404);
             } else {
                 $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
                 $body->write('pong');
@@ -93,12 +94,12 @@ if (!function_exists('create_ping_route')) {
      *
      * @return \Directus\Application\Application
      */
-    function create_ping_route($app)
+    function create_ping_route(\Directus\Application\Application $app)
     {
         /**
          * Ping the server
          */
-        $app->get('/ping/?', ping_route($app))->name('ping_server');
+        $app->get('/ping', ping_route($app))->setName('ping_server');
 
         return $app;
     }
@@ -108,16 +109,18 @@ if (!function_exists('create_ping_server')) {
     /**
      * Creates a simple app
      *
+     * @param array $config
+     *
      * @return \Directus\Application\Application
      */
-    function create_ping_server()
+    function create_ping_server(array $config = [])
     {
-        $app = new \Directus\Application\Application([
+        $app = new \Directus\Application\Application(realpath(__DIR__ . '/../../'), array_merge([
             'settings' => [
                 'debug' => false,
                 'env' => 'production'
             ]
-        ]);
+        ], $config));
 
         create_ping_route($app);
 
@@ -135,7 +138,8 @@ if (!function_exists('ping_server')) {
     {
         // @TODO: Fix error when the route exists but there's an error
         // It will not return "pong" back
-        $response = @file_get_contents(get_url('/api/1.1/ping'));
+        $response = @file_get_contents(get_url('/api/ping'));
+        var_dump($response);
 
         return $response === 'pong';
     }
@@ -1199,30 +1203,6 @@ if (!function_exists('find_twig_files')) {
     function find_twig_files($paths, $includeSubDirectories = false)
     {
         return find_files($paths, 0, '*.twig', $includeSubDirectories);
-    }
-}
-
-if (!function_exists('find_templates')) {
-    /**
-     * Find all application templates key path
-     *
-     * @return array
-     */
-    function find_templates()
-    {
-        if (!defined('BASE_PATH')) {
-            define('BASE_PATH', realpath(__DIR__ . '/../../'));
-        }
-
-        $getTemplateKeyPath = function ($suffix) {
-            $basePath = BASE_PATH . '/' . trim($suffix, '/') . '/';
-
-            return array_map(function ($path) use ($basePath) {
-                return substr($path, strlen($basePath));
-            }, find_twig_files($basePath, true));
-        };
-
-        return array_merge($getTemplateKeyPath('/app/templates/'), $getTemplateKeyPath('/app/core-ui'));
     }
 }
 
