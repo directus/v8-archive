@@ -120,12 +120,17 @@ class AuthenticationMiddleware extends AbstractMiddleware
      */
     protected function authenticate(Request $request)
     {
+        $authenticate = false;
         $authToken = $this->getAuthToken($request);
 
-        /** @var AuthService $authService */
-        $authService = $this->container->get('services')->get('auth');
+        if ($authToken) {
+            /** @var AuthService $authService */
+            $authService = $this->container->get('services')->get('auth');
 
-        return $authService->authenticateWithToken($authToken);
+            $authenticate = $authService->authenticateWithToken($authToken);
+        }
+
+        return $authenticate;
     }
 
     /**
@@ -151,7 +156,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
         } elseif ($request->hasHeader('Authorization')) {
             $authorizationHeader = $request->getHeader('Authorization');
 
-            if (preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
+            if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
                 $authToken = $matches[1];
             }
         }

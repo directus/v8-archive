@@ -39,6 +39,7 @@ class AuthService extends AbstractService
      */
     public function authenticateWithToken($token)
     {
+        // TODO: Check if it's a private token and use it instead of the JWT
         return $this->getAuthProvider()->authenticateWithToken($token);
     }
 
