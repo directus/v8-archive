@@ -787,7 +787,12 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
      */
     public function getStatusMapping()
     {
-        return $this->statusMapping->toArray();
+        $mapping = [];
+        if ($this->statusMapping) {
+            $mapping = $this->statusMapping->toArray();
+        }
+
+        return $mapping;
     }
 
     /**
