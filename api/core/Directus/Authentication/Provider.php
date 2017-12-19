@@ -171,6 +171,31 @@ class Provider
     }
 
     /**
+     * Authenticate an user using a private token
+     *
+     * @param $token
+     *
+     * @return UserInterface
+     *
+     * @throws InvalidTokenException
+     */
+    public function authenticateWithPrivateToken($token)
+    {
+        $conditions = [
+            'token' => $token
+        ];
+
+        $this->user = $this->userProvider->findWhere($conditions);
+        if (!$this->user) {
+            throw new InvalidTokenException();
+        }
+
+        $this->authenticated = true;
+
+        return $this->user;
+    }
+
+    /**
      * Authenticate with an invitation
      *
      * NOTE: Would this be managed by the web app?
@@ -185,7 +210,7 @@ class Provider
     {
         $user = $this->userProvider->findWhere(['invite_token' => $invitationCode]);
 
-        if ($user->getId() === null) {
+        if (!$user) {
             throw new InvalidInvitationCodeException();
         }
 
@@ -208,7 +233,7 @@ class Provider
      */
     public function forceUserLogin(UserInterface $user)
     {
-        if ($user->getId() === null) {
+        if (!$user) {
             throw new UserNotFoundException();
         }
 

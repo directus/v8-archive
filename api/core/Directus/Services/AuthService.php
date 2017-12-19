@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Authentication\Provider;
 use Directus\Authentication\User\UserInterface;
+use Directus\Util\JWTUtils;
 
 class AuthService extends AbstractService
 {
@@ -39,8 +40,13 @@ class AuthService extends AbstractService
      */
     public function authenticateWithToken($token)
     {
-        // TODO: Check if it's a private token and use it instead of the JWT
-        return $this->getAuthProvider()->authenticateWithToken($token);
+        if (JWTUtils::isJWT($token)) {
+            $authenticated = $this->getAuthProvider()->authenticateWithToken($token);
+        } else {
+            $authenticated = $this->getAuthProvider()->authenticateWithPrivateToken($token);
+        }
+
+        return $authenticated;
     }
 
     /**
