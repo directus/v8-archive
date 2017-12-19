@@ -756,7 +756,7 @@ class TableSchema
         return $acl->canReadColumn($tableName, $columnName);
     }
 
-    public static function getTable($tableName)
+    public static function getTable($tableName, array $params = [])
     {
         $acl = static::getAclInstance();
         $zendDb = static::getConnectionInstance();
@@ -769,26 +769,29 @@ class TableSchema
             return false;
         }
 
-        $info = static::getSchemaManagerInstance()->getTableSchema($tableName);
+        $table = static::getTableSchema($tableName, $params);
 
-        if (!$info) {
+        if (!$table) {
             return false;
         }
 
-        $info = $info->toArray();
-        $info['columns'] = array_values(array_filter($info['columns'], function ($column) {
-            return static::canReadColumn($column['table_name'], $column['name']);
-        }));
+        $info = $table->toArray();
+        unset($info['columns']);
 
-        if (isset($info['columns'])) {
-            // $columns = $info['columns'];
-            $info['columns'] = [
-                'meta' => [
+        if (ArrayUtils::get($params, 'include_columns', false)) {
+            $columns = array_values(array_filter($table->getColumnsArray(), function ($column) {
+                return static::canReadColumn($column['table_name'], $column['name']);
+            }));
+
+            $info['columns'] = [];
+            if (ArrayUtils::get($params, 'meta', 0)) {
+                $info['columns']['meta'] = [
                     'table' => 'directus_columns',
                     'type' => 'collection'
-                ],
-                'data' => $info['columns']
-            ];
+                ];
+            }
+
+            $info['columns']['data'] = $columns;
         }
 
         $directusPreferencesTableGateway = new DirectusPreferencesTableGateway($zendDb, $acl);

@@ -204,7 +204,7 @@ class Tables extends Route
     public function getInfo($tableName, $params = [])
     {
         $this->tagResponseCache(['tableSchema_'.$tableName, 'table_directus_columns']);
-        $result = TableSchema::getTable($tableName);
+        $result = TableSchema::getTable($tableName, $params);
 
         if (!$result) {
             $data = [
