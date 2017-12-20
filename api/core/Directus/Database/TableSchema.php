@@ -789,14 +789,17 @@ class TableSchema
         $unflatFields = get_unflat_columns($fields);
 
         if (in_array('columns', get_columns_flat_at($fields, 0))) {
-            $columnsFields = ArrayUtils::get($unflatFields, 'columns');
+            $columnsFields = ArrayUtils::get($unflatFields, 'columns', []);
             $columns = array_values(array_filter($table->getColumnsArray(), function ($column) {
                 return static::canReadColumn($column['table_name'], $column['name']);
             }));
 
-            $columns = array_map(function ($column) use ($columnsFields) {
-                return ArrayUtils::pick($column, array_keys($columnsFields));
-            }, $columns);
+            // if the columns is a non-array it means "pick all"
+            if (is_array($columnsFields)) {
+                $columns = array_map(function ($column) use ($columnsFields) {
+                    return ArrayUtils::pick($column, array_keys($columnsFields));
+                }, $columns);
+            }
 
             $info['columns'] = [];
             if (ArrayUtils::get($params, 'meta', 0)) {
@@ -812,11 +815,12 @@ class TableSchema
         if (in_array('preferences', get_columns_flat_at($fields, 0))) {
             $directusPreferencesTableGateway = new DirectusPreferencesTableGateway($zendDb, $acl);
             $currentUserId = static::getAclInstance()->getUserId();
+            $preferencesColumns = ArrayUtils::get($unflatFields, 'preferences');
             $info['preferences'] = [
                 'data' => $directusPreferencesTableGateway->fetchByUserAndTable(
                     $currentUserId,
                     $tableName,
-                    array_keys(ArrayUtils::get($unflatFields, 'preferences'))
+                    is_array($preferencesColumns) ? array_keys($preferencesColumns) : []
                 )
             ];
         }
