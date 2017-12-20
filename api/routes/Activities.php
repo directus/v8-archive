@@ -38,11 +38,11 @@ class Activities extends Route
             $table = key($params['last_updated']);
             $ids = ArrayUtils::get($params, 'last_updated.' . $table);
             $arrayOfIds = $ids ? explode(',', $ids) : [];
-            $data = $activityTableGateway->getLastUpdated($table, $arrayOfIds);
+            $responseData = $activityTableGateway->getLastUpdated($table, $arrayOfIds);
         } else {
-            $data = $activityTableGateway->fetchFeed($params);
+            $responseData = $activityTableGateway->fetchFeed($params);
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

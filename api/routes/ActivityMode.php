@@ -12,5 +12,4 @@ trait ActivityMode
         $activityLoggingEnabled = !(isset($_GET['skip_activity_log']) && (1 == $_GET['skip_activity_log']));
         return $activityLoggingEnabled ? RelationalTableGateway::ACTIVITY_ENTRY_MODE_PARENT : RelationalTableGateway::ACTIVITY_ENTRY_MODE_DISABLED;
     }
-
 }

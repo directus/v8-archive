@@ -40,19 +40,18 @@ class Tables extends Route
         $params = $request->getQueryParams();
         $tables = TableSchema::getTablenames($params);
 
-        $data = [];
+        $responseData = [];
 
         if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $data['meta'] = [
+            $responseData['meta'] = [
                 'type' => 'collection',
                 'table' => 'directus_tables'
             ];
         }
 
-        $data['data'] = $tables;
+        $responseData['data'] = $tables;
 
-
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -63,9 +62,9 @@ class Tables extends Route
      */
     public function one(Request $request, Response $response)
     {
-        $data = $this->getInfo($request->getAttribute('table'), $request->getQueryParams());
+        $responseData = $this->getInfo($request->getAttribute('table'), $request->getQueryParams());
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -107,9 +106,9 @@ class Tables extends Route
             $tableGateway->insert($table_settings);
         }
 
-        $data = $this->getInfo($tableName);
+        $responseData = $this->getInfo($tableName);
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -138,7 +137,7 @@ class Tables extends Route
         try {
             $tableService->createTable($tableName, $systemColumns);
         } catch (TableAlreadyExistsException $e) {
-            return $this->withData($response, [
+            return $this->responseWithData($request, $response, [
                 'error' => [
                     'message' => __t('table_x_already_exists', [
                         'table_name' => $tableName
@@ -158,7 +157,9 @@ class Tables extends Route
         $privilegesTableGateway->insertPrivilege($privileges);
         $acl->setTablePrivileges($tableName, $privileges);
 
-        return $this->withData($response, $this->getInfo($tableName, $request->getQueryParams()));
+        $responseData = $this->getInfo($tableName, $request->getQueryParams());
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -183,16 +184,16 @@ class Tables extends Route
             $success = $tableService->dropTable($tableName);
         }
 
-        $data = [];
+        $responseData = [];
         if (!$success) {
-            $data = [
+            $responseData = [
                 'error' => [
                     'message' => __t('unable_to_remove_table_x', ['table_name' => $tableName])
                 ]
             ];
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**

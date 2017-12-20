@@ -104,13 +104,13 @@ class Settings extends Route
         }
 
         if (!$data) {
-            $data = [
+            $responseData = [
                 'error' => [
                     'message' => __t('unable_to_find_setting_collection_x', ['collection' => $id])
                 ]
             ];
         } else {
-            $data = [
+            $responseData = [
                 'meta' => [
                     'type' => 'item',
                     'table' => 'directus_settings'
@@ -119,14 +119,14 @@ class Settings extends Route
             ];
 
             if (!is_null($id)) {
-                $data['meta']['settings_collection'] = $id;
+                $responseData['meta']['settings_collection'] = $id;
             }
         }
 
         if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            unset($data['meta']);
+            unset($responseData['meta']);
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

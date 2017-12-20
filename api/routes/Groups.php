@@ -46,14 +46,14 @@ class Groups extends Route
             case 'POST':
                 $newRecord = $GroupsTableGateway->updateRecord($payload);
                 $newGroupId = $newRecord['id'];
-                $data = $GroupsTableGateway->getEntries(['id' => $newGroupId]);
+                $responseData = $GroupsTableGateway->getEntries(['id' => $newGroupId]);
                 break;
             case 'GET':
             default:
-                $data = $this->getEntriesAndSetResponseCacheTags($GroupsTableGateway, $params);
+                $responseData = $this->getEntriesAndSetResponseCacheTags($GroupsTableGateway, $params);
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -72,17 +72,17 @@ class Groups extends Route
 
         $tableName = 'directus_groups';
         $Groups = new RelationalTableGateway($tableName, $dbConnection, $acl);
-        $data = $this->getEntriesAndSetResponseCacheTags($Groups, $params);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($Groups, $params);
 
-        if (!$data) {
-            $data = [
+        if (!$responseData) {
+            $responseData = [
                 'error' => [
                     'message' => __t('unable_to_find_group_with_id_x', ['id' => $id])
                 ]
             ];
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -106,9 +106,9 @@ class Groups extends Route
 
         $newRecord = $tableGateway->updateRecord($payload);
         $newGroupId = $newRecord['id'];
-        $data = $this->getEntriesAndSetResponseCacheTags($tableGateway, ['id' => $newGroupId]);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($tableGateway, ['id' => $newGroupId]);
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -126,7 +126,7 @@ class Groups extends Route
         if (!$group) {
             $response = $response->withStatus(404);
 
-            return $this->withData($response, [
+            return $this->responseWithData($request, $response, [
                 'error' => [
                     'message' => sprintf('Group [%d] not found', $id)
                 ]
@@ -136,13 +136,13 @@ class Groups extends Route
         if (!$groupService->canDelete($id)) {
             $response = $response->withStatus(403);
 
-            return $this->withData($response, [
+            return $this->responseWithData($request, $response, [
                 'error' => [
                     'message' => sprintf('You are not allowed to delete group [%s]', $group->name)
                 ]
             ]);
         }
 
-        return $this->withData($response, []);
+        return $this->responseWithData($request, $response, []);
     }
 }

@@ -43,9 +43,9 @@ class Users extends Route
     public function all(Request $request, Response $response)
     {
         $params = $request->getQueryParams();
-        $data = $this->findUsers($params);
+        $responseData = $this->findUsers($params);
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -75,9 +75,9 @@ class Users extends Route
 
         $user = $usersGateway->updateRecord($payload);
 
-        $data = $this->findUsers(['id' => $user['id']]);
+        $responseData = $this->findUsers(['id' => $user['id']]);
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -91,9 +91,9 @@ class Users extends Route
         $params = $request->getQueryParams();
         $params['id'] = $this->getUserId($request->getAttribute('id'));
 
-        $data = $this->findUsers($params);
+        $responseData = $this->findUsers($params);
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -116,7 +116,7 @@ class Users extends Route
             $this->sendInvitationTo($email);
         }
 
-        return $this->withData($response, []);
+        return $this->responseWithData($request, $response, []);
     }
 
     /**
@@ -158,9 +158,9 @@ class Users extends Route
 
         $user = $usersGateway->updateRecord($payload);
 
-        $data = $this->findUsers(['id' => $user['id']]);
+        $responseData = $this->findUsers(['id' => $user['id']]);
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**

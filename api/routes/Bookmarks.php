@@ -88,10 +88,10 @@ class Bookmarks extends Route
                 break;
             case 'DELETE':
                 $bookmark = $bookmarks->fetchEntityByUserAndId($currentUserId, $id);
-                $data = [];
+                $responseData = [];
 
                 if (!empty($bookmark['data'])) {
-                    $success = (bool) $bookmarks->delete(['id' => $id]);
+                    $bookmarks->delete(['id' => $id]);
 
                     // delete the preferences
                     $preferences->delete([
@@ -99,21 +99,21 @@ class Bookmarks extends Route
                         'title' => $bookmark['data']['title']
                     ]);
                 } else {
-                    $data['error'] = [
+                    $responseData['error'] = [
                         'message' => __t('bookmark_not_found')
                     ];
                 }
 
-                return $this->withData($response, $data);
+                return $this->responseWithData($request, $response, $responseData);
         }
 
         if (!is_null($id)) {
-            $jsonResponse = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntityByUserAndId'], [$currentUserId, $id]);
+            $responseData = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntityByUserAndId'], [$currentUserId, $id]);
         } else {
-            $jsonResponse = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntitiesByUserId'], [$currentUserId]);
+            $responseData = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntitiesByUserId'], [$currentUserId]);
         }
 
-        return $this->withData($response, $jsonResponse);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -159,24 +159,26 @@ class Bookmarks extends Route
         $title = $request->getAttribute('title');
         $params = $request->getQueryParams();
 
-        $data = $this->getDataAndSetResponseCacheTags(
+        $responseData = $this->getDataAndSetResponseCacheTags(
             [$tableGateway, 'fetchEntityByUserAndTitle'],
             [$acl->getUserId(), $title, $params]
         );
 
-        if (!isset($data['data'])) {
-            $data = [
+        if (!isset($responseData['data'])) {
+            $responseData = [
                 'error' => [
                     'message' => __t('bookmark_not_found')
                 ]
             ];
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
      * @param int $userId
+     * @param Request $request
+     * @param Response $response
      *
      * @return Response
      */
@@ -199,8 +201,8 @@ class Bookmarks extends Route
                 break;
         }
 
-        $data = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntitiesByUserId'], [$userId, $params]);
+        $responseData = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntitiesByUserId'], [$userId, $params]);
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

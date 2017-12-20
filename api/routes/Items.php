@@ -55,9 +55,9 @@ class Items extends Route
             $params['status'] = null;
         }
 
-        $data = $this->getEntriesAndSetResponseCacheTags($tableGateway, $params);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($tableGateway, $params);
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -119,7 +119,7 @@ class Items extends Route
                         if ($group && !$groupService->canDelete($id)) {
                             $response = $response->withStatus(403);
 
-                            return $this->withData($response, [
+                            return $this->responseWithData($request, $response, [
                                 'error' => [
                                     'message' => sprintf('You are not allowed to delete group [%s]', $group->name)
                                 ]
@@ -144,21 +144,21 @@ class Items extends Route
         $entries = $this->getEntriesAndSetResponseCacheTags($tableGateway, $params);
 
         if ($isDelete) {
-            $data = [];
+            $responseData = [];
             // TODO: Parse params into the expected value data type
             if (ArrayUtils::get($params, 'meta', 0) == 1) {
-                $data['meta'] = ['table' => $tableGateway->getTable(), 'ids' => $rowIds];
+                $responseData['meta'] = ['table' => $tableGateway->getTable(), 'ids' => $rowIds];
             }
 
             // TODO: Add proper translated error
             if (!$deleted) {
-                $data['error'] = ['message' => 'failed batch delete'];
+                $responseData['error'] = ['message' => 'failed batch delete'];
             }
         } else {
-            $data = $entries;
+            $responseData = ['data' => $entries];
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -198,7 +198,7 @@ class Items extends Route
                     if ($group && !$groupService->canDelete($id)) {
                         $response = $response->withStatus(403);
 
-                        return $this->withData($response, [
+                        return $this->responseWithData($request, $response, [
                             'error' => [
                                 'message' => sprintf('You are not allowed to delete group [%s]', $group->name)
                             ]
@@ -221,29 +221,29 @@ class Items extends Route
                     $success =  $TableGateway->delete($condition);
                 }
 
-                $data = [];
+                $responseData = [];
                 if (!$success) {
-                    $data['error'] = [
+                    $responseData['error'] = [
                         'message' => __t('internal_server_error')
                     ];
                 }
 
-                return $this->withData($response, $data);
+                return $this->responseWithData($request, $response, $responseData);
         }
 
         // TODO: Do not fetch if this is after insert
         // and the user doesn't have permission to read
-        $data = $this->getEntriesAndSetResponseCacheTags($TableGateway, $params);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($TableGateway, $params);
 
-        if (!$data) {
-            $data = [
+        if (!$responseData) {
+            $responseData = [
                 'error' => [
                     'message' => __t('unable_to_find_record_in_x_with_id_x', ['table' => $tableName, 'id' => $id])
                 ],
             ];
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -262,15 +262,15 @@ class Items extends Route
 
         $tableGateway = new DirectusActivityTableGateway($dbConnection, $acl);
 
-        $data = $this->getDataAndSetResponseCacheTags([$tableGateway, 'getMetadata'], [$tableName, $id]);
+        $metaData = $this->getDataAndSetResponseCacheTags([$tableGateway, 'getMetadata'], [$tableName, $id]);
 
-        $bodyData = [];
+        $responseData = [];
         if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $bodyData['meta'] = ['table' => 'directus_activity', 'type' => 'item'];
+            $responseData['meta'] = ['table' => 'directus_activity', 'type' => 'item'];
         }
 
-        $bodyData['data'] = $data;
+        $responseData['data'] = $metaData;
 
-        return $this->withData($response, $bodyData);
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

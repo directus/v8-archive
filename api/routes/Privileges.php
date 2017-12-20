@@ -51,28 +51,28 @@ class Privileges extends Route
             [$groupId, $tableName, $fields]
         );
 
-        $result = [];
+        $responseData = [];
 
         if ($request->getQueryParam('meta', 0) == 1) {
-            $result['meta'] = [
+            $responseData['meta'] = [
                 'type' => 'item',
                 'table' => 'directus_privileges'
             ];
         }
 
-        $result['data'] = $data;
+        $responseData['data'] = $data;
 
-        if (!$result['data']) {
+        if (!$responseData['data']) {
             $response = $response->withStatus(404);
 
-            $result = [
+            $responseData = [
                 'error' => [
                     'message' => __t('unable_to_find_privileges_for_x_in_group_y', ['table' => $tableName, 'group_id' => $groupId])
                 ]
             ];
         }
 
-        return $this->withData($response, $result);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**

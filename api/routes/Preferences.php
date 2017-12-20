@@ -93,24 +93,24 @@ class Preferences extends Route
         if (!$preferences) {
             // @TODO: The app treat 404 as not found url, instead of not found resource
             // $app->response()->setStatus(404);
-            $jsonResponse = [
+            $responseData = [
                 'error' => [
                     'message' => __t('unable_to_find_preferences')
                 ]
             ];
         } else {
-            $jsonResponse = [];
+            $responseData = [];
 
             if (ArrayUtils::get($params, 'meta', 0) == 1) {
-                $jsonResponse['meta'] = [
+                $responseData['meta'] = [
                     'type' => 'item',
                     'table' => 'directus_preferences'
                 ];
             }
 
-            $jsonResponse['data'] = $preferences;
+            $responseData['data'] = $preferences;
         }
 
-        return $this->withData($response, $jsonResponse);
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

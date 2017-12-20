@@ -70,14 +70,14 @@ class Columns extends Route
         $columnService = new ColumnsService($this->container);
         $params['column_name'] = $columnService->addColumn($tableName, $payload);
 
-        $data = [];
+        $responseData = [];
         if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $data['meta'] = ['type' => 'item', 'table' => 'directus_columns'];
+            $responseData['meta'] = ['type' => 'item', 'table' => 'directus_columns'];
         }
 
-        $data['data'] = TableSchema::getColumnSchema($tableName, $params['column_name'], true)->toArray();
+        $responseData['data'] = TableSchema::getColumnSchema($tableName, $params['column_name'], true)->toArray();
 
-        return $this->withData($response, $data);
+        return $this->withData($response, $responseData);
     }
 
     /**
@@ -100,13 +100,13 @@ class Columns extends Route
         }
 
         $this->tagResponseCache('tableColumnsSchema_'.$tableName);
-        $data = [];
+        $responseData = [];
 
         if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $data['meta'] = ['type' => 'collection', 'table' => 'directus_columns'];
+            $responseData['meta'] = ['type' => 'collection', 'table' => 'directus_columns'];
         }
 
-        $data['data'] = array_map(function(Column $column) use ($fields) {
+        $responseData['data'] = array_map(function(Column $column) use ($fields) {
             $info = $column->toArray();
 
             if (!empty($fields)) {
@@ -116,7 +116,7 @@ class Columns extends Route
             return $info;
         }, TableSchema::getTableColumnsSchema($tableName));
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -136,27 +136,26 @@ class Columns extends Route
         $tableName = $request->getAttribute('table');
         $columnName = $request->getAttribute('column');
         $TableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
-        $data = $payload;
 
         // TODO: check whether this condition is still needed
-        if (isset($data['type'])) {
-            $data['data_type'] = $data['type'];
-            $data['relationship_type'] = $data['type'];
-            unset($data['type']);
+        if (isset($payload['type'])) {
+            $payload['data_type'] = $payload['type'];
+            $payload['relationship_type'] = $payload['type'];
+            unset($payload['type']);
         }
 
-        $data['column_name'] = $columnName;
-        $data['table_name'] = $tableName;
+        $payload['column_name'] = $columnName;
+        $payload['table_name'] = $tableName;
         $row = $TableGateway->findOneByArray(['table_name' => $tableName, 'column_name' => $columnName]);
 
         if ($row) {
-            $data['id'] = $row['id'];
+            $payload['id'] = $row['id'];
         }
 
         $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
-        $newRecord = $TableGateway->updateRecord($data, RelationalTableGateway::ACTIVITY_ENTRY_MODE_DISABLED);
+        $newRecord = $TableGateway->updateRecord($payload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_DISABLED);
 
-        return $this->withData($response, $newRecord);
+        return $this->responseWithData($request, $response, $newRecord->toArray());
     }
 
     /**
@@ -173,7 +172,7 @@ class Columns extends Route
         $columnName = $request->getAttribute('column');
         $params = $request->getQueryParams();
 
-        return $this->getColumnInfo($tableName, $columnName, $params);
+        return $this->getColumnInfo($request, $response, $tableName, $columnName, $params);
     }
 
     /**
@@ -211,7 +210,7 @@ class Columns extends Route
         $columnsService = new ColumnsService($this->container);
         $columnsService->update($tableName, $columnName, $payload, $request->isPatch());
 
-        return $this->getColumnInfo($response, $tableName, $columnName, $params);
+        return $this->getColumnInfo($request, $response, $tableName, $columnName, $params);
     }
 
     /**
@@ -277,17 +276,17 @@ class Columns extends Route
             new In('column_name', $columnNames)
         ]);
 
-        $responseBody = [];
+        $responseData = [];
         if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $responseBody['meta'] = [
+            $responseData['meta'] = [
                 'table' => 'directus_columns',
                 'type' => 'collection'
             ];
         }
 
-        $responseBody['data'] = $rows->toArray();
+        $responseData['data'] = $rows->toArray();
 
-        return $this->withData($response, $responseBody);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -315,10 +314,9 @@ class Columns extends Route
             $success = $tableGateway->dropColumn($columnName);
         }
 
-        // NOTE: Let's call it response body, it will make more sense, right?
-        $responseBody = [];
+        $responseData = [];
         if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $responseBody['meta'] = [
+            $responseData['meta'] = [
                 'table' => $tableGateway->getTable(),
                 'column' => $columnName
             ];
@@ -338,12 +336,12 @@ class Columns extends Route
                 ]);
             }
 
-            $responseBody['error'] = [
+            $responseData['error'] = [
                 'message' => $errorMessage
             ];
         }
 
-        return $this->withData($response, $responseBody);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -385,7 +383,7 @@ class Columns extends Route
                 }
         }
 
-        return $this->getUiInfo($response, $tableName, $columnName, $ui, $request->getQueryParams());
+        return $this->getUiInfo($request, $response, $tableName, $columnName, $ui, $request->getQueryParams());
     }
 
     /**
@@ -402,10 +400,11 @@ class Columns extends Route
         $columnName = $request->getAttribute('column');
         $ui = $request->getAttribute('ui');
 
-        return $this->getUiInfo($response, $tableName, $columnName, $ui, $request->getQueryParams());
+        return $this->getUiInfo($request, $response, $tableName, $columnName, $ui, $request->getQueryParams());
     }
 
     /**
+     * @param Request $request
      * @param Response $response
      * @param string $tableName
      * @param string $columnName
@@ -413,29 +412,29 @@ class Columns extends Route
      *
      * @return Response
      */
-    public function getColumnInfo(Response $response, $tableName, $columnName, array $params = [])
+    public function getColumnInfo(Request $request, Response $response, $tableName, $columnName, array $params = [])
     {
         $result = $this->fetchColumnInfo($tableName, $columnName);
 
         if (!$result) {
-             $responseBody = [
+             $responseData = [
                 'error' => [
                     'message' => __t('unable_to_find_column_x', ['column' => $columnName])
                 ]
             ];
         } else {
-            $responseBody = [];
+            $responseData = [];
             if (ArrayUtils::get($params, 'meta', 0) == 1) {
-                $responseBody['meta'] = [
+                $responseData['meta'] = [
                     'type' => 'collection',
                     'table' => 'directus_columns'
                 ];
             }
 
-            $responseBody['data'] = $result;
+            $responseData['data'] = $result;
         }
 
-        return $this->withData($response, $responseBody);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -452,21 +451,22 @@ class Columns extends Route
     }
 
     /**
-     * @param $response
-     * @param $tableName
-     * @param $columnName
-     * @param $ui
+     * @param Request $request
+     * @param Response $response
+     * @param string $tableName
+     * @param string $columnName
+     * @param string $ui
      * @param array $params
      *
      * @return Response
      */
-    public function getUiInfo($response, $tableName, $columnName, $ui, $params = [])
+    public function getUiInfo(Request $request, Response $response, $tableName, $columnName, $ui, $params = [])
     {
         $result = $this->fetchUiInfo($tableName, $columnName);
 
         if (!$result) {
             $response = $response->withStatus(404);
-            $data = [
+            $responseData = [
                 'error' => [
                     'message' => __t('unable_to_find_column_x_options_for_x', ['column' => $columnName, 'ui' => $ui])
                 ]
@@ -479,12 +479,12 @@ class Columns extends Route
                 $data['meta'] = ['table' => 'directus_columns', 'type' => 'item'];
             }
 
-            $data = [
+            $responseData = [
                 'data' => json_decode($result['options'], true)
             ];
         }
 
-        return $this->withData($response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**

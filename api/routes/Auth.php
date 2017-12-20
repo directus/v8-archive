@@ -50,7 +50,6 @@ class Auth extends Route
             $request->getParsedBodyParam('password')
         );
 
-        $responseBody = [];
         $authenticated = false;
 
         // ------------------------------
@@ -59,14 +58,16 @@ class Auth extends Route
         $groupId = $user->get('group');
         $directusGroupsTableGateway = new DirectusGroupsTableGateway($dbConnection, null);
         if (!$directusGroupsTableGateway->acceptIP($groupId, $request->getAttribute('ip_address'))) {
-            $responseBody = [
+            $responseData = [
                 'error' => [
                     'message' => 'Request not allowed from IP address',
                 ]
             ];
         } else {
-            $responseBody['data'] = [
-                'token' => $authService->generateToken($user)
+            $responseData = [
+                'data' => [
+                    'token' => $authService->generateToken($user)
+                ]
             ];
             $authenticated = true;
         }
@@ -79,7 +80,7 @@ class Auth extends Route
             $Activity->recordLogin($user->get('id'));
         }
 
-        return $this->withData($response, $responseBody);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -103,7 +104,7 @@ class Auth extends Route
             $request->getParsedBodyParam('token')
         );
 
-        return $this->withData($response, ['token' => $token]);
+        return $this->responseWithData($request, $response, ['token' => $token]);
     }
 
     public function resetPassword($token)

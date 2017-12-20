@@ -64,14 +64,14 @@ class Files extends Route
                 // Delete file record
                 $success = $TableGateway->delete($conditions);
 
-                $data = [];
+                $responseData = [];
                 if (!$success) {
-                    $data = [
+                    $responseData = [
                         'error' => 'Failed deleting id: ' . $id
                     ];
                 }
 
-                return $this->withData($response, $data);
+                return $this->responseWithData($request, $response, $responseData);
 
                 break;
             case 'POST':
@@ -121,24 +121,23 @@ class Files extends Route
         }
 
         $Files = new RelationalTableGateway($table, $dbConnection, $acl);
-        $data = $this->getEntriesAndSetResponseCacheTags($Files, $params);
-        if (!$data) {
-            $data = [
+        $responseData = $this->getEntriesAndSetResponseCacheTags($Files, $params);
+        if (!$responseData) {
+            $responseData = [
                 'error' => [
                     'message' => __t('unable_to_find_file_with_id_x', ['id' => $id])
                 ]
             ];
         }
 
-        // return $this->withData($response, $data);
-        return $this->responseWithData($request, $response, $data);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
      * @param Request $request
      * @param Response $response
      *
-     * @return Files
+     * @return Response
      */
     public function upload(Request $request, Response $response)
     {
@@ -149,7 +148,11 @@ class Files extends Route
             $result[] = $Files->upload($file);
         }
 
-        return $this-$this->withData($response, $result);
+        $responseData = [
+            'data' => $result
+        ];
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -164,7 +167,7 @@ class Files extends Route
         $Files = $this->container->get('files');
         $link = $request->getParam('link');
 
-        $result = [
+        $responseData = [
             'error' => [
                 'message' => __t('invalid_unsupported_url')
             ],
@@ -181,8 +184,8 @@ class Files extends Route
                 $response = $response->withStatus(200);
                 $fileData = array_merge($fileData, $linkInfo);
 
-                $result = [];
-                $result[] = [
+                $items = [];
+                $items[] = [
                     'type' => $fileData['type'],
                     'name' => $fileData['name'],
                     'title' => $fileData['title'],
@@ -199,9 +202,11 @@ class Files extends Route
                     'user' => $currentUserId
                     //'date_uploaded' => $fileData['date_uploaded'] . ' UTC',
                 ];
+
+                $responseData = ['data' => $items];
             }
         }
 
-        return $this->withData($response, $result);
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

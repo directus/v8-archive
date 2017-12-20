@@ -42,6 +42,6 @@ class Revisions extends Route
             [$id, $tableName]
         );
 
-        return $this->withData($response, $revisions);
+        return $this->responseWithData($request, $response, $revisions);
     }
 }

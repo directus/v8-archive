@@ -3,11 +3,11 @@
 namespace Directus\Api\Routes;
 
 use Directus\Application\Application;
+use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Hash\HashManager;
 use Directus\Util\StringUtils;
-use Slim\Http\Request;
 
 class Utils extends Route
 {
@@ -39,7 +39,7 @@ class Utils extends Route
         }
 
         if (empty($string)) {
-            return $this->withData($response, [
+            return $this->responseWithData($request, $response, [
                 'error' => [
                     'message' => __t('hash_expect_a_string')
                 ]
@@ -51,7 +51,7 @@ class Utils extends Route
         $hashManager = $this->container->get('hash_manager');
         $hashedString = $hashManager->hash($string, $options);
 
-        return $this->withData($response, [
+        return $this->responseWithData($request, $response, [
             'data' => [
                 'hash' => $hashedString
             ]
@@ -74,7 +74,7 @@ class Utils extends Route
 
         $randomString = StringUtils::randomString($length);
 
-        return $this->withData($response, [
+        return $this->responseWithData($request, $response, [
             'data' => [
                 'random' => $randomString
             ]
