@@ -28,7 +28,7 @@ class Users extends Route
     {
         $app->get('', [$this, 'all']);
         $app->post('', [$this, 'create']);
-        $app->get('/{id)}', [$this, 'one']);
+        $app->get('/{id}', [$this, 'one']);
         $app->post('/invite', [$this, 'invite']);
         $app->map(['PUT', 'PATCH'], '/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'update']); // move separated method

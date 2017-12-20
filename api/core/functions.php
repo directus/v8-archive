@@ -511,7 +511,7 @@ if (!function_exists('get_locales_path')) {
      */
     function get_locales_path()
     {
-        $localesPath = BASE_PATH . '/api/locales/*.json';
+        $localesPath = base_path('/api/locales/*.json');
 
         return glob($localesPath);
     }
@@ -581,7 +581,7 @@ if (!function_exists('get_default_phrases')) {
 
 if (!function_exists('get_locale_phrases')) {
     function get_locale_phrases($locale) {
-        $phrasesPath = BASE_PATH . '/api/locales/' . $locale . '.json';
+        $phrasesPath = base_path('/api/locales/' . $locale . '.json');
 
         return json_decode(file_get_contents($phrasesPath), true);
     }
@@ -591,7 +591,7 @@ if (!function_exists('get_phrases')) {
     function get_phrases($locale = 'en')
     {
         $defaultPhrases = get_default_phrases();
-        $langFile = BASE_PATH . '/api/locales/' . $locale . '.json';
+        $langFile = base_path('/api/locales/' . $locale . '.json');
 
         $phrases = [];
         if (file_exists($langFile)) {
@@ -615,6 +615,25 @@ if (!function_exists('__t')) {
         $phrase = \Directus\Util\StringUtils::replacePlaceholder($phrase, $data, \Directus\Util\StringUtils::PLACEHOLDER_PERCENTAGE_MUSTACHE);
 
         return $phrase;
+    }
+}
+
+if (!function_exists('base_path')) {
+    function base_path($suffix = '')
+    {
+        $app = \Directus\Application\Application::getInstance();
+
+        $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__ . '/../../');
+
+        if (!is_string($suffix)) {
+            throw new \Directus\Exception\Exception('suffix must be a string');
+        }
+
+        if ($suffix) {
+            $path = rtrim($path, '/') . $suffix;
+        }
+
+        return $path;
     }
 }
 
@@ -1621,6 +1640,24 @@ if (!function_exists('compact_sort_to_array')) {
         return [
             $field => $order
         ];
+    }
+}
+
+if (!function_exists('convert_param_columns')) {
+    function convert_param_columns($columns)
+    {
+        if (is_array($columns)) {
+            return $columns;
+        }
+
+        if (is_string($columns)) {
+            // remove all 'falsy' columns name
+            $columns = array_filter(\Directus\Util\StringUtils::csv($columns, true));
+        } else {
+            $columns = [];
+        }
+
+        return $columns;
     }
 }
 

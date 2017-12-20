@@ -12,6 +12,7 @@ use Directus\Database\TableGateway\DirectusPreferencesTableGateway;
 use Directus\Exception\Http\ForbiddenException;
 use Directus\MemcacheProvider;
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 use Zend\Db\Sql\Predicate\NotIn;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
@@ -775,13 +776,27 @@ class TableSchema
             return false;
         }
 
-        $info = $table->toArray();
-        unset($info['columns']);
+        // include the fake relational column "columns"
+        // It is fake because the relation is not being done by Directus relationships
+        $allColumnsName = array_merge(['columns', 'preferences'], $table->getColumnsName());
+        $fields = ArrayUtils::get($params, 'fields', $allColumnsName);
+        if (!is_array($fields)) {
+            $fields = StringUtils::csv($fields);
+        }
 
-        if (ArrayUtils::get($params, 'include_columns', false)) {
+        $info = $table->toArray();
+        $info = ArrayUtils::pick($info, get_columns_flat_at($fields, 0));
+        $unflatFields = get_unflat_columns($fields);
+
+        if (in_array('columns', get_columns_flat_at($fields, 0))) {
+            $columnsFields = ArrayUtils::get($unflatFields, 'columns');
             $columns = array_values(array_filter($table->getColumnsArray(), function ($column) {
                 return static::canReadColumn($column['table_name'], $column['name']);
             }));
+
+            $columns = array_map(function ($column) use ($columnsFields) {
+                return ArrayUtils::pick($column, array_keys($columnsFields));
+            }, $columns);
 
             $info['columns'] = [];
             if (ArrayUtils::get($params, 'meta', 0)) {
@@ -794,9 +809,17 @@ class TableSchema
             $info['columns']['data'] = $columns;
         }
 
-        $directusPreferencesTableGateway = new DirectusPreferencesTableGateway($zendDb, $acl);
-        $currentUserId = static::getAclInstance()->getUserId();
-        $info['preferences'] = $directusPreferencesTableGateway->fetchByUserAndTable($currentUserId, $tableName);
+        if (in_array('preferences', get_columns_flat_at($fields, 0))) {
+            $directusPreferencesTableGateway = new DirectusPreferencesTableGateway($zendDb, $acl);
+            $currentUserId = static::getAclInstance()->getUserId();
+            $info['preferences'] = [
+                'data' => $directusPreferencesTableGateway->fetchByUserAndTable(
+                    $currentUserId,
+                    $tableName,
+                    array_keys(ArrayUtils::get($unflatFields, 'preferences'))
+                )
+            ];
+        }
 
         return $info;
     }

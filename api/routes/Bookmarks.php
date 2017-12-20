@@ -10,6 +10,7 @@ use Directus\Database\TableGateway\DirectusBookmarksTableGateway;
 use Directus\Database\TableGateway\DirectusPreferencesTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Permissions\Acl;
+use Directus\Util\StringUtils;
 
 class Bookmarks extends Route
 {
@@ -18,12 +19,12 @@ class Bookmarks extends Route
      */
     public function __invoke(Application $app)
     {
-        $app->get('/bookmarks', [$this, 'all']);
-        $app->post('/bookmarks', [$this, 'create']);
+        $app->get('', [$this, 'all']);
+        $app->post('', [$this, 'create']);
         $app->map(['POST', 'PUT', 'PATCH', 'DELETE'], '/bookmarks/{id}', [$this, 'one']);
-        $app->get('/bookmarks/user/me', [$this, 'mine']);
-        $app->get('/bookmarks/user/{id}', [$this, 'user']);
-        $app->get('/bookmarks/{title}/preferences', [$this, 'preferences']);
+        $app->get('/user/me', [$this, 'mine']);
+        $app->get('/user/{id}', [$this, 'user']);
+        $app->get('/{title}/preferences', [$this, 'preferences']);
     }
 
     /**
@@ -156,8 +157,12 @@ class Bookmarks extends Route
         $dbConnection = $this->container->get('database');
         $tableGateway = new DirectusPreferencesTableGateway($dbConnection, $acl);
         $title = $request->getAttribute('title');
+        $params = $request->getQueryParams();
 
-        $data = $this->getDataAndSetResponseCacheTags([$tableGateway, 'fetchEntityByUserAndTitle'], [$acl->getUserId(), $title]);
+        $data = $this->getDataAndSetResponseCacheTags(
+            [$tableGateway, 'fetchEntityByUserAndTitle'],
+            [$acl->getUserId(), $title, $params]
+        );
 
         if (!isset($data['data'])) {
             $data = [
@@ -180,6 +185,7 @@ class Bookmarks extends Route
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
         $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
 
         $bookmarks = new DirectusBookmarksTableGateway($dbConnection, $acl);
         switch ($request->getMethod()) {
@@ -193,7 +199,7 @@ class Bookmarks extends Route
                 break;
         }
 
-        $data = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntitiesByUserId'], [$userId]);
+        $data = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntitiesByUserId'], [$userId, $params]);
 
         return $this->withData($response, $data);
     }

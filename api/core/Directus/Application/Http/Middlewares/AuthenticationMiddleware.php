@@ -101,7 +101,9 @@ class AuthenticationMiddleware extends AbstractMiddleware
         // TODO: Make sure that the group is not empty
         $acl->setUserId($user->id);
         $acl->setGroupId($user->group);
-        $acl->setPublic($publicGroupId);
+        if (!$authenticated && $publicGroupId) {
+            $acl->setPublic($publicGroupId);
+        }
 
         // Set full permission to Admin
         if ($acl->isAdmin()) {

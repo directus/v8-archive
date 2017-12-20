@@ -7,6 +7,7 @@ use Directus\Database\TableSchema;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
+use Directus\Util\StringUtils;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Insert;
@@ -69,6 +70,10 @@ class DirectusActivityTableGateway extends RelationalTableGateway
 
         // TODO: Only select the fields not on the currently authenticated user group's read field blacklist
         $columns = ['id', 'identifier', 'action', 'table_name', 'row_id', 'user', 'datetime', 'type', 'data', 'logged_ip'];
+        if (ArrayUtils::has($params, 'columns')) {
+            $columns = ArrayUtils::get($params, 'columns');
+        }
+
         $builder->columns($columns);
 
         $tableSchema = TableSchema::getTableSchema($this->table);

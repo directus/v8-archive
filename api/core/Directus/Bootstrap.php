@@ -2,62 +2,23 @@
 
 namespace Directus;
 
-use Cache\Adapter\Apc\ApcCachePool;
-use Cache\Adapter\Apcu\ApcuCachePool;
-use Cache\Adapter\Common\PhpCachePool;
-use Cache\Adapter\Filesystem\FilesystemCachePool;
-use Cache\Adapter\Memcached\MemcachedCachePool;
-use Cache\Adapter\PHPArray\ArrayCachePool;
-use Cache\Adapter\Redis\RedisCachePool;
-use Cache\Adapter\Void\VoidCachePool;
 use Directus\Application\Application;
-use Directus\Application\Container;
 use Directus\Authentication\FacebookProvider;
 use Directus\Authentication\GitHubProvider;
 use Directus\Authentication\GoogleProvider;
-use Directus\Authentication\Provider as AuthProvider;
-use Directus\Authentication\Provider;
 use Directus\Authentication\Social;
 use Directus\Authentication\TwitterProvider;
-use Directus\Authentication\User\Provider\UserTableGatewayProvider;
-use Directus\Cache\Response as ResponseCache;
-use Directus\Cache\Response;
-use Directus\Config\Config;
-use Directus\Database\Connection;
-use Directus\Database\Object\Table;
-use Directus\Database\SchemaManager;
-use Directus\Database\Schemas\Sources\MySQLSchema;
-use Directus\Database\Schemas\Sources\SQLiteSchema;
-use Directus\Database\TableGateway\BaseTableGateway;
-use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Database\TableGateway\DirectusSettingsTableGateway;
-use Directus\Database\TableGateway\DirectusUsersTableGateway;
-use Directus\Database\TableGateway\RelationalTableGateway;
-use Directus\Database\TableGatewayFactory;
 use Directus\Database\TableSchema;
 use Directus\Debug\Log\Writer;
 use Directus\Embed\EmbedManager;
-use Directus\Exception\Exception;
-use Directus\Exception\Http\ForbiddenException;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
-use Directus\Filesystem\Thumbnail;
-use Directus\Hash\HashManager;
-use Directus\Hook\Emitter;
-use Directus\Hook\Payload;
 use Directus\Language\LanguageManager;
-use Directus\Permissions\Acl;
 use Directus\Providers\FilesServiceProvider;
-use Directus\Services\AuthService;
 use Directus\Session\Session;
 use Directus\Session\Storage\NativeSessionStorage;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
-use Directus\Util\StringUtils;
-use Directus\View\Twig\DirectusTwigExtension;
-use Slim\Extras\Views\Twig;
-use League\Flysystem\Adapter\Local;
-use Slim\Helper\Set;
 
 
 /**
@@ -334,55 +295,6 @@ class Bootstrap
         $languages = get_locales_filename();
 
         return new LanguageManager($languages);
-    }
-
-    /**
-     * @return \Directus\Embed\EmbedManager
-     */
-    private static function embedManager()
-    {
-        $embedManager = new EmbedManager();
-
-        $acl = static::get('acl');
-        $adapter = static::get('ZendDb');
-
-        // Fetch files settings
-        $SettingsTable = new DirectusSettingsTableGateway($adapter, $acl);
-        try {
-            $settings = $SettingsTable->fetchCollection('files', [
-                'thumbnail_size', 'thumbnail_quality', 'thumbnail_crop_enabled'
-            ]);
-        } catch (\Exception $e) {
-            $settings = [];
-            $log = static::get('log');
-            $log->warn($e);
-        }
-
-        $providers = [
-            '\Directus\Embed\Provider\VimeoProvider',
-            '\Directus\Embed\Provider\YoutubeProvider'
-        ];
-
-        $path = implode(DIRECTORY_SEPARATOR, [
-            BASE_PATH,
-            'customs',
-            'embeds',
-            '*.php'
-        ]);
-
-        $customProvidersFiles = glob($path);
-        if ($customProvidersFiles) {
-            foreach ($customProvidersFiles as $filename) {
-                $providers[] = '\\Directus\\Embed\\Provider\\' . basename($filename, '.php');
-            }
-        }
-
-        foreach ($providers as $providerClass) {
-            $provider = new $providerClass($settings);
-            $embedManager->register($provider);
-        }
-
-        return $embedManager;
     }
 
     private static function session()

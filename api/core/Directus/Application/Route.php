@@ -229,17 +229,17 @@ abstract class Route
         $emitter = $this->container->get('hook_emitter');
 
         $payload = $emitter->apply('response', $data, $attributes);
-        $payload = $emitter->apply('response.' . $method, $payload->getData());
+        $payload = $emitter->apply('response.' . $method, $payload);
 
         if ($meta['table']) {
-            $emitter->apply('response.' . $meta['table'], $payload->getData());
+            $emitter->apply('response.' . $meta['table'], $payload);
             $payload = $emitter->apply(sprintf('response.%s.%s',
                 $meta['table'],
                 $method
-            ), $payload->getData());
+            ), $payload);
         }
 
-        return $payload->getData();
+        return $payload;
     }
 
     /**

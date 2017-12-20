@@ -12,6 +12,7 @@ use Directus\Database\TableSchema;
 use Directus\Permissions\Exception\UnauthorizedTableAlterException;
 use Directus\Services\ColumnsService;
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 use Zend\Db\Sql\Predicate\In;
 
 class Columns extends Route
@@ -93,6 +94,10 @@ class Columns extends Route
     {
         $params = $request->getQueryParams();
         $tableName = $request->getAttribute('table');
+        $fields = $request->getQueryParam('fields');
+        if (!is_array($fields)) {
+            $fields = StringUtils::csv($fields);
+        }
 
         $this->tagResponseCache('tableColumnsSchema_'.$tableName);
         $data = [];
@@ -101,8 +106,14 @@ class Columns extends Route
             $data['meta'] = ['type' => 'collection', 'table' => 'directus_columns'];
         }
 
-        $data['data'] = array_map(function(Column $column) {
-            return $column->toArray();
+        $data['data'] = array_map(function(Column $column) use ($fields) {
+            $info = $column->toArray();
+
+            if (!empty($fields)) {
+                $info = ArrayUtils::pick($info, $fields);
+            }
+
+            return $info;
         }, TableSchema::getTableColumnsSchema($tableName));
 
         return $this->withData($response, $data);

@@ -8,12 +8,13 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Exception\Http\ForbiddenException;
+use Directus\Util\StringUtils;
 
 class Privileges extends Route
 {
     public function __invoke(Application $app)
     {
-        $app->get('/{group}(/{table})', [$this, 'show']);
+        $app->get('/{group}[/{table}]', [$this, 'show']);
         $app->post('/{group}', [$this, 'create']);
         // $app->get('/privileges/:groupId(/:tableName)/?', '\Directus\API\Routes\A1\Privileges:showPrivileges');
         // $app->post('/privileges/:groupId/?', '\Directus\API\Routes\A1\Privileges:createPrivileges');
@@ -40,10 +41,14 @@ class Privileges extends Route
         $privileges = new DirectusPrivilegesTableGateway($dbConnection, $acl);
         $groupId = $request->getAttribute('group');
         $tableName = $request->getAttribute('table');
+        $fields = $request->getQueryParam('fields', []);
+        if (!is_array($fields)) {
+            $fields = array_filter(StringUtils::csv($fields));
+        }
 
         $data = $this->getDataAndSetResponseCacheTags(
             [$privileges, 'fetchPerTable'],
-            [$groupId, $tableName]
+            [$groupId, $tableName, $fields]
         );
 
         $result = [];
@@ -62,7 +67,7 @@ class Privileges extends Route
 
             $result = [
                 'error' => [
-                    'message' => __t('unable_to_find_privileges_for_x_in_group_x', ['table' => $tableName, 'group_id' => $groupId])
+                    'message' => __t('unable_to_find_privileges_for_x_in_group_y', ['table' => $tableName, 'group_id' => $groupId])
                 ]
             ];
         }

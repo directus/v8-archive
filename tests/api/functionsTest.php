@@ -415,6 +415,19 @@ class FunctionsTest extends PHPUnit_Framework_TestCase
         $this->assertSame('pong', $resOut);
     }
 
+    public function testConvertParamColumn()
+    {
+        $this->assertInternalType('array', convert_param_columns([]));
+        $this->assertInternalType('array', convert_param_columns(['one']));
+        $this->assertInternalType('array', convert_param_columns(['one', 'two']));
+        $this->assertInternalType('array', convert_param_columns(''));
+        $this->assertInternalType('array', convert_param_columns('one'));
+        $this->assertInternalType('array', convert_param_columns('one,two'));
+        $this->assertInternalType('array', convert_param_columns(null));
+        $this->assertInternalType('array', convert_param_columns(false));
+        $this->assertInternalType('array', convert_param_columns(1));
+    }
+
     protected $files = [
         'file.js',
         'module.js',

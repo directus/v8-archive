@@ -119,16 +119,17 @@ class DirectusBookmarksTableGateway extends RelationalTableGateway
      * Gets all the bookmarks for the given user
      *
      * @param $userId
+     * @param $params
      *
      * @return array
      */
-    public function fetchEntitiesByUserId($userId)
+    public function fetchEntitiesByUserId($userId, array $params = [])
     {
-        $result = $this->getEntries([
+        $result = $this->getEntries(array_merge($params, [
             'filters' => [
                 'user' => $userId
             ]
-        ]);
+        ]));
 
         return $result;
     }

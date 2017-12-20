@@ -82,6 +82,34 @@ class AclTest extends PHPUnit_Framework_TestCase
         $this->acl->setGroupId(1);
     }
 
+    public function testPublic()
+    {
+        $acl = new Acl();
+
+        $acl->setPublic(true);
+
+        $this->assertTrue($acl->isPublic());
+    }
+
+    public function testIsAdmin()
+    {
+        $acl = new Acl();
+
+        $acl->setGroupId(1);
+
+        $this->assertTrue($acl->isAdmin());
+    }
+
+    public function testSetTablePermissions()
+    {
+        $acl = new Acl();
+        $acl->setTablePrivileges('test', [
+            'allow_edit' => 1
+        ]);
+
+        $this->assertTrue($acl->canEdit('test'));
+    }
+
     public function testGroupPrivileges()
     {
         $acl = new Acl($this->privileges);

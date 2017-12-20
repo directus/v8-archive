@@ -499,7 +499,7 @@ class ProviderTest extends PHPUnit_Framework_TestCase
             ->with(
                 ['invite_token' => 'invalid-token']
             )
-            ->will($this->returnValue(new \Directus\Authentication\User\User()));
+            ->will($this->returnValue(null));
     }
 
     /**

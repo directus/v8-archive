@@ -233,7 +233,7 @@ class Provider
      */
     public function forceUserLogin(UserInterface $user)
     {
-        if (!$user) {
+        if (!$user || !$user->getId()) {
             throw new UserNotFoundException();
         }
 

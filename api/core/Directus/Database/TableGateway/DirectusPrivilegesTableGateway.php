@@ -4,6 +4,7 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Database\TableSchema;
 use Directus\Permissions\Acl;
+use Directus\Util\ArrayUtils;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Select;
@@ -176,7 +177,7 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
         return $this->fetchById($attributes['id']);
     }
 
-    public function fetchPerTable($groupId, $tableName = null)
+    public function fetchPerTable($groupId, $tableName = null, array $columns = [])
     {
         // Don't include tables that can't have privileges changed
         /*$blacklist = array(
@@ -197,6 +198,12 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
 
 
         $select = new Select($this->table);
+        if (!empty($columns)) {
+            // Force the primary key
+            // It's going to be removed below
+            $select->columns(array_merge([$this->primaryKeyFieldName], $columns));
+        }
+
         $select->where->equalTo('group_id', $groupId);
         if (!is_null($tableName)) {
             $select->where->equalTo('table_name', $tableName);
@@ -214,6 +221,11 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
             if (in_array($item['table_name'], $blacklist)) {
                 continue;
             }
+
+            if (!empty($columns)) {
+                $item = ArrayUtils::pick($item, $columns);
+            }
+
             $privilegesHash[$item['table_name']] = $item;
             $privileges[] = $item;
         }

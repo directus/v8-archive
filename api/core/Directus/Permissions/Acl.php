@@ -184,13 +184,6 @@ class Acl
         return $this->getGroupId() === 1;
     }
 
-    public function getFullPermission()
-    {
-        return [
-            ''
-        ];
-    }
-
     /**
      * Sets the group tables privileges
      *

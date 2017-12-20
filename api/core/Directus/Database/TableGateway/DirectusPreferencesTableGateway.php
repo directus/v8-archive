@@ -4,6 +4,8 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Database\TableSchema;
 use Directus\Permissions\Acl;
+use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Predicate\NotIn;
@@ -133,9 +135,14 @@ class DirectusPreferencesTableGateway extends RelationalTableGateway
         return $data;
     }
 
-    public function fetchByUserAndTableAndTitle($user_id, $table, $title = null)
+    public function fetchByUserAndTableAndTitle($user_id, $table, $title = null, array $columns = [])
     {
         $select = new Select($this->table);
+
+        if (!empty($columns)) {
+            $select->columns(array_merge([$this->primaryKeyFieldName], $columns));
+        }
+
         $select->limit(1);
         $select
             ->where
@@ -160,6 +167,10 @@ class DirectusPreferencesTableGateway extends RelationalTableGateway
             $preferences = $this->constructPreferences($user_id, $table, $preferences);
         }
 
+        if ($preferences && !empty($columns)) {
+            $preferences = ArrayUtils::pick($preferences, $columns);
+        }
+
         return $this->parseRecord($preferences);
     }
 
@@ -177,35 +188,55 @@ class DirectusPreferencesTableGateway extends RelationalTableGateway
     }
 
     /**
-     * @param $user_id
-     * @param $title
+     * @param int $user_id
+     * @param string $title
+     * @param array $params
+     *
      * @return array|mixed
      */
-    public function fetchEntityByUserAndTitle($user_id, $title)
+    public function fetchEntityByUserAndTitle($user_id, $title, array $params = [])
     {
         // TODO: Merge with fetchByUserAndTableAndTitle
+        $fields = ArrayUtils::get($params, 'fields');
+        if (!empty($fields)) {
+            if (!is_array($fields)) {
+                $fields = StringUtils::csv($fields);
+            }
 
-        $result = $this->getEntries([
+            $params['fields'] = array_merge(['table_name'], $fields);
+        }
+
+        $result = $this->loadItems(array_merge($params, [
             'single' => true,
             'filters' => [
                 'user' => $user_id,
                 'title' => $title
             ]
-        ]);
+        ]));
 
-        $result['data'] = ($result['data'])
-            ? $this->constructPreferences($user_id, $result['data']['table_name'], $result['data']) : [];
+        $result = $result
+            ? $this->constructPreferences($user_id, $result['table_name'], $result)
+            : [];
 
-        return $result;
+        if (!empty($fields)) {
+            $result = ArrayUtils::pick($result, $fields);
+        }
+
+        return ['data' => $result];
     }
 
     /*
      * Temporary while I figured out why the method above
      * doesn't not construct preferences on table without preferences.
      */
-    public function fetchByUserAndTable($user_id, $table)
+    public function fetchByUserAndTable($user_id, $table, array $columns = [])
     {
         $select = new Select($this->table);
+
+        if (!empty($columns)) {
+            $select->columns([$this->primaryKeyFieldName], $columns);
+        }
+
         $select->limit(1);
         $select
             ->where
@@ -222,6 +253,10 @@ class DirectusPreferencesTableGateway extends RelationalTableGateway
 
         if ($preferences) {
             $preferences = $preferences->toArray();
+        }
+
+        if ($preferences && !empty($columns)) {
+            $preferences = ArrayUtils::pick($preferences, $columns);
         }
 
         return $this->parseRecord($preferences);

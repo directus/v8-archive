@@ -19,16 +19,22 @@ use Directus\Database\Connection;
 use Directus\Database\Object\Column;
 use Directus\Database\Object\Table;
 use Directus\Database\SchemaManager;
+use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
+use Directus\Database\TableGateway\DirectusSettingsTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
+use Directus\Embed\EmbedManager;
+use Directus\Exception\Http\ForbiddenException;
+use Directus\Filesystem\Thumbnail;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
 use Directus\Util\ArrayUtils;
+use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
 use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
@@ -49,6 +55,7 @@ class CoreServicesProvider
         $container['schema_adapter']    = $this->getSchemaAdapter();
         $container['schema_manager']    = $this->getSchemaManager();
         $container['hash_manager']      = $this->getHashManager();
+        $container['embed_manager']     = $this->getEmbedManager();
 
         // Move this separately to avoid clogging one class
         $container['cache']             = $this->getCache();
@@ -205,16 +212,16 @@ class CoreServicesProvider
 
                 $logger->error($exception->getMessage());
             });
-            $emitter->addFilter('response', function (Payload $payload) {
-                $acl = Bootstrap::get('acl');
+            $emitter->addFilter('response', function (Payload $payload) use ($container) {
+                $acl = $container->get('acl');
                 if ($acl->isPublic()) {
                     $payload->set('public', true);
                 }
                 return $payload;
             });
-            $emitter->addAction('table.insert.directus_groups', function ($data) {
-                $acl = Bootstrap::get('acl');
-                $zendDb = Bootstrap::get('zendDb');
+            $emitter->addAction('table.insert.directus_groups', function ($data) use ($container) {
+                $acl = $container->get('acl');
+                $zendDb = $container->get('database');
                 $privilegesTable = new DirectusPrivilegesTableGateway($zendDb, $acl);
                 $privilegesTable->insertPrivilege([
                     'group_id' => $data['id'],
@@ -228,11 +235,11 @@ class CoreServicesProvider
                     'write_field_blacklist' => 'group,token'
                 ]);
             });
-            $emitter->addFilter('table.insert:before', function (Payload $payload) {
+            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($container) {
                 $tableName = $payload->attribute('tableName');
                 $tableObject = TableSchema::getTableSchema($tableName);
                 /** @var Acl $acl */
-                $acl = Bootstrap::get('acl');
+                $acl = $container->get('acl');
                 if ($dateCreated = $tableObject->getDateCreateColumn()) {
                     $payload[$dateCreated] = DateUtils::now();
                 }
@@ -251,11 +258,11 @@ class CoreServicesProvider
                 }
                 return $payload;
             }, Emitter::P_HIGH);
-            $emitter->addFilter('table.update:before', function (Payload $payload) {
+            $emitter->addFilter('table.update:before', function (Payload $payload) use ($container) {
                 $tableName = $payload->attribute('tableName');
                 $tableObject = TableSchema::getTableSchema($tableName);
                 /** @var Acl $acl */
-                $acl = Bootstrap::get('acl');
+                $acl = $container->get('acl');
                 if ($dateModified = $tableObject->getDateUpdateColumn()) {
                     $payload[$dateModified] = DateUtils::now();
                 }
@@ -268,17 +275,17 @@ class CoreServicesProvider
                 }
                 return $payload;
             }, Emitter::P_HIGH);
-            $emitter->addFilter('table.insert:before', function (Payload $payload) {
+            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($container) {
                 if ($payload->attribute('tableName') === 'directus_files') {
-                    $auth = Bootstrap::get('auth');
+                    $auth = $container->get('auth');
                     $payload->remove('data');
                     $payload->set('user', $auth->getUserInfo('id'));
                 }
                 return $payload;
             });
-            $addFilesUrl = function ($rows) {
+            $addFilesUrl = function ($rows) use ($container) {
                 foreach ($rows as &$row) {
-                    $config = Bootstrap::get('config');
+                    $config = $container->get('config');
                     $fileURL = $config['filesystem']['root_url'];
                     $thumbnailURL = $config['filesystem']['root_thumb_url'];
                     $thumbnailFilenameParts = explode('.', $row['name']);
@@ -300,7 +307,7 @@ class CoreServicesProvider
                     // 314551321-vimeo-220-124-true.jpg
                     // hotfix: there's not thumbnail for this file
                     $row['old_thumbnail_url'] = $thumbnailURL . '/' . $oldThumbnailFilename;
-                    $embedManager = Bootstrap::get('embedManager');
+                    $embedManager = $container->get('embed_manager');
                     $provider = isset($row['type']) ? $embedManager->getByType($row['type']) : null;
                     $row['html'] = null;
                     if ($provider) {
@@ -319,7 +326,7 @@ class CoreServicesProvider
                 return $payload;
             });
             // Add file url and thumb url
-            $emitter->addFilter('table.select', function (Payload $payload) use ($addFilesUrl) {
+            $emitter->addFilter('table.select', function (Payload $payload) use ($addFilesUrl, $container) {
                 $selectState = $payload->attribute('selectState');
                 $rows = $payload->getData();
                 if ($selectState['table'] == 'directus_files') {
@@ -339,8 +346,8 @@ class CoreServicesProvider
                     }
                     $filesIds = array_filter($filesIds);
                     if ($filesIds) {
-                        $ZendDb = Bootstrap::get('zenddb');
-                        $acl = Bootstrap::get('acl');
+                        $ZendDb = $container->get('database');
+                        $acl = $container->get('acl');
                         $table = new RelationalTableGateway('directus_files', $ZendDb, $acl);
                         $filesEntries = $table->loadItems([
                             'in' => ['id' => $filesIds]
@@ -362,16 +369,11 @@ class CoreServicesProvider
                 $payload->replace($rows);
                 return $payload;
             });
-            $emitter->addFilter('table.select.directus_users', function (Payload $payload) {
-                $acl = Bootstrap::get('acl');
-                $auth = Bootstrap::get('auth');
+            $emitter->addFilter('table.select.directus_users', function (Payload $payload) use ($container) {
+                $acl = $container->get('acl');
                 $rows = $payload->getData();
-                $userId = null;
-                $groupId = null;
-                if ($auth->loggedIn()) {
-                    $userId = $acl->getUserId();
-                    $groupId = $acl->getGroupId();
-                }
+                $userId = $acl->getUserId();
+                $groupId = $acl->getGroupId();
                 foreach ($rows as &$row) {
                     $omit = [
                         'password',
@@ -395,9 +397,9 @@ class CoreServicesProvider
                 $payload->replace($rows);
                 return $payload;
             });
-            $hashUserPassword = function (Payload $payload) {
+            $hashUserPassword = function (Payload $payload) use ($container) {
                 if ($payload->has('password')) {
-                    $auth = Bootstrap::get('auth');
+                    $auth = $container->get('auth');
                     $payload['salt'] = StringUtils::randomString();
                     $payload['password'] = $auth->hashPassword($payload['password'], $payload['salt']);
                 }
@@ -430,9 +432,9 @@ class CoreServicesProvider
                 return $slugifyString(false, $payload);
             });
             // TODO: Merge with hash user password
-            $hashPasswordInterface = function (Payload $payload) {
+            $hashPasswordInterface = function (Payload $payload) use ($container) {
                 /** @var Provider $auth */
-                $auth = Bootstrap::get('auth');
+                $auth = $container->get('auth');
                 $tableName = $payload->attribute('tableName');
                 if (TableSchema::isSystemTable($tableName)) {
                     return $payload;
@@ -451,15 +453,15 @@ class CoreServicesProvider
                 }
                 return $payload;
             };
-            $emitter->addFilter('table.update.directus_users:before', function (Payload $payload) {
-                $acl = Bootstrap::get('acl');
+            $emitter->addFilter('table.update.directus_users:before', function (Payload $payload) use ($container) {
+                $acl = $container->get('acl');
                 $currentUserId = $acl->getUserId();
                 if ($currentUserId != $payload->get('id')) {
                     return $payload;
                 }
                 // ----------------------------------------------------------------------------
                 // TODO: Add enforce method to ACL
-                $adapter = Bootstrap::get('zendDb');
+                $adapter = $container->get('database');
                 $userTable = new BaseTableGateway('directus_users', $adapter);
                 $groupTable = new BaseTableGateway('directus_groups', $adapter);
                 $user = $userTable->find($payload->get('id'));
@@ -475,7 +477,7 @@ class CoreServicesProvider
             // Hash value to any non system table password interface column
             $emitter->addFilter('table.insert:before', $hashPasswordInterface);
             $emitter->addFilter('table.update:before', $hashPasswordInterface);
-            $preventUsePublicGroup = function (Payload $payload) {
+            $preventUsePublicGroup = function (Payload $payload) use ($container) {
                 $data = $payload->getData();
                 if (!ArrayUtils::has($data, 'group')) {
                     return $payload;
@@ -487,9 +489,9 @@ class CoreServicesProvider
                 if (!$groupId) {
                     return $payload;
                 }
-                $zendDb = static::get('zendDb');
-                $acl = static::get('acl');
-                $tableGateway = new Database\TableGateway\BaseTableGateway('directus_groups', $zendDb, $acl);
+                $zendDb = $container->get('database');
+                $acl = $container->get('acl');
+                $tableGateway = new BaseTableGateway('directus_groups', $zendDb, $acl);
                 $row = $tableGateway->select(['id' => $groupId])->current();
                 if (strtolower($row->name) == 'public') {
                     throw new ForbiddenException(__t('exception_users_cannot_be_added_into_public_group'));
@@ -498,12 +500,12 @@ class CoreServicesProvider
             };
             $emitter->addFilter('table.insert.directus_users:before', $preventUsePublicGroup);
             $emitter->addFilter('table.update.directus_users:before', $preventUsePublicGroup);
-            $beforeSavingFiles = function ($payload) {
-                $acl = Bootstrap::get('acl');
+            $beforeSavingFiles = function ($payload) use ($container) {
+                $acl = $container->get('acl');
                 $currentUserId = $acl->getUserId();
                 // ----------------------------------------------------------------------------
                 // TODO: Add enforce method to ACL
-                $adapter = Bootstrap::get('zendDb');
+                $adapter = $container->get('database');
                 $userTable = new BaseTableGateway('directus_users', $adapter);
                 $groupTable = new BaseTableGateway('directus_groups', $adapter);
                 $user = $userTable->find($currentUserId);
@@ -757,6 +759,55 @@ class CoreServicesProvider
             }
 
             return $hashManager;
+        };
+    }
+
+    protected function getEmbedManager()
+    {
+        return function (Container $container) {
+            $app = Application::getInstance();
+            $embedManager = new EmbedManager();
+            $acl = $container->get('acl');
+            $adapter = $container->get('database');
+
+            // Fetch files settings
+            $SettingsTable = new DirectusSettingsTableGateway($adapter, $acl);
+            try {
+                $settings = $SettingsTable->fetchCollection('files', [
+                    'thumbnail_size', 'thumbnail_quality', 'thumbnail_crop_enabled'
+                ]);
+            } catch (\Exception $e) {
+                $settings = [];
+                /** @var Logger $logger */
+                $logger = $container->get('logger');
+                $logger->warning($e->getMessage());
+            }
+
+            $providers = [
+                '\Directus\Embed\Provider\VimeoProvider',
+                '\Directus\Embed\Provider\YoutubeProvider'
+            ];
+
+            $path = implode(DIRECTORY_SEPARATOR, [
+                $app->getContainer()->get('path_base'),
+                'customs',
+                'embeds',
+                '*.php'
+            ]);
+
+            $customProvidersFiles = glob($path);
+            if ($customProvidersFiles) {
+                foreach ($customProvidersFiles as $filename) {
+                    $providers[] = '\\Directus\\Embed\\Provider\\' . basename($filename, '.php');
+                }
+            }
+
+            foreach ($providers as $providerClass) {
+                $provider = new $providerClass($settings);
+                $embedManager->register($provider);
+            }
+
+            return $embedManager;
         };
     }
 

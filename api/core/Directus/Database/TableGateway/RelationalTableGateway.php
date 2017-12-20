@@ -673,16 +673,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         // convert csv columns into array
-        $columns = ArrayUtils::get($params, 'columns', []);
-        if (!is_array($columns) && is_string($columns)) {
-            $columns = StringUtils::csv($columns, true);
-        }
-
-        // filter all 'falsy' columns name
-        $columns = array_filter($columns);
-
-        // Stripe whitespaces
-        $columns = array_map('trim', $columns);
+        $columns = convert_param_columns(ArrayUtils::get($params, 'columns', []));
 
         // Add columns to params if it's not empty.
         // otherwise remove from params

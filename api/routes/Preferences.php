@@ -9,6 +9,7 @@ use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusPreferencesTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 
 class Preferences extends Route
 {
@@ -49,23 +50,23 @@ class Preferences extends Route
                 $existing = $Preferences->fetchByUserAndTableAndTitle(
                     $currentUserId,
                     $tableName,
-                    isset($requestPayload['title']) ? $requestPayload['title'] : null
+                    isset($payload['title']) ? $payload['title'] : null
                 );
                 if (!empty($existing)) {
-                    $requestPayload['id'] = $existing['id'];
+                    $payload['id'] = $existing['id'];
                 }
-                $requestPayload['user'] = $currentUserId;
-                $id = $TableGateway->updateRecord($requestPayload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_DISABLED);
+                $payload['user'] = $currentUserId;
+                $id = $TableGateway->updateRecord($payload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_DISABLED);
                 break;
             case 'DELETE':
                 if ($payload['user'] != $currentUserId) {
                     return $response;
                 }
 
-                if (isset($requestPayload['id'])) {
-                    echo $TableGateway->delete(['id' => $requestPayload['id']]);
-                } else if (isset($requestPayload['title']) && isset($requestPayload['table_name'])) {
-                    $jsonResponse = $Preferences->fetchByUserAndTableAndTitle($currentUserId, $requestPayload['table_name'], $requestPayload['title']);
+                if (isset($payload['id'])) {
+                    echo $TableGateway->delete(['id' => $payload['id']]);
+                } else if (isset($payload['title']) && isset($payload['table_name'])) {
+                    $jsonResponse = $Preferences->fetchByUserAndTableAndTitle($currentUserId, $payload['table_name'], $payload['title']);
                     if ($jsonResponse['id']) {
                         echo $TableGateway->delete(['id' => $jsonResponse['id']]);
                     } else {
@@ -78,13 +79,18 @@ class Preferences extends Route
 
         // If Title is set then return this version
         // this is the bookmark title
-        $title = ArrayUtils::get($payload, 'title') ?: ArrayUtils::get($params, 'title');
-        $jsonResponse = $this->getDataAndSetResponseCacheTags(
+        $title = $request->getParam('title');
+        $fields = $request->getQueryParam('fields', []);
+        if (!is_array($fields)) {
+            $fields = array_filter(StringUtils::csv($fields));
+        }
+
+        $preferences = $this->getDataAndSetResponseCacheTags(
             [$Preferences, 'fetchByUserAndTableAndTitle'],
-            [$currentUserId, $tableName, $title]
+            [$currentUserId, $tableName, $title, $fields]
         );
 
-        if (!$jsonResponse) {
+        if (!$preferences) {
             // @TODO: The app treat 404 as not found url, instead of not found resource
             // $app->response()->setStatus(404);
             $jsonResponse = [
@@ -102,7 +108,7 @@ class Preferences extends Route
                 ];
             }
 
-            $jsonResponse['data'] = $jsonResponse;
+            $jsonResponse['data'] = $preferences;
         }
 
         return $this->withData($response, $jsonResponse);
