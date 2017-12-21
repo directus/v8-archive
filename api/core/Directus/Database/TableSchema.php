@@ -778,8 +778,12 @@ class TableSchema
 
         // include the fake relational column "columns"
         // It is fake because the relation is not being done by Directus relationships
-        $allColumnsName = array_merge(['columns', 'preferences'], $table->getColumnsName());
+        $allColumnsName = array_merge(['columns', 'preferences'], array_keys($table->propertyArray()));
         $fields = ArrayUtils::get($params, 'fields', $allColumnsName);
+        if ($fields === '*') {
+            $fields = $allColumnsName;
+        }
+
         if (!is_array($fields)) {
             $fields = StringUtils::csv($fields);
         }
