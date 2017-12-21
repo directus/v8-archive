@@ -13,7 +13,7 @@ if (!file_exists($vendorAutoload)) {
 require $vendorAutoload;
 
 $emitter = new \Directus\Hook\Emitter();
-$exceptionHandler = new \Directus\Exception\ExceptionHandler($emitter);
+$errorHandler = new \Directus\Application\ErrorHandlers\ErrorHandler($emitter);
 
 /**
  * @param \Throwable|\Exception $exception
