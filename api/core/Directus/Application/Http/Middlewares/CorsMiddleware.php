@@ -1,36 +1,41 @@
 <?php
 
-namespace Directus\Slim;
+namespace Directus\Application\Http\Middlewares;
 
+use Directus\Application\Http\Request;
+use Directus\Application\Http\Response;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
-use Slim\Middleware;
 
-class CorsMiddleware extends Middleware
+class CorsMiddleware extends AbstractMiddleware
 {
-    public function call()
+    public function __invoke(Request $request, Response $response, callable $next)
     {
         $corsOptions = $this->getOptions();
         if (ArrayUtils::get($corsOptions, 'enabled', false)) {
-            $this->processHeaders();
+            $this->processHeaders($request, $response);
         }
 
-        if (!$this->app->request()->isOptions()) {
-            $this->next->call();
+        if (!$request->isOptions()) {
+            return $next($request, $response);
         }
+
+        return $response;
     }
 
     /**
      * Sets the headers
+     *
+     * @param Request $request
+     * @param Response $response
      */
-    protected function processHeaders()
+    protected function processHeaders(Request $request, Response $response)
     {
-        $response = $this->app->response();
         $corsOptions = $this->getOptions();
-        $origin = $this->getOrigin();
+        $origin = $this->getOrigin($request);
 
         if ($origin) {
-            $response->header('Access-Control-Allow-Origin', $origin);
+            $response->setHeader('Access-Control-Allow-Origin', $origin);
 
             foreach (ArrayUtils::get($corsOptions, 'headers', []) as $name => $value) {
                 // Support two options:
@@ -40,7 +45,7 @@ class CorsMiddleware extends Middleware
                     list($name, $value) = $value;
                 }
 
-                $response->header($name, $value);
+                $response->setHeader($name, $value);
             }
         }
     }
@@ -58,12 +63,14 @@ class CorsMiddleware extends Middleware
      * 3) {str} - return header {str}
      * 4) [{str}, {str}, {str}] - if origin matches, return header {str}
      *
+     * @param Request $request
+     *
      * @return string
      */
-    protected function getOrigin()
+    protected function getOrigin(Request $request)
     {
         $corsOptions = $this->getOptions();
-        $requestOrigin = $this->app->request()->headers->get('Origin');
+        $requestOrigin = $request->getHeader('Origin');
         $responseOrigin = null;
         $allowedOrigins = ArrayUtils::get($corsOptions, 'origin', '*');
 
@@ -91,7 +98,7 @@ class CorsMiddleware extends Middleware
      */
     protected function getOptions()
     {
-        $config = $this->app->container->get('config');
+        $config = $this->container->get('config');
 
         return $config->get('cors', []);
     }
