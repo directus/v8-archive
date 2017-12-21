@@ -130,6 +130,14 @@ class Bootstrap
         return $mailer;
     }
 
+    /**
+     * @return Application
+     */
+    private static function app()
+    {
+        return Application::getInstance();
+    }
+
     private static function schemaManager()
     {
         $app = static::get('app');
