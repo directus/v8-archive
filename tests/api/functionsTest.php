@@ -208,6 +208,27 @@ class FunctionsTest extends PHPUnit_Framework_TestCase
         $expected = 'email.author.comments.posts';
 
         $this->assertSame($expected, column_identifier_reverse($original));
+        $this->assertSame('name', column_identifier_reverse('name'));
+    }
+
+    public function testCompactSortToArray()
+    {
+        $this->assertSame(['title' => 'ASC'], compact_sort_to_array('title'));
+        $this->assertSame(['title' => 'DESC'], compact_sort_to_array('-title'));
+        $this->expectException(\Directus\Exception\Exception::class);
+        compact_sort_to_array(['title' => 'ASC']);
+    }
+
+    public function testDefineConstant()
+    {
+        $this->assertFalse(defined('A_RANDOM_CONSTANT'));
+        $defined = define_constant('A_RANDOM_CONSTANT', 1);
+        $this->assertFalse($defined);
+        $this->assertTrue(defined('A_RANDOM_CONSTANT'));
+        $this->assertSame(1, A_RANDOM_CONSTANT);
+        $defined = define_constant('A_RANDOM_CONSTANT', 2);
+        $this->assertTrue($defined);
+        $this->assertSame(1, A_RANDOM_CONSTANT);
     }
 
     public function testArrayDeep()
@@ -413,6 +434,11 @@ class FunctionsTest extends PHPUnit_Framework_TestCase
         $resOut = ob_get_clean();
 
         $this->assertSame('pong', $resOut);
+    }
+
+    public function testPingServer()
+    {
+        $this->assertInternalType('bool', ping_server());
     }
 
     public function testConvertParamColumn()

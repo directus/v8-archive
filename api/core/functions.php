@@ -139,7 +139,6 @@ if (!function_exists('ping_server')) {
         // @TODO: Fix error when the route exists but there's an error
         // It will not return "pong" back
         $response = @file_get_contents(get_url('/api/ping'));
-        var_dump($response);
 
         return $response === 'pong';
     }

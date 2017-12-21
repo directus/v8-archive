@@ -8,10 +8,7 @@ use Directus\Authentication\GitHubProvider;
 use Directus\Authentication\GoogleProvider;
 use Directus\Authentication\Social;
 use Directus\Authentication\TwitterProvider;
-use Directus\Database\TableGateway\DirectusSettingsTableGateway;
 use Directus\Database\TableSchema;
-use Directus\Debug\Log\Writer;
-use Directus\Embed\EmbedManager;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
 use Directus\Language\LanguageManager;
@@ -84,59 +81,6 @@ class Bootstrap
     /**
      * SINGLETON FACTORY FUNCTIONS
      */
-
-    /**
-     * Make Slim app.
-     *
-     * @return Application
-     */
-    private static function app()
-    {
-        // TODO: Temporary, until we get rid of this Bootstrap object
-        return Application::getInstance();
-        self::requireConstants(['DIRECTUS_ENV', 'APPLICATION_PATH'], __FUNCTION__);
-        $loggerSettings = [
-            'path' => APPLICATION_PATH . '/api/logs'
-        ];
-
-        $templatesPaths = [APPLICATION_PATH . '/api/views/', APPLICATION_PATH . '/templates/'];
-        $app = new Application([
-            'templates.path' => $templatesPaths[0],
-            'mode' => DIRECTUS_ENV,
-            'debug' => false,
-            'log.enable' => true,
-            'log.writer' => new Writer($loggerSettings),
-            'view' => new Twig()
-        ]);
-
-        $app->container->singleton('session', function () {
-            return Bootstrap::get('session');
-        });
-
-        $app->container->singleton('socialAuth', function() {
-            return Bootstrap::get('socialAuth');
-        });
-
-        $socialAuthServices = static::getSocialAuthServices();
-        foreach ($socialAuthServices as $name => $class) {
-            if (ArrayUtils::has($authConfig, $name)) {
-                $config = ArrayUtils::get($authConfig, $name);
-                $socialAuth->register(new $class($app, $config));
-            }
-        }
-
-        // NOTE: Trying to separate the configuration from bootstrap, bit by bit.
-        TableSchema::setConfig(static::get('config'));
-        $app->register(new FilesServiceProvider());
-
-        $app->container->singleton('filesystem', function() {
-            return Bootstrap::get('filesystem');
-        });
-
-        $app->container->get('session')->start();
-
-        return $app;
-    }
 
     private static function getSocialAuthServices()
     {
