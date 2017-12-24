@@ -46,7 +46,7 @@ return [
         'enabled' => false,
         'response_ttl' => 3600, // seconds
         'adapter' => 'filesystem',
-        'path' => '/storage/cache',
+        'path' => 'storage/cache',
         // 'pool' => [
         //    'adapter' => 'apc'
         // ],
@@ -76,7 +76,7 @@ return [
         // use this instead
         // Ex: 'root' => realpath(ROOT_PATH.'/../storage/uploads'),
         // Note: ROOT_PATH constant doesn't end with trailing slash
-        'root' => ROOT_PATH . '/storage/uploads',
+        'root' => 'storage/uploads',
         // This is the url where all the media will be pointing to
         // here all assets will be (yourdomain)/storage/uploads
         // same with thumbnails (yourdomain)/storage/uploads/thumbs
