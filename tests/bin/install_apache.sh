@@ -1,8 +1,11 @@
 sudo apt-get update
-sudo apt-get install apache2 libapache2-mod-fastcgi
+sudo apt-get install -y --force-yes apache2 libapache2-mod-fastcgi
 # enable php-fpm
+ls ~/.phpenv/versions/$(phpenv version-name)/etc
 sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+ls ~/.phpenv/versions/$(phpenv version-name)/etc
 sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/www.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/www.conf
+ls ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d
 sudo a2enmod rewrite actions fastcgi alias
 echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 sudo sed -i -e "s,www-data,travis,g" /etc/apache2/envvars
