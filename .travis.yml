@@ -38,12 +38,10 @@ before_install:
   - mysql -uroot -e "DROP DATABASE IF EXISTS $DIRECTUS_DB_NAME;"
   - mysql -uroot -e "CREATE DATABASE $DIRECTUS_DB_NAME;"
   - mysql -uroot -e 'SHOW DATABASES;'
+  - sh tests/bin/install_apache.sh
 
 before_script:
   - sh tests/bin/install_directus.sh
-  - ls ~/.phpenv/versions/$(phpenv version-name)/etc
-  - ls ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d
-  - sh tests/bin/install_apache.sh
 
 script:
   - npm test
