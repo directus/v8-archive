@@ -1,5 +1,5 @@
-npm install
-npm install -g karma-cli
+# npm install
+# npm install -g karma-cli
 composer install
 docker run --name mysql -p 127.0.0.1:8806:3306 \
            -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=directus -e MYSQL_USER=directus \
