@@ -25,7 +25,7 @@ env:
   global:
     - DIRECTUS_DB_NAME=directus
     - DIRECTUS_DB_PASSWORD=
-    - DIRECTUS_DB_USER=travis
+    - DIRECTUS_DB_USER=root
     - DIRECTUS_PATH=/
     - DIRECTUS_ADMIN_EMAIL=admin@getdirectus.com
     - DIRECTUS_ADMIN_PASSWORD=password
@@ -37,7 +37,6 @@ before_install:
   - mysql -V
   - mysql -e 'DROP DATABASE IF EXISTS $DIRECTUS_DB_NAME;'
   - mysql -e 'CREATE DATABASE $DIRECTUS_DB_NAME;'
-  - ls /etc/init.d
 
 before_script:
   - sh tests/bin/install_directus.sh
