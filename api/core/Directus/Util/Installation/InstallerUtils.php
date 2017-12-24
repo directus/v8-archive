@@ -39,10 +39,10 @@ class InstallerUtils
 
     /**
      * Create config file into $path
-     * @param $data
-     * @param $path
+     * @param array $data
+     * @param string $path
      */
-    protected static function createConfigFile($data, $path)
+    protected static function createConfigFile(array $data, $path)
     {
         if (!isset($data['default_language'])) {
             $data['default_language'] = 'en';

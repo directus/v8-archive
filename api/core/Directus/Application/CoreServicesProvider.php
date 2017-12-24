@@ -6,7 +6,6 @@ use Cache\Adapter\Apc\ApcCachePool;
 use Cache\Adapter\Apcu\ApcuCachePool;
 use Cache\Adapter\Common\PhpCachePool;
 use Cache\Adapter\Filesystem\FilesystemCachePool;
-use Cache\Adapter\Memcache\MemcacheCachePool;
 use Cache\Adapter\Memcached\MemcachedCachePool;
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
@@ -551,6 +550,10 @@ class CoreServicesProvider
                 \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
                 \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
             ];
+
+            if (!$dbConfig['password']) {
+                unset($dbConfig['password']);
+            }
 
             $db = new Connection($dbConfig);
 
