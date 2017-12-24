@@ -1,5 +1,8 @@
 language: php
 
+services:
+  - docker
+
 branches:
   except:
     - build
@@ -16,14 +19,22 @@ matrix:
 
 sudo: false
 
+env:
+  - DIRECTUS_DB_NAME=directus
+  - DIRECTUS_DB_PASSWORD=directus
+  - DIRECTUS_DB_USER=directus
+  - DIRECTUS_PATH=/
+  - DIRECTUS_ADMIN_EMAIL=admin@getdirectus.com
+  - DIRECTUS_ADMIN_PASSWORD=password
+  - DIRECTUS_SITE_NAME=Directus
+
 before_script:
-  - npm install
-  - npm install -g karma-cli
-  - composer install
+  - sh tests/bin/install_directus.sh
+  - sh tests/bin/install_apache.sh
 
 script:
   - npm test
-  - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+  - vendor/bin/phpunit tests/ExampleTest.php --coverage-text --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
