@@ -34,8 +34,10 @@ env:
     - MYSQL_VERSION=5.5
 
 before_install:
+  - mysql -V
   - mysql -e 'DROP DATABASE IF EXISTS $DIRECTUS_DB_NAME;'
   - mysql -e 'CREATE DATABASE $DIRECTUS_DB_NAME;'
+  - ls /etc/init.d
 
 before_script:
   - sh tests/bin/install_directus.sh
