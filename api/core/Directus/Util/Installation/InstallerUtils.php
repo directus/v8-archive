@@ -2,7 +2,9 @@
 
 namespace Directus\Util\Installation;
 
+use Directus\Application\Application;
 use Directus\Bootstrap;
+use Directus\Database\Connection;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Ruckusing\Framework as Ruckusing_Framework;
@@ -26,21 +28,11 @@ class InstallerUtils
         }
 
         static::createConfigFile($data, $path);
-        static::createConfigurationFile($data, $path);
     }
 
     public static function createConfigFileContent($data)
     {
         $configStub = file_get_contents(__DIR__ . '/stubs/config.stub');
-        $data = ArrayUtils::pick($data, [
-            'db_type',
-            'db_host',
-            'db_port',
-            'db_name',
-            'db_user',
-            'db_password',
-            'directus_path'
-        ]);
 
         return static::replacePlaceholderValues($configStub, $data);
     }
@@ -52,39 +44,22 @@ class InstallerUtils
      */
     protected static function createConfigFile($data, $path)
     {
-        $data = ArrayUtils::defaults([
-            'directus_path' => '/'
-        ], $data);
-
-        $configStub = static::createConfigFileContent($data);
-
-        $configPath = rtrim($path, '/') . '/config.php';
-        file_put_contents($configPath, $configStub);
-    }
-
-    /**
-     * Create configuration file into $path
-     * @param $data
-     * @param $path
-     */
-    protected static function createConfigurationFile($data, $path)
-    {
         if (!isset($data['default_language'])) {
             $data['default_language'] = 'en';
         }
 
         $data = ArrayUtils::defaults([
+            'directus_path' => '/',
             'directus_email' => 'root@localhost',
             'default_language' => 'en',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
             'feedback_login' => true
         ], $data);
 
-        $configurationStub = file_get_contents(__DIR__ . '/stubs/configuration.stub');
-        $configurationStub = static::replacePlaceholderValues($configurationStub, $data);
+        $configStub = static::createConfigFileContent($data);
 
-        $configurationPath = rtrim($path, '/') . '/configuration.php';
-        file_put_contents($configurationPath, $configurationStub);
+        $configPath = rtrim($path, '/') . '/config.php';
+        file_put_contents($configPath, $configStub);
     }
 
     /**
@@ -114,19 +89,20 @@ class InstallerUtils
         $directusPath = rtrim($directusPath, '/');
         /**
          * Check if configuration files exists
+         *
          * @throws \InvalidArgumentException
          */
         static::checkConfigurationFile($directusPath);
 
-        require_once $directusPath . '/api/config.php';
+        $appConfig = require $directusPath . '/api/config.php';
         $config = require $directusPath . '/api/ruckusing.conf.php';
         $dbConfig = getDatabaseConfig([
-            'type' => DB_TYPE,
-            'host' => DB_HOST,
-            'port' => DB_PORT,
-            'name' => DB_NAME,
-            'user' => DB_USER,
-            'pass' => DB_PASSWORD,
+            'type' => ArrayUtils::get($appConfig, 'database.type'),
+            'host' => ArrayUtils::get($appConfig, 'database.host'),
+            'port' => ArrayUtils::get($appConfig, 'database.port'),
+            'name' => ArrayUtils::get($appConfig, 'database.name'),
+            'user' => ArrayUtils::get($appConfig, 'database.username'),
+            'pass' => ArrayUtils::get($appConfig, 'database.password'),
             'directory' => 'schema',
             'prefix' => '',
         ]);
@@ -140,8 +116,10 @@ class InstallerUtils
 
     /**
      * Add Directus default settings
+     *
      * @param array $data
      * @param string $directusPath
+     *
      * @throws \Exception
      */
     public static function addDefaultSettings($data, $directusPath)
@@ -153,9 +131,11 @@ class InstallerUtils
          */
         static::checkConfigurationFile($directusPath);
 
-        require_once $directusPath . '/api/config.php';
+        // require_once $directusPath . '/api/config.php';
 
-        $db = Bootstrap::get('ZendDb');
+        $app = new Application($directusPath, require $directusPath . '/api/config.php');
+        // $db = Bootstrap::get('ZendDb');
+        $db = $app->getContainer()->get('database');
 
         $defaultSettings = static::getDefaultSettings($data);
 
@@ -171,9 +151,11 @@ class InstallerUtils
      * @param array $data
      * @return array
      */
-    public static function addDefaultUser($data)
+    public static function addDefaultUser($data, $directusPath)
     {
-        $db = Bootstrap::get('ZendDb');
+        $app = new Application($directusPath, require $directusPath . '/api/config.php');
+        // $db = Bootstrap::get('ZendDb');
+        $db = $app->getContainer()->get('database');
         $tableGateway = new TableGateway('directus_users', $db);
 
         $hash = password_hash($data['directus_password'], PASSWORD_DEFAULT, ['cost' => 12]);
@@ -192,7 +174,7 @@ class InstallerUtils
             'avatar' => $data['avatar'],
             'group' => 1,
             'token' => $data['user_token'],
-            'language' => ArrayUtils::get($data, 'default_language', 'en')
+            'language' => ArrayUtils::get($data, 'app.default_language', 'en')
         ]);
 
         return $data;

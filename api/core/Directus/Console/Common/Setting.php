@@ -33,8 +33,10 @@
 namespace Directus\Console\Common;
 
 
+use Directus\Application\Application;
 use Directus\Bootstrap;
 use Directus\Console\Common\Exception\SettingUpdateException;
+use Directus\Database\Connection;
 use Zend\Db\TableGateway\TableGateway;
 
 class Setting
@@ -53,8 +55,9 @@ class Setting
             $this->directus_path = $base_path;
         }
 
-        require_once $this->directus_path . '/api/config.php';
-        $this->db = Bootstrap::get('ZendDb');
+        $app = new Application($base_path, require $this->directus_path . '/api/config.php');
+        // $this->db = new Connection();//Bootstrap::get('ZendDb');
+        $this->db = $app->getContainer()->get('database');
 
         $this->settingsTableGateway = new TableGateway('directus_settings', $this->db);
     }

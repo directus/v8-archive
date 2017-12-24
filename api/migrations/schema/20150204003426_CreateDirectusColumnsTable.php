@@ -111,7 +111,7 @@ class CreateDirectusColumnsTable extends Ruckusing_Migration_Base
         $this->insert('directus_columns', [
             'table_name' => 'directus_users',
             'column_name' => 'group',
-            'data_type' => NULL,
+            'data_type' => 'INT',
             'ui' => 'many_to_one',
             'hidden_input' => 0,
             'required' => 0,

@@ -33,6 +33,7 @@
 namespace Directus\Console\Common;
 
 
+use Directus\Application\Application;
 use Directus\Authentication\Provider;
 use Directus\Bootstrap;
 use Directus\Console\Common\Exception\PasswordChangeException;
@@ -44,6 +45,7 @@ class User
 {
 
     private $directus_path;
+    private $app;
     private $db;
     private $usersTableGateway;
 
@@ -56,8 +58,8 @@ class User
             $this->directus_path = $base_path;
         }
 
-        require_once $this->directus_path . '/api/config.php';
-        $this->db = Bootstrap::get('ZendDb');
+        $this->app = new Application($base_path, require $base_path. '/api/config.php');
+        $this->db = $this->app->getContainer()->get('database');
 
         $this->usersTableGateway = new TableGateway('directus_users', $this->db);
     }
@@ -83,7 +85,7 @@ class User
     public function changePassword($email, $password)
     {
 
-        $auth = Bootstrap::get('auth');
+        $auth = $this->app->getContainer()->get('auth');//Bootstrap::get('auth');
         $salt = StringUtils::random();
         $hash = $auth->hashPassword($password, $salt);
         $user = $this->usersTableGateway->select(['email' => $email])->current();
