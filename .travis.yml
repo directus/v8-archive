@@ -25,7 +25,7 @@ env:
   global:
     - DIRECTUS_DB_NAME=directus
     - DIRECTUS_DB_PASSWORD=directus
-    - DIRECTUS_DB_USER=directus
+    - DIRECTUS_DB_USER=travis
     - DIRECTUS_PATH=/
     - DIRECTUS_ADMIN_EMAIL=admin@getdirectus.com
     - DIRECTUS_ADMIN_PASSWORD=password
