@@ -57,9 +57,9 @@ class InstallModule extends ModuleBase
         $data['db_type'] = 'mysql';
         $data['db_port'] = '3306';
         $data['db_host'] = 'localhost';
-        $data['db_name'] = 'directus';
-        $data['db_user'] = 'directus';
-        $data['db_password'] = 'directus';
+        $data['db_name'] = '';
+        $data['db_user'] = '';
+        $data['db_password'] = '';
         $data['directus_path'] = '/';
 
         $directusPath = BASE_PATH;
