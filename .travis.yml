@@ -35,8 +35,8 @@ env:
 
 before_install:
   - mysql -V
-  - mysql -uroot -e 'DROP DATABASE IF EXISTS $DIRECTUS_DB_NAME;'
-  - mysql -uroot -e 'CREATE DATABASE $DIRECTUS_DB_NAME;'
+  - mysql -uroot -e "DROP DATABASE IF EXISTS $DIRECTUS_DB_NAME;"
+  - mysql -uroot -e "CREATE DATABASE $DIRECTUS_DB_NAME;"
   - mysql -uroot -e 'SHOW DATABASES;'
 
 before_script:
