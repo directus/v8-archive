@@ -551,10 +551,6 @@ class CoreServicesProvider
                 \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
             ];
 
-            if (!$dbConfig['password']) {
-                unset($dbConfig['password']);
-            }
-
             $db = new Connection($dbConfig);
 
             $db->connect();
