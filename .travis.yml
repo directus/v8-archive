@@ -20,13 +20,15 @@ matrix:
 sudo: false
 
 env:
-  - DIRECTUS_DB_NAME=directus
-  - DIRECTUS_DB_PASSWORD=directus
-  - DIRECTUS_DB_USER=directus
-  - DIRECTUS_PATH=/
-  - DIRECTUS_ADMIN_EMAIL=admin@getdirectus.com
-  - DIRECTUS_ADMIN_PASSWORD=password
-  - DIRECTUS_SITE_NAME=Directus
+  - MYSQL_VERSION=5.5
+  global:
+    - DIRECTUS_DB_NAME=directus
+    - DIRECTUS_DB_PASSWORD=directus
+    - DIRECTUS_DB_USER=directus
+    - DIRECTUS_PATH=/
+    - DIRECTUS_ADMIN_EMAIL=admin@getdirectus.com
+    - DIRECTUS_ADMIN_PASSWORD=password
+    - DIRECTUS_SITE_NAME=Directus
 
 before_script:
   - sh tests/bin/install_directus.sh
