@@ -42,6 +42,7 @@ before_install:
 before_script:
   - sh tests/bin/install_directus.sh
   - sh tests/bin/install_apache.sh
+  - cat api/config.php
 
 script:
   - npm test
