@@ -6,7 +6,7 @@ class ExampleTest extends \PHPUnit_Framework_TestCase
 {
     public function testSomething()
     {
-        $url = 'http://localhost:9000/api/1.1/ping';
+        $url = 'http://localhost/api/ping';
         $options = array(
             'http' => array(
                 'method'  => 'GET',

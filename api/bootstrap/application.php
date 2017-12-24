@@ -8,4 +8,8 @@ if (!file_exists($configFilePath)) {
     return create_ping_server();
 }
 
-return new \Directus\Application\Application(realpath(__DIR__ . '/../../'), require $configFilePath);
+$app = new \Directus\Application\Application(realpath(__DIR__ . '/../../'), require $configFilePath);
+
+create_ping_route($app);
+
+return $app;
