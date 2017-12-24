@@ -62,7 +62,8 @@ class Acl
     public static $mandatory_read_lists = [
         // key: table name ('*' = all tables, baseline definition)
         // value: array of column names
-        '*' => ['id', STATUS_COLUMN_NAME],
+        // FIXME: use the user defined status column
+        '*' => ['id', 'status'], //STATUS_COLUMN_NAME],
         'directus_activity' => ['user'],
         'directus_files' => ['user']
     ];
