@@ -35,8 +35,9 @@ env:
 
 before_install:
   - mysql -V
-  - mysql -e 'DROP DATABASE IF EXISTS $DIRECTUS_DB_NAME;'
-  - mysql -e 'CREATE DATABASE $DIRECTUS_DB_NAME;'
+  - mysql -uroot -e 'DROP DATABASE IF EXISTS $DIRECTUS_DB_NAME;'
+  - mysql -uroot -e 'CREATE DATABASE $DIRECTUS_DB_NAME;'
+  - mysql -uroot -e 'SHOW DATABASES;'
 
 before_script:
   - sh tests/bin/install_directus.sh
