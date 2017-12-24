@@ -41,6 +41,7 @@ before_install:
 
 before_script:
   - sh tests/bin/install_directus.sh
+  - ls ~/.phpenv/versions/$(phpenv version-name)/etc
   - sh tests/bin/install_apache.sh
 
 script:
