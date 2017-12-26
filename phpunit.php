@@ -205,7 +205,7 @@ function add_query_params($url, array $params)
 function request($method, $path, array $params = [], array $data = [])
 {
     $http = new GuzzleHttp\Client([
-        'base_url' => 'http://localhost/api/'
+        'base_uri' => 'http://localhost/api/'
     ]);
 
     $options = [];
