@@ -177,3 +177,73 @@ function get_array_session()
 
     return new \Directus\Session\Session($storage);
 }
+
+/**
+ * @param string $url
+ * @param array $params
+ *
+ * @return string
+ */
+function add_query_params($url, array $params)
+{
+    $urlParts = parse_url($url);
+    if (is_array($urlParts) && isset($urlParts['query'])) {
+        $urlParts['query'] = array_merge($urlParts['query'], $params);
+    }
+
+    return unparse_url($urlParts);
+}
+
+/**
+ * @param string $type
+ * @param string $url
+ * @param array $params
+ * @param array $data
+ *
+ * @return bool|null|string
+ */
+function request($type, $url, array $params = [], array $data = [])
+{
+    $options = [
+        'http' => [
+            'method'  => $type,
+            'header'  => 'Content-type: application/json'
+        ]
+    ];
+
+    if (in_array($type, ['POST'])) {
+        $options['http']['content'] = $data;
+    }
+
+    $context  = stream_context_create($options);
+
+    if (!empty($params)) {
+        $url = add_query_params($url, $params);
+    }
+
+    return file_get_contents($url, false, $context);
+}
+
+/**
+ * @param $url
+ * @param array $params
+ * @param array $data
+ *
+ * @return bool|null|string
+ */
+function request_get($url, array $params = [], array $data = [])
+{
+    return request('GET', $url, $params, $data);
+}
+
+/**
+ * @param $url
+ * @param array $params
+ * @param array $data
+ *
+ * @return bool|null|string
+ */
+function request_post($url, array $params = [], array $data = [])
+{
+    return request('POST', $url, $params, $data);
+}

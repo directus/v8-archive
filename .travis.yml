@@ -31,7 +31,7 @@ env:
     - DIRECTUS_ADMIN_PASSWORD=password
     - DIRECTUS_SITE_NAME=Directus
   matrix:
-    - MYSQL_VERSION=5.5
+    - MYSQL_VERSION=5.5 DIRECTUS_TEST_MODE=IO
 
 before_install:
   - mysql -V
@@ -62,7 +62,7 @@ before_script:
 
 script:
   - # npm test
-  - vendor/bin/phpunit tests/ExampleTest.php --coverage-text --coverage-clover=coverage.clover
+  - if [ '$DIRECTUS_TEST_MODE' = 'IO' ]; vendor/bin/phpunit tests/io --coverage-text --coverage-clover=coverage.clover; fi
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
