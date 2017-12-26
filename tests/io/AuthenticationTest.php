@@ -22,7 +22,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('public', $data);
         $this->assertTrue($data['public']);
 
-        $url = 'auth/request_token';
+        $url = 'auth/login';
 
         $result = request_post($url, [], [
             'email' => 'admin@getdirectus.com',
