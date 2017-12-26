@@ -6,7 +6,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 {
     public function testPing()
     {
-        $url = 'http://localhost/api/ping';
+        $url = 'ping';
         $result = request_get($url);
 
         $this->assertSame('pong', $result);
@@ -14,7 +14,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 
     public function testGetToken()
     {
-        $url = 'http://localhost/api/tables';
+        $url = 'tables';
         $result = request_get($url);
         $this->assertInternalType('string', $result);
         $data = json_decode($result, true);
@@ -22,7 +22,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('public', $data);
         $this->assertTrue($data['public']);
 
-        $url = 'http://localhost/api/auth/request_token';
+        $url = 'auth/request_token';
 
         $result = request_post($url, [], [
             'email' => 'admin@getdirectus.com',

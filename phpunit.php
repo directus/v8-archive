@@ -195,55 +195,56 @@ function add_query_params($url, array $params)
 }
 
 /**
- * @param string $type
- * @param string $url
+ * @param string $method
+ * @param string $path
  * @param array $params
  * @param array $data
  *
  * @return bool|null|string
  */
-function request($type, $url, array $params = [], array $data = [])
+function request($method, $path, array $params = [], array $data = [])
 {
-    $options = [
-        'http' => [
-            'method'  => $type,
-            'header'  => 'Content-type: application/json'
-        ]
-    ];
+    $http = new GuzzleHttp\Client([
+        'base_url' => 'http://localhost/api/'
+    ]);
 
-    if (in_array($type, ['POST'])) {
-        $options['http']['content'] = $data;
+    $options = [];
+
+    if (in_array($method, ['POST', 'PATCH', 'PUT'])) {
+        $options = [
+            'form_params' => $data
+        ];
     }
-
-    $context  = stream_context_create($options);
 
     if (!empty($params)) {
-        $url = add_query_params($url, $params);
+        $options['query'] = $params;
     }
 
-    return file_get_contents($url, false, $context);
+    $response = $http->request($method, $path, $options);
+
+    return $response->getBody()->getContents();
 }
 
 /**
- * @param $url
+ * @param string $path
  * @param array $params
  * @param array $data
  *
  * @return bool|null|string
  */
-function request_get($url, array $params = [], array $data = [])
+function request_get($path, array $params = [], array $data = [])
 {
-    return request('GET', $url, $params, $data);
+    return request('GET', $path, $params, $data);
 }
 
 /**
- * @param $url
+ * @param string $path
  * @param array $params
  * @param array $data
  *
  * @return bool|null|string
  */
-function request_post($url, array $params = [], array $data = [])
+function request_post($path, array $params = [], array $data = [])
 {
-    return request('POST', $url, $params, $data);
+    return request('POST', $path, $params, $data);
 }
