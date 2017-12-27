@@ -39,6 +39,8 @@ use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Zend\Db\Sql\Select;
+use Zend\Db\TableGateway\TableGateway;
 
 class CoreServicesProvider
 {
@@ -565,11 +567,21 @@ class CoreServicesProvider
     protected function getAuth()
     {
         return function (Container $container) {
+            $db = $container->get('database');
+            $settingsTable = new TableGateway('directus_settings', $db);
+            $setting = $settingsTable->select([
+                'collection' => 'global',
+                'name' => 'cms_user_auto_sign_out'
+            ])->current();
+
             return new Provider(
                 new UserTableGatewayProvider(
                     new DirectusUsersTableGateway($container->get('database'))
                 ),
-                $container->get('config')->get('auth.secret_key')
+                [
+                    'secret_key' => $container->get('config')->get('auth.secret_key'),
+                    'ttl' => $setting ? $setting['value'] : null
+                ]
             );
         };
     }

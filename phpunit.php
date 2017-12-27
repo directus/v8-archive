@@ -197,54 +197,45 @@ function add_query_params($url, array $params)
 /**
  * @param string $method
  * @param string $path
- * @param array $params
- * @param array $data
+ * @param array $options
  *
- * @return bool|null|string
+ * @return \Psr\Http\Message\ResponseInterface
  */
-function request($method, $path, array $params = [], array $data = [])
+function request($method, $path, array $options = [])
 {
     $http = new GuzzleHttp\Client([
         'base_uri' => 'http://localhost/api/'
     ]);
 
-    $options = [];
-
-    if (in_array($method, ['POST', 'PATCH', 'PUT'])) {
-        $options = [
-            'form_params' => $data
-        ];
-    }
-
-    if (!empty($params)) {
-        $options['query'] = $params;
-    }
-
     $response = $http->request($method, $path, $options);
 
-    return $response->getBody()->getContents();
+    return $response;
 }
 
 /**
  * @param string $path
  * @param array $params
- * @param array $data
+ * @param array $options
  *
- * @return bool|null|string
+ * @return \Psr\Http\Message\ResponseInterface
  */
-function request_get($path, array $params = [], array $data = [])
+function request_get($path, array $params = [], array $options = [])
 {
-    return request('GET', $path, $params, $data);
+    $options['query'] = $params;
+
+    return request('GET', $path, $options);
 }
 
 /**
  * @param string $path
- * @param array $params
- * @param array $data
+ * @param array $body
+ * @param array $options
  *
- * @return bool|null|string
+ * @return \Psr\Http\Message\ResponseInterface
  */
-function request_post($path, array $params = [], array $data = [])
+function request_post($path, array $body = [], array $options = [])
 {
-    return request('POST', $path, $params, $data);
+    $options['form_params'] = $body;
+
+    return request('POST', $path, $options);
 }

@@ -2,9 +2,14 @@
 
 namespace Directus\Authentication\Exception;
 
-use Directus\Exception\Exception;
+use Directus\Exception\UnauthorizedException;
 
-class InvalidTokenException extends Exception
+class InvalidTokenException extends UnauthorizedException
 {
+    const ERROR_CODE = 101;
 
+    public function __construct()
+    {
+        parent::__construct('auth_invalid_token', static::ERROR_CODE);
+    }
 }

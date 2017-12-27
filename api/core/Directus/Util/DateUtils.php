@@ -8,6 +8,13 @@ use DateTimeZone;
 class DateUtils
 {
     /**
+     * Seconds in a minute
+     *
+     * @var int
+     */
+    const MINUTE_IN_SECONDS = 60;
+
+    /**
      * Seconds in a day
      *
      * @var int

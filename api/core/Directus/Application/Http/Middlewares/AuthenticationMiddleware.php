@@ -152,11 +152,24 @@ class AuthenticationMiddleware extends AbstractMiddleware
             $authUser = $request->getHeader('Php-Auth-User');
             $authPassword = $request->getHeader('Php-Auth-Pw');
 
+            if (is_array($authUser)) {
+                $authUser = array_shift($authUser);
+            }
+
+            if (is_array($authPassword)) {
+                $authPassword = array_shift($authPassword);
+            }
+
             if ($authUser && empty($authPassword)) {
                 $authToken = $authUser;
             }
         } elseif ($request->hasHeader('Authorization')) {
             $authorizationHeader = $request->getHeader('Authorization');
+
+            // If there's multiple Authorization header, pick first, ignore the rest
+            if (is_array($authorizationHeader)) {
+                $authorizationHeader = array_shift($authorizationHeader);
+            }
 
             if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
                 $authToken = $matches[1];

@@ -2,6 +2,7 @@
 
 namespace Directus\Authentication;
 
+use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidInvitationCodeException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
@@ -13,7 +14,7 @@ use Directus\Authentication\User\UserInterface;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
-use Firebase\JWT\JWT;
+use Directus\Util\JWTUtils;
 
 class Provider
 {
@@ -50,15 +51,28 @@ class Provider
      */
     protected $secretKey;
 
-    public function __construct(UserProviderInterface $userProvider, $secretKey)
+    /**
+     * JWT time to live in minutes
+     *
+     * @var int
+     */
+    protected $ttl;
+
+    public function __construct(UserProviderInterface $userProvider, array $options = [])
     {
-        if (!is_string($secretKey)) {
+        if (!isset($options['secret_key']) || !is_string($options['secret_key'])) {
             throw new Exception('secret key must be a string');
+        }
+
+        $ttl = ArrayUtils::get($options, 'ttl', 60);
+        if (!is_numeric($ttl)) {
+            throw new Exception('ttl must be a number');
         }
 
         $this->userProvider = $userProvider;
         $this->user = null;
-        $this->secretKey = $secretKey;
+        $this->secretKey = $options['secret_key'];
+        $this->ttl = (int)$ttl;
     }
 
     /**
@@ -153,7 +167,7 @@ class Provider
      */
     public function authenticateWithToken($token)
     {
-        $payload = JWT::decode($token, $this->getSecretKey(), ['HS256']);
+        $payload = JWTUtils::decode($token, $this->getSecretKey(), ['HS256']);
 
         $conditions = [
             'id' => $payload->id,
@@ -304,7 +318,7 @@ class Provider
             'exp' => $this->getNewExpirationTime()
         ];
 
-        return JWT::encode($payload, $this->getSecretKey(), $algo);
+        return JWTUtils::encode($payload, $this->getSecretKey(), $algo);
     }
 
     /**
@@ -313,15 +327,23 @@ class Provider
      * @param $token
      *
      * @return string
+     *
+     * @throws ExpiredTokenException
+     * @throws InvalidTokenException
      */
     public function refreshToken($token)
     {
         $algo = 'HS256';
-        $payload = JWT::decode($token, $this->getSecretKey(), [$algo]);
+        $payload = JWTUtils::decode($token, $this->getSecretKey(), [$algo]);
+
+        if (!is_object($payload)) {
+            // Empty payload, log this as debug?
+            throw new InvalidTokenException();
+        }
 
         $payload->exp = $this->getNewExpirationTime();
 
-        return JWT::encode($payload, $this->getSecretKey(), $algo);
+        return JWTUtils::encode($payload, $this->getSecretKey(), $algo);
     }
 
     /**
@@ -352,6 +374,6 @@ class Provider
      */
     public function getNewExpirationTime()
     {
-        return time() + (DateUtils::DAY_IN_SECONDS * 2);
+        return time() + ($this->ttl * DateUtils::MINUTE_IN_SECONDS);
     }
 }

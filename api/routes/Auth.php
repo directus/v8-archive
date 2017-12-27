@@ -104,7 +104,7 @@ class Auth extends Route
             $request->getParsedBodyParam('token')
         );
 
-        return $this->responseWithData($request, $response, ['token' => $token]);
+        return $this->responseWithData($request, $response, ['data' => ['token' => $token]]);
     }
 
     public function resetPassword($token)

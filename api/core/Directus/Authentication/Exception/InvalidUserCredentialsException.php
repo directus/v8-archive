@@ -2,9 +2,14 @@
 
 namespace Directus\Authentication\Exception;
 
-use Directus\Exception\Exception;
+use Directus\Exception\NotFoundException;
 
-class InvalidUserCredentialsException extends Exception
+class InvalidUserCredentialsException extends NotFoundException
 {
+    const ERROR_CODE = 100;
 
+    public function __construct()
+    {
+        parent::__construct('auth_invalid_credentials', static::ERROR_CODE);
+    }
 }

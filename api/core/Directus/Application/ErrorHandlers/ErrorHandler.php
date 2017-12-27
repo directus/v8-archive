@@ -6,6 +6,8 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
+use Directus\Exception\NotFoundException;
+use Directus\Exception\UnauthorizedException;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 
@@ -68,16 +70,19 @@ class ErrorHandler
         $httpCode = 500;
         if ($exception instanceof BadRequestException) {
             $httpCode = 400;
+        } else if ($exception instanceof NotFoundException) {
+            $httpCode = 404;
+        } else if ($exception instanceof UnauthorizedException) {
+            $httpCode = 401;
         }
 
-        // if ($exception instanceof HttpExceptionInterface) {
-        //     $httpCode = $exception->getHttpStatus();
-        // }
+        $data = [
+            'code' => $exception->getCode(),
+            'message' => $message
+        ];
 
-        $data = ['message' => $message];
         if (!$productionMode) {
             $data = array_merge($data, [
-                'code' => $exception->getCode(),
                 'class' => get_class($exception),
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
@@ -91,7 +96,8 @@ class ErrorHandler
             ]);
         }
 
-        return $response->withStatus($httpCode)
+        return $response
+            ->withStatus($httpCode)
             ->withJson(['error' => $data]);
     }
 
