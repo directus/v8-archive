@@ -2,8 +2,43 @@
 
 namespace Directus\Tests\Api\Io;
 
+use Directus\Database\Connection;
+
 class ActivitiesTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Connection
+     */
+    protected $db;
+
+    public function setUp()
+    {
+        $charset = 'utf8mb4';
+        $this->db = new Connection([
+            'driver' => 'Pdo_mysql',
+            'host' => 'localhost',
+            'port' => 3306,
+            'database' => 'directus',
+            'username' => 'root',
+            'password' => null,
+            'charset' => $charset,
+            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+            \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+        ]);
+
+        $this->db->execute('TRUNCATE directus_activity;');
+
+        $startDay = date('d') - 15;
+        for ($i = 0; $i < 15; $i++) {
+            $datetime = sprintf('2017-12-26 15:52:37', $startDay);
+            $query = "INSERT INTO `directus_activity` (`id`, `type`, `action`, `identifier`, `table_name`, `row_id`, `user`, `data`, `delta`, `parent_id`, `parent_table`, `parent_changed`, `datetime`, `logged_ip`, `user_agent`)";
+            $query.= "VALUES (DEFAULT, 'LOGIN', 'LOGIN', NULL, 'directus_users', 0, 1, NULL, NULL, NULL, NULL, 0, '" . $datetime . "', '::1', 'GuzzleHttp/6.2.1 curl/7.52.1 PHP/5.5.38');";
+
+            $startDay++;
+            $this->db->execute($query);
+        }
+    }
+
     public function testColumns()
     {
         $columns = [
