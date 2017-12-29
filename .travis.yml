@@ -63,7 +63,7 @@ before_script:
 
 script:
   - # npm test
-  - if [ '$DIRECTUS_TEST_MODE' = 'IO' ]; then vendor/bin/phpunit tests/io --coverage-text --coverage-clover=coverage.clover; fi
+  - if [ $DIRECTUS_TEST_MODE = 'IO' ]; then vendor/bin/phpunit tests/io --coverage-text --coverage-clover=coverage.clover; fi
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
