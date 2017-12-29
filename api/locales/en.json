@@ -447,6 +447,8 @@
     "upload_missing_file_type": "Missing [type] parameter. Must provide file mime type.",
     "message_not_found": "Message not found",
 
+    "direct_access_to_system_items_able_not_allowed": "Direct Access to system items are not allowed",
+
     "unable_to_find_file_with_id_x": "Unable to find the file record with ID [%{id}]",
     "unable_to_find_group_with_id_x": "Unable to find the group record with ID [%{id}]",
     "unable_to_find_record_in_x_with_id_x": "Unable to find the record in [%{table}] with ID [%{id}]",

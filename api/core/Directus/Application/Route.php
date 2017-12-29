@@ -231,7 +231,7 @@ abstract class Route
         $payload = $emitter->apply('response', $data, $attributes);
         $payload = $emitter->apply('response.' . $method, $payload);
 
-        if ($meta['table']) {
+        if (isset($meta['table'])) {
             $emitter->apply('response.' . $meta['table'], $payload);
             $payload = $emitter->apply(sprintf('response.%s.%s',
                 $meta['table'],

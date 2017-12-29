@@ -28,6 +28,7 @@ env:
     - DIRECTUS_DB_USER=root
     - DIRECTUS_PATH=/
     - DIRECTUS_ADMIN_EMAIL=admin@getdirectus.com
+    - DIRECTUS_ADMIN_TOKEN=token
     - DIRECTUS_ADMIN_PASSWORD=password
     - DIRECTUS_SITE_NAME=Directus
   matrix:
@@ -62,7 +63,7 @@ before_script:
 
 script:
   - # npm test
-  - if [ '$DIRECTUS_TEST_MODE' = 'IO' ]; vendor/bin/phpunit tests/io --coverage-text --coverage-clover=coverage.clover; fi
+  - if [ '$DIRECTUS_TEST_MODE' = 'IO' ]; then vendor/bin/phpunit tests/io --coverage-text --coverage-clover=coverage.clover; fi
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar

@@ -646,6 +646,12 @@ class RelationalTableGateway extends BaseTableGateway
             $params['limit'] = 1;
         }
 
+        // Remove the columns parameters
+        // Until we  call it fields internally
+        if (ArrayUtils::has($params, 'columns')) {
+            ArrayUtils::remove($params, 'columns');
+        }
+
         // NOTE: Let's use "columns" instead of "fields" internally for the moment
         if (ArrayUtils::has($params, 'fields')) {
             $params['columns'] = ArrayUtils::get($params, 'fields');
@@ -1487,17 +1493,14 @@ class RelationalTableGateway extends BaseTableGateway
             }
         }
 
-        if (ArrayUtils::has($params, 'adv_where') && is_array($params['adv_where'])) {
-            $query->where(key($params['adv_where']), '=', current($params['adv_where']));
-        }
-
         if (ArrayUtils::has($params, 'id')) {
-            if (is_numeric($params['id'])) {
-                $entriesIds = [$params['id']];
-            } else {
-                $entriesIds = array_map(function ($item) {
-                    return trim($item);
-                }, StringUtils::csv($params['id'], false));
+            $entriesIds = $params['id'];
+            if (is_string($entriesIds)) {
+                $entriesIds = StringUtils::csv($entriesIds, false);
+            }
+
+            if (!is_array($entriesIds)) {
+                $entriesIds = [$entriesIds];
             }
 
             $idsCount = count($entriesIds);
@@ -1507,23 +1510,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
         }
 
-        // Filter entries that match one of these values separated by comma
-        // in[field]=value1,value2
-        if (ArrayUtils::has($params, 'in') && is_array($params['in'])) {
-            foreach($params['in'] as $column => $values) {
-                if (! is_array($values)) {
-                    $values = array_map(function ($item) {
-                        return trim($item);
-                    }, explode(',', $values));
-                }
-
-                if (count($values) > 0) {
-                    $query->whereIn($column, $values);
-                }
-            }
-        }
-
-        if (!ArrayUtils::has($params, 'q') && ArrayUtils::has($params, 'search')) {
+        if (!ArrayUtils::has($params, 'q')) {
             $search = ArrayUtils::get($params, 'search', '');
 
             if ($search) {

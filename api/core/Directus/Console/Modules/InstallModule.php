@@ -37,6 +37,7 @@ class InstallModule extends ModuleBase
                 . PHP_EOL . "\t\t-e " . __t('Administrator e-mail address, used for administration login. Default: admin@directus.com')
                 . PHP_EOL . "\t\t-p " . __t('Initial administrator password. Default: directus')
                 . PHP_EOL . "\t\t-t " . __t('Name for this Directus installation. Default: Directus')
+                . PHP_EOL . "\t\t-T " . __t('Administrator secret token. Default: Random')
                 . PHP_EOL . "\t\t-d " . __t('Installation path of Directus. Default: ' . BASE_PATH)
         ];
 
@@ -139,6 +140,9 @@ class InstallModule extends ModuleBase
                 case 't':
                     $data['directus_name'] = $value;
                     break;
+                case 'T':
+                    $data['directus_token'] = $value;
+                    break;
                 case 'd':
                     $directus_path = $value;
                     break;
@@ -146,7 +150,6 @@ class InstallModule extends ModuleBase
         }
 
         try {
-
             $setting = new Setting($directus_path);
 
             if (!$setting->isConfigured()) {

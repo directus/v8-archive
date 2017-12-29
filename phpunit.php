@@ -1,6 +1,8 @@
 <?php
 
 $loader = require __DIR__ . '/vendor/autoload.php';
+// utils for I/O testing
+require __DIR__ . '/tests/utils/io_functions.php';
 
 define_constant('BASE_PATH', __DIR__);
 define_constant('DIRECTUS_PATH', '/');
@@ -192,50 +194,4 @@ function add_query_params($url, array $params)
     }
 
     return unparse_url($urlParts);
-}
-
-/**
- * @param string $method
- * @param string $path
- * @param array $options
- *
- * @return \Psr\Http\Message\ResponseInterface
- */
-function request($method, $path, array $options = [])
-{
-    $http = new GuzzleHttp\Client([
-        'base_uri' => 'http://localhost/api/'
-    ]);
-
-    $response = $http->request($method, $path, $options);
-
-    return $response;
-}
-
-/**
- * @param string $path
- * @param array $params
- * @param array $options
- *
- * @return \Psr\Http\Message\ResponseInterface
- */
-function request_get($path, array $params = [], array $options = [])
-{
-    $options['query'] = $params;
-
-    return request('GET', $path, $options);
-}
-
-/**
- * @param string $path
- * @param array $body
- * @param array $options
- *
- * @return \Psr\Http\Message\ResponseInterface
- */
-function request_post($path, array $body = [], array $options = [])
-{
-    $options['form_params'] = $body;
-
-    return request('POST', $path, $options);
 }

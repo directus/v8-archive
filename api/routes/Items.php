@@ -6,6 +6,9 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
+use Directus\Database\Exception\TableNotFoundException;
+use Directus\Database\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\Http\BadRequestException;
@@ -40,6 +43,8 @@ class Items extends Route
         $tableName = $request->getAttribute('table');
         $params = $request->getQueryParams();
 
+        $this->throwErrorIfSystemTable($tableName);
+
         // TODO: Use repository instead of tablegateway
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
@@ -71,6 +76,9 @@ class Items extends Route
     public function batch(Request $request, Response $response)
     {
         $tableName = $request->getAttribute('table');
+
+        $this->throwErrorIfSystemTable($tableName);
+
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
 
@@ -174,6 +182,8 @@ class Items extends Route
         $tableName = $request->getAttribute('table');
         $id = $request->getAttribute('id');
 
+        $this->throwErrorIfSystemTable($tableName);
+
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
         $payload = $request->getParsedBody();
@@ -255,6 +265,9 @@ class Items extends Route
     public function meta(Request $request, Response $response)
     {
         $tableName = $request->getAttribute('table');
+
+        $this->throwErrorIfSystemTable($tableName);
+
         $id = $request->getAttribute('id');
         $params = $request->getQueryParams();
         $dbConnection = $this->container->get('database');
@@ -272,5 +285,14 @@ class Items extends Route
         $responseData['data'] = $metaData;
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    protected function throwErrorIfSystemTable($name)
+    {
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+        if (in_array($name, $schemaManager->getSystemTables())) {
+            throw new ForbiddenSystemTableDirectAccessException($name);
+        }
     }
 }

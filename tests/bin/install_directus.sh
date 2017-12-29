@@ -7,4 +7,4 @@ composer install
 bin/directus install:config -h "localhost" -P 3306 -n "$DIRECTUS_DB_NAME" -u "$DIRECTUS_DB_USER" -d "$DIRECTUS_PATH" -e "$DIRECTUS_ADMIN_EMAIL"
 cat api/config.php
 bin/directus install:database
-bin/directus install:install -e "$DIRECTUS_ADMIN_EMAIL" -p "$DIRECTUS_ADMIN_PASSWORD" -t "$DIRECTUS_SITE_NAME"
+bin/directus install:install -e "$DIRECTUS_ADMIN_EMAIL" -p "$DIRECTUS_ADMIN_PASSWORD" -t "$DIRECTUS_SITE_NAME" -T "$DIRECTUS_ADMIN_TOKEN"

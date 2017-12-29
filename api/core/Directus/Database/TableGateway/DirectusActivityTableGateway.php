@@ -68,19 +68,17 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         $builder = new Builder($this->getAdapter());
         $builder->from($this->getTable());
 
-        // TODO: Only select the fields not on the currently authenticated user group's read field blacklist
-        $columns = ['id', 'identifier', 'action', 'table_name', 'row_id', 'user', 'datetime', 'type', 'data', 'logged_ip'];
+        // TODO: Move this to applyDefaultEntriesSelectParams method
+        $tableSchema = $this->getTableSchema();
+        $columns = TableSchema::getAllTableColumnsName($tableSchema->getName());
         if (ArrayUtils::has($params, 'columns')) {
             $columns = ArrayUtils::get($params, 'columns');
         }
 
         $builder->columns($columns);
-
-        $tableSchema = TableSchema::getTableSchema($this->table);
         $hasActiveColumn = $tableSchema->hasStatusColumn();
 
         $builder = $this->applyParamsToTableEntriesSelect($params, $builder, $tableSchema, $hasActiveColumn);
-
         $select = $builder->buildSelect();
 
         $select
@@ -178,12 +176,13 @@ class DirectusActivityTableGateway extends RelationalTableGateway
     /**
      * Get the last update date from a list of row ids in the given table
      *
-     * @param $table
-     * @param $ids
+     * @param string $table
+     * @param mixed $ids
+     * @param array $params
      *
      * @return array|null
      */
-    public function getLastUpdated($table, $ids)
+    public function getLastUpdated($table, $ids, array $params = [])
     {
         if (!is_array($ids)) {
             $ids = [$ids];
@@ -211,7 +210,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         $statement = $this->sql->prepareStatementForSqlObject($select);
         $result = iterator_to_array($statement->execute());
 
-        return ['data' => $this->parseRecord($result)];
+        return $this->wrapData($this->parseRecord($result), false, ArrayUtils::get($params, 'meta', 0));
     }
 
     public function getMetadata($table, $id)

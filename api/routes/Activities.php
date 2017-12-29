@@ -40,7 +40,7 @@ class Activities extends Route
             $arrayOfIds = $ids ? explode(',', $ids) : [];
             $responseData = $activityTableGateway->getLastUpdated($table, $arrayOfIds);
         } else {
-            $responseData = $activityTableGateway->fetchFeed($params);
+            $responseData = $activityTableGateway->getItems($params);
         }
 
         return $this->responseWithData($request, $response, $responseData);

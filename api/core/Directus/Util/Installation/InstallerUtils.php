@@ -161,8 +161,11 @@ class InstallerUtils
         $hash = password_hash($data['directus_password'], PASSWORD_DEFAULT, ['cost' => 12]);
 
         $data['user_salt'] = StringUtils::randomString();
-        $data['user_token'] = StringUtils::randomString(32);
         $data['avatar'] = get_gravatar($data['directus_email']);
+
+        if (!isset($data['directus_token'])) {
+            $data['directus_token'] = StringUtils::randomString(32);
+        }
 
         $tableGateway->insert([
             'status' => 1,
@@ -173,7 +176,7 @@ class InstallerUtils
             'salt' => $data['user_salt'],
             'avatar' => $data['avatar'],
             'group' => 1,
-            'token' => $data['user_token'],
+            'token' => $data['directus_token'],
             'language' => ArrayUtils::get($data, 'app.default_language', 'en')
         ]);
 
