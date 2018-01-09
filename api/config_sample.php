@@ -76,7 +76,7 @@ return [
         // use this instead
         // Ex: 'root' => realpath(ROOT_PATH.'/../storage/uploads'),
         // Note: ROOT_PATH constant doesn't end with trailing slash
-        'root' => ROOT_PATH . '/storage/uploads',
+        'root' => 'storage/uploads',
         // This is the url where all the media will be pointing to
         // here all assets will be (yourdomain)/storage/uploads
         // same with thumbnails (yourdomain)/storage/uploads/thumbs
@@ -89,12 +89,13 @@ return [
         //   'bucket' => 's3-bucket'
     ],
 
-    'HTTP' => [
-        'forceHttps' => false,
-        'isHttpsFn' => function () {
-            // Override this check for custom arrangements, e.g. SSL-termination @ load balancer
-            return isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off';
-        }
+    // HTTP Settings
+    'http' => [
+        'emulate_enabled' => false,
+        // can be null, or an array list of method to be emulated
+        // Ex: ['PATH', 'DELETE', 'PUT']
+        // 'emulate_methods' => null,
+        'force_https' => false
     ],
 
     'mail' => [

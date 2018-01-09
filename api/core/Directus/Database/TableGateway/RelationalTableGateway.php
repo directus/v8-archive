@@ -497,7 +497,6 @@ class RelationalTableGateway extends BaseTableGateway
                 $foreignTableName = $column['relationship']['related_table'];
                 $foreignJoinColumn = $column['relationship']['junction_key_right'];
                 switch ($lowercaseColumnType) {
-
                     /** One-to-Many */
                     case 'onetomany':
                         $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
@@ -593,15 +592,22 @@ class RelationalTableGateway extends BaseTableGateway
                             }
 
                             /** Update foreign record */
-                            $foreignRecord = $ForeignTable->manageRecordUpdate($foreignTableName, $junctionRow['data'], self::ACTIVITY_ENTRY_MODE_CHILD, $childLogEntries, $parentCollectionRelationshipsChanged, $parentData);
+                            $foreignRecord = ArrayUtils::get($junctionRow, $junctionKeyRight, []);
+                            if (is_array($foreignRecord)) {
+                                $foreignRecord = $ForeignTable->manageRecordUpdate($foreignTableName, $foreignRecord, self::ACTIVITY_ENTRY_MODE_CHILD, $childLogEntries, $parentCollectionRelationshipsChanged, $parentData);
+                                $foreignJoinColumnKey = $foreignRecord[$ForeignTable->primaryKeyFieldName];
+                            } else {
+                                $foreignJoinColumnKey = $foreignRecord;
+                            }
+
                             // Junction/Association row
                             $junctionTableRecord = [
                                 $junctionKeyLeft => $parentRow[$this->primaryKeyFieldName],
-                                $foreignJoinColumn => $foreignRecord[$ForeignTable->primaryKeyFieldName]
+                                $foreignJoinColumn => $foreignJoinColumnKey
                             ];
 
                             // Update fields on the Junction Record
-                            $junctionTableRecord = array_merge($junctionTableRecord, $junctionRow);
+                            $junctionTableRecord = array_merge($junctionRow, $junctionTableRecord);
 
                             $foreignRecord = (array)$foreignRecord;
 
@@ -610,7 +616,6 @@ class RelationalTableGateway extends BaseTableGateway
 
                             // Update Foreign Record
                             if ($relationshipChanged) {
-                                unset($junctionTableRecord['data']);
                                 $JunctionTable->addOrUpdateRecordByArray($junctionTableRecord, $junctionTableName);
                             }
                         }
@@ -619,7 +624,6 @@ class RelationalTableGateway extends BaseTableGateway
                 // Once they're managed, remove the foreign collections from the record array
                 unset($parentRow[$colName]);
             }
-
         }
 
         return $parentRow;
@@ -724,6 +728,10 @@ class RelationalTableGateway extends BaseTableGateway
     /**
      * Relational Getter
      * NOTE: equivalent to old DB#get_entries
+     *
+     * @param  array $params
+     *
+     * @return array
      */
     public function getEntries($params = [])
     {
@@ -865,7 +873,9 @@ class RelationalTableGateway extends BaseTableGateway
      * @param array $params
      * @param \Closure|null $queryCallback
      *
-     * @return mixed
+     * @return array
+     *
+     * @throws Exception\ItemNotFoundException
      */
     public function loadItems(array $params = [], \Closure $queryCallback = null)
     {
@@ -2121,7 +2131,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     protected function getVisibleColumns($depth, array $names = [])
     {
-        if ($depth > 0) {
+        if ($depth >= 0) {
             $columns = $this->getTableSchema()->getColumns($names);
         } else {
             $columns = $this->getTableSchema()->getNonRelationalColumns($names);
