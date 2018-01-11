@@ -13,18 +13,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $charset = 'utf8mb4';
-        $this->db = new Connection([
-            'driver' => 'Pdo_mysql',
-            'host' => 'localhost',
-            'port' => 3306,
-            'database' => 'directus',
-            'username' => 'root',
-            'password' => null,
-            'charset' => $charset,
-            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-            \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
-        ]);
+        $this->db = create_db_connection();
 
         $this->db->execute('TRUNCATE directus_activity;');
 
@@ -63,34 +52,46 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
         // Not selecting columns
         $response = request_get($path, ['access_token' => 'token']);
-        response_assert($this, $response);
-        response_assert_fields($this, $response, $columns);
+        response_assert($this, $response, [
+            'data' => 'array',
+            'fields' => $columns
+        ]);
 
         // Using Asterisk
         $response = request_get($path, ['access_token' => 'token', 'fields' => '*']);
-        response_assert($this, $response);
-        response_assert_fields($this, $response, $columns);
+        response_assert($this, $response, [
+            'data' => 'array',
+            'fields' => $columns
+        ]);
 
         // Using a list of columns (array)
         $response = request_get($path, ['access_token' => 'token', 'fields' => $columns]);
-        response_assert($this, $response);
-        response_assert_fields($this, $response, $columns);
+        response_assert($this, $response, [
+            'data' => 'array',
+            'fields' => $columns
+        ]);
 
         // Using a list of columns (csv)
         $response = request_get($path, ['access_token' => 'token', 'fields' => implode(',', $columns)]);
-        response_assert($this, $response);
-        response_assert_fields($this, $response, $columns);
+        response_assert($this, $response, [
+            'data' => 'array',
+            'fields' => $columns
+        ]);
 
         // Selecting some columns (array)
         $someColumns = ['id', 'type', 'action'];
         $response = request_get($path, ['access_token' => 'token', 'fields' => $someColumns]);
-        response_assert($this, $response);
-        response_assert_fields($this, $response, $someColumns);
+        response_assert($this, $response, [
+            'data' => 'array',
+            'fields' => $someColumns
+        ]);
 
         // Selecting some columns (csv)
         $response = request_get($path, ['access_token' => 'token', 'fields' => implode(',', $someColumns)]);
-        response_assert($this, $response);
-        response_assert_fields($this, $response, $someColumns);
+        response_assert($this, $response, [
+            'data' => 'array',
+            'fields' => $someColumns
+        ]);
     }
 
     public function testMeta()
@@ -101,7 +102,9 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'access_token' => 'token'
         ]);
 
-        response_assert($this, $response);
+        response_assert($this, $response, [
+            'data' => 'array'
+        ]);
         response_assert_meta($this, $response, [
             'table' => 'directus_activity',
             'type' => 'collection'
@@ -117,7 +120,10 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'limit' => 10
         ]);
 
-        response_assert($this, $response, ['count' => 10]);
+        response_assert($this, $response, [
+            'count' => 10,
+            'data' => 'array'
+        ]);
         response_assert_meta($this, $response, [
             'table' => 'directus_activity',
             'type' => 'collection',

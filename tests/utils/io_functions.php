@@ -1,5 +1,21 @@
 <?php
 
+function create_db_connection()
+{
+    $charset = 'utf8mb4';
+
+    return new \Directus\Database\Connection([
+        'driver' => 'Pdo_mysql',
+        'host' => 'localhost',
+        'port' => 3306,
+        'database' => 'directus',
+        'username' => 'root',
+        'password' => null,
+        'charset' => $charset,
+        \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+        \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+    ]);
+}
 /**
  * @param string $method
  * @param string $path
@@ -10,7 +26,7 @@
 function request($method, $path, array $options = [])
 {
     $http = new GuzzleHttp\Client([
-        'base_uri' => 'http://localhost/api/'
+        'base_uri' => 'http://directus.local:8888/api/'//'http://localhost/api/'
     ]);
 
     $response = $http->request($method, $path, $options);
@@ -122,7 +138,7 @@ function request_error_delete($path, array $options = [])
 /**
  * @param \Psr\Http\Message\ResponseInterface $response
  *
- * @return array
+ * @return object
  */
 function response_to_json(\Psr\Http\Message\ResponseInterface $response)
 {
@@ -130,7 +146,7 @@ function response_to_json(\Psr\Http\Message\ResponseInterface $response)
     // after getting the content, you must rewind or the content is a empty
     $response->getBody()->rewind();
 
-    return json_decode($response->getBody()->getContents(), true);
+    return json_decode($response->getBody()->getContents());
 }
 
 /**
@@ -142,28 +158,34 @@ function response_assert(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message
 {
     $result = response_to_json($response);
 
-    $testCase->assertArrayHasKey('data', $result);
-    $testCase->assertArrayNotHasKey('error', $result);
+    $testCase->assertObjectHasAttribute('data', $result);
+    $testCase->assertObjectNotHasAttribute('error', $result);
+
+    $dataType = \Directus\Util\ArrayUtils::get($options, 'data') === 'array' ? 'array' : 'object';
+    $testCase->assertInternalType($dataType, $result->data);
+
+    if (\Directus\Util\ArrayUtils::get($options, 'public', false)) {
+        $testCase->assertObjectHasAttribute('public', $result);
+    } else {
+        $testCase->assertObjectNotHasAttribute('public', $result);
+    }
 
     if (isset($options['count'])) {
-        $testCase->assertCount($options['count'], $result['data']);
+        $testCase->assertCount($options['count'], $result->data);
     }
-}
 
-/**
- * @param PHPUnit_Framework_TestCase $testCase
- * @param \Psr\Http\Message\ResponseInterface $response
- * @param array $fields
- */
-function response_assert_fields(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response, array $fields)
-{
-    $result = response_to_json($response);
-    $testCase->assertArrayHasKey('data', $result);
-    $testCase->assertArrayNotHasKey('error', $result);
-    $data = $result['data'];
-    foreach ($data as $item) {
-        foreach ($item as $key => $value) {
-            $testCase->assertTrue(in_array($key, $fields), $key);
+    if (isset($options['status'])) {
+        $testCase->assertSame($options['status'], $response->getStatusCode());
+    }
+
+    if (isset($options['fields'])) {
+        $data = $result->data;
+        $fields = $options['fields'];
+
+        foreach ($data as $item) {
+            foreach ($item as $key => $value) {
+                $testCase->assertTrue(in_array($key, $fields), $key);
+            }
         }
     }
 }
@@ -176,15 +198,15 @@ function response_assert_fields(PHPUnit_Framework_TestCase $testCase, \Psr\Http\
 function response_assert_meta(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response, array $options)
 {
     $result = response_to_json($response);
-    $testCase->assertArrayHasKey('meta', $result);
-    $testCase->assertArrayNotHasKey('error', $result);
-    $meta = $result['meta'];
+    $testCase->assertObjectHasAttribute('meta', $result);
+    $testCase->assertObjectNotHasAttribute('error', $result);
+    $meta = $result->meta;
     $validOptions = ['table', 'type', 'result_count'];
 
     foreach ($validOptions as $option) {
         if (isset($options[$option])) {
-            $testCase->assertArrayHasKey($option, $meta);
-            $testCase->assertSame($options[$option], $meta[$option]);
+            $testCase->assertObjectHasAttribute($option, $meta);
+            $testCase->assertSame($options[$option], $meta->{$option});
         }
     }
 }
@@ -198,12 +220,15 @@ function response_assert_error(PHPUnit_Framework_TestCase $testCase, \Psr\Http\M
 {
     $result = response_to_json($response);
 
-    $testCase->assertArrayHasKey('error', $result);
-    $testCase->assertArrayNotHasKey('data', $result);
-    $testCase->assertArrayHasKey('code', $result['error']);
+    $testCase->assertObjectHasAttribute('error', $result);
+    $testCase->assertObjectNotHasAttribute('data', $result);
+
+    $error = $result->error;
+    $testCase->assertObjectHasAttribute('code', $error);
+    $testCase->assertObjectHasAttribute('message', $error);
 
     if (isset($options['code'])) {
-        $testCase->assertSame($options['code'], $result['error']['code']);
+        $testCase->assertSame($options['code'], $error->code);
     }
 
     if (isset($options['status'])) {

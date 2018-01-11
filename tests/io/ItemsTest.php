@@ -58,7 +58,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             }
         }
 
-        // Fetching a Item
+        // Batch
         foreach ($this->systemTables as $table) {
             foreach (['POST', 'PATCH', 'PUT', 'DELETE'] as $method) {
                 $path = 'items/' . $table . '/batch';

@@ -21,7 +21,8 @@ class Bookmarks extends Route
     {
         $app->get('', [$this, 'all']);
         $app->post('', [$this, 'create']);
-        $app->map(['POST', 'PUT', 'PATCH', 'DELETE'], '/bookmarks/{id}', [$this, 'one']);
+        $app->get('/bookmarks/{id}', [$this, 'one']);
+        $app->map(['PUT', 'PATCH', 'DELETE'], '/bookmarks/{id}', [$this, 'update']);
         $app->get('/user/me', [$this, 'mine']);
         $app->get('/user/{id}', [$this, 'user']);
         $app->get('/{title}/preferences', [$this, 'preferences']);
@@ -54,7 +55,7 @@ class Bookmarks extends Route
      */
     public function create(Request $request, Response $response)
     {
-        return $this->one($request, $response);
+        return $this->update($request, $response);
     }
 
     /**
@@ -63,7 +64,7 @@ class Bookmarks extends Route
      *
      * @return Response
      */
-    public function one(Request $request, Response $response)
+    public function update(Request $request, Response $response)
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');

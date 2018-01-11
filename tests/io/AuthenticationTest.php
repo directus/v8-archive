@@ -5,6 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
+use Directus\Exception\BadRequestException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use GuzzleHttp\Exception\ClientException;
@@ -26,35 +27,31 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('public', $data);
         $this->assertTrue($data['public']);
 
-        $path = 'auth/login';
+        $path = 'auth/authenticate';
         $response = request_post($path, [
             'email' => 'admin@getdirectus.com',
             'password' => 'password'
         ]);
 
-        $this->assertSame(200, $response->getStatusCode());
-        $result = $response->getBody()->getContents();
-        $this->assertInternalType('string', $result);
-        $data = json_decode($result, true);
-        $this->assertArrayHasKey('data', $data);
-        $this->assertArrayNotHasKey('public', $data);
+        response_assert($this, $response, [
+            'status' => 200,
+            'public' => true
+        ]);
 
-        $data = $data['data'];
-        $this->assertArrayHasKey('token', $data);
-        $this->assertTrue(JWTUtils::isJWT($data['token']));
+        $result = response_to_json($response);
+        $data = $result->data;
+        $this->assertObjectHasAttribute('token', $data);
+        $token = $data->token;
+        $this->assertTrue(JWTUtils::isJWT($token));
 
-        $token = $data['token'];
         // Query String
         $path = 'tables';
-        $response = request_get($path, ['access_token' => $data['token']]);
-        $this->assertSame(200, $response->getStatusCode());
+        $response = request_get($path, ['access_token' => $token]);
 
-        $result = $response->getBody()->getContents();
-        $this->assertInternalType('string', $result);
-        $data = json_decode($result, true);
-        $this->assertArrayHasKey('data', $data);
-        $this->assertInternalType('array', $data['data']);
-        $this->assertArrayNotHasKey('public', $data);
+        response_assert($this, $response, [
+            'status' => 200,
+            'data' => 'array'
+        ]);
 
         // Header Authorization
         $path = 'tables';
@@ -63,38 +60,37 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
                 'Authorization' => 'Bearer ' . $token
             ]
         ]);
-        $this->assertSame(200, $response->getStatusCode());
 
-        $result = $response->getBody()->getContents();
-        $this->assertInternalType('string', $result);
-        $data = json_decode($result, true);
-        $this->assertArrayHasKey('data', $data);
-        $this->assertInternalType('array', $data['data']);
-        $this->assertArrayNotHasKey('public', $data);
+        response_assert($this, $response, [
+            'status' => 200,
+            'data' => 'array'
+        ]);
 
         // Basic Auth
         $path = 'tables';
         $response = request_get($path, [], ['auth' => [$token, null]]);
-        $this->assertSame(200, $response->getStatusCode());
-        $result = $response->getBody()->getContents();
-        $this->assertInternalType('string', $result);
-        $data = json_decode($result, true);
-        $this->assertArrayHasKey('data', $data);
-        $this->assertInternalType('array', $data['data']);
-        $this->assertArrayNotHasKey('public', $data);
+
+        response_assert($this, $response, [
+            'status' => 200,
+            'data' => 'array'
+        ]);
     }
 
     public function testRefreshToken()
     {
-        $path = 'auth/login';
+        $path = 'auth/authenticate';
         $response = request_post($path, [
             'email' => 'admin@getdirectus.com',
             'password' => 'password'
         ]);
 
-        $this->assertSame(200, $response->getStatusCode());
-        $result = json_decode($response->getBody()->getContents(), true);
-        $currentToken = ArrayUtils::get($result, 'data.token');
+        response_assert($this, $response, [
+            'status' => 200,
+            'public' => true
+        ]);
+
+        $result = response_to_json($response);
+        $currentToken = $result->data->token;
         $currentPayload = JWTUtils::getPayload($currentToken);
 
         $path = 'auth/refresh';
@@ -104,8 +100,8 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             'token' => $currentToken
         ]);
 
-        $result2 = json_decode($response2->getBody()->getContents(), true);
-        $newToken = ArrayUtils::get($result2, 'data.token');
+        $result2 = response_to_json($response2);
+        $newToken = $result2->data->token;
         $this->assertNotSame($newToken, $currentToken);
         $newPayload = JWTUtils::getPayload($newToken);
 
@@ -117,7 +113,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
     public function testInvalidCredentials()
     {
         try {
-            $path = 'auth/login';
+            $path = 'auth/authenticate';
             $response = request_post($path, [
                 'email' => 'user@getdirectus.com',
                 'password' => 'password'
@@ -126,21 +122,16 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        $this->assertSame(404, $response->getStatusCode());
-        $result = $response->getBody()->getContents();
-        $data = json_decode($result, true);
-        $this->assertInternalType('array', $data);
-        $this->assertArrayNotHasKey('data', $data);
-        $this->assertArrayHasKey('error', $data);
-        $error = $data['error'];
-        $this->assertArrayHasKey('code', $error);
-        $this->assertArrayHasKey('message', $error);
-        $this->assertSame(InvalidUserCredentialsException::ERROR_CODE, $error['code']);
+        response_assert_error($this, $response, [
+            'status' => 404,
+            'data' => 'array',
+            'code' => InvalidUserCredentialsException::ERROR_CODE
+        ]);
     }
 
     public function testValidation()
     {
-        $path = 'auth/login';
+        $path = 'auth/authenticate';
 
         try {
             $response = request_post($path);
@@ -148,11 +139,10 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        $this->assertSame(400, $response->getStatusCode());
-        $result = json_decode($response->getBody()->getContents(), true);
-        $this->assertArrayHasKey('error', $result);
-        $error = $result['error'];
-        $this->assertSame(0002, $error['code']);
+        response_assert_error($this, $response, [
+            'status' => 400,
+            'code' => BadRequestException::ERROR_CODE
+        ]);
 
         try {
             $response = request_post($path, [
@@ -162,11 +152,10 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        $this->assertSame(400, $response->getStatusCode());
-        $result = json_decode($response->getBody()->getContents(), true);
-        $this->assertArrayHasKey('error', $result);
-        $error = $result['error'];
-        $this->assertSame(0002, $error['code']);
+        response_assert_error($this, $response, [
+            'status' => 400,
+            'code' => BadRequestException::ERROR_CODE
+        ]);
 
         try {
             $response = request_post($path, [
@@ -176,11 +165,10 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        $this->assertSame(400, $response->getStatusCode());
-        $result = json_decode($response->getBody()->getContents(), true);
-        $this->assertArrayHasKey('error', $result);
-        $error = $result['error'];
-        $this->assertSame(0002, $error['code']);
+        response_assert_error($this, $response, [
+            'status' => 400,
+            'code' => BadRequestException::ERROR_CODE
+        ]);
     }
 
     public function testInvalidTokenRefresh()
@@ -194,11 +182,10 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        $this->assertSame(401, $response->getStatusCode());
-        $result = json_decode($response->getBody()->getContents(), true);
-        $this->assertArrayHasKey('error', $result);
-        $error = $result['error'];
-        $this->assertSame(InvalidTokenException::ERROR_CODE, $error['code']);
+        response_assert_error($this, $response, [
+            'status' => 401,
+            'code' => InvalidTokenException::ERROR_CODE
+        ]);
 
         try {
             // expired
@@ -209,11 +196,10 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        $this->assertSame(401, $response->getStatusCode());
-        $result = json_decode($response->getBody()->getContents(), true);
-        $this->assertArrayHasKey('error', $result);
-        $error = $result['error'];
-        $this->assertSame(ExpiredTokenException::ERROR_CODE, $error['code']);
+        response_assert_error($this, $response, [
+            'status' => 401,
+            'code' => ExpiredTokenException::ERROR_CODE
+        ]);
 
         try {
             // empty payload
@@ -224,10 +210,9 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        $this->assertSame(401, $response->getStatusCode());
-        $result = json_decode($response->getBody()->getContents(), true);
-        $this->assertArrayHasKey('error', $result);
-        $error = $result['error'];
-        $this->assertSame(InvalidTokenException::ERROR_CODE, $error['code']);
+        response_assert_error($this, $response, [
+            'status' => 401,
+            'code' => InvalidTokenException::ERROR_CODE
+        ]);
     }
 }

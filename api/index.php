@@ -10,8 +10,8 @@ $app = require __DIR__ . '/bootstrap.php';
 // =============================================================================
 
 $app->group('/activities', \Directus\Api\Routes\Activities::class);
-$app->group('/bookmarks', \Directus\Api\Routes\Bookmarks::class);
 $app->group('/auth', \Directus\Api\Routes\Auth::class);
+$app->group('/bookmarks', \Directus\Api\Routes\Bookmarks::class);
 $app->group('/columns', \Directus\Api\Routes\Columns::class);
 $app->group('/files', \Directus\Api\Routes\Files::class);
 $app->group('/groups', \Directus\Api\Routes\Groups::class);

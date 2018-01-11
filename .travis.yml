@@ -72,7 +72,7 @@ before_script:
   - bin/directus install:install -e "$DIRECTUS_ADMIN_EMAIL" -p "$DIRECTUS_ADMIN_PASSWORD" -t "$DIRECTUS_SITE_NAME" -T "$DIRECTUS_ADMIN_TOKEN"
 
 script:
-  - # npm test
+  # - npm test
   - if [ $DIRECTUS_TEST_MODE = 'IO' ]; then vendor/bin/phpunit tests/io --coverage-text --coverage-clover=coverage.clover; fi
 
 after_script:

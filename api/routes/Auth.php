@@ -22,7 +22,7 @@ class Auth extends Route
      */
     public function __invoke(Application $app)
     {
-        $app->post('/login', [$this, 'login']);
+        $app->post('/authenticate', [$this, 'authenticate']);
         $app->post('/refresh', [$this, 'refresh']);
     }
 
@@ -34,7 +34,7 @@ class Auth extends Route
      *
      * @return Response
      */
-    public function login(Request $request, Response $response)
+    public function authenticate(Request $request, Response $response)
     {
         // throws an exception if the constraints are not met
         $this->validateRequest($request, [
