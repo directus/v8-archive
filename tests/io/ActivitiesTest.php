@@ -3,6 +3,11 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Connection;
+use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
 
 class ActivitiesTest extends \PHPUnit_Framework_TestCase
 {
@@ -15,7 +20,8 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
     {
         $this->db = create_db_connection();
 
-        $this->db->execute('TRUNCATE directus_activity;');
+        $this->truncateTable();
+        $this->createSampleTables();
 
         $startDay = date('d') - 15;
         for ($i = 0; $i < 15; $i++) {
@@ -26,6 +32,12 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             $startDay++;
             $this->db->execute($query);
         }
+    }
+
+    public function tearDown()
+    {
+        $this->truncateTable();
+        $this->dropSampleTables();
     }
 
     public function testColumns()
@@ -145,5 +157,97 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'table' => 'directus_activity',
             'type' => 'item'
         ]);
+    }
+
+    public function testActivity()
+    {
+        $this->truncateTable();
+
+        // Authenticate
+        request_post('auth/authenticate', [
+            'email' => 'admin@getdirectus.com',
+            'password' => 'password'
+        ]);
+
+        request_post('items/products', [
+            'name' => 'Product 1'
+        ], ['query' => ['access_token' => 'token']]);
+
+        request_patch('items/products/1', [
+            'name' => 'Product 01'
+        ], ['query' => ['access_token' => 'token']]);
+
+        request_delete('items/products/1', ['query' => ['access_token' => 'token']]);
+
+        $response = request_get('activities', ['access_token' => 'token']);
+
+        response_assert($this, $response, [
+            'data' => 'array',
+            'count' => 4
+        ]);
+
+        $result = response_to_json($response);
+        $data = $result->data;
+        $actions = [
+            DirectusActivityTableGateway::ACTION_LOGIN,
+            DirectusActivityTableGateway::ACTION_ADD,
+            DirectusActivityTableGateway::ACTION_UPDATE,
+            DirectusActivityTableGateway::ACTION_DELETE
+        ];
+
+        foreach ($data as $item) {
+            $this->assertSame(array_shift($actions), $item->action);
+        }
+    }
+
+    public function testGetActivity()
+    {
+        $response = request_get('activities/1', ['access_token' => 'token']);
+        response_assert($this, $response);
+
+        $this->truncateTable();
+
+        try {
+            $response = request_get('activities/1', ['access_token' => 'token']);
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+        }
+
+        response_assert_error($this, $response, [
+            'status' => 404,
+            'code' => ItemNotFoundException::ERROR_CODE
+        ]);
+    }
+
+    protected function truncateTable()
+    {
+        if ($this->db) {
+            $this->db->execute('TRUNCATE directus_activity;');
+        }
+    }
+
+    protected function createSampleTables()
+    {
+        if (!$this->db) {
+            return;
+        }
+
+        $query = 'CREATE TABLE `products` (
+            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+            `name` varchar(100) NOT NULL,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;';
+
+        $this->db->execute($query);
+    }
+
+    protected function dropSampleTables()
+    {
+        if (!$this->db) {
+            return;
+        }
+
+        $query = 'DROP TABLE `products`;';
+        $this->db->execute($query);
     }
 }

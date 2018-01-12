@@ -21,7 +21,6 @@ class DirectusActivityTableGateway extends RelationalTableGateway
     const TYPE_ENTRY = 'ENTRY';
     const TYPE_FILES = 'FILES';
     const TYPE_SETTINGS = 'SETTINGS';
-    const TYPE_UI = 'UI';
     const TYPE_LOGIN = 'LOGIN';
     const TYPE_MESSAGE = 'MESSAGE';
 
@@ -39,8 +38,6 @@ class DirectusActivityTableGateway extends RelationalTableGateway
     {
         switch ($table) {
             // @todo these first two are assumptions. are they correct?
-            case 'directus_ui':
-                return self::TYPE_UI;
             case 'directus_settings':
                 return self::TYPE_SETTINGS;
             case 'directus_files':
