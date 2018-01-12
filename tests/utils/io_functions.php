@@ -26,7 +26,7 @@ function create_db_connection()
 function request($method, $path, array $options = [])
 {
     $http = new GuzzleHttp\Client([
-        'base_uri' => 'http://localhost/api/'
+        'base_uri' => 'http://directus.local:8888/api/'//'http://localhost/api/'
     ]);
 
     $response = $http->request($method, $path, $options);
@@ -60,6 +60,31 @@ function request_post($path, array $body = [], array $options = [])
     $options['form_params'] = $body;
 
     return request('POST', $path, $options);
+}
+
+/**
+ * @param string $path
+ * @param array $body
+ * @param array $options
+ *
+ * @return \Psr\Http\Message\ResponseInterface
+ */
+function request_patch($path, array $body = [], array $options = [])
+{
+    $options['form_params'] = $body;
+
+    return request('PATCH', $path, $options);
+}
+
+/**
+ * @param string $path
+ * @param array $options
+ *
+ * @return \Psr\Http\Message\ResponseInterface
+ */
+function request_delete($path, array $options = [])
+{
+    return request('DELETE', $path, $options);
 }
 
 /**
@@ -195,7 +220,7 @@ function response_assert(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message
  * @param \Psr\Http\Message\ResponseInterface $response
  * @param array $options
  */
-function response_assert_meta(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response, array $options)
+function response_assert_meta(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response, array $options = [])
 {
     $result = response_to_json($response);
     $testCase->assertObjectHasAttribute('meta', $result);
@@ -203,11 +228,24 @@ function response_assert_meta(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Me
     $meta = $result->meta;
     $validOptions = ['table', 'type', 'result_count'];
 
-    foreach ($validOptions as $option) {
-        if (isset($options[$option])) {
-            $testCase->assertObjectHasAttribute($option, $meta);
-            $testCase->assertSame($options[$option], $meta->{$option});
+    if (!empty($options)) {
+        foreach ($validOptions as $option) {
+            if (isset($options[$option])) {
+                $testCase->assertObjectHasAttribute($option, $meta);
+                $testCase->assertSame($options[$option], $meta->{$option});
+            }
         }
+    }
+}
+
+function response_assert_data_contains(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response, array $expectedData)
+{
+    $result = response_to_json($response);
+    $data = (array)$result->data;
+
+    foreach ($expectedData as $key => $value) {
+        $testCase->assertArrayHasKey($key, $data);
+        $testCase->assertSame($data[$key], $value);
     }
 }
 

@@ -87,18 +87,22 @@ class DirectusBookmarksTableGateway extends RelationalTableGateway
     }
 
     /**
+     * @deprecated
+     *
      * @param $user_id
      * @param $id
+     * @param array $params
+     *
      * @return array|mixed
      */
-    public function fetchEntityByUserAndId($user_id, $id)
+    public function fetchEntityByUserAndId($user_id, $id, array $params = [])
     {
-        $result = $this->getEntries([
+        $result = $this->getEntries(array_merge($params, [
             $this->primaryKeyFieldName => $id,
             'filters' => [
                 'user' => $user_id
             ]
-        ]);
+        ]));
 
         return $result;
     }
@@ -117,6 +121,8 @@ class DirectusBookmarksTableGateway extends RelationalTableGateway
 
     /**
      * Gets all the bookmarks for the given user
+     *
+     * @deprecated
      *
      * @param $userId
      * @param $params

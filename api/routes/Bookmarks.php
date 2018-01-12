@@ -9,7 +9,10 @@ use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusBookmarksTableGateway;
 use Directus\Database\TableGateway\DirectusPreferencesTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
+use Directus\Exception\BadRequestException;
+use Directus\Exception\UnauthorizedException;
 use Directus\Permissions\Acl;
+use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 
 class Bookmarks extends Route
@@ -66,6 +69,7 @@ class Bookmarks extends Route
      */
     public function update(Request $request, Response $response)
     {
+        /** @var Acl $acl */
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
         $payload = $request->getParsedBody();
@@ -84,7 +88,13 @@ class Bookmarks extends Route
                 $id = $payload['id'];
                 break;
             case 'POST':
-                $payload['user'] = $currentUserId;
+                // Only admin can set any user
+                $userId = ArrayUtils::get($payload, 'user', $currentUserId);
+                if ($userId !== $currentUserId && !$acl->isAdmin()) {
+                    throw new UnauthorizedException('non_admin_cannot_set_user');
+                }
+
+                $payload['user'] = $userId;
                 $id = $bookmarks->insertBookmark($payload);
                 break;
             case 'DELETE':
@@ -108,11 +118,12 @@ class Bookmarks extends Route
                 return $this->responseWithData($request, $response, $responseData);
         }
 
+        $params = ['meta' => $request->getQueryParam('meta')];
         if (!is_null($id)) {
-            $responseData = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntityByUserAndId'], [$currentUserId, $id]);
-        } else {
-            $responseData = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntitiesByUserId'], [$currentUserId]);
+            $params['id'] = $id;
         }
+
+        $responseData = $this->getEntriesAndSetResponseCacheTags($bookmarks, $params);
 
         return $this->responseWithData($request, $response, $responseData);
     }

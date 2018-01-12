@@ -17,8 +17,10 @@ use Directus\Cache\Response;
 use Directus\Database\Connection;
 use Directus\Database\Object\Column;
 use Directus\Database\Object\Table;
+use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\SchemaManager;
 use Directus\Database\TableGateway\BaseTableGateway;
+use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Database\TableGateway\DirectusSettingsTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
@@ -39,7 +41,6 @@ use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
 
 class CoreServicesProvider
@@ -219,6 +220,36 @@ class CoreServicesProvider
                     $payload->set('public', true);
                 }
                 return $payload;
+            });
+            $emitter->addAction('table.delete', function ($tableName) use ($container) {
+                /** @var Acl $acl */
+                $acl = $container->get('acl');
+                $db = $container->get('database');
+
+                $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName(
+                    'id',
+                    'directus_activity',
+                    $db
+                );
+                $logData = [
+                    'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($tableName),
+                    'table_name' => $tableName,
+                    'action' => DirectusActivityTableGateway::ACTION_DELETE,
+                    'user' => $acl->getUserId(),
+                    'datetime' => DateUtils::now(),
+                    'parent_id' => null,
+                    'data' => null, // TODO: Would it be nice to store the deleted data? too many nested value?
+                    'delta' => null,
+                    'parent_changed' => 0,
+                    // Old column to represent the record. Old "primary column", first non system column
+                    'identifier' => null,
+                    'row_id' => null,
+                    'logged_ip' => get_request_ip(),
+                    'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
+                ];
+                $parentLogEntry->populate($logData, false);
+                $parentLogEntry->save();
+
             });
             $emitter->addAction('table.insert.directus_groups', function ($data) use ($container) {
                 $acl = $container->get('acl');

@@ -4,7 +4,7 @@ namespace Directus\Exception;
 
 class BadRequestException extends Exception
 {
-    const ERROR_CODE = 0002;
+    const ERROR_CODE = 2;
 
     public function __construct($message = '')
     {

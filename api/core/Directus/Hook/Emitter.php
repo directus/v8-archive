@@ -275,7 +275,7 @@ class Emitter
         foreach ($listenersIds as $index) {
             $listener = $this->listenersList[$index];
 
-            if($listener) {
+            if ($listener) {
                 if ($listener instanceof HookInterface) {
                     $listener = [$listener, 'handle'];
                 }

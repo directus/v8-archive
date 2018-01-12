@@ -863,7 +863,7 @@ class BaseTableGateway extends TableGateway
         $deleteTable = $this->getRawTableNameFromQueryStateTable($deleteState['table']);
 
         // Runs select PK with passed delete's $where before deleting, to use those for the even hook
-        if($pk = $this->primaryKeyFieldName) {
+        if ($pk = $this->primaryKeyFieldName) {
             $select = $this->sql->select();
             $select->where($deleteState['where']);
             $select->columns([$pk]);
@@ -875,7 +875,7 @@ class BaseTableGateway extends TableGateway
         }
 
         // skipping everything, if there is nothing to delete
-        if($ids) {
+        if ($ids) {
             $delete = $this->sql->delete();
             $expression = new In($pk, $ids);
             $delete->where($expression);
