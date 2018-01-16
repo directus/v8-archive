@@ -275,10 +275,6 @@ function response_assert_data_contains(PHPUnit_Framework_TestCase $testCase, \Ps
 function response_assert_error(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response, array $options)
 {
     $result = response_to_json($response);
-    if ($result === null) {
-        $response->getBody()->rewind();
-        echo $response->getBody()->getContents();
-    }
 
     $testCase->assertObjectHasAttribute('error', $result);
     $testCase->assertObjectNotHasAttribute('data', $result);
