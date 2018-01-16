@@ -20,10 +20,11 @@ class CreateDirectusBookmarksTable extends Ruckusing_Migration_Base
         $t = $this->create_table('directus_bookmarks');
 
         //columns
-        $t->column('user', 'integer', ['unsigned' => true, 'default' => NULL]);
-        $t->column('title', 'string', ['limit' => 255, 'default' => NULL]);
-        $t->column('url', 'string', ['limit' => 255, 'default' => NULL]);
-        $t->column('section', 'string', ['limit' => 255, 'default' => NULL]);
+        // TODO: User must be required?
+        // having no required could mean the bookmark is global?
+        $t->column('user', 'integer', ['unsigned' => true, 'default' => null]);
+        $t->column('title', 'string', ['limit' => 255, 'null' => false]);
+        $t->column('url', 'string', ['limit' => 255, 'default' => null]);
 
         $t->finish();
     }//up()

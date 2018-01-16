@@ -833,9 +833,10 @@ class BaseTableGateway extends TableGateway
                 throw new DuplicateEntryException($e->getMessage());
             }
 
-            if ('production' !== DIRECTUS_ENV) {
-                throw new \RuntimeException('This query failed: ' . $this->dumpSql($update), 0, $e);
-            }
+            // TODO: This needs to be logged instead
+            // if ('production' !== DIRECTUS_ENV) {
+                // throw new \RuntimeException('This query failed: ' . $this->dumpSql($update), 0, $e);
+            // }
 
             // @todo send developer warning
             throw $e;

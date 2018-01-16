@@ -54,9 +54,8 @@ DROP TABLE IF EXISTS `directus_bookmarks`;
 CREATE TABLE `directus_bookmarks` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user` int(11) unsigned DEFAULT NULL,
-  `title` varchar(255) DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
   `url` varchar(255) DEFAULT NULL,
-  `section` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

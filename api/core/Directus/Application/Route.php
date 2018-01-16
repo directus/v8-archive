@@ -10,6 +10,7 @@ use Directus\Exception\BadRequestException;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
 use Directus\Util\ArrayUtils;
+use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -58,7 +59,8 @@ abstract class Route
                 $columnsToValidate = array_keys($payload);
 
                 if (empty($columnsToValidate)) {
-                    return;
+                    throw new InvalidRequestException('empty_request');
+                    // return;
                 }
             }
 
@@ -141,7 +143,7 @@ abstract class Route
         }
 
         if (count($results) > 0) {
-            throw new BadRequestException(implode(' ', $results));
+            throw new InvalidRequestException(implode(' ', $results));
         }
     }
 
@@ -199,6 +201,12 @@ abstract class Route
         $data = $this->triggerResponseFilter($request, $data, (array) $options);
 
         // TODO: Response will support xml
+
+        // NOTE: when data is a empty array, the output will be an array
+        // this create problem/confusion as we always return an object
+        if (empty($data)) {
+            $data = new \stdClass();
+        }
 
         return $response->withJson($data);
     }

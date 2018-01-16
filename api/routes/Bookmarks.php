@@ -9,11 +9,9 @@ use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusBookmarksTableGateway;
 use Directus\Database\TableGateway\DirectusPreferencesTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
-use Directus\Exception\BadRequestException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
 
 class Bookmarks extends Route
 {
@@ -24,11 +22,11 @@ class Bookmarks extends Route
     {
         $app->get('', [$this, 'all']);
         $app->post('', [$this, 'create']);
-        $app->get('/bookmarks/{id}', [$this, 'one']);
-        $app->map(['PUT', 'PATCH', 'DELETE'], '/bookmarks/{id}', [$this, 'update']);
+        $app->get('/{id}', [$this, 'one']);
+        $app->patch('/{id}', [$this, 'update']);
+        $app->delete('/{id}', [$this, 'delete']);
         $app->get('/user/me', [$this, 'mine']);
         $app->get('/user/{id}', [$this, 'user']);
-        $app->get('/{title}/preferences', [$this, 'preferences']);
     }
 
     /**
@@ -66,6 +64,8 @@ class Bookmarks extends Route
      * @param Response $response
      *
      * @return Response
+     *
+     * @throws UnauthorizedException
      */
     public function update(Request $request, Response $response)
     {
@@ -79,22 +79,16 @@ class Bookmarks extends Route
         $bookmarks = new DirectusBookmarksTableGateway($dbConnection, $acl);
         $preferences = new DirectusPreferencesTableGateway($dbConnection, null);
 
-        $this->validateRequestWithTable($request, 'directus_bookmarks');
+        if (!$request->isDelete()) {
+            $this->validateRequestWithTable($request, 'directus_bookmarks');
+        }
 
         switch ($request->getMethod()) {
             case 'PATCH':
-            case 'PUT':
                 $bookmarks->updateBookmark($payload);
-                $id = $payload['id'];
                 break;
             case 'POST':
-                // Only admin can set any user
-                $userId = ArrayUtils::get($payload, 'user', $currentUserId);
-                if ($userId !== $currentUserId && !$acl->isAdmin()) {
-                    throw new UnauthorizedException('non_admin_cannot_set_user');
-                }
-
-                $payload['user'] = $userId;
+                $payload['user'] = ArrayUtils::get($payload, 'user', $currentUserId);
                 $id = $bookmarks->insertBookmark($payload);
                 break;
             case 'DELETE':
@@ -110,8 +104,10 @@ class Bookmarks extends Route
                         'title' => $bookmark['data']['title']
                     ]);
                 } else {
-                    $responseData['error'] = [
-                        'message' => __t('bookmark_not_found')
+                    $responseData = [
+                        'error' => [
+                            'message' => __t('bookmark_not_found')
+                        ]
                     ];
                 }
 
@@ -126,6 +122,40 @@ class Bookmarks extends Route
         $responseData = $this->getEntriesAndSetResponseCacheTags($bookmarks, $params);
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function one(Request $request, Response $response)
+    {
+        $id = $request->getAttribute('id');
+        $params = $request->getQueryParams();
+        $dbConnection = $this->container->get('database');
+        $acl = $this->container->get('acl');
+
+        if (!is_null($id)) {
+            $params['id'] = $id;
+        }
+
+        $bookmarks = new DirectusBookmarksTableGateway($dbConnection, $acl);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($bookmarks, $params);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function delete(Request $request, Response $response)
+    {
+        return $this->update($request, $response);
     }
 
     /**
@@ -157,37 +187,6 @@ class Bookmarks extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function preferences(Request $request, Response $response)
-    {
-        /** @var Acl $acl */
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $tableGateway = new DirectusPreferencesTableGateway($dbConnection, $acl);
-        $title = $request->getAttribute('title');
-        $params = $request->getQueryParams();
-
-        $responseData = $this->getDataAndSetResponseCacheTags(
-            [$tableGateway, 'fetchEntityByUserAndTitle'],
-            [$acl->getUserId(), $title, $params]
-        );
-
-        if (!isset($responseData['data'])) {
-            $responseData = [
-                'error' => [
-                    'message' => __t('bookmark_not_found')
-                ]
-            ];
-        }
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
      * @param int $userId
      * @param Request $request
      * @param Response $response
@@ -198,22 +197,11 @@ class Bookmarks extends Route
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
-        $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
 
         $bookmarks = new DirectusBookmarksTableGateway($dbConnection, $acl);
-        switch ($request->getMethod()) {
-            case 'PUT':
-                $bookmarks->updateBookmark($payload);
-                $id = $payload['id'];
-                break;
-            case 'POST':
-                $requestPayload['user'] = $userId;
-                $id = $bookmarks->insertBookmark($payload);
-                break;
-        }
-
-        $responseData = $this->getDataAndSetResponseCacheTags([$bookmarks, 'fetchEntitiesByUserId'], [$userId, $params]);
+        $params['filter'] = ['user' => $userId];
+        $responseData = $this->getDataAndSetResponseCacheTags([$bookmarks, 'getEntries'], [$params]);
 
         return $this->responseWithData($request, $response, $responseData);
     }

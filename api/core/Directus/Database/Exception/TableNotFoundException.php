@@ -9,12 +9,10 @@ class TableNotFoundException extends NotFoundException
 {
     const ERROR_CODE = 200;
 
-    public function __construct($table, $message = '', $code = 0, Exception $previous = null)
+    public function __construct($table)
     {
-        if ($message === '') {
-            $message = __t('unable_to_find_table_x', ['table_name' => $table]);
-        }
+        $message = __t('unable_to_find_table_x', ['table_name' => $table]);
 
-        parent::__construct($message, static::ERROR_CODE, $previous);
+        parent::__construct($message, static::ERROR_CODE);
     }
 }

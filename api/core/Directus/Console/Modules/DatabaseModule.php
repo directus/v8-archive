@@ -2,6 +2,7 @@
 
 namespace Directus\Console\Modules;
 
+use Directus\Util\ArrayUtils;
 use Ruckusing\Framework as Ruckusing_Framework;
 
 class DatabaseModule extends ModuleBase
@@ -40,15 +41,15 @@ class DatabaseModule extends ModuleBase
     protected function runMigration($migrationDirectory)
     {
         $directusPath = BASE_PATH;
-        require_once $directusPath . '/api/config.php';
+        $appConfig = require_once $directusPath . '/api/config.php';
         $config = require $directusPath . '/api/ruckusing.conf.php';
         $dbConfig = getDatabaseConfig([
-            'type' => DB_TYPE,
-            'host' => DB_HOST,
-            'port' => DB_PORT,
-            'name' => DB_NAME,
-            'user' => DB_USER,
-            'pass' => DB_PASSWORD,
+            'type' => ArrayUtils::get($appConfig, 'database.type'),
+            'host' => ArrayUtils::get($appConfig, 'database.host'),
+            'port' => ArrayUtils::get($appConfig, 'database.port'),
+            'name' => ArrayUtils::get($appConfig, 'database.name'),
+            'user' => ArrayUtils::get($appConfig, 'database.username'),
+            'pass' => ArrayUtils::get($appConfig, 'database.password'),
             'directory' => $migrationDirectory,
             'prefix' => '',
         ]);

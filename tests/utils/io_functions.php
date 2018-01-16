@@ -199,9 +199,11 @@ function response_assert(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message
         $testCase->assertCount($options['count'], $result->data);
     }
 
-    if (isset($options['status'])) {
-        $testCase->assertSame($options['status'], $response->getStatusCode());
-    }
+    // =============================================================================
+    // Assert HTTP STATUS CODE
+    // =============================================================================
+    $statusCode = isset($options['status']) ? $options['status'] : 200;
+    $testCase->assertSame($statusCode, $response->getStatusCode());
 
     if (isset($options['fields'])) {
         $data = $result->data;
@@ -213,6 +215,17 @@ function response_assert(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message
             }
         }
     }
+}
+
+/**
+ * @param PHPUnit_Framework_TestCase $testCase
+ * @param \Psr\Http\Message\ResponseInterface $response
+ */
+function response_assert_empty(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response)
+{
+    $result = response_to_json($response);
+
+    $testCase->assertEmpty((array)$result);
 }
 
 /**
@@ -238,6 +251,11 @@ function response_assert_meta(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Me
     }
 }
 
+/**
+ * @param PHPUnit_Framework_TestCase $testCase
+ * @param \Psr\Http\Message\ResponseInterface $response
+ * @param array $expectedData
+ */
 function response_assert_data_contains(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response, array $expectedData)
 {
     $result = response_to_json($response);
@@ -257,6 +275,10 @@ function response_assert_data_contains(PHPUnit_Framework_TestCase $testCase, \Ps
 function response_assert_error(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message\ResponseInterface $response, array $options)
 {
     $result = response_to_json($response);
+    if ($result === null) {
+        $response->getBody()->rewind();
+        echo $response->getBody()->getContents();
+    }
 
     $testCase->assertObjectHasAttribute('error', $result);
     $testCase->assertObjectNotHasAttribute('data', $result);
