@@ -10,7 +10,7 @@
 function request($method, $path, array $options = [])
 {
     $http = new GuzzleHttp\Client([
-        'base_uri' => 'http://directus.local:8888/api/'//'http://localhost/api/'
+        'base_uri' => 'http://localhost/api/'
     ]);
 
     $response = $http->request($method, $path, $options);
