@@ -119,7 +119,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $i = 0;
         foreach ($result->data as $item) {
             $data = $this->data[$i];
@@ -138,7 +138,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $i = 0;
         foreach ($result->data as $item) {
             $data = $this->data[$i];
@@ -160,7 +160,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         foreach ($result->data as $item) {
             $this->assertSame(1, $item->user);
         }
@@ -171,7 +171,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         foreach ($result->data as $item) {
             $this->assertSame(2, $item->user);
         }
@@ -185,7 +185,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         foreach ($result->data as $item) {
             $this->assertSame(1, $item->user);
         }
@@ -196,7 +196,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         foreach ($result->data as $item) {
             $this->assertSame(2, $item->user);
         }

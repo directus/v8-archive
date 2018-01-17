@@ -6,6 +6,7 @@ use Directus\Database\Connection;
  * Creates a new connection instance
  *
  * TODO: Accept parameters
+ * TODO: Get this info from env/global
  *
  * @return Connection
  */
@@ -17,7 +18,7 @@ function create_db_connection()
         'driver' => 'Pdo_mysql',
         'host' => 'localhost',
         'port' => 3306,
-        'database' => 'directus',
+        'database' => 'directus_test',
         'username' => 'root',
         'password' => null,
         'charset' => $charset,

@@ -184,7 +184,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'count' => 4
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $data = $result->data;
         $actions = [
             DirectusActivityTableGateway::ACTION_LOGIN,

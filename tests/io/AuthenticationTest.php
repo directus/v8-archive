@@ -39,7 +39,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             'public' => true
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $data = $result->data;
         $this->assertObjectHasAttribute('token', $data);
         $token = $data->token;
@@ -90,7 +90,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             'public' => true
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $currentToken = $result->data->token;
         $currentPayload = JWTUtils::getPayload($currentToken);
 
@@ -101,7 +101,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             'token' => $currentToken
         ]);
 
-        $result2 = response_to_json($response2);
+        $result2 = response_to_object($response2);
         $newToken = $result2->data->token;
         $this->assertNotSame($newToken, $currentToken);
         $newPayload = JWTUtils::getPayload($newToken);

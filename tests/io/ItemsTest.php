@@ -283,7 +283,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'count' => 1
         ]);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $data = $result->data;
         $first = (array)array_shift($data);
         $expected = static::$data[2];
@@ -379,7 +379,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST DEFAULT SORTING
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token']);
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $data = $result->data;
 
         $first = array_shift($data);
@@ -394,7 +394,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST DEFAULT SORTING SAME AS ID
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'sort' => 'id']);
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $data = $result->data;
 
         $first = array_shift($data);
@@ -409,7 +409,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST DESCENDING SORTING
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'sort' => '-id']);
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $data = $result->data;
 
         $first = array_shift($data);
@@ -534,7 +534,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
         response_assert($this, $response);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $newData = (array)$result->data;
         unset($data['price']);
 
@@ -555,7 +555,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch($path, $data, ['query' => ['access_token' => 'token']]);
         response_assert($this, $response);
 
-        $result = response_to_json($response);
+        $result = response_to_object($response);
         $newData = (array)$result->data;
         unset($data['price']);
 
