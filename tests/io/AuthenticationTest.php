@@ -8,6 +8,7 @@ use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Exception\BadRequestException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
+use Directus\Validator\Exception\InvalidRequestException;
 use GuzzleHttp\Exception\ClientException;
 
 class AuthenticationTest extends \PHPUnit_Framework_TestCase
@@ -141,7 +142,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 
         response_assert_error($this, $response, [
             'status' => 400,
-            'code' => BadRequestException::ERROR_CODE
+            'code' => InvalidRequestException::ERROR_CODE
         ]);
 
         try {
@@ -154,7 +155,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 
         response_assert_error($this, $response, [
             'status' => 400,
-            'code' => BadRequestException::ERROR_CODE
+            'code' => InvalidRequestException::ERROR_CODE
         ]);
 
         try {
@@ -167,7 +168,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 
         response_assert_error($this, $response, [
             'status' => 400,
-            'code' => BadRequestException::ERROR_CODE
+            'code' => InvalidRequestException::ERROR_CODE
         ]);
     }
 

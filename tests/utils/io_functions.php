@@ -1,21 +1,7 @@
 <?php
 
-function create_db_connection()
-{
-    $charset = 'utf8mb4';
+require __DIR__ . '/database.php';
 
-    return new \Directus\Database\Connection([
-        'driver' => 'Pdo_mysql',
-        'host' => 'localhost',
-        'port' => 3306,
-        'database' => 'directus',
-        'username' => 'root',
-        'password' => null,
-        'charset' => $charset,
-        \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-        \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
-    ]);
-}
 /**
  * @param string $method
  * @param string $path
@@ -209,9 +195,13 @@ function response_assert(PHPUnit_Framework_TestCase $testCase, \Psr\Http\Message
         $data = $result->data;
         $fields = $options['fields'];
 
+        if ($dataType === 'object') {
+            $data = [$data];
+        }
+
         foreach ($data as $item) {
             foreach ($item as $key => $value) {
-                $testCase->assertTrue(in_array($key, $fields), $key);
+                $testCase->assertTrue(in_array($key, $fields));
             }
         }
     }

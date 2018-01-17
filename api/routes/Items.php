@@ -7,7 +7,6 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
-use Directus\Database\Exception\TableNotFoundException;
 use Directus\Database\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
@@ -23,13 +22,12 @@ class Items extends Route
     public function __invoke(Application $app)
     {
         $app->map(['GET', 'POST'], '/{table}', [$this, 'all']);
-        $app->map(['POST', 'PATCH', 'PUT', 'DELETE'], '/{table}/batch', [$this, 'batch']);
         $app->map(['PUT', 'PATCH', 'GET'], '/{table}/{id}', [$this, 'one']);
-        $app->delete('/{table}/{id}', [$this, 'one']); // move the code to 'delete' method
+        $app->delete('/{table}/{id}', [$this, 'delete']);
         $app->get('/{table}/{id}/meta', [$this, 'meta']);
 
+        $app->map(['POST', 'PATCH', 'PUT', 'DELETE'], '/{table}/batch', [$this, 'batch']);
         // NOTE: /tables/:table/typeahead Removed. Make it work with filters. Otherwise will be added
-        // TODO: Remove fetching items from the core tables
     }
 
     /**
@@ -187,7 +185,7 @@ class Items extends Route
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
         $payload = $request->getParsedBody();
-
+        $params = $request->getQueryParams();
         $params['table_name'] = $tableName;
         $params['id'] = $id;
 
@@ -254,6 +252,19 @@ class Items extends Route
         }
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws BadRequestException
+     */
+    public function delete(Request $request, Response $response)
+    {
+        return $this->one($request, $response);
     }
 
     /**

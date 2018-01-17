@@ -25,6 +25,7 @@ class CreateDirectusActivityTable extends Ruckusing_Migration_Base
 {
     public function up()
     {
+        // TODO: Rename table to directus_activities?
         $t = $this->create_table('directus_activity', [
             'id' => false,
             //'options'=> 'COMMENT="Contains history of revisions"'

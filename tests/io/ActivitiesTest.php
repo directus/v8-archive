@@ -5,9 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
 
 class ActivitiesTest extends \PHPUnit_Framework_TestCase
 {
@@ -169,15 +167,15 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'password' => 'password'
         ]);
 
-        request_post('items/products', [
+        request_post('items/test', [
             'name' => 'Product 1'
         ], ['query' => ['access_token' => 'token']]);
 
-        request_patch('items/products/1', [
+        request_patch('items/test/1', [
             'name' => 'Product 01'
         ], ['query' => ['access_token' => 'token']]);
 
-        request_delete('items/products/1', ['query' => ['access_token' => 'token']]);
+        request_delete('items/test/1', ['query' => ['access_token' => 'token']]);
 
         $response = request_get('activities', ['access_token' => 'token']);
 
@@ -232,7 +230,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $query = 'CREATE TABLE `products` (
+        $query = 'CREATE TABLE `test` (
             `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
             `name` varchar(100) NOT NULL,
             PRIMARY KEY (`id`)
@@ -247,7 +245,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $query = 'DROP TABLE `products`;';
+        $query = 'DROP TABLE `test`;';
         $this->db->execute($query);
     }
 }
