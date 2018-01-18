@@ -18,7 +18,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $path = 'tables';
         $response = request_get($path);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'status' => 200,
             'public' => true
@@ -30,7 +30,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             'password' => 'password'
         ]);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'status' => 200,
             'public' => true
         ]);
@@ -49,7 +49,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $path = 'tables';
         $response = request_get($path, ['access_token' => $token]);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'status' => 200,
             'data' => 'array'
         ]);
@@ -62,7 +62,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'status' => 200,
             'data' => 'array'
         ]);
@@ -71,7 +71,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $path = 'tables';
         $response = request_get($path, [], ['auth' => [$token, null]]);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'status' => 200,
             'data' => 'array'
         ]);
@@ -85,7 +85,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             'password' => 'password'
         ]);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'status' => 200,
             'public' => true
         ]);
@@ -123,7 +123,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 404,
             'data' => 'array',
             'code' => InvalidUserCredentialsException::ERROR_CODE
@@ -140,7 +140,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 400,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
@@ -153,7 +153,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 400,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
@@ -166,7 +166,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 400,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
@@ -183,7 +183,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 401,
             'code' => InvalidTokenException::ERROR_CODE
         ]);
@@ -197,7 +197,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 401,
             'code' => ExpiredTokenException::ERROR_CODE
         ]);
@@ -211,7 +211,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 401,
             'code' => InvalidTokenException::ERROR_CODE
         ]);

@@ -19,8 +19,8 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
         ];
         $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
 
-        response_assert($this, $response);
-        response_assert_data_contains($this, $response, $data);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data);
     }
 
     public function testUpdate()
@@ -33,8 +33,8 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
         ];
         $response = request_patch($path, $data, ['query' => ['access_token' => 'token']]);
 
-        response_assert($this, $response);
-        response_assert_data_contains($this, $response, $data);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data);
     }
 
     public function testGetOne()
@@ -48,8 +48,8 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
         ];
 
         $response = request_get($path, ['access_token' => 'token']);
-        response_assert($this, $response);
-        response_assert_data_contains($this, $response, $data);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data);
     }
 
     public function testList()
@@ -57,7 +57,7 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
         $path = 'preferences';
 
         $response = request_get($path, ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
@@ -68,6 +68,6 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
         $path = 'preferences/1';
         $response = request_delete($path, ['query' => ['access_token' => 'token']]);
 
-        response_assert_empty($this, $response);
+        assert_response_empty($this, $response);
     }
 }

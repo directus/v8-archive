@@ -45,7 +45,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             $path = 'items/' . $table;
             $response = request_error_get($path);
 
-            response_assert_error($this, $response, [
+            assert_response_error($this, $response, [
                 'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
                 'status' => 401
             ]);
@@ -56,7 +56,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             $path = 'items/' . $table;
             $response = request_error_post($path);
 
-            response_assert_error($this, $response, [
+            assert_response_error($this, $response, [
                 'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
                 'status' => 401
             ]);
@@ -68,7 +68,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
                 $path = 'items/' . $table . '/1';
                 $response = call_user_func('request_error_' . strtolower($method), $path);
 
-                response_assert_error($this, $response, [
+                assert_response_error($this, $response, [
                     'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
                     'status' => 401
                 ]);
@@ -81,7 +81,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
                 $path = 'items/' . $table . '/batch';
                 $response = call_user_func('request_error_' . strtolower($method), $path);
 
-                response_assert_error($this, $response, [
+                assert_response_error($this, $response, [
                     'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
                     'status' => 401
                 ]);
@@ -104,7 +104,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // GET ALL FIELDS
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 3,
             'fields' => $fields
@@ -112,7 +112,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 
         // TODO: Fix casting DECIMAL
         // it's converting 9.99 to things like 9.9900000000000002131628207280300557613372802734375
-        // response_assert_data_contains($this, $response, static::$data);
+        // assert_response_data_contains($this, $response, static::$data);
 
         // =============================================================================
         // GET ALL FIELDS WITH ASTERISK
@@ -121,7 +121,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'fields' => '*',
             'access_token' => 'token'
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 3,
             'fields' => $fields
@@ -139,7 +139,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
                 'access_token' => 'token'
             ]);
 
-            response_assert($this, $response, [
+            assert_response($this, $response, [
                 'data' => 'array',
                 'count' => 3,
                 'fields' => [
@@ -155,7 +155,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'fields' => implode(',', $fields),
             'access_token' => 'token'
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 3,
             'fields' => $fields
@@ -168,7 +168,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'fields' => 'id, name',
             'access_token' => 'token'
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 3,
             'fields' => ['id', 'name']
@@ -190,7 +190,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // GET ALL FIELDS
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'fields' => $fields
         ]);
 
@@ -201,7 +201,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'fields' => '*',
             'access_token' => 'token'
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'fields' => $fields
         ]);
 
@@ -217,7 +217,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
                 'access_token' => 'token'
             ]);
 
-            response_assert($this, $response, [
+            assert_response($this, $response, [
                 'fields' => [
                     $field
                 ]
@@ -231,7 +231,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'fields' => implode(',', $fields),
             'access_token' => 'token'
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'fields' => $fields
         ]);
 
@@ -242,7 +242,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'fields' => 'id, name',
             'access_token' => 'token'
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'fields' => ['id', 'name']
         ]);
     }
@@ -255,7 +255,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST LIMIT (lower than items count)
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'limit' => 1]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
@@ -264,7 +264,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST LIMIT (higher than items count)
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'limit' => 5]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 3
         ]);
@@ -278,7 +278,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST LIMIT (lower than items count)
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'limit' => 1, 'offset' => 1]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
@@ -303,13 +303,13 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // FETCH BY ONE ID: Return a single object, not an array of one item
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'id' => 2]);
-        response_assert($this, $response);
+        assert_response($this, $response);
 
         // =============================================================================
         // FETCH BY CSV
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'id' => '2,3']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 2
         ]);
@@ -318,7 +318,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // FETCH BY CSV: One non-existent
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'id' => '2,3,10']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 2
         ]);
@@ -332,7 +332,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST WITH ASTERISK: ALL STATUSES
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'status' => '*']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 4
         ]);
@@ -341,13 +341,13 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST WITH ONE STATUS
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'status' => 1]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 3
         ]);
 
         $response = request_get($path, ['access_token' => 'token', 'status' => 2]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
@@ -356,7 +356,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST WITH CSV STATUSES
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token', 'status' => '1,2']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 4
         ]);
@@ -365,7 +365,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // TEST WITHOUT PARAM
         // =============================================================================
         $response = request_get($path, ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 3
         ]);
@@ -426,19 +426,19 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $path = 'items/products';
 
         $response = request_get($path, ['access_token' => 'token', 'q' => 'Product']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 3
         ]);
 
         $response = request_get($path, ['access_token' => 'token', 'q' => 'Basic']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
 
         $response = request_get($path, ['access_token' => 'token', 'q' => 'Old']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 0
         ]);
@@ -455,7 +455,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'access_token' => 'token',
             'filter' => ['id' => 1]
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 0
         ]);
@@ -467,7 +467,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'access_token' => 'token',
             'filter' => ['id' => 2]
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
@@ -479,7 +479,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'access_token' => 'token',
             'filter' => ['name' => 'Basic Product']
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
@@ -491,7 +491,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'access_token' => 'token',
             'filter' => ['id' => ['eq' => 1]]
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 0
         ]);
@@ -503,7 +503,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'access_token' => 'token',
             'filter' => ['id' => ['eq' => 2]]
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
@@ -515,7 +515,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'access_token' => 'token',
             'filter' => ['name' => ['eq' => 'Basic Product']]
         ]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
         ]);
@@ -532,7 +532,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         ];
 
         $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
-        response_assert($this, $response);
+        assert_response($this, $response);
 
         $result = response_to_object($response);
         $newData = (array)$result->data;
@@ -553,7 +553,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         ];
 
         $response = request_patch($path, $data, ['query' => ['access_token' => 'token']]);
-        response_assert($this, $response);
+        assert_response($this, $response);
 
         $result = response_to_object($response);
         $newData = (array)$result->data;
@@ -569,6 +569,6 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
     {
         $path = 'items/products/5';
         $response = request_delete($path, ['query' => ['access_token' => 'token']]);
-        response_assert_empty($this, $response);
+        assert_response_empty($this, $response);
     }
 }

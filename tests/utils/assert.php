@@ -8,7 +8,7 @@ use PHPUnit_Framework_TestCase as TestCase;
  * @param ResponseInterface $response
  * @param array $options
  */
-function response_assert(TestCase $testCase, ResponseInterface $response, array $options = [])
+function assert_response(TestCase $testCase, ResponseInterface $response, array $options = [])
 {
     $result = response_to_object($response);
 
@@ -54,7 +54,7 @@ function response_assert(TestCase $testCase, ResponseInterface $response, array 
  * @param TestCase $testCase
  * @param ResponseInterface $response
  */
-function response_assert_empty(TestCase $testCase, ResponseInterface $response)
+function assert_response_empty(TestCase $testCase, ResponseInterface $response)
 {
     $result = response_to_object($response);
 
@@ -66,7 +66,7 @@ function response_assert_empty(TestCase $testCase, ResponseInterface $response)
  * @param ResponseInterface $response
  * @param array $options
  */
-function response_assert_meta(TestCase $testCase, ResponseInterface $response, array $options = [])
+function assert_response_meta(TestCase $testCase, ResponseInterface $response, array $options = [])
 {
     $result = response_to_object($response);
     $testCase->assertObjectHasAttribute('meta', $result);
@@ -89,7 +89,7 @@ function response_assert_meta(TestCase $testCase, ResponseInterface $response, a
  * @param ResponseInterface $response
  * @param array $expectedData
  */
-function response_assert_data_contains(TestCase $testCase, ResponseInterface $response, array $expectedData)
+function assert_response_data_contains(TestCase $testCase, ResponseInterface $response, array $expectedData)
 {
     $result = response_to_object($response);
     $data = (array)$result->data;
@@ -105,7 +105,7 @@ function response_assert_data_contains(TestCase $testCase, ResponseInterface $re
  * @param ResponseInterface $response
  * @param array $options
  */
-function response_assert_error(TestCase $testCase, ResponseInterface $response, array $options)
+function assert_response_error(TestCase $testCase, ResponseInterface $response, array $options)
 {
     $result = response_to_object($response);
 

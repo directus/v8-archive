@@ -58,8 +58,8 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
         unset($data['user']);
 
         $response = request_post('bookmarks', $data, ['query' => ['access_token' => 'token']]);
-        response_assert($this, $response);
-        response_assert_data_contains($this, $response, $this->data[0]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $this->data[0]);
 
         // =============================================================================
         // CREATE WITH USER SET, ADMIN USER
@@ -68,8 +68,8 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
         $data = $this->data[1];
 
         $response = request_post('bookmarks', $data, ['query' => ['access_token' => 'token']]);
-        response_assert($this, $response);
-        response_assert_data_contains($this, $response, $data);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data);
 
         // =============================================================================
         // TEST WITH METADATA
@@ -78,9 +78,9 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
         $data = $this->data[2];
 
         $response = request_post('bookmarks', $data, ['query' => ['access_token' => 'token', 'meta' => '*']]);
-        response_assert($this, $response);
-        response_assert_meta($this, $response);
-        response_assert_data_contains($this, $response, $data);
+        assert_response($this, $response);
+        assert_response_meta($this, $response);
+        assert_response_data_contains($this, $response, $data);
 
         // =============================================================================
         // CREATE WITH NO USER SET
@@ -90,8 +90,8 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
         unset($data['user']);
 
         $response = request_post('bookmarks', $data, ['query' => ['access_token' => 'intern_token']]);
-        response_assert($this, $response);
-        response_assert_data_contains($this, $response, $this->data[3]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $this->data[3]);
 
         // =============================================================================
         // CREATE WITH EMPTY BODY
@@ -105,7 +105,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 400,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
@@ -114,7 +114,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
     public function testList()
     {
         $response = request_get('bookmarks', ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'count' => 4,
             'data' => 'array'
         ]);
@@ -133,7 +133,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($i, 4);
 
         $response = request_get('bookmarks', ['access_token' => 'intern_token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'count' => 4,
             'data' => 'array'
         ]);
@@ -155,7 +155,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
     public function testListMine()
     {
         $response = request_get('bookmarks/user/me', ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'count' => 1,
             'data' => 'array'
         ]);
@@ -166,7 +166,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
         }
 
         $response = request_get('bookmarks/user/me', ['access_token' => 'intern_token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'count' => 3,
             'data' => 'array'
         ]);
@@ -180,7 +180,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
     public function testListUser()
     {
         $response = request_get('bookmarks/user/1', ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'count' => 1,
             'data' => 'array'
         ]);
@@ -191,7 +191,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
         }
 
         $response = request_get('bookmarks/user/2', ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'count' => 3,
             'data' => 'array'
         ]);
@@ -206,8 +206,8 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
     {
         $response = request_get('bookmarks/1', ['access_token' => 'token']);
 
-        response_assert($this, $response);
-        response_assert_data_contains($this, $response, $this->data[0]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $this->data[0]);
     }
 
     public function testUpdate()
@@ -219,8 +219,8 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
 
         $response = request_patch('bookmarks/2', $data, ['query' => ['access_token' => 'token']]);
 
-        response_assert($this, $response);
-        response_assert_data_contains($this, $response, array_merge([
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, array_merge([
             'id' => 2
         ], $data));
     }
@@ -235,7 +235,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 400,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
@@ -244,7 +244,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
     public function testDelete()
     {
         $response = request_delete('bookmarks/1', ['query' => ['access_token' => 'token']]);
-        response_assert_empty($this, $response);
+        assert_response_empty($this, $response);
 
         try {
             $response = request_get('bookmarks/1', ['access_token' => 'token']);
@@ -252,7 +252,7 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 404,
             'code' => ItemNotFoundException::ERROR_CODE
         ]);

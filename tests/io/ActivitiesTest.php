@@ -62,28 +62,28 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
         // Not selecting columns
         $response = request_get($path, ['access_token' => 'token']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'fields' => $columns
         ]);
 
         // Using Asterisk
         $response = request_get($path, ['access_token' => 'token', 'fields' => '*']);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'fields' => $columns
         ]);
 
         // Using a list of columns (array)
         $response = request_get($path, ['access_token' => 'token', 'fields' => $columns]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'fields' => $columns
         ]);
 
         // Using a list of columns (csv)
         $response = request_get($path, ['access_token' => 'token', 'fields' => implode(',', $columns)]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'fields' => $columns
         ]);
@@ -91,14 +91,14 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
         // Selecting some columns (array)
         $someColumns = ['id', 'type', 'action'];
         $response = request_get($path, ['access_token' => 'token', 'fields' => $someColumns]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'fields' => $someColumns
         ]);
 
         // Selecting some columns (csv)
         $response = request_get($path, ['access_token' => 'token', 'fields' => implode(',', $someColumns)]);
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'fields' => $someColumns
         ]);
@@ -112,10 +112,10 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'access_token' => 'token'
         ]);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array'
         ]);
-        response_assert_meta($this, $response, [
+        assert_response_meta($this, $response, [
             'table' => 'directus_activity',
             'type' => 'collection'
         ]);
@@ -130,11 +130,11 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'limit' => 10
         ]);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'count' => 10,
             'data' => 'array'
         ]);
-        response_assert_meta($this, $response, [
+        assert_response_meta($this, $response, [
             'table' => 'directus_activity',
             'type' => 'collection',
             'result_count' => 10
@@ -150,8 +150,8 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'id' => 1
         ]);
 
-        response_assert($this, $response);
-        response_assert_meta($this, $response, [
+        assert_response($this, $response);
+        assert_response_meta($this, $response, [
             'table' => 'directus_activity',
             'type' => 'item'
         ]);
@@ -179,7 +179,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
         $response = request_get('activities', ['access_token' => 'token']);
 
-        response_assert($this, $response, [
+        assert_response($this, $response, [
             'data' => 'array',
             'count' => 4
         ]);
@@ -201,7 +201,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
     public function testGetActivity()
     {
         $response = request_get('activities/1', ['access_token' => 'token']);
-        response_assert($this, $response);
+        assert_response($this, $response);
 
         $this->truncateTable();
 
@@ -211,7 +211,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             $response = $e->getResponse();
         }
 
-        response_assert_error($this, $response, [
+        assert_response_error($this, $response, [
             'status' => 404,
             'code' => ItemNotFoundException::ERROR_CODE
         ]);
