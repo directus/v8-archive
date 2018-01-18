@@ -4,6 +4,11 @@ namespace Directus\Tests\Api\Io;
 
 class PreferencesTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setUpBeforeClass()
+    {
+        truncate_table(create_db_connection(), 'directus_preferences');
+    }
+
     public function testCreate()
     {
         $path = 'preferences';
@@ -61,7 +66,7 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
     public function testDelete()
     {
         $path = 'preferences/1';
-        $response = request_patch($path, ['query' => ['access_token' => 'token']]);
+        $response = request_delete($path, ['query' => ['access_token' => 'token']]);
 
         response_assert_empty($this, $response);
     }

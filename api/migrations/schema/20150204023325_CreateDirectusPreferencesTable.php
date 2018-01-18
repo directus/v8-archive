@@ -36,44 +36,40 @@ class CreateDirectusPreferencesTable extends Ruckusing_Migration_Base
         ]);
         $t->column('user', 'integer', [
             'unsigned' => true,
-            'default' => NULL
+            'null' => false
         ]);
         $t->column('table_name', 'string', [
             'limit' => 64,
-            'default' => NULL
+            'null' => false
         ]);
         $t->column('title', 'string', [
             'limit' => 128,
-            'default' => NULL
+            'default' => null
         ]);
-        $t->column('columns_visible', 'string', [
+
+        $t->column('visible_fields', 'string', [
             'limit' => 300,
-            'default' => NULL
+            'default' => null
         ]);
         $t->column('sort', 'string', [
             'limit' => 64,
-            'default' => 'id'
+            'default' => null
         ]);
-        $t->column('sort_order', 'string', [
-            'limit' => 5,
-            'default' => 'ASC'
-        ]);
+
         $t->column('status', 'string', [
             'limit' => 64,
-            'default' => 3
+            'default' => null
         ]);
+
         $t->column('search_string', 'text');
+
         $t->column('list_view_options', 'text');
 
         $t->finish();
 
         $this->add_index('directus_preferences', ['user', 'table_name', 'title'], [
             'unique' => true,
-            'name' => 'user'
-        ]);
-        $this->add_index('directus_preferences', ['user', 'table_name', 'title'], [
-            'unique' => true,
-            'name' => 'pref_title_constraint'
+            'name' => 'user_table_title'
         ]);
     }//up()
 
@@ -81,11 +77,7 @@ class CreateDirectusPreferencesTable extends Ruckusing_Migration_Base
     {
         $this->remove_index('directus_preferences', ['user', 'table_name', 'title'], [
             'unique' => true,
-            'name' => 'user'
-        ]);
-        $this->remove_index('directus_preferences', ['user', 'table_name', 'title'], [
-            'unique' => true,
-            'name' => 'pref_title_constraint'
+            'name' => 'user_table_title'
         ]);
         $this->drop_table('directus_preferences');
     }//down()
