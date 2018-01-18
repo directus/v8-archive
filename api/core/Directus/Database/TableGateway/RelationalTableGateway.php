@@ -13,7 +13,6 @@ use Directus\Database\TableSchema;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
-use MongoDB\Driver\BulkWrite;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Predicate\PredicateInterface;
 use Zend\Db\Sql\Select;
@@ -95,14 +94,6 @@ class RelationalTableGateway extends BaseTableGateway
         // Delete file if necessary
         $TableGateway->deleteFiles($tableName, $recordData);
 
-        // Do not set owner id to directus_users since id is the owner column
-        if ($recordIsNew && $tableName != 'directus_users') {
-            $cmsOwnerColumnName = $this->acl->getCmsOwnerColumnByTable($tableName);
-            if ($cmsOwnerColumnName) {
-                $recordData[$cmsOwnerColumnName] = $currentUserId;
-            }
-        }
-
         // Do not let non-admins make admins
         if ($tableName == 'directus_users' && $currentUserGroupId != 1) {
             if (isset($recordData['group']) && $recordData['group']['id'] == 1) {
@@ -153,7 +144,6 @@ class RelationalTableGateway extends BaseTableGateway
             // Update the parent row, w/ any new association fields replaced by their IDs
             $newRecordObject = $TableGateway
                 ->addOrUpdateRecordByArray($parentRecordWithoutAlias);
-
             if (!$newRecordObject) {
                 return [];
             }
@@ -914,7 +904,9 @@ class RelationalTableGateway extends BaseTableGateway
         // If we have user field and do not have big view privileges but have view then only show entries we created
         $cmsOwnerId = $this->acl ? $this->acl->getCmsOwnerColumnByTable($this->table) : null;
         $currentUserId = $this->acl ? $this->acl->getUserId() : null;
-        if ($cmsOwnerId && !$this->acl->hasTablePrivilege($this->table, 'bigview') && $this->acl->hasTablePrivilege($this->table, 'view')) {
+        // TODO: Find better names
+        $hasSmallViewPermission = !$this->acl->hasTablePrivilege($this->table, 'bigview') && $this->acl->hasTablePrivilege($this->table, 'view');
+        if ($cmsOwnerId && $hasSmallViewPermission && !$this->acl->isAdmin()) {
             $builder->whereEqualTo($cmsOwnerId, $currentUserId);
         }
 

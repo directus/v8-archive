@@ -272,22 +272,32 @@ class CoreServicesProvider
                 $tableObject = TableSchema::getTableSchema($tableName);
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
+
                 if ($dateCreated = $tableObject->getDateCreateColumn()) {
                     $payload[$dateCreated] = DateUtils::now();
                 }
+
                 if ($dateCreated = $tableObject->getDateUpdateColumn()) {
                     $payload[$dateCreated] = DateUtils::now();
                 }
+
                 // Directus Users created user are themselves (primary key)
                 // populating that field will be a duplicated primary key violation
-                if ($tableName !== 'directus_users') {
-                    if ($userCreated = $tableObject->getUserCreateColumn()) {
-                        $payload[$userCreated] = $acl->getUserId();
-                    }
-                    if ($userModified = $tableObject->getUserUpdateColumn()) {
-                        $payload[$userModified] = $acl->getUserId();
-                    }
+                if ($tableName === 'directus_users') {
+                    return $payload;
                 }
+
+                $userCreated = $tableObject->getUserCreateColumn();
+                $userModified = $tableObject->getUserUpdateColumn();
+
+                if ($userCreated && (!$payload->has($userCreated) || !$acl->isAdmin())) {
+                    $payload[$userCreated] = $acl->getUserId();
+                }
+
+                if ($userModified && (!$payload->has($userModified) || !$acl->isAdmin())) {
+                    $payload[$userModified] = $acl->getUserId();
+                }
+
                 return $payload;
             }, Emitter::P_HIGH);
             $emitter->addFilter('table.update:before', function (Payload $payload) use ($container) {
