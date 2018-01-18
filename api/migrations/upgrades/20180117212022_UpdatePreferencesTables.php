@@ -71,7 +71,7 @@ class UpdatePreferencesTables extends Ruckusing_Migration_Base
             $order = $row['sort_order'];
             $column = $row['sort'];
 
-            if ($order === 'DESC') {
+            if ($order === 'DESC' && strpos($column, '-') !== 0) {
                 $this->execute(sprintf($updateQuery, $this->tableName, $column, $id));
             }
         }
