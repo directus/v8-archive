@@ -206,17 +206,15 @@ DROP TABLE IF EXISTS `directus_preferences`;
 CREATE TABLE `directus_preferences` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user` int(11) unsigned DEFAULT NULL,
-  `table_name` varchar(64) DEFAULT NULL,
+  `table_name` varchar(64) NOT NULL,
   `title` varchar(128) DEFAULT NULL,
-  `columns_visible` varchar(300) DEFAULT NULL,
-  `sort` varchar(64) DEFAULT 'id',
-  `sort_order` varchar(5) DEFAULT 'ASC',
-  `status` varchar(64) DEFAULT '3',
+  `visible_fields` varchar(300) DEFAULT NULL,
+  `sort` varchar(64) DEFAULT NULL,
+  `status` varchar(64) DEFAULT NULL,
   `search_string` text,
   `list_view_options` text,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `user` (`user`,`table_name`,`title`),
-  UNIQUE KEY `pref_title_constraint` (`user`,`table_name`,`title`)
+  UNIQUE KEY `user_table_title` (`user`,`table_name`,`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
