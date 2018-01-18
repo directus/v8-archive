@@ -312,9 +312,8 @@ class Provider
         $algo = 'HS256';
         // TODO: Parse data types
         $payload = [
-            'id' => $user->getId(),
-            'group' => $user->get('group'),
-            // Expires in 2 days
+            'id' => (int) $user->getId(),
+            'group' => (int) $user->getGroupId(),
             'exp' => $this->getNewExpirationTime()
         ];
 
