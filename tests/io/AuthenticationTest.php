@@ -18,15 +18,11 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $path = 'tables';
         $response = request_get($path);
 
-        $this->assertSame(200, $response->getStatusCode());
-
-        $result = $response->getBody()->getContents();
-
-        $this->assertInternalType('string', $result);
-        $data = json_decode($result, true);
-        $this->assertArrayHasKey('data', $data);
-        $this->assertArrayHasKey('public', $data);
-        $this->assertTrue($data['public']);
+        response_assert($this, $response, [
+            'data' => 'array',
+            'status' => 200,
+            'public' => true
+        ]);
 
         $path = 'auth/authenticate';
         $response = request_post($path, [
@@ -44,6 +40,10 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $this->assertObjectHasAttribute('token', $data);
         $token = $data->token;
         $this->assertTrue(JWTUtils::isJWT($token));
+        $payload = JWTUtils::getPayload($token);
+        $this->assertInternalType('int', $payload->exp);
+        $this->assertInternalType('int', $payload->id);
+        $this->assertInternalType('int', $payload->group);
 
         // Query String
         $path = 'tables';
