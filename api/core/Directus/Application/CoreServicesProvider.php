@@ -609,19 +609,13 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $db = $container->get('database');
-            $settingsTable = new TableGateway('directus_settings', $db);
-            $setting = $settingsTable->select([
-                'collection' => 'global',
-                'name' => 'cms_user_auto_sign_out'
-            ])->current();
 
             return new Provider(
                 new UserTableGatewayProvider(
-                    new DirectusUsersTableGateway($container->get('database'))
+                    new DirectusUsersTableGateway($db)
                 ),
                 [
-                    'secret_key' => $container->get('config')->get('auth.secret_key'),
-                    'ttl' => $setting ? $setting['value'] : null
+                    'secret_key' => $container->get('config')->get('auth.secret_key')
                 ]
             );
         };
