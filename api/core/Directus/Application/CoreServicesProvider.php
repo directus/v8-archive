@@ -777,9 +777,10 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $hashManager = new HashManager();
+            $basePath = $container->get('path_base');
 
             $path = implode(DIRECTORY_SEPARATOR, [
-                BASE_PATH,
+                $basePath,
                 'customs',
                 'hashers',
                 '*.php'

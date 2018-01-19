@@ -38,14 +38,6 @@ class Utils extends Route
             $options = [$options];
         }
 
-        if (empty($string)) {
-            return $this->responseWithData($request, $response, [
-                'error' => [
-                    'message' => __t('hash_expect_a_string')
-                ]
-            ]);
-        }
-
         $options['hasher'] = $hasher;
         /** @var HashManager $hashManager */
         $hashManager = $this->container->get('hash_manager');

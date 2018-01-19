@@ -1,16 +1,8 @@
 <?php
 
-/**
- * Directus – <http://getdirectus.com>
- *
- * @link      The canonical repository – <https://github.com/directus/directus>
- * @copyright Copyright 2006-2017 RANGER Studio, LLC – <http://rangerstudio.com>
- * @license   GNU General Public License (v3) – <http://www.gnu.org/copyleft/gpl.html>
- */
-
 namespace Directus\Hash;
 
-use Directus\Hash\Exception\MissingHasherException;
+use Directus\Hash\Exception\HasherNotFoundException;
 use Directus\Hash\Hasher\BCryptHasher;
 use Directus\Hash\Hasher\CoreHasher;
 use Directus\Hash\Hasher\HasherInterface;
@@ -22,11 +14,6 @@ use Directus\Hash\Hasher\Sha384Hasher;
 use Directus\Hash\Hasher\Sha512Hasher;
 use Directus\Util\ArrayUtils;
 
-/**
- * Hash Manager
- *
- * @author Welling Guzmán <welling@rngr.org>
- */
 class HashManager
 {
     /**
@@ -91,14 +78,14 @@ class HashManager
      *
      * @return HasherInterface
      *
-     * @throws MissingHasherException
+     * @throws HasherNotFoundException
      */
     public function get($name)
     {
         $hasher = ArrayUtils::get($this->hashers, $name);
 
         if (!$hasher) {
-            throw new MissingHasherException($name);
+            throw new HasherNotFoundException($name);
         }
 
         return $hasher;
