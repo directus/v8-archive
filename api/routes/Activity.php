@@ -8,7 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 
-class Activities extends Route
+class Activity extends Route
 {
     /**
      * @param Application $app

@@ -7,7 +7,7 @@ use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use GuzzleHttp\Exception\RequestException;
 
-class ActivitiesTest extends \PHPUnit_Framework_TestCase
+class ActivityTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var Connection
@@ -58,7 +58,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
             'user_agent'
         ];
 
-        $path = 'activities';
+        $path = 'activity';
 
         // Not selecting columns
         $response = request_get($path, ['access_token' => 'token']);
@@ -106,7 +106,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
     public function testMeta()
     {
-        $path = 'activities';
+        $path = 'activity';
         $response = request_get($path, [
             'meta' => '*',
             'access_token' => 'token'
@@ -123,7 +123,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
     public function testLimit()
     {
-        $path = 'activities';
+        $path = 'activity';
         $response = request_get($path, [
             'meta' => '*',
             'access_token' => 'token',
@@ -143,7 +143,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
     public function testId()
     {
-        $path = 'activities';
+        $path = 'activity';
         $response = request_get($path, [
             'meta' => '*',
             'access_token' => 'token',
@@ -177,7 +177,7 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
         request_delete('items/test/1', ['query' => ['access_token' => 'token']]);
 
-        $response = request_get('activities', ['access_token' => 'token']);
+        $response = request_get('activity', ['access_token' => 'token']);
 
         assert_response($this, $response, [
             'data' => 'array',
@@ -200,13 +200,13 @@ class ActivitiesTest extends \PHPUnit_Framework_TestCase
 
     public function testGetActivity()
     {
-        $response = request_get('activities/1', ['access_token' => 'token']);
+        $response = request_get('activity/1', ['access_token' => 'token']);
         assert_response($this, $response);
 
         $this->truncateTable();
 
         try {
-            $response = request_get('activities/1', ['access_token' => 'token']);
+            $response = request_get('activity/1', ['access_token' => 'token']);
         } catch (RequestException $e) {
             $response = $e->getResponse();
         }

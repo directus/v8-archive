@@ -9,7 +9,7 @@ $app = require __DIR__ . '/bootstrap.php';
 // TODO: Customized Method not allowed error
 // =============================================================================
 
-$app->group('/activities', \Directus\Api\Routes\Activities::class);
+$app->group('/activity', \Directus\Api\Routes\Activity::class);
 $app->group('/auth', \Directus\Api\Routes\Auth::class);
 $app->group('/bookmarks', \Directus\Api\Routes\Bookmarks::class);
 $app->group('/columns', \Directus\Api\Routes\Columns::class);
