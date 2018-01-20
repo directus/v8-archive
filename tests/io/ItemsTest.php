@@ -54,9 +54,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // Creating Item
         foreach ($this->systemTables as $table) {
             $path = 'items/' . $table;
-            $response = request_error_post($path);
-
-            assert_response_error($this, $response, [
+            request_error_post($path, [
                 'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
                 'status' => 401
             ]);
@@ -66,10 +64,8 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         foreach ($this->systemTables as $table) {
             foreach (['GET', 'PATCH', 'PUT', 'DELETE'] as $method) {
                 $path = 'items/' . $table . '/1';
-                $response = call_user_func('request_error_' . strtolower($method), $path);
-
-                assert_response_error($this, $response, [
-                    'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
+                call_user_func('request_error_' . strtolower($method), $path, [
+                'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
                     'status' => 401
                 ]);
             }
@@ -79,9 +75,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         foreach ($this->systemTables as $table) {
             foreach (['POST', 'PATCH', 'PUT', 'DELETE'] as $method) {
                 $path = 'items/' . $table . '/batch';
-                $response = call_user_func('request_error_' . strtolower($method), $path);
-
-                assert_response_error($this, $response, [
+                call_user_func('request_error_' . strtolower($method), $path, [
                     'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
                     'status' => 401
                 ]);
