@@ -52,3 +52,15 @@ function truncate_table(Connection $db, $table)
     $query = 'TRUNCATE `%s`;';
     $db->execute(sprintf($query, $table));
 }
+
+/**
+ * @param Connection $db
+ * @param string $table
+ * @param int $value
+ */
+function reset_autoincrement(Connection $db, $table, $value = 1)
+{
+    $query = 'ALTER TABLE `%s` AUTO_INCREMENT = %d;';
+
+    $db->execute(sprintf($query, $table, $value));
+}

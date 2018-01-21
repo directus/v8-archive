@@ -931,9 +931,9 @@ class RelationalTableGateway extends BaseTableGateway
         $columnsDepth = ArrayUtils::deepLevel(get_unflat_columns(ArrayUtils::get($params, 'columns', ['*'])));
         $depth = $columnsDepth > 0 ? $columnsDepth + 1 : 0;
 
-        if ($depth < 1 && TableSchema::hasSomeRelational($this->getTable(), $columns)) {
-            $depth = 1;
-        }
+        // if ($depth < 1 && TableSchema::hasSomeRelational($this->getTable(), $columns)) {
+        //     $depth = 1;
+        // }
 
         if ($depth > 0) {
             $relationalColumns = ArrayUtils::intersection(

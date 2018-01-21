@@ -3,18 +3,15 @@
 namespace Directus\Api\Routes;
 
 use Directus\Application\Application;
-use Directus\Application\Container;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Authentication\Provider;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGatewayFactory;
-use Directus\Exception\Http\BadRequestException;
 use Directus\Permissions\Acl;
 use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
-use Directus\Util\Validator;
 
 class Users extends Route
 {
@@ -31,7 +28,7 @@ class Users extends Route
         $app->get('/{id}', [$this, 'one']);
         $app->post('/invite', [$this, 'invite']);
         $app->map(['PUT', 'PATCH'], '/{id}', [$this, 'update']);
-        $app->delete('/{id}', [$this, 'update']); // move separated method
+        $app->delete('/{id}', [$this, 'delete']); // move separated method
     }
 
     /**
@@ -132,16 +129,14 @@ class Users extends Route
         $payload = $request->getParsedBody();
         $email = $request->getParsedBodyParam('email');
 
-        $this->validateRequestWithTable($request, 'directus_users');
-
         switch ($request->getMethod()) {
             case 'DELETE':
-                $payload = [];
-                $payload['id'] = $id;
-                $payload['status'] = $usersGateway::STATUS_HIDDEN;
+                $usersGateway->delete(['id' => $id]);
+                return $this->responseWithData($request, $response, []);
                 break;
             case 'PATCH':
             case 'PUT':
+                $this->validateRequestWithTable($request, 'directus_users');
                 $columnsToValidate = [];
                 if ($request->isPatch()) {
                     $columnsToValidate = array_keys($payload);
@@ -161,6 +156,17 @@ class Users extends Route
         $responseData = $this->findUsers(['id' => $user['id']]);
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function delete(Request $request, Response $response)
+    {
+        return $this->update($request, $response);
     }
 
     /**
