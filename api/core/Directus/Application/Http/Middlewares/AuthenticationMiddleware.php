@@ -48,7 +48,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
             $settings = [];
             foreach ($rowSet as $setting) {
-                $settings[$setting['collection']][$setting['name']] = $setting['value'];
+                $settings[$setting['scope']][$setting['key']] = $setting['value'];
             }
 
             return $settings;

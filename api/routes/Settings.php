@@ -17,7 +17,35 @@ class Settings extends Route
      */
     public function __invoke(Application $app)
     {
-        $app->map(['GET', 'PATCH', 'POST', 'PUT'], '[/{id}]', [$this, 'all']);
+        $app->post('', [$this, 'create']);
+        $app->get('', [$this, 'all']);
+        $app->get('/{id}', [$this, 'one']);
+        $app->patch('/{id}', [$this, 'update']);
+        $app->delete('/{id}', [$this, 'delete']);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function create(Request $request, Response $response)
+    {
+        $this->validateRequestWithTable($request, 'directus_settings');
+
+        $params = $request->getQueryParams();
+        $payload = $request->getParsedBody();
+        $settingsTable = $this->getTableGateway();
+        $newRecord = $settingsTable->updateRecord($payload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_PARENT);
+
+        $responseData = $settingsTable->wrapData(
+            $newRecord->toArray(),
+            false,
+            ArrayUtils::get($params, 'meta', 0)
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -28,105 +56,81 @@ class Settings extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $container = $this->container;
-        $acl = $container->get('acl');
-        $dbConnection = $container->get('database');
-        $payload = $request->getParsedBody();
+        $settingTable = $this->getTableGateway();
         $params = $request->getParams();
-        $id = $request->getAttribute('id');
 
-        $Settings = new DirectusSettingsTableGateway($dbConnection, $acl);
-
-        switch ($request->getMethod()) {
-            case 'POST':
-            case 'PUT':
-            case 'PATCH':
-                $data = $payload;
-                $insertSettings = function ($values, $collection = null) use ($Settings, $container) {
-                    $Files = $container->get('files');
-
-                    foreach ($values as $key => $value) {
-                        $isLogo = $key === 'cms_thumbnail_url';
-                        if (!$isLogo || !is_array($value)) {
-                            continue;
-                        }
-
-                        if (isset($value['data'])) {
-                            $data = ArrayUtils::get($value, 'data', '');
-                            $name = ArrayUtils::get($value, 'name', 'unknown.jpg');
-                            $fileData = $Files->saveData($data, $name);
-                            $newRecord = $Settings->manageRecordUpdate('directus_files', $fileData, RelationalTableGateway::ACTIVITY_ENTRY_MODE_PARENT);
-
-                            $values[$key] = $newRecord['id'];
-                        } else {
-                            $values[$key] = ArrayUtils::get($value, 'id');
-                        }
-
-                        break;
-                    }
-
-                    $Settings->setValues($values, $collection);
-                };
-                if (!is_null($id)) {
-                    $insertSettings($data);
-                } else {
-                    foreach ($data as $collection => $values) {
-                        $insertSettings($values, $collection);
-                    }
-                }
-                break;
-        }
-
-        $fetchCmsFile = function ($data) use ($dbConnection, $acl) {
-            if (!$data) {
-                return $data;
-            }
-
-            foreach ($data as $key => $value) {
-                if ($key === 'cms_thumbnail_url') {
-                    $filesTableGateway = new RelationalTableGateway('directus_files', $dbConnection, $acl);
-                    $data[$key] = $filesTableGateway->loadEntries(['id' => $value]);
-                    break;
-                }
-            }
-
-            return $data;
-        };
-
-        if (!is_null($id)) {
-            $data = $this->getDataAndSetResponseCacheTags(
-                [$Settings, 'fetchCollection'],
-                [$id]
-            );
-        } else {
-            $data = $this->getDataAndSetResponseCacheTags([$Settings, 'fetchAll']);
-            $data['global'] = $fetchCmsFile($data['global']);
-        }
-
-        if (!$data) {
-            $responseData = [
-                'error' => [
-                    'message' => __t('unable_to_find_setting_collection_x', ['collection' => $id])
-                ]
-            ];
-        } else {
-            $responseData = [
-                'meta' => [
-                    'type' => 'item',
-                    'table' => 'directus_settings'
-                ],
-                'data' => $data
-            ];
-
-            if (!is_null($id)) {
-                $responseData['meta']['settings_collection'] = $id;
-            }
-        }
-
-        if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            unset($responseData['meta']);
-        }
+        // TODO: Support uploading image
+        $responseData = $this->getEntriesAndSetResponseCacheTags($settingTable, $params);
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function one(Request $request, Response $response)
+    {
+        $params = $request->getQueryParams();
+        $settingsTable = $this->getTableGateway();
+
+        $params['id'] = $request->getAttribute('id');
+        $responseData = $settingsTable->getItems($params);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function update(Request $request, Response $response)
+    {
+        $this->validateRequestWithTable($request, 'directus_settings');
+
+        $params = $request->getQueryParams();
+        $payload = $request->getParsedBody();
+        $settingsTable = $this->getTableGateway();
+
+        $payload['id'] = $request->getAttribute('id');
+        $newRecord = $settingsTable->updateRecord($payload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_PARENT);
+
+        $responseData = $settingsTable->wrapData(
+            $newRecord->toArray(),
+            false,
+            ArrayUtils::get($params, 'meta', 0)
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function delete(Request $request, Response $response)
+    {
+        $id = $request->getAttribute('id');
+        $settingsTable = $this->getTableGateway();
+        $settingsTable->delete(['id' => $id]);
+
+        return $this->responseWithData($request, $response, []);
+    }
+
+    /**
+     * @return DirectusSettingsTableGateway
+     */
+    public function getTableGateway()
+    {
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+
+        return new DirectusSettingsTableGateway($dbConnection, $acl);
     }
 }

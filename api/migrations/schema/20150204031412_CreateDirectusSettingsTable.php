@@ -28,11 +28,11 @@ class CreateDirectusSettingsTable extends Ruckusing_Migration_Base
             'auto_increment' => true,
             'primary_key' => true
         ]);
-        $t->column('collection', 'string', [
+        $t->column('scope', 'string', [
             'limit' => 64,
             'default' => NULL
         ]);
-        $t->column('name', 'string', [
+        $t->column('key', 'string', [
             'limit' => 64,
             'default' => NULL
         ]);
@@ -43,7 +43,7 @@ class CreateDirectusSettingsTable extends Ruckusing_Migration_Base
 
         $t->finish();
 
-        $this->add_index('directus_settings', ['collection', 'name'], [
+        $this->add_index('directus_settings', ['scope', 'key'], [
             'unique' => true,
             'name' => 'Unique Collection and Name'
         ]);
@@ -51,7 +51,7 @@ class CreateDirectusSettingsTable extends Ruckusing_Migration_Base
 
     public function down()
     {
-        $this->remove_index('directus_settings', ['collection', 'name'], [
+        $this->remove_index('directus_settings', ['scope', 'key'], [
             'unique' => true,
             'name' => 'Unique Collection and Name'
         ]);

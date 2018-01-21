@@ -90,46 +90,58 @@ function request_error($method, $path, array $options = [])
 }
 
 /**
- * @param $path
+ * @param string $path
+ * @param array $params
  * @param array $options
  *
  * @return \Psr\Http\Message\ResponseInterface
  */
-function request_error_get($path, array $options = [])
+function request_error_get($path, array $params = [], array $options = [])
 {
+    $options['query'] = $params;
+
     return request_error('GET', $path, $options);
 }
 
 /**
- * @param $path
+ * @param string $path
+ * @param array $body
  * @param array $options
  *
  * @return \Psr\Http\Message\ResponseInterface
  */
-function request_error_post($path, array $options = [])
+function request_error_post($path, array $body, array $options = [])
 {
+    $options['form_params'] = $body;
+
     return request_error('POST', $path, $options);
 }
 
 /**
- * @param $path
+ * @param string $path
+ * @param array $body
  * @param array $options
  *
  * @return \Psr\Http\Message\ResponseInterface
  */
-function request_error_put($path, array $options = [])
+function request_error_put($path, array $body, array $options = [])
 {
+    $options['form_params'] = $body;
+
     return request_error('PUT', $path, $options);
 }
 
 /**
- * @param $path
+ * @param string $path
+ * @param array $body
  * @param array $options
  *
  * @return \Psr\Http\Message\ResponseInterface
  */
-function request_error_patch($path, array $options = [])
+function request_error_patch($path, array $body, array $options = [])
 {
+    $options['form_params'] = $body;
+
     return request_error('PATCH', $path, $options);
 }
 

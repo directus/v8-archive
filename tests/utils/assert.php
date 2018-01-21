@@ -35,16 +35,25 @@ function assert_response(TestCase $testCase, ResponseInterface $response, array 
     $testCase->assertSame($statusCode, $response->getStatusCode());
 
     if (isset($options['fields'])) {
-        $data = $result->data;
+        $hasFields = isset($options['has_fields']) ? (bool)$options['has_fields'] : false;
+        $data = (array)$result->data;
         $fields = $options['fields'];
 
         if ($dataType === 'object') {
             $data = [$data];
         }
 
-        foreach ($data as $item) {
-            foreach ($item as $key => $value) {
-                $testCase->assertTrue(in_array($key, $fields));
+        if ($hasFields === true) {
+            foreach ($fields as $field) {
+                foreach ($data as $item) {
+                    $testCase->assertTrue(in_array($field, array_keys($item)));
+                }
+            }
+        } else {
+            foreach ($data as $item) {
+                foreach ($item as $key => $value) {
+                    $testCase->assertTrue(in_array($key, $fields));
+                }
             }
         }
     }

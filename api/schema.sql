@@ -300,8 +300,8 @@ DROP TABLE IF EXISTS `directus_settings`;
 
 CREATE TABLE `directus_settings` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `collection` varchar(64) DEFAULT NULL,
-  `name` varchar(64) DEFAULT NULL,
+  `scope` varchar(64) DEFAULT NULL,
+  `key` varchar(64) DEFAULT NULL,
   `value` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `Unique Collection and Name` (`collection`,`name`)
@@ -310,7 +310,7 @@ CREATE TABLE `directus_settings` (
 LOCK TABLES `directus_settings` WRITE;
 /*!40000 ALTER TABLE `directus_settings` DISABLE KEYS */;
 
-INSERT INTO `directus_settings` (`id`, `collection`, `name`, `value`)
+INSERT INTO `directus_settings` (`id`, `scope`, `key`, `value`)
 VALUES
 	(1,'global','cms_user_auto_sign_out','60'),
 	(2,'global','project_name','Directus'),
