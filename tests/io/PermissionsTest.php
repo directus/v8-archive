@@ -107,6 +107,36 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
+    public function testGroupPermissions()
+    {
+        $params = array_merge([
+            'filter' => [
+                'group_id' => 3
+            ]
+        ], $this->queryParams);
+
+        $response = request_get('permissions', $params);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 2
+        ]);
+    }
+
+    public function testTablePermissions()
+    {
+        $params = array_merge([
+            'filter' => [
+                'table_name' => 'products'
+            ]
+        ], $this->queryParams);
+
+        $response = request_get('permissions', $params);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 1
+        ]);
+    }
+
     public function testDelete()
     {
         $response = request_delete('permissions/14', ['query' => $this->queryParams]);
