@@ -113,7 +113,13 @@ class Users extends Route
             $this->sendInvitationTo($email);
         }
 
-        return $this->responseWithData($request, $response, []);
+        $responseData = $this->findUsers([
+            'filters' => [
+                'email' => ['in' => $emails]
+            ]
+        ]);
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -191,7 +197,7 @@ class Users extends Route
         // Probably resend if the email exists?
         if (!$user) {
             $result = $tableGateway->insert([
-                'status' => STATUS_DRAFT_NUM,
+                'status' => DirectusUsersTableGateway::STATUS_DISABLED,
                 'email' => $email,
                 'token' => StringUtils::randomString(32),
                 'invite_token' => $invitationToken,
