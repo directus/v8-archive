@@ -3,13 +3,24 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ItemNotFoundException;
-use Psr\Http\Message\ResponseInterface;
 
 class UsersTest extends \PHPUnit_Framework_TestCase
 {
-    public static function setUpBeforeClass()
+    public static function resetDatabase()
     {
         reset_table_id('directus_users', 3);
+        // each new user creates a privileges
+        reset_table_id('directus_privileges', 14);
+    }
+
+    public static function setUpBeforeClass()
+    {
+        static::resetDatabase();
+    }
+
+    public static function tearDownAfterClass()
+    {
+        static::resetDatabase();
     }
 
     public function testCreate()
