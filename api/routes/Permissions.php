@@ -8,17 +8,18 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Exception\Http\ForbiddenException;
+use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 
 class Permissions extends Route
 {
     public function __invoke(Application $app)
     {
-        $app->get('/{group}[/{table}]', [$this, 'show']);
-        $app->post('/{group}', [$this, 'create']);
-        // $app->get('/privileges/:groupId(/:tableName)/?', '\Directus\API\Routes\A1\Privileges:showPrivileges');
-        // $app->post('/privileges/:groupId/?', '\Directus\API\Routes\A1\Privileges:createPrivileges');
-        // $app->put('/privileges/:groupId/:privilegeId/?', '\Directus\API\Routes\A1\Privileges:updatePrivileges');
+        $app->post('', [$this, 'create']);
+        $app->get('/{id}', [$this, 'one']);
+        $app->patch('/{id}', [$this, 'update']);
+        $app->delete('/{id}', [$this, 'delete']);
+        $app->get('', [$this, 'all']);
     }
 
     /**
@@ -26,51 +27,23 @@ class Permissions extends Route
      * @param Response $response
      *
      * @return Response
-     *
-     * @throws ForbiddenException
      */
-    public function show(Request $request, Response $response)
+    public function create(Request $request, Response $response)
     {
-        $dbConnection = $this->container->get('database');
+        $this->validateRequestWithTable($request, 'directus_privileges');
+
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
         $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $groupsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
 
-        if ($acl->getGroupId() != 1) {
-            throw new ForbiddenException(__t('permission_denied'));
-        }
-
-        $privileges = new DirectusPrivilegesTableGateway($dbConnection, $acl);
-        $groupId = $request->getAttribute('group');
-        $tableName = $request->getAttribute('table');
-        $fields = $request->getQueryParam('fields', []);
-        if (!is_array($fields)) {
-            $fields = array_filter(StringUtils::csv($fields));
-        }
-
-        $data = $this->getDataAndSetResponseCacheTags(
-            [$privileges, 'fetchPerTable'],
-            [$groupId, $tableName, $fields]
+        $newGroup = $groupsTableGateway->updateRecord($payload);
+        $responseData = $groupsTableGateway->wrapData(
+            $newGroup->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
         );
-
-        $responseData = [];
-
-        if ($request->getQueryParam('meta', 0) == 1) {
-            $responseData['meta'] = [
-                'type' => 'item',
-                'table' => 'directus_privileges'
-            ];
-        }
-
-        $responseData['data'] = $data;
-
-        if (!$responseData['data']) {
-            $response = $response->withStatus(404);
-
-            $responseData = [
-                'error' => [
-                    'message' => __t('unable_to_find_privileges_for_x_in_group_y', ['table' => $tableName, 'group_id' => $groupId])
-                ]
-            ];
-        }
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -80,96 +53,84 @@ class Permissions extends Route
      * @param Response $response
      *
      * @return Response
-     *
-     * @throws ForbiddenException
      */
-    public function create(Request $request, Response $response)
+    public function one(Request $request, Response $response)
     {
-        $app = $this->app;
-        $ZendDb = $app->container->get('zenddb');
-        $acl = $app->container->get('acl');
-        $requestPayload = $app->request()->post();
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $permissionsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
 
-        if ($acl->getGroupId() != 1) {
-            throw new ForbiddenException(__t('permission_denied'));
-        }
+        $params = ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta']);
+        $params['id'] = $request->getAttribute('id');
+        $responseData = $this->getEntriesAndSetResponseCacheTags($permissionsTableGateway, $params);
 
-        if (isset($requestPayload['addTable'])) {
-            $tableName = ArrayUtils::get($requestPayload, 'table_name');
-
-            ArrayUtils::remove($requestPayload, 'addTable');
-
-            $tableService = new TablesService($app);
-
-            try {
-                $tableService->createTable($tableName, ArrayUtils::get($requestPayload, 'columnsName'));
-            } catch (TableAlreadyExistsException $e) {
-                // ----------------------------------------------------------------------------
-                // Setting the primary key column interface
-                // NOTE: if the table already exists but not managed by directus
-                // the primary key interface is added to its primary column
-                // ----------------------------------------------------------------------------
-                $columnService = new ColumnsService($app);
-                $tableObject = $tableService->getTableObject($tableName);
-                $primaryColumn = $tableObject->getPrimaryColumn();
-                if ($primaryColumn) {
-                    $columnObject = $columnService->getColumnObject($tableName, $primaryColumn);
-                    if (!TableSchema::isSystemColumn($columnObject->getUI())) {
-                        $data = $columnObject->toArray();
-                        $data['ui'] = SchemaManager::INTERFACE_PRIMARY_KEY;
-                        $columnService->update($tableName, $primaryColumn, $data);
-                    }
-                }
-            }
-
-            ArrayUtils::remove($requestPayload, 'columnsName');
-        }
-
-        $privileges = new DirectusPrivilegesTableGateway($ZendDb, $acl);
-        $response = $privileges->insertPrivilege($requestPayload);
-
-        return $this->app->response([
-            'meta' => [
-                'type' => 'entry',
-                'table' => 'directus_privileges'
-            ],
-            'data' => $response
-        ]);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
-    public function updatePrivileges($groupId, $privilegeId)
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function update(Request $request, Response $response)
     {
-        $app = $this->app;
-        $ZendDb = $app->container->get('zenddb');
-        $acl = $app->container->get('acl');
-        $requestPayload = $app->request()->post();
+        $this->validateRequestWithTable($request, 'directus_privileges');
 
-        $requestPayload['id'] = $privilegeId;
-        if ($acl->getGroupId() != 1) {
-            throw new ForbiddenException(__t('permission_denied'));
-        }
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $permissionsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
 
-        $privileges = new DirectusPrivilegesTableGateway($ZendDb, $acl);
+        $payload['id'] = $request->getAttribute('id');
+        $newGroup = $permissionsTableGateway->updateRecord($payload);
+        $responseData = $permissionsTableGateway->wrapData(
+            $newGroup->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
+        );
 
-        if (isset($requestPayload['activeState'])) {
-            if ($requestPayload['activeState'] !== 'all') {
-                $priv = $privileges->findByStatus($requestPayload['table_name'], $requestPayload['group_id'], $requestPayload['activeState']);
-                if ($priv) {
-                    $requestPayload['id'] = $priv['id'];
-                    $requestPayload['status_id'] = $priv['status_id'];
-                } else {
-                    unset($requestPayload['id']);
-                    $requestPayload['status_id'] = $requestPayload['activeState'];
-                    $response = $privileges->insertPrivilege($requestPayload);
-                    return $this->app->response($response);
-                }
-            }
-        }
+        return $this->responseWithData($request, $response, $responseData);
+    }
 
-        $response = $privileges->updatePrivilege($requestPayload);
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function delete(Request $request, Response $response)
+    {
+        $id = $request->getAttribute('id');
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
 
-        return $this->app->response([
-            'data' => $response
+        $permissionsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+        $this->getEntriesAndSetResponseCacheTags($permissionsTableGateway, [
+            'id' => $id
         ]);
+
+        $permissionsTableGateway->delete(['id' => $id]);
+
+        return $this->responseWithData($request, $response, []);
+    }
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function all(Request $request, Response $response)
+    {
+        $container = $this->container;
+        $acl = $container->get('acl');
+        $dbConnection = $container->get('database');
+        $params = $request->getQueryParams();
+
+        $permissionsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($permissionsTableGateway, $params);
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

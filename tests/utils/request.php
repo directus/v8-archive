@@ -82,7 +82,7 @@ function request_error($method, $path, array $options = [])
 {
     try {
         $response = request($method, $path, $options);
-    } catch (\GuzzleHttp\Exception\ClientException $e) {
+    } catch (\GuzzleHttp\Exception\BadResponseException$e) {
         $response = $e->getResponse();
     }
 

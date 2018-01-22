@@ -10,14 +10,19 @@ class GroupsTest extends \PHPUnit_Framework_TestCase
         'access_token' => 'token'
     ];
 
-    public static function setUpBeforeClass()
+    public static function resetDatabase()
     {
         reset_table_id('directus_groups', 4);
     }
 
+    public static function setUpBeforeClass()
+    {
+        static::resetDatabase();
+    }
+
     public static function tearDownAfterClass()
     {
-        reset_table_id('directus_groups', 4);
+        static::resetDatabase();
     }
 
     public function testCreate()
