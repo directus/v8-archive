@@ -132,7 +132,7 @@ function assert_response_data_contains(TestCase $testCase, ResponseInterface $re
  * @param ResponseInterface $response
  * @param array $options
  */
-function assert_response_error(TestCase $testCase, ResponseInterface $response, array $options)
+function assert_response_error(TestCase $testCase, ResponseInterface $response, array $options = [])
 {
     $result = response_to_object($response);
 
