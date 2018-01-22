@@ -6,7 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\TableGateway\RelationalTableGateway;
+use Directus\Database\TableGateway\DirectusGroupsTableGateway;
 use Directus\Services\GroupsService;
 use Directus\Util\ArrayUtils;
 
@@ -17,11 +17,11 @@ class Groups extends Route
      */
     public function __invoke(Application $app)
     {
-        $app->map(['GET', 'POST'], '', [$this, 'all']);
+        $app->post('', [$this, 'create']);
         $app->get('/{id}', [$this, 'one']);
-        $app->patch('/{id}', [$this, 'patch']);
+        $app->patch('/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
-        // TODO: Missing PUT
+        $app->get('', [$this, 'all']);
     }
 
     /**
@@ -30,28 +30,20 @@ class Groups extends Route
      *
      * @return Response
      */
-    public function all(Request $request, Response $response)
+    public function create(Request $request, Response $response)
     {
-        $container = $this->container;
-        $acl = $container->get('acl');
-        $dbConnection = $container->get('database');
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $groupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
 
-        // TODO need PUT
-        $tableName = 'directus_groups';
-        $GroupsTableGateway = new RelationalTableGateway($tableName, $dbConnection, $acl);
-
-        switch ($request->getMethod()) {
-            case 'POST':
-                $newRecord = $GroupsTableGateway->updateRecord($payload);
-                $newGroupId = $newRecord['id'];
-                $responseData = $GroupsTableGateway->getEntries(['id' => $newGroupId]);
-                break;
-            case 'GET':
-            default:
-                $responseData = $this->getEntriesAndSetResponseCacheTags($GroupsTableGateway, $params);
-        }
+        $newGroup = $groupsTableGateway->updateRecord($payload);
+        $responseData = $groupsTableGateway->wrapData(
+            $newGroup->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -66,21 +58,11 @@ class Groups extends Route
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
-        $params = $request->getQueryParams();
-        $id = $request->getAttribute('id');
-        $params['id'] = $id;
+        $groupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
 
-        $tableName = 'directus_groups';
-        $Groups = new RelationalTableGateway($tableName, $dbConnection, $acl);
-        $responseData = $this->getEntriesAndSetResponseCacheTags($Groups, $params);
-
-        if (!$responseData) {
-            $responseData = [
-                'error' => [
-                    'message' => __t('unable_to_find_group_with_id_x', ['id' => $id])
-                ]
-            ];
-        }
+        $params = ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta']);
+        $params['id'] = $request->getAttribute('id');
+        $responseData = $this->getEntriesAndSetResponseCacheTags($groupsTableGateway, $params);
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -91,22 +73,41 @@ class Groups extends Route
      *
      * @return Response
      */
-    public function patch(Request $request, Response $response)
+    public function update(Request $request, Response $response)
     {
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('zenddb');
         $payload = $request->getParsedBody();
-        $id = $request->getAttribute('id');
+        $params = $request->getQueryParams();
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $groupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
 
-        $tableName = 'directus_groups';
-        $tableGateway = new RelationalTableGateway($tableName, $dbConnection, $acl);
-        $payload['id'] = $id;
+        $payload['id'] = $request->getAttribute('id');
+        $group = $groupsTableGateway->updateRecord($payload);
 
-        ArrayUtils::remove($payload, 'permissions');
+        $responseData = $groupsTableGateway->wrapData(
+            $group->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
+        );
 
-        $newRecord = $tableGateway->updateRecord($payload);
-        $newGroupId = $newRecord['id'];
-        $responseData = $this->getEntriesAndSetResponseCacheTags($tableGateway, ['id' => $newGroupId]);
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function all(Request $request, Response $response)
+    {
+        $container = $this->container;
+        $acl = $container->get('acl');
+        $dbConnection = $container->get('database');
+        $params = $request->getQueryParams();
+
+        $groupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($groupsTableGateway, $params);
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -142,6 +143,9 @@ class Groups extends Route
                 ]
             ]);
         }
+
+        $tableGateway = $groupService->getTableGateway();
+        $tableGateway->delete(['id' => $id]);
 
         return $this->responseWithData($request, $response, []);
     }
