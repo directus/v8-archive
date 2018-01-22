@@ -12,7 +12,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
         $db = create_db_connection();
         $db->execute('DELETE FROM `directus_users` WHERE `id` > 2;');
 
-        reset_autoincrement(create_db_connection(), 'directus_users', 3);
+        reset_autoincrement($db, 'directus_users', 3);
     }
 
     public function testCreate()
