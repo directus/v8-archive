@@ -17,7 +17,7 @@ $app->group('/files', \Directus\Api\Routes\Files::class);
 $app->group('/groups', \Directus\Api\Routes\Groups::class);
 $app->group('/items', \Directus\Api\Routes\Items::class);
 $app->group('/preferences', \Directus\Api\Routes\Preferences::class);
-$app->group('/privileges', \Directus\Api\Routes\Privileges::class);
+$app->group('/permissions', \Directus\Api\Routes\Permissions::class);
 $app->group('/revisions', \Directus\Api\Routes\Revisions::class);
 $app->group('/settings', \Directus\Api\Routes\Settings::class);
 $app->group('/tables', \Directus\Api\Routes\Tables::class);

@@ -10,7 +10,7 @@ use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Exception\Http\ForbiddenException;
 use Directus\Util\StringUtils;
 
-class Privileges extends Route
+class Permissions extends Route
 {
     public function __invoke(Application $app)
     {
