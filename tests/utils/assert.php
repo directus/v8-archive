@@ -60,6 +60,24 @@ function assert_response(TestCase $testCase, ResponseInterface $response, array 
 }
 
 /**
+ * Tests whether the response content match a given content
+ *
+ * @param PHPUnit_Framework_TestCase $testCase
+ * @param ResponseInterface $response
+ * @param string $content
+ * @param array $options
+ */
+function assert_response_contents(TestCase $testCase, ResponseInterface $response, $content, array $options = [])
+{
+    $bodyContent = response_get_body_contents($response);
+    $testCase->assertSame($content, $bodyContent);
+
+    if (isset($options['status'])) {
+        $testCase->assertSame($options['status'], $response->getStatusCode());
+    }
+}
+
+/**
  * @param TestCase $testCase
  * @param ResponseInterface $response
  */

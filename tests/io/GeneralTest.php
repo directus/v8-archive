@@ -6,11 +6,10 @@ class GeneralTest extends \PHPUnit_Framework_TestCase
 {
     public function testPing()
     {
-        $url = 'ping';
-        $response = request_get($url);
-
-        $this->assertSame('pong', $response->getBody()->getContents());
-        $this->assertSame(200, $response->getStatusCode());
+        $response = request_get('ping');
+        assert_response_contents($this, $response, 'pong', [
+            'status' => 200
+        ]);
     }
 
     public function testErrorExtraInformation()
