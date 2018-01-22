@@ -64,3 +64,16 @@ function reset_autoincrement(Connection $db, $table, $value = 1)
 
     $db->execute(sprintf($query, $table, $value));
 }
+
+function reset_table_id($table, $nextId)
+{
+    $deleteQueryFormat = 'DELETE FROM `%s` WHERE `id` > %d;';
+    $db = create_db_connection();
+    $db->execute(sprintf(
+        $deleteQueryFormat,
+        $table,
+        $nextId-1
+    ));
+
+    reset_autoincrement($db, 'directus_users', $nextId);
+}
