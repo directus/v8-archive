@@ -74,9 +74,8 @@ class GroupsService extends AbstractService
     public function getTableGateway()
     {
         if (!$this->tableGateway) {
-            $app = $this->app;
-            $acl = $app->container->get('acl');
-            $dbConnection = $app->container->get('zenddb');
+            $acl = $this->container->get('acl');
+            $dbConnection = $this->container->get('database');
 
             $this->tableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
         }

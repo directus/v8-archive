@@ -67,13 +67,13 @@ class GroupsTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        // $response = request_delete('groups/4', ['query' => $this->queryParams]);
-        // assert_response_empty($this, $response);
-        //
-        // $response = request_error_get('groups/4', $this->queryParams);
-        // assert_response_error($this, $response, [
-        //     'code' => ItemNotFoundException::ERROR_CODE,
-        //     'status' => 404
-        // ]);
+        $response = request_delete('groups/4', ['query' => $this->queryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_get('groups/4', $this->queryParams);
+        assert_response_error($this, $response, [
+            'code' => ItemNotFoundException::ERROR_CODE,
+            'status' => 404
+        ]);
     }
 }
