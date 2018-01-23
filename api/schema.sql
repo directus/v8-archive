@@ -142,10 +142,11 @@ DROP TABLE IF EXISTS `directus_groups`;
 
 CREATE TABLE `directus_groups` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) DEFAULT NULL,
+  `name` varchar(100) NOT NULL,
   `description` varchar(500) DEFAULT NULL,
-  `restrict_to_ip_whitelist` text,
+  `ip_whitelist` text,
   `nav_override` text,
+  `nav_blacklist` VARCHAR(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `directus_users_name_unique` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

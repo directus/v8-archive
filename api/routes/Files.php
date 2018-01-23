@@ -52,20 +52,19 @@ class Files extends Route
         $validationConstraints = $this->createConstraintFor($table);
         $this->validate($payload, array_merge(['data' => 'required'], $validationConstraints));
 
+        /** @var \Directus\Filesystem\Files $Files */
         $Files = $this->container->get('files');
-        $dataInfo = $Files->getDataInfo($payload['data']);
-        $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($payload, 'type'));
 
-        if (!$type) {
-            return $this->withData($response, [
-                'error' => [
-                    'message' => __t('upload_missing_file_type')
-                ]
-            ]);
+        if (array_key_exists('data', $payload) && filter_var($payload['data'], FILTER_VALIDATE_URL)) {
+            $dataInfo = $Files->getLink($payload['data']);
+        } else {
+            $dataInfo = $Files->getDataInfo($payload['data']);
         }
 
+        $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($payload, 'type'));
+
         if (strpos($type, 'embed/') === 0) {
-            $recordData = $Files->saveEmbedData($payload);
+            $recordData = $Files->saveEmbedData($dataInfo);
         } else {
             $recordData = $Files->saveData($payload['data'], $payload['name']);
         }
@@ -189,61 +188,6 @@ class Files extends Route
         $responseData = [
             'data' => $result
         ];
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function uploadLink(Request $request, Response $response)
-    {
-        $acl = $this->container->get('acl');
-        $Files = $this->container->get('files');
-        $link = $request->getParam('link');
-
-        $responseData = [
-            'error' => [
-                'message' => __t('invalid_unsupported_url')
-            ],
-        ];
-
-        $response = $response->withStatus(400);
-
-        if (isset($link) && filter_var($link, FILTER_VALIDATE_URL)) {
-            $fileData = ['caption' => '', 'tags' => '', 'location' => ''];
-            $linkInfo = $Files->getLink($link);
-
-            if ($linkInfo) {
-                $currentUserId = $acl->getUserId();
-                $response = $response->withStatus(200);
-                $fileData = array_merge($fileData, $linkInfo);
-
-                $items = [];
-                $items[] = [
-                    'type' => $fileData['type'],
-                    'name' => $fileData['name'],
-                    'title' => $fileData['title'],
-                    'tags' => $fileData['tags'],
-                    'caption' => $fileData['caption'],
-                    'location' => $fileData['location'],
-                    'charset' => $fileData['charset'],
-                    'size' => $fileData['size'],
-                    'width' => $fileData['width'],
-                    'height' => $fileData['height'],
-                    'html' => isset($fileData['html']) ? $fileData['html'] : null,
-                    'embed_id' => (isset($fileData['embed_id'])) ? $fileData['embed_id'] : '',
-                    'data' => (isset($fileData['data'])) ? $fileData['data'] : null,
-                    'user' => $currentUserId
-                    //'date_uploaded' => $fileData['date_uploaded'] . ' UTC',
-                ];
-
-                $responseData = ['data' => $items];
-            }
-        }
 
         return $this->responseWithData($request, $response, $responseData);
     }

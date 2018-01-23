@@ -2,6 +2,7 @@
 
 namespace Directus\Filesystem;
 
+use Directus\Application\Application;
 use Directus\Bootstrap;
 use Directus\Exception\Exception;
 use Directus\Filesystem\Exception\ForbiddenException;
@@ -134,7 +135,8 @@ class Files
         // we can also be using youtube.com/img/a/youtube/image.jpg
         // which should fallback to ImageProvider
         // instead checking for a url with 'youtube.com/watch' with v param or youtu.be/
-        $embedManager = Bootstrap::get('embedManager');
+        $app = Application::getInstance();
+        $embedManager = $app->getContainer()->get('embed_manager');
         try {
             $info = $embedManager->parse($url);
         } catch (\Exception $e) {
@@ -254,7 +256,7 @@ class Files
      * @param string $fileData - base64 data
      * @param string $fileName - name of the file
      *
-     * @return bool
+     * @return array
      */
     public function saveData($fileData, $fileName)
     {
@@ -300,28 +302,20 @@ class Files
     /**
      * Save embed url into Directus Media
      *
-     * @param string $fileData - File Data/Info
-     * @param string $fileName - name of the file
+     * @param array $fileInfo - File Data/Info
      *
-     * @return Array - file info
+     * @return array - file info
      */
-    public function saveEmbedData($fileData)
+    public function saveEmbedData(array $fileInfo)
     {
-        if (!array_key_exists('type', $fileData) || strpos($fileData['type'], 'embed/') !== 0) {
-            return false;
+        if (!array_key_exists('type', $fileInfo) || strpos($fileInfo['type'], 'embed/') !== 0) {
+            return [];
         }
 
-        $fileName = isset($fileData['name']) ? $fileData['name'] : md5(time());
-        $imageData = $this->saveData($fileData['data'], $fileName);
+        $fileName = isset($fileInfo['name']) ? $fileInfo['name'] : md5(time()) . '.jpg';
+        $imageData = $this->saveData($fileInfo['data'], $fileName);
 
-        $keys = ['date_uploaded', 'storage_adapter'];
-        foreach ($keys as $key) {
-            if (array_key_exists($key, $imageData)) {
-                $fileData[$key] = $imageData[$key];
-            }
-        }
-
-        return $fileData;
+        return array_merge($imageData, $fileInfo);
     }
 
     /**
