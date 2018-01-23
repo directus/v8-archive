@@ -15,7 +15,7 @@ use Directus\Permissions\Acl;
 use Directus\Services\TablesService;
 use Directus\Util\ArrayUtils;
 
-class Tables extends Route
+class Collections extends Route
 {
     /**
      * @param Application $app

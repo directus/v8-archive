@@ -20,7 +20,7 @@ $app->group('/preferences', \Directus\Api\Routes\Preferences::class);
 $app->group('/permissions', \Directus\Api\Routes\Permissions::class);
 $app->group('/revisions', \Directus\Api\Routes\Revisions::class);
 $app->group('/settings', \Directus\Api\Routes\Settings::class);
-$app->group('/tables', \Directus\Api\Routes\Tables::class);
+$app->group('/collections', \Directus\Api\Routes\Collections::class);
 $app->group('/users', \Directus\Api\Routes\Users::class);
 $app->group('/utils', \Directus\Api\Routes\Utils::class);
 
