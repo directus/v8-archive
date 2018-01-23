@@ -3,6 +3,7 @@
 namespace Directus\Filesystem;
 
 use Aws\S3\S3Client;
+use Directus\Application\Application;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 use League\Flysystem\AwsS3v3\AwsS3Adapter as S3Adapter;
 use League\Flysystem\Filesystem as Flysystem;
@@ -25,7 +26,15 @@ class FilesystemFactory
 
     public static function createLocalAdapter(Array $config)
     {
+        // hotfix: set the full path if it's a relative path
+        // also root must be required, not checked here
+        if (strpos($config['root'], '/') !== 0) {
+            $app = Application::getInstance();
+            $config['root'] = $app->getContainer()->get('path_base') . '/' . $config['root'];
+        }
+
         $root = $config['root'] ?: '/';
+
         return new Flysystem(new LocalAdapter($root));
     }
 

@@ -20,6 +20,10 @@ class Files
      */
     private $filesSettings = [];
 
+    protected $defaultFilesSettings = [
+        'thumbnail_size' => 100, 'thumbnail_quality' => 80, 'thumbnail_crop_enabled' => true
+    ];
+
     /**
      * @var Filesystem
      */
@@ -46,7 +50,7 @@ class Files
         $this->filesystem = $filesystem;
         $this->config = $config;
         $this->emitter = $emitter;
-        $this->filesSettings = $settings;
+        $this->filesSettings = array_merge($this->defaultFilesSettings, $settings);
     }
 
     // @TODO: remove exists() and rename() method
@@ -440,20 +444,21 @@ class Files
     /**
      * Create a thumbnail
      *
+     * TODO: it should return thumbnail info.
      * @param string $imageName - the name of the image. it must exists on files.
      *
      * @return void
      */
-    // @TODO: it should return thumbnail info.
     private function createThumbnails($imageName)
     {
-        $targetFileName = $this->getConfig('root') . '/' . $imageName;
+        $targetFileName = $this->filesystem->getPath($imageName);
         $info = pathinfo($targetFileName);
 
         // @TODO: Add method to check whether a file can generate a thumbnail
         if (in_array(strtolower($info['extension']), ['jpg', 'jpeg', 'png', 'gif', 'tif', 'tiff', 'psd', 'pdf'])) {
             $targetContent = $this->filesystem->getAdapter()->read($imageName);
             $img = Thumbnail::generateThumbnail($targetContent, $info['extension'], $this->getSettings('thumbnail_size'), $this->getSettings('thumbnail_crop_enabled'));
+
             if ($img) {
                 $thumbnailTempName = 'thumbs/THUMB_' . $imageName;
                 $thumbImg = Thumbnail::writeImage($info['extension'], $thumbnailTempName, $img, $this->getSettings('thumbnail_quality'));

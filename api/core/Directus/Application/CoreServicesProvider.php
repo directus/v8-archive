@@ -28,6 +28,9 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\Http\ForbiddenException;
+use Directus\Filesystem\Files;
+use Directus\Filesystem\Filesystem;
+use Directus\Filesystem\FilesystemFactory;
 use Directus\Filesystem\Thumbnail;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
@@ -58,6 +61,8 @@ class CoreServicesProvider
         $container['schema_manager']    = $this->getSchemaManager();
         $container['hash_manager']      = $this->getHashManager();
         $container['embed_manager']     = $this->getEmbedManager();
+        $container['filesystem']        = $this->getFileSystem();
+        $container['files']             = $this->getFiles();
 
         // Move this separately to avoid clogging one class
         $container['cache']             = $this->getCache();
@@ -319,9 +324,10 @@ class CoreServicesProvider
             }, Emitter::P_HIGH);
             $emitter->addFilter('table.insert:before', function (Payload $payload) use ($container) {
                 if ($payload->attribute('tableName') === 'directus_files') {
-                    $auth = $container->get('auth');
+                    /** @var Acl $auth */
+                    $acl = $container->get('acl');
                     $payload->remove('data');
-                    $payload->set('user', $auth->getUserInfo('id'));
+                    $payload->set('user', $acl->getUserId());
                 }
                 return $payload;
             });
@@ -809,6 +815,41 @@ class CoreServicesProvider
         };
     }
 
+    protected function getFileSystem()
+    {
+        return function (Container $container) {
+            $config = $container->get('config');
+
+            return new Filesystem(FilesystemFactory::createAdapter($config->get('filesystem')));
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getFiles()
+    {
+        return function (Container $container) {
+            $container['settings.files'] = function () use ($container) {
+                $adapter = $container->get('database');
+                $acl = $container->get('acl');
+                $settingsTable = new DirectusSettingsTableGateway($adapter, $acl);
+
+                return $settingsTable->loadItems([
+                    'filter' => ['scope' => 'files']
+                ]);
+            };
+
+            $filesystem = $container->get('filesystem');
+            $config = $container->get('config');
+            $config = $config->get('filesystem', []);
+            $settings = $container->get('settings.files');
+            $emitter = $container->get('hook_emitter');
+
+            return new Files($filesystem, $config, $settings, $emitter);
+        };
+    }
+
     protected function getEmbedManager()
     {
         return function (Container $container) {
@@ -818,10 +859,10 @@ class CoreServicesProvider
             $adapter = $container->get('database');
 
             // Fetch files settings
-            $SettingsTable = new DirectusSettingsTableGateway($adapter, $acl);
+            $settingsTableGateway = new DirectusSettingsTableGateway($adapter, $acl);
             try {
-                $settings = $SettingsTable->fetchCollection('files', [
-                    'thumbnail_size', 'thumbnail_quality', 'thumbnail_crop_enabled'
+                $settings = $settingsTableGateway->loadItems([
+                    'filter' => ['scope' => 'files']
                 ]);
             } catch (\Exception $e) {
                 $settings = [];

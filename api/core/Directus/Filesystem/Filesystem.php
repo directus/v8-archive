@@ -7,7 +7,10 @@ use League\Flysystem\FilesystemInterface as FlysystemInterface;
 
 class Filesystem
 {
-    private $adapter = null;
+    /**
+     * @var FlysystemInterface
+     */
+    private $adapter;
 
     public function __construct(FlysystemInterface $adapter)
     {
@@ -29,7 +32,7 @@ class Filesystem
     /**
      * Get the filesystem adapter (flysystem object)
      *
-     * @return Flysystem
+     * @return FlysystemInterface
      */
     public function getAdapter()
     {
@@ -39,10 +42,17 @@ class Filesystem
     /**
      * Get Filesystem adapter path
      *
+     * @param string $path
      * @return string
      */
-    public function getPath()
+    public function getPath($path = '')
     {
-        return $this->adapter->getAdapter()->getPathPrefix();
+        $adapter = $this->adapter->getAdapter();
+
+        if ($path) {
+            return $adapter->applyPathPrefix($path);
+        }
+
+        return $adapter->getPathPrefix();
     }
 }

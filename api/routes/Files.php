@@ -19,7 +19,12 @@ class Files extends Route
      */
     public function __invoke(Application $app)
     {
-        $app->map(['GET', 'PATCH', 'POST', 'PUT', 'DELETE'], '[/{id}]', [$this, 'all']);
+        $app->post('', [$this, 'create']);
+        $app->get('/{id}', [$this, 'one']);
+        $app->patch('/{id}', [$this, 'update']);
+        $app->delete('/{id}', [$this, 'delete']);
+        $app->get('', [$this, 'all']);
+        // $app->map(['GET', 'PATCH', 'POST', 'PUT', 'DELETE'], '[/{id}]', [$this, 'all']);
 
         // TODO: This is breaking the above path format, upload should be perform
         // $app->post('/upload', [$this, 'upload']);
@@ -32,103 +37,136 @@ class Files extends Route
      *
      * @return Response
      */
-    public function all(Request $request, Response $response)
+    public function create(Request $request, Response $response)
     {
+        $table = 'directus_files';
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
         $payload = $request->getParsedBody();
         $params = $request->getParams();
-        $id = $request->getAttribute('id');
+        $filesTableGateway = new RelationalTableGateway($table, $dbConnection, $acl);
 
-        if (!is_null($id)) {
-            $params['id'] = $id;
+        $payload['user'] = $acl->getUserId();
+        $payload['date_uploaded'] = DateUtils::now();
+
+        $validationConstraints = $this->createConstraintFor($table);
+        $this->validate($payload, array_merge(['data' => 'required'], $validationConstraints));
+
+        $Files = $this->container->get('files');
+        $dataInfo = $Files->getDataInfo($payload['data']);
+        $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($payload, 'type'));
+
+        if (!$type) {
+            return $this->withData($response, [
+                'error' => [
+                    'message' => __t('upload_missing_file_type')
+                ]
+            ]);
         }
+
+        if (strpos($type, 'embed/') === 0) {
+            $recordData = $Files->saveEmbedData($payload);
+        } else {
+            $recordData = $Files->saveData($payload['data'], $payload['name']);
+        }
+
+        $payload = array_merge($recordData, ArrayUtils::omit($payload, ['data', 'name']));
+        $newFile = $filesTableGateway->updateRecord($payload, $this->getActivityMode());
+
+        $responseData = $filesTableGateway->wrapData(
+            $newFile->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function one(Request $request, Response $response)
+    {
+        $params = ArrayUtils::pick($request->getParams(), ['fields', 'meta']);
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $filesTableGateway = new RelationalTableGateway('directus_files', $dbConnection, $acl);
+
+        $params['id'] = $request->getAttribute('id');
+        $responseData = $this->getEntriesAndSetResponseCacheTags($filesTableGateway, $params);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function update(Request $request, Response $response)
+    {
+        $table = 'directus_files';
+        $this->validateRequestWithTable($request, $table);
+
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $payload = $request->getParsedBody();
+        $params = $request->getParams();
+        $filesTableGateway = new RelationalTableGateway($table, $dbConnection, $acl);
+
+        $payload['id'] = $request->getAttribute('id');
+        $newFile = $filesTableGateway->updateRecord($payload, $this->getActivityMode());
+
+        $responseData = $filesTableGateway->wrapData(
+            $newFile->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    public function delete(Request $request, Response $response)
+    {
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $filesTableGateway = new RelationalTableGateway('directus_files', $dbConnection, $acl);
+
+        $id = $request->getAttribute('id');
+        $file = $filesTableGateway->loadItems(['id' => $id]);
+
+        // Force delete files
+        // TODO: Make the hook listen to deletes and catch ALL ids (from conditions)
+        // and deletes every matched files
+        $filesTableGateway->deleteFile($id);
+
+        // Delete file record
+        $filesTableGateway->delete([
+            $filesTableGateway->primaryKeyFieldName => $id
+        ]);
+
+        return $this->responseWithData($request, $response, []);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function all(Request $request, Response $response)
+    {
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $params = $request->getParams();
 
         $table = 'directus_files';
-        $TableGateway = new RelationalTableGateway($table, $dbConnection, $acl);
-
-        switch ($request->getMethod()) {
-            case 'DELETE':
-                // Force delete files
-                $payload['id'] = $id;
-
-                // Deletes files
-                // TODO: Make the hook listen to deletes and catch ALL ids (from conditions)
-                // and deletes every matched files
-                $TableGateway->deleteFile($id);
-
-                $conditions = [
-                    $TableGateway->primaryKeyFieldName => $id
-                ];
-
-                // Delete file record
-                $success = $TableGateway->delete($conditions);
-
-                $responseData = [];
-                if (!$success) {
-                    $responseData = [
-                        'error' => 'Failed deleting id: ' . $id
-                    ];
-                }
-
-                return $this->responseWithData($request, $response, $responseData);
-
-                break;
-            case 'POST':
-                $payload['user'] = $acl->getUserId();
-                $payload['date_uploaded'] = DateUtils::now();
-
-                if (!ArrayUtils::has($payload, 'name')) {
-                    return $this->withData($response, [
-                        'error' => [
-                            'message' => __t('upload_missing_filename')
-                        ]
-                    ]);
-                }
-
-                // When the file is uploaded there's not a data key
-                if (array_key_exists('data', $payload)) {
-                    $Files = $this->container->get('files');
-                    $dataInfo = $Files->getDataInfo($payload['data']);
-                    $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($payload, 'type'));
-
-                    if (!$type) {
-                        return $this->withData($response, [
-                            'error' => [
-                                'message' => __t('upload_missing_file_type')
-                            ]
-                        ]);
-                    }
-
-                    if (strpos($type, 'embed/') === 0) {
-                        $recordData = $Files->saveEmbedData($payload);
-                    } else {
-                        $recordData = $Files->saveData($payload['data'], $payload['name']);
-                    }
-
-                    $payload = array_merge($recordData, ArrayUtils::omit($payload, ['data', 'name']));
-                }
-                $newRecord = $TableGateway->updateRecord($payload, $this->getActivityMode());
-                $params['id'] = $newRecord['id'];
-                break;
-            case 'PATCH':
-            case 'PUT':
-                $payload['id'] = $id;
-                if (!is_null($id)) {
-                    $TableGateway->updateRecord($payload, $this->getActivityMode());
-                    break;
-                }
-        }
-
-        $Files = new RelationalTableGateway($table, $dbConnection, $acl);
-        $responseData = $this->getEntriesAndSetResponseCacheTags($Files, $params);
-        if (!$responseData) {
-            $responseData = [
-                'error' => [
-                    'message' => __t('unable_to_find_file_with_id_x', ['id' => $id])
-                ]
-            ];
-        }
+        $filesTableGateway = new RelationalTableGateway($table, $dbConnection, $acl);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($filesTableGateway, $params);
 
         return $this->responseWithData($request, $response, $responseData);
     }
