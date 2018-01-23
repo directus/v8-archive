@@ -15,7 +15,7 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\Sql\Predicate\In;
 
-class Columns extends Route
+class Fields extends Route
 {
     /**
      * @param Application $app

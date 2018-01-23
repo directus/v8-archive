@@ -12,7 +12,7 @@ $app = require __DIR__ . '/bootstrap.php';
 $app->group('/activity', \Directus\Api\Routes\Activity::class);
 $app->group('/auth', \Directus\Api\Routes\Auth::class);
 $app->group('/bookmarks', \Directus\Api\Routes\Bookmarks::class);
-$app->group('/columns', \Directus\Api\Routes\Columns::class);
+$app->group('/fields', \Directus\Api\Routes\Fields::class);
 $app->group('/files', \Directus\Api\Routes\Files::class);
 $app->group('/groups', \Directus\Api\Routes\Groups::class);
 $app->group('/items', \Directus\Api\Routes\Items::class);
