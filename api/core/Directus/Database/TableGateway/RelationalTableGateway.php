@@ -70,11 +70,27 @@ class RelationalTableGateway extends BaseTableGateway
         'nbetween' => ['operator' => 'between', 'not' => true],
     ];
 
+    /**
+     * @param $recordData
+     * @param int $activityEntryMode
+     *
+     * @return BaseRowGateway
+     */
     public function updateRecord($recordData, $activityEntryMode = self::ACTIVITY_ENTRY_MODE_PARENT)
     {
         return $this->manageRecordUpdate($this->getTable(), $recordData, $activityEntryMode);
     }
 
+    /**
+     * @param $tableName
+     * @param $recordData
+     * @param int $activityEntryMode
+     * @param null $childLogEntries
+     * @param bool $parentCollectionRelationshipsChanged
+     * @param array $parentData
+     *
+     * @return BaseRowGateway
+     */
     public function manageRecordUpdate($tableName, $recordData, $activityEntryMode = self::ACTIVITY_ENTRY_MODE_PARENT, &$childLogEntries = null, &$parentCollectionRelationshipsChanged = false, $parentData = [])
     {
         $TableGateway = $this;

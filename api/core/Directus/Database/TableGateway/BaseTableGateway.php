@@ -8,7 +8,7 @@ use Directus\Database\Exception\DuplicateEntryException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
 use Directus\Database\Object\Table;
 use Directus\Database\RowGateway\BaseRowGateway;
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGatewayFactory;
 use Directus\Database\TableSchema;
 use Directus\Filesystem\Thumbnail;
@@ -455,27 +455,22 @@ class BaseTableGateway extends TableGateway
             $this->acl->enforceAlter($tableName);
         }
 
-        if (!TableSchema::getTable($tableName)) {
-            return false;
+        $dropped = false;
+        if ($this->schemaManager->tableExists($tableName)) {
+            // get drop table query
+            $sql = new Sql($this->adapter);
+            $drop = new Ddl\DropTable($tableName);
+            $query = $sql->buildSqlString($drop);
+
+            $this->runHook('table.drop:before', [$tableName]);
+
+            $dropped = $this->getAdapter()->query(
+                $query
+            )->execute();
+
+            $this->runHook('table.drop', [$tableName]);
+            $this->runHook('table.drop:after', [$tableName]);
         }
-
-        // get drop table query
-        $sql = new Sql($this->adapter);
-        $drop = new Ddl\DropTable($tableName);
-        $query = $sql->getSqlStringForSqlObject($drop);
-
-        $this->runHook('table.drop:before', [$tableName]);
-
-        $dropped = $this->adapter->query(
-            $query
-        )->execute();
-
-        if (!$dropped) {
-            return false;
-        }
-
-        $this->runHook('table.drop', [$tableName]);
-        $this->runHook('table.drop:after', [$tableName]);
 
         $this->stopManaging();
 

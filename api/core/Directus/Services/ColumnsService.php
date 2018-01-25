@@ -12,23 +12,14 @@ namespace Directus\Services;
 
 use Directus\Database\Ddl\Column\Custom;
 use Directus\Database\Object\Table;
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway as TableGateway;
 use Directus\Database\TableSchema;
-use Directus\Database\Object\Column;
-use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Zend\Db\Sql\Ddl\AlterTable;
-use Zend\Db\Sql\Ddl\Column\Integer;
-use Zend\Db\Sql\Ddl\Constraint\PrimaryKey;
 use Zend\Db\Sql\Literal;
 use Zend\Db\Sql\Sql;
 
-/**
- * Column service
- *
- * @author Welling Guzmán <welling@rngr.org>
- */
 class ColumnsService extends AbstractService
 {
     const PRIMARY_KEY = 'primary_key';

@@ -1,16 +1,7 @@
 <?php
 
-/**
- * Directus – <http://getdirectus.com>
- *
- * @link      The canonical repository – <https://github.com/directus/directus>
- * @copyright Copyright 2006-2017 RANGER Studio, LLC – <http://rangerstudio.com>
- * @license   GNU General Public License (v3) – <http://www.gnu.org/copyleft/gpl.html>
- */
+namespace Directus\Database\Schema\Sources;
 
-namespace Directus\Database\Schemas\Sources;
-
-use Directus\Database\Object\Column;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Zend\Db\Sql\Expression;
@@ -22,14 +13,6 @@ use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\TableIdentifier;
 use Zend\Db\Sql\Where;
 
-/**
- * MySQLSchema.
- *
- * @author Olov Sundström <olov@rngr.org>
- * @author Daniel Bickett <daniel@rngr.org>
- * @author Jason El-Massih <jason@rngr.org>
- * @author Welling Guzmán <welling@rngr.org>
- */
 class MySQLSchema extends AbstractSchema
 {
     /**

@@ -3,11 +3,11 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaManager;
+use Directus\Database\TableGateway\RelationalTableGateway;
+use Directus\Database\TableGatewayFactory;
 use Directus\Permissions\Acl;
-use Directus\Database\TableGateway\RelationalTableGateway as TableGateway;
 
-// @note: this is a temporary solution to implement services into Directus
 abstract class AbstractService
 {
     protected $container;
@@ -48,6 +48,19 @@ abstract class AbstractService
     }
 
     /**
+     * @param $name
+     *
+     * @return RelationalTableGateway
+     */
+    public function createTableGateway($name)
+    {
+        return TableGatewayFactory::create($name, [
+            'acl' => $this->getAcl(),
+            'connection' => $this->getConnection()
+        ]);
+    }
+
+    /**
      * Gets Acl instance
      *
      * @return Acl
@@ -55,10 +68,5 @@ abstract class AbstractService
     protected function getAcl()
     {
         return $this->getContainer()->get('acl');
-    }
-
-    protected function createTableGateway($name)
-    {
-        return new TableGateway($name, $this->getConnection(), $this->getAcl());
     }
 }

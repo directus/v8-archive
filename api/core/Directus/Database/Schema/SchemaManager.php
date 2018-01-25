@@ -1,32 +1,14 @@
 <?php
 
-/**
- * Directus – <http://getdirectus.com>
- *
- * @link      The canonical repository – <https://github.com/directus/directus>
- * @copyright Copyright 2006-2017 RANGER Studio, LLC – <http://rangerstudio.com>
- * @license   GNU General Public License (v3) – <http://www.gnu.org/copyleft/gpl.html>
- */
+namespace Directus\Database\Schema;
 
-namespace Directus\Database;
-
-use Directus\Database\Ddl\Column\Boolean;
 use Directus\Database\Exception\TableNotFoundException;
 use Directus\Database\Object\Column;
 use Directus\Database\Object\Table;
-use Directus\Database\Schemas\Sources\SchemaInterface;
+use Directus\Database\Schema\Sources\SchemaInterface;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
-use Zend\Db\Sql\Ddl\Column\Integer;
-use Zend\Db\Sql\Ddl\Constraint\PrimaryKey;
-use Zend\Db\Sql\Ddl\CreateTable;
-use Zend\Db\Sql\Sql;
 
-/**
- * Schema Manager
- *
- * @author Welling Guzmán <welling@rngr.org>
- */
 class SchemaManager
 {
     // Names of the system interfaces
@@ -42,7 +24,7 @@ class SchemaManager
     /**
      * Schema source instance
      *
-     * @var \Directus\Database\Schemas\Sources\SchemaInterface
+     * @var \Directus\Database\Schema\Sources\SchemaInterface
      */
     protected $source;
 
@@ -84,49 +66,6 @@ class SchemaManager
     public function __construct(SchemaInterface $source)
     {
         $this->source = $source;
-    }
-
-    /**
-     * Create a new table
-     *
-     * @param string $name
-     * @param array $columnsName
-     *
-     * @return void
-     */
-    public function createTable($name, $columnsName = [])
-    {
-        $table = new CreateTable($name);
-        if (!is_array($columnsName)) {
-            $columnsName = [$columnsName];
-        }
-
-        // Primary column
-        $primaryColumn = new Integer('id');
-        $primaryColumn->setOption('autoincrement', true);
-        $table->addColumn($primaryColumn);
-        $table->addConstraint(new PrimaryKey('id'));
-
-        // Status column
-        if (in_array('status', $columnsName)) {
-            $statusColumn = new Boolean(STATUS_COLUMN_NAME, false, STATUS_DRAFT_NUM);
-            $table->addColumn($statusColumn);
-        }
-
-        // Sort column
-        if (in_array('sort', $columnsName)) {
-            $sortColumn = new Integer('sort');
-            $sortColumn->setOption('unsigned', true);
-            $table->addColumn($sortColumn);
-        }
-
-        $connection = $this->source->getConnection();
-        $sql = new Sql($connection);
-
-        $connection->query(
-            $sql->getSqlStringForSqlObject($table),
-            $connection::QUERY_MODE_EXECUTE
-        );
     }
 
     /**
@@ -669,7 +608,7 @@ class SchemaManager
     public function createColumnObjectFromArray($column)
     {
         if (!isset($column['ui'])) {
-            $column['ui'] = $this->getColumnDefaultInterface($column['type']);
+            $column['ui'] = $this->getFieldDefaultInterface($column['type']);
         }
 
         $column = $this->parseSystemTablesColumn($column);
@@ -677,7 +616,7 @@ class SchemaManager
         $options = json_decode(ArrayUtils::get($column, 'options', ''), true);
         $column['options'] = $options ? $options : [];
 
-        $isSystemColumn = $this->isSystemColumn($column['ui']);
+        $isSystemColumn = $this->isSystemField($column['ui']);
         $column['system'] = $isSystemColumn;
 
         // PRIMARY KEY must be required
@@ -711,15 +650,15 @@ class SchemaManager
     }
 
     /**
-     * Checks whether the column UI is a system column
+     * Checks whether the interface is a system interface
      *
-     * @param $columnUI
+     * @param $interface
      *
      * @return bool
      */
-    public function isSystemColumn($columnUI)
+    public function isSystemField($interface)
     {
-        $systemFields = [
+        $systemField = [
             static::INTERFACE_PRIMARY_KEY,
             static::INTERFACE_SORT,
             static::INTERFACE_STATUS,
@@ -729,7 +668,19 @@ class SchemaManager
             static::INTERFACE_USER_MODIFIED
         ];
 
-        return in_array($columnUI, $systemFields);
+        return in_array($interface, $systemField);
+    }
+
+    /**
+     * Checks whether the interface is primary key interface
+     *
+     * @param $interface
+     *
+     * @return bool
+     */
+    public function isPrimaryKeyInterface($interface)
+    {
+        return $interface === static::INTERFACE_PRIMARY_KEY;
     }
 
     protected function addTable($name, $schema)
@@ -764,8 +715,30 @@ class SchemaManager
      *
      * @return string
      */
-    public function getColumnDefaultInterface($type)
+    public function getFieldDefaultInterface($type)
     {
         return $this->source->getColumnDefaultInterface($type);
+    }
+
+    /**
+     *
+     *
+     * @param $type
+     *
+     * @return integer
+     */
+    public function getFieldDefaultLength($type)
+    {
+        return $this->source->getColumnDefaultLength($type);
+    }
+
+    /**
+     * Gets the source schema adapter
+     *
+     * @return SchemaInterface
+     */
+    public function getSource()
+    {
+        return $this->source;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Database\Schemas\Sources;
+namespace Directus\Database\Schema\Sources;
 
 use Directus\Database\Object\Column;
 use Directus\Util\ArrayUtils;
@@ -137,9 +137,61 @@ abstract class AbstractSchema implements SchemaInterface
     /**
      * @inheritdoc
      */
+    public function getDefaultLengths()
+    {
+        return [
+            // 'ALIAS' => static::INTERFACE_ALIAS,
+            // 'MANYTOMANY' => static::INTERFACE_ALIAS,
+            // 'ONETOMANY' => static::INTERFACE_ALIAS,
+
+            // 'BIT' => static::INTERFACE_TOGGLE,
+            // 'TINYINT' => static::INTERFACE_TOGGLE,
+
+            // 'MEDIUMBLOB' => static::INTERFACE_BLOB,
+            // 'BLOB' => static::INTERFACE_BLOB,
+
+            // 'TINYTEXT' => static::INTERFACE_TEXT_AREA,
+            // 'TEXT' => static::INTERFACE_TEXT_AREA,
+            // 'MEDIUMTEXT' => static::INTERFACE_TEXT_AREA,
+            // 'LONGTEXT' => static::INTERFACE_TEXT_AREA,
+
+            'CHAR' => 1,
+            'VARCHAR' => 255,
+            // 'POINT' => static::INTERFACE_TEXT_INPUT,
+
+            // 'DATETIME' => static::INTERFACE_DATETIME,
+            // 'TIMESTAMP' => static::INTERFACE_DATETIME,
+
+            // 'DATE' => static::INTERFACE_DATE,
+
+            // 'TIME' => static::INTERFACE_TIME,
+
+            // 'YEAR' => static::INTERFACE_NUMERIC,
+            // 'SMALLINT' => static::INTERFACE_NUMERIC,
+            // 'MEDIUMINT' => static::INTERFACE_NUMERIC,
+            'INT' => 11,
+            'INTEGER' => 11,
+            // 'BIGINT' => static::INTERFACE_NUMERIC,
+            // 'FLOAT' => static::INTERFACE_NUMERIC,
+            // 'DOUBLE' => static::INTERFACE_NUMERIC,
+            // 'DECIMAL' => static::INTERFACE_NUMERIC,
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getColumnDefaultInterface($type)
     {
         return ArrayUtils::get($this->getDefaultInterfaces(), strtoupper($type), static::INTERFACE_TEXT_INPUT);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getColumnDefaultLength($type)
+    {
+        return ArrayUtils::get($this->getDefaultLengths(), strtoupper($type), null);
     }
 
     /**

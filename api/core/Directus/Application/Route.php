@@ -4,7 +4,7 @@ namespace Directus\Application;
 
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\BadRequestException;
 use Directus\Hook\Emitter;

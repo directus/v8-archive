@@ -1,9 +1,9 @@
 <?php
 
-namespace Directus\Database\Schemas\Sources;
+namespace Directus\Database\Schema\Sources;
 
 use Directus\Bootstrap;
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Util\ArrayUtils;
 use Zend\Db\Metadata\Source\SqliteMetadata;
 use Zend\Db\Sql\Expression;

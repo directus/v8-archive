@@ -71,6 +71,7 @@ class Validator
             case 'email':
                 $constraint = new Email();
                 break;
+            case 'array':
             case 'numeric':
             case 'string':
                 $constraint = new Type(['type' => $name]);

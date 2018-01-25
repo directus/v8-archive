@@ -18,7 +18,8 @@ use Directus\Database\Connection;
 use Directus\Database\Object\Column;
 use Directus\Database\Object\Table;
 use Directus\Database\RowGateway\BaseRowGateway;
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaFactory;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
@@ -59,6 +60,7 @@ class CoreServicesProvider
         $container['phpErrorHandler']   = $this->getErrorHandler();
         $container['schema_adapter']    = $this->getSchemaAdapter();
         $container['schema_manager']    = $this->getSchemaManager();
+        $container['schema_factory']    = $this->getSchemaFactory();
         $container['hash_manager']      = $this->getHashManager();
         $container['embed_manager']     = $this->getEmbedManager();
         $container['filesystem']        = $this->getFileSystem();
@@ -741,7 +743,7 @@ class CoreServicesProvider
 
             switch ($databaseName) {
                 case 'MySQL':
-                    return new \Directus\Database\Schemas\Sources\MySQLSchema($adapter);
+                    return new \Directus\Database\Schema\Sources\MySQLSchema($adapter);
                 // case 'SQLServer':
                 //    return new SQLServerSchema($adapter);
                 // case 'SQLite':
@@ -762,6 +764,18 @@ class CoreServicesProvider
         return function (Container $container) {
             return new SchemaManager(
                 $container->get('schema_adapter')
+            );
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getSchemaFactory()
+    {
+        return function (Container $container) {
+            return new SchemaFactory(
+                $container->get('schema_manager')
             );
         };
     }

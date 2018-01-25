@@ -1,9 +1,8 @@
 <?php
 
-namespace Directus\Database\Schemas\Sources;
+namespace Directus\Database\Schema\Sources;
 
 use Directus\Database\Connection;
-use Directus\Database\Object\Column;
 use Zend\Db\ResultSet\ResultSet;
 
 interface SchemaInterface
@@ -210,6 +209,22 @@ interface SchemaInterface
      * @return string
      */
     public function getColumnDefaultInterface($type);
+
+    /**
+     * Gets the default length value per type
+     *
+     * @return array
+     */
+    public function getDefaultLengths();
+
+    /**
+     * Gets the column type default length
+     *
+     * @param $type - Column type
+     *
+     * @return integer
+     */
+    public function getColumnDefaultLength($type);
 
     /**
      * Checks if the given type exists in the list

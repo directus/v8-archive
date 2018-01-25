@@ -55,6 +55,60 @@ function truncate_table(Connection $db, $table)
 
 /**
  * @param Connection $db
+ * @param $table
+ *
+ * @return bool
+ */
+function table_exists(Connection $db, $table)
+{
+    $query = 'SHOW TABLES LIKE "%s";';
+
+    $result = $db->execute(sprintf($query, $table));
+
+    return $result->count() === 1;
+}
+
+/**
+ * @param Connection $db
+ * @param $table
+ * @param array $conditions
+ *
+ * @return array
+ */
+function table_find(Connection $db, $table, array $conditions)
+{
+    $gateway = new \Zend\Db\TableGateway\TableGateway($table, $db);
+    $result = $gateway->select($conditions);
+
+    return $result->toArray();
+}
+
+/**
+ * @param Connection $db
+ * @param $table
+ * @param array $conditions
+ *
+ * @return int
+ */
+function delete_item(Connection $db, $table, array $conditions)
+{
+    $gateway = new \Zend\Db\TableGateway\TableGateway($table, $db);
+
+    return $gateway->delete($conditions);
+}
+
+/**
+ * @param Connection $db
+ * @param string $table
+ */
+function drop_table(Connection $db, $table)
+{
+    $query = 'DROP TABLE IF EXISTS `%s`;';
+    $db->execute(sprintf($query, $table));
+}
+
+/**
+ * @param Connection $db
  * @param string $table
  * @param int $value
  */
