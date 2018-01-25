@@ -110,7 +110,7 @@ CREATE TABLE `directus_columns` (
   `options` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `table-column` (`table_name`,`column_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `directus_columns` WRITE;
 /*!40000 ALTER TABLE `directus_columns` DISABLE KEYS */;
@@ -122,7 +122,7 @@ VALUES
 	(3,'directus_groups','users','ALIAS','directus_users','ONETOMANY','directus_users',NULL,NULL,'group',0,0,NULL,NULL,NULL),
 	(4,'directus_groups','permissions','ALIAS','directus_permissions','ONETOMANY','directus_privileges',NULL,NULL,'group_id',0,0,NULL,NULL,NULL),
 	(5,'orders','products','ALIAS','many_to_many','MANYTOMANY','products','orders_details','order_id','product_id',0,0,NULL,NULL,NULL),
-	(7,'products','status','INT','status',NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL);
+	(6,'products','status','INT','status',NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL);
 
 /*!40000 ALTER TABLE `directus_columns` ENABLE KEYS */;
 UNLOCK TABLES;

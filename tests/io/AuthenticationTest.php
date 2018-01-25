@@ -15,14 +15,9 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetToken()
     {
-        $path = 'tables';
-        $response = request_get($path);
-
-        assert_response($this, $response, [
-            'data' => 'array',
-            'status' => 200,
-            'public' => true
-        ]);
+        $path = 'collections';
+        $response = request_error_get($path);
+        assert_response_error($this, $response);
 
         $path = 'auth/authenticate';
         $response = request_post($path, [
@@ -46,7 +41,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('int', $payload->group);
 
         // Query String
-        $path = 'tables';
+        $path = 'collections';
         $response = request_get($path, ['access_token' => $token]);
 
         assert_response($this, $response, [
@@ -55,7 +50,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         ]);
 
         // Header Authorization
-        $path = 'tables';
+        $path = 'collections';
         $response = request_get($path, [], [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token
@@ -68,7 +63,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         ]);
 
         // Basic Auth
-        $path = 'tables';
+        $path = 'collections';
         $response = request_get($path, [], ['auth' => [$token, null]]);
 
         assert_response($this, $response, [
