@@ -2,12 +2,14 @@
 
 namespace Directus\Services;
 
+use Directus\Database\Exception\ColumnAlreadyExistsException;
+use Directus\Database\Exception\ColumnNotFoundException;
 use Directus\Database\Exception\TableAlreadyExistsException;
 use Directus\Database\Exception\TableNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaFactory;
-use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
+use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
@@ -44,7 +46,7 @@ class TablesService extends AbstractService
         $collectionsTableGateway = $this->createTableGateway('directus_tables');
 
         $columns = ArrayUtils::get($data, 'columns');
-        $this->addColumnInfo($name, $columns);
+        $this->addColumnsInfo($name, $columns);
 
         $item = ArrayUtils::omit($data, 'columns');
         $item['table_name'] = $name;
@@ -90,7 +92,7 @@ class TablesService extends AbstractService
 
         $columns = ArrayUtils::get($data, 'columns', []);
         if (!empty($columns)) {
-            $this->addColumnInfo($name, $columns);
+            $this->addColumnsInfo($name, $columns);
         }
 
         $item = ArrayUtils::omit($data, 'columns');
@@ -100,44 +102,189 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Add the column information to the fields table
+     * Adds a column to an existing table
+     *
+     * @param $collectionName
+     * @param $columnName
+     * @param array $data
+     *
+     * @return BaseRowGateway
+     *
+     * @throws ColumnAlreadyExistsException
+     *
+     * @throws TableNotFoundException
+     */
+    public function addColumn($collectionName, $columnName, array $data)
+    {
+        $tableObject = $this->getSchemaManager()->getTableSchema($collectionName);
+        if (!$tableObject) {
+            throw new TableNotFoundException($collectionName);
+        }
+
+        $columnObject = $tableObject->getColumn($columnName);
+        if ($columnObject) {
+            throw new ColumnAlreadyExistsException($columnName);
+        }
+
+        $columnData = array_merge($data, [
+            'name' => $columnName
+        ]);
+
+        $this->updateTableSchema($collectionName, [
+            'columns' => [$columnData]
+        ]);
+
+        return $this->addColumnInfo($collectionName, $columnData);
+    }
+
+    /**
+     * Adds a column to an existing table
+     *
+     * @param $collectionName
+     * @param $columnName
+     * @param array $data
+     *
+     * @return BaseRowGateway
+     *
+     * @throws ColumnNotFoundException
+     * @throws TableNotFoundException
+     */
+    public function changeColumn($collectionName, $columnName, array $data)
+    {
+        $tableObject = $this->getSchemaManager()->getTableSchema($collectionName);
+        if (!$tableObject) {
+            throw new TableNotFoundException($collectionName);
+        }
+
+        $columnObject = $tableObject->getColumn($columnName);
+        if (!$columnObject) {
+            throw new ColumnNotFoundException($columnName);
+        }
+
+        $columnData = array_merge($columnObject->toArray(), $data);
+        $this->updateTableSchema($collectionName, [
+            'columns' => [$columnData]
+        ]);
+
+        return $this->addColumnInfo($collectionName, $columnData);
+    }
+
+    public function dropColumn($collectionName, $fieldName)
+    {
+        $tableObject = $this->getSchemaManager()->getTableSchema($collectionName);
+        if (!$tableObject) {
+            throw new TableNotFoundException($collectionName);
+        }
+
+        $columnObject = $tableObject->getColumn($fieldName);
+        if (!$columnObject) {
+            throw new ColumnNotFoundException($fieldName);
+        }
+
+        if (count($tableObject->getColumns()) === 1) {
+            throw new BadRequestException('Cannot delete the last field');
+        }
+
+        if (!$this->dropColumnSchema($collectionName, $fieldName)) {
+            throw new ErrorException('Error deleting the field');
+        }
+
+        if (!$this->removeColumnInfo($collectionName, $fieldName)) {
+            throw new ErrorException('Error deleting the field information');
+        }
+    }
+
+    /**
+     * Add columns information to the fields table
      *
      * @param $collectionName
      * @param array $columns
      *
      * @return BaseRowGateway[]
      */
-    public function addColumnInfo($collectionName, array $columns)
+    public function addColumnsInfo($collectionName, array $columns)
     {
         $resultsSet = [];
-        $fieldsTableGateway = $this->createTableGateway('directus_columns');
         foreach ($columns as $column) {
-            $data = [
-                'table_name' => $collectionName,
-                'column_name' => $column['name'],
-                'data_type' => $column['type'],
-                'ui' => $column['interface'],
-                'required' => ArrayUtils::get($column, 'required', false),
-                'sort' => ArrayUtils::get($column, 'sort', false),
-                'comment' => ArrayUtils::get($column, 'comment', false),
-                'hidden_input' => ArrayUtils::get($column, 'hidden_input', false),
-                'hidden_list' => ArrayUtils::get($column, 'hidden_list', false)
-            ];
-
-            $row = $fieldsTableGateway->findOneByArray([
-                'table_name' => $collectionName,
-                'column_name' => $column['name']
-            ]);
-
-            if ($row) {
-                $data['id'] = $row['id'];
-            }
-
-            $resultsSet[] = $fieldsTableGateway->updateRecord($data);
+            $resultsSet[] = $this->addColumnInfo($collectionName, $column);
         }
 
         return $resultsSet;
     }
+
+    /**
+     * Add field information to the field system table
+     *
+     * @param $collectionName
+     * @param array $column
+     *
+     * @return BaseRowGateway
+     */
+    public function addColumnInfo($collectionName, array $column)
+    {
+        // TODO: Let's make this info a string ALL the time at this level
+        $options = ArrayUtils::get($column, 'options', []);
+        $data = [
+            'table_name' => $collectionName,
+            'column_name' => $column['name'],
+            'data_type' => $column['type'],
+            'ui' => $column['interface'],
+            'required' => ArrayUtils::get($column, 'required', false),
+            'sort' => ArrayUtils::get($column, 'sort', false),
+            'comment' => ArrayUtils::get($column, 'comment', false),
+            'hidden_input' => ArrayUtils::get($column, 'hidden_input', false),
+            'hidden_list' => ArrayUtils::get($column, 'hidden_list', false),
+            'options' => is_array($options) ? json_encode($options) : $options
+        ];
+
+        $fieldsTableGateway = $this->createTableGateway('directus_columns');
+        $row = $fieldsTableGateway->findOneByArray([
+            'table_name' => $collectionName,
+            'column_name' => $column['name']
+        ]);
+
+        if ($row) {
+            $data['id'] = $row['id'];
+        }
+
+        return $fieldsTableGateway->updateRecord($data);
+    }
+
+    /**
+     * @param $collectionName
+     * @param $fieldName
+     *
+     * @return int
+     */
+    public function removeColumnInfo($collectionName, $fieldName)
+    {
+        $fieldsTableGateway = $this->createTableGateway('directus_columns');
+
+        return $fieldsTableGateway->delete([
+            'table_name' => $collectionName,
+            'column_name' => $fieldName
+        ]);
+    }
+
+    /**
+     * @param $collectionName
+     * @param $fieldName
+     *
+     * @return bool
+     */
+    protected function dropColumnSchema($collectionName, $fieldName)
+    {
+        /** @var SchemaFactory $schemaFactory */
+        $schemaFactory = $this->container->get('schema_factory');
+        $table = $schemaFactory->alterTable($collectionName, [
+            'drop' => [
+                $fieldName
+            ]
+        ]);
+
+        return $schemaFactory->buildTable($table) ? true : false;
+    }
+
     /**
      * Drops the given table and its table and columns information
      *
@@ -212,6 +359,12 @@ class TablesService extends AbstractService
         return $result ? true : false;
     }
 
+    /**
+     * @param $name
+     * @param array $data
+     *
+     * @return bool
+     */
     protected function updateTableSchema($name, array $data)
     {
         /** @var SchemaFactory $schemaFactory */
@@ -223,8 +376,9 @@ class TablesService extends AbstractService
         $toAdd = $toChange = [];
         $tableObject = $this->getSchemaManager()->getTableSchema($name);
         foreach ($columns as $i => $column) {
-            if ($tableObject->hasColumn($column['name'])) {
-                $toChange[] = $column;
+            $columnObject = $tableObject->getColumn($column['name']);
+            if ($columnObject) {
+                $toChange[] = array_merge($columnObject->toArray(), $column);
             } else {
                 $toAdd[] = $column;
             }

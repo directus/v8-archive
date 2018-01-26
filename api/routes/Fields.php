@@ -6,14 +6,18 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Database\Exception\ColumnNotFoundException;
+use Directus\Database\Exception\TableNotFoundException;
 use Directus\Database\Object\Column;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
-use Directus\Permissions\Exception\UnauthorizedTableAlterException;
-use Directus\Services\ColumnsService;
+use Directus\Exception\ErrorException;
+use Directus\Exception\UnauthorizedException;
+use Directus\Permissions\Acl;
+use Directus\Services\TablesService;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
-use Zend\Db\Sql\Predicate\In;
 
 class Fields extends Route
 {
@@ -22,17 +26,11 @@ class Fields extends Route
      */
     public function __invoke(Application $app)
     {
-        $app->post('/{table}', [$this, 'create']);
-        $app->get('/{table}', [$this, 'all']);
-        $app->get('/{table}/{column}', [$this, 'one']);
-        $app->map(['PUT', 'PATCH'], '/{table}/{column}', [$this, 'update']);
-        $app->post('/{table}/{column}', [$this, 'post']);
-        $app->delete('/{table}/{column}', [$this, 'delete']);
-        $app->map(['PATCH', 'PUT'], '/{table}/bulk', [$this, 'batch']);
-
-        // Interfaces
-        $app->get('/{table}/{column}/{ui}', [$this, 'ui']);
-        $app->map(['POST', 'PUT', 'PATCH'], '/{table}/{column}/{ui}', [$this, 'updateUi']);
+        $app->post('/{collection}', [$this, 'create']);
+        $app->get('/{collection}/{field}', [$this, 'one']);
+        $app->patch('/{collection}/{field}', [$this, 'update']);
+        $app->delete('/{collection}/{field}', [$this, 'delete']);
+        $app->get('/{collection}', [$this, 'all']);
     }
 
     /**
@@ -41,43 +39,177 @@ class Fields extends Route
      *
      * @return Response
      *
-     * @throws UnauthorizedTableAlterException
+     * @throws UnauthorizedException
      */
     public function create(Request $request, Response $response)
     {
+        /** @var Acl $acl */
         $acl = $this->container->get('acl');
+        if (!$acl->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
-        $tableName = $request->getAttribute('table');
+        $collectionName = $request->getAttribute('collection');
+        $payload['table_name'] = $collectionName;
 
-        $params['table_name'] = $tableName;
+        ArrayUtils::renameSome($payload, [
+            'name' => 'column_name',
+            'interface' => 'ui',
+            'type' => 'data_type'
+        ]);
 
-        $payload['table_name'] = $tableName;
+        // if (!$acl->hasTablePrivilege($collectionName, 'alter')) {
+        //     throw new UnauthorizedTableAlterException(__t('permission_table_alter_access_forbidden_on_table', [
+        //         'table_name' => $tableName
+        //     ]));
+        // }
+
         // TODO: Length is required by some data types, which make this validation not working fully for columns
         // TODO: Create new constraint that validates the column data type to be one of the list supported
+        $this->validate(['collection' => $collectionName], ['collection' => 'required|string']);
         $this->validateDataWithTable($request, $payload, 'directus_columns');
 
-        /**
-         * TODO: check if a column by this name already exists
-         * TODO:  build this into the method when we shift its location to the new layer
-         */
-        if (!$acl->hasTablePrivilege($tableName, 'alter')) {
-            throw new UnauthorizedTableAlterException(__t('permission_table_alter_access_forbidden_on_table', [
-                'table_name' => $tableName
-            ]));
+        ArrayUtils::renameSome($payload, array_flip([
+            'name' => 'column_name',
+            'interface' => 'ui',
+            'type' => 'data_type'
+        ]));
+        $tableService = new TablesService($this->container);
+        $fieldName = ArrayUtils::pull($payload, 'name');
+        $field = $tableService->addColumn($collectionName, $fieldName, $payload);
+
+        $dbConnection = $this->container->get('database');
+        $responseData = (new RelationalTableGateway('directus_columns', $dbConnection, $acl))->wrapData(
+            $field->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta', 0)
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws ColumnNotFoundException
+     * @throws TableNotFoundException
+     * @throws UnauthorizedException
+     */
+    public function one(Request $request, Response $response)
+    {
+        /** @var Acl $acl */
+        $acl = $this->container->get('acl');
+        if (!$acl->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
         }
 
-        $columnService = new ColumnsService($this->container);
-        $params['column_name'] = $columnService->addColumn($tableName, $payload);
+        $collectionName = $request->getAttribute('collection');
+        $fieldName = $request->getAttribute('field');
+        $this->validate([
+            'collection' => $collectionName,
+            'field' => $fieldName
+        ], [
+            'collection' => 'required|string',
+            'field' => 'required|string'
+        ]);
 
-        $responseData = [];
-        if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $responseData['meta'] = ['type' => 'item', 'table' => 'directus_columns'];
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+        $tableObject = $schemaManager->getTableSchema($collectionName);
+        if (!$tableObject) {
+            throw new TableNotFoundException($collectionName);
         }
 
-        $responseData['data'] = TableSchema::getColumnSchema($tableName, $params['column_name'], true)->toArray();
+        $columnObject = $tableObject->getColumn($fieldName);
+        if (!$columnObject) {
+            throw new ColumnNotFoundException($fieldName);
+        }
 
-        return $this->withData($response, $responseData);
+        $dbConnection = $this->container->get('database');
+        $tableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
+
+        $params = ArrayUtils::pick($request->getQueryParams(), ['meta', 'fields']);
+        $params['single'] = true;
+        $params['filter'] = [
+            'table_name' => $collectionName,
+            'column_name' => $fieldName
+        ];
+
+        $responseData = $tableGateway->getItems($params);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws UnauthorizedException
+     */
+    public function update(Request $request, Response $response)
+    {
+        /** @var Acl $acl */
+        $acl = $this->container->get('acl');
+        if (!$acl->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+        $collectionName = $request->getAttribute('collection');
+        $fieldName = $request->getAttribute('field');
+        $payload['table_name'] = $collectionName;
+        $payload['name'] = $fieldName;
+
+        ArrayUtils::renameSome($payload, [
+            'name' => 'column_name',
+            'interface' => 'ui',
+            'type' => 'data_type'
+        ]);
+
+        // if (!$acl->hasTablePrivilege($collectionName, 'alter')) {
+        //     throw new UnauthorizedTableAlterException(__t('permission_table_alter_access_forbidden_on_table', [
+        //         'table_name' => $tableName
+        //     ]));
+        // }
+
+        // TODO: Length is required by some data types, which make this validation not working fully for columns
+        // TODO: Create new constraint that validates the column data type to be one of the list supported
+        $this->validate([
+            'collection' => $collectionName,
+            'field' => $fieldName,
+            'payload' => $payload
+        ], [
+            'collection' => 'required|string',
+            'field' => 'required|string',
+            'payload' => 'required|array'
+        ]);
+
+        ArrayUtils::renameSome($payload, array_flip([
+            'name' => 'column_name',
+            'interface' => 'ui',
+            'type' => 'data_type'
+        ]));
+
+        $tableService = new TablesService($this->container);
+        $fieldName = ArrayUtils::pull($payload, 'name');
+        $field = $tableService->changeColumn($collectionName, $fieldName, $payload);
+
+        $dbConnection = $this->container->get('database');
+        $responseData = (new RelationalTableGateway('directus_columns', $dbConnection, $acl))->wrapData(
+            $field->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta', 0)
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -89,32 +221,52 @@ class Fields extends Route
      * @param Response $response
      *
      * @return Response
+     *
+     * @throws TableNotFoundException
+     * @throws UnauthorizedException
      */
     public function all(Request $request, Response $response)
     {
+        /** @var Acl $acl */
+        $acl = $this->container->get('acl');
+        if (!$acl->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
         $params = $request->getQueryParams();
-        $tableName = $request->getAttribute('table');
-        $fields = $request->getQueryParam('fields');
+        $fields = $request->getQueryParam('fields', '*');
         if (!is_array($fields)) {
             $fields = StringUtils::csv($fields);
         }
 
-        $this->tagResponseCache('tableColumnsSchema_'.$tableName);
-        $responseData = [];
+        $collectionName = $request->getAttribute('collection');
 
-        if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $responseData['meta'] = ['type' => 'collection', 'table' => 'directus_columns'];
+        // $this->tagResponseCache('tableColumnsSchema_'.$tableName);
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+        $tableObject = $schemaManager->getTableSchema($collectionName);
+        if (!$tableObject) {
+            throw new TableNotFoundException($collectionName);
         }
 
-        $responseData['data'] = array_map(function(Column $column) use ($fields) {
-            $info = $column->toArray();
+        $collectionTableObject = $schemaManager->getTableSchema('directus_columns');
+        if (in_array('*', $fields)) {
+            $fields = $collectionTableObject->getColumnsName();
+        }
+
+        $fields = array_map(function(Column $column) use ($fields) {
+            $data = $column->toArray();
 
             if (!empty($fields)) {
-                $info = ArrayUtils::pick($info, $fields);
+                $data = ArrayUtils::pick($data, $fields);
             }
 
-            return $info;
-        }, TableSchema::getTableColumnsSchema($tableName));
+            return $data;
+        }, TableSchema::getTableColumnsSchema($collectionName));
+
+        $dbConnection = $this->container->get('database');
+        $tableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
+        $responseData = $tableGateway->wrapData($fields, false, ArrayUtils::get($params, 'meta'));
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -159,360 +311,35 @@ class Fields extends Route
     }
 
     /**
-     * Get information of a single table
-     *
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function one(Request $request, Response $response)
-    {
-        $tableName = $request->getAttribute('table');
-        $columnName = $request->getAttribute('column');
-        $params = $request->getQueryParams();
-
-        return $this->getColumnInfo($request, $response, $tableName, $columnName, $params);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function update(Request $request, Response $response)
-    {
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $tableName = $request->getAttribute('table');
-        $columnName = $request->getAttribute('column');
-
-        $params['column_name'] = $columnName;
-        $params['table_name'] = $tableName;
-
-        // This `type` variable is used on the client-side
-        // Not need on server side.
-        // TODO: We should probably stop using it on the client-side
-        unset($payload['type']);
-        // Add table name to dataset. TODO more clarification would be useful
-        // Also This would return an Error because of $row not always would be an array.
-        if ($payload) {
-            foreach ($payload as &$row) {
-                if (is_array($row)) {
-                    $row['table_name'] = $tableName;
-                }
-            }
-        }
-
-        $columnsService = new ColumnsService($this->container);
-        $columnsService->update($tableName, $columnName, $payload, $request->isPatch());
-
-        return $this->getColumnInfo($request, $response, $tableName, $columnName, $params);
-    }
-
-    /**
      * @param Request $request
      * @param Response $response
      *
      * @return Response
      *
-     * @throws \Exception
-     */
-    public function batch(Request $request, Response $response)
-    {
-        $container = $this->container;
-        $dbConnection = $container->get('database');
-        $acl = $container->get('acl');
-        $TableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
-        $payload = $request->getParsedBody();
-        $tableName = $request->getAttribute('table');
-        $params = $request->getQueryParams();
-
-        $rows = array_key_exists('rows', $payload) ? $payload['rows'] : false;
-        if (!is_array($rows) || count($rows) <= 0) {
-            throw new \Exception(__t('rows_no_specified'));
-        }
-
-        $columnNames = [];
-        foreach ($rows as $row) {
-            $column = $row['id'];
-            $columnNames[] = $column;
-            unset($row['id']);
-
-            $condition = [
-                'table_name' => $tableName,
-                'column_name' => $column
-            ];
-
-            if ($row) {
-                // check if the column data exists in `directus_columns`
-                $columnInfo = $TableGateway->select($condition);
-                if ($columnInfo->count() === 0) {
-                    // add the column information into `directus_columns`
-                    $columnInfo = TableSchema::getColumnSchema($tableName, $column);
-                    $columnInfo = $columnInfo->toArray();
-                    $columnsName = TableSchema::getAllTableColumnsName('directus_columns');
-                    // NOTE: the column name name is data_type in the database
-                    // but the attribute in the object is type
-                    // change the name to insert the data type value into the columns table
-                    ArrayUtils::rename($columnInfo, 'type', 'data_type');
-                    $columnInfo = ArrayUtils::pick($columnInfo, $columnsName);
-                    // NOTE: remove the column id info
-                    // this information is the column name
-                    // not the record id in the database
-                    ArrayUtils::remove($columnInfo, ['id', 'options']);
-                    $TableGateway->insert($columnInfo);
-                }
-
-                $TableGateway->update($row, $condition);
-            }
-        }
-
-        $rows = $TableGateway->select([
-            'table_name' => $tableName,
-            new In('column_name', $columnNames)
-        ]);
-
-        $responseData = [];
-        if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $responseData['meta'] = [
-                'table' => 'directus_columns',
-                'type' => 'collection'
-            ];
-        }
-
-        $responseData['data'] = $rows->toArray();
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
+     * @throws ErrorException
+     * @throws UnauthorizedException
      */
     public function delete(Request $request, Response $response)
     {
-        $params = $request->getQueryParams();
-        $tableName = $request->getAttribute('table');
-        $columnName = $request->getAttribute('column');
-        $dbConnection = $this->container->get('database');
+        /** @var Acl $acl */
         $acl = $this->container->get('acl');
-
-        $tableGateway = new RelationalTableGateway($tableName, $dbConnection, $acl);
-        // TODO: make sure to check aliases column (Ex: M2M Columns)
-        $tableObject = TableSchema::getTableSchema($tableName, [], false, true);
-        $hasColumn = $tableObject->hasColumn($columnName);
-        $hasMoreThanOneColumn = count($tableObject->getColumns()) > 1;
-        $success = false;
-
-        if ($hasColumn && $hasMoreThanOneColumn) {
-            $success = $tableGateway->dropColumn($columnName);
+        if (!$acl->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
         }
 
-        $responseData = [];
-        if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $responseData['meta'] = [
-                'table' => $tableGateway->getTable(),
-                'column' => $columnName
-            ];
-        }
-
-        if (!$success) {
-            if (!$hasMoreThanOneColumn) {
-                $errorMessage = __t('cannot_remove_last_column');
-            } else if (!$hasColumn) {
-                $errorMessage = __t('unable_to_find_column_X_in_table_y', [
-                    'table' => $tableName,
-                    'column' => $columnName
-                ]);
-            } else {
-                $errorMessage = __t('unable_to_remove_column_x', [
-                    'column_name' => $columnName
-                ]);
-            }
-
-            $responseData['error'] = [
-                'message' => $errorMessage
-            ];
-        }
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function updateUi(Request $request, Response $response)
-    {
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $tableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
-
-        $tableName = $request->getAttribute('table');
-        $columnName = $request->getAttribute('column');
-        $ui = $request->getAttribute('ui');
-
-        switch ($request->getMethod()) {
-            case 'PATH': // New Not used before
-            case 'PUT':
-            case 'POST':
-                $payload = $request->getParsedBody();
-
-                $columnData = $tableGateway->select([
-                    'table_name' => $tableName,
-                    'column_name' => $columnName
-                ])->current();
-
-                if ($columnData) {
-                    $columnData = $columnData->toArray();
-
-                    $data = [
-                        'id' => $columnData['id'],
-                        'options' => json_encode($payload)
-                    ];
-
-                    $tableGateway->updateCollection($data);
-                }
-        }
-
-        return $this->getUiInfo($request, $response, $tableName, $columnName, $ui, $request->getQueryParams());
-    }
-
-    /**
-     * Get given table.column.ui information
-     *
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function ui(Request $request, Response $response)
-    {
-        $tableName = $request->getAttribute('table');
-        $columnName = $request->getAttribute('column');
-        $ui = $request->getAttribute('ui');
-
-        return $this->getUiInfo($request, $response, $tableName, $columnName, $ui, $request->getQueryParams());
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @param string $tableName
-     * @param string $columnName
-     * @param array $params
-     *
-     * @return Response
-     */
-    public function getColumnInfo(Request $request, Response $response, $tableName, $columnName, array $params = [])
-    {
-        $result = $this->fetchColumnInfo($tableName, $columnName);
-
-        if (!$result) {
-             $responseData = [
-                'error' => [
-                    'message' => __t('unable_to_find_column_x', ['column' => $columnName])
-                ]
-            ];
-        } else {
-            $responseData = [];
-            if (ArrayUtils::get($params, 'meta', 0) == 1) {
-                $responseData['meta'] = [
-                    'type' => 'collection',
-                    'table' => 'directus_columns'
-                ];
-            }
-
-            $responseData['data'] = $result;
-        }
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param string $tableName
-     * @param string $columnName
-     *
-     * @return Column
-     */
-    public function fetchColumnInfo($tableName, $columnName)
-    {
-        $this->tagResponseCache(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
-
-        return TableSchema::getColumnSchema($tableName, $columnName, true);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @param string $tableName
-     * @param string $columnName
-     * @param string $ui
-     * @param array $params
-     *
-     * @return Response
-     */
-    public function getUiInfo(Request $request, Response $response, $tableName, $columnName, $ui, $params = [])
-    {
-        $result = $this->fetchUiInfo($tableName, $columnName);
-
-        if (!$result) {
-            $response = $response->withStatus(404);
-            $responseData = [
-                'error' => [
-                    'message' => __t('unable_to_find_column_x_options_for_x', ['column' => $columnName, 'ui' => $ui])
-                ]
-            ];
-        } else {
-            $result = $response->toArray();
-
-            $data = [];
-            if (ArrayUtils::get($params, 'meta', 0) == 1) {
-                $data['meta'] = ['table' => 'directus_columns', 'type' => 'item'];
-            }
-
-            $responseData = [
-                'data' => json_decode($result['options'], true)
-            ];
-        }
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * Gets the Interface options
-     *
-     * @param $tableName
-     * @param $columnName
-     *
-     * @return null|array
-     */
-    public function fetchUiInfo($tableName, $columnName)
-    {
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $tableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
-
-        $select = $tableGateway->getSql()->select();
-        $select->columns(['id', 'options']);
-        $select->where([
-            'table_name' => $tableName,
-            'column_name' => $columnName
+        $collectionName = $request->getAttribute('collection');
+        $fieldName = $request->getAttribute('field');
+        $this->validate([
+            'collection' => $collectionName,
+            'field' => $fieldName
+        ], [
+            'collection' => 'required|string',
+            'field' => 'required|string'
         ]);
 
-        $result = $this->getDataAndSetResponseCacheTags(
-            [$tableGateway, 'selectWith'],
-            [$select]
-        )->current();
+        $tableService = new TablesService($this->container);
+        $tableService->dropColumn($collectionName, $fieldName);
 
-        return $result ? $result->toArray() : null;
+        return $this->responseWithData($request, $response, []);
     }
 }

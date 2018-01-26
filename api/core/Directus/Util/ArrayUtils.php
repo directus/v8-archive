@@ -404,8 +404,6 @@ class ArrayUtils
      * @param array $array
      * @param string $from
      * @param string $to
-     *
-     * @return int
      */
     public static function rename(array &$array, $from, $to)
     {
@@ -415,6 +413,19 @@ class ArrayUtils
             $array[$to] = $value;
 
             ArrayUtils::remove($array, $from);
+        }
+    }
+
+    /**
+     * Rename a list of keys
+     *
+     * @param array $array
+     * @param $keys
+     */
+    public static function renameSome(array &$array, $keys)
+    {
+        foreach ($keys as $from => $to)  {
+            static::rename($array, $from, $to);
         }
     }
 

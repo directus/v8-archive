@@ -96,6 +96,11 @@ class SchemaFactory
             $table->changeColumn($column->getName(), $column);
         }
 
+        $toDropColumnsName = ArrayUtils::get($data, 'drop', []);
+        foreach ($toDropColumnsName as $column) {
+            $table->dropColumn($column);
+        }
+
         return $table;
     }
 

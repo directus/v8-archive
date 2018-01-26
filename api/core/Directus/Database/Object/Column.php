@@ -1,13 +1,5 @@
 <?php
 
-/**
- * Directus – <http://getdirectus.com>
- *
- * @link      The canonical repository – <https://github.com/directus/directus>
- * @copyright Copyright 2006-2017 RANGER Studio, LLC – <http://rangerstudio.com>
- * @license   GNU General Public License (v3) – <http://www.gnu.org/copyleft/gpl.html>
- */
-
 namespace Directus\Database\Object;
 
 use Directus\Collection\Arrayable;
@@ -17,14 +9,6 @@ use Directus\Util\Traits\ArrayPropertyAccess;
 use Directus\Util\Traits\ArrayPropertyToArray;
 use Directus\Util\Traits\ArraySetter;
 
-/**
- * Column Object
- *
- * Represents a column
- *
- * @author Welling Guzmán <welling@rngr.org>
- */
-
 class Column implements \ArrayAccess, Arrayable, \JsonSerializable
 {
     use ArraySetter, ArrayPropertyAccess, ArrayPropertyToArray;
@@ -32,7 +16,7 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
     const ALIAS = 'ALIAS';
 
     /**
-     * @var string
+     * @var int
      */
     protected $id;
 
@@ -138,6 +122,11 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
     protected $ui;
 
     /**
+     * @var string
+     */
+    protected $interface;
+
+    /**
      * Whether the column will be hidden on forms
      *
      * @var bool
@@ -191,6 +180,7 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
             'extra',
             'required',
             'ui',
+            'interface',
             'hidden_input',
             'relationship',
             'comment',
@@ -687,14 +677,36 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
         return $this->getRequired();
     }
 
+    /**
+     * @param $name
+     */
     public function setUI($name)
     {
-        $this->ui = $name;
+        $this->setInterface($name);
     }
 
+    /**
+     * @return string
+     */
     public function getUI()
     {
-        return $this->ui;
+        return $this->getInterface();
+    }
+
+    /**
+     * @param $name
+     */
+    public function setInterface($name)
+    {
+        $this->ui = $this->interface = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInterface()
+    {
+        return $this->interface;
     }
 
     /**

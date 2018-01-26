@@ -69,6 +69,24 @@ function table_exists(Connection $db, $table)
 }
 
 /**
+ * Checks whether a given column exists in a table
+ *
+ * @param Connection $db
+ * @param $table
+ * @param $column
+ *
+ * @return bool
+ */
+function column_exists(Connection $db, $table, $column)
+{
+    $query = 'SHOW COLUMNS IN `%s` LIKE "%s";';
+
+    $result = $db->execute(sprintf($query, $table, $column));
+
+    return $result->count() === 1;
+}
+
+/**
  * @param Connection $db
  * @param $table
  * @param array $conditions
