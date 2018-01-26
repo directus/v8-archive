@@ -40,11 +40,12 @@ class BookmarksTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         static::$db = create_db_connection();
-        static::$db->execute('TRUNCATE `directus_bookmarks`;');
+        truncate_table(static::$db, 'directus_bookmarks');
     }
 
     public static function tearDownAfterClass()
     {
+        truncate_table(static::$db, 'directus_bookmarks');
         static::$db = null;
     }
 

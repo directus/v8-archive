@@ -219,9 +219,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
 
     protected function truncateTable()
     {
-        if ($this->db) {
-            $this->db->execute('TRUNCATE directus_activity;');
-        }
+        truncate_table($this->db, 'directus_activity');
     }
 
     protected function createSampleTables()
