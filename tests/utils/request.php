@@ -13,6 +13,12 @@ function request($method, $path, array $options = [])
         'base_uri' => 'http://localhost/api/'
     ]);
 
+    // if json is set to true, it means we want the body to be a JSON
+    if (isset($options['form_params']) && isset($options['json']) && $options['json'] === true) {
+        $options['json'] = $options['form_params'];
+        unset($options['form_params']);
+    }
+
     $response = $http->request($method, $path, $options);
 
     return $response;

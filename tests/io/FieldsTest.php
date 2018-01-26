@@ -143,12 +143,15 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             'options' => json_encode($options)
         ]);
 
-        // Has columns records
-        $result = table_find(static::$db, 'directus_columns', [
-            'table_name' => static::$tableName
+        $data = [
+            'options' => $options
+        ];
+
+        $response = request_patch('fields/' . static::$tableName . '/name', $data, ['json' => true, 'query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, [
+            'options' => json_encode($options)
         ]);
-        $this->assertTrue(count($result) === 2);
-        $this->assertTrue(column_exists(static::$db, static::$tableName, 'name'));
     }
 
     public function testGetOptions()
