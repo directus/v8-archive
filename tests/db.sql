@@ -391,7 +391,7 @@ CREATE TABLE `directus_settings` (
   `key` varchar(64) DEFAULT NULL,
   `value` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `Unique Collection and Name` (`collection`,`name`)
+  UNIQUE KEY `Unique Collection and Name` (`scope`,`key`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `directus_settings` WRITE;
