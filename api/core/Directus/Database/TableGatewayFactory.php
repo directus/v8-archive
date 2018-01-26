@@ -51,22 +51,23 @@ class TableGatewayFactory
         $tableGatewayClassName = $namespace . $tableGatewayClassName;
 
         $acl = ArrayUtils::get($options, 'acl');
-        $adapter = ArrayUtils::get($options, 'adapter');
+        $dbConnection = ArrayUtils::get($options, 'connection');
 
         if (static::$container) {
             if ($acl === null) {
                 $acl = static::$container->get('acl');
             }
 
-            if ($adapter === null) {
-                $adapter = static::$container->get('zendDb');
+            if ($dbConnection === null) {
+                // TODO: Replace "database" for "connection"
+                $dbConnection = static::$container->get('database');
             }
         }
 
         if (class_exists($tableGatewayClassName)) {
-            $instance = new $tableGatewayClassName($adapter, $acl);
+            $instance = new $tableGatewayClassName($dbConnection, $acl);
         } else {
-            $instance = new RelationalTableGateway($tableName, $adapter, $acl);
+            $instance = new RelationalTableGateway($tableName, $dbConnection, $acl);
         }
 
         return $instance;
