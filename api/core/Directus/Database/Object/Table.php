@@ -96,22 +96,22 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
     /**
      * @var string
      */
-    protected $userCreateColumn = '';
+    protected $userCreateColumn;
 
     /**
      * @var string
      */
-    protected $userUpdateColumn = '';
+    protected $userUpdateColumn;
 
     /**
      * @var string
      */
-    protected $dateCreateColumn = '';
+    protected $dateCreateColumn;
 
     /**
      * @var string
      */
-    protected $dateUpdateColumn = '';
+    protected $dateUpdateColumn;
 
     /**
      * Table creation date time
@@ -297,18 +297,18 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
             // to always set the primary column to the first primary key column
             if (!$this->getPrimaryColumn() && $column->isPrimary()) {
                 $this->setPrimaryColumn($column->getName());
-            } else if (!$this->getSortColumn() && $column->getUI() === SchemaManager::INTERFACE_SORT) {
+            } else if (!$this->getSortColumn() && $column->getInterface() === SchemaManager::INTERFACE_SORT) {
                 $this->setSortColumn($column->getName());
-            } else if (!$this->getStatusColumn() && $column->getUI() === SchemaManager::INTERFACE_STATUS) {
+            } else if (!$this->getStatusColumn() && $column->getInterface() === SchemaManager::INTERFACE_STATUS) {
                 $this->setStatusColumn($column->getName());
                 $this->setStatusMapping($column->getOptions('status_mapping'));
-            } else if (!$this->getDateCreateColumn() && $column->getUI() === SchemaManager::INTERFACE_DATE_CREATED) {
+            } else if (!$this->getDateCreateColumn() && $column->getInterface() === SchemaManager::INTERFACE_DATE_CREATED) {
                 $this->setDateCreateColumn($column->getName());
-            } else if (!$this->getUserCreateColumn() && $column->getUI() === SchemaManager::INTERFACE_USER_CREATED) {
+            } else if (!$this->getUserCreateColumn() && $column->getInterface() === SchemaManager::INTERFACE_USER_CREATED) {
                 $this->setUserCreateColumn($column->getName());
-            } else if (!$this->getDateUpdateColumn() && $column->getUI() === SchemaManager::INTERFACE_DATE_MODIFIED) {
+            } else if (!$this->getDateUpdateColumn() && $column->getInterface() === SchemaManager::INTERFACE_DATE_MODIFIED) {
                 $this->setDateUpdateColumn($column->getName());
-            } else if (!$this->getUserUpdateColumn() && $column->getUI() === SchemaManager::INTERFACE_USER_MODIFIED) {
+            } else if (!$this->getUserUpdateColumn() && $column->getInterface() === SchemaManager::INTERFACE_USER_MODIFIED) {
                 $this->setUserUpdateColumn($column->getName());
             }
 
@@ -797,7 +797,7 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
     /**
      * Get the field storing the record's user owner
      *
-     * @return string
+     * @return string|null
      */
     public function getUserCreateColumn()
     {
@@ -867,7 +867,7 @@ class Table implements \ArrayAccess, Arrayable, \JsonSerializable
     /**
      * Get the field storing the record updated time
      *
-     * @return string
+     * @return string|null
      */
     public function getDateUpdateColumn()
     {

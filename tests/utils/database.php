@@ -115,6 +115,27 @@ function delete_item(Connection $db, $table, array $conditions)
     return $gateway->delete($conditions);
 }
 
+function table_insert(Connection $db, $table, array $data)
+{
+    $query = 'INSERT INTO `%s` (%s) VALUES (%s)';
+
+    $columns = array_map(function ($column) {
+        return sprintf('`%s`', $column);
+    }, array_keys($data));
+
+    $values = array_map(function ($value) {
+        if (is_string($value)) {
+            $value = sprintf('"%s"', $value);
+        } else if (is_null($value)) {
+            $value = 'NULL';
+        }
+
+        return $value;
+    }, $data);
+
+    $db->execute(sprintf($query, $table, implode(', ', $columns), implode(', ', $values)));
+}
+
 /**
  * @param Connection $db
  * @param string $table
@@ -137,10 +158,18 @@ function reset_autoincrement(Connection $db, $table, $value = 1)
     $db->execute(sprintf($query, $table, $value));
 }
 
-function reset_table_id($table, $nextId)
+/**
+ * Resets a table to a given id
+ *
+ * Removes every item after the $nextId
+ *
+ * @param Connection $db
+ * @param $table
+ * @param $nextId
+ */
+function reset_table_id(Connection $db, $table, $nextId)
 {
     $deleteQueryFormat = 'DELETE FROM `%s` WHERE `id` >= %d;';
-    $db = create_db_connection();
     $db->execute(sprintf(
         $deleteQueryFormat,
         $table,

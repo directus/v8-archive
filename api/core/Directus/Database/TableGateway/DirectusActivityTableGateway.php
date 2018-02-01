@@ -119,16 +119,16 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         return $this->loadMetadata($this->parseRecord($result));
     }
 
-    public function recordLogin($userid)
+    public function recordLogin($userId)
     {
         $logData = [
             'type' => self::TYPE_LOGIN,
-            'table_name' => 'directus_users',
+            'collection' => 'directus_users',
             'action' => self::ACTION_LOGIN,
-            'user' => $userid,
+            'user' => $userId,
+            'item' => $userId,
             'datetime' => DateUtils::now(),
-            'parent_id' => null,
-            'logged_ip' => get_request_ip(),
+            'ip' => get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
         ];
 

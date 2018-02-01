@@ -12,9 +12,9 @@ use Zend\Db\Sql\Predicate\NotIn;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Update;
 
-class DirectusPreferencesTableGateway extends RelationalTableGateway
+class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
 {
-    public static $_tableName = 'directus_preferences';
+    public static $_tableName = 'directus_collection_presets';
 
     public $primaryKeyFieldName = 'id';
 
@@ -24,12 +24,11 @@ class DirectusPreferencesTableGateway extends RelationalTableGateway
      * @var array
      */
     public static $IGNORED_TABLES = [
-        'columns',
-        'preferences',
-        'privileges',
+        'fields',
+        'collection_presets',
+        'permissions',
         'settings',
-        'tables',
-        'ui'
+        'collections'
     ];
 
     public function __construct(AdapterInterface $adapter, Acl $acl = null)
@@ -321,7 +320,7 @@ class DirectusPreferencesTableGateway extends RelationalTableGateway
         //Get Default Preferences
         foreach ($tables as $key => $table) {
             // Honor ACL. Skip the tables that the user doesn't have access too
-            if (!TableSchema::canGroupViewTable($table)) {
+            if (!TableSchema::canGroupReadCollection($table)) {
                 continue;
             }
 

@@ -21,6 +21,12 @@ class SchemaManager
     const INTERFACE_USER_CREATED = 'user_created';
     const INTERFACE_USER_MODIFIED = 'user_modified';
 
+    // Tables
+    const TABLE_PERMISSIONS = 'directus_permissions';
+    const TABLE_COLLECTIONS = 'directus_collections';
+    const TABLE_FIELDS = 'directus_fields';
+    const TABLE_COLLECTION_PRESETS = 'directus_collection_presets';
+
     /**
      * Schema source instance
      *
@@ -49,17 +55,18 @@ class SchemaManager
      */
     protected $directusTables = [
         'activity',
-        'bookmarks',
-        'columns',
+        'activity_read',
+        'collections',
+        'collection_presets',
+        'fields',
         'files',
+        'folders',
         'groups',
-        'messages',
-        'messages_recipients',
-        'preferences',
-        'privileges',
-        'schema_migrations',
+        'migrations',
+        'permissions',
+        'relations',
+        'revisions',
         'settings',
-        'tables',
         'users'
     ];
 
@@ -166,22 +173,20 @@ class SchemaManager
     /**
      * Add the system table prefix to to a table name.
      *
-     * @param string $tables
+     * @param string|array $tables
      *
      * @return string|array
      */
     public function addSystemTablePrefix($tables)
     {
-        $filterFunction = function ($table) {
-            // @TODO: Directus tables prefix will be dynamic
-            return $this->prefix . $table;
-        };
-
         if (!is_array($tables)) {
-            return $filterFunction($tables);
+            $tables = [$tables];
         }
 
-        return array_map($filterFunction, $tables);
+        return array_map(function ($table) {
+            // TODO: Directus tables prefix _probably_ will be dynamic
+            return $this->prefix . $table;
+        }, $tables);
     }
 
     /**

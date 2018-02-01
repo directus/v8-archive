@@ -19,16 +19,27 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         $this->db = create_db_connection();
 
         $this->truncateTable();
+        $this->dropSampleTables();
         $this->createSampleTables();
 
         $startDay = date('d') - 15;
         for ($i = 0; $i < 15; $i++) {
-            $datetime = sprintf('2017-12-26 15:52:37', $startDay);
-            $query = "INSERT INTO `directus_activity` (`id`, `type`, `action`, `identifier`, `table_name`, `row_id`, `user`, `data`, `delta`, `parent_id`, `parent_table`, `parent_changed`, `datetime`, `logged_ip`, `user_agent`)";
-            $query.= "VALUES (DEFAULT, 'LOGIN', 'LOGIN', NULL, 'directus_users', 0, 1, NULL, NULL, NULL, NULL, 0, '" . $datetime . "', '::1', 'GuzzleHttp/6.2.1 curl/7.52.1 PHP/5.5.38');";
+            $datetime = sprintf('2017-12-%d 15:52:37', $startDay);
+            table_insert($this->db, 'directus_activity', [
+                'id' => null,
+                'type' => 'LOGIN',
+                'action' => 'LOGIN',
+                'user' => 1,
+                'datetime' => $datetime,
+                'ip' => '::1',
+                'user_agent' => 'GuzzleHttp/6.2.1 curl/7.52.1 PHP/5.5.38',
+                'collection' => 'directus_users',
+                'item' => 1,
+                'message' => null
+
+            ]);
 
             $startDay++;
-            $this->db->execute($query);
         }
     }
 
@@ -44,18 +55,13 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
             'id',
             'type',
             'action',
-            'identifier',
-            'table_name',
-            'row_id',
             'user',
-            'data',
-            'delta',
-            'parent_id',
-            'parent_table',
-            'parent_changed',
             'datetime',
-            'logged_ip',
-            'user_agent'
+            'ip',
+            'user_agent',
+            'collection',
+            'item',
+            'message'
         ];
 
         $path = 'activity';
@@ -239,11 +245,6 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
 
     protected function dropSampleTables()
     {
-        if (!$this->db) {
-            return;
-        }
-
-        $query = 'DROP TABLE `test`;';
-        $this->db->execute($query);
+        drop_table($this->db, 'test');
     }
 }

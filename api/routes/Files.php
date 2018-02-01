@@ -24,11 +24,6 @@ class Files extends Route
         $app->patch('/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
-        // $app->map(['GET', 'PATCH', 'POST', 'PUT', 'DELETE'], '[/{id}]', [$this, 'all']);
-
-        // TODO: This is breaking the above path format, upload should be perform
-        // $app->post('/upload', [$this, 'upload']);
-        // $app->post('/upload/link', [$this, 'uploadLink']);
     }
 
     /**
@@ -46,8 +41,8 @@ class Files extends Route
         $params = $request->getParams();
         $filesTableGateway = new RelationalTableGateway($table, $dbConnection, $acl);
 
-        $payload['user'] = $acl->getUserId();
-        $payload['date_uploaded'] = DateUtils::now();
+        $payload['upload_user'] = $acl->getUserId();
+        $payload['upload_date'] = DateUtils::now();
 
         $validationConstraints = $this->createConstraintFor($table);
         $this->validate($payload, array_merge(['data' => 'required'], $validationConstraints));
@@ -66,10 +61,10 @@ class Files extends Route
         if (strpos($type, 'embed/') === 0) {
             $recordData = $Files->saveEmbedData($dataInfo);
         } else {
-            $recordData = $Files->saveData($payload['data'], $payload['name']);
+            $recordData = $Files->saveData($payload['data'], $payload['filename']);
         }
 
-        $payload = array_merge($recordData, ArrayUtils::omit($payload, ['data', 'name']));
+        $payload = array_merge($recordData, ArrayUtils::omit($payload, ['data', 'filename']));
         $newFile = $filesTableGateway->updateRecord($payload, $this->getActivityMode());
 
         $responseData = $filesTableGateway->wrapData(

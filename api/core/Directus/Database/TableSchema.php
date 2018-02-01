@@ -8,7 +8,7 @@ use Directus\Config\Config;
 use Directus\Database\Exception\ColumnNotFoundException;
 use Directus\Database\Object\Column;
 use Directus\Database\Object\Table;
-use Directus\Database\TableGateway\DirectusPreferencesTableGateway;
+use Directus\Database\TableGateway\DirectusCollectionPresetsTableGateway;
 use Directus\Exception\Http\ForbiddenException;
 use Directus\MemcacheProvider;
 use Directus\Util\ArrayUtils;
@@ -180,8 +180,8 @@ class TableSchema
      */
     public static function getTableSchema($tableName, array $params = [], $skipCache = false, $skipAcl = false)
     {
-        if (!$skipAcl && !static::getAclInstance()->canView($tableName)) {
-            throw new ForbiddenException('Permission denied');
+        if (!$skipAcl && !static::getAclInstance()->canRead($tableName)) {
+            throw new ForbiddenException(sprintf('Cannot access collection: %s', $tableName));
         }
 
         return static::getSchemaManagerInstance()->getTableSchema($tableName, $params, $skipCache);
@@ -538,7 +538,7 @@ class TableSchema
 
     public static function getTableColumns($table, $limit = null, $skipIgnore = false)
     {
-        if (!self::canGroupViewTable($table)) {
+        if (!self::canGroupReadCollection($table)) {
             return [];
         }
 
@@ -663,7 +663,7 @@ class TableSchema
                 continue;
             }
 
-            if (self::canGroupViewTable($tableName)) {
+            if (self::canGroupReadCollection($tableName)) {
                 $tables[] = ['name' => $tableName];
             }
         }
@@ -678,7 +678,7 @@ class TableSchema
     {
         $acl = Bootstrap::get('acl');
         $zendDb = Bootstrap::get('ZendDb');
-        $Preferences = new DirectusPreferencesTableGateway($zendDb, $acl);
+        $Preferences = new DirectusCollectionPresetsTableGateway($zendDb, $acl);
         $getTablesFn = function () use ($Preferences, $zendDb) {
             $return = [];
             $schemaName = $zendDb->getCurrentSchema();
@@ -700,7 +700,7 @@ class TableSchema
             $currentUser = Auth::getUserInfo();
 
             foreach ($result as $row) {
-                if (!self::canGroupViewTable($row['id'])) {
+                if (!self::canGroupReadCollection($row['id'])) {
                     continue;
                 }
 
@@ -727,7 +727,7 @@ class TableSchema
      *
      * @return bool
      */
-    public static function canGroupViewTable($tableName)
+    public static function canGroupReadCollection($tableName)
     {
         $acl = static::getAclInstance();
 
@@ -735,7 +735,7 @@ class TableSchema
             return true;
         }
 
-        return $acl->canView($tableName);
+        return $acl->canRead($tableName);
     }
 
     /**
@@ -766,7 +766,7 @@ class TableSchema
         // or and empty array instead of false
         // in any given situation that the table
         // can be find or used.
-        if (!self::canGroupViewTable($tableName)) {
+        if (!self::canGroupReadCollection($tableName)) {
             return false;
         }
 
@@ -817,7 +817,7 @@ class TableSchema
         }
 
         if (in_array('preferences', get_columns_flat_at($fields, 0))) {
-            $directusPreferencesTableGateway = new DirectusPreferencesTableGateway($zendDb, $acl);
+            $directusPreferencesTableGateway = new DirectusCollectionPresetsTableGateway($zendDb, $acl);
             $currentUserId = static::getAclInstance()->getUserId();
             $preferencesColumns = ArrayUtils::get($unflatFields, 'preferences');
             $info['preferences'] = [
@@ -867,7 +867,7 @@ class TableSchema
         $acl = Bootstrap::get('acl');
         $ZendDb = Bootstrap::get('ZendDb');
         $auth = Bootstrap::get('auth');
-        $directusPreferencesTableGateway = new DirectusPreferencesTableGateway($ZendDb, $acl);
+        $directusPreferencesTableGateway = new DirectusCollectionPresetsTableGateway($ZendDb, $acl);
 
         $getPreferencesFn = function () use ($directusPreferencesTableGateway, $auth) {
             $currentUser = $auth->getUserInfo();
@@ -943,7 +943,7 @@ class TableSchema
                 continue;
             }
             // Only include tables w ACL privileges
-            if ($skipAcl === false && !self::canGroupViewTable($tableName)) {
+            if ($skipAcl === false && !self::canGroupReadCollection($tableName)) {
                 continue;
             }
 
@@ -971,7 +971,7 @@ class TableSchema
             }
 
             // Only include tables w ACL privileges
-            if (! static::canGroupViewTable($tableName)) {
+            if (! static::canGroupReadCollection($tableName)) {
                 continue;
             }
 

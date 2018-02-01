@@ -160,9 +160,6 @@ class InstallerUtils
 
         $hash = password_hash($data['directus_password'], PASSWORD_DEFAULT, ['cost' => 12]);
 
-        $data['user_salt'] = StringUtils::randomString();
-        $data['avatar'] = get_gravatar($data['directus_email']);
-
         if (!isset($data['directus_token'])) {
             $data['directus_token'] = StringUtils::randomString(32);
         }
@@ -173,11 +170,9 @@ class InstallerUtils
             'last_name' => 'User',
             'email' => $data['directus_email'],
             'password' => $hash,
-            'salt' => $data['user_salt'],
-            'avatar' => $data['avatar'],
             'group' => 1,
             'token' => $data['directus_token'],
-            'language' => ArrayUtils::get($data, 'app.default_language', 'en')
+            'locale' => ArrayUtils::get($data, 'app.default_locale', 'en-US')
         ]);
 
         return $data;
@@ -292,53 +287,53 @@ class InstallerUtils
     {
         return [
             [
-                'collection' => 'global',
-                'name' => 'cms_user_auto_sign_out',
+                'scope' => 'global',
+                'key' => 'cms_user_auto_sign_out',
                 'value' => '60'
             ],
             [
-                'collection' => 'global',
-                'name' => 'project_name',
+                'scope' => 'global',
+                'key' => 'project_name',
                 'value' => $data['directus_name']
             ],
             [
-                'collection' => 'global',
-                'name' => 'project_url',
+                'scope' => 'global',
+                'key' => 'project_url',
                 'value' => get_url()
             ],
             [
-                'collection' => 'global',
-                'name' => 'rows_per_page',
+                'scope' => 'global',
+                'key' => 'rows_per_page',
                 'value' => '200'
             ],
             [
-                'collection' => 'files',
-                'name' => 'thumbnail_quality',
+                'scope' => 'files',
+                'key' => 'thumbnail_quality',
                 'value' => '100'
             ],
             [
-                'collection' => 'files',
-                'name' => 'thumbnail_size',
+                'scope' => 'files',
+                'key' => 'thumbnail_size',
                 'value' => '200'
             ],
             [
-                'collection' => 'global',
-                'name' => 'cms_thumbnail_url',
+                'scope' => 'global',
+                'key' => 'cms_thumbnail_url',
                 'value' => ''
             ],
             [
-                'collection' => 'files',
-                'name' => 'file_naming',
+                'scope' => 'files',
+                'key' => 'file_naming',
                 'value' => 'file_id'
             ],
             [
-                'collection' => 'files',
-                'name' => 'thumbnail_crop_enabled',
+                'scope' => 'files',
+                'key' => 'thumbnail_crop_enabled',
                 'value' => '1'
             ],
             [
-                'collection' => 'files',
-                'name' => 'youtube_api_key',
+                'scope' => 'files',
+                'key' => 'youtube_api_key',
                 'value' => ''
             ]
         ];

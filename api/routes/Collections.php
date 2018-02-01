@@ -7,7 +7,7 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\DirectusTablesTableGateway;
+use Directus\Database\TableGateway\DirectusCollectionsTableGateway;
 use Directus\Exception\UnauthorizedException;
 use Directus\Permissions\Acl;
 use Directus\Services\TablesService;
@@ -47,14 +47,14 @@ class Collections extends Route
         $schemaManager = $this->container->get('schema_manager');
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
-        $tableName = 'directus_tables';
+        $tableName = 'directus_collections';
         $tableObject = $schemaManager->getTableSchema($tableName);
         $constraints = $this->createConstraintFor($tableName, $tableObject->getColumnsName());
-        $this->validate($payload, array_merge(['columns' => 'array'], $constraints));
+        $this->validate($payload, array_merge(['fields' => 'array'], $constraints));
 
         $tableService = new TablesService($this->container);
-        $name = ArrayUtils::get($payload, 'table_name');
-        $data = ArrayUtils::omit($payload, 'table_name');
+        $name = ArrayUtils::get($payload, 'collection');
+        $data = ArrayUtils::omit($payload, 'collection');
         $table = $tableService->createTable($name, $data);
 
         $collectionTableGateway = $tableService->createTableGateway($tableName);
@@ -77,7 +77,7 @@ class Collections extends Route
 
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
-        $tableGateway = new DirectusTablesTableGateway($dbConnection, $acl);
+        $tableGateway = new DirectusCollectionsTableGateway($dbConnection, $acl);
         $responseData = $tableGateway->getItems($params);
 
         return $this->responseWithData($request, $response, $responseData);
@@ -92,7 +92,7 @@ class Collections extends Route
     public function one(Request $request, Response $response)
     {
         $name = $request->getAttribute('name');
-        $this->validate(['name' => $name], ['name' => 'required|string']);
+        $this->validate(['collection' => $name], ['collection' => 'required|string']);
         $responseData = $this->getInfo($name, $request->getQueryParams());
 
         return $this->responseWithData($request, $response, $responseData);
@@ -122,25 +122,25 @@ class Collections extends Route
 
         // Validates the table name
         $collectionName = $request->getAttribute('name');
-        $this->validate(['name' => $collectionName], ['name' => 'required|string']);
+        $this->validate(['collection' => $collectionName], ['collection' => 'required|string']);
 
         // Validates payload data
-        $tableName = 'directus_tables';
+        $tableName = 'directus_collections';
         $tableObject = $schemaManager->getTableSchema($tableName);
         $constraints = $this->createConstraintFor($tableName, $tableObject->getColumnsName());
-        $payload['table_name'] = $collectionName;
-        $this->validate($payload, array_merge(['columns' => 'array'], $constraints));
+        $payload['collection'] = $collectionName;
+        $this->validate($payload, array_merge(['fields' => 'array'], $constraints));
 
         $dbConnection = $this->container->get('database');
-        $tableGateway = new DirectusTablesTableGateway($dbConnection, $acl);
+        $tableGateway = new DirectusCollectionsTableGateway($dbConnection, $acl);
 
         // TODO: Create a check if exists method (quicker) + not found exception
         $tableGateway->loadItems(['id' => $collectionName]);
 
         // Update Schema
         $tableService = new TablesService($this->container);
-        $name = ArrayUtils::get($payload, 'table_name');
-        $data = ArrayUtils::omit($payload, 'table_name');
+        $name = ArrayUtils::get($payload, 'collection');
+        $data = ArrayUtils::omit($payload, 'collection');
         $collection = $tableService->updateTable($name, $data);
         $responseData = $tableGateway->wrapData(
             $collection->toArray(),
@@ -187,7 +187,7 @@ class Collections extends Route
         //
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
-        $tableGateway = new DirectusTablesTableGateway($dbConnection, $acl);
+        $tableGateway = new DirectusCollectionsTableGateway($dbConnection, $acl);
         //
         // return $tableGateway->wrapData($result, true, ArrayUtils::get($params, 'meta', 0));
 

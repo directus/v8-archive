@@ -403,7 +403,7 @@ class BaseTableGateway extends TableGateway
 
             if ($tableName == 'directus_files' && static::$container) {
                 $Files = static::$container->get('files');
-                $ext = $thumbnailExt = pathinfo($recordData['name'], PATHINFO_EXTENSION);
+                $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
 
                 // hotfix: pdf thumbnails are being saved to its original extension
                 // file.pdf results into a thumbs/thumb.pdf instead of thumbs/thumb.jpeg
@@ -411,16 +411,16 @@ class BaseTableGateway extends TableGateway
                     $thumbnailExt = Thumbnail::defaultFormat();
                 }
 
-                $thumbnailPath = 'thumbs/THUMB_' . $recordData['name'];
+                $thumbnailPath = 'thumbs/THUMB_' . $recordData['filename'];
                 if ($Files->exists($thumbnailPath)) {
                     $Files->rename($thumbnailPath, 'thumbs/' . $recordData[$this->primaryKeyFieldName] . '.' . $thumbnailExt);
                 }
 
                 $updateArray = [];
                 if ($Files->getSettings('file_naming') == 'file_id') {
-                    $Files->rename($recordData['name'], str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext);
-                    $updateArray['name'] = str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
-                    $recordData['name'] = $updateArray['name'];
+                    $Files->rename($recordData['filename'], str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext);
+                    $updateArray['filename'] = str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
+                    $recordData['filename'] = $updateArray['filename'];
                 }
 
                 if (!empty($updateArray)) {
@@ -491,27 +491,27 @@ class BaseTableGateway extends TableGateway
         }
 
         // Remove table privileges
-        if ($tableName != 'directus_privileges') {
-            $privilegesTableGateway = new TableGateway('directus_privileges', $this->adapter);
-            $privilegesTableGateway->delete(['table_name' => $tableName]);
+        if ($tableName != SchemaManager::TABLE_PERMISSIONS) {
+            $privilegesTableGateway = new TableGateway(SchemaManager::TABLE_PERMISSIONS, $this->adapter);
+            $privilegesTableGateway->delete(['collection' => $tableName]);
         }
 
         // Remove columns from directus_columns
-        $columnsTableGateway = new TableGateway('directus_columns', $this->adapter);
+        $columnsTableGateway = new TableGateway(SchemaManager::TABLE_FIELDS, $this->adapter);
         $columnsTableGateway->delete([
-            'table_name' => $tableName
+            'collection' => $tableName
         ]);
 
         // Remove table from directus_tables
-        $tablesTableGateway = new TableGateway('directus_tables', $this->adapter);
+        $tablesTableGateway = new TableGateway(SchemaManager::TABLE_COLLECTIONS, $this->adapter);
         $tablesTableGateway->delete([
-            'table_name' => $tableName
+            'collection' => $tableName
         ]);
 
-        // Remove table from directus_preferences
-        $preferencesTableGateway = new TableGateway('directus_preferences', $this->adapter);
+        // Remove table from directus_collection_presets
+        $preferencesTableGateway = new TableGateway(SchemaManager::TABLE_COLLECTION_PRESETS, $this->adapter);
         $preferencesTableGateway->delete([
-            'table_name' => $tableName
+            'collection' => $tableName
         ]);
 
         return true;
@@ -544,14 +544,14 @@ class BaseTableGateway extends TableGateway
         }
 
         // Remove column from directus_columns
-        $columnsTableGateway = new TableGateway('directus_columns', $this->adapter);
+        $columnsTableGateway = new TableGateway(SchemaManager::TABLE_FIELDS, $this->adapter);
         $columnsTableGateway->delete([
             'table_name' => $tableName,
             'column_name' => $columnName
         ]);
 
         // Remove column from sorting column in directus_preferences
-        $preferencesTableGateway = new TableGateway('directus_preferences', $this->adapter);
+        $preferencesTableGateway = new TableGateway(SchemaManager::TABLE_COLLECTION_PRESETS, $this->adapter);
         $preferencesTableGateway->update([
             'sort' => $this->primaryKeyFieldName,
             'sort_order' => 'ASC'
@@ -753,7 +753,7 @@ class BaseTableGateway extends TableGateway
             $insertTableGateway = $this->makeTable($insertTable);
 
             // hotfix: directus_tables does not have auto generated value primary key
-            if ($this->getTable() === 'directus_tables') {
+            if ($this->getTable() === SchemaManager::TABLE_COLLECTIONS) {
                 $generatedValue = ArrayUtils::get($insertDataAssoc, $this->primaryKeyFieldName, 'table_name');
             } else {
                 $generatedValue = $this->getLastInsertValue();
@@ -829,9 +829,9 @@ class BaseTableGateway extends TableGateway
             }
 
             // TODO: This needs to be logged instead
-            // if ('production' !== DIRECTUS_ENV) {
-                // throw new \RuntimeException('This query failed: ' . $this->dumpSql($update), 0, $e);
-            // }
+            if ('production' !== DIRECTUS_ENV) {
+                throw new \RuntimeException('This query failed: ' . $this->dumpSql($update), 0, $e);
+            }
 
             // @todo send developer warning
             throw $e;
@@ -1062,7 +1062,7 @@ class BaseTableGateway extends TableGateway
                 throw $e;
             }
 
-            $selectState['columns'] = TableSchema::getAllNonAliasTableColumns($table);
+            $selectState['columns'] = TableSchema::getAllNonAliasTableColumnsName($table);
             $this->acl->enforceBlacklist($table, $selectState['columns'], Acl::FIELD_READ_BLACKLIST);
         }
 
@@ -1085,7 +1085,7 @@ class BaseTableGateway extends TableGateway
         $insertState = $insert->getRawState();
         $insertTable = $this->getRawTableNameFromQueryStateTable($insertState['table']);
 
-        $this->acl->enforceAdd($insertTable);
+        $this->acl->enforceCreate($insertTable);
 
         // Enforce write field blacklist
         $this->acl->enforceBlacklist($insertTable, $insertState['columns'], Acl::FIELD_WRITE_BLACKLIST);
@@ -1109,7 +1109,7 @@ class BaseTableGateway extends TableGateway
         // check if it's NOT soft delete
         $updateFields = $updateState['set'];
 
-        $permissionName = 'edit';
+        $permissionName = ACL::ACTION_UPDATE;
         $hasStatusColumn = array_key_exists($statusColumnName, $updateFields) ? true : false;
 
         // Get status delete value
@@ -1129,10 +1129,10 @@ class BaseTableGateway extends TableGateway
             /**
              * Enforce Privilege: "Big" Edit
              */
-            if (false === $cmsOwnerColumn) {
+            if (!$cmsOwnerColumn) {
                 // All edits are "big" edits if there is no magic owner column.
                 $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-                throw new UnauthorizedTableBigEditException($aclErrorPrefix . 'The table `' . $updateTable . '` is missing the `user_create_column` within `directus_tables` (BigEdit Permission Forbidden)');
+                throw new UnauthorizedTableBigEditException($aclErrorPrefix . 'The table `' . $updateTable . '` is missing the `user_create_column` within `directus_collections` (BigEdit Permission Forbidden)');
             } else {
                 // Who are the owners of these rows?
                 list($resultQty, $ownerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $updateState['where']);
@@ -1204,7 +1204,7 @@ class BaseTableGateway extends TableGateway
         // All deletes are "big" deletes if there is no magic owner column.
         // =============================================================================
         if (false === $cmsOwnerColumn && !$canBigDelete) {
-            throw new UnauthorizedTableBigDeleteException($aclErrorPrefix . 'The table `' . $deleteTable . '` is missing the `user_create_column` within `directus_tables` (BigHardDelete Permission Forbidden)');
+            throw new UnauthorizedTableBigDeleteException($aclErrorPrefix . 'The table `' . $deleteTable . '` is missing the `user_create_column` within `directus_collections` (BigHardDelete Permission Forbidden)');
         } else if (!$canBigDelete) {
             // Who are the owners of these rows?
             list($predicateResultQty, $predicateOwnerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $deleteState['where']);

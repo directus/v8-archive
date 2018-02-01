@@ -12,7 +12,7 @@ class GroupsTest extends \PHPUnit_Framework_TestCase
 
     public static function resetDatabase()
     {
-        reset_table_id('directus_groups', 4);
+        reset_table_id(create_db_connection(), 'directus_groups', 4);
     }
 
     public static function setUpBeforeClass()

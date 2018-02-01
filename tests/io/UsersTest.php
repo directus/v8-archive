@@ -8,9 +8,10 @@ class UsersTest extends \PHPUnit_Framework_TestCase
 {
     public static function resetDatabase()
     {
-        reset_table_id('directus_users', 3);
+        $db = create_db_connection();
+        reset_table_id($db, 'directus_users', 3);
         // each new user creates a privileges
-        reset_table_id('directus_privileges', 14);
+        reset_table_id($db, 'directus_permissions', 1);
     }
 
     public static function setUpBeforeClass()

@@ -73,8 +73,8 @@ class VimeoProvider extends AbstractProvider
 
         $result = $array[0];
         $info['title'] = $result['title'];
-        $info['caption'] = strip_tags($result['description']);
-        $info['size'] = $result['duration'];
+        $info['description'] = strip_tags($result['description']);
+        $info['duration'] = $result['duration'];
         $info['height'] = $result['height'];
         $info['width'] = $result['width'];
         $info['tags'] = $result['tags'];

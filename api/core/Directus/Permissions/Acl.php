@@ -12,22 +12,25 @@ use Zend\Db\Sql\Select;
 
 class Acl
 {
+    const ACTION_CREATE = 'create';
+    const ACTION_READ   = 'read';
+    const ACTION_UPDATE = 'update';
+    const ACTION_DELETE = 'delete';
+
     const TABLE_PERMISSIONS = 'permissions';
     const FIELD_READ_BLACKLIST = 'read_field_blacklist';
     const FIELD_WRITE_BLACKLIST = 'write_field_blacklist';
     const PERMISSION_FULL = [
-        'allow_view' => 2,
-        'allow_add' => 1,
-        'allow_edit' => 2,
-        'allow_delete' => 2,
-        'allow_alter' => 1
+        'create' => 1,
+        'read' => 2,
+        'update' => 2,
+        'delete' => 2
     ];
     const PERMISSION_NONE = [
-        'allow_view' => 0,
-        'allow_add' => 0,
-        'allow_edit' => 0,
-        'allow_delete' => 0,
-        'allow_alter' => 0
+        'create' => 0,
+        'read' => 0,
+        'update' => 0,
+        'delete' => 0
     ];
 
     /**
@@ -39,8 +42,7 @@ class Acl
 
     public static $cms_owner_columns_by_table = [
         'directus_files' => 'user',
-        'directus_preferences' => 'user',
-        'directus_messages_recipients' => 'recipient',
+        // 'directus_collection_presets' => 'user',
         'directus_users' => 'id'
     ];
 
@@ -49,7 +51,7 @@ class Acl
      * @var array
      */
     public static $base_acl = [
-        self::TABLE_PERMISSIONS => ['add', 'edit', 'delete', 'view'],
+        self::TABLE_PERMISSIONS => ['create', 'read', 'update', 'delete'],
         self::FIELD_READ_BLACKLIST => [],
         self::FIELD_WRITE_BLACKLIST => []
     ];
@@ -199,10 +201,10 @@ class Acl
     public function getFixedGroupPrivileges()
     {
         return [
-            'directus_preferences' => [
-                'allow_add' => 1,
-                'allow_view' => 1,
-                'allow_edit' => 1
+            'directus_collection_presets' => [
+                'create' => 1,
+                'read' => 1,
+                'update' => 1
             ]
         ];
     }
@@ -240,56 +242,63 @@ class Acl
     }
 
     /**
-     * Checks whether the user can add record in the given table
+     * Checks whether the user can add record in the given collection
      *
-     * @param $tableName
+     * @param $collection
      *
      * @return bool
      */
-    public function canAdd($tableName)
+    public function canCreate($collection)
     {
-        return $this->hasTablePrivilege($tableName, 'add');
+        return $this->hasTablePrivilege($collection, 'create');
     }
 
     /**
-     * Checks whether the user can view the given table
+     * Checks whether the user can view the given collection
      *
-     * @param $tableName
+     * @param $collection
      *
      * @return bool
      */
-    public function canView($tableName)
+    public function canRead($collection)
     {
-        return $this->hasTablePrivilege($tableName, 'view');
+        return $this->hasTablePrivilege($collection, 'read');
     }
 
     /**
-     * Checks whether the user can view the given table
+     * Checks whether the user can update the given collection
      *
-     * @param $tableName
+     * @param $collection
      *
      * @return bool
      */
-    public function canEdit($tableName)
+    public function canUpdate($collection)
     {
-        return $this->hasTablePrivilege($tableName, 'edit');
+        return $this->hasTablePrivilege($collection, 'update');
     }
 
     /**
-     * Can the user alter the given table
+     * Checks whether the user can alter the given table
      *
-     * @param $tableName
+     * @param $collection
      *
      * @return bool
      */
-    public function canAlter($tableName)
+    public function canAlter($collection)
     {
-        return $this->hasTablePrivilege($tableName, 'alter');
+        return $this->isAdmin();
     }
 
-    public function enforceAdd($tableName)
+    /**
+     * Throws an exception if the user can create a item in the given collection
+     *
+     * @param $collection
+     *
+     * @throws Exception\UnauthorizedTableAddException
+     */
+    public function enforceCreate($collection)
     {
-        if (!$this->canAdd($tableName)) {
+        if (!$this->canCreate($collection)) {
             $aclErrorPrefix = $this->getErrorMessagePrefix();
             throw new Exception\UnauthorizedTableAddException($aclErrorPrefix . 'Table add access forbidden on table ' . $tableName);
         }
@@ -396,6 +405,10 @@ class Acl
      */
     public function getTablePrivilegeList($table, $list)
     {
+        if ($this->isAdmin()) {
+            return static::PERMISSION_FULL;
+        }
+
         if (!$this->isTableListValue($list)) {
             throw new \InvalidArgumentException(__t('invalid_list_x', ['list' => $list]));
         }
@@ -408,12 +421,7 @@ class Acl
 
         // @TODO: remove permissions.
         if ($list === 'permissions') {
-            $permissionFields = array_merge(self::$base_acl[self::TABLE_PERMISSIONS], [
-                'alter'
-            ]);
-            $permissionFields = array_map(function ($name) {
-                return 'allow_' . $name;
-            }, $permissionFields);
+            $permissionFields = self::$base_acl[self::TABLE_PERMISSIONS];
 
             if ($groupHasTablePrivileges) {
                 $privilegeList = array_intersect_key($this->groupPrivileges[$table], array_flip($permissionFields));
@@ -500,11 +508,11 @@ class Acl
             $permissionName = substr($privilege, 3);
         }
 
-        if (isset($tablePermissions['allow_' . $permissionName])) {
-            return $permissionLevel <= $tablePermissions['allow_' . $permissionName];
+        if (!isset($tablePermissions[$permissionName])) {
+            return false;
         }
 
-        return false;
+        return $permissionLevel <= $tablePermissions[$permissionName];
     }
 
     public function getCmsOwnerColumnByTable($table)

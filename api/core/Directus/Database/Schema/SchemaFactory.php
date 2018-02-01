@@ -60,7 +60,7 @@ class SchemaFactory
         $schemaManager = $this->schemaManager;
         foreach ($columnsData as $column) {
             if ($schemaManager::INTERFACE_PRIMARY_KEY === $column['interface']) {
-                $table->addConstraint(new PrimaryKey($column['name']));
+                $table->addConstraint(new PrimaryKey($column['field']));
                 break;
             }
         }
@@ -113,7 +113,7 @@ class SchemaFactory
     {
         $columns = [];
         foreach ($data as $column) {
-            $columns[] = $this->createColumn(ArrayUtils::get($column, 'name'), $column);
+            $columns[] = $this->createColumn(ArrayUtils::get($column, 'field'), $column);
         }
 
         return $columns;
@@ -247,7 +247,7 @@ class SchemaFactory
     {
         if (!$this->hasPrimaryKey($columns)) {
             array_unshift($columns, [
-                'name' => 'id',
+                'field' => 'id',
                 'type' => 'INTEGER',
                 'interface' => 'primary_key'
             ]);
@@ -285,7 +285,7 @@ class SchemaFactory
     protected function validate(array $columnData)
     {
         $constraints = [
-            'name' => ['required', 'string'],
+            'field' => ['required', 'string'],
             'type' => ['required', 'string'],
             'interface' => ['required', 'string']
         ];

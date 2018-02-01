@@ -85,9 +85,8 @@ class User
     public function changePassword($email, $password)
     {
 
-        $auth = $this->app->getContainer()->get('auth');//Bootstrap::get('auth');
-        $salt = StringUtils::random();
-        $hash = $auth->hashPassword($password, $salt);
+        $auth = $this->app->getContainer()->get('auth');
+        $hash = $auth->hashPassword($password);
         $user = $this->usersTableGateway->select(['email' => $email])->current();
 
         if (!$user) {
@@ -96,9 +95,7 @@ class User
 
         try {
             $update = [
-                'password' => $hash,
-                'salt' => $salt,
-                'access_token' => sha1($user->id . StringUtils::random())
+                'password' => $hash
             ];
 
             $changed = $this->usersTableGateway->update($update, ['email' => $email]);

@@ -3,8 +3,6 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
-use Directus\Bootstrap;
-use Directus\Exception\Exception;
 use Directus\Filesystem\Exception\ForbiddenException;
 use Directus\Util\DateUtils;
 use Directus\Util\Formatting;
@@ -34,7 +32,7 @@ class Files
      * @var array
      */
     private $defaults = [
-        'caption' => '',
+        'description' => '',
         'tags' => '',
         'location' => ''
     ];
@@ -68,13 +66,13 @@ class Files
 
     public function delete($file)
     {
-        if ($this->exists($file['name'])) {
+        if ($this->exists($file['filename'])) {
             $this->emitter->run('files.deleting', [$file]);
-            $this->filesystem->getAdapter()->delete($file['name']);
+            $this->filesystem->getAdapter()->delete($file['filename']);
             $this->emitter->run('files.deleting:after', [$file]);
         }
 
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $ext = pathinfo($file['filename'], PATHINFO_EXTENSION);
         if ($ext) {
             $thumbPath = 'thumbs/' . $file['id'] . '.' . $ext;
             if ($this->exists($thumbPath)) {
@@ -105,7 +103,7 @@ class Files
             'name' => $fileData['name'],
             'title' => $fileData['title'],
             'tags' => $fileData['tags'],
-            'caption' => $fileData['caption'],
+            'description' => $fileData['caption'],
             'location' => $fileData['location'],
             'charset' => $fileData['charset'],
             'size' => $fileData['size'],
@@ -127,8 +125,6 @@ class Files
      */
     public function getLink($url)
     {
-        $info = [];
-
         // @TODO: use oEmbed
         // @TODO: better provider url validation
         // checking for 'youtube.com' for a valid youtube video is wrong
@@ -144,7 +140,7 @@ class Files
         }
 
         if ($info) {
-            $info['date_uploaded'] = DateUtils::now();
+            $info['upload_date'] = DateUtils::now();
             $info['storage_adapter'] = $this->getConfig('adapter');
             $info['charset'] = isset($info['charset']) ? $info['charset'] : '';
         }
@@ -275,26 +271,26 @@ class Files
 
         $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
-        $fileData['name'] = basename($filePath);
-        $fileData['date_uploaded'] = DateUtils::now();
+        $fileData['filename'] = basename($filePath);
+        $fileData['upload_date'] = DateUtils::now();
         $fileData['storage_adapter'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
 
         return [
             'type' => $fileData['type'],
-            'name' => $fileData['name'],
+            'filename' => $fileData['filename'],
             'title' => $fileData['title'],
             'tags' => $fileData['tags'],
-            'caption' => $fileData['caption'],
+            'description' => $fileData['description'],
             'location' => $fileData['location'],
             'charset' => $fileData['charset'],
-            'size' => $fileData['size'],
+            'filesize' => $fileData['size'],
             'width' => $fileData['width'],
             'height' => $fileData['height'],
             //    @TODO: Returns date in ISO 8601 Ex: 2016-06-06T17:18:20Z
             //    see: https://en.wikipedia.org/wiki/ISO_8601
-            'date_uploaded' => $fileData['date_uploaded'],// . ' UTC',
+            'date_upload' => $fileData['upload_date'],// . ' UTC',
             'storage_adapter' => $fileData['storage_adapter']
         ];
     }

@@ -4,7 +4,7 @@
 //----------------------------
 
 if (!defined('RUCKUSING_TS_SCHEMA_TBL_NAME')) {
-    define('RUCKUSING_TS_SCHEMA_TBL_NAME', 'directus_schema_migrations');
+    define('RUCKUSING_TS_SCHEMA_TBL_NAME', 'directus_migrations');
 }
 
 if (!defined('RUCKUSING_WORKING_BASE')) {

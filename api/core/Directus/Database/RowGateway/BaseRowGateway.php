@@ -2,7 +2,7 @@
 
 namespace Directus\Database\RowGateway;
 
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
 use Directus\Permissions\Acl;
@@ -239,7 +239,7 @@ class BaseRowGateway extends RowGateway
         // Enforce Privilege: "Little" Edit (I am the record CMS owner)
         $cmsOwnerId = $this->acl->getRecordCmsOwnerId($this, $this->table);
         $currentUserId = $this->acl->getUserId();
-        $canEdit = $this->acl->hasTablePrivilege($this->table, 'edit');
+        $canEdit = $this->acl->canUpdate($this->table);
         $canBigEdit = $this->acl->hasTablePrivilege($this->table, 'bigedit');
 
         // Enforce Privilege: "Big" Edit (I am not the record CMS owner)

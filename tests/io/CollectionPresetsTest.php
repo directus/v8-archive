@@ -2,28 +2,39 @@
 
 namespace Directus\Tests\Api\Io;
 
-class PreferencesTest extends \PHPUnit_Framework_TestCase
+class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var array
      */
     protected $data = [
-        ['table_name' => 'products', 'visible_fields' => 'id,name'],
-        ['table_name' => 'products', 'user' => 2],
-        ['table_name' => 'orders', 'user' => 1],
-        ['table_name' => 'categories', 'user' => 1],
-        ['table_name' => 'orders', 'user' => 2],
-        ['table_name' => 'customers', 'user' => 1]
+        ['collection' => 'products', 'fields' => 'id,name'],
+        ['collection' => 'products', 'user' => 2],
+        ['collection' => 'orders', 'user' => 1],
+        ['collection' => 'categories', 'user' => 1],
+        ['collection' => 'orders', 'user' => 2],
+        ['collection' => 'customers', 'user' => 1]
     ];
+
+    public static function resetDatabase()
+    {
+        $db = create_db_connection();
+        truncate_table($db, 'directus_collection_presets');
+    }
 
     public static function setUpBeforeClass()
     {
-        truncate_table(create_db_connection(), 'directus_preferences');
+        static::resetDatabase();
+    }
+
+    public static function tearDownAfterClass()
+    {
+        static::resetDatabase();
     }
 
     public function testCreate()
     {
-        $path = 'preferences';
+        $path = 'collection_presets';
 
         $data = $this->data[0];
         $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
@@ -34,11 +45,11 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
 
     public function testUpdate()
     {
-        $path = 'preferences/1';
+        $path = 'collection_presets/1';
 
         $data = [
-            'table_name' => 'products',
-            'visible_fields' => 'name,price'
+            'collection' => 'products',
+            'fields' => 'name,price'
         ];
         $response = request_patch($path, $data, ['query' => ['access_token' => 'token']]);
 
@@ -48,12 +59,12 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
 
     public function testGetOne()
     {
-        $path = 'preferences/1';
+        $path = 'collection_presets/1';
 
         $data = [
             'id' => 1,
-            'table_name' => 'products',
-            'visible_fields' => 'name,price'
+            'collection' => 'products',
+            'fields' => 'name,price'
         ];
 
         $response = request_get($path, ['access_token' => 'token']);
@@ -63,7 +74,7 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
 
     public function testList()
     {
-        $path = 'preferences';
+        $path = 'collection_presets';
 
         $response = request_get($path, ['access_token' => 'token']);
         assert_response($this, $response, [
@@ -74,15 +85,15 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $path = 'preferences/1';
+        $path = 'collection_presets/1';
         $response = request_delete($path, ['query' => ['access_token' => 'token']]);
 
         assert_response_empty($this, $response);
     }
 
-    public function testAllUserPreferences()
+    public function testAllUserCollectionPresets()
     {
-        $path = 'preferences';
+        $path = 'collection_presets';
         $data = $this->data;
 
         foreach ($data as $item) {
@@ -114,14 +125,14 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    public function testAllTablePreferences()
+    public function testAllCollectionPresets()
     {
-        $path = 'preferences';
+        $path = 'collection_presets';
 
         $response = request_get($path, [
             'access_token' => 'token',
             'filter' => [
-                'table_name' => 'products'
+                'collection' => 'products'
             ]
         ]);
 
@@ -133,7 +144,7 @@ class PreferencesTest extends \PHPUnit_Framework_TestCase
         $response = request_get($path, [
             'access_token' => 'token',
             'filter' => [
-                'table_name' => 'customers'
+                'collection' => 'customers'
             ]
         ]);
 

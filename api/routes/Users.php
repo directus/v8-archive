@@ -65,14 +65,9 @@ class Users extends Route
             $payload['status'] = $usersGateway::STATUS_ACTIVE;
         }
 
-        if (!empty($payload['email'])) {
-            $avatar = DirectusUsersTableGateway::get_avatar($payload['email']);
-            $payload['avatar'] = $avatar;
-        }
-
         $user = $usersGateway->updateRecord($payload);
 
-        $responseData = $this->findUsers(['id' => $user['id']]);
+        $responseData = $this->findUsers(['id' => $user['id'], 'status' => false]);
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -86,9 +81,10 @@ class Users extends Route
     public function one(Request $request, Response $response)
     {
         $params = $request->getQueryParams();
-        $params['id'] = $this->getUserId($request->getAttribute('id'));
-
-        $responseData = $this->findUsers($params);
+        $responseData = $this->findUsers(array_merge($params, [
+            'id' => $this->getUserId($request->getAttribute('id')),
+            'status' => false
+        ]));
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -133,7 +129,6 @@ class Users extends Route
         $id = $this->getUserId($request->getAttribute('id'));
         $usersGateway = $this->getTableGateway();
         $payload = $request->getParsedBody();
-        $email = $request->getParsedBodyParam('email');
 
         switch ($request->getMethod()) {
             case 'DELETE':
@@ -152,14 +147,9 @@ class Users extends Route
                 break;
         }
 
-        if (!empty($email)) {
-            $avatar = DirectusUsersTableGateway::get_avatar($email);
-            $payload['avatar'] = $avatar;
-        }
-
         $user = $usersGateway->updateRecord($payload);
 
-        $responseData = $this->findUsers(['id' => $user['id']]);
+        $responseData = $this->findUsers(['id' => $user['id'], 'status' => false]);
 
         return $this->responseWithData($request, $response, $responseData);
     }

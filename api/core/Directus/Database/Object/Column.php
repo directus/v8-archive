@@ -3,7 +3,7 @@
 namespace Directus\Database\Object;
 
 use Directus\Collection\Arrayable;
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Traits\ArrayPropertyAccess;
 use Directus\Util\Traits\ArrayPropertyToArray;
@@ -23,14 +23,7 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
     /**
      * @var string
      */
-    protected $name;
-
-    /**
-     * Fallback to legacy property
-     *
-     * @var string
-     */
-    protected $column_name;
+    protected $field;
 
     /**
      * @var string
@@ -99,7 +92,7 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
     /**
      * @var array
      */
-    protected $options = [];
+    protected $options;
 
     /**
      * @var string
@@ -115,11 +108,6 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
      * @var bool
      */
     protected $system = false;
-
-    /**
-     * @var string
-     */
-    protected $ui;
 
     /**
      * @var string
@@ -164,14 +152,22 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
     public function __construct($data)
     {
         if (!is_array($data)) {
-            $data = ['column_name' => $data];
+            $data = ['field' => $data];
         }
+
+        // NOTE: this are the name that came from the source
+        // TODO: Make this value standard output from the schemas sources
+        ArrayUtils::renameSome($data, [
+            'table_name' => 'collection',
+            'column_name' => 'field'
+        ]);
 
         $this->setData($data);
 
         $this->readableProperty = $this->writableProperty = [
             'id',
-            'name',
+            'collection',
+            'field',
             'type',
             'default_value',
             'nullable',
@@ -179,12 +175,10 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
             'options',
             'extra',
             'required',
-            'ui',
             'interface',
             'hidden_input',
             'relationship',
             'comment',
-            'table_name',
             'system'
         ];
     }
@@ -214,21 +208,21 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
     }
 
     /**
-     * Set the column name
+     * Sets the field name
      *
      * @param $name
      *
      * @return Column
      */
-    public function setName($name)
+    public function setField($name)
     {
-        $this->name = $this->column_name = $name;
+        $this->field = $name;
 
         return $this;
     }
 
     /**
-     * Set the column name
+     * Sets the field name
      *
      * @see Column::setName (alias)
      *
@@ -236,31 +230,31 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
      *
      * @return Column
      */
-    public function setColumnName($name)
+    public function setName($name)
     {
-        return $this->setName($name);
+        return $this->setField($name);
     }
 
     /**
-     * Get the column name
+     * Gets the field name
      *
      * @return string
      */
     public function getName()
     {
-        return $this->name;
+        return $this->getField();
     }
 
     /**
-     * Get the column name
+     * Gets the field name
      *
      * @see Column::getName (alias)
      *
      * @return string
      */
-    public function getColumnName()
+    public function getField()
     {
-        return $this->getName();
+        return $this->field;
     }
 
     /**
@@ -680,25 +674,9 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
     /**
      * @param $name
      */
-    public function setUI($name)
-    {
-        $this->setInterface($name);
-    }
-
-    /**
-     * @return string
-     */
-    public function getUI()
-    {
-        return $this->getInterface();
-    }
-
-    /**
-     * @param $name
-     */
     public function setInterface($name)
     {
-        $this->ui = $this->interface = $name;
+        $this->interface = $name;
     }
 
     /**
@@ -939,7 +917,7 @@ class Column implements \ArrayAccess, Arrayable, \JsonSerializable
      */
     public function isSystemDate()
     {
-        return in_array($this->getUI(), [
+        return in_array($this->getInterface(), [
             SchemaManager::INTERFACE_DATE_CREATED,
             SchemaManager::INTERFACE_DATE_MODIFIED
         ]);

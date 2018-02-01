@@ -37,11 +37,11 @@ class DirectusGroupsTableGateway extends RelationalTableGateway
             return false;
         }
 
-        if (!$group['restrict_to_ip_whitelist']) {
+        if (!$group['ip_whitelist']) {
             return true;
         }
 
-        $groupIPAddresses = explode(',', $group['restrict_to_ip_whitelist']);
+        $groupIPAddresses = explode(',', $group['ip_whitelist']);
         if (in_array($ipAddress, $groupIPAddresses)) {
             return true;
         }

@@ -6,6 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Exception\Http\ForbiddenException;
 use Directus\Util\ArrayUtils;
@@ -30,13 +31,13 @@ class Permissions extends Route
      */
     public function create(Request $request, Response $response)
     {
-        $this->validateRequestWithTable($request, 'directus_privileges');
+        $this->validateRequestWithTable($request, 'directus_permissions');
 
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
-        $groupsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+        $groupsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
 
         $newGroup = $groupsTableGateway->updateRecord($payload);
         $responseData = $groupsTableGateway->wrapData(
@@ -58,7 +59,7 @@ class Permissions extends Route
     {
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
-        $permissionsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+        $permissionsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
 
         $params = ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta']);
         $params['id'] = $request->getAttribute('id');
@@ -75,13 +76,13 @@ class Permissions extends Route
      */
     public function update(Request $request, Response $response)
     {
-        $this->validateRequestWithTable($request, 'directus_privileges');
+        $this->validateRequestWithTable($request, 'directus_permissions');
 
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
-        $permissionsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+        $permissionsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
 
         $payload['id'] = $request->getAttribute('id');
         $newGroup = $permissionsTableGateway->updateRecord($payload);
@@ -106,7 +107,7 @@ class Permissions extends Route
         $acl = $this->container->get('acl');
         $dbConnection = $this->container->get('database');
 
-        $permissionsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+        $permissionsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
         $this->getEntriesAndSetResponseCacheTags($permissionsTableGateway, [
             'id' => $id
         ]);
@@ -128,7 +129,7 @@ class Permissions extends Route
         $dbConnection = $container->get('database');
         $params = $request->getQueryParams();
 
-        $permissionsTableGateway = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+        $permissionsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
         $responseData = $this->getEntriesAndSetResponseCacheTags($permissionsTableGateway, $params);
 
         return $this->responseWithData($request, $response, $responseData);

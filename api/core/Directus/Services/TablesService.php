@@ -35,21 +35,21 @@ class TablesService extends AbstractService
         }
 
         if (!$this->isValidName($name)) {
-            throw new InvalidRequestException('Invalid table name');
+            throw new InvalidRequestException('Invalid collection name');
         }
 
         $success = $this->createTableSchema($name, $data);
         if (!$success) {
-            throw new ErrorException('Error creating the table');
+            throw new ErrorException('Error creating the collection');
         }
 
-        $collectionsTableGateway = $this->createTableGateway('directus_tables');
+        $collectionsTableGateway = $this->createTableGateway('directus_collections');
 
-        $columns = ArrayUtils::get($data, 'columns');
+        $columns = ArrayUtils::get($data, 'fields');
         $this->addColumnsInfo($name, $columns);
 
-        $item = ArrayUtils::omit($data, 'columns');
-        $item['table_name'] = $name;
+        $item = ArrayUtils::omit($data, 'fields');
+        $item['collection'] = $name;
 
         return $collectionsTableGateway->updateRecord($item);
     }
@@ -72,31 +72,30 @@ class TablesService extends AbstractService
         }
 
         $tableObject = $this->getSchemaManager()->getTableSchema($name);
-        $columns = ArrayUtils::get($data, 'columns', []);
+        $columns = ArrayUtils::get($data, 'fields', []);
         foreach ($columns as $i => $column) {
-            $columnObject = $tableObject->getColumn($column['name']);
+            $columnObject = $tableObject->getColumn($column['field']);
             if ($columnObject) {
                 $currentColumnData = $columnObject->toArray();
-                $currentColumnData['interface'] = $currentColumnData['ui'];
                 $columns[$i] = array_merge($currentColumnData, $columns[$i]);
             }
         }
 
-        $data['columns'] = $columns;
+        $data['fields'] = $columns;
         $success = $this->updateTableSchema($name, $data);
         if (!$success) {
             throw new ErrorException('Error creating the table');
         }
 
-        $collectionsTableGateway = $this->createTableGateway('directus_tables');
+        $collectionsTableGateway = $this->createTableGateway('directus_collections');
 
-        $columns = ArrayUtils::get($data, 'columns', []);
+        $columns = ArrayUtils::get($data, 'fields', []);
         if (!empty($columns)) {
             $this->addColumnsInfo($name, $columns);
         }
 
-        $item = ArrayUtils::omit($data, 'columns');
-        $item['table_name'] = $name;
+        $item = ArrayUtils::omit($data, 'fields');
+        $item['collection'] = $name;
 
         return $collectionsTableGateway->updateRecord($item);
     }
@@ -127,11 +126,11 @@ class TablesService extends AbstractService
         }
 
         $columnData = array_merge($data, [
-            'name' => $columnName
+            'field' => $columnName
         ]);
 
         $this->updateTableSchema($collectionName, [
-            'columns' => [$columnData]
+            'fields' => [$columnData]
         ]);
 
         return $this->addColumnInfo($collectionName, $columnData);
@@ -163,7 +162,7 @@ class TablesService extends AbstractService
 
         $columnData = array_merge($columnObject->toArray(), $data);
         $this->updateTableSchema($collectionName, [
-            'columns' => [$columnData]
+            'fields' => [$columnData]
         ]);
 
         return $this->addColumnInfo($collectionName, $columnData);
@@ -225,10 +224,10 @@ class TablesService extends AbstractService
         // TODO: Let's make this info a string ALL the time at this level
         $options = ArrayUtils::get($column, 'options', []);
         $data = [
-            'table_name' => $collectionName,
-            'column_name' => $column['name'],
-            'data_type' => $column['type'],
-            'ui' => $column['interface'],
+            'collection' => $collectionName,
+            'field' => $column['field'],
+            'type' => $column['type'],
+            'interface' => $column['interface'],
             'required' => ArrayUtils::get($column, 'required', false),
             'sort' => ArrayUtils::get($column, 'sort', false),
             'comment' => ArrayUtils::get($column, 'comment', false),
@@ -237,10 +236,10 @@ class TablesService extends AbstractService
             'options' => is_array($options) ? json_encode($options) : $options
         ];
 
-        $fieldsTableGateway = $this->createTableGateway('directus_columns');
+        $fieldsTableGateway = $this->createTableGateway('directus_fields');
         $row = $fieldsTableGateway->findOneByArray([
-            'table_name' => $collectionName,
-            'column_name' => $column['name']
+            'collection' => $collectionName,
+            'field' => $column['field']
         ]);
 
         if ($row) {
@@ -258,11 +257,11 @@ class TablesService extends AbstractService
      */
     public function removeColumnInfo($collectionName, $fieldName)
     {
-        $fieldsTableGateway = $this->createTableGateway('directus_columns');
+        $fieldsTableGateway = $this->createTableGateway('directus_fields');
 
         return $fieldsTableGateway->delete([
-            'table_name' => $collectionName,
-            'column_name' => $fieldName
+            'collection' => $collectionName,
+            'field' => $fieldName
         ]);
     }
 
@@ -343,7 +342,7 @@ class TablesService extends AbstractService
         /** @var SchemaFactory $schemaFactory */
         $schemaFactory = $this->container->get('schema_factory');
 
-        $columns = ArrayUtils::get($data, 'columns', []);
+        $columns = ArrayUtils::get($data, 'fields', []);
         $this->validateSystemFields($columns);
         $table = $schemaFactory->createTable($name, $columns);
 
@@ -370,13 +369,13 @@ class TablesService extends AbstractService
         /** @var SchemaFactory $schemaFactory */
         $schemaFactory = $this->container->get('schema_factory');
 
-        $columns = ArrayUtils::get($data, 'columns', []);
+        $columns = ArrayUtils::get($data, 'fields', []);
         $this->validateSystemFields($columns);
 
         $toAdd = $toChange = [];
         $tableObject = $this->getSchemaManager()->getTableSchema($name);
         foreach ($columns as $i => $column) {
-            $columnObject = $tableObject->getColumn($column['name']);
+            $columnObject = $tableObject->getColumn($column['field']);
             if ($columnObject) {
                 $toChange[] = array_merge($columnObject->toArray(), $column);
             } else {
@@ -446,13 +445,13 @@ class TablesService extends AbstractService
     {
         $result = [];
         foreach ($columns as $column) {
-            if (!isset($column['type']) || !isset($column['name'])) {
+            if (!isset($column['type']) || !isset($column['field'])) {
                 throw new InvalidRequestException(
                     'All column requires a name and a type.'
                 );
             }
 
-            $result[$column['name']] = ArrayUtils::omit($column, 'name');
+            $result[$column['field']] = ArrayUtils::omit($column, 'field');
         }
     }
 }

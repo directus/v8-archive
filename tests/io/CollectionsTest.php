@@ -17,10 +17,10 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
     public static function resetDatabase()
     {
         drop_table(static::$db, static::$tableName);
-        delete_item(static::$db, 'directus_tables', [
-            'table_name' => static::$tableName
+        delete_item(static::$db, 'directus_collections', [
+            'collection' => static::$tableName
         ]);
-        reset_table_id('directus_columns', 7);
+        reset_table_id(static::$db, 'directus_fields', 2);
     }
 
     public static function setUpBeforeClass()
@@ -37,29 +37,29 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
     public function testCreate()
     {
         $data = [
-            'table_name' => static::$tableName,
-            'columns' => [
+            'collection' => static::$tableName,
+            'fields' => [
                 [
-                    'name' => 'id',
+                    'field' => 'id',
                     'type' => 'integer',
                     'interface' => 'primary_key',
                     'auto_increment' => true,
                     'unsigned' => true
                 ],
                 [
-                    'name' => 'status',
+                    'field' => 'status',
                     'type' => 'integer',
                     'interface' => 'status',
                     'unsigned' => true
                 ],
                 [
-                    'name' => 'sort',
+                    'field' => 'sort',
                     'type' => 'integer',
                     'interface' => 'sort',
                     'unsigned' => true
                 ],
                 [
-                    'name' => 'name',
+                    'field' => 'name',
                     'interface' => 'text_input',
                     'type' => 'VARCHAR',
                     'length' => 255
@@ -69,19 +69,19 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_post('collections', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
-        assert_response_data_contains($this, $response, ArrayUtils::pick($data, 'table_name'));
+        assert_response_data_contains($this, $response, ArrayUtils::pick($data, 'collection'));
 
         $this->assertTrue(table_exists(static::$db, static::$tableName));
 
         // Has Directus tables record
-        $result = table_find(static::$db, 'directus_tables', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_collections', [
+            'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 1);
 
         // Has columns records
-        $result = table_find(static::$db, 'directus_columns', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_fields', [
+            'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 4);
     }
@@ -91,7 +91,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_get('collections/' . static::$tableName, $this->queryParams);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'table_name' => static::$tableName
+            'collection' => static::$tableName
         ]);
 
         $response = request_error_get('collections/nonexisting', $this->queryParams);
@@ -111,7 +111,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('collections/' . static::$tableName, $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, array_merge([
-            'table_name' => static::$tableName
+            'collection' => static::$tableName
         ], $data));
 
         // Change back
@@ -123,18 +123,18 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('collections/' . static::$tableName, $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, array_merge([
-            'table_name' => static::$tableName
+            'collection' => static::$tableName
         ], $data));
 
         // Columns: Add one, Update one
         $data = [
-            'columns' => [
+            'fields' => [
                 [
-                    'name' => 'name',
+                    'field' => 'name',
                     'length' => 64
                 ],
                 [
-                    'name' => 'datetime',
+                    'field' => 'datetime',
                     'type' => 'datetime',
                     'interface' => 'datetime',
                     'required' => true
@@ -145,12 +145,12 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('collections/' . static::$tableName, $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'table_name' => static::$tableName
+            'collection' => static::$tableName
         ]);
 
         // Has the new columns records
-        $result = table_find(static::$db, 'directus_columns', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_fields', [
+            'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 5);
 
@@ -158,9 +158,9 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         // Columns: Add one
         // =============================================================================
         $data = [
-            'columns' => [
+            'fields' => [
                 [
-                    'name' => 'datetime_two',
+                    'field' => 'datetime_two',
                     'type' => 'datetime',
                     'interface' => 'datetime',
                     'required' => true
@@ -171,12 +171,12 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('collections/' . static::$tableName, $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'table_name' => static::$tableName
+            'collection' => static::$tableName
         ]);
 
         // Has the new columns records
-        $result = table_find(static::$db, 'directus_columns', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_fields', [
+            'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 6);
 
@@ -184,9 +184,9 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         // Columns: Update one
         // =============================================================================
         $data = [
-            'columns' => [
+            'fields' => [
                 [
-                    'name' => 'datetime_two',
+                    'field' => 'datetime_two',
                     'required' => false
                 ]
             ]
@@ -195,12 +195,12 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('collections/' . static::$tableName, $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'table_name' => static::$tableName
+            'collection' => static::$tableName
         ]);
 
         // didn't add new columns information
-        $result = table_find(static::$db, 'directus_columns', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_fields', [
+            'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 6);
     }
@@ -210,7 +210,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_get('collections', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 7
+            'count' => 1
         ]);
     }
 
@@ -228,14 +228,14 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(table_exists(static::$db, static::$tableName));
 
         // Empty collections records
-        $result = table_find(static::$db, 'directus_tables', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_collections', [
+            'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 0);
 
         // empty fields records
-        $result = table_find(static::$db, 'directus_columns', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_fields', [
+            'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 0);
     }

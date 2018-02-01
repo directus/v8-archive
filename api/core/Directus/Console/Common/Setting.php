@@ -102,8 +102,8 @@ class Setting
     {
         try {
             $rowset = $this->settingsTableGateway->select([
-                'collection' => $collection,
-                'name' => $setting
+                'scope' => $collection,
+                'key' => $setting
             ]);
             if ($rowset->count() > 0) {
                 return true;
@@ -132,8 +132,8 @@ class Setting
     {
 
         $insert = [
-            'collection' => $collection,
-            'name' => $setting,
+            'scope' => $collection,
+            'key' => $setting,
             'value' => $value
         ];
 
@@ -151,7 +151,7 @@ class Setting
      *  The function will change the given setting to the passed value if it already
      *  exists and will create it if it doesn't.
      *
-     * @param string $collection The collection to which this setting applies.
+     * @param string $scope The collection to which this setting applies.
      * @param string $setting The name of the setting to change.
      * @param string $value The value of the setting.
      *
@@ -160,11 +160,11 @@ class Setting
      * @throws SettingUpdateException Thrown when the changing the setting fails.
      *
      */
-    public function setSetting($collection, $setting, $value)
+    public function setSetting($scope, $setting, $value)
     {
 
-        if (!$this->settingExists($collection, $setting)) {
-            return $this->createSetting($collection, $setting, $value);
+        if (!$this->settingExists($scope, $setting)) {
+            return $this->createSetting($scope, $setting, $value);
         }
 
         $update = [
@@ -173,11 +173,11 @@ class Setting
 
         try {
             $this->settingsTableGateway->update($update, [
-                'collection' => $collection,
-                'name' => $setting
+                'scope' => $scope,
+                'key' => $setting
             ]);
         } catch (\PDOException $ex) {
-            throw new SettingUpdateException(__t('Could not change setting ') . $collection . '.' . $setting . ': ' . __t('PDO Error: ') . string($ex));
+            throw new SettingUpdateException(__t('Could not change setting ') . $scope . '.' . $setting . ': ' . __t('PDO Error: ') . string($ex));
         }
     }
 

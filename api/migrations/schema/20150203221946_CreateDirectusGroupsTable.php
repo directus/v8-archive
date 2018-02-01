@@ -1,13 +1,5 @@
 <?php
-/*
-CREATE TABLE `directus_groups` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) DEFAULT NULL,
-  `description` varchar(500) DEFAULT NULL,
-  `restrict_to_ip_whitelist` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-*/
+
 use Ruckusing\Migration\Base as Ruckusing_Migration_Base;
 
 class CreateDirectusGroupsTable extends Ruckusing_Migration_Base
@@ -27,17 +19,25 @@ class CreateDirectusGroupsTable extends Ruckusing_Migration_Base
         ]);
         $t->column('name', 'string', [
             'limit' => 100,
-            'default' => NULL
+            'null' => false
         ]);
         $t->column('description', 'string', [
             'limit' => 500,
+            'null' => true,
             'default' => NULL
         ]);
-        $t->column('restrict_to_ip_whitelist', 'text', [
+        $t->column('ip_whitelist', 'text', [
             'null' => true,
-            'default' => null,
+            'default' => null
         ]);
-        $t->column('nav_override', 'text');
+        $t->column('nav_blacklist', 'text', [
+            'null' => true,
+            'default' => null
+        ]);
+        $t->column('nav_override', 'text', [
+            'null' => true,
+            'default' => null
+        ]);
         $t->finish();
 
         $this->add_index('directus_groups', 'name', [

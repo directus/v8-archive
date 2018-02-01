@@ -7,7 +7,7 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
-use Directus\Database\SchemaManager;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\Http\BadRequestException;
@@ -21,13 +21,12 @@ class Items extends Route
 
     public function __invoke(Application $app)
     {
-        $app->map(['GET', 'POST'], '/{table}', [$this, 'all']);
-        $app->map(['PUT', 'PATCH', 'GET'], '/{table}/{id}', [$this, 'one']);
-        $app->delete('/{table}/{id}', [$this, 'delete']);
-        $app->get('/{table}/{id}/meta', [$this, 'meta']);
+        $app->map(['GET', 'POST'], '/{collection}', [$this, 'all']);
+        $app->map(['PUT', 'PATCH', 'GET'], '/{collection}/{id}', [$this, 'one']);
+        $app->delete('/{collection}/{id}', [$this, 'delete']);
+        $app->get('/{collection}/{id}/meta', [$this, 'meta']);
 
-        $app->map(['POST', 'PATCH', 'PUT', 'DELETE'], '/{table}/batch', [$this, 'batch']);
-        // NOTE: /tables/:table/typeahead Removed. Make it work with filters. Otherwise will be added
+        $app->map(['POST', 'PATCH', 'PUT', 'DELETE'], '/{collection}/batch', [$this, 'batch']);
     }
 
     /**
@@ -38,7 +37,7 @@ class Items extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $tableName = $request->getAttribute('table');
+        $tableName = $request->getAttribute('collection');
         $params = $request->getQueryParams();
 
         $this->throwErrorIfSystemTable($tableName);
@@ -73,7 +72,7 @@ class Items extends Route
      */
     public function batch(Request $request, Response $response)
     {
-        $tableName = $request->getAttribute('table');
+        $tableName = $request->getAttribute('collection');
 
         $this->throwErrorIfSystemTable($tableName);
 
@@ -153,7 +152,7 @@ class Items extends Route
             $responseData = [];
             // TODO: Parse params into the expected value data type
             if (ArrayUtils::get($params, 'meta', 0) == 1) {
-                $responseData['meta'] = ['table' => $tableGateway->getTable(), 'ids' => $rowIds];
+                $responseData['meta'] = ['collection' => $tableGateway->getTable(), 'ids' => $rowIds];
             }
 
             // TODO: Add proper translated error
@@ -177,7 +176,7 @@ class Items extends Route
      */
     public function one(Request $request, Response $response)
     {
-        $tableName = $request->getAttribute('table');
+        $tableName = $request->getAttribute('collection');
         $id = $request->getAttribute('id');
 
         $this->throwErrorIfSystemTable($tableName);
@@ -186,7 +185,7 @@ class Items extends Route
         $acl = $this->container->get('acl');
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
-        $params['table_name'] = $tableName;
+        $params['collection'] = $tableName;
         $params['id'] = $id;
 
         $TableGateway = RelationalTableGateway::makeTableGatewayFromTableName($tableName, $dbConnection, $acl);
@@ -275,7 +274,7 @@ class Items extends Route
      */
     public function meta(Request $request, Response $response)
     {
-        $tableName = $request->getAttribute('table');
+        $tableName = $request->getAttribute('collection');
 
         $this->throwErrorIfSystemTable($tableName);
 
@@ -290,7 +289,7 @@ class Items extends Route
 
         $responseData = [];
         if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $responseData['meta'] = ['table' => 'directus_activity', 'type' => 'item'];
+            $responseData['meta'] = ['collection' => 'directus_activity', 'type' => 'item'];
         }
 
         $responseData['data'] = $metaData;

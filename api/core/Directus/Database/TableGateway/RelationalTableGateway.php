@@ -268,18 +268,20 @@ class RelationalTableGateway extends BaseTableGateway
                     $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
                     $logData = [
                         'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
-                        'table_name' => $tableName,
                         'action' => $logEntryAction,
                         'user' => $currentUserId,
                         'datetime' => DateUtils::now(),
-                        'parent_id' => null,
-                        'data' => json_encode($fullRecordData),
-                        'delta' => json_encode($deltaRecordData),
-                        'parent_changed' => (int)$parentRecordChanged,
-                        'identifier' => $recordIdentifier,
-                        'row_id' => $rowId,
-                        'logged_ip' => get_request_ip(),// isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
-                        'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
+                        'ip' => get_request_ip(),
+                        'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+                        'collection' => $tableName,
+                        'item' => $rowId,
+                        'message' => null
+                        // TODO: Move to revisions
+                        // 'parent_id' => null,
+                        // 'data' => json_encode($fullRecordData),
+                        // 'delta' => json_encode($deltaRecordData),
+                        // 'parent_changed' => (int)$parentRecordChanged,
+                        // 'identifier' => $recordIdentifier,
                     ];
                     $parentLogEntry->populate($logData, false);
                     $parentLogEntry->save();
@@ -314,14 +316,11 @@ class RelationalTableGateway extends BaseTableGateway
             return false;
         }
 
-        $statusColumnName = TableSchema::getTableSchema($tableName)->getStatusColumn();
-
         // Get status delete value
         $tableSchema = $this->getTableSchema();
-        $statusColumnObject = $tableSchema->getColumn($statusColumnName);
-        $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value', STATUS_DELETED_NUM);
+        $deletedValue = 0;
 
-        if (!isset($recordData[$statusColumnName]) || $recordData[$statusColumnName] != $deletedValue) {
+        if (!isset($recordData['status']) || $recordData['status'] != $deletedValue) {
             return false;
         }
 
@@ -1586,7 +1585,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getRelatedTable();
-            if ($this->acl && !TableSchema::canGroupViewTable($relatedTableName)) {
+            if ($this->acl && !TableSchema::canGroupReadCollection($relatedTableName)) {
                 continue;
             }
 
@@ -1678,7 +1677,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getRelatedTable();
-            if ($this->acl && !TableSchema::canGroupViewTable($relatedTableName)) {
+            if ($this->acl && !TableSchema::canGroupReadCollection($relatedTableName)) {
                 continue;
             }
 
@@ -1896,7 +1895,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             // if user doesn't have permission to view the related table
             // fill the data with only the id, which the user has permission to
-            if ($this->acl && !TableSchema::canGroupViewTable($relatedTable)) {
+            if ($this->acl && !TableSchema::canGroupReadCollection($relatedTable)) {
                 $tableGateway = new RelationalTableGateway($relatedTable, $this->adapter, null);
                 $primaryKeyName = $tableGateway->primaryKeyFieldName;
 

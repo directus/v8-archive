@@ -27,9 +27,9 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
     public static function resetDatabase()
     {
-        reset_table_id('directus_columns', 7);
-        delete_item(static::$db, 'directus_tables', [
-            'table_name' => static::$tableName
+        reset_table_id(static::$db, 'directus_fields', 2);
+        delete_item(static::$db, 'directus_collections', [
+            'collection' => static::$tableName
         ]);
         drop_table(static::$db, static::$tableName);
     }
@@ -49,10 +49,10 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
     {
         // Create a test table
         $data = [
-            'table_name' => static::$tableName,
-            'columns' => [
+            'collection' => static::$tableName,
+            'fields' => [
                 [
-                    'name' => 'id',
+                    'field' => 'id',
                     'type' => 'integer',
                     'interface' => 'primary_key'
                 ]
@@ -62,12 +62,12 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         $response = request_post('collections', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'table_name' => static::$tableName
+            'collection' => static::$tableName
         ]);
 
         // --------------------------------------------------------------------
         $data = [
-            'name' => 'name',
+            'field' => 'name',
             'interface' => 'text_input',
             'length' => 100,
             'type' => 'varchar'
@@ -76,14 +76,14 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         $response = request_post('fields/' . static::$tableName, $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'column_name' => 'name',
-            'ui' => 'text_input',
-            'data_type' => 'varchar'
+            'field' => 'name',
+            'interface' => 'text_input',
+            'type' => 'varchar'
         ]);
 
         // Has columns records
-        $result = table_find(static::$db, 'directus_columns', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_fields', [
+            'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 2);
         $this->assertTrue(column_exists(static::$db, static::$tableName, 'name'));
@@ -92,32 +92,32 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
     public function testUpdate()
     {
         $data = [
-            'name' => 'name',
+            'field' => 'name',
             'length' => 255,
         ];
 
         $response = request_patch('fields/' . static::$tableName . '/name', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'column_name' => 'name',
-            'data_type' => 'VARCHAR',
-            'ui' => 'text_input'
+            'field' => 'name',
+            'type' => 'VARCHAR',
+            'interface' => 'text_input'
         ]);
 
         // Has columns records
-        $result = table_find(static::$db, 'directus_columns', [
-            'table_name' => static::$tableName
+        $result = table_find(static::$db, 'directus_fields', [
+            'collection' => static::$tableName
         ]);
-        $this->assertTrue(count($result) === 2);
+        $this->assertSame(2, count($result));
         $this->assertTrue(column_exists(static::$db, static::$tableName, 'name'));
     }
 
     public function testGetOne()
     {
         $data = [
-            'column_name' => 'name',
-            'ui' => 'text_input',
-            'table_name' => 'test'
+            'field' => 'name',
+            'interface' => 'text_input',
+            'collection' => 'test'
         ];
 
         $response = request_get('fields/' . static::$tableName . '/name', $this->queryParams);

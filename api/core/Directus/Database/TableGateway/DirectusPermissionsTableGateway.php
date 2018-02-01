@@ -10,25 +10,24 @@ use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Update;
 
-class DirectusPrivilegesTableGateway extends RelationalTableGateway
+class DirectusPermissionsTableGateway extends RelationalTableGateway
 {
-    public static $_tableName = 'directus_privileges';
+    public static $_tableName = 'directus_permissions';
 
     public $primaryKeyFieldName = 'id';
 
     // @todo: make this part of every table gateway
     private $fillable = [
-        'allow_view',
-        'allow_add',
-        'allow_delete',
-        'allow_edit',
-        'allow_alter',
-        'nav_listed',
+        'create',
+        'read',
+        'update',
+        'delete',
+        'navigate',
+        'group',
+        'collection',
+        'status',
         'read_field_blacklist',
-        'write_field_blacklist',
-        'group_id',
-        'table_name',
-        'status_id',
+        'write_field_blacklist'
     ];
 
     public function __construct(AdapterInterface $adapter, Acl $acl = null)
@@ -69,42 +68,19 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
      */
     public function getGroupPrivileges($groupId)
     {
-        $getPrivileges = function () use ($groupId) {
-            // @TODO: Add test
-            if ($groupId === 1) {
-                $privileges = [
-                    '*' => [
-                        'allow_view' => 2,
-                        'allow_add' => 1,
-                        'allow_edit' => 2,
-                        'allow_delete' => 2,
-                        'allow_alter' => 1,
-                        'read_field_blacklist' => [],
-                        'write_field_blacklist' => []
-                    ]
-                ];
-            } else {
-                $privileges = $this->fetchGroupPrivileges($groupId, null);
-            }
-
-            return (array) $privileges;
-        };
-
-        // return $this->memcache->getOrCache(MemcacheProvider::getKeyDirectusGroupPrivileges($groupId), $getPrivileges, 1800);
-
-        return $getPrivileges();
+        return $this->parseRecord($this->fetchGroupPrivileges($groupId, null));
     }
 
     public function fetchGroupPrivileges($groupId, $statusId = false)
     {
         $select = new Select($this->table);
-        $select->where->equalTo('group_id', $groupId);
+        $select->where->equalTo('group', $groupId);
 
         if ($statusId !== false) {
             if ($statusId === null) {
-                $select->where->isNull('status_id');
+                $select->where->isNull('status');
             } else {
-                $select->where->equalTo('status_id', $statusId);
+                $select->where->equalTo('status', $statusId);
             }
         }
 
@@ -114,9 +90,11 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
         $privilegesByTable = [];
         foreach ($rowset as $row) {
             foreach ($row as $field => &$value) {
-                if ($this->acl->isTableListValue($field))
+                if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
                     $value = explode(',', $value);
-                $privilegesByTable[$row['table_name']] = $row;
+                }
+
+                $privilegesByTable[$row['collection']] = $row;
             }
         }
 
@@ -204,9 +182,9 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
             $select->columns(array_merge([$this->primaryKeyFieldName], $columns));
         }
 
-        $select->where->equalTo('group_id', $groupId);
+        $select->where->equalTo('group', $groupId);
         if (!is_null($tableName)) {
-            $select->where->equalTo('table_name', $tableName);
+            $select->where->equalTo('collection', $tableName);
             $select->limit(1);
         }
         $rowset = $this->selectWith($select);
@@ -218,7 +196,7 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
         $privilegesHash = [];
 
         foreach ($rowset as $item) {
-            if (in_array($item['table_name'], $blacklist)) {
+            if (in_array($item['collection'], $blacklist)) {
                 continue;
             }
 
@@ -226,7 +204,7 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
                 $item = ArrayUtils::pick($item, $columns);
             }
 
-            $privilegesHash[$item['table_name']] = $item;
+            $privilegesHash[$item['collection']] = $item;
             $privileges[] = $item;
         }
 
@@ -243,14 +221,14 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
                 continue;
             }
 
-            $item = ['table_name' => $table['name'], 'group_id' => $groupId, 'status_id' => null];
+            $item = ['collection' => $table['name'], 'group' => $groupId, 'status_id' => null];
 
             $privileges[] = $item;
         }
 
         // sort ascending
         usort($privileges, function ($a, $b) {
-            return strcmp($a['table_name'], $b['table_name']);
+            return strcmp($a['collection'], $b['collection']);
         });
 
         $privileges = is_null($tableName) ? $privileges : reset($privileges);
@@ -261,20 +239,20 @@ class DirectusPrivilegesTableGateway extends RelationalTableGateway
     public function fetchGroupPrivilegesRaw($group_id)
     {
         $select = new Select($this->table);
-        $select->where->equalTo('group_id', $group_id);
+        $select->where->equalTo('group', $group_id);
         $rowset = $this->selectWith($select);
         $rowset = $rowset->toArray();
 
         return $this->parseRecord($rowset);
     }
 
-    public function findByStatus($table_name, $group_id, $status_id)
+    public function findByStatus($collection, $group_id, $status_id)
     {
         $select = new Select($this->table);
         $select->where
-            ->equalTo('table_name', $table_name)
-            ->equalTo('group_id', $group_id)
-            ->equalTo('status_id', $status_id);
+            ->equalTo('collection', $collection)
+            ->equalTo('group', $group_id)
+            ->equalTo('status', $status_id);
         $rowset = $this->selectWith($select);
         $rowset = $rowset->toArray();
         return current($rowset);

@@ -22,6 +22,7 @@ use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Database\TableGateway\DirectusSettingsTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
@@ -145,7 +146,7 @@ class CoreServicesProvider
                 /** @var Column $column */
                 $column = $payload->attribute('column');
 
-                if ($column->getUI() !== 'translation') {
+                if ($column->getInterface() !== 'translation') {
                     return $payload;
                 }
 
@@ -222,8 +223,9 @@ class CoreServicesProvider
                 $logger->error($exception->getMessage());
             });
             $emitter->addFilter('response', function (Payload $payload) use ($container) {
+                /** @var Acl $acl */
                 $acl = $container->get('acl');
-                if ($acl->isPublic()) {
+                if ($acl->isPublic() || !$acl->getUserId()) {
                     $payload->set('public', true);
                 }
                 return $payload;
@@ -238,21 +240,23 @@ class CoreServicesProvider
                     'directus_activity',
                     $db
                 );
+
                 $logData = [
                     'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($tableName),
-                    'table_name' => $tableName,
                     'action' => DirectusActivityTableGateway::ACTION_DELETE,
                     'user' => $acl->getUserId(),
                     'datetime' => DateUtils::now(),
-                    'parent_id' => null,
-                    'data' => null, // TODO: Would it be nice to store the deleted data? too many nested value?
-                    'delta' => null,
-                    'parent_changed' => 0,
-                    // Old column to represent the record. Old "primary column", first non system column
-                    'identifier' => null,
-                    'row_id' => null,
-                    'logged_ip' => get_request_ip(),
-                    'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
+                    'ip' => get_request_ip(),
+                    'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+                    'collection' => $tableName,
+                    'item' => null, // TODO: set the deleted record ID
+                    'message' => null
+                    // TODO: Move to revisions
+                    // 'parent_id' => null,
+                    // 'data' => json_encode($fullRecordData),
+                    // 'delta' => json_encode($deltaRecordData),
+                    // 'parent_changed' => (int)$parentRecordChanged,
+                    // 'identifier' => $recordIdentifier,
                 ];
                 $parentLogEntry->populate($logData, false);
                 $parentLogEntry->save();
@@ -261,15 +265,14 @@ class CoreServicesProvider
             $emitter->addAction('table.insert.directus_groups', function ($data) use ($container) {
                 $acl = $container->get('acl');
                 $zendDb = $container->get('database');
-                $privilegesTable = new DirectusPrivilegesTableGateway($zendDb, $acl);
+                $privilegesTable = new DirectusPermissionsTableGateway($zendDb, $acl);
                 $privilegesTable->insertPrivilege([
-                    'group_id' => $data['id'],
-                    'allow_view' => 1,
-                    'allow_add' => 0,
-                    'allow_edit' => 1,
-                    'allow_delete' => 0,
-                    'allow_alter' => 0,
-                    'table_name' => 'directus_users',
+                    'group' => $data['id'],
+                    'collection' => 'directus_users',
+                    'create' => 0,
+                    'read' => 1,
+                    'update' => 1,
+                    'delete' => 0,
                     'read_field_blacklist' => 'token',
                     'write_field_blacklist' => 'group,token'
                 ]);
@@ -329,7 +332,7 @@ class CoreServicesProvider
                     /** @var Acl $auth */
                     $acl = $container->get('acl');
                     $payload->remove('data');
-                    $payload->set('user', $acl->getUserId());
+                    $payload->set('upload_user', $acl->getUserId());
                 }
                 return $payload;
             });
@@ -338,9 +341,9 @@ class CoreServicesProvider
                     $config = $container->get('config');
                     $fileURL = $config['filesystem']['root_url'];
                     $thumbnailURL = $config['filesystem']['root_thumb_url'];
-                    $thumbnailFilenameParts = explode('.', $row['name']);
+                    $thumbnailFilenameParts = explode('.', $row['filename']);
                     $thumbnailExtension = array_pop($thumbnailFilenameParts);
-                    $row['url'] = $fileURL . '/' . $row['name'];
+                    $row['url'] = $fileURL . '/' . $row['filename'];
                     if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
                         $thumbnailExtension = Thumbnail::defaultFormat();
                     }
@@ -350,7 +353,7 @@ class CoreServicesProvider
                     // @TODO: This should be another hook listener
                     $filename = implode('.', $thumbnailFilenameParts);
                     if (isset($row['type']) && $row['type'] == 'embed/vimeo') {
-                        $oldThumbnailFilename = $row['name'] . '-vimeo-220-124-true.jpg';
+                        $oldThumbnailFilename = $row['filename'] . '-vimeo-220-124-true.jpg';
                     } else {
                         $oldThumbnailFilename = $filename . '-' . $thumbnailExtension . '-160-160-true.jpg';
                     }
@@ -369,8 +372,8 @@ class CoreServicesProvider
             };
             $emitter->addFilter('table.select.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
-                if (!in_array('name', $columns)) {
-                    $columns[] = 'name';
+                if (!in_array('filename', $columns)) {
+                    $columns[] = 'filename';
                     $payload->set('columns', $columns);
                 }
                 return $payload;
@@ -426,18 +429,14 @@ class CoreServicesProvider
                 $groupId = $acl->getGroupId();
                 foreach ($rows as &$row) {
                     $omit = [
-                        'password',
-                        'salt',
+                        'password'
                     ];
                     // Authenticated user can see their private info
                     // Admin can see all users private info
                     if ($groupId !== 1 && $userId !== $row['id']) {
                         $omit = array_merge($omit, [
                             'token',
-                            'access_token',
-                            'reset_token',
-                            'reset_expiration',
-                            'email_messages',
+                            'email_notifications',
                             'last_access',
                             'last_page'
                         ]);
@@ -450,8 +449,7 @@ class CoreServicesProvider
             $hashUserPassword = function (Payload $payload) use ($container) {
                 if ($payload->has('password')) {
                     $auth = $container->get('auth');
-                    $payload['salt'] = StringUtils::randomString();
-                    $payload['password'] = $auth->hashPassword($payload['password'], $payload['salt']);
+                    $payload['password'] = $auth->hashPassword($payload['password']);
                 }
                 return $payload;
             };
@@ -460,7 +458,7 @@ class CoreServicesProvider
                 $tableObject = TableSchema::getTableSchema($tableName);
                 $data = $payload->getData();
                 foreach ($tableObject->getColumns() as $column) {
-                    if ($column->getUI() !== 'slug') {
+                    if ($column->getInterface() !== 'slug') {
                         continue;
                     }
                     $parentColumnName = $column->getOptions('mirrored_field');
@@ -496,7 +494,7 @@ class CoreServicesProvider
                     if (!$columnObject) {
                         continue;
                     }
-                    if ($columnObject->getUI() === 'password') {
+                    if ($columnObject->getInterface() === 'password') {
                         // TODO: Use custom password hashing method
                         $payload->set($key, $auth->hashPassword($value));
                     }
@@ -516,7 +514,7 @@ class CoreServicesProvider
                 $groupTable = new BaseTableGateway('directus_groups', $adapter);
                 $user = $userTable->find($payload->get('id'));
                 $group = $groupTable->find($user['group']);
-                if (!$group || !$acl->canEdit('directus_users')) {
+                if (!$group || !$acl->canUpdate('directus_users')) {
                     throw new ForbiddenException('you are not allowed to update your user information');
                 }
                 // ----------------------------------------------------------------------------
@@ -560,7 +558,7 @@ class CoreServicesProvider
                 $groupTable = new BaseTableGateway('directus_groups', $adapter);
                 $user = $userTable->find($currentUserId);
                 $group = $groupTable->find($user['group']);
-                if (!$group || !$acl->canEdit('directus_files')) {
+                if (!$group || !$acl->canUpdate('directus_files')) {
                     throw new ForbiddenException('you are not allowed to upload, edit or delete files');
                 }
                 // ----------------------------------------------------------------------------
@@ -647,14 +645,17 @@ class CoreServicesProvider
 
             $magicOwnerColumnsByTable = [];
             foreach ($tables as $table) {
-                $magicOwnerColumnsByTable[$table->getName()] = $table->getUserCreateColumn();
+                $column = $table->getUserCreateColumn();
+
+                if ($column) {
+                    $magicOwnerColumnsByTable[$table->getName()] = $table->getUserCreateColumn();
+                }
             }
 
             // TODO: Move this to a method
             $acl::$cms_owner_columns_by_table = array_merge($magicOwnerColumnsByTable, $acl::$cms_owner_columns_by_table);
-
             if ($auth->check()) {
-                $privilegesTable = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+                $privilegesTable = new DirectusPermissionsTableGateway($dbConnection, $acl);
                 $acl->setGroupPrivileges($privilegesTable->getGroupPrivileges($auth->getUserAttributes('group')));
             }
 

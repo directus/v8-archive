@@ -52,36 +52,36 @@ class Fields extends Route
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
         $collectionName = $request->getAttribute('collection');
-        $payload['table_name'] = $collectionName;
+        $payload['collection'] = $collectionName;
 
-        ArrayUtils::renameSome($payload, [
-            'name' => 'column_name',
-            'interface' => 'ui',
-            'type' => 'data_type'
-        ]);
+        // ArrayUtils::renameSome($payload, [
+        //     'name' => 'column_name',
+        //     'interface' => 'ui',
+        //     'type' => 'data_type'
+        // ]);
 
         // if (!$acl->hasTablePrivilege($collectionName, 'alter')) {
         //     throw new UnauthorizedTableAlterException(__t('permission_table_alter_access_forbidden_on_table', [
-        //         'table_name' => $tableName
+        //         'collection' => $tableName
         //     ]));
         // }
 
         // TODO: Length is required by some data types, which make this validation not working fully for columns
         // TODO: Create new constraint that validates the column data type to be one of the list supported
         $this->validate(['collection' => $collectionName], ['collection' => 'required|string']);
-        $this->validateDataWithTable($request, $payload, 'directus_columns');
+        $this->validateDataWithTable($request, $payload, 'directus_fields');
 
-        ArrayUtils::renameSome($payload, array_flip([
-            'name' => 'column_name',
-            'interface' => 'ui',
-            'type' => 'data_type'
-        ]));
+        // ArrayUtils::renameSome($payload, array_flip([
+        //     'name' => 'column_name',
+        //     'interface' => 'ui',
+        //     'type' => 'data_type'
+        // ]));
         $tableService = new TablesService($this->container);
-        $fieldName = ArrayUtils::pull($payload, 'name');
+        $fieldName = ArrayUtils::pull($payload, 'field');
         $field = $tableService->addColumn($collectionName, $fieldName, $payload);
 
         $dbConnection = $this->container->get('database');
-        $responseData = (new RelationalTableGateway('directus_columns', $dbConnection, $acl))->wrapData(
+        $responseData = (new RelationalTableGateway('directus_fields', $dbConnection, $acl))->wrapData(
             $field->toArray(),
             true,
             ArrayUtils::get($params, 'meta', 0)
@@ -131,13 +131,13 @@ class Fields extends Route
         }
 
         $dbConnection = $this->container->get('database');
-        $tableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
+        $tableGateway = new RelationalTableGateway('directus_fields', $dbConnection, $acl);
 
         $params = ArrayUtils::pick($request->getQueryParams(), ['meta', 'fields']);
         $params['single'] = true;
         $params['filter'] = [
-            'table_name' => $collectionName,
-            'column_name' => $fieldName
+            'collection' => $collectionName,
+            'field' => $fieldName
         ];
 
         $responseData = $tableGateway->getItems($params);
@@ -163,20 +163,18 @@ class Fields extends Route
 
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
-        $collectionName = $request->getAttribute('collection');
-        $fieldName = $request->getAttribute('field');
-        $payload['table_name'] = $collectionName;
-        $payload['name'] = $fieldName;
+        $payload['collection'] = $collectionName = $request->getAttribute('collection');
+        $payload['field'] = $fieldName = $request->getAttribute('field');
 
-        ArrayUtils::renameSome($payload, [
-            'name' => 'column_name',
-            'interface' => 'ui',
-            'type' => 'data_type'
-        ]);
+        // ArrayUtils::renameSome($payload, [
+        //     'name' => 'column_name',
+        //     'interface' => 'ui',
+        //     'type' => 'data_type'
+        // ]);
 
         // if (!$acl->hasTablePrivilege($collectionName, 'alter')) {
         //     throw new UnauthorizedTableAlterException(__t('permission_table_alter_access_forbidden_on_table', [
-        //         'table_name' => $tableName
+        //         'collection' => $tableName
         //     ]));
         // }
 
@@ -192,18 +190,18 @@ class Fields extends Route
             'payload' => 'required|array'
         ]);
 
-        ArrayUtils::renameSome($payload, array_flip([
-            'name' => 'column_name',
-            'interface' => 'ui',
-            'type' => 'data_type'
-        ]));
+        // ArrayUtils::renameSome($payload, array_flip([
+        //     'name' => 'column_name',
+        //     'interface' => 'ui',
+        //     'type' => 'data_type'
+        // ]));
 
         $tableService = new TablesService($this->container);
-        $fieldName = ArrayUtils::pull($payload, 'name');
+        $fieldName = ArrayUtils::pull($payload, 'field');
         $field = $tableService->changeColumn($collectionName, $fieldName, $payload);
 
         $dbConnection = $this->container->get('database');
-        $responseData = (new RelationalTableGateway('directus_columns', $dbConnection, $acl))->wrapData(
+        $responseData = (new RelationalTableGateway('directus_fields', $dbConnection, $acl))->wrapData(
             $field->toArray(),
             true,
             ArrayUtils::get($params, 'meta', 0)
@@ -249,7 +247,7 @@ class Fields extends Route
             throw new TableNotFoundException($collectionName);
         }
 
-        $collectionTableObject = $schemaManager->getTableSchema('directus_columns');
+        $collectionTableObject = $schemaManager->getTableSchema('directus_fields');
         if (in_array('*', $fields)) {
             $fields = $collectionTableObject->getColumnsName();
         }
@@ -265,7 +263,7 @@ class Fields extends Route
         }, TableSchema::getTableColumnsSchema($collectionName));
 
         $dbConnection = $this->container->get('database');
-        $tableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
+        $tableGateway = new RelationalTableGateway('directus_fields', $dbConnection, $acl);
         $responseData = $tableGateway->wrapData($fields, false, ArrayUtils::get($params, 'meta'));
 
         return $this->responseWithData($request, $response, $responseData);
@@ -287,7 +285,7 @@ class Fields extends Route
         $payload = $request->getParsedBody();
         $tableName = $request->getAttribute('table');
         $columnName = $request->getAttribute('column');
-        $TableGateway = new RelationalTableGateway('directus_columns', $dbConnection, $acl);
+        $TableGateway = new RelationalTableGateway('directus_fields', $dbConnection, $acl);
 
         // TODO: check whether this condition is still needed
         if (isset($payload['type'])) {
@@ -296,9 +294,9 @@ class Fields extends Route
             unset($payload['type']);
         }
 
-        $payload['column_name'] = $columnName;
-        $payload['table_name'] = $tableName;
-        $row = $TableGateway->findOneByArray(['table_name' => $tableName, 'column_name' => $columnName]);
+        $payload['field'] = $columnName;
+        $payload['collection'] = $tableName;
+        $row = $TableGateway->findOneByArray(['collection' => $tableName, 'field' => $columnName]);
 
         if ($row) {
             $payload['id'] = $row['id'];

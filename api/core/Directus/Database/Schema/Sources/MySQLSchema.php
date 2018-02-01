@@ -30,23 +30,12 @@ class MySQLSchema extends AbstractSchema
         ]);
         $select->from(['ST' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')]);
         $select->join(
-            ['DT' => 'directus_tables'],
-            'DT.table_name = ST.TABLE_NAME',
+            ['DT' => 'directus_collections'],
+            'DT.collection = ST.TABLE_NAME',
             [
                 'hidden' => new Expression('IFNULL(hidden, 0)'),
                 'single' => new Expression('IFNULL(single, 0)'),
-                'default_status' => new Expression('IFNULL(single, NULL)'),
-                'user_create_column',
-                'user_update_column',
-                'date_create_column',
-                'date_update_column',
-                'footer',
-                'column_groupings',
-                'filter_column_blacklist',
-                'primary_column',
-                'sort_column',
-                'status_column',
-                'display_template',
+                'item_name_template',
                 'preview_url',
                 'status_mapping'
             ],
@@ -80,7 +69,7 @@ class MySQLSchema extends AbstractSchema
         $select = new Select();
 
         $select->columns([
-            'table_name' => 'TABLE_NAME'
+            'collection' => 'TABLE_NAME'
         ]);
         $select->from(new TableIdentifier('TABLES', 'INFORMATION_SCHEMA'));
         $select->where([
@@ -149,23 +138,12 @@ class MySQLSchema extends AbstractSchema
 
         $select->from(['T' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')]);
         $select->join(
-            ['DT' => 'directus_tables'],
-            'DT.table_name = T.TABLE_NAME',
+            ['DT' => 'directus_collections'],
+            'DT.collection = T.TABLE_NAME',
             [
                 'hidden' => new Expression('IFNULL(hidden, 0)'),
                 'single' => new Expression('IFNULL(single, 0)'),
-                'default_status' => new Expression('IFNULL(single, NULL)'),
-                'user_create_column',
-                'user_update_column',
-                'date_create_column',
-                'date_update_column',
-                'footer',
-                'column_groupings',
-                'filter_column_blacklist',
-                'primary_column',
-                'sort_column',
-                'status_column',
-                'display_template',
+                'item_name_template',
                 'preview_url',
                 'status_mapping'
             ],
@@ -217,16 +195,11 @@ class MySQLSchema extends AbstractSchema
         ]);
         $selectOne->from(['C' => new TableIdentifier('COLUMNS', 'INFORMATION_SCHEMA')]);
         $selectOne->join(
-            ['D' => 'directus_columns'],
-            'C.COLUMN_NAME = D.column_name AND C.TABLE_NAME = D.table_name',
+            ['D' => 'directus_fields'],
+            'C.COLUMN_NAME = D.field AND C.TABLE_NAME = D.collection',
             [
-                'ui',
+                'interface',
                 'hidden_input' => new Expression('IFNULL(hidden_input, 0)'),
-                'relationship_type',
-                'related_table',
-                'junction_table',
-                'junction_key_left',
-                'junction_key_right',
                 'required' => new Expression('IFNULL(D.required, 0)'),
                 'options',
             ],
@@ -252,10 +225,10 @@ class MySQLSchema extends AbstractSchema
 
         $selectTwo = new Select();
         $selectTwo->columns([
-            'id' => 'column_name',
-            'table_name',
-            'column_name',
-            'type' => new Expression('UCASE(data_type)'),
+            'id' => 'field',
+            'collection',
+            'field',
+            'type' => new Expression('UCASE(type)'),
             'key' => new Expression('NULL'),
             'extra' => new Expression('NULL'),
             'char_length' => new Expression('NULL'),
@@ -266,31 +239,26 @@ class MySQLSchema extends AbstractSchema
             'comment',
             'sort',
             'column_type' => new Expression('NULL'),
-            'ui',
+            'interface',
             'hidden_input',
-            'relationship_type',
-            'related_table',
-            'junction_table',
-            'junction_key_left',
-            'junction_key_right',
             'required' => new Expression('IFNULL(required, 0)'),
             'options',
         ]);
-        $selectTwo->from('directus_columns');
+        $selectTwo->from('directus_fields');
         $where = new Where();
         $where
-            ->equalTo('TABLE_NAME', $tableName)
-            ->addPredicate(new In('data_type', ['alias', 'MANYTOMANY', 'ONETOMANY']))
-            ->nest()
-            // NOTE: is this actually necessary?
-            ->addPredicate(new \Zend\Db\Sql\Predicate\Expression('"' . $columnName . '" = -1'))
-            ->OR
-            ->equalTo('column_name', $columnName)
-            ->unnest()
-            ->addPredicate(new IsNotNull('relationship_type'));
+            ->equalTo('collection', $tableName)
+            ->addPredicate(new In('type', ['alias', 'MANYTOMANY', 'ONETOMANY']));
+            // ->nest()
+            // // NOTE: is this actually necessary?
+            // ->addPredicate(new \Zend\Db\Sql\Predicate\Expression('"' . $columnName . '" = -1'))
+            // ->OR
+            // ->equalTo('field', $columnName)
+            // ->unnest()
+            // ->addPredicate(new IsNotNull('relationship_type'));
 
         if (isset($params['blacklist']) && count($params['blacklist']) > 0) {
-            $where->addPredicate(new NotIn('COLUMN_NAME', $params['blacklist']));
+            $where->addPredicate(new NotIn('field', $params['blacklist']));
         }
 
         $selectTwo->where($where);
@@ -330,16 +298,11 @@ class MySQLSchema extends AbstractSchema
 
         $selectOne->from(['C' => new TableIdentifier('COLUMNS', 'INFORMATION_SCHEMA')]);
         $selectOne->join(
-            ['D' => 'directus_columns'],
-            'C.COLUMN_NAME = D.column_name AND C.TABLE_NAME = D.table_name',
+            ['D' => 'directus_fields'],
+            'C.COLUMN_NAME = D.field AND C.TABLE_NAME = D.collection',
             [
-                'ui',
+                'interface',
                 'hidden_input' => new Expression('IFNULL(hidden_input, 0)'),
-                'relationship_type',
-                'related_table',
-                'junction_table',
-                'junction_key_left',
-                'junction_key_right',
                 'required' => new Expression('IFNULL(D.required, 0)'),
                 'options',
             ],
@@ -348,8 +311,8 @@ class MySQLSchema extends AbstractSchema
 
         $selectOne->join(
             ['T' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')],
-            'C.TABLE_NAME = T.TABLE_NAME',
-            ['table_name' => 'TABLE_NAME'],
+            'C.TABLE_NAME= T.TABLE_NAME',
+            ['TABLE_NAME' => 'TABLE_NAME'],
             $selectOne::JOIN_LEFT
         );
 
@@ -361,11 +324,11 @@ class MySQLSchema extends AbstractSchema
 
         $selectTwo = new Select();
         $selectTwo->columns([
-            'id' => 'column_name',
-            'table_name',
-            'column_name',
+            'id' => 'field',
+            'collection',
+            'field',
             'sort',
-            'type' => new Expression('UCASE(data_type)'),
+            'type' => new Expression('UCASE(type)'),
             'key' => new Expression('NULL'),
             'extra' => new Expression('NULL'),
             'char_length' => new Expression('NULL'),
@@ -375,21 +338,16 @@ class MySQLSchema extends AbstractSchema
             'default_value' => new Expression('NULL'),
             'comment',
             'column_type' => new Expression('NULL'),
-            'ui',
+            'interface',
             'hidden_input',
-            'relationship_type',
-            'related_table',
-            'junction_table',
-            'junction_key_left',
-            'junction_key_right',
             'required' => new Expression('IFNULL(required, 0)'),
             'options',
-            'table_name'
+            'collection'
         ]);
-        $selectTwo->from('directus_columns');
+        $selectTwo->from('directus_fields');
 
         $where = new Where();
-        $where->addPredicate(new In('data_type', ['alias', 'MANYTOMANY', 'ONETOMANY']));
+        $where->addPredicate(new In('type', ['alias', 'MANYTOMANY', 'ONETOMANY']));
         $selectTwo->where($where);
 
         $selectOne->combine($selectTwo, $selectOne::COMBINE_UNION, 'ALL');
@@ -415,7 +373,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function getColumn($tableName, $columnName)
     {
-        return $this->getColumns($tableName, ['column_name' => $columnName])->current();
+        return $this->getColumns($tableName, ['field' => $columnName])->current();
     }
 
     /**

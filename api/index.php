@@ -11,12 +11,11 @@ $app = require __DIR__ . '/bootstrap.php';
 
 $app->group('/activity', \Directus\Api\Routes\Activity::class);
 $app->group('/auth', \Directus\Api\Routes\Auth::class);
-$app->group('/bookmarks', \Directus\Api\Routes\Bookmarks::class);
 $app->group('/fields', \Directus\Api\Routes\Fields::class);
 $app->group('/files', \Directus\Api\Routes\Files::class);
 $app->group('/groups', \Directus\Api\Routes\Groups::class);
 $app->group('/items', \Directus\Api\Routes\Items::class);
-$app->group('/preferences', \Directus\Api\Routes\Preferences::class);
+$app->group('/collection_presets', \Directus\Api\Routes\CollectionPresets::class);
 $app->group('/permissions', \Directus\Api\Routes\Permissions::class);
 $app->group('/revisions', \Directus\Api\Routes\Revisions::class);
 $app->group('/settings', \Directus\Api\Routes\Settings::class);

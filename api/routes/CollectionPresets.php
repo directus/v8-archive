@@ -8,13 +8,13 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\RowGateway\BaseRowGateway;
-use Directus\Database\TableGateway\DirectusPreferencesTableGateway;
+use Directus\Database\TableGateway\DirectusCollectionPresetsTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\RowGateway\RowGateway;
 
-class Preferences extends Route
+class CollectionPresets extends Route
 {
     /**
      * @param Application $app
@@ -40,7 +40,7 @@ class Preferences extends Route
         $params = $request->getQueryParams();
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
-        $preferencesTableGateway = new DirectusPreferencesTableGateway($dbConnection, $acl);
+        $preferencesTableGateway = new DirectusCollectionPresetsTableGateway($dbConnection, $acl);
 
         $responseData = $this->getDataAndSetResponseCacheTags(
             [$preferencesTableGateway, 'getItems'],
@@ -62,7 +62,7 @@ class Preferences extends Route
         $acl = $this->container->get('acl');
         $params = ArrayUtils::pick($request->getQueryParams(), ['meta', 'fields']);
         $params['id'] = $request->getAttribute('id');
-        $preferencesTableGateway = new DirectusPreferencesTableGateway($dbConnection, $acl);
+        $preferencesTableGateway = new DirectusCollectionPresetsTableGateway($dbConnection, $acl);
 
         $responseData = $this->getDataAndSetResponseCacheTags(
             [$preferencesTableGateway, 'getItems'],
@@ -90,7 +90,7 @@ class Preferences extends Route
             $payload['user'] = $acl->getUserId();;
         }
 
-        $preferencesTableGateway = new DirectusPreferencesTableGateway($dbConnection, $acl);
+        $preferencesTableGateway = new DirectusCollectionPresetsTableGateway($dbConnection, $acl);
         /** @var RowGateway $preference */
         $preference = $preferencesTableGateway->updateRecord($payload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_DISABLED);
         $responseData = $preferencesTableGateway->wrapData($preference->toArray(), true, ArrayUtils::get($params, 'meta'));
@@ -114,7 +114,7 @@ class Preferences extends Route
         $payload = $request->getParsedBody();
         $payload['id'] = $id;
 
-        $preferencesTableGateway = new DirectusPreferencesTableGateway($dbConnection, $acl);
+        $preferencesTableGateway = new DirectusCollectionPresetsTableGateway($dbConnection, $acl);
         /** @var RowGateway $preference */
         $preference = $preferencesTableGateway->updateRecord($payload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_DISABLED);
         $responseData = $preferencesTableGateway->wrapData($preference->toArray(), true, ArrayUtils::get($params, 'meta'));
@@ -145,7 +145,7 @@ class Preferences extends Route
         $acl = $this->container->get('acl');
         $id = $request->getAttribute('id');
 
-        $preferencesTableGateway = new DirectusPreferencesTableGateway($dbConnection, $acl);
+        $preferencesTableGateway = new DirectusCollectionPresetsTableGateway($dbConnection, $acl);
 
         // TODO: throw exception if ID is not integer
         // TODO: throw exception if fail

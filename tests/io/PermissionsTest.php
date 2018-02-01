@@ -16,8 +16,9 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
     public static function resetDatabase()
     {
-        reset_table_id('directus_privileges', 14);
-        reset_table_id('products', 5);
+        $db = create_db_connection();
+        reset_table_id($db, 'directus_permissions', 1);
+        reset_table_id($db, 'products', 5);
     }
 
     public static function setUpBeforeClass()
@@ -37,9 +38,9 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response_error($this, $response);
 
         $data = [
-            'group_id' => 3,
-            'table_name' => 'products',
-            'allow_view' => 2
+            'group' => 3,
+            'collection' => 'products',
+            'read' => 2
         ];
 
         $response = request_post('permissions', $data, ['query' => $this->queryParams]);
@@ -68,12 +69,12 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response_error($this, $response);
 
         $data = [
-            'allow_edit' => 2
+            'update' => 2
         ];
 
-        $response = request_patch('permissions/14', $data, ['query' => $this->queryParams]);
+        $response = request_patch('permissions/1', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
-        assert_response_data_contains($this, $response, array_merge(['id' => 14], $data));
+        assert_response_data_contains($this, $response, array_merge(['id' => 1], $data));
 
         // Intern can update products
         $data = [
@@ -87,13 +88,13 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
     public function testGetOne()
     {
         $data = [
-            'id' => 14,
-            'table_name' => 'products',
-            'allow_view' => 2,
-            'allow_edit' => 2
+            'id' => 1,
+            'collection' => 'products',
+            'read' => 2,
+            'update' => 2
         ];
 
-        $response = request_get('permissions/14', $this->queryParams);
+        $response = request_get('permissions/1', $this->queryParams);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, $data);
     }
@@ -103,7 +104,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $response = request_get('permissions', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 14
+            'count' => 1
         ]);
     }
 
@@ -111,14 +112,14 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
     {
         $params = array_merge([
             'filter' => [
-                'group_id' => 3
+                'group' => 3
             ]
         ], $this->queryParams);
 
         $response = request_get('permissions', $params);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 2
+            'count' => 1
         ]);
     }
 
@@ -126,7 +127,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
     {
         $params = array_merge([
             'filter' => [
-                'table_name' => 'products'
+                'collection' => 'products'
             ]
         ], $this->queryParams);
 
@@ -139,10 +140,10 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $response = request_delete('permissions/14', ['query' => $this->queryParams]);
+        $response = request_delete('permissions/1', ['query' => $this->queryParams]);
         assert_response_empty($this, $response);
 
-        $response = request_error_get('permissions/14', $this->queryParams);
+        $response = request_error_get('permissions/1', $this->queryParams);
         assert_response_error($this, $response, [
             'code' => ItemNotFoundException::ERROR_CODE,
             'status' => 404

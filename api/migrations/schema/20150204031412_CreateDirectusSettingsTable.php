@@ -1,16 +1,5 @@
 <?php
 
-/*
-CREATE TABLE `directus_settings` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `collection` varchar(250) DEFAULT NULL,
-  `name` varchar(250) DEFAULT NULL,
-  `value` varchar(250) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `Unique Collection and Name` (`collection`,`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-*/
-
 use Ruckusing\Migration\Base as Ruckusing_Migration_Base;
 
 class CreateDirectusSettingsTable extends Ruckusing_Migration_Base
@@ -30,30 +19,34 @@ class CreateDirectusSettingsTable extends Ruckusing_Migration_Base
         ]);
         $t->column('scope', 'string', [
             'limit' => 64,
-            'default' => NULL
+            'default' => null
+        ]);
+        $t->column('group', 'string', [
+            'limit' => 64,
+            'default' => null
         ]);
         $t->column('key', 'string', [
             'limit' => 64,
-            'default' => NULL
+            'null' => false
         ]);
         $t->column('value', 'string', [
             'limit' => 255,
-            'default' => NULL
+            'default' => null
         ]);
 
         $t->finish();
 
-        $this->add_index('directus_settings', ['scope', 'key'], [
+        $this->add_index('directus_settings', ['scope', 'group', 'key'], [
             'unique' => true,
-            'name' => 'Unique Collection and Name'
+            'name' => 'idx_scope_group_key'
         ]);
     }//up()
 
     public function down()
     {
-        $this->remove_index('directus_settings', ['scope', 'key'], [
+        $this->remove_index('directus_settings', ['scope', 'group', 'key'], [
             'unique' => true,
-            'name' => 'Unique Collection and Name'
+            'name' => 'idx_scope_group_key'
         ]);
         $this->drop_table('directus_settings');
     }//down()

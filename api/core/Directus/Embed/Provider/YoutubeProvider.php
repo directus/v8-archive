@@ -86,7 +86,7 @@ class YoutubeProvider extends AbstractProvider
             $videoDataSnippet = $content->items[0]->snippet;
 
             $info['title'] = $videoDataSnippet->title;
-            $info['caption'] = $videoDataSnippet->description;
+            $info['description'] = $videoDataSnippet->description;
             $tags = '';
             if (property_exists($videoDataSnippet, 'tags')) {
                 $tags = implode(',', $videoDataSnippet->tags);

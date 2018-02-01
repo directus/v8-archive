@@ -7,15 +7,16 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserIsNotLoggedInException;
-use Directus\Authentication\Provider;
 use Directus\Authentication\User\User;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Database\TableGateway\DirectusGroupsTableGateway;
-use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
+use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
+use Directus\Util\ArrayUtils;
+use Zend\Db\TableGateway\TableGateway;
 
 class AuthenticationMiddleware extends AbstractMiddleware
 {
@@ -54,9 +55,8 @@ class AuthenticationMiddleware extends AbstractMiddleware
             return $settings;
         };
 
-        // TODO: Whitelist path
-        // TODO: Check whitelist
-        $whitelisted = ['auth/login', 'auth/refresh'];
+        // TODO: Move this to middleware
+        $whitelisted = ['auth/authenticate'];
         if (in_array($request->getUri()->getPath(), $whitelisted)) {
             return $next($request, $response);
         }
@@ -92,10 +92,12 @@ class AuthenticationMiddleware extends AbstractMiddleware
         // This behavior works as expected when you are logged to the CMS/Management
         // When logged through API we need to reload all their permissions
         $dbConnection = $this->container->get('database');
+        $permissionsTable = new DirectusPermissionsTableGateway($dbConnection, null);
+        $permissionsByCollection = $permissionsTable->getGroupPrivileges($user->getGroupId());
+
         /** @var Acl $acl */
         $acl = $this->container->get('acl');
-        $privilegesTable = new DirectusPrivilegesTableGateway($dbConnection, $acl);
-        $acl->setGroupPrivileges($privilegesTable->getGroupPrivileges($user->group));
+        $acl->setGroupPrivileges($permissionsByCollection);
         // TODO: Adding an user should auto set its ID and GROUP
         // TODO: User data should be casted to its data type
         // TODO: Make sure that the group is not empty

@@ -30,7 +30,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         static::$uploadPath = realpath(__DIR__ . '/../../storage/uploads');
         static::$thumbsPath = static::$uploadPath . '/thumbs';
 
-        reset_table_id('directus_files', 2);
+        reset_table_id(create_db_connection(), 'directus_files', 2);
         $uploadPath = static::$uploadPath;
 
         $uploadsOmit = ['.gitignore', '.htaccess', '00000000001.jpg'];
@@ -69,13 +69,13 @@ class FilesTest extends \PHPUnit_Framework_TestCase
     {
         $name = static::$fileName;
         $data = [
-            'name' => $name,
+            'filename' => $name,
             'data' => $this->getImageBase64()
         ];
 
         $response = request_post('files', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
-        assert_response_data_contains($this, $response, ['name' => $name]);
+        assert_response_data_contains($this, $response, ['filename' => $name]);
 
         $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
         $this->assertTrue(file_exists(static::$thumbsPath . '/2.jpg'));

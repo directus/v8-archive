@@ -8,16 +8,13 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 {
     protected $systemTables = [
         'directus_activity',
-        'directus_bookmarks',
-        'directus_columns',
+        'directus_fields',
         'directus_files',
         'directus_groups',
-        'directus_messages',
-        'directus_messages_recipients',
-        'directus_preferences',
-        'directus_privileges',
+        'directus_collection_presets',
+        'directus_permissions',
         'directus_settings',
-        'directus_tables',
+        'directus_collections',
         'directus_users'
     ];
 
