@@ -10,10 +10,13 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         'access_token' => 'token'
     ];
 
+    protected static $db;
+
     /**
      * @var string
      */
     protected static $fileName = 'green.jpg';
+    protected static $fileName2 = 'myphoto.jpg';
 
     /**
      * @var string
@@ -30,7 +33,9 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         static::$uploadPath = realpath(__DIR__ . '/../../storage/uploads');
         static::$thumbsPath = static::$uploadPath . '/thumbs';
 
-        reset_table_id(create_db_connection(), 'directus_files', 2);
+        static::$db = create_db_connection();
+        reset_table_id(static::$db, 'directus_files', 2);
+        reset_table_id(static::$db, 'directus_folders', 1);
         $uploadPath = static::$uploadPath;
 
         $uploadsOmit = ['.gitignore', '.htaccess', '00000000001.jpg'];
@@ -104,12 +109,86 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, $data);
     }
 
+    public function testCreateFileWithFolder()
+    {
+        $data = [
+            'name' => 'photos'
+        ];
+
+        $response = request_post('files/folders', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data);
+        $folder = response_get_data($response);
+
+        // Upload file
+        $name = static::$fileName2;
+        $data = [
+            'folder' => $folder->id,
+            'filename' => $name,
+            'data' => $this->getImageBase64()
+        ];
+
+        $response = request_post('files', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, ['filename' => $name]);
+
+        $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
+        $this->assertTrue(file_exists(static::$thumbsPath . '/3.jpg'));
+    }
+
+    public function testUpdateFolder()
+    {
+        $data = [
+            'id' => 1,
+            'name' => 'pictures',
+            'parent_folder' => null
+        ];
+
+        $response = request_patch('files/folders/1', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data);
+    }
+
+    public function testGetOneFolder()
+    {
+        $data = [
+            'id' => 1,
+            'name' => 'pictures',
+            'parent_folder' => null
+        ];
+
+        $response = request_get('files/folders/1', $this->queryParams);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data);
+    }
+
+    public function testListFolder()
+    {
+        $response = request_get('files/folders', $this->queryParams);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 1
+        ]);
+    }
+
+    public function testDeleteFolder()
+    {
+        $response = request_delete('files/folders/1', ['query' => $this->queryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_get('files/folders/1', $this->queryParams);
+        assert_response_error($this, $response, [
+            'code' => ItemNotFoundException::ERROR_CODE,
+            'status' => 404
+        ]);
+    }
+
     public function testList()
     {
         $response = request_get('files', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 2
+            'count' => 3
         ]);
     }
 
@@ -126,6 +205,19 @@ class FilesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse(file_exists(static::$uploadPath . '/' . static::$fileName));
         $this->assertFalse(file_exists(static::$thumbsPath . '/2.jpg'));
+
+        // delete second file
+        $response = request_delete('files/3', ['query' => $this->queryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_get('files/3', $this->queryParams);
+        assert_response_error($this, $response, [
+            'code' => ItemNotFoundException::ERROR_CODE,
+            'status' => 404
+        ]);
+
+        $this->assertFalse(file_exists(static::$uploadPath . '/' . static::$fileName2));
+        $this->assertFalse(file_exists(static::$thumbsPath . '/3.jpg'));
     }
 
     protected function getImageBase64()

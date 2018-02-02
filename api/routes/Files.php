@@ -20,10 +20,20 @@ class Files extends Route
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id}', [$this, 'one']);
-        $app->patch('/{id}', [$this, 'update']);
-        $app->delete('/{id}', [$this, 'delete']);
+        $app->get('/{id:[0-9]+}', [$this, 'one']);
+        $app->patch('/{id:[0-9]+}', [$this, 'update']);
+        $app->delete('/{id:[0-9]+}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
+
+        // Folders
+        $controller = $this;
+        $app->group('/folders', function () use ($controller) {
+            $this->post('', [$controller, 'createFolder']);
+            $this->get('/{id:[0-9]+}', [$controller, 'oneFolder']);
+            $this->patch('/{id:[0-9]+}', [$controller, 'updateFolder']);
+            $this->delete('/{id:[0-9]+}', [$controller, 'deleteFolder']);
+            $this->get('', [$controller, 'allFolder']);
+        });
     }
 
     /**
@@ -185,5 +195,117 @@ class Files extends Route
         ];
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function createFolder(Request $request, Response $response)
+    {
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+
+        $this->validateRequestWithTable($request, 'directus_folders');
+        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
+
+        $newFolder = $foldersTableGateway->updateRecord($payload);
+        $responseData = $foldersTableGateway->wrapData(
+            $newFolder->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function oneFolder(Request $request, Response $response)
+    {
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
+
+        $params = ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta']);
+        $params['id'] = $request->getAttribute('id');
+        $responseData = $this->getEntriesAndSetResponseCacheTags($foldersTableGateway, $params);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function updateFolder(Request $request, Response $response)
+    {
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
+
+        $payload['id'] = $request->getAttribute('id');
+        $group = $foldersTableGateway->updateRecord($payload);
+
+        $responseData = $foldersTableGateway->wrapData(
+            $group->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function allFolder(Request $request, Response $response)
+    {
+        $container = $this->container;
+        $acl = $container->get('acl');
+        $dbConnection = $container->get('database');
+        $params = $request->getQueryParams();
+
+        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
+        $responseData = $this->getEntriesAndSetResponseCacheTags($foldersTableGateway, $params);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function deleteFolder(Request $request, Response $response)
+    {
+        $id = $request->getAttribute('id');
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+
+        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
+        $this->getEntriesAndSetResponseCacheTags($foldersTableGateway, [
+            'id' => $id
+        ]);
+
+        $foldersTableGateway->delete(['id' => $id]);
+
+        return $this->responseWithData($request, $response, []);
     }
 }
