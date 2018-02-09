@@ -99,7 +99,7 @@ return [
 
     'mail' => [
         'transport' => 'mail',
-        'from' => 'admin@directus.local'
+        'from' => 'root@localhost'
     ],
 
     'cors' => [
