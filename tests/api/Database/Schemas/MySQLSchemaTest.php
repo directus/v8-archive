@@ -93,7 +93,7 @@ class MySQLSchemaTest extends PHPUnit_Framework_TestCase
         ];
 
         foreach($columns as $key => $column) {
-            $columns[$key] = new \Directus\Database\Object\Column($column);
+            $columns[$key] = new \Directus\Database\Object\Field($column);
         }
 
         $result = $schema->parseRecordValuesByType($data, $columns);

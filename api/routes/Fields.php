@@ -8,7 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Exception\ColumnNotFoundException;
 use Directus\Database\Exception\TableNotFoundException;
-use Directus\Database\Object\Column;
+use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
@@ -54,12 +54,6 @@ class Fields extends Route
         $collectionName = $request->getAttribute('collection');
         $payload['collection'] = $collectionName;
 
-        // ArrayUtils::renameSome($payload, [
-        //     'name' => 'column_name',
-        //     'interface' => 'ui',
-        //     'type' => 'data_type'
-        // ]);
-
         // if (!$acl->hasTablePrivilege($collectionName, 'alter')) {
         //     throw new UnauthorizedTableAlterException(__t('permission_table_alter_access_forbidden_on_table', [
         //         'collection' => $tableName
@@ -71,11 +65,6 @@ class Fields extends Route
         $this->validate(['collection' => $collectionName], ['collection' => 'required|string']);
         $this->validateDataWithTable($request, $payload, 'directus_fields');
 
-        // ArrayUtils::renameSome($payload, array_flip([
-        //     'name' => 'column_name',
-        //     'interface' => 'ui',
-        //     'type' => 'data_type'
-        // ]));
         $tableService = new TablesService($this->container);
         $fieldName = ArrayUtils::pull($payload, 'field');
         $field = $tableService->addColumn($collectionName, $fieldName, $payload);
@@ -125,7 +114,7 @@ class Fields extends Route
             throw new TableNotFoundException($collectionName);
         }
 
-        $columnObject = $tableObject->getColumn($fieldName);
+        $columnObject = $tableObject->getField($fieldName);
         if (!$columnObject) {
             throw new ColumnNotFoundException($fieldName);
         }
@@ -166,12 +155,6 @@ class Fields extends Route
         $payload['collection'] = $collectionName = $request->getAttribute('collection');
         $payload['field'] = $fieldName = $request->getAttribute('field');
 
-        // ArrayUtils::renameSome($payload, [
-        //     'name' => 'column_name',
-        //     'interface' => 'ui',
-        //     'type' => 'data_type'
-        // ]);
-
         // if (!$acl->hasTablePrivilege($collectionName, 'alter')) {
         //     throw new UnauthorizedTableAlterException(__t('permission_table_alter_access_forbidden_on_table', [
         //         'collection' => $tableName
@@ -189,12 +172,6 @@ class Fields extends Route
             'field' => 'required|string',
             'payload' => 'required|array'
         ]);
-
-        // ArrayUtils::renameSome($payload, array_flip([
-        //     'name' => 'column_name',
-        //     'interface' => 'ui',
-        //     'type' => 'data_type'
-        // ]));
 
         $tableService = new TablesService($this->container);
         $fieldName = ArrayUtils::pull($payload, 'field');
@@ -249,10 +226,10 @@ class Fields extends Route
 
         $collectionTableObject = $schemaManager->getTableSchema('directus_fields');
         if (in_array('*', $fields)) {
-            $fields = $collectionTableObject->getColumnsName();
+            $fields = $collectionTableObject->getFieldsName();
         }
 
-        $fields = array_map(function(Column $column) use ($fields) {
+        $fields = array_map(function(Field $column) use ($fields) {
             $data = $column->toArray();
 
             if (!empty($fields)) {

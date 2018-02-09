@@ -41,21 +41,6 @@ class SQLiteSchema extends AbstractSchema
         return $this->formatTablesFromInfo($tablesObject, $directusTablesInfo);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getTablesName()
-    {
-        $tablesObject = $this->metadata->getTables();
-
-        $tables = [];
-        foreach ($tablesObject as $tableObject) {
-            $tables[] = $tableObject->getName();
-        }
-
-        return $tables;
-    }
-
     protected function getDirectusTablesInfo()
     {
         $config = Bootstrap::get('config');

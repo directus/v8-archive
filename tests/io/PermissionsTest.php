@@ -14,11 +14,19 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         'access_token' => 'intern_token'
     ];
 
+    protected static $data = [
+        ['status' => 2, 'name' => 'Old Product', 'price' => 4.99, 'category_id' => 1],
+        ['status' => 1, 'name' => 'Basic Product', 'price' => 9.99, 'category_id' => 1],
+        ['status' => 1, 'name' => 'Premium Product', 'price' => 19.99, 'category_id' => 1],
+        ['status' => 1, 'name' => 'Enterprise Product', 'price' => 49.99]
+    ];
+
     public static function resetDatabase()
     {
         $db = create_db_connection();
         reset_table_id($db, 'directus_permissions', 1);
-        reset_table_id($db, 'products', 5);
+        truncate_table($db, 'products');
+        fill_table($db, 'products', static::$data);
     }
 
     public static function setUpBeforeClass()

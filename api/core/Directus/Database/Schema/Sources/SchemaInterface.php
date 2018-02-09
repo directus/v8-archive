@@ -18,12 +18,9 @@ interface SchemaInterface
     const INTERFACE_TOGGLE      = 'toggle';
 
     /**
-     * Gets the schema source connection
-     *
      * @return Connection
      */
     public function getConnection();
-
     /**
      * Get the schema name
      *
@@ -38,50 +35,25 @@ interface SchemaInterface
      *
      * @return ResultSet
      */
-    public function getTables(array $params = []);
+    public function getCollections(array $params = []);
 
     /**
-     * Gets a list of all tables name.
+     * Check whether a given table name exists
      *
-     * @return ResultSet
-     */
-    public function getTablesName();
-
-    /**
-     * Check if the given table name exists
-     *
-     * @param $tableName
+     * @param string|array $collectionName
      *
      * @return bool
      */
-    public function hasTable($tableName);
-
-    /**
-     * Alias for hasTable
-     *
-     * @param $tableName
-     *
-     * @return bool
-     */
-    public function tableExists($tableName);
-
-    /**
-     * Checks whether one of the table in the list exists
-     *
-     * @param array $tablesName
-     *
-     * @return bool
-     */
-    public function someTableExists(array $tablesName);
+    public function collectionExists($collectionName);
 
     /**
      * Gets the structure of the given table name.
      *
-     * @param $tableName
+     * @param $collectionName
      *
      * @return ResultSet
      */
-    public function getTable($tableName);
+    public function getCollection($collectionName);
 
     /**
      * Gets all columns in the given table name.
@@ -91,34 +63,50 @@ interface SchemaInterface
      *
      * @return ResultSet
      */
-    public function getColumns($tableName, $params = null);
+    public function getFields($tableName, $params = null);
 
     /**
      * Gets all columns in the current schema
      *
      * @return ResultSet
      */
-    public function getAllColumns();
+    public function getAllFields();
 
     /**
      * Checks whether the given table name has a given column name
      *
-     * @param $tableName
-     * @param $columnName
+     * @param string $collectionName
+     * @param string $fieldName
      *
      * @return bool
      */
-    public function hasColumn($tableName, $columnName);
+    public function hasField($collectionName, $fieldName);
 
     /**
      * Gets the info of the given column name in the given table name
      *
-     * @param $tableName
-     * @param $columnName
+     * @param string $collectionName
+     * @param string $fieldName
      *
      * @return array
      */
-    public function getColumn($tableName, $columnName);
+    public function getField($collectionName, $fieldName);
+
+    /**
+     * Gets all relations
+     *
+     * @return ResultSet
+     */
+    public function getAllRelations();
+
+    /**
+     * Gets the collection fields relations
+     *
+     * @param string $collectionName
+     *
+     * @return ResultSet
+     */
+    public function getRelations($collectionName);
 
     /**
      * Checks whether the given table name has primary key column
@@ -127,7 +115,7 @@ interface SchemaInterface
      *
      * @return bool
      */
-    public function hasPrimaryKey($tableName);
+    // public function hasPrimaryKey($tableName);
 
     /**
      * Get the primary key of the given table name.
@@ -136,14 +124,14 @@ interface SchemaInterface
      *
      * @return array
      */
-    public function getPrimaryKey($tableName);
+    // public function getPrimaryKey($tableName);
 
     /**
      * Gets a list with all the tables and column structure and information.
      *
      * @return array
      */
-    public function getFullSchema();
+    // public function getFullSchema();
 
     /**
      * Gets the given column UI name
@@ -152,7 +140,7 @@ interface SchemaInterface
      *
      * @return string
      */
-    public function getColumnUI($column);
+    // public function getColumnUI($column);
 
     /**
      * Adds a primary key to the given column
@@ -162,7 +150,7 @@ interface SchemaInterface
      *
      * @return bool
      */
-    public function addPrimaryKey($table, $column);
+    // public function addPrimaryKey($table, $column);
 
     /**
      * Removes the primary key from the given column
@@ -172,7 +160,7 @@ interface SchemaInterface
      *
      * @return bool
      */
-    public function dropPrimaryKey($table, $column);
+    // public function dropPrimaryKey($table, $column);
 
     /**
      * Cast record values by the schema type

@@ -17,33 +17,37 @@ class CreateDirectusRelationsTable extends Ruckusing_Migration_Base
             'auto_increment' => true,
             'primary_key' => true
         ]);
-        $t->column('relationship_type', 'string', [
+        $t->column('collection_a', 'string', [
+            'limit' => 64,
+            'null' => false
+        ]);
+        $t->column('field_a', 'string', [
             'limit' => 45,
             'null' => false
         ]);
-        $t->column('collection_a', 'string', [
+        $t->column('junction_key_a', 'string', [
             'limit' => 64,
             'null' => true
         ]);
-        $t->column('store_key_a', 'string', [
+        $t->column('junction_collection', 'string', [
             'limit' => 64,
             'null' => true
         ]);
-        $t->column('store_collection', 'string', [
+        $t->column('junction_mixed_collections', 'string', [
             'limit' => 64,
             'null' => true
         ]);
-        $t->column('store_mixed_collections', 'string', [
-            'limit' => 64,
-            'null' => true
-        ]);
-        $t->column('store_key_b', 'string', [
+        $t->column('junction_key_b', 'string', [
             'limit' => 64,
             'null' => true
         ]);
         $t->column('collection_b', 'string', [
             'limit' => 64,
-            'null' => false
+            'null' => true
+        ]);
+        $t->column('field_b', 'string', [
+            'limit' => 64,
+            'null' => true
         ]);
         $t->finish();
 

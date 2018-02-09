@@ -49,7 +49,7 @@ class Collections extends Route
         $params = $request->getQueryParams();
         $tableName = 'directus_collections';
         $tableObject = $schemaManager->getTableSchema($tableName);
-        $constraints = $this->createConstraintFor($tableName, $tableObject->getColumnsName());
+        $constraints = $this->createConstraintFor($tableName, $tableObject->getFieldsName());
         $this->validate($payload, array_merge(['fields' => 'array'], $constraints));
 
         $tableService = new TablesService($this->container);
@@ -127,7 +127,7 @@ class Collections extends Route
         // Validates payload data
         $tableName = 'directus_collections';
         $tableObject = $schemaManager->getTableSchema($tableName);
-        $constraints = $this->createConstraintFor($tableName, $tableObject->getColumnsName());
+        $constraints = $this->createConstraintFor($tableName, $tableObject->getFieldsName());
         $payload['collection'] = $collectionName;
         $this->validate($payload, array_merge(['fields' => 'array'], $constraints));
 

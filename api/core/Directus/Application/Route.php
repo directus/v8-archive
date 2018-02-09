@@ -150,36 +150,36 @@ abstract class Route
     /**
      * Creates the constraint for a an specific table columns
      *
-     * @param string $tableName
-     * @param array $columns List of columns name
+     * @param string $collectionName
+     * @param array $fields List of columns name
      *
      * @return array
      */
-    protected function createConstraintFor($tableName, array $columns = [])
+    protected function createConstraintFor($collectionName, array $fields = [])
     {
         /** @var SchemaManager $schemaManager */
         $schemaManager = $this->container->get('schema_manager');
-        $tableObject = $schemaManager->getTableSchema($tableName);
+        $collectionObject = $schemaManager->getTableSchema($collectionName);
 
         $constraints = [];
 
-        if ($columns === null) {
+        if ($fields === null) {
             return $constraints;
         }
 
-        foreach ($tableObject->getColumns($columns) as $column) {
+        foreach ($collectionObject->getFields($fields) as $field) {
             $columnConstraints = [];
 
-            if ($column->hasAutoIncrement()) {
+            if ($field->hasAutoIncrement()) {
                 continue;
             }
 
-            if ($column->isRequired() || (!$column->isNullable() && $column->getDefaultValue() == null)) {
+            if ($field->isRequired() || (!$field->isNullable() && $field->getDefaultValue() == null)) {
                 $columnConstraints[] = 'required';
             }
 
             if (!empty($columnConstraints)) {
-                $constraints[$column->getName()] = $columnConstraints;
+                $constraints[$field->getName()] = $columnConstraints;
             }
         }
 

@@ -16,28 +16,64 @@ use Zend\Db\Sql\Where;
 class MySQLSchema extends AbstractSchema
 {
     /**
+     * Database connection adapter
+     *
+     * @var \Zend\DB\Adapter\Adapter
+     */
+    protected $adapter;
+
+    /**
+     * AbstractSchema constructor.
+     *
+     * @param $adapter
+     */
+    public function __construct($adapter)
+    {
+        $this->adapter = $adapter;
+    }
+
+    /**
+     * Get the schema name
+     *
+     * @return string
+     */
+    public function getSchemaName()
+    {
+        return $this->adapter->getCurrentSchema();
+    }
+
+    /**
+     * @return \Zend\DB\Adapter\Adapter
+     */
+    public function getConnection()
+    {
+        return $this->adapter;
+    }
+
+    /**
      * @inheritDoc
      */
-    public function getTables(array $params = [])
+    public function getCollections(array $params = [])
     {
         $select = new Select();
         $select->columns([
-            'id' => 'TABLE_NAME',
-            'table_name' => 'TABLE_NAME',
+            'collection' => 'TABLE_NAME',
             'date_created' => 'CREATE_TIME',
-            'comment' => 'TABLE_COMMENT',
-            'row_count' => 'TABLE_ROWS'
+            'collation' => 'TABLE_COLLATION',
+            'schema_comment' => 'TABLE_COMMENT'
         ]);
         $select->from(['ST' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')]);
         $select->join(
             ['DT' => 'directus_collections'],
             'DT.collection = ST.TABLE_NAME',
             [
-                'hidden' => new Expression('IFNULL(hidden, 0)'),
-                'single' => new Expression('IFNULL(single, 0)'),
+                'comment',
+                'hidden' => new Expression('IFNULL(`DT`.`hidden`, 0)'),
+                'single' => new Expression('IFNULL(`DT`.`single`, 0)'),
                 'item_name_template',
                 'preview_url',
-                'status_mapping'
+                'status_mapping',
+                'managed' => new Expression('IF(ISNULL(`DT`.`collection`), 0, 1)')
             ],
             $select::JOIN_LEFT
         );
@@ -47,13 +83,17 @@ class MySQLSchema extends AbstractSchema
             'ST.TABLE_TYPE' => 'BASE TABLE'
         ];
 
-        $blacklisted = ArrayUtils::get($params, 'blacklist', null);
-        if ($blacklisted) {
-            $condition[] = new NotIn('ST.TABLE_NAME', $blacklisted);
+        $select->where($condition);
+        if (isset($params['name'])) {
+            $tableName = $params['name'];
+            // hotfix: This solve the problem fetching a table with capital letter
+            $where = $select->where->nest();
+            $where->equalTo('ST.TABLE_NAME', $tableName);
+            $where->OR;
+            $where->equalTo('ST.TABLE_NAME', $tableName);
+            $where->unnest();
         }
 
-        $select->where($condition);
-
         $sql = new Sql($this->adapter);
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
@@ -64,54 +104,17 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritDoc
      */
-    public function getTablesName()
+    public function collectionExists($collectionsName)
     {
-        $select = new Select();
+        if (is_string($collectionsName)) {
+            $collectionsName = [$collectionsName];
+        }
 
-        $select->columns([
-            'collection' => 'TABLE_NAME'
-        ]);
-        $select->from(new TableIdentifier('TABLES', 'INFORMATION_SCHEMA'));
-        $select->where([
-            'TABLE_SCHEMA' => $this->adapter->getCurrentSchema(),
-            'TABLE_TYPE' => 'BASE TABLE'
-        ]);
-
-        $sql = new Sql($this->adapter);
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-
-        return $result;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasTable($tableName)
-    {
-        $result = $this->getTable($tableName);
-
-        return $result->count() ? true : false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function tableExists($tableName)
-    {
-        return $this->hasTable($tableName);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function someTableExists(array $tablesName)
-    {
         $select = new Select();
         $select->columns(['TABLE_NAME']);
         $select->from(['T' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')]);
         $select->where([
-            new In('T.TABLE_NAME', $tablesName),
+            new In('T.TABLE_NAME', $collectionsName),
             'T.TABLE_SCHEMA' => $this->adapter->getCurrentSchema()
         ]);
 
@@ -125,60 +128,20 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritDoc
      */
-    public function getTable($tableName)
+    public function getCollection($collectionName)
     {
-        $select = new Select();
-        $select->columns([
-            'id' => 'TABLE_NAME',
-            'table_name' => 'TABLE_NAME',
-            'date_created' => 'CREATE_TIME',
-            'comment' => 'TABLE_COMMENT',
-            'row_count' => 'TABLE_ROWS'
-        ]);
-
-        $select->from(['T' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')]);
-        $select->join(
-            ['DT' => 'directus_collections'],
-            'DT.collection = T.TABLE_NAME',
-            [
-                'hidden' => new Expression('IFNULL(hidden, 0)'),
-                'single' => new Expression('IFNULL(single, 0)'),
-                'item_name_template',
-                'preview_url',
-                'status_mapping'
-            ],
-            $select::JOIN_LEFT
-        );
-
-        $select->where([
-            'T.TABLE_SCHEMA' => $this->adapter->getCurrentSchema()
-        ]);
-
-        // @hotfix: This solve the problem fetching a table with capital letter
-        $where = $select->where->nest();
-        $where->equalTo('T.TABLE_NAME', $tableName);
-        $where->OR;
-        $where->equalTo('T.TABLE_NAME', $tableName);
-        $where->unnest();
-
-        $sql = new Sql($this->adapter);
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-
-        return $result;
+        return $this->getCollections(['name' => $collectionName]);
     }
 
     /**
      * @inheritDoc
      */
-    public function getColumns($tableName, $params = null)
+    public function getFields($tableName, $params = null)
     {
-        $columnName = isset($params['column_name']) ? $params['column_name'] : -1;
-
+        return $this->getAllFields(['collection' => $tableName]);
         $selectOne = new Select();
         $selectOne->quantifier($selectOne::QUANTIFIER_DISTINCT);
         $selectOne->columns([
-            'id' => 'COLUMN_NAME',
             'table_name' => 'TABLE_NAME',
             'column_name' => 'COLUMN_NAME',
             'type' => new Expression('UCASE(C.DATA_TYPE)'),
@@ -191,35 +154,45 @@ class MySQLSchema extends AbstractSchema
             'default_value' => 'COLUMN_DEFAULT',
             'comment' => new Expression('IFNULL(comment, COLUMN_COMMENT)'),
             'sort' => new Expression('IFNULL(sort, ORDINAL_POSITION)'),
-            'column_type' => 'COLUMN_TYPE'
+            'column_type' => 'COLUMN_TYPE',
+
+            'interface' => new Expression('D.interface'),
+            'hidden_input' => new Expression('IFNULL(D.hidden_input, 0)'),
+            'required' => new Expression('IFNULL(D.required, 0)'),
+            'options' => new Expression('D.options'),
+
+            'relationship_type' => new Expression('NULL'),
+            'collection_a' => new Expression('NULL'),
+            'store_key_a' => new Expression('NULL'),
+            'store_collection' => new Expression('NULL'),
+            'collection_b' => new Expression('NULL'),
+            'store_key_b' => new Expression('NULL'),
         ]);
         $selectOne->from(['C' => new TableIdentifier('COLUMNS', 'INFORMATION_SCHEMA')]);
         $selectOne->join(
             ['D' => 'directus_fields'],
             'C.COLUMN_NAME = D.field AND C.TABLE_NAME = D.collection',
             [
-                'interface',
-                'hidden_input' => new Expression('IFNULL(hidden_input, 0)'),
-                'required' => new Expression('IFNULL(D.required, 0)'),
-                'options',
+                // 'interface',
+                // 'hidden_input' => new Expression('IFNULL(hidden_input, 0)'),
+                // 'required' => new Expression('IFNULL(D.required, 0)'),
+                // 'options',
             ],
+            $selectOne::JOIN_LEFT
+        );
+
+        $selectOne->join(
+            ['T' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')],
+            'C.TABLE_NAME = T.TABLE_NAME',
+            [],//['TABLE_NAME' => 'TABLE_NAME'],
             $selectOne::JOIN_LEFT
         );
 
         $where = new Where();
         $where
             ->equalTo('C.TABLE_SCHEMA', $this->adapter->getCurrentSchema())
-            ->equalTo('C.TABLE_NAME', $tableName)
-            // @note: what does did do?
-            ->nest()
-            ->addPredicate(new \Zend\Db\Sql\Predicate\Expression('"'. $columnName . '" = -1'))
-            ->OR
-            ->equalTo('C.column_name', $columnName)
-            ->unnest();
-
-        if (isset($params['blacklist']) && count($params['blacklist']) > 0) {
-            $where->addPredicate(new NotIn('C.COLUMN_NAME', $params['blacklist']));
-        }
+            ->equalTo('T.TABLE_TYPE', 'BASE TABLE')
+            ->equalTo('C.TABLE_NAME', $tableName);
 
         $selectOne->where($where);
 
@@ -239,16 +212,39 @@ class MySQLSchema extends AbstractSchema
             'comment',
             'sort',
             'column_type' => new Expression('NULL'),
+
             'interface',
             'hidden_input',
             'required' => new Expression('IFNULL(required, 0)'),
             'options',
+
+            'relationship_type' => new Expression('R.relationship_type'),
+            'collection_a' => new Expression('R.collection_a'),
+            'store_key_a' => new Expression('R.store_key_a'),
+            'store_collection' => new Expression('R.store_collection'),
+            'collection_b' => new Expression('R.collection_b'),
+            'store_key_b' => new Expression('R.store_key_b'),
+
         ]);
-        $selectTwo->from('directus_fields');
+        $selectTwo->from(['F' => 'directus_fields']);
+
+        $selectTwo->join(
+            ['R' => 'directus_relations'],
+            'F.collection = R.collection_a AND F.field = R.field_a',
+            [
+                // 'relationship_type',
+                // 'collection_a',
+                // 'store_key_a',
+                // 'store_collection',
+                // 'collection_b',
+                // 'store_key_b'
+            ],
+            $selectOne::JOIN_RIGHT
+        );
         $where = new Where();
         $where
             ->equalTo('collection', $tableName)
-            ->addPredicate(new In('type', ['alias', 'MANYTOMANY', 'ONETOMANY']));
+            ->addPredicate(new In('type', ['ALIAS', 'MANYTOMANY', 'ONETOMANY']));
             // ->nest()
             // // NOTE: is this actually necessary?
             // ->addPredicate(new \Zend\Db\Sql\Predicate\Expression('"' . $columnName . '" = -1'))
@@ -276,55 +272,52 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritDoc
      */
-    public function getAllColumns()
+    public function getAllFields(array $params = [])
     {
         $selectOne = new Select();
+        // $selectOne->quantifier($selectOne::QUANTIFIER_DISTINCT);
         $selectOne->columns([
-            'id' => 'COLUMN_NAME',
-            'table_name' => 'TABLE_NAME',
-            'column_name' => 'COLUMN_NAME',
-            'sort' => new Expression('IFNULL(sort, ORDINAL_POSITION)'),
-            'type' => new Expression('UCASE(C.DATA_TYPE)'),
+            'collection' => 'TABLE_NAME',
+            'field' => 'COLUMN_NAME',
+            'sort' => new Expression('IFNULL(DF.sort, SF.ORDINAL_POSITION)'),
+            'type' => new Expression('UCASE(SF.DATA_TYPE)'),
             'key' => 'COLUMN_KEY',
             'extra' => 'EXTRA',
             'char_length' => 'CHARACTER_MAXIMUM_LENGTH',
             'precision' => 'NUMERIC_PRECISION',
             'scale' => 'NUMERIC_SCALE',
-            'is_nullable' => 'IS_NULLABLE',
+            'nullable' => new Expression('IF(SF.IS_NULLABLE="YES",1,0)'),
             'default_value' => 'COLUMN_DEFAULT',
-            'comment' => new Expression('IFNULL(comment, COLUMN_COMMENT)'),
-            'column_type' => 'COLUMN_TYPE'
+            'comment' => new Expression('IFNULL(DF.comment, SF.COLUMN_COMMENT)'),
+            'column_type' => 'COLUMN_TYPE',
         ]);
 
-        $selectOne->from(['C' => new TableIdentifier('COLUMNS', 'INFORMATION_SCHEMA')]);
+        $selectOne->from(['SF' => new TableIdentifier('COLUMNS', 'INFORMATION_SCHEMA')]);
         $selectOne->join(
-            ['D' => 'directus_fields'],
-            'C.COLUMN_NAME = D.field AND C.TABLE_NAME = D.collection',
+            ['DF' => 'directus_fields'],
+            'SF.COLUMN_NAME = DF.field AND SF.TABLE_NAME = DF.collection',
             [
                 'interface',
-                'hidden_input' => new Expression('IFNULL(hidden_input, 0)'),
-                'required' => new Expression('IFNULL(D.required, 0)'),
-                'options',
+                'hidden_input' => new Expression('IF(DF.hidden_input=1,1,0)'),
+                'required' => new Expression('IF(DF.required=1,1,0)'),
+                'options'
             ],
             $selectOne::JOIN_LEFT
         );
 
-        $selectOne->join(
-            ['T' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')],
-            'C.TABLE_NAME= T.TABLE_NAME',
-            ['TABLE_NAME' => 'TABLE_NAME'],
-            $selectOne::JOIN_LEFT
-        );
-
         $selectOne->where([
-            'C.TABLE_SCHEMA' => $this->adapter->getCurrentSchema(),
-            'T.TABLE_SCHEMA' => $this->adapter->getCurrentSchema(),
-            'T.TABLE_TYPE' => 'BASE TABLE'
+            'SF.TABLE_SCHEMA' => $this->adapter->getCurrentSchema(),
+            // 'T.TABLE_TYPE' => 'BASE TABLE'
         ]);
+
+        if (isset($params['collection'])) {
+            $selectOne->where([
+                'SF.TABLE_NAME' => $params['collection']
+            ]);
+        }
 
         $selectTwo = new Select();
         $selectTwo->columns([
-            'id' => 'field',
             'collection',
             'field',
             'sort',
@@ -340,22 +333,27 @@ class MySQLSchema extends AbstractSchema
             'column_type' => new Expression('NULL'),
             'interface',
             'hidden_input',
-            'required' => new Expression('IFNULL(required, 0)'),
+            'required',
             'options',
-            'collection'
         ]);
-        $selectTwo->from('directus_fields');
+        $selectTwo->from(['DF2' => 'directus_fields']);
 
         $where = new Where();
-        $where->addPredicate(new In('type', ['alias', 'MANYTOMANY', 'ONETOMANY']));
+        $where->addPredicate(new In(new Expression('UCASE(type)'), ['ALIAS']));
+        if (isset($params['collection'])) {
+            $where->equalTo('DF2.collection', $params['collection']);
+        }
+
         $selectTwo->where($where);
 
-        $selectOne->combine($selectTwo, $selectOne::COMBINE_UNION, 'ALL');
-        $selectOne->order('T.table_name');
+        $selectOne->combine($selectTwo);//, $selectOne::COMBINE_UNION, 'ALL');
+        $selectOne->order('collection');
 
         $sql = new Sql($this->adapter);
         $statement = $sql->prepareStatementForSqlObject($selectOne);
         $result = $statement->execute();
+
+        // echo $sql->buildSqlString($selectOne);exit;
 
         return $result;
     }
@@ -363,7 +361,7 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritDoc
      */
-    public function hasColumn($tableName, $columnName)
+    public function hasField($tableName, $columnName)
     {
         // TODO: Implement hasColumn() method.
     }
@@ -371,9 +369,48 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritDoc
      */
-    public function getColumn($tableName, $columnName)
+    public function getField($tableName, $columnName)
     {
         return $this->getColumns($tableName, ['field' => $columnName])->current();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAllRelations()
+    {
+        // TODO: Implement getAllRelations() method.
+    }
+
+    public function getRelations($collectionName)
+    {
+        $selectOne = new Select();
+        // $selectOne->quantifier($selectOne::QUANTIFIER_DISTINCT);
+        $selectOne->columns([
+            'id',
+            'collection_a',
+            'field_a',
+            'junction_key_a',
+            'junction_collection',
+            'junction_mixed_collections',
+            'junction_key_b',
+            'collection_b',
+            'field_b'
+        ]);
+
+        $selectOne->from('directus_relations');
+
+        $where = $selectOne->where->nest();
+        $where->equalTo('collection_a', $collectionName);
+        $where->OR;
+        $where->equalTo('collection_b', $collectionName);
+        $where->unnest();
+
+        $sql = new Sql($this->adapter);
+        $statement = $sql->prepareStatementForSqlObject($selectOne);
+        $result = $statement->execute();
+
+        return $result;
     }
 
     /**
@@ -466,7 +503,7 @@ class MySQLSchema extends AbstractSchema
         }
 
         $query = sprintf($queryFormat, $table, $column, $column, $dataType);
-        $connection = $this->getConnection();
+        $connection = $this->adapter;
 
         return $connection->query($query, $connection::QUERY_MODE_EXECUTE);
     }
@@ -492,7 +529,7 @@ class MySQLSchema extends AbstractSchema
 
         $queryFormat = 'ALTER TABLE `%s` CHANGE COLUMN `%s` `%s` %s NOT NULL, DROP PRIMARY KEY';
         $query = sprintf($queryFormat, $table, $column, $column, $dataType);
-        $connection = $this->getConnection();
+        $connection = $this->adapter;
 
         return $connection->query($query, $connection::QUERY_MODE_EXECUTE);
     }

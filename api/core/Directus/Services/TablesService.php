@@ -6,6 +6,8 @@ use Directus\Database\Exception\ColumnAlreadyExistsException;
 use Directus\Database\Exception\ColumnNotFoundException;
 use Directus\Database\Exception\TableAlreadyExistsException;
 use Directus\Database\Exception\TableNotFoundException;
+use Directus\Database\Object\Field;
+use Directus\Database\Object\FieldRelationship;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\TableSchema;
@@ -74,7 +76,7 @@ class TablesService extends AbstractService
         $tableObject = $this->getSchemaManager()->getTableSchema($name);
         $columns = ArrayUtils::get($data, 'fields', []);
         foreach ($columns as $i => $column) {
-            $columnObject = $tableObject->getColumn($column['field']);
+            $columnObject = $tableObject->getField($column['field']);
             if ($columnObject) {
                 $currentColumnData = $columnObject->toArray();
                 $columns[$i] = array_merge($currentColumnData, $columns[$i]);
@@ -120,7 +122,7 @@ class TablesService extends AbstractService
             throw new TableNotFoundException($collectionName);
         }
 
-        $columnObject = $tableObject->getColumn($columnName);
+        $columnObject = $tableObject->getField($columnName);
         if ($columnObject) {
             throw new ColumnAlreadyExistsException($columnName);
         }
@@ -155,7 +157,7 @@ class TablesService extends AbstractService
             throw new TableNotFoundException($collectionName);
         }
 
-        $columnObject = $tableObject->getColumn($columnName);
+        $columnObject = $tableObject->getField($columnName);
         if (!$columnObject) {
             throw new ColumnNotFoundException($columnName);
         }
@@ -175,12 +177,12 @@ class TablesService extends AbstractService
             throw new TableNotFoundException($collectionName);
         }
 
-        $columnObject = $tableObject->getColumn($fieldName);
+        $columnObject = $tableObject->getField($fieldName);
         if (!$columnObject) {
             throw new ColumnNotFoundException($fieldName);
         }
 
-        if (count($tableObject->getColumns()) === 1) {
+        if (count($tableObject->getFields()) === 1) {
             throw new BadRequestException('Cannot delete the last field');
         }
 
@@ -324,7 +326,7 @@ class TablesService extends AbstractService
      *
      * @param $tableName
      *
-     * @return \Directus\Database\Object\Table
+     * @return \Directus\Database\Object\Collection
      */
     public function getTableObject($tableName)
     {
@@ -372,14 +374,17 @@ class TablesService extends AbstractService
         $columns = ArrayUtils::get($data, 'fields', []);
         $this->validateSystemFields($columns);
 
-        $toAdd = $toChange = [];
+        $toAdd = $toChange = $aliasColumn = [];
         $tableObject = $this->getSchemaManager()->getTableSchema($name);
         foreach ($columns as $i => $column) {
-            $columnObject = $tableObject->getColumn($column['field']);
+            $columnObject = $tableObject->getField($column['field']);
+            $type = ArrayUtils::get($column, 'type');
             if ($columnObject) {
                 $toChange[] = array_merge($columnObject->toArray(), $column);
-            } else {
+            } else if (strtoupper($type) !== 'ALIAS') {
                 $toAdd[] = $column;
+            } else {
+                $aliasColumn[] = $column;
             }
         }
 
@@ -393,11 +398,74 @@ class TablesService extends AbstractService
         $hookEmitter->run('table.update:before', $name);
 
         $result = $schemaFactory->buildTable($table);
+        $this->updateColumnsRelation($name, array_merge($toAdd, $toChange, $aliasColumn));
 
         $hookEmitter->run('table.update', $name);
         $hookEmitter->run('table.update:after', $name);
 
         return $result ? true : false;
+    }
+
+    protected function updateColumnsRelation($collectionName, array $columns)
+    {
+        $result = [];
+        foreach ($columns as $column) {
+            $result[] = $this->updateColumnRelation($collectionName, $column);
+        }
+
+        return $result;
+    }
+
+    protected function updateColumnRelation($collectionName, array $column)
+    {
+        $relationData = ArrayUtils::get($column, 'relation', []);
+        if (!$relationData) {
+            return false;
+        }
+
+        $relationshipType = ArrayUtils::get($relationData, 'relationship_type', '');
+        $collectionBName = ArrayUtils::get($relationData, 'collection_b');
+        $storeCollectionName = ArrayUtils::get($relationData, 'store_collection');
+        $collectionBObject = $this->getSchemaManager()->getTableSchema($collectionBName);
+        $relationsTableGateway = $this->createTableGateway('directus_relations');
+
+        $data = [];
+        switch ($relationshipType) {
+            case FieldRelationship::MANY_TO_ONE:
+                $data['relationship_type'] = FieldRelationship::MANY_TO_ONE;
+                $data['collection_a'] = $collectionName;
+                $data['collection_b'] = $collectionBName;
+                $data['store_key_a'] = $column['field'];
+                $data['store_key_b'] = $collectionBObject->getPrimaryColumn();
+                break;
+            case FieldRelationship::ONE_TO_MANY:
+                $data['relationship_type'] = FieldRelationship::ONE_TO_MANY;
+                $data['collection_a'] = $collectionName;
+                $data['collection_b'] = $collectionBName;
+                $data['store_key_a'] = $collectionBObject->getPrimaryColumn();
+                $data['store_key_b'] = $column['field'];
+                break;
+            case FieldRelationship::MANY_TO_MANY:
+                $data['relationship_type'] = FieldRelationship::MANY_TO_MANY;
+                $data['collection_a'] = $collectionName;
+                $data['store_collection'] = $storeCollectionName;
+                $data['collection_b'] = $collectionBName;
+                $data['store_key_a'] = $relationData['store_key_a'];
+                $data['store_key_b'] = $relationData['store_key_b'];
+                break;
+        }
+
+
+        $row = $relationsTableGateway->findOneByArray([
+            'collection_a' => $collectionName,
+            'store_key_a' => $column['field']
+        ]);
+
+        if ($row) {
+            $data['id'] = $row['id'];
+        }
+
+        return $relationsTableGateway->updateRecord($data);
     }
 
     /**

@@ -2,55 +2,16 @@
 
 namespace Directus\Database\Schema\Sources;
 
-use Directus\Database\Object\Column;
+use Directus\Database\Schema\Object\Field;
 use Directus\Util\ArrayUtils;
 
 abstract class AbstractSchema implements SchemaInterface
 {
     /**
-     * Database connection adapter
-     *
-     * @var \Zend\DB\Adapter\Adapter
-     */
-    protected $adapter;
-
-    /**
-     * Schema information
-     *
-     * @var array
-     */
-    protected $schema;
-
-    /**
-     * AbstractSchema constructor.
-     *
-     * @param $adapter
-     */
-    public function __construct($adapter)
-    {
-        $this->adapter = $adapter;
-    }
-
-    public function getConnection()
-    {
-        return $this->adapter;
-    }
-
-    /**
-     * Get the schema name
-     *
-     * @return string
-     */
-    public function getSchemaName()
-    {
-        return $this->adapter->getCurrentSchema();
-    }
-
-    /**
      * Cast records values by its column data type
      *
      * @param array    $records
-     * @param Column[] $columns
+     * @param Field[] $columns
      *
      * @return array
      */

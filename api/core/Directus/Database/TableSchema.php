@@ -6,11 +6,12 @@ use Directus\Authentication\Provider as Auth;
 use Directus\Bootstrap;
 use Directus\Config\Config;
 use Directus\Database\Exception\ColumnNotFoundException;
-use Directus\Database\Object\Column;
-use Directus\Database\Object\Table;
+use Directus\Database\Schema\Object\Field;
+use Directus\Database\Schema\Object\Collection;
+use Directus\Database\Schema\SchemaManager;
+use Directus\Database\Schema\SystemInterface;
 use Directus\Database\TableGateway\DirectusCollectionPresetsTableGateway;
 use Directus\Exception\Http\ForbiddenException;
-use Directus\MemcacheProvider;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\Sql\Predicate\NotIn;
@@ -176,7 +177,7 @@ class TableSchema
      *
      * @throws ForbiddenException
      *
-     * @return Object\Table
+     * @return Collection
      */
     public static function getTableSchema($tableName, array $params = [], $skipCache = false, $skipAcl = false)
     {
@@ -194,14 +195,14 @@ class TableSchema
      * @param array $params
      * @param bool $skipCache
      *
-     * @return Column[]
+     * @return Field[]
      */
     public static function getTableColumnsSchema($tableName, array $params = [], $skipCache = false)
     {
         $tableObject = static::getTableSchema($tableName, $params, $skipCache);
 
-        return array_values(array_filter($tableObject->getColumns(), function (Column $column) {
-            return static::canReadColumn($column->getTableName(), $column->getName());
+        return array_values(array_filter($tableObject->getFields(), function (Field $column) {
+            return static::canReadColumn($column->getCollectionName(), $column->getName());
         }));
     }
 
@@ -213,7 +214,7 @@ class TableSchema
      * @param bool $skipCache
      * @param bool $skipAcl
      *
-     * @return Object\Column
+     * @return Field
      */
     public static function getColumnSchema($tableName, $columnName, $skipCache = false, $skipAcl = false)
     {
@@ -223,7 +224,7 @@ class TableSchema
         // to prevent this we always get the table even if we only want one column
         // Stop using getColumnSchema($tableName, $columnName); until we fix this.
         $tableObject = static::getTableSchema($tableName, [], $skipCache, $skipAcl);
-        $column = $tableObject->getColumn($columnName);
+        $column = $tableObject->getField($columnName);
 
         return $column;
     }
@@ -269,22 +270,42 @@ class TableSchema
     {
         $schema = static::getTableSchema($tableName, [], false, $skipAcl);
 
-        return $schema->hasStatusColumn();
+        return $schema->hasStatusField();
     }
 
     /**
-     * Checks whether the given table has a status column
+     * Gets the status field
      *
      * @param $tableName
      * @param $skipAcl
      *
-     * @return bool
+     * @return null|Field
      */
-    public static function getStatusColumn($tableName,  $skipAcl = false)
+    public static function getStatusField($tableName, $skipAcl = false)
     {
         $schema = static::getTableSchema($tableName, [], false, $skipAcl);
 
-        return $schema->getStatusColumn();
+        return $schema->getStatusField();
+    }
+
+    /**
+     * Gets the status field name
+     *
+     * @param $collectionName
+     * @param bool $skipAcl
+     *
+     * @return null|string
+     */
+    public static function getStatusFieldName($collectionName, $skipAcl = false)
+    {
+        $field = static::getStatusField($collectionName, $skipAcl);
+        $name = null;
+
+        if ($field) {
+            $name = $field->getName();
+        }
+
+        return $name;
     }
 
     /**
@@ -299,7 +320,7 @@ class TableSchema
     public static function hasSomeRelational($tableName, array $columns, $skipAcl = false)
     {
         $tableSchema = static::getTableSchema($tableName, [], false, $skipAcl);
-        $relationalColumns = $tableSchema->getRelationalColumnsName();
+        $relationalColumns = $tableSchema->getRelationalFieldsName();
 
         $has = false;
         foreach ($relationalColumns as $column) {
@@ -338,7 +359,7 @@ class TableSchema
      * @param $tableName
      * @param $columnName
      *
-     * @return Object\ColumnRelationship|null
+     * @return Object\FieldRelationship|null
      */
     public static function getColumnRelationship($tableName, $columnName)
     {
@@ -399,7 +420,7 @@ class TableSchema
      */
     public static function isSystemColumn($interfaceName)
     {
-        return static::getSchemaManagerInstance()->isSystemColumn($interfaceName);
+        return static::getSchemaManagerInstance()->isSystemField($interfaceName);
     }
 
     /**
@@ -417,16 +438,16 @@ class TableSchema
     /**
      * @param $tableName
      *
-     * @return \Directus\Database\Object\Column[] |bool
+     * @return \Directus\Database\Schema\Object\Field[] |bool
      */
     public static function getAllTableColumns($tableName)
     {
-        $columns = static::getSchemaManagerInstance()->getColumns($tableName);
+        $columns = static::getSchemaManagerInstance()->getFields($tableName);
 
         $acl = static::getAclInstance();
         $readFieldBlacklist = $acl->getTablePrivilegeList($tableName, $acl::FIELD_READ_BLACKLIST);
 
-        return array_filter($columns, function (Column $column) use ($readFieldBlacklist) {
+        return array_filter($columns, function (Field $column) use ($readFieldBlacklist) {
             return !in_array($column->getName(), $readFieldBlacklist);
         });
     }
@@ -440,11 +461,11 @@ class TableSchema
     {
         // @TODO: make all these methods name more standard
         // TableColumnsName vs TableColumnNames
-        $columns = static::getAllTableColumns($tableName);
+        $fields = static::getAllTableColumns($tableName);
 
-        return array_map(function(Column $column) {
-            return $column->getName();
-        }, $columns);
+        return array_map(function(Field $field) {
+            return $field->getName();
+        }, $fields);
     }
 
     public static function getAllNonAliasTableColumnNames($table)
@@ -456,7 +477,7 @@ class TableSchema
         }
 
         foreach ($columns as $column) {
-            $columnNames[] = $column->getId();
+            $columnNames[] = $column->getName();
         }
 
         return $columnNames;
@@ -468,7 +489,7 @@ class TableSchema
      * @param string $tableName
      * @param bool $onlyNames
      *
-     * @return \Directus\Database\Object\Column[]|bool
+     * @return Field[]|bool
      */
     public static function getAllNonAliasTableColumns($tableName, $onlyNames = false)
     {
@@ -493,7 +514,7 @@ class TableSchema
      * @param string $tableName
      * @param bool $onlyNames
      *
-     * @return \Directus\Database\Object\Column[]|bool
+     * @return \Directus\Database\Object\Field[]|bool
      */
     public static function getAllAliasTableColumns($tableName, $onlyNames = false)
     {
@@ -517,7 +538,7 @@ class TableSchema
      *
      * @param string $tableName
      *
-     * @return \Directus\Database\Object\Column[]|bool
+     * @return \Directus\Database\Object\Field[]|bool
      */
     public static function getAllNonAliasTableColumnsName($tableName)
     {
@@ -529,7 +550,7 @@ class TableSchema
      *
      * @param string $tableName
      *
-     * @return \Directus\Database\Object\Column[]|bool
+     * @return \Directus\Database\Object\Field[]|bool
      */
     public static function getAllAliasTableColumnsName($tableName)
     {
@@ -544,15 +565,15 @@ class TableSchema
 
         $schemaManager = static::getSchemaManagerInstance();
         $tableObject = $schemaManager->getTableSchema($table);
-        $columns = $tableObject->getColumns();
+        $columns = $tableObject->getFields();
         $columnsName = [];
         $count = 0;
         foreach ($columns as $column) {
             if ($skipIgnore === false
                 && (
-                    $column->getName() === $tableObject->getStatusColumn()
-                    || $column->getName() === $tableObject->getSortColumn()
-                    || $column->getName() === $tableObject->getPrimaryColumn()
+                    ($tableObject->hasStatusField() && $column->getName() === $tableObject->getStatusField()->getName())
+                    || ($tableObject->hasSortingField() && $column->getName() === $tableObject->getSortingField())
+                    || ($tableObject->hasPrimaryField() && $column->getName() === $tableObject->getPrimaryField())
                 )
             ) {
                 continue;
@@ -607,9 +628,9 @@ class TableSchema
     {
         $tableObject = static::getTableSchema($table, [], false, $skipAcl);
 
-        $columns = $tableObject->getNonAliasColumnsName();
+        $columns = $tableObject->getNonAliasFieldsName();
         if ($includeAlias) {
-            $columns = array_merge($columns, $tableObject->getAliasColumnsName());
+            $columns = array_merge($columns, $tableObject->getAliasFieldsName());
         }
 
         if (in_array($column, $columns)) {
@@ -630,9 +651,9 @@ class TableSchema
     {
         $tableObject = static::getTableSchema($table);
 
-        $sortColumnName = $tableObject->getSortColumn();
+        $sortColumnName = $tableObject->getSortingField();
         if (!$sortColumnName) {
-            $sortColumnName = $tableObject->getPrimaryColumn() ?: 'id';
+            $sortColumnName = $tableObject->getPrimaryKeyName() ?: 'id';
         }
 
         return $sortColumnName;
@@ -641,34 +662,6 @@ class TableSchema
     public static function getUniqueColumnName($tbl_name)
     {
         // @todo for safe joins w/o name collision
-    }
-
-
-    /**
-     * Get all table names
-     *
-     * @param array $params
-     *
-     * @return array
-     */
-    public static function getTablenames(array $params = [])
-    {
-        $schema = static::getSchemaManagerInstance();
-        $result = $schema->getTablesName();
-        $includeSystemTables = (bool) ArrayUtils::get($params, 'include_system');
-
-        $tables = [];
-        foreach ($result as $tableName) {
-            if ($includeSystemTables !== true && $schema->isDirectusTable($tableName)) {
-                continue;
-            }
-
-            if (self::canGroupReadCollection($tableName)) {
-                $tables[] = ['name' => $tableName];
-            }
-        }
-
-        return $tables;
     }
 
     /**
@@ -877,7 +870,7 @@ class TableSchema
         };
 
         $getSchemasFn = function () {
-            /** @var Table[] $tableSchemas */
+            /** @var Collection[] $tableSchemas */
             $tableSchemas = TableSchema::getTablesSchema(['include_system' => true]);
             $columnSchemas = TableSchema::getColumnsSchema(['include_system' => true]);
             // Nest column schemas in table schemas
@@ -886,7 +879,7 @@ class TableSchema
 
                 $table = $table->toArray();
                 $tableName = $table['id'];
-                $table['columns'] = array_map(function(Column $column) {
+                $table['columns'] = array_map(function(Field $column) {
                     return $column->toArray();
                 }, array_values($columnSchemas[$tableName]));
 
@@ -925,13 +918,13 @@ class TableSchema
         $includeSystemTables = ArrayUtils::get($params, 'include_system', false);
         $includeColumns = ArrayUtils::get($params, 'include_columns', false);
 
-        $allTables = $schema->getTables();
+        $allTables = $schema->getCollections();
         if ($includeColumns === true) {
-            $columns = $schema->getAllColumnsByTable();
+            $columns = $schema->getAllFieldsByTable();
             foreach ($columns as $table => $column) {
                 // Make sure the table exists
                 if (isset($allTables[$table])) {
-                    $allTables[$table]->setColumns($column);
+                    $allTables[$table]->setFields($column);
                 }
             }
         }

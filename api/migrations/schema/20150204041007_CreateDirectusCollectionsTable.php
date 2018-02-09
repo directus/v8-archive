@@ -41,6 +41,11 @@ class CreateDirectusCollectionsTable extends Ruckusing_Migration_Base
             'null' => true,
             'default' => null
         ]);
+        $t->column('comment', 'string', [
+            'limit' => 255,
+            'null' => true,
+            'default' => null
+        ]);
 
         $t->finish();
     }//up()

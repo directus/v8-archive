@@ -3,24 +3,14 @@
 namespace Directus\Database\Schema;
 
 use Directus\Database\Exception\TableNotFoundException;
-use Directus\Database\Object\Column;
-use Directus\Database\Object\Table;
+use Directus\Database\Schema\Object\Field;
+use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Sources\SchemaInterface;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 
 class SchemaManager
 {
-    // Names of the system interfaces
-    // former system columns
-    const INTERFACE_PRIMARY_KEY = 'primary_key';
-    const INTERFACE_STATUS = 'status';
-    const INTERFACE_SORT = 'sort';
-    const INTERFACE_DATE_CREATED = 'date_created';
-    const INTERFACE_DATE_MODIFIED = 'date_modified';
-    const INTERFACE_USER_CREATED = 'user_created';
-    const INTERFACE_USER_MODIFIED = 'user_modified';
-
     // Tables
     const TABLE_PERMISSIONS = 'directus_permissions';
     const TABLE_COLLECTIONS = 'directus_collections';
@@ -110,14 +100,14 @@ class SchemaManager
      *
      * @throws TableNotFoundException
      *
-     * @return \Directus\Database\Object\Table
+     * @return \Directus\Database\Schema\Object\Collection
      */
     public function getTableSchema($tableName, $params = [], $skipCache = false)
     {
         $tableSchema = ArrayUtils::get($this->data, 'tables.' . $tableName, null);
         if (!$tableSchema || $skipCache) {
             // Get the table schema data from the source
-            $tableResult = $this->source->getTable($tableName);
+            $tableResult = $this->source->getCollection($tableName);
             $tableData = $tableResult->current();
 
             if (!$tableData) {
@@ -136,9 +126,9 @@ class SchemaManager
         // -----------------------------------------------------------------------------
         // @TODO: Do not allow to add duplicate column names
         // =============================================================================
-        if (empty($tableSchema->getColumns())) {
-            $tableColumns = $this->getColumns($tableName);
-            $tableSchema->setColumns($tableColumns);
+        if (empty($tableSchema->getFields())) {
+            $tableColumns = $this->getFields($tableName);
+            $tableSchema->setFields($tableColumns);
         }
 
         return $tableSchema;
@@ -151,7 +141,7 @@ class SchemaManager
      * @param $columnName
      * @param bool $skipCache
      *
-     * @return Column
+     * @return Field
      */
     public function getColumnSchema($tableName, $columnName, $skipCache = false)
     {
@@ -241,18 +231,12 @@ class SchemaManager
      */
     public function tableExists($tableName)
     {
-        return $this->source->tableExists($tableName);
+        return $this->source->collectionExists($tableName);
     }
 
-    /**
-     * Check if one or more table in the list exists.
-     *
-     * @param array $tablesName
-     * @return bool
-     */
-    public function someTableExists(array $tablesName)
+    public function getTable($name)
     {
-        return $this->source->someTableExists($tablesName);
+        return $this->source->getTable($name);
     }
 
     /**
@@ -260,9 +244,9 @@ class SchemaManager
      *
      * @param array $params
      *
-     * @return Table[]
+     * @return Collection[]
      */
-    public function getTables(array $params = [])
+    public function getCollections(array $params = [])
     {
         // TODO: Filter should be outsite
         // $schema = Bootstrap::get('schema');
@@ -271,12 +255,12 @@ class SchemaManager
         // $ignoredTables = static::getDirectusTables(DirectusPreferencesTableGateway::$IGNORED_TABLES);
         // $blacklistedTable = $config['tableBlacklist'];
         // array_merge($ignoredTables, $blacklistedTable)
-        $allTables = $this->source->getTables($params);
+        $collections = $this->source->getCollections();
 
         $tables = [];
-        foreach($allTables as $tableData) {
+        foreach ($collections as $collection) {
             // Create a table object based of the table schema data
-            $tableSchema = $this->createTableObjectFromArray(array_merge($tableData, [
+            $tableSchema = $this->createTableObjectFromArray(array_merge($collection, [
                 'schema' => $this->source->getSchemaName()
             ]));
             $tableName = $tableSchema->getName();
@@ -288,27 +272,15 @@ class SchemaManager
         return $tables;
     }
 
-    public function getTablesName()
-    {
-        $rows = $this->source->getTablesName();
-
-        $tables = [];
-        foreach ($rows as $row) {
-            $tables[] = $row['table_name'];
-        }
-
-        return $tables;
-    }
-
     /**
      * Get all columns in the given table name
      *
      * @param $tableName
      * @param array $params
      *
-     * @return \Directus\Database\Object\Column[]
+     * @return \Directus\Database\Schema\Object\Field[]
      */
-    public function getColumns($tableName, $params = [])
+    public function getFields($tableName, $params = [])
     {
         // TODO: filter black listed fields
         // $acl = Bootstrap::get('acl');
@@ -316,10 +288,28 @@ class SchemaManager
 
         $columnsSchema = ArrayUtils::get($this->data, 'columns.' . $tableName, null);
         if (!$columnsSchema) {
-            $columnsResult = $this->source->getColumns($tableName, $params);
+            $columnsResult = $this->source->getFields($tableName, $params);
+            $relationsResult = $this->source->getRelations($tableName);
+
+            $relationsA = [];
+            $relationsB = [];
+            foreach ($relationsResult as $relation) {
+                $relationsA[$relation['field_a']] = $relation;
+
+                if (isset($relation['field_b'])) {
+                    $relationsB[$relation['field_b']] = $relation;
+                }
+            }
+
             $columnsSchema = [];
-            foreach($columnsResult as $column) {
-                $columnsSchema[] = $this->createColumnObjectFromArray($column);
+            foreach ($columnsResult as $column) {
+                $field = $this->createColumnObjectFromArray($column);
+
+                if (array_key_exists($field->getName(), $relationsA) || array_key_exists($field->getName(), $relationsB)) {
+                    $field->setRelationship($relationsA[$field->getName()]);
+                }
+
+                $columnsSchema[] = $field;
             }
 
             $this->data['columns'][$tableName] = $columnsSchema;
@@ -343,11 +333,11 @@ class SchemaManager
     /**
      * Get all the columns
      *
-     * @return Column[]
+     * @return Field[]
      */
-    public function getAllColumns()
+    public function getAllFields()
     {
-        $allColumns = $this->source->getAllColumns();
+        $allColumns = $this->source->getAllFields();
 
         $columns = [];
         foreach($allColumns as $column) {
@@ -362,31 +352,36 @@ class SchemaManager
      *
      * @return array
      */
-    public function getAllColumnsByTable()
+    public function getAllFieldsByTable()
     {
-        $columns = [];
-        foreach($this->getAllColumns() as $column) {
-            $tableName = $column->getTableName();
-            if (!isset($columns[$tableName])) {
-                $columns[$tableName] = [];
+        $fields = [];
+        foreach ($this->getAllFields() as $field) {
+            $collectionName = $field->getCollectionName();
+            if (!isset($fields[$collectionName])) {
+                $fields[$collectionName] = [];
             }
 
-            $columns[$tableName][] = $column;
+            $columns[$collectionName][] = $field;
         }
 
-        return $columns;
+        return $fields;
     }
 
     public function getPrimaryKey($tableName)
     {
-        return $this->source->getPrimaryKey($tableName);
+        $collection = $this->getTableSchema($tableName);
+        if ($collection) {
+            return $collection->getPrimaryKeyName();
+        }
+
+        return false;
     }
 
     public function hasSystemDateColumn($tableName)
     {
         $tableObject = $this->getTableSchema($tableName);
 
-        return $tableObject->getDateCreateColumn() || $tableObject->getDateUpdateColumn();
+        return $tableObject->getDateCreateField() || $tableObject->getDateUpdateField();
     }
 
     public function castRecordValues($records, $columns)
@@ -561,9 +556,15 @@ class SchemaManager
         return $templatesData;
     }
 
+    /**
+     * Gets a collection object from an array attributes data
+     * @param $data
+     *
+     * @return Collection
+     */
     public function createTableObjectFromArray($data)
     {
-        return new Table($data);
+        return new Collection($data);
     }
 
     /**
@@ -608,48 +609,49 @@ class SchemaManager
      *
      * @param array $column
      *
-     * @return Column
+     * @return Field
      */
     public function createColumnObjectFromArray($column)
     {
-        if (!isset($column['ui'])) {
-            $column['ui'] = $this->getFieldDefaultInterface($column['type']);
+        if (!isset($column['interface'])) {
+            $column['interface'] = $this->getFieldDefaultInterface($column['type']);
         }
 
         $column = $this->parseSystemTablesColumn($column);
 
-        $options = json_decode(ArrayUtils::get($column, 'options', ''), true);
+        $options = json_decode(isset($column['options']) ? $column['options'] : '', true);
         $column['options'] = $options ? $options : [];
 
-        $isSystemColumn = $this->isSystemField($column['ui']);
-        $column['system'] = $isSystemColumn;
+        // $isSystemColumn = $this->isSystemField($column['interface']);
+        // $column['system'] = $isSystemColumn;
 
         // PRIMARY KEY must be required
-        if (ArrayUtils::get($column, 'key') === 'PRI') {
+        if ($column['key'] === 'PRI') {
             $column['required'] = true;
         }
 
         // NOTE: Alias column must are nullable
-        if (ArrayUtils::get($column, 'type') === 'ALIAS') {
-            $column['is_nullable'] = 'YES';
+        if ($column['type'] === 'ALIAS') {
+            $column['nullable'] = 1;
         }
 
         // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
         // We reserved the word "NULL" on nullable data type to be actually null
-        if (ArrayUtils::get($column, 'is_nullable') === 'YES' && ArrayUtils::get($column, 'default_value') == 'NULL') {
+        if ($column['nullable'] === 1 && $column['default_value'] == 'NULL') {
             $column['default_value'] = null;
         }
 
-        $columnObject = new Column($column);
-        if (isset($column['related_table'])) {
-            $columnObject->setRelationship([
-                'type' => ArrayUtils::get($column, 'relationship_type'),
-                'related_table' => ArrayUtils::get($column, 'related_table'),
-                'junction_table' => ArrayUtils::get($column, 'junction_table'),
-                'junction_key_right' => ArrayUtils::get($column, 'junction_key_right'),
-                'junction_key_left' => ArrayUtils::get($column, 'junction_key_left'),
-            ]);
-        }
+        $columnObject = new Field($column);
+        // if (isset($column['collection_b'])) {
+        //     // var_dump($column);
+        //     $columnObject->setRelationship([
+        //         'type' => ArrayUtils::get($column, 'relationship_type'),
+        //         'related_table' => ArrayUtils::get($column, 'collection_b'),
+        //         'junction_table' => ArrayUtils::get($column, 'store_collection'),
+        //         'junction_key_right' => ArrayUtils::get($column, 'store_key_a'),
+        //         'junction_key_left' => ArrayUtils::get($column, 'store_key_b'),
+        //     ]);
+        // }
 
         return $columnObject;
     }
@@ -663,17 +665,7 @@ class SchemaManager
      */
     public function isSystemField($interface)
     {
-        $systemField = [
-            static::INTERFACE_PRIMARY_KEY,
-            static::INTERFACE_SORT,
-            static::INTERFACE_STATUS,
-            static::INTERFACE_DATE_CREATED,
-            static::INTERFACE_DATE_MODIFIED,
-            static::INTERFACE_USER_CREATED,
-            static::INTERFACE_USER_MODIFIED
-        ];
-
-        return in_array($interface, $systemField);
+        return SystemInterface::isSystem($interface);
     }
 
     /**
@@ -685,7 +677,7 @@ class SchemaManager
      */
     public function isPrimaryKeyInterface($interface)
     {
-        return $interface === static::INTERFACE_PRIMARY_KEY;
+        return $interface === SystemInterface::INTERFACE_PRIMARY_KEY;
     }
 
     protected function addTable($name, $schema)
@@ -696,7 +688,7 @@ class SchemaManager
         $this->data['tables'][$name] = $schema;
     }
 
-    protected function addColumn(Column $column)
+    protected function addColumn(Field $column)
     {
         $tableName = $column->getTableName();
         $columnName = $column->getName();

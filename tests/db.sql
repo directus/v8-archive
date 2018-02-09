@@ -118,10 +118,19 @@ CREATE TABLE `directus_collections` (
   `hidden` tinyint(1) NOT NULL DEFAULT '0',
   `single` tinyint(1) NOT NULL DEFAULT '0',
   `status_mapping` text,
+  `comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`collection`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+LOCK TABLES `directus_collections` WRITE;
 
+INSERT INTO `directus_collections` (`collection`, `item_name_template`, `preview_url`, `hidden`, `single`, `status_mapping`, `comment`)
+VALUES
+	('products', NULL, NULL, 0, 0, NULL, NULL),
+	('products_images', NULL, NULL, 0, 0, NULL, NULL);
+
+/*!40000 ALTER TABLE `directus_collections` ENABLE KEYS */;
+UNLOCK TABLES;
 
 # Dump of table directus_fields
 # ------------------------------------------------------------

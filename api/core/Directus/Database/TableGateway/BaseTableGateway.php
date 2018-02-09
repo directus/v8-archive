@@ -6,7 +6,7 @@ use Directus\Config\Config;
 use Directus\Container\Container;
 use Directus\Database\Exception\DuplicateEntryException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
-use Directus\Database\Object\Table;
+use Directus\Database\Schema\Object\Collection;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGatewayFactory;
@@ -75,7 +75,7 @@ class BaseTableGateway extends TableGateway
     /**
      * Table Schema Object
      *
-     * @var Table|null
+     * @var Collection|null
      */
     protected $tableSchema = null;
 
@@ -104,8 +104,8 @@ class BaseTableGateway extends TableGateway
                 $this->primaryKeyFieldName = $primaryKeyName;
             } else {
                 $tableObject = $this->getTableSchema();
-                if ($tableObject->getPrimaryColumn()) {
-                    $this->primaryKeyFieldName = $tableObject->getPrimaryColumn();
+                if ($tableObject->getPrimaryField()) {
+                    $this->primaryKeyFieldName = $tableObject->getPrimaryField()->getName();
                 }
             }
         }
@@ -198,7 +198,7 @@ class BaseTableGateway extends TableGateway
      * @param $columnName
      * @param null $tableName
      *
-     * @return \Directus\Database\Object\Column
+     * @return \Directus\Database\Object\Field
      */
     public function getColumnSchema($columnName, $tableName = null)
     {
@@ -219,32 +219,6 @@ class BaseTableGateway extends TableGateway
     public function getStatusColumnName()
     {
         return $this->getTableSchema()->getStatusColumn();
-    }
-
-    /**
-     * Find the identifying string to effectively represent a record in the activity log.
-     *
-     * @param  Table $tableSchema
-     * @param  array|BaseRowGateway $fullRecordData
-     *
-     * @return string
-     */
-    public function findRecordIdentifier($tableSchema, $fullRecordData)
-    {
-        // Decide on the correct column name
-        $identifierColumnName = null;
-        $column = $tableSchema->getFirstNonSystemColumn();
-        if ($column) {
-            $identifierColumnName = $column->getName();
-        }
-
-        // Yield the column contents
-        $identifier = null;
-        if (isset($fullRecordData[$identifierColumnName])) {
-            $identifier = $fullRecordData[$identifierColumnName];
-        }
-
-        return $identifier;
     }
 
     public function withKey($key, $resultSet)
@@ -396,7 +370,7 @@ class BaseTableGateway extends TableGateway
             $TableGateway->insert($recordData);
 
             // Only get the last inserted id, if the column has auto increment value
-            $columnObject = $this->getTableSchema()->getColumn($primaryKey);
+            $columnObject = $this->getTableSchema()->getField($primaryKey);
             if ($columnObject->hasAutoIncrement()) {
                 $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
             }
@@ -921,12 +895,17 @@ class BaseTableGateway extends TableGateway
     {
         $isSoftDelete = false;
         $tableSchema = $this->getTableSchema();
-        $statusColumnName = $tableSchema->getStatusColumn();
+
+        if (!$tableSchema->getStatusField()) {
+            return $isSoftDelete;
+        }
+
+        $statusColumnName = $tableSchema->getStatusField()->getName();
         $hasStatusColumnData = ArrayUtils::has($data, $statusColumnName);
         $deletedValues = $this->getDeletedStatuses();
 
         if ($hasStatusColumnData) {
-            $statusColumnObject = $tableSchema->getColumn($statusColumnName);
+            $statusColumnObject = $tableSchema->getField($statusColumnName);
             $deletedValues[] = $statusColumnObject->getOptions('delete_value') ?: STATUS_DELETED_NUM;
             $statusValue = ArrayUtils::get($data, $this->getStatusColumnName());
             $isSoftDelete =  in_array($statusValue, $this->getDeletedStatuses());
@@ -953,12 +932,12 @@ class BaseTableGateway extends TableGateway
      * Convert dates to ISO 8601 format
      *
      * @param array $records
-     * @param Table $tableSchema
+     * @param Collection $tableSchema
      * @param null $tableName
      *
      * @return array|mixed
      */
-    public function convertDates(array $records, Table $tableSchema, $tableName = null)
+    public function convertDates(array $records, Collection $tableSchema, $tableName = null)
     {
         $tableName = $tableName === null ? $this->table : $tableName;
         $isCustomTable = !$this->schemaManager->isDirectusTable($tableName);
@@ -979,7 +958,7 @@ class BaseTableGateway extends TableGateway
         }
 
         foreach ($records as $index => $row) {
-            foreach ($tableSchema->getColumns() as $column) {
+            foreach ($tableSchema->getFields() as $column) {
                 $canConvert = in_array(strtolower($column->getType()), ['timestamp', 'datetime']);
                 // Directus convert all dates to ISO to all datetime columns in the core tables
                 // and any columns using system date interfaces (date_created or date_modified)
@@ -1009,10 +988,11 @@ class BaseTableGateway extends TableGateway
      */
     protected function parseRecordValuesByType(array $records, $tableName = null)
     {
+        // NOTE: Performance spot
         $tableName = $tableName === null ? $this->table : $tableName;
         // Get the columns directly from the source
         // otherwise will keep in a circle loop loading Acl Instances
-        $columns = TableSchema::getSchemaManagerInstance()->getColumns($tableName);
+        $columns = TableSchema::getSchemaManagerInstance()->getFields($tableName);
 
         return $this->schemaManager->castRecordValues($records, $columns);
     }
@@ -1027,6 +1007,7 @@ class BaseTableGateway extends TableGateway
      */
     public function parseRecord($records, $tableName = null)
     {
+        // NOTE: Performance spot
         if (is_array($records)) {
             $tableName = $tableName === null ? $this->table : $tableName;
             $records = $this->parseRecordValuesByType($records, $tableName);
@@ -1104,7 +1085,12 @@ class BaseTableGateway extends TableGateway
         $updateState = $update->getRawState();
         $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
         $cmsOwnerColumn = $this->acl->getCmsOwnerColumnByTable($updateTable);
-        $statusColumnName = TableSchema::getStatusColumn($updateTable);
+
+        if (!TableSchema::hasStatusColumn($updateTable)) {
+            return;
+        }
+
+        $statusColumnName = TableSchema::getStatusField($updateTable)->getName();
 
         // check if it's NOT soft delete
         $updateFields = $updateState['set'];
@@ -1116,7 +1102,7 @@ class BaseTableGateway extends TableGateway
         $deletedValue = STATUS_DELETED_NUM;
         if ($hasStatusColumn) {
             $tableSchema = TableSchema::getTableSchema($updateTable);
-            $statusColumnObject = $tableSchema->getColumn($statusColumnName);
+            $statusColumnObject = $tableSchema->getField($statusColumnName);
             $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value', STATUS_DELETED_NUM);
         }
 

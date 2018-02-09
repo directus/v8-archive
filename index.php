@@ -646,7 +646,7 @@ foreach ($allTables as $table) {
     $tableName = \Directus\Util\ArrayUtils::get($table, 'schema.id');
     $tableObject = TableSchema::getTableSchema($tableName);
 
-    /** @var \Directus\Database\Object\Column $statusColumn */
+    /** @var \Directus\Database\Object\Field $statusColumn */
     $statusColumn = $tableObject->getStatusColumn();
     if (!$statusColumn) {
         continue;

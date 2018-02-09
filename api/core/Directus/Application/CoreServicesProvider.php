@@ -15,15 +15,14 @@ use Directus\Authentication\Provider;
 use Directus\Authentication\User\Provider\UserTableGatewayProvider;
 use Directus\Cache\Response;
 use Directus\Database\Connection;
-use Directus\Database\Object\Column;
-use Directus\Database\Object\Table;
+use Directus\Database\Schema\Object\Field;
+use Directus\Database\Schema\Object\Collection;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
-use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Database\TableGateway\DirectusSettingsTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
@@ -46,7 +45,6 @@ use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Zend\Db\TableGateway\TableGateway;
 
 class CoreServicesProvider
 {
@@ -143,7 +141,7 @@ class CoreServicesProvider
             // TODO: Move this separately, this is temporary while we move things around
             $emitter->addFilter('load.relational.onetomany', function (Payload $payload) {
                 $rows = $payload->getData();
-                /** @var Column $column */
+                /** @var Field $column */
                 $column = $payload->attribute('column');
 
                 if ($column->getInterface() !== 'translation') {
@@ -283,11 +281,12 @@ class CoreServicesProvider
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
 
-                if ($dateCreated = $tableObject->getDateCreateColumn()) {
+
+                if ($dateCreated = $tableObject->getDateCreateField()) {
                     $payload[$dateCreated] = DateUtils::now();
                 }
 
-                if ($dateCreated = $tableObject->getDateUpdateColumn()) {
+                if ($dateCreated = $tableObject->getDateUpdateField()) {
                     $payload[$dateCreated] = DateUtils::now();
                 }
 
@@ -297,8 +296,8 @@ class CoreServicesProvider
                     return $payload;
                 }
 
-                $userCreated = $tableObject->getUserCreateColumn();
-                $userModified = $tableObject->getUserUpdateColumn();
+                $userCreated = $tableObject->getUserCreateField();
+                $userModified = $tableObject->getUserUpdateField();
 
                 if ($userCreated && (!$payload->has($userCreated) || !$acl->isAdmin())) {
                     $payload[$userCreated] = $acl->getUserId();
@@ -315,10 +314,10 @@ class CoreServicesProvider
                 $tableObject = TableSchema::getTableSchema($tableName);
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
-                if ($dateModified = $tableObject->getDateUpdateColumn()) {
+                if ($dateModified = $tableObject->getDateUpdateField()) {
                     $payload[$dateModified] = DateUtils::now();
                 }
-                if ($userModified = $tableObject->getUserUpdateColumn()) {
+                if ($userModified = $tableObject->getUserUpdateField()) {
                     $payload[$userModified] = $acl->getUserId();
                 }
                 // NOTE: exclude date_uploaded from updating a file record
@@ -457,7 +456,7 @@ class CoreServicesProvider
                 $tableName = $payload->attribute('tableName');
                 $tableObject = TableSchema::getTableSchema($tableName);
                 $data = $payload->getData();
-                foreach ($tableObject->getColumns() as $column) {
+                foreach ($tableObject->getFields() as $column) {
                     if ($column->getInterface() !== 'slug') {
                         continue;
                     }
@@ -490,7 +489,7 @@ class CoreServicesProvider
                 $tableObject = TableSchema::getTableSchema($tableName);
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
-                    $columnObject = $tableObject->getColumn($key);
+                    $columnObject = $tableObject->getField($key);
                     if (!$columnObject) {
                         continue;
                     }
@@ -638,22 +637,22 @@ class CoreServicesProvider
             $auth = $container->get('auth');
             $dbConnection = $container->get('database');
 
-            /** @var Table[] $tables */
-            $tables = TableSchema::getTablesSchema([
-                'include_columns' => true
-            ], true);
-
-            $magicOwnerColumnsByTable = [];
-            foreach ($tables as $table) {
-                $column = $table->getUserCreateColumn();
-
-                if ($column) {
-                    $magicOwnerColumnsByTable[$table->getName()] = $table->getUserCreateColumn();
-                }
-            }
+            /** @var Collection[] $tables */
+            // $tables = TableSchema::getTablesSchema([
+            //     'include_columns' => true
+            // ], true);
+            //
+            // $magicOwnerColumnsByTable = [];
+            // foreach ($tables as $table) {
+            //     $column = $table->getUserCreateField();
+            //
+            //     if ($column) {
+            //         $magicOwnerColumnsByTable[$table->getName()] = $table->getUserCreateField();
+            //     }
+            // }
 
             // TODO: Move this to a method
-            $acl::$cms_owner_columns_by_table = array_merge($magicOwnerColumnsByTable, $acl::$cms_owner_columns_by_table);
+            // $acl::$cms_owner_columns_by_table = array_merge($magicOwnerColumnsByTable, $acl::$cms_owner_columns_by_table);
             if ($auth->check()) {
                 $privilegesTable = new DirectusPermissionsTableGateway($dbConnection, $acl);
                 $acl->setGroupPrivileges($privilegesTable->getGroupPrivileges($auth->getUserAttributes('group')));

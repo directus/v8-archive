@@ -57,9 +57,8 @@ class SchemaFactory
         $columnsData = $this->mergeDefaultColumnsData($columnsData);
         $columns = $this->createColumns($columnsData);
 
-        $schemaManager = $this->schemaManager;
         foreach ($columnsData as $column) {
-            if ($schemaManager::INTERFACE_PRIMARY_KEY === $column['interface']) {
+            if (SystemInterface::INTERFACE_PRIMARY_KEY === $column['interface']) {
                 $table->addConstraint(new PrimaryKey($column['field']));
                 break;
             }

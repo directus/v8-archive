@@ -11,7 +11,7 @@
 namespace Directus\Services;
 
 use Directus\Database\Ddl\Column\Custom;
-use Directus\Database\Object\Table;
+use Directus\Database\Object\Collection;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway as TableGateway;
 use Directus\Database\TableSchema;
@@ -138,7 +138,7 @@ class ColumnsService extends AbstractService
      * @param $tableName
      * @param $columnName
      *
-     * @return \Directus\Database\Object\Column
+     * @return \Directus\Database\Object\Field
      */
     public function getColumnObject($tableName, $columnName)
     {
@@ -367,7 +367,7 @@ class ColumnsService extends AbstractService
      */
     protected function updateCurrentSystemInterfaces($table, $newInterfaceName)
     {
-        /** @var Table $tableObject */
+        /** @var Collection $tableObject */
         $tableObject = $this->getSchemaManager()->getTableSchema($table);
 
         if (!TableSchema::isSystemColumn($newInterfaceName)) {
