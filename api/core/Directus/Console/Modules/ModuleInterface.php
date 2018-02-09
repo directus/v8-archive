@@ -1,42 +1,9 @@
 <?php
-/**
- * This file is part of Directus.
- *
- * Directus is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Directus is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Directus.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
-/**
- * CLI Modules interface.
- *
- * This is the interface used by the CLI Modules. Basic functionality of
- * a module is to: provide a description of the module, list available commands,
- * provide help on a command and execute a command with specific arguments.
- *
- * @category   Interfaces
- * @package    Directus/Console/Modules
- * @author     Fabio 'MrWHO' Torchetti <mrwho@wedjaa.net>
- * @copyright  2016 Wedjaa Inc
- * @license    https://www.gnu.org/licenses/gpl-3.0.en.html  GPLv3 License
- *
- */
 
 namespace Directus\Console\Modules;
 
 interface ModuleInterface
 {
-
     /**
      *  Get the name of the module.
      *   *

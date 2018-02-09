@@ -1,34 +1,4 @@
 <?php
-/**
- * This file is part of Directus.
- *
- * Directus is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Directus is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Directus.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
-/**
- * CLI Install Module.
- *
- * This module provides the commands to manage Directus users.
- *
- * @category   Classes
- * @package    Directus/Console/Modules
- * @author     Fabio 'MrWHO' Torchetti <mrwho@wedjaa.net>
- * @copyright  2016 Wedjaa Inc
- * @license    https://www.gnu.org/licenses/gpl-3.0.en.html  GPLv3 License
- *
- */
 
 namespace Directus\Console\Modules;
 
@@ -37,10 +7,8 @@ use Directus\Console\Common\User;
 use Directus\Console\Exception\CommandFailedException;
 use Directus\Console\Exception\WrongArgumentsException;
 
-
 class UserModule extends ModuleBase
 {
-
     protected $__module_name = 'user';
     protected $__module_description = 'commands to manage Directus users';
     protected $commands_help;
@@ -48,7 +16,6 @@ class UserModule extends ModuleBase
 
     public function __construct()
     {
-
         $this->help = [
             'password' => ''
                 . PHP_EOL . "\t\t-e " . __t('User e-mail address.')
