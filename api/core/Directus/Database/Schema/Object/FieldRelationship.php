@@ -144,6 +144,16 @@ class FieldRelationship extends AbstractObject
     }
 
     /**
+     * Checks whether is a many to many or one to many
+     *
+     * @return bool
+     */
+    public function isToMany()
+    {
+        return $this->isManyToMany() || $this->isOneToMany();
+    }
+
+    /**
      * Guess the data type
      *
      * @return null|string

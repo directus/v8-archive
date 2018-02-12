@@ -27,7 +27,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
     public static function resetDatabase()
     {
-        reset_table_id(static::$db, 'directus_fields', 2);
+        reset_table_id(static::$db, 'directus_fields', 5);
         delete_item(static::$db, 'directus_collections', [
             'collection' => static::$tableName
         ]);

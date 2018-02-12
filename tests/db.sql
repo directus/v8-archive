@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.35)
 # Database: directus_test
-# Generation Time: 2018-02-01 21:25:55 +0000
+# Generation Time: 2018-02-12 21:49:16 +0000
 # ************************************************************
 
 
@@ -123,14 +123,16 @@ CREATE TABLE `directus_collections` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `directus_collections` WRITE;
+/*!40000 ALTER TABLE `directus_collections` DISABLE KEYS */;
 
 INSERT INTO `directus_collections` (`collection`, `item_name_template`, `preview_url`, `hidden`, `single`, `status_mapping`, `comment`)
 VALUES
-	('products', NULL, NULL, 0, 0, NULL, NULL),
-	('products_images', NULL, NULL, 0, 0, NULL, NULL);
+	('products',NULL,NULL,0,0,NULL,NULL),
+	('products_images',NULL,NULL,0,0,NULL,NULL);
 
 /*!40000 ALTER TABLE `directus_collections` ENABLE KEYS */;
 UNLOCK TABLES;
+
 
 # Dump of table directus_fields
 # ------------------------------------------------------------
@@ -160,7 +162,10 @@ LOCK TABLES `directus_fields` WRITE;
 
 INSERT INTO `directus_fields` (`id`, `collection`, `field`, `type`, `interface`, `options`, `locked`, `translation`, `required`, `sort`, `comment`, `hidden_input`, `hidden_list`)
 VALUES
-	(1,'products','status','integer','status',NULL,0,NULL,0,0,'0',0,0);
+	(1,'products','status','integer','status',NULL,0,NULL,0,0,'0',0,0),
+	(2,'products','category_id','integer','many_to_one',NULL,0,NULL,0,NULL,NULL,0,0),
+	(3,'products','images','alias','many_to_many',NULL,0,NULL,0,NULL,NULL,0,0),
+	(4,'categories','products','alias','one_to_many',NULL,0,NULL,0,NULL,NULL,0,0);
 
 /*!40000 ALTER TABLE `directus_fields` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -258,6 +263,28 @@ CREATE TABLE `directus_migrations` (
   UNIQUE KEY `idx_directus_migrations_version` (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `directus_migrations` WRITE;
+/*!40000 ALTER TABLE `directus_migrations` DISABLE KEYS */;
+
+INSERT INTO `directus_migrations` (`version`)
+VALUES
+	('20150203221946'),
+	('20150203235646'),
+	('20150204003426'),
+	('20150204015251'),
+	('20150204023325'),
+	('20150204024327'),
+	('20150204031412'),
+	('20150204041007'),
+	('20150204042725'),
+	('20180131165011'),
+	('20180131165022'),
+	('20180131165033'),
+	('20180131165044');
+
+/*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
+UNLOCK TABLES;
+
 
 # Dump of table directus_permissions
 # ------------------------------------------------------------
@@ -279,6 +306,8 @@ CREATE TABLE `directus_permissions` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+
 # Dump of table directus_relations
 # ------------------------------------------------------------
 
@@ -286,16 +315,28 @@ DROP TABLE IF EXISTS `directus_relations`;
 
 CREATE TABLE `directus_relations` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `relationship_type` varchar(45) NOT NULL,
-  `collection_a` varchar(64) DEFAULT NULL,
-  `store_key_a` varchar(64) DEFAULT NULL,
-  `store_collection` varchar(64) DEFAULT NULL,
-  `store_mixed_collections` varchar(64) DEFAULT NULL,
-  `store_key_b` varchar(64) DEFAULT NULL,
+  `collection_a` varchar(64) NOT NULL DEFAULT '',
+  `field_a` varchar(64) NOT NULL DEFAULT '',
+  `junction_key_a` varchar(64) DEFAULT NULL,
+  `junction_collection` varchar(64) DEFAULT NULL,
+  `junction_mixed_collections` varchar(64) DEFAULT NULL,
+  `junction_key_b` varchar(64) DEFAULT NULL,
   `collection_b` varchar(64) NOT NULL,
+  `field_b` varchar(64) DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+LOCK TABLES `directus_relations` WRITE;
+/*!40000 ALTER TABLE `directus_relations` DISABLE KEYS */;
+
+INSERT INTO `directus_relations` (`id`, `collection_a`, `field_a`, `junction_key_a`, `junction_collection`, `junction_mixed_collections`, `junction_key_b`, `collection_b`, `field_b`)
+VALUES
+	(1,'products','category_id',NULL,NULL,NULL,NULL,'categories','products'),
+	(2,'customers','orders',NULL,NULL,NULL,NULL,'orders','customer_id'),
+	(3,'products','images','product_id','products_images',NULL,'file_id','directus_files',NULL);
+
+/*!40000 ALTER TABLE `directus_relations` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table directus_revisions
@@ -416,10 +457,24 @@ DROP TABLE IF EXISTS `products`;
 
 CREATE TABLE `products` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT '2',
-  `name` varchar(100) NOT NULL DEFAULT '',
   `price` decimal(10,2) unsigned NOT NULL,
   `category_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table products_images
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `products_images`;
+
+CREATE TABLE `products_images` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` int(11) DEFAULT NULL,
+  `file_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

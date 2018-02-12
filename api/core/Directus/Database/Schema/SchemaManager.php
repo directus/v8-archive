@@ -15,7 +15,9 @@ class SchemaManager
     const TABLE_PERMISSIONS = 'directus_permissions';
     const TABLE_COLLECTIONS = 'directus_collections';
     const TABLE_FIELDS = 'directus_fields';
+    const TABLE_FILES = 'directus_files';
     const TABLE_COLLECTION_PRESETS = 'directus_collection_presets';
+    const TABLE_USERS = 'directus_users';
 
     /**
      * Schema source instance
@@ -291,6 +293,7 @@ class SchemaManager
             $columnsResult = $this->source->getFields($tableName, $params);
             $relationsResult = $this->source->getRelations($tableName);
 
+            // TODO: Improve this logic
             $relationsA = [];
             $relationsB = [];
             foreach ($relationsResult as $relation) {
@@ -305,8 +308,10 @@ class SchemaManager
             foreach ($columnsResult as $column) {
                 $field = $this->createColumnObjectFromArray($column);
 
-                if (array_key_exists($field->getName(), $relationsA) || array_key_exists($field->getName(), $relationsB)) {
+                if (array_key_exists($field->getName(), $relationsA)) {
                     $field->setRelationship($relationsA[$field->getName()]);
+                } else if (array_key_exists($field->getName(), $relationsB)) {
+                    $field->setRelationship($relationsB[$field->getName()]);
                 }
 
                 $columnsSchema[] = $field;

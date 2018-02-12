@@ -56,25 +56,6 @@ class Files extends Route
 
         $validationConstraints = $this->createConstraintFor($table);
         $this->validate($payload, array_merge(['data' => 'required'], $validationConstraints));
-
-        /** @var \Directus\Filesystem\Files $Files */
-        $Files = $this->container->get('files');
-
-        if (array_key_exists('data', $payload) && filter_var($payload['data'], FILTER_VALIDATE_URL)) {
-            $dataInfo = $Files->getLink($payload['data']);
-        } else {
-            $dataInfo = $Files->getDataInfo($payload['data']);
-        }
-
-        $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($payload, 'type'));
-
-        if (strpos($type, 'embed/') === 0) {
-            $recordData = $Files->saveEmbedData($dataInfo);
-        } else {
-            $recordData = $Files->saveData($payload['data'], $payload['filename']);
-        }
-
-        $payload = array_merge($recordData, ArrayUtils::omit($payload, ['data', 'filename']));
         $newFile = $filesTableGateway->updateRecord($payload, $this->getActivityMode());
 
         $responseData = $filesTableGateway->wrapData(
@@ -146,7 +127,9 @@ class Files extends Route
         // Force delete files
         // TODO: Make the hook listen to deletes and catch ALL ids (from conditions)
         // and deletes every matched files
-        $filesTableGateway->deleteFile($id);
+        /** @var \Directus\Filesystem\Files $files */
+        $files = $this->container->get('files');
+        $files->delete($file);
 
         // Delete file record
         $filesTableGateway->delete([

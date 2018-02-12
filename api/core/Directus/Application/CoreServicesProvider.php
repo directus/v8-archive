@@ -258,7 +258,6 @@ class CoreServicesProvider
                 ];
                 $parentLogEntry->populate($logData, false);
                 $parentLogEntry->save();
-
             });
             $emitter->addAction('table.insert.directus_groups', function ($data) use ($container) {
                 $acl = $container->get('acl');
@@ -330,9 +329,31 @@ class CoreServicesProvider
                 if ($payload->attribute('tableName') === 'directus_files') {
                     /** @var Acl $auth */
                     $acl = $container->get('acl');
+                    $data = $payload->getData();
+
+                    /** @var \Directus\Filesystem\Files $files */
+                    $files = $container->get('files');
+
+                    if (array_key_exists('data', $data) && filter_var($data['data'], FILTER_VALIDATE_URL)) {
+                        $dataInfo = $files->getLink($data['data']);
+                    } else {
+                        $dataInfo = $files->getDataInfo($data['data']);
+                    }
+
+                    $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
+
+                    if (strpos($type, 'embed/') === 0) {
+                        $recordData = $files->saveEmbedData($dataInfo);
+                    } else {
+                        $recordData = $files->saveData($payload['data'], $payload['filename']);
+                    }
+
+                    $payload->replace(array_merge($recordData, ArrayUtils::omit($data, 'filename')));
                     $payload->remove('data');
                     $payload->set('upload_user', $acl->getUserId());
+                    $payload->set('upload_date', DateUtils::now());
                 }
+
                 return $payload;
             });
             $addFilesUrl = function ($rows) use ($container) {
@@ -479,13 +500,15 @@ class CoreServicesProvider
                 return $slugifyString(false, $payload);
             });
             // TODO: Merge with hash user password
-            $hashPasswordInterface = function (Payload $payload) use ($container) {
+            $onInsertOrUpdate = function (Payload $payload) use ($container) {
                 /** @var Provider $auth */
                 $auth = $container->get('auth');
                 $tableName = $payload->attribute('tableName');
+
                 if (TableSchema::isSystemTable($tableName)) {
                     return $payload;
                 }
+
                 $tableObject = TableSchema::getTableSchema($tableName);
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
@@ -522,8 +545,8 @@ class CoreServicesProvider
             $emitter->addFilter('table.insert.directus_users:before', $hashUserPassword);
             $emitter->addFilter('table.update.directus_users:before', $hashUserPassword);
             // Hash value to any non system table password interface column
-            $emitter->addFilter('table.insert:before', $hashPasswordInterface);
-            $emitter->addFilter('table.update:before', $hashPasswordInterface);
+            $emitter->addFilter('table.insert:before', $onInsertOrUpdate);
+            $emitter->addFilter('table.update:before', $onInsertOrUpdate);
             $preventUsePublicGroup = function (Payload $payload) use ($container) {
                 $data = $payload->getData();
                 if (!ArrayUtils::has($data, 'group')) {

@@ -282,9 +282,6 @@ class Files
             'filesize' => $fileData['size'],
             'width' => $fileData['width'],
             'height' => $fileData['height'],
-            //    @TODO: Returns date in ISO 8601 Ex: 2016-06-06T17:18:20Z
-            //    see: https://en.wikipedia.org/wiki/ISO_8601
-            'date_upload' => $fileData['upload_date'],// . ' UTC',
             'storage_adapter' => $fileData['storage_adapter']
         ];
     }

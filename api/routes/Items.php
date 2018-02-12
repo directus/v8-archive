@@ -52,7 +52,7 @@ class Items extends Route
             $this->validateRequestWithTable($request, $tableName);
 
             $entriesService = new EntriesService($this->container);
-            $newRecord = $entriesService->createEntry($tableName, $request->getParams(), $params);
+            $newRecord = $entriesService->createEntry($tableName, $request->getParsedBody(), $params);
             $params['id'] = ArrayUtils::get($newRecord->toArray(), $primaryKey);
             $params['status'] = null;
         }
@@ -193,6 +193,8 @@ class Items extends Route
             // PUT an updated table entry
             case 'PATCH':
             case 'PUT':
+                // Fetch the entry even if it's not "published"
+                $params['status'] = '*';
                 $this->validateRequestWithTable($request, $tableName);
                 $payload[$TableGateway->primaryKeyFieldName] = $id;
                 $TableGateway->updateRecord($payload, $this->getActivityMode());
@@ -217,7 +219,7 @@ class Items extends Route
                 ];
 
                 if (ArrayUtils::get($params, 'soft')) {
-                    if (!$TableGateway->getTableSchema()->hasStatusColumn()) {
+                    if (!$TableGateway->getTableSchema()->hasStatusField()) {
                         throw new BadRequestException(__t('cannot_soft_delete_missing_status_column'));
                     }
 

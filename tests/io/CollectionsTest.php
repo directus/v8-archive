@@ -20,7 +20,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         delete_item(static::$db, 'directus_collections', [
             'collection' => static::$tableName
         ]);
-        reset_table_id(static::$db, 'directus_fields', 2);
+        reset_table_id(static::$db, 'directus_fields', 5);
     }
 
     public static function setUpBeforeClass()
