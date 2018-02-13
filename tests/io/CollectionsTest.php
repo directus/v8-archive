@@ -210,7 +210,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_get('collections', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 3
+            'count' => 4
         ]);
     }
 
