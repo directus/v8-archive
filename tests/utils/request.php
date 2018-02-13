@@ -19,6 +19,11 @@ function request($method, $path, array $options = [])
         unset($options['form_params']);
     }
 
+    $env = isset($options['env']) ? $options['env'] : '_';
+    if ($env !== false) {
+        $path = sprintf('%s/%s', $env, $path);
+    }
+
     $response = $http->request($method, $path, $options);
 
     return $response;

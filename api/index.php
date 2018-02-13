@@ -9,19 +9,21 @@ $app = require __DIR__ . '/bootstrap.php';
 // TODO: Customized Method not allowed error
 // =============================================================================
 
-$app->group('/activity', \Directus\Api\Routes\Activity::class);
-$app->group('/auth', \Directus\Api\Routes\Auth::class);
-$app->group('/fields', \Directus\Api\Routes\Fields::class);
-$app->group('/files', \Directus\Api\Routes\Files::class);
-$app->group('/groups', \Directus\Api\Routes\Groups::class);
-$app->group('/items', \Directus\Api\Routes\Items::class);
-$app->group('/collection_presets', \Directus\Api\Routes\CollectionPresets::class);
-$app->group('/permissions', \Directus\Api\Routes\Permissions::class);
-$app->group('/revisions', \Directus\Api\Routes\Revisions::class);
-$app->group('/settings', \Directus\Api\Routes\Settings::class);
-$app->group('/collections', \Directus\Api\Routes\Collections::class);
-$app->group('/users', \Directus\Api\Routes\Users::class);
-$app->group('/utils', \Directus\Api\Routes\Utils::class);
+$app->group('/_', function () {
+    $this->group('/activity', \Directus\Api\Routes\Activity::class);
+    $this->group('/auth', \Directus\Api\Routes\Auth::class);
+    $this->group('/fields', \Directus\Api\Routes\Fields::class);
+    $this->group('/files', \Directus\Api\Routes\Files::class);
+    $this->group('/groups', \Directus\Api\Routes\Groups::class);
+    $this->group('/items', \Directus\Api\Routes\Items::class);
+    $this->group('/collection_presets', \Directus\Api\Routes\CollectionPresets::class);
+    $this->group('/permissions', \Directus\Api\Routes\Permissions::class);
+    $this->group('/revisions', \Directus\Api\Routes\Revisions::class);
+    $this->group('/settings', \Directus\Api\Routes\Settings::class);
+    $this->group('/collections', \Directus\Api\Routes\Collections::class);
+    $this->group('/users', \Directus\Api\Routes\Users::class);
+    $this->group('/utils', \Directus\Api\Routes\Utils::class);
+});
 
 $app->run();
 
