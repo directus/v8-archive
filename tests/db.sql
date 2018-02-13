@@ -127,6 +127,7 @@ LOCK TABLES `directus_collections` WRITE;
 
 INSERT INTO `directus_collections` (`collection`, `item_name_template`, `preview_url`, `hidden`, `single`, `status_mapping`, `comment`)
 VALUES
+	('categories',NULL,NULL,0,0,NULL,NULL),
 	('products',NULL,NULL,0,0,NULL,NULL),
 	('products_images',NULL,NULL,0,0,NULL,NULL);
 

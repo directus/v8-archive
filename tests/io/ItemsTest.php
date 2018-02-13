@@ -3,6 +3,7 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
+use Directus\Util\ArrayUtils;
 
 class ItemsTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,12 +28,26 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 
     protected static $db;
 
-    public static function setUpBeforeClass()
+    public static function resetData()
     {
         static::$db = create_db_connection();
 
         truncate_table(static::$db, 'products');
+        truncate_table(static::$db, 'categories');
+        fill_table(static::$db, 'categories', [
+            ['name' => 'Old Category']
+        ]);
         fill_table(static::$db, 'products', static::$data);
+    }
+
+    public static function setUpBeforeClass()
+    {
+        static::resetData();
+    }
+
+    public static function tearDownAfterClass()
+    {
+        static::resetData();
     }
 
     public function testNotDirectAccess()
@@ -428,7 +443,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'count' => 1
         ]);
 
-        $response = request_get($path, ['access_token' => 'token', 'q' => 'Old']);
+        $response = request_get($path, ['access_token' => 'token', 'q' => 'Old Product']);
         assert_response($this, $response, [
             'data' => 'array',
             'count' => 0
@@ -556,9 +571,138 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testCreateWithRelation()
+    {
+        $path = 'items/products';
+        $data = [
+            'status' => 1,
+            'name' => 'Premium Product',
+            'price' => 9999.99,
+            'category_id' => [
+                'name' => 'Premium Cat'
+            ]
+        ];
+
+        $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
+        assert_response($this, $response);
+
+        $response = request_get('items/products/6', ['access_token' => 'token', 'fields' => '*, category_id.*']);
+        $responseDataObject = response_get_data($response);
+        $this->assertInternalType('object', $responseDataObject);
+        $responseDataArray = (array) $responseDataObject;
+
+        unset($data['price']);
+        $categoryId = ArrayUtils::pull($data, 'category_id');
+        $this->assertArrayHasKey('category_id', $responseDataArray);
+        $category = ArrayUtils::pull($responseDataArray, 'category_id');
+        foreach ($data as $key => $value) {
+            $this->assertSame($value, $responseDataArray[$key]);
+        }
+
+        $this->assertInternalType('object', $category);
+        $this->assertSame($category->name, $categoryId['name']);
+
+        // =============================================================================
+        // TEST O2M
+        // =============================================================================
+        $path = 'items/categories';
+        $data = [
+            'name' => 'New Category',
+            'products' => [[
+                'status' => 1,
+                'name' => 'New Product'
+            ]]
+        ];
+
+        $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
+        assert_response($this, $response);
+
+        $response = request_get('items/categories/3', ['access_token' => 'token', 'fields' => '*, products.*']);
+        $responseDataObject = response_get_data($response);
+        $this->assertInternalType('object', $responseDataObject);
+        $responseDataArray = (array) $responseDataObject;
+
+        $this->assertArrayHasKey('products', $responseDataArray);
+        $products = ArrayUtils::pull($responseDataArray, 'products');
+        $productsRelated = ArrayUtils::pull($data, 'products');
+        foreach ($data as $key => $value) {
+            $this->assertSame($value, $responseDataArray[$key]);
+        }
+
+        $this->assertInternalType('object', $products);
+        $this->assertObjectHasAttribute('data', $products);
+        $this->assertInternalType('array', $products->data);
+        $this->assertSame($products->data[0]->name, $productsRelated[0]['name']);
+
+        // =============================================================================
+        // TEST M2M
+        // =============================================================================
+        $path = 'items/products';
+        $data = [
+            'status' => 1,
+            'name' => 'Limited Product',
+            'price' => 1010.01,
+            'images' => [
+                [
+                    'file_id' => [
+                        'filename' => 'potato.jpg',
+                        'title' => 'Image of a fake potato',
+                        'data' => '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAB4AKADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAUH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AugILDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/9k='
+                    ]
+                ]
+            ]
+        ];
+
+        $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
+        assert_response($this, $response);
+
+        $response = request_get('items/products/8', ['access_token' => 'token', 'fields' => '*, images.*']);
+        $responseDataObject = response_get_data($response);
+        $this->assertInternalType('object', $responseDataObject);
+        $responseDataArray = (array) $responseDataObject;
+
+        $this->assertArrayHasKey('images', $responseDataArray);
+        $images = ArrayUtils::pull($responseDataArray, 'images');
+        $imagesRelated = ArrayUtils::pull($data, 'images');
+        unset($data['price']);
+        foreach ($data as $key => $value) {
+            $this->assertSame($value, $responseDataArray[$key]);
+        }
+
+        $this->assertInternalType('object', $images);
+        $this->assertObjectHasAttribute('data', $images);
+        $this->assertInternalType('array', $images->data);
+        $this->assertSame($images->data[0]->title, $imagesRelated[0]['file_id']['title']);
+    }
+
+    public function testList()
+    {
+        $path = 'items/categories';
+        $response = request_get($path, ['access_token' => 'token']);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 3
+        ]);
+
+        $path = 'items/products';
+        $response = request_get($path, ['access_token' => 'token']);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 7
+        ]);
+    }
+
     public function testDelete()
     {
         $path = 'items/products/5';
+        $response = request_delete($path, ['query' => ['access_token' => 'token']]);
+        assert_response_empty($this, $response);
+
+        $path = 'items/products/6';
+        $response = request_delete($path, ['query' => ['access_token' => 'token']]);
+        assert_response_empty($this, $response);
+
+        $path = 'items/categories/3';
         $response = request_delete($path, ['query' => ['access_token' => 'token']]);
         assert_response_empty($this, $response);
     }

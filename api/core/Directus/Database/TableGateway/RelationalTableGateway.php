@@ -1480,10 +1480,6 @@ class RelationalTableGateway extends BaseTableGateway
             $relationalColumnName = $alias->getRelationship()->getFieldB();
             $tableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
             $filterFields = get_array_flat_columns($columnsTree[$alias->getName()]);
-            if (empty($filteredColumns)) {
-                $filteredColumns = TableSchema::getAllTableColumnsName($relatedTableName);
-            }
-
             $filters = [];
             if (ArrayUtils::get($params, 'lang')) {
                 $langIds = StringUtils::csv(ArrayUtils::get($params, 'lang'));
@@ -1500,6 +1496,13 @@ class RelationalTableGateway extends BaseTableGateway
             ], $params));
 
             $relatedEntries = [];
+            // TODO: Create fields parser helper
+            if (in_array('*', $filterFields)) {
+                $key = array_search('*', $filterFields);
+                unset($filterFields[$key]);
+                $filterFields = array_merge($tableGateway->getTableSchema()->getFieldsName(), $filterFields);
+            }
+
             foreach ($results as $row) {
                 // Quick fix
                 // @NOTE: When fetching a column that also has another relational field
@@ -1590,7 +1593,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             // Only select the fields not on the currently authenticated user group's read field blacklist
-            $relatedTableColumns = array_keys(ArrayUtils::get($columnsTree, $alias->getName(), ['*']));
+            $relatedTableColumns = array_keys(ArrayUtils::get($columnsTree, $alias->getName(), ['*']) ?: ['*']);
             $visibleColumns = array_merge(
                 [$relatedTablePrimaryKey],
                 $relatedTableColumns,
