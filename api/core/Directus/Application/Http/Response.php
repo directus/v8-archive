@@ -4,6 +4,9 @@ namespace Directus\Application\Http;
 
 class Response extends \Slim\Http\Response
 {
+    const HTTP_NOT_FOUND            = 404;
+    const HTTP_METHOD_NOT_ALLOWED   = 405;
+
     /**
      * Sets multiple headers
      *

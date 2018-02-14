@@ -2,11 +2,12 @@
 
 namespace Directus\Application;
 
+use Directus\Application\ErrorHandlers\MethodNotAllowedHandler;
+use Directus\Application\ErrorHandlers\NotFoundHandler;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-// use Slim\Container;
 use Slim\Http\Headers;
 
 class DefaultServicesProvider extends \Slim\DefaultServicesProvider
@@ -38,6 +39,18 @@ class DefaultServicesProvider extends \Slim\DefaultServicesProvider
 
             return $response->withProtocolVersion($container->get('settings')['httpVersion']);
         };
+
+        if (!isset($container['notFoundHandler'])) {
+            $container['notFoundHandler'] = function () {
+                return new NotFoundHandler();
+            };
+        }
+
+        if (!isset($container['notAllowedHandler'])) {
+            $container['notAllowedHandler'] = function () {
+                return new MethodNotAllowedHandler();
+            };
+        }
 
         parent::register($container);
     }
