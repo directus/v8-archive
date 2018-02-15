@@ -3,11 +3,8 @@
 namespace Directus\Application;
 
 use Directus\Config\Config;
-use Directus\Hook\Payload;
 use Directus\Util\ArrayUtils;
-use Psr\Container\ContainerInterface;
 use Slim\App;
-use Slim\Exception\InvalidMethodException;
 
 class Application extends App
 {

@@ -2,11 +2,7 @@
 
 namespace Directus\Application;
 
-use Directus\Application\ErrorHandlers\ErrorHandler;
 use Directus\Collection\Collection;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 
 class Container extends \Directus\Container\Container
 {
@@ -24,7 +20,6 @@ class Container extends \Directus\Container\Container
         'addContentLengthHeader' => true,
         'routerCacheFile' => false,
     ];
-
 
     /**
      * @inheritdoc

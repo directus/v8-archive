@@ -15,8 +15,6 @@ use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
-use Directus\Util\ArrayUtils;
-use Zend\Db\TableGateway\TableGateway;
 
 class AuthenticationMiddleware extends AbstractMiddleware
 {
@@ -37,7 +35,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
         \Directus\Database\TableSchema::setAclInstance($container->get('acl'));
         \Directus\Database\TableSchema::setConnectionInstance($container->get('database'));
         \Directus\Database\TableSchema::setConfig($container->get('config'));
-        BaseTableGateway::setHookEmitter($container->get('hook_emitter'));
         BaseTableGateway::setHookEmitter($container->get('hook_emitter'));
         BaseTableGateway::setContainer($container);
         TableGatewayFactory::setContainer($container);
