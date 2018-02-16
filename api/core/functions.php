@@ -450,41 +450,6 @@ if (!function_exists('get_user_timezone')) {
     }
 }
 
-if (!function_exists('get_user_locale')) {
-    function get_user_locale()
-    {
-        $locale = $defaultLocale = 'en';
-
-        if (isset($_SESSION['install_locale'])) {
-            $locale = $_SESSION['install_locale'];
-        } elseif (get_auth_locale()) {
-            $locale = get_auth_locale();
-        } elseif (get_default_locale()) {
-            $locale = get_default_locale();
-        }
-
-        if (!is_locale_available($locale)) {
-            $locale = $defaultLocale;
-        }
-
-        return $locale;
-    }
-}
-
-if (!function_exists('get_default_locale')) {
-    function get_default_locale()
-    {
-        // if there's not config files created
-        if (!defined('BASE_PATH') || !defined('APPLICATION_PATH')) {
-            return null;
-        }
-
-        $config = \Directus\Bootstrap::get('config');
-
-        return isset($config['default_language']) ? $config['default_language'] : null;
-    }
-}
-
 if (!function_exists('get_auth_info')) {
     function get_auth_info($attribute)
     {
@@ -512,13 +477,6 @@ if (!function_exists('get_auth_info')) {
     }
 }
 
-if (!function_exists('get_auth_locale')) {
-    function get_auth_locale()
-    {
-        return get_auth_info('language');
-    }
-}
-
 if (!function_exists('get_auth_timezone')) {
     function get_auth_timezone()
     {
@@ -526,118 +484,10 @@ if (!function_exists('get_auth_timezone')) {
     }
 }
 
-if (!function_exists('get_locales_path')) {
-    /**
-     * Get locales file path
-     *
-     * @return array
-     */
-    function get_locales_path()
-    {
-        $localesPath = base_path('/api/locales/*.json');
-
-        return glob($localesPath);
-    }
-}
-
-if (!function_exists('get_locales_filename')) {
-    /**
-     * Get locales filename
-     *
-     * @return array
-     */
-    function get_locales_filename()
-    {
-        $languages = [];
-        foreach (get_locales_path() as $filename) {
-            $languages[] = pathinfo($filename, PATHINFO_FILENAME);
-        }
-
-        return $languages;
-    }
-}
-
-if (!function_exists('get_locale_keys')) {
-    /**
-     * Get locale file keys
-     *
-     * @param $locale
-     *
-     * @return array
-     */
-    function get_locale_keys($locale)
-    {
-        $phrases = get_locale_phrases($locale);
-
-        $keys = [];
-        if ($phrases) {
-            $keys = array_keys($phrases);
-        }
-
-        return $keys;
-    }
-}
-
-if (!function_exists('get_locales_available')) {
-    function get_locales_available()
-    {
-        $languagesManager = \Directus\Bootstrap::get('languagesManager');
-
-        return $languagesManager->getLanguagesAvailable();
-    }
-}
-
-if (!function_exists('is_locale_available')) {
-    function is_locale_available($locale)
-    {
-        $languagesManager = \Directus\Bootstrap::get('languagesManager');
-
-        return $languagesManager->isLanguageAvailable($locale);
-    }
-}
-
-if (!function_exists('get_default_phrases')) {
-    function get_default_phrases() {
-        return get_locale_phrases('en');
-    }
-}
-
-if (!function_exists('get_locale_phrases')) {
-    function get_locale_phrases($locale) {
-        $phrasesPath = base_path('/api/locales/' . $locale . '.json');
-
-        return json_decode(file_get_contents($phrasesPath), true);
-    }
-}
-
-if (!function_exists('get_phrases')) {
-    function get_phrases($locale = 'en')
-    {
-        $defaultPhrases = get_default_phrases();
-        $langFile = base_path('/api/locales/' . $locale . '.json');
-
-        $phrases = [];
-        if (file_exists($langFile)) {
-            $phrases = json_decode(file_get_contents($langFile), true);
-        }
-
-        return is_array($phrases) ? array_merge($defaultPhrases, $phrases) : $defaultPhrases;
-    }
-}
-
 if (!function_exists('__t')) {
     function __t($key, $data = [])
     {
-        static $phrases;
-
-        if (!$phrases) {
-            $phrases = get_phrases(get_user_locale());
-        }
-
-        $phrase = isset($phrases[$key]) ? $phrases[$key] : $key;
-        $phrase = \Directus\Util\StringUtils::replacePlaceholder($phrase, $data, \Directus\Util\StringUtils::PLACEHOLDER_PERCENTAGE_MUSTACHE);
-
-        return $phrase;
+        return $key;
     }
 }
 
