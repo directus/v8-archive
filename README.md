@@ -12,8 +12,7 @@ This API is currently under development for the next major [Directus](https://gi
 <p>&nbsp;</p>
 
 [![Join the chat at https://slack.getdirectus.com](https://img.shields.io/badge/chat-on%20slack-C7205A.svg)](https://slack.getdirectus.com)
-![BrowserStack Status](https://www.browserstack.com/automate/badge.svg?badge_key=<badge_key>)
-[![GitHub issues](https://img.shields.io/github/issues/directus/directus.svg)](https://github.com/directus/directus/issues)
+[![GitHub issues](https://img.shields.io/github/issues/directus/directus.svg)](https://github.com/directus/api/issues)
 [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/directus/api/master/license.md)
 [![StackShare](http://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](https://stackshare.io/ranger/directus)
 
