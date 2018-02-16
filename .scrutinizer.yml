@@ -1,5 +1,5 @@
 filter:
-  paths: ['api/*', 'installation/*', 'bin/*', 'installation/*', 'index.php', 'login.php']
+  paths: ['api/*', 'installation/*', 'bin/*', 'index.php']
 
 checks:
   php: true
