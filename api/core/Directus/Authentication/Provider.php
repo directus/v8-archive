@@ -172,7 +172,9 @@ class Provider
 
         $user = $this->userProvider->findWhere($conditions);
 
-        $this->setUser($user);
+        if ($user) {
+            $this->setUser($user);
+        }
 
         return $user;
     }
@@ -193,7 +195,9 @@ class Provider
         ];
 
         $user = $this->userProvider->findWhere($conditions);
-        $this->setUser($user);
+        if ($user) {
+            $this->setUser($user);
+        }
 
         return $user;
     }
@@ -213,7 +217,9 @@ class Provider
     {
         $user = $this->userProvider->findWhere(['invite_token' => $invitationCode]);
 
-        $this->setUser($user);
+        if ($user) {
+            $this->setUser($user);
+        }
 
         return $user;
     }
