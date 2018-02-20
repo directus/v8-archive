@@ -2,9 +2,9 @@
 
 namespace Directus\Authentication\Exception;
 
-use Directus\Exception\Exception;
+use Directus\Exception\UnauthorizedException;
 
-class UserInactiveException extends Exception
+class UserInactiveException extends UnauthorizedException
 {
 
 }

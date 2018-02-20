@@ -5,6 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
+use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Exception\BadRequestException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
@@ -125,6 +126,25 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
+    public function testDisabledUserCredentials()
+    {
+        try {
+            $path = 'auth/authenticate';
+            $response = request_post($path, [
+                'email' => 'disabled@getdirectus.com',
+                'password' => 'password'
+            ]);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+        }
+
+        assert_response_error($this, $response, [
+            'status' => 401,
+            'data' => 'array',
+            'code' => UserInactiveException::ERROR_CODE
+        ]);
+    }
+
     public function testValidation()
     {
         $path = 'auth/authenticate';
@@ -209,6 +229,19 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         assert_response_error($this, $response, [
             'status' => 401,
             'code' => InvalidTokenException::ERROR_CODE
+        ]);
+    }
+
+    public function testDisabledUserToken()
+    {
+        $path = 'users';
+        $response = request_error_get($path, [
+            'access_token' => 'disabled_token'
+        ]);
+
+        assert_response_error($this, $response, [
+            'status' => 401,
+            'code' => UserInactiveException::ERROR_CODE
         ]);
     }
 }

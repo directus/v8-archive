@@ -109,11 +109,7 @@ class Provider
         // we are also getting the user data
         $user = $this->verify($email, $password);
 
-        if (!$this->isActive($user)) {
-            throw new UserInactiveException();//__t('login_error_user_is_not_active'));
-        }
-
-        $this->authenticated = true;
+        $this->setUser($user);
 
         return $user;
     }
@@ -174,14 +170,11 @@ class Provider
             'group' => $payload->group
         ];
 
-        $this->user = $this->userProvider->findWhere($conditions);
-        if ($this->user->getId() === null) {
-            throw new InvalidTokenException();
-        }
+        $user = $this->userProvider->findWhere($conditions);
 
-        $this->authenticated = true;
+        $this->setUser($user);
 
-        return $this->user;
+        return $user;
     }
 
     /**
@@ -199,14 +192,10 @@ class Provider
             'token' => $token
         ];
 
-        $this->user = $this->userProvider->findWhere($conditions);
-        if (!$this->user) {
-            throw new InvalidTokenException();
-        }
+        $user = $this->userProvider->findWhere($conditions);
+        $this->setUser($user);
 
-        $this->authenticated = true;
-
-        return $this->user;
+        return $user;
     }
 
     /**
@@ -224,14 +213,9 @@ class Provider
     {
         $user = $this->userProvider->findWhere(['invite_token' => $invitationCode]);
 
-        if (!$user) {
-            throw new InvalidInvitationCodeException();
-        }
+        $this->setUser($user);
 
-        $this->forceUserLogin($user);
-        $this->user = $user;
-
-        return $this->user;
+        return $user;
     }
 
     /**
@@ -247,14 +231,9 @@ class Provider
      */
     public function forceUserLogin(UserInterface $user)
     {
-        if (!$user || !$user->getId()) {
-            throw new UserNotFoundException();
-        }
+        $this->setUser($user);
 
-        $this->authenticated = true;
-        $this->user = $user;
-
-        return $this->user;
+        return $user;
     }
 
     /**
@@ -374,5 +353,27 @@ class Provider
     public function getNewExpirationTime()
     {
         return time() + ($this->ttl * DateUtils::MINUTE_IN_SECONDS);
+    }
+
+    /**
+     * Sets the given user as authenticated
+     *
+     * @param UserInterface $user
+     *
+     * @throws InvalidTokenException
+     * @throws UserInactiveException
+     */
+    protected function setUser(UserInterface $user)
+    {
+        if (!$user || !$user->getId()) {
+            throw new InvalidTokenException();
+        }
+
+        if (!$this->isActive($user)) {
+            throw new UserInactiveException();
+        }
+
+        $this->authenticated = true;
+        $this->user = $user;
     }
 }

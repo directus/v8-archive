@@ -10,6 +10,6 @@ class InvalidTokenException extends UnauthorizedException
 
     public function __construct()
     {
-        parent::__construct('auth_invalid_token', static::ERROR_CODE);
+        parent::__construct('Invalid Authentication Token');
     }
 }
