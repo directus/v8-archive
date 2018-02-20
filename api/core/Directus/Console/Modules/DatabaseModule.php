@@ -5,7 +5,6 @@ namespace Directus\Console\Modules;
 use Directus\Util\ArrayUtils;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
-use Ruckusing\Framework as Ruckusing_Framework;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 

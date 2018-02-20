@@ -244,24 +244,7 @@ class InstallerUtils
          */
         static::checkConfigurationFile($directusPath);
 
-        require_once $directusPath . '/config/api.php';
-
-        $config = require $directusPath . '/api/ruckusing.conf.php';
-        $dbConfig = getDatabaseConfig([
-            'type' => DB_TYPE,
-            'host' => DB_HOST,
-            'port' => DB_PORT,
-            'name' => DB_NAME,
-            'user' => DB_USER,
-            'pass' => DB_PASSWORD,
-            'directory' => 'templates/' . $name,
-            'prefix' => '',
-        ]);
-
-        $config = array_merge($config, $dbConfig);
-        $main = new Ruckusing_Framework($config);
-
-        $main->execute(['', 'db:migrate']);
+        // TODO: Install schema templates
     }
 
     /**
