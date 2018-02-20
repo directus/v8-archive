@@ -4,10 +4,12 @@ namespace Directus\Util\Installation;
 
 use Directus\Application\Application;
 use Directus\Bootstrap;
-use Directus\Database\Connection;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
-use Ruckusing\Framework as Ruckusing_Framework;
+use Phinx\Config\Config;
+use Phinx\Migration\Manager;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Zend\Db\TableGateway\TableGateway;
 
 class InstallerUtils
@@ -58,7 +60,7 @@ class InstallerUtils
 
         $configStub = static::createConfigFileContent($data);
 
-        $configPath = rtrim($path, '/') . '/config.php';
+        $configPath = rtrim($path, '/') . '/api.php';
         file_put_contents($configPath, $configStub);
     }
 
@@ -94,24 +96,26 @@ class InstallerUtils
          */
         static::checkConfigurationFile($directusPath);
 
-        $appConfig = require $directusPath . '/api/config.php';
-        $config = require $directusPath . '/api/ruckusing.conf.php';
-        $dbConfig = getDatabaseConfig([
-            'type' => ArrayUtils::get($appConfig, 'database.type'),
-            'host' => ArrayUtils::get($appConfig, 'database.host'),
-            'port' => ArrayUtils::get($appConfig, 'database.port'),
-            'name' => ArrayUtils::get($appConfig, 'database.name'),
-            'user' => ArrayUtils::get($appConfig, 'database.username'),
-            'pass' => ArrayUtils::get($appConfig, 'database.password'),
-            'directory' => 'schema',
-            'prefix' => '',
-        ]);
+        $configPath = $directusPath . '/config';
 
-        $config = array_merge($config, $dbConfig);
-        $main = new Ruckusing_Framework($config);
+        $apiConfig = require $configPath . '/api.php';
+        $configArray = require $configPath . '/migrations.php';
+        $configArray['paths']['migrations'] = $directusPath . '/migrations/db/schemas';
+        $configArray['paths']['seeds'] = $directusPath . '/migrations/db/seeds';
+        $configArray['environments']['development'] = [
+            'adapter' => ArrayUtils::get($apiConfig, 'database.type'),
+            'host' => ArrayUtils::get($apiConfig, 'database.host'),
+            'port' => ArrayUtils::get($apiConfig, 'database.port'),
+            'name' => ArrayUtils::get($apiConfig, 'database.name'),
+            'user' => ArrayUtils::get($apiConfig, 'database.username'),
+            'pass' => ArrayUtils::get($apiConfig, 'database.password'),
+            'charset' => ArrayUtils::get($apiConfig, 'database.charset', 'utf8')
+        ];
+        $config = new Config($configArray);
 
-        $main->execute(['', 'db:setup']);
-        $main->execute(['', 'db:migrate']);
+        $manager = new Manager($config, new StringInput(''), new NullOutput());
+        $manager->migrate('development');
+        $manager->seed('development');
     }
 
     /**
@@ -133,7 +137,7 @@ class InstallerUtils
 
         // require_once $directusPath . '/api/config.php';
 
-        $app = new Application($directusPath, require $directusPath . '/api/config.php');
+        $app = new Application($directusPath, require $directusPath . '/config/api.php');
         // $db = Bootstrap::get('ZendDb');
         $db = $app->getContainer()->get('database');
 
@@ -153,7 +157,7 @@ class InstallerUtils
      */
     public static function addDefaultUser($data, $directusPath)
     {
-        $app = new Application($directusPath, require $directusPath . '/api/config.php');
+        $app = new Application($directusPath, require $directusPath . '/config/api.php');
         // $db = Bootstrap::get('ZendDb');
         $db = $app->getContainer()->get('database');
         $tableGateway = new TableGateway('directus_users', $db);
@@ -240,7 +244,7 @@ class InstallerUtils
          */
         static::checkConfigurationFile($directusPath);
 
-        require_once $directusPath . '/api/config.php';
+        require_once $directusPath . '/config/api.php';
 
         $config = require $directusPath . '/api/ruckusing.conf.php';
         $dbConfig = getDatabaseConfig([
@@ -347,11 +351,11 @@ class InstallerUtils
     private static function checkConfigurationFile($directusPath)
     {
         $directusPath = rtrim($directusPath, '/');
-        if (!file_exists($directusPath . '/api/config.php')) {
+        if (!file_exists($directusPath . '/config/api.php')) {
             throw new \Exception('Config file does not exists, run [directus config]');
         }
 
-        if (!file_exists($directusPath . '/api/ruckusing.conf.php')) {
+        if (!file_exists($directusPath . '/config/migrations.php')) {
             throw new \Exception('Migration configuration file does not exists');
         }
     }

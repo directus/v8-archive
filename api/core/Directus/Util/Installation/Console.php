@@ -96,7 +96,7 @@ class Console
             }
         }
 
-        InstallerUtils::createConfig($data, $this->directusPath . '/api');
+        InstallerUtils::createConfig($data, $this->directusPath . '/config');
 
         $this->clear();
     }

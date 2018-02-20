@@ -3,7 +3,11 @@
 namespace Directus\Console\Modules;
 
 use Directus\Util\ArrayUtils;
+use Phinx\Config\Config;
+use Phinx\Migration\Manager;
 use Ruckusing\Framework as Ruckusing_Framework;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\NullOutput;
 
 class DatabaseModule extends ModuleBase
 {
@@ -38,29 +42,28 @@ class DatabaseModule extends ModuleBase
         $this->runMigration('upgrades');
     }
 
-    protected function runMigration($migrationDirectory)
+    protected function runMigration($name)
     {
         $directusPath = BASE_PATH;
-        $appConfig = require_once $directusPath . '/api/config.php';
-        $config = require $directusPath . '/api/ruckusing.conf.php';
-        $dbConfig = getDatabaseConfig([
-            'type' => ArrayUtils::get($appConfig, 'database.type'),
-            'host' => ArrayUtils::get($appConfig, 'database.host'),
-            'port' => ArrayUtils::get($appConfig, 'database.port'),
-            'name' => ArrayUtils::get($appConfig, 'database.name'),
-            'user' => ArrayUtils::get($appConfig, 'database.username'),
-            'pass' => ArrayUtils::get($appConfig, 'database.password'),
-            'directory' => $migrationDirectory,
-            'prefix' => '',
-        ]);
 
-        $config = array_merge($config, $dbConfig);
-        $main = new Ruckusing_Framework($config);
+        $configPath = $directusPath . '/config';
+        $apiConfig = require $configPath . '/api.php';
+        $configArray = require $configPath . '/migrations.php';
+        $configArray['paths']['migrations'] = $directusPath . '/migrations/db/' . $name;
+        $configArray['environments']['development'] = [
+            'adapter' => ArrayUtils::get($apiConfig, 'database.type'),
+            'host' => ArrayUtils::get($apiConfig, 'database.host'),
+            'port' => ArrayUtils::get($apiConfig, 'database.port'),
+            'name' => ArrayUtils::get($apiConfig, 'database.name'),
+            'user' => ArrayUtils::get($apiConfig, 'database.username'),
+            'pass' => ArrayUtils::get($apiConfig, 'database.password'),
+            'charset' => ArrayUtils::get($apiConfig, 'database.charset', 'utf8')
+        ];
+        $config = new Config($configArray);
 
-        $output = $main->execute(['', 'db:setup']);
-        echo 'db:setup - ' . $output['message'] . PHP_EOL;
+        $manager = new Manager($config, new StringInput(''), new NullOutput());
+        $manager->migrate('development');
 
-        $output = $main->execute(['', 'db:migrate']);
-        echo 'db:migrate - ' . $output['message'] . PHP_EOL;
+        // TODO: Flush Output
     }
 }

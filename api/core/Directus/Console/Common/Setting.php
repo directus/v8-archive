@@ -21,7 +21,7 @@ class Setting
             $this->directus_path = $base_path;
         }
 
-        $app = new Application($base_path, require $this->directus_path . '/api/config.php');
+        $app = new Application($base_path, require $this->directus_path . '/config/api.php');
         // $this->db = new Connection();//Bootstrap::get('ZendDb');
         $this->db = $app->getContainer()->get('database');
 

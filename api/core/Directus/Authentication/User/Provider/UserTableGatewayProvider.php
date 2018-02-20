@@ -5,7 +5,6 @@ namespace Directus\Authentication\User\Provider;
 use Directus\Authentication\User\User;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\TableGateway\BaseTableGateway;
-use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Util\DateUtils;
 use Zend\Db\Sql\Select;
 

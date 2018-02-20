@@ -97,7 +97,7 @@ class InstallModule extends ModuleBase
             }
         }
 
-        $apiPath = rtrim($directusPath, '/') . '/api';
+        $apiPath = rtrim($directusPath, '/') . '/config';
         if (!file_exists($apiPath)) {
             throw new \Exception(sprintf('Path "%s" does not exists', $apiPath));
         }

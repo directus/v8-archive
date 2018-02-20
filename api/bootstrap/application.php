@@ -1,6 +1,6 @@
 <?php
 
-$configFilePath = realpath(__DIR__ . '/../') . '/config.php';
+$configFilePath = realpath(__DIR__ . '/../../') . '/config/api.php';
 
 // Creates a simple endpoint to test the server rewriting
 // If the server responds "pong" it means the rewriting works

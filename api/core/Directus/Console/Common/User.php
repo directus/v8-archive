@@ -26,7 +26,7 @@ class User
             $this->directus_path = $base_path;
         }
 
-        $this->app = new Application($base_path, require $base_path. '/api/config.php');
+        $this->app = new Application($base_path, require $base_path. '/config/api.php');
         $this->db = $this->app->getContainer()->get('database');
 
         $this->usersTableGateway = new TableGateway('directus_users', $this->db);

@@ -1,5 +1,7 @@
 # Ignore configuration files
-api/config.php
+config/*
+!config/migrations.php
+!config/api_sample.php
 
 documents
 
