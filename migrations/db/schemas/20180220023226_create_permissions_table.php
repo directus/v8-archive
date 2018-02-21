@@ -67,6 +67,11 @@ class CreatePermissionsTable extends AbstractMigration
             'null' => false,
             'default' => false,
         ]);
+        $table->addColumn('require_activity_message', 'boolean', [
+            'signed' => false,
+            'null' => false,
+            'default' => false
+        ]);
         $table->addColumn('read_field_blacklist', 'string', [
             'limit' => 1000,
             'null' => true,
