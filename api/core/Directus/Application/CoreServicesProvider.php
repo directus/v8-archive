@@ -398,6 +398,106 @@ class CoreServicesProvider
                 }
                 return $payload;
             });
+
+            // -- Data types -----------------------------------------------------------------------------
+            $parseArray = function ($collection, $data) use ($container) {
+                /** @var SchemaManager $schemaManager */
+                $schemaManager = $container->get('schema_manager');
+                $collectionObject = $schemaManager->getTableSchema($collection);
+
+                foreach ($collectionObject->getFields(array_keys($data)) as $field) {
+                    if (!$field->isArray()) {
+                        continue;
+                    }
+
+                    $key = $field->getName();
+                    $value = $data[$key];
+
+                    // NOTE: If the array has value with comma it will be treat as a separate value
+                    // should we encode the commas to "hide" the comma when splitting the values?
+                    if (is_array($value)) {
+                        $value = implode(',', $value);
+                    } else {
+                        $value = explode(',', $value);
+                    }
+
+                    $data[$key] = $value;
+                }
+
+                return $data;
+            };
+            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($parseArray) {
+                $payload->replace($parseArray($payload->attribute('tableName'), $payload->getData()));
+
+                return $payload;
+            });
+            $emitter->addFilter('table.update:before', function (Payload $payload) use ($parseArray) {
+                $payload->replace($parseArray($payload->attribute('tableName'), $payload->getData()));
+
+                return $payload;
+            });
+            $emitter->addFilter('table.select', function (Payload $payload) use ($parseArray) {
+                $rows = $payload->getData();
+                $collection = $payload->attribute('tableName');
+
+                foreach ($rows as $key => $row) {
+                    $rows[$key] = $parseArray($collection, $row);
+                }
+
+                $payload->replace($rows);
+
+                return $payload;
+            });
+
+            $parseJson = function ($collection, $data) use ($container) {
+                /** @var SchemaManager $schemaManager */
+                $schemaManager = $container->get('schema_manager');
+                $collectionObject = $schemaManager->getTableSchema($collection);
+
+                foreach ($collectionObject->getFields(array_keys($data)) as $field) {
+                    if (!$field->isJson()) {
+                        continue;
+                    }
+
+                    $key = $field->getName();
+                    $value = $data[$key];
+
+                    // NOTE: If the array has value with comma it will be treat as a separate value
+                    // should we encode the commas to "hide" the comma when splitting the values?
+                    if (is_string($value)) {
+                        $value = json_decode($value);
+                    } else if ($value) {
+                        $value = json_encode($value);
+                    }
+
+                    $data[$key] = $value;
+                }
+
+                return $data;
+            };
+            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($parseJson) {
+                $payload->replace($parseJson($payload->attribute('tableName'), $payload->getData()));
+
+                return $payload;
+            });
+            $emitter->addFilter('table.update:before', function (Payload $payload) use ($parseJson) {
+                $payload->replace($parseJson($payload->attribute('tableName'), $payload->getData()));
+
+                return $payload;
+            });
+            $emitter->addFilter('table.select', function (Payload $payload) use ($parseJson) {
+                $rows = $payload->getData();
+                $collection = $payload->attribute('tableName');
+
+                foreach ($rows as $key => $row) {
+                    $rows[$key] = $parseJson($collection, $row);
+                }
+
+                $payload->replace($rows);
+
+                return $payload;
+            });
+            // -------------------------------------------------------------------------------------------
             // Add file url and thumb url
             $emitter->addFilter('table.select', function (Payload $payload) use ($addFilesUrl, $container) {
                 $selectState = $payload->attribute('selectState');

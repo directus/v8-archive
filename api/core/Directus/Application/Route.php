@@ -178,6 +178,12 @@ abstract class Route
                 $columnConstraints[] = 'required';
             }
 
+            if ($field->isArray()) {
+                $columnConstraints[] = 'array';
+            } else if ($field->isJson()) {
+                $columnConstraints[] = 'json';
+            }
+
             if (!empty($columnConstraints)) {
                 $constraints[$field->getName()] = $columnConstraints;
             }

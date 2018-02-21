@@ -2,6 +2,9 @@
 
 namespace Directus\Database\Schema;
 
+use Directus\Database\Ddl\Column\LongText;
+use Directus\Database\Ddl\Column\MediumText;
+use Directus\Database\Ddl\Column\TinyText;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
@@ -127,7 +130,7 @@ class SchemaFactory
     public function createColumn($name, array $data)
     {
         $this->validate($data);
-        $type = strtoupper(ArrayUtils::get($data, 'type'));
+        $type = $this->schemaManager->getDataType(strtoupper(ArrayUtils::get($data, 'type')));
         $interface = ArrayUtils::get($data, 'interface');
         $autoincrement = ArrayUtils::get($data, 'auto_increment', false);
         $length = ArrayUtils::get($data, 'length', $this->schemaManager->getFieldDefaultLength($type));
@@ -186,7 +189,7 @@ class SchemaFactory
      */
     protected function createColumnFromType($name, $type)
     {
-        switch ($type) {
+        switch (strtoupper($type)) {
             case 'DATETIME':
                 $column = new Datetime($name);
                 break;
@@ -216,15 +219,18 @@ class SchemaFactory
                 $column = new BigInteger($name);
                 break;
 
-            // case 'TINYTEXT':
-            //     break;
-            // case 'MEDIUMTEXT':
-            //     break;
+            case 'TINYTEXT':
+                $column = new LongText($name);
+                break;
+            case 'MEDIUMTEXT':
+                $column = new MediumText($name);
+                break;
             case 'TEXT':
                 $column = new Text($name);
                 break;
-            // case 'LONGTEXT':
-            //     break;
+            case 'LONGTEXT':
+                $column = new LongText($name);
+                break;
 
             case 'CHAR':
                 $column = new Char($name);

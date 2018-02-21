@@ -287,4 +287,13 @@ interface SchemaInterface
      * @return bool
      */
     public function isStringType($type);
+
+    /**
+     * Gets the real data type based on the database
+     *
+     * @param $type
+     *
+     * @return string
+     */
+    public function getDataType($type);
 }

@@ -50,6 +50,8 @@ class Collections extends Route
         $tableName = 'directus_collections';
         $tableObject = $schemaManager->getTableSchema($tableName);
         $constraints = $this->createConstraintFor($tableName, $tableObject->getFieldsName());
+        // TODO: Default to primary key id
+        $constraints['fields'][] = 'required';
         $this->validate($payload, array_merge(['fields' => 'array'], $constraints));
 
         $tableService = new TablesService($this->container);

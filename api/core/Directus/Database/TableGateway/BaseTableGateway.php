@@ -327,8 +327,10 @@ class BaseTableGateway extends TableGateway
     public function addOrUpdateRecordByArray(array $recordData, $tableName = null)
     {
         $tableName = is_null($tableName) ? $this->table : $tableName;
+        $collectionObject = $this->getTableSchema($tableName);
         foreach ($recordData as $columnName => $columnValue) {
-            if (is_array($columnValue)) {
+            $fieldObject = $collectionObject->getField($columnName);
+            if (!$fieldObject || (is_array($columnValue) && (!$fieldObject->isJson() && !$fieldObject->isArray()))) {
                 // $table = is_null($tableName) ? $this->table : $tableName;
                 throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $tableName . '`.`' . $columnName . '.');
             }

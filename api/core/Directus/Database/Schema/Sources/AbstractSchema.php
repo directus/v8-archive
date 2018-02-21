@@ -162,4 +162,28 @@ abstract class AbstractSchema implements SchemaInterface
     {
         return in_array(strtolower($type), $list);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataType($type)
+    {
+        switch (strtolower($type)) {
+            case 'array':
+            case 'json':
+                $type = 'text';
+                break;
+            case 'tinyjson':
+                $type = 'tinytext';
+                break;
+            case 'mediumjson':
+                $type = 'mediumtext';
+                break;
+            case 'longjson':
+                $type = 'longtext';
+                break;
+        }
+
+        return $type;
+    }
 }

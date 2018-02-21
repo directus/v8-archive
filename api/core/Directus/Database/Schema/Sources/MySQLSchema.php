@@ -139,134 +139,6 @@ class MySQLSchema extends AbstractSchema
     public function getFields($tableName, $params = null)
     {
         return $this->getAllFields(['collection' => $tableName]);
-        $selectOne = new Select();
-        $selectOne->quantifier($selectOne::QUANTIFIER_DISTINCT);
-        $selectOne->columns([
-            'table_name' => 'TABLE_NAME',
-            'column_name' => 'COLUMN_NAME',
-            'type' => new Expression('UCASE(C.DATA_TYPE)'),
-            'key' => 'COLUMN_KEY',
-            'extra' => 'EXTRA',
-            'char_length' => 'CHARACTER_MAXIMUM_LENGTH',
-            'precision' => 'NUMERIC_PRECISION',
-            'scale' => 'NUMERIC_SCALE',
-            'is_nullable' => 'IS_NULLABLE',
-            'default_value' => 'COLUMN_DEFAULT',
-            'comment' => new Expression('IFNULL(comment, COLUMN_COMMENT)'),
-            'sort' => new Expression('IFNULL(sort, ORDINAL_POSITION)'),
-            'column_type' => 'COLUMN_TYPE',
-
-            'interface' => new Expression('D.interface'),
-            'hidden_input' => new Expression('IFNULL(D.hidden_input, 0)'),
-            'required' => new Expression('IFNULL(D.required, 0)'),
-            'options' => new Expression('D.options'),
-
-            'relationship_type' => new Expression('NULL'),
-            'collection_a' => new Expression('NULL'),
-            'store_key_a' => new Expression('NULL'),
-            'store_collection' => new Expression('NULL'),
-            'collection_b' => new Expression('NULL'),
-            'store_key_b' => new Expression('NULL'),
-        ]);
-        $selectOne->from(['C' => new TableIdentifier('COLUMNS', 'INFORMATION_SCHEMA')]);
-        $selectOne->join(
-            ['D' => 'directus_fields'],
-            'C.COLUMN_NAME = D.field AND C.TABLE_NAME = D.collection',
-            [
-                // 'interface',
-                // 'hidden_input' => new Expression('IFNULL(hidden_input, 0)'),
-                // 'required' => new Expression('IFNULL(D.required, 0)'),
-                // 'options',
-            ],
-            $selectOne::JOIN_LEFT
-        );
-
-        $selectOne->join(
-            ['T' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')],
-            'C.TABLE_NAME = T.TABLE_NAME',
-            [],//['TABLE_NAME' => 'TABLE_NAME'],
-            $selectOne::JOIN_LEFT
-        );
-
-        $where = new Where();
-        $where
-            ->equalTo('C.TABLE_SCHEMA', $this->adapter->getCurrentSchema())
-            ->equalTo('T.TABLE_TYPE', 'BASE TABLE')
-            ->equalTo('C.TABLE_NAME', $tableName);
-
-        $selectOne->where($where);
-
-        $selectTwo = new Select();
-        $selectTwo->columns([
-            'id' => 'field',
-            'collection',
-            'field',
-            'type' => new Expression('UCASE(type)'),
-            'key' => new Expression('NULL'),
-            'extra' => new Expression('NULL'),
-            'char_length' => new Expression('NULL'),
-            'precision' => new Expression('NULL'),
-            'scale' => new Expression('NULL'),
-            'is_nullable' => new Expression('"NO"'),
-            'default_value' => new Expression('NULL'),
-            'comment',
-            'sort',
-            'column_type' => new Expression('NULL'),
-
-            'interface',
-            'hidden_input',
-            'required' => new Expression('IFNULL(required, 0)'),
-            'options',
-
-            'relationship_type' => new Expression('R.relationship_type'),
-            'collection_a' => new Expression('R.collection_a'),
-            'store_key_a' => new Expression('R.store_key_a'),
-            'store_collection' => new Expression('R.store_collection'),
-            'collection_b' => new Expression('R.collection_b'),
-            'store_key_b' => new Expression('R.store_key_b'),
-
-        ]);
-        $selectTwo->from(['F' => 'directus_fields']);
-
-        $selectTwo->join(
-            ['R' => 'directus_relations'],
-            'F.collection = R.collection_a AND F.field = R.field_a',
-            [
-                // 'relationship_type',
-                // 'collection_a',
-                // 'store_key_a',
-                // 'store_collection',
-                // 'collection_b',
-                // 'store_key_b'
-            ],
-            $selectOne::JOIN_RIGHT
-        );
-        $where = new Where();
-        $where
-            ->equalTo('collection', $tableName)
-            ->addPredicate(new In('type', ['ALIAS', 'MANYTOMANY', 'ONETOMANY']));
-            // ->nest()
-            // // NOTE: is this actually necessary?
-            // ->addPredicate(new \Zend\Db\Sql\Predicate\Expression('"' . $columnName . '" = -1'))
-            // ->OR
-            // ->equalTo('field', $columnName)
-            // ->unnest()
-            // ->addPredicate(new IsNotNull('relationship_type'));
-
-        if (isset($params['blacklist']) && count($params['blacklist']) > 0) {
-            $where->addPredicate(new NotIn('field', $params['blacklist']));
-        }
-
-        $selectTwo->where($where);
-        $selectTwo->order('sort');
-
-        $selectOne->combine($selectTwo);
-
-        $sql = new Sql($this->adapter);
-        $statement = $sql->prepareStatementForSqlObject($selectOne);
-        $result = $statement->execute();
-
-        return $result;
     }
 
     /**
@@ -280,7 +152,7 @@ class MySQLSchema extends AbstractSchema
             'collection' => 'TABLE_NAME',
             'field' => 'COLUMN_NAME',
             'sort' => new Expression('IFNULL(DF.sort, SF.ORDINAL_POSITION)'),
-            'type' => new Expression('UCASE(SF.DATA_TYPE)'),
+            'original_type' => new Expression('UCASE(SF.DATA_TYPE)'),
             'key' => 'COLUMN_KEY',
             'extra' => 'EXTRA',
             'char_length' => 'CHARACTER_MAXIMUM_LENGTH',
@@ -297,6 +169,7 @@ class MySQLSchema extends AbstractSchema
             ['DF' => 'directus_fields'],
             'SF.COLUMN_NAME = DF.field AND SF.TABLE_NAME = DF.collection',
             [
+                'type' => new Expression('UCASE(DF.type)'),
                 'interface',
                 'hidden_input' => new Expression('IF(DF.hidden_input=1,1,0)'),
                 'required' => new Expression('IF(DF.required=1,1,0)'),
@@ -321,7 +194,7 @@ class MySQLSchema extends AbstractSchema
             'collection',
             'field',
             'sort',
-            'type' => new Expression('UCASE(type)'),
+            'original_type' => new Expression('NULL'),
             'key' => new Expression('NULL'),
             'extra' => new Expression('NULL'),
             'char_length' => new Expression('NULL'),
@@ -331,6 +204,7 @@ class MySQLSchema extends AbstractSchema
             'default_value' => new Expression('NULL'),
             'comment',
             'column_type' => new Expression('NULL'),
+            'type' => new Expression('UCASE(type)'),
             'interface',
             'hidden_input',
             'required',
@@ -352,8 +226,6 @@ class MySQLSchema extends AbstractSchema
         $sql = new Sql($this->adapter);
         $statement = $sql->prepareStatementForSqlObject($selectOne);
         $result = $statement->execute();
-
-        // echo $sql->buildSqlString($selectOne);exit;
 
         return $result;
     }

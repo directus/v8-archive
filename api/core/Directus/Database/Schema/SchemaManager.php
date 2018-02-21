@@ -735,6 +735,18 @@ class SchemaManager
     }
 
     /**
+     * Gets the column type based the schema adapter
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    public function getDataType($type)
+    {
+        return $this->source->getDataType($type);
+    }
+
+    /**
      * Gets the source schema adapter
      *
      * @return SchemaInterface

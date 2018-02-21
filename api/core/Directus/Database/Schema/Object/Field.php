@@ -7,7 +7,12 @@ use Directus\Util\ArrayUtils;
 
 class Field extends AbstractObject
 {
-    const ALIAS = 'ALIAS';
+    const TYPE_ALIAS        = 'ALIAS';
+    const TYPE_ARRAY        = 'ARRAY';
+    const TYPE_JSON         = 'JSON';
+    const TYPE_TINY_JSON    = 'TINYJSON';
+    const TYPE_MEDIUM_JSON  = 'MEDIUMJSON';
+    const TYPE_LONG_JSON    = 'LONGJSON';
 
     /**
      * @var FieldRelationship
@@ -42,6 +47,16 @@ class Field extends AbstractObject
     public function getType()
     {
         return $this->attributes->get('type');
+    }
+
+    /**
+     * Gets the field original type (based on its database)
+     *
+     * @return string
+     */
+    public function getOriginalType()
+    {
+        return $this->attributes->get('original_type');
     }
 
     /**
@@ -293,7 +308,35 @@ class Field extends AbstractObject
      */
     public function isAlias()
     {
-        return strtoupper($this->getType()) === static::ALIAS;
+        return strtoupper($this->getType()) === static::TYPE_ALIAS;
+    }
+
+    /**
+     * Checks whether the field is a array type
+     *
+     * @return bool
+     */
+    public function isArray()
+    {
+        return strtoupper($this->getType()) === static::TYPE_ARRAY;
+    }
+
+    /**
+     * Checks whether the field is a json type
+     *
+     * @return bool
+     */
+    public function isJson()
+    {
+        return in_array(
+            strtoupper($this->getType()),
+            [
+                static::TYPE_JSON,
+                static::TYPE_TINY_JSON,
+                static::TYPE_MEDIUM_JSON,
+                static::TYPE_LONG_JSON
+            ]
+        );
     }
 
     /**
