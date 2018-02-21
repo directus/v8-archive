@@ -270,7 +270,54 @@ if (!function_exists('get_full_url')) {
     }
 }
 
-if (!function_exists(' get_file_info')) {
+if (!function_exists('get_virtual_path')) {
+    /**
+     * Gets the virtual request path
+     *
+     * @return string
+     */
+    function get_virtual_path()
+    {
+        // Path
+        $requestScriptName = parse_url($_SERVER['SCRIPT_NAME'], PHP_URL_PATH);
+        $requestScriptDir = dirname($requestScriptName);
+
+        // parse_url() requires a full URL. As we don't extract the domain name or scheme,
+        // we use a stand-in.
+        $requestUri = parse_url('http://example.com' . $_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+        $basePath = '';
+        $virtualPath = $requestUri;
+        if (stripos($requestUri, $requestScriptName) === 0) {
+            $basePath = $requestScriptName;
+        } elseif ($requestScriptDir !== '/' && stripos($requestUri, $requestScriptDir) === 0) {
+            $basePath = $requestScriptDir;
+        }
+
+        if ($basePath) {
+            $virtualPath = ltrim(substr($requestUri, strlen($basePath)), '/');
+        }
+
+        return $virtualPath;
+    }
+}
+
+if (!function_exists('get_api_env')) {
+    /**
+     * Gets the env from the request uri
+     *
+     * @return string
+     */
+    function get_api_env()
+    {
+        $path = trim(get_virtual_path(), '/');
+        $parts = explode('/', $path);
+
+        return isset($parts[0]) ? $parts[0] : '_';
+    }
+}
+
+if (!function_exists('get_file_info')) {
     /**
      * Get info about a file, return extensive information about images (more to come)
      *
