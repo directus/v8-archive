@@ -40,7 +40,7 @@ class CreateActivityTable extends AbstractMigration
             'null' => false
         ]);
 
-        $table->addColumn('integer', 'string', [
+        $table->addColumn('user', 'integer', [
             'signed' => false,
             'null' => false,
             'default' => 0
@@ -68,7 +68,9 @@ class CreateActivityTable extends AbstractMigration
             'limit' => 255
         ]);
 
-        $table->addColumn('message', 'text');
+        $table->addColumn('message', 'text', [
+            'null' => true
+        ]);
 
         $table->create();
     }
