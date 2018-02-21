@@ -71,7 +71,7 @@ return [
     'filesystem' => [
         'adapter' => 'local',
         // By default media directory are located at the same level of directus root
-        // To make them a level up outsite the root directory
+        // To make them a level up outside the root directory
         // use this instead
         // Ex: 'root' => realpath(ROOT_PATH.'/../storage/uploads'),
         // Note: ROOT_PATH constant doesn't end with trailing slash

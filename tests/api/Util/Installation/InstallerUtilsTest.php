@@ -48,7 +48,7 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'feedback_login' => true
         ], __DIR__ . '/');
 
-        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample.php'), sha1_file(__DIR__ . '/config.php'));
+        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample.php'), sha1_file(__DIR__ . '/api.php'));
     }
 
     public function testCreateFiles2()
@@ -67,13 +67,13 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'feedback_login' => true
         ], __DIR__ . '/');
 
-        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample2.php'), sha1_file(__DIR__ . '/config.php'));
+        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample2.php'), sha1_file(__DIR__ . '/api.php'));
     }
 
     public function tearDown()
     {
-        if (file_exists(__DIR__ . '/config.php')) {
-            unlink(__DIR__ . '/config.php');
+        if (file_exists(__DIR__ . '/api.php')) {
+            unlink(__DIR__ . '/api.php');
         }
     }
 }
