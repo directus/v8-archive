@@ -31,15 +31,14 @@
   },
   "autoload": {
     "psr-4": {
-      "Directus\\": "api/core/Directus/",
-      "Directus\\Api\\Routes\\": "api/routes/",
-      "Directus\\Installation\\": "installation/includes/",
+      "Directus\\": "src/core/Directus/",
+      "Directus\\Api\\Routes\\": "src/endpoints/",
       "Directus\\Customs\\Embed\\Provider\\": "customs/embeds/",
       "Directus\\Customs\\Hooks\\": "customs/hooks/",
       "Directus\\Customs\\Hasher\\": "customs/hashers/"
     },
     "files": [
-      "api/core/functions.php"
+      "src/core/functions.php"
     ]
   },
   "repositories": [

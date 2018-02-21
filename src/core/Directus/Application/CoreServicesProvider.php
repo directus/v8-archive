@@ -86,9 +86,15 @@ class CoreServicesProvider
             $formatter = new LineFormatter();
             $formatter->allowInlineLineBreaks();
             $formatter->includeStacktraces();
+            // TODO: Move log configuration outside "slim app" settings
+            $path = $container->get('path_base') . '/logs';
+            $config = $container->get('config');
+            if ($config->has('settings.logger.path')) {
+                $path = $config->get('settings.logger.path');
+            }
 
             $handler = new StreamHandler(
-                $container->get('path_log') . '/debug.' . date('Y-m') . '.log',
+                $path . '/debug.' . date('Y-m') . '.log',
                 Logger::DEBUG,
                 false
             );
@@ -97,7 +103,7 @@ class CoreServicesProvider
             $logger->pushHandler($handler);
 
             $handler = new StreamHandler(
-                $container->get('path_log') . '/error.' . date('Y-m') . '.log',
+                $path . '/error.' . date('Y-m') . '.log',
                 Logger::CRITICAL,
                 false
             );

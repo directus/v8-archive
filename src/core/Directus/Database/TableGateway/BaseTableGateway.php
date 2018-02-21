@@ -330,7 +330,8 @@ class BaseTableGateway extends TableGateway
         $collectionObject = $this->getTableSchema($tableName);
         foreach ($recordData as $columnName => $columnValue) {
             $fieldObject = $collectionObject->getField($columnName);
-            if (!$fieldObject || (is_array($columnValue) && (!$fieldObject->isJson() && !$fieldObject->isArray()))) {
+            // TODO: Should this be validate in here? should we let the database fails?
+            if (($fieldObject && is_array($columnValue) && (!$fieldObject->isJson() && !$fieldObject->isArray()))) {
                 // $table = is_null($tableName) ? $this->table : $tableName;
                 throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $tableName . '`.`' . $columnName . '.');
             }

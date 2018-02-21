@@ -89,8 +89,6 @@ class Application extends App
     {
         $container = $this->getContainer();
         $container['path_base'] = $this->basePath;
-        $container['path_api'] = realpath($this->basePath . '/api');
-        $container['path_log'] = realpath($container['path_api'] . '/logs');
     }
 
     /**
