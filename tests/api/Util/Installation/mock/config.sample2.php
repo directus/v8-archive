@@ -189,7 +189,7 @@ return [
     ],
 
     'thumbnailer' => [
-        '404imageLocation' => __DIR__ . '/../thumbnail/img-not-found.png',
+        '404imageLocation' => __DIR__ . '/../public/thumbnail/img-not-found.png',
         'supportedThumbnailDimensions' => [
             // width x height
             // '100x100',

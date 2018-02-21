@@ -45,6 +45,7 @@ use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Zend\Db\TableGateway\TableGateway;
 
 class CoreServicesProvider
 {
@@ -974,13 +975,12 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $container['settings.files'] = function () use ($container) {
-                $adapter = $container->get('database');
-                $acl = $container->get('acl');
-                $settingsTable = new DirectusSettingsTableGateway($adapter, $acl);
+                $dbConnection = $container->get('database');
+                $settingsTable = new TableGateway('directus_settings', $dbConnection);
 
-                return $settingsTable->loadItems([
-                    'filter' => ['scope' => 'files']
-                ]);
+                return $settingsTable->select([
+                    'scope' => 'files'
+                ])->toArray();
             };
 
             $filesystem = $container->get('filesystem');

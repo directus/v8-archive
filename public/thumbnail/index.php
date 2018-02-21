@@ -1,16 +1,20 @@
 <?php
 
 require __DIR__ . '/../../vendor/autoload.php';
-$app = require __DIR__ . '/../../src/bootstrap.php';
+/** @var \Directus\Application\Application $app */
+$app = require __DIR__ . '/../../src/bootstrap/application.php';
 
 use Directus\Util\ArrayUtils;
 use Directus\Filesystem\Thumbnailer as ThumbnailerService;
 
 try {
-    $app = \Directus\Bootstrap::get('app');
-
     // if the thumb already exists, return it
-    $thumbnailer = new ThumbnailerService($app->files, $app->container->get('config')->get('thumbnailer'), $app->request->getPathInfo());
+    $thumbnailer = new ThumbnailerService(
+        $app->getContainer()->get('files'),
+        $app->getConfig()->get('thumbnailer'),
+        get_virtual_path()
+    );
+
     $image = $thumbnailer->get();
 
     if (! $image) {
@@ -41,7 +45,7 @@ try {
 }
 
 catch (Exception $e) {
-    $filePath = ArrayUtils::get($app->container->get('config')->get('thumbnailer'), '404imageLocation', './img-not-found.png');
+    $filePath = ArrayUtils::get($app->getConfig()->get('thumbnailer'), '404imageLocation', './img-not-found.png');
     $mime = image_type_to_mime_type(exif_imagetype($filePath));
 
     header('Content-type: ' . $mime);
