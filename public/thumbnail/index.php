@@ -1,6 +1,7 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../api/api.php';
+
+require __DIR__ . '/../../vendor/autoload.php';
+$app = require __DIR__ . '/../../src/bootstrap.php';
 
 use Directus\Util\ArrayUtils;
 use Directus\Filesystem\Thumbnailer as ThumbnailerService;
