@@ -15,6 +15,7 @@ use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
+use Zend\Db\TableGateway\TableGateway;
 
 class AuthenticationMiddleware extends AbstractMiddleware
 {
@@ -186,9 +187,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
     protected function getPublicGroupId()
     {
         $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-
-        $directusGroupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
+        $directusGroupsTableGateway = new TableGateway('directus_groups', $dbConnection);
         $publicGroup = $directusGroupsTableGateway->select(['name' => 'public'])->current();
 
         $groupId = null;
