@@ -108,7 +108,8 @@ class CreateFilesTable extends AbstractMigration
         ]);
         $table->addColumn('storage_adapter', 'string', [
             'limit' => 50,
-            'null' => false
+            'null' => false,
+            'default' => 'local'
         ]);
 
         $table->create();
