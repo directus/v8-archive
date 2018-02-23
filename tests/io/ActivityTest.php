@@ -204,7 +204,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function ttestGetActivity()
+    public function testGetActivity()
     {
         $response = request_get('activity/1', ['access_token' => 'token']);
         assert_response($this, $response);
