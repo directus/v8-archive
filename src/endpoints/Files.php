@@ -6,21 +6,18 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\TableGateway\RelationalTableGateway;
+use Directus\Services\FilesServices;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
 
 class Files extends Route
 {
-    use ActivityMode;
-
     /**
      * @param Application $app
      */
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id:[0-9]+}', [$this, 'one']);
+        $app->get('/{id:[0-9]+}', [$this, 'read']);
         $app->patch('/{id:[0-9]+}', [$this, 'update']);
         $app->delete('/{id:[0-9]+}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
@@ -29,7 +26,7 @@ class Files extends Route
         $controller = $this;
         $app->group('/folders', function () use ($controller) {
             $this->post('', [$controller, 'createFolder']);
-            $this->get('/{id:[0-9]+}', [$controller, 'oneFolder']);
+            $this->get('/{id:[0-9]+}', [$controller, 'readFolder']);
             $this->patch('/{id:[0-9]+}', [$controller, 'updateFolder']);
             $this->delete('/{id:[0-9]+}', [$controller, 'deleteFolder']);
             $this->get('', [$controller, 'allFolder']);
@@ -44,24 +41,10 @@ class Files extends Route
      */
     public function create(Request $request, Response $response)
     {
-        $table = 'directus_files';
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $payload = $request->getParsedBody();
-        $params = $request->getParams();
-        $filesTableGateway = new RelationalTableGateway($table, $dbConnection, $acl);
-
-        $payload['upload_user'] = $acl->getUserId();
-        $payload['upload_date'] = DateUtils::now();
-
-        $validationConstraints = $this->createConstraintFor($table);
-        $this->validate($payload, array_merge(['data' => 'required'], $validationConstraints));
-        $newFile = $filesTableGateway->updateRecord($payload, $this->getActivityMode());
-
-        $responseData = $filesTableGateway->wrapData(
-            $newFile->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta')
+        $service = new FilesServices($this->container);
+        $responseData = $service->create(
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -73,15 +56,13 @@ class Files extends Route
      *
      * @return Response
      */
-    public function one(Request $request, Response $response)
+    public function read(Request $request, Response $response)
     {
-        $params = ArrayUtils::pick($request->getParams(), ['fields', 'meta']);
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $filesTableGateway = new RelationalTableGateway('directus_files', $dbConnection, $acl);
-
-        $params['id'] = $request->getAttribute('id');
-        $responseData = $this->getEntriesAndSetResponseCacheTags($filesTableGateway, $params);
+        $service = new FilesServices($this->container);
+        $responseData = $service->find(
+            $request->getAttribute('id'),
+            ArrayUtils::pick($request->getParams(), ['fields', 'meta'])
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -94,22 +75,11 @@ class Files extends Route
      */
     public function update(Request $request, Response $response)
     {
-        $table = 'directus_files';
-        $this->validateRequestWithTable($request, $table);
-
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $payload = $request->getParsedBody();
-        $params = $request->getParams();
-        $filesTableGateway = new RelationalTableGateway($table, $dbConnection, $acl);
-
-        $payload['id'] = $request->getAttribute('id');
-        $newFile = $filesTableGateway->updateRecord($payload, $this->getActivityMode());
-
-        $responseData = $filesTableGateway->wrapData(
-            $newFile->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta')
+        $service = new FilesServices($this->container);
+        $responseData = $service->update(
+            $request->getAttribute('id'),
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -117,24 +87,15 @@ class Files extends Route
 
     public function delete(Request $request, Response $response)
     {
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $filesTableGateway = new RelationalTableGateway('directus_files', $dbConnection, $acl);
+        $service = new FilesServices($this->container);
+        $ok = $service->delete(
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
 
-        $id = $request->getAttribute('id');
-        $file = $filesTableGateway->loadItems(['id' => $id]);
-
-        // Force delete files
-        // TODO: Make the hook listen to deletes and catch ALL ids (from conditions)
-        // and deletes every matched files
-        /** @var \Directus\Filesystem\Files $files */
-        $files = $this->container->get('files');
-        $files->delete($file);
-
-        // Delete file record
-        $filesTableGateway->delete([
-            $filesTableGateway->primaryKeyFieldName => $id
-        ]);
+        if ($ok) {
+            $response = $response->withStatus(204);
+        }
 
         return $this->responseWithData($request, $response, []);
     }
@@ -147,35 +108,8 @@ class Files extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $params = $request->getParams();
-
-        $table = 'directus_files';
-        $filesTableGateway = new RelationalTableGateway($table, $dbConnection, $acl);
-        $responseData = $this->getEntriesAndSetResponseCacheTags($filesTableGateway, $params);
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function upload(Request $request, Response $response)
-    {
-        $Files = $this->container->get('files');
-        $result = [];
-
-        foreach ($_FILES as $file) {
-            $result[] = $Files->upload($file);
-        }
-
-        $responseData = [
-            'data' => $result
-        ];
+        $service = new FilesServices($this->container);
+        $responseData = $service->findAll($request->getQueryParams());
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -188,19 +122,10 @@ class Files extends Route
      */
     public function createFolder(Request $request, Response $response)
     {
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-
-        $this->validateRequestWithTable($request, 'directus_folders');
-        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
-
-        $newFolder = $foldersTableGateway->updateRecord($payload);
-        $responseData = $foldersTableGateway->wrapData(
-            $newFolder->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta')
+        $service = new FilesServices($this->container);
+        $responseData = $service->createFolder(
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -212,15 +137,13 @@ class Files extends Route
      *
      * @return Response
      */
-    public function oneFolder(Request $request, Response $response)
+    public function readFolder(Request $request, Response $response)
     {
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
-
-        $params = ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta']);
-        $params['id'] = $request->getAttribute('id');
-        $responseData = $this->getEntriesAndSetResponseCacheTags($foldersTableGateway, $params);
+        $service = new FilesServices($this->container);
+        $responseData = $service->findFolder(
+            $request->getAttribute('id'),
+            ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta'])
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -233,19 +156,11 @@ class Files extends Route
      */
     public function updateFolder(Request $request, Response $response)
     {
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
-
-        $payload['id'] = $request->getAttribute('id');
-        $group = $foldersTableGateway->updateRecord($payload);
-
-        $responseData = $foldersTableGateway->wrapData(
-            $group->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta')
+        $service = new FilesServices($this->container);
+        $responseData = $service->updateFolder(
+            $request->getAttribute('id'),
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -259,13 +174,10 @@ class Files extends Route
      */
     public function allFolder(Request $request, Response $response)
     {
-        $container = $this->container;
-        $acl = $container->get('acl');
-        $dbConnection = $container->get('database');
-        $params = $request->getQueryParams();
-
-        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
-        $responseData = $this->getEntriesAndSetResponseCacheTags($foldersTableGateway, $params);
+        $service = new FilesServices($this->container);
+        $responseData = $service->findAllFolders(
+            $request->getQueryParams()
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -278,16 +190,14 @@ class Files extends Route
      */
     public function deleteFolder(Request $request, Response $response)
     {
-        $id = $request->getAttribute('id');
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
+        $service = new FilesServices($this->container);
+        $ok = $service->deleteFolder(
+            $request->getAttribute('id')
+        );
 
-        $foldersTableGateway = new RelationalTableGateway('directus_folders', $dbConnection, $acl);
-        $this->getEntriesAndSetResponseCacheTags($foldersTableGateway, [
-            'id' => $id
-        ]);
-
-        $foldersTableGateway->delete(['id' => $id]);
+        if ($ok) {
+            $response = $response->withStatus(204);
+        }
 
         return $this->responseWithData($request, $response, []);
     }

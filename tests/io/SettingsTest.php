@@ -18,6 +18,7 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
 
         $data = [
             'scope' => 'global',
+            'group' => 'app',
             'key' => 'map_source',
             'value' => 'google'
         ];

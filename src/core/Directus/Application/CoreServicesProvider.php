@@ -235,7 +235,7 @@ class CoreServicesProvider
                 }
                 return $payload;
             });
-            $emitter->addAction('table.delete', function ($tableName) use ($container) {
+            $emitter->addAction('table.delete', function ($tableName, $id) use ($container) {
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
                 $db = $container->get('database');
@@ -254,7 +254,7 @@ class CoreServicesProvider
                     'ip' => get_request_ip(),
                     'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                     'collection' => $tableName,
-                    'item' => null, // TODO: set the deleted record ID
+                    'item' => $id,
                     'message' => null
                     // TODO: Move to revisions
                     // 'parent_id' => null,

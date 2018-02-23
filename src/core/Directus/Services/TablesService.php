@@ -2,36 +2,192 @@
 
 namespace Directus\Services;
 
+use Directus\Application\Container;
 use Directus\Database\Exception\ColumnAlreadyExistsException;
 use Directus\Database\Exception\ColumnNotFoundException;
 use Directus\Database\Exception\TableAlreadyExistsException;
 use Directus\Database\Exception\TableNotFoundException;
-use Directus\Database\Object\Field;
-use Directus\Database\Object\FieldRelationship;
 use Directus\Database\RowGateway\BaseRowGateway;
+use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableSchema;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
+use Directus\Exception\UnauthorizedException;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 
 class TablesService extends AbstractService
 {
     /**
+     * @var string
+     */
+    protected $collection;
+
+    public function __construct(Container $container)
+    {
+        parent::__construct($container);
+
+        $this->collection = SchemaManager::TABLE_COLLECTIONS;
+    }
+
+    public function findAll(array $params = [])
+    {
+        // $tables = TableSchema::getTablenames($params);
+
+        $tableGateway = $this->createTableGateway($this->collection);
+
+        return $tableGateway->getItems($params);
+    }
+
+    public function findAllFields($collectionName, array $params = [])
+    {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        $fields = ArrayUtils::get($params, 'fields', '*');
+        if (!is_array($fields)) {
+            $fields = StringUtils::csv($fields);
+        }
+
+        // $this->tagResponseCache('tableColumnsSchema_'.$tableName);
+        $schemaManager = $this->getSchemaManager();
+        $tableObject = $schemaManager->getTableSchema($collectionName);
+        if (!$tableObject) {
+            throw new TableNotFoundException($collectionName);
+        }
+
+        $collectionTableObject = $schemaManager->getTableSchema('directus_fields');
+        if (in_array('*', $fields)) {
+            $fields = $collectionTableObject->getFieldsName();
+        }
+
+        $fields = array_map(function(Field $column) use ($fields) {
+            $data = $column->toArray();
+
+            if (!empty($fields)) {
+                $data = ArrayUtils::pick($data, $fields);
+            }
+
+            return $data;
+        }, TableSchema::getTableColumnsSchema($collectionName));
+
+        $tableGateway = $this->createTableGateway('directus_fields');
+
+        return $tableGateway->wrapData($fields, false, ArrayUtils::get($params, 'meta'));
+    }
+
+    public function find($name, array $params = [])
+    {
+        $this->validate(['collection' => $name], ['collection' => 'required|string']);
+
+        $tableGateway = $this->createTableGateway($this->collection);
+        return $tableGateway->getItems(array_merge($params, [
+            'id' => $name
+        ]));
+    }
+
+    public function findField($collection, $field, array $params = [])
+    {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        $this->validate([
+            'collection' => $collection,
+            'field' => $field
+        ], [
+            'collection' => 'required|string',
+            'field' => 'required|string'
+        ]);
+
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+        $collectionObject = $schemaManager->getTableSchema($collection);
+        if (!$collectionObject) {
+            throw new TableNotFoundException($collection);
+        }
+
+        $columnObject = $collectionObject->getField($field);
+        if (!$columnObject) {
+            throw new ColumnNotFoundException($field);
+        }
+
+        $tableGateway = $this->createTableGateway('directus_fields');
+
+        $params = ArrayUtils::pick($params, ['meta', 'fields']);
+        $params['single'] = true;
+        $params['filter'] = [
+            'collection' => $collection,
+            'field' => $field
+        ];
+
+        return $tableGateway->getItems($params);
+    }
+
+    public function deleteField($collection, $field, array $params = [])
+    {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        $this->enforcePermissions('directus_fields', [], $params);
+
+        $this->validate([
+            'collection' => $collection,
+            'field' => $field
+        ], [
+            'collection' => 'required|string',
+            'field' => 'required|string'
+        ]);
+
+        $tableService = new TablesService($this->container);
+
+        $success = $tableService->dropColumn($collection, $field);
+        if (!$success) {
+            throw new ErrorException(sprintf(
+                'Unable to delete field %s in collection %s'
+            ), $collection, $field);
+        }
+
+        return $success;
+    }
+
+    /**
      *
      * @param string $name
      * @param array $data
+     * @param array $params
      *
-     * @return BaseRowGateway
+     * @return array
      *
      * @throws ErrorException
      * @throws InvalidRequestException
      * @throws TableAlreadyExistsException
+     * @throws UnauthorizedException
      */
-    public function createTable($name, array $data = [])
+    public function createTable($name, array $data = [], array $params = [])
     {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Authorized to create collections');
+        }
+
+        $this->enforcePermissions($this->collection, $data, $params);
+
+        $data['collection'] = $name;
+        $collectionName = 'directus_collections';
+        $collectionObject = $this->getSchemaManager()->getTableSchema($collectionName);
+        $constraints = $this->createConstraintFor($collectionName, $collectionObject->getFieldsName());
+        // TODO: Default to primary key id
+        $constraints['fields'][] = 'required';
+        $this->validate($data, array_merge(['fields' => 'array'], $constraints));
+
+        // ----------------------------------------------------------------------------
+
         if ($this->getSchemaManager()->tableExists($name)) {
             throw new TableAlreadyExistsException($name);
         }
@@ -53,7 +209,14 @@ class TablesService extends AbstractService
         $item = ArrayUtils::omit($data, 'fields');
         $item['collection'] = $name;
 
-        return $collectionsTableGateway->updateRecord($item);
+        $table = $collectionsTableGateway->updateRecord($item);
+
+        // ----------------------------------------------------------------------------
+
+        $collectionTableGateway = $this->createTableGateway($collectionName);
+        $tableData = $collectionTableGateway->parseRecord($table->toArray());
+
+        return $collectionTableGateway->wrapData($tableData, true, ArrayUtils::get($params, 'meta'));
     }
 
     /**
@@ -61,14 +224,39 @@ class TablesService extends AbstractService
      *
      * @param $name
      * @param array $data
+     * @param array $params
      *
-     * @return BaseRowGateway
+     * @return array
      *
      * @throws ErrorException
      * @throws TableNotFoundException
+     * @throws UnauthorizedException
      */
-    public function updateTable($name, array $data)
+    public function updateTable($name, array $data, array $params = [])
     {
+        // TODO: Add only for admin middleware
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        $data = ArrayUtils::omit($data, 'collection');
+
+        $this->enforcePermissions($this->collection, $data, $params);
+
+        // Validates the collection name
+        $this->validate(['collection' => $name], ['collection' => 'required|string']);
+
+        // Validates payload data
+        $collectionObject = $this->getSchemaManager()->getTableSchema($this->collection);
+        $constraints = $this->createConstraintFor($this->collection, $collectionObject->getFieldsName());
+        $data['collection'] = $name;
+        $this->validate($data, array_merge(['fields' => 'array'], $constraints));
+
+        // TODO: Create a check if exists method (quicker) + not found exception
+        $tableGateway = $this->createTableGateway($this->collection);
+        $tableGateway->loadItems(['id' => $name]);
+        // ----------------------------------------------------------------------------
+
         if (!$this->getSchemaManager()->tableExists($name)) {
             throw new TableNotFoundException($name);
         }
@@ -99,24 +287,62 @@ class TablesService extends AbstractService
         $item = ArrayUtils::omit($data, 'fields');
         $item['collection'] = $name;
 
-        return $collectionsTableGateway->updateRecord($item);
+        $collection = $collectionsTableGateway->updateRecord($item);
+
+        // ----------------------------------------------------------------------------
+        return $tableGateway->wrapData(
+            $collection->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta')
+        );
+    }
+
+    public function delete($name, array $params = [])
+    {
+        $this->enforcePermissions($this->collection, [], $params);
+        $this->validate(['name' => $name], ['name' => 'required|string']);
+        // TODO: How are we going to handle unmanage
+        // $unmanaged = $request->getQueryParam('unmanage', 0);
+        // if ($unmanaged == 1) {
+        //     $tableGateway = new RelationalTableGateway($tableName, $dbConnection, $acl);
+        //     $success = $tableGateway->stopManaging();
+        // }
+
+        return $this->dropTable($name);
     }
 
     /**
      * Adds a column to an existing table
      *
-     * @param $collectionName
-     * @param $columnName
+     * @param string $collectionName
+     * @param string $columnName
      * @param array $data
+     * @param array $params
      *
-     * @return BaseRowGateway
+     * @return array
      *
      * @throws ColumnAlreadyExistsException
-     *
      * @throws TableNotFoundException
+     * @throws UnauthorizedException
      */
-    public function addColumn($collectionName, $columnName, array $data)
+    public function addColumn($collectionName, $columnName, array $data, array $params = [])
     {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        $this->enforcePermissions('directus_fields', $data, $params);
+
+        $data['field'] = $columnName;
+        $data['collection'] = $collectionName;
+        // TODO: Length is required by some data types, which make this validation not working fully for columns
+        // TODO: Create new constraint that validates the column data type to be one of the list supported
+        $collectionObject = $this->getSchemaManager()->getTableSchema('directus_fields');
+        $constraints = $this->createConstraintFor('directus_fields', $collectionObject->getFieldsName());
+        $this->validate(array_merge($data, ['collection' => $collectionName]), array_merge(['collection' => 'required|string'], $constraints));
+
+        // ----------------------------------------------------------------------------
+
         $tableObject = $this->getSchemaManager()->getTableSchema($collectionName);
         if (!$tableObject) {
             throw new TableNotFoundException($collectionName);
@@ -135,23 +361,56 @@ class TablesService extends AbstractService
             'fields' => [$columnData]
         ]);
 
-        return $this->addColumnInfo($collectionName, $columnData);
+        // ----------------------------------------------------------------------------
+
+        $field = $this->addColumnInfo($collectionName, $columnData);
+
+        return $this->createTableGateway('directus_fields')->wrapData(
+            $field->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta', 0)
+        );
     }
 
     /**
      * Adds a column to an existing table
      *
-     * @param $collectionName
-     * @param $columnName
+     * @param string $collectionName
+     * @param string $columnName
      * @param array $data
+     * @param array $params
      *
-     * @return BaseRowGateway
+     * @return array
      *
      * @throws ColumnNotFoundException
      * @throws TableNotFoundException
+     * @throws UnauthorizedException
      */
-    public function changeColumn($collectionName, $columnName, array $data)
+    public function changeColumn($collectionName, $columnName, array $data, array $params = [])
     {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        $this->enforcePermissions('directus_fields', $data, $params);
+
+        // TODO: Length is required by some data types, which make this validation not working fully for columns
+        // TODO: Create new constraint that validates the column data type to be one of the list supported
+        $this->validate([
+            'collection' => $collectionName,
+            'field' => $columnName,
+            'payload' => $data
+        ], [
+            'collection' => 'required|string',
+            'field' => 'required|string',
+            'payload' => 'required|array'
+        ]);
+
+        // Remove field from data
+        ArrayUtils::pull($data, 'field');
+
+        // ----------------------------------------------------------------------------
+
         $tableObject = $this->getSchemaManager()->getTableSchema($collectionName);
         if (!$tableObject) {
             throw new TableNotFoundException($collectionName);
@@ -167,7 +426,15 @@ class TablesService extends AbstractService
             'fields' => [$columnData]
         ]);
 
-        return $this->addColumnInfo($collectionName, $columnData);
+        // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
+        $field = $this->addColumnInfo($collectionName, $columnData);
+        // ----------------------------------------------------------------------------
+
+        return $this->createTableGateway('directus_fields')->wrapData(
+            $field->toArray(),
+            true,
+            ArrayUtils::get($params, 'meta', 0)
+        );
     }
 
     public function dropColumn($collectionName, $fieldName)

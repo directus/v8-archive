@@ -11,11 +11,11 @@ abstract class AbstractSchema implements SchemaInterface
      * Cast records values by its column data type
      *
      * @param array    $records
-     * @param Field[] $columns
+     * @param Field[] $fields
      *
      * @return array
      */
-    public function castRecordValues(array $records, $columns)
+    public function castRecordValues(array $records, $fields)
     {
         // hotfix: records sometimes are no set as an array of rows.
         $singleRecord = false;
@@ -24,11 +24,15 @@ abstract class AbstractSchema implements SchemaInterface
             $singleRecord = true;
         }
 
-        foreach ($columns as $column) {
+        foreach ($fields as $field) {
             foreach ($records as $index => $record) {
-                $columnName = $column->getName();
-                if (ArrayUtils::has($record, $columnName)) {
-                    $records[$index][$columnName] = $this->castValue($record[$columnName], $column->getType());
+                $fieldName = $field->getName();
+                if (ArrayUtils::has($record, $fieldName)) {
+                    if ($fieldName === 'category_id') {
+                        // var_dump($record, $field->getType());
+                        // var_dump($this->castValue($record[$fieldName], $field->getType()));
+                    }
+                    $records[$index][$fieldName] = $this->castValue($record[$fieldName], $field->getType());
                 }
             }
         }

@@ -8,6 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusSettingsTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
+use Directus\Services\SettingsService;
 use Directus\Util\ArrayUtils;
 
 class Settings extends Route
@@ -19,7 +20,7 @@ class Settings extends Route
     {
         $app->post('', [$this, 'create']);
         $app->get('', [$this, 'all']);
-        $app->get('/{id}', [$this, 'one']);
+        $app->get('/{id}', [$this, 'read']);
         $app->patch('/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
     }
@@ -32,17 +33,10 @@ class Settings extends Route
      */
     public function create(Request $request, Response $response)
     {
-        $this->validateRequestWithTable($request, 'directus_settings');
-
-        $params = $request->getQueryParams();
-        $payload = $request->getParsedBody();
-        $settingsTable = $this->getTableGateway();
-        $newRecord = $settingsTable->updateRecord($payload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_PARENT);
-
-        $responseData = $settingsTable->wrapData(
-            $newRecord->toArray(),
-            false,
-            ArrayUtils::get($params, 'meta', 0)
+        $service = new SettingsService($this->container);
+        $responseData = $service->create(
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -56,11 +50,10 @@ class Settings extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $settingTable = $this->getTableGateway();
-        $params = $request->getParams();
-
-        // TODO: Support uploading image
-        $responseData = $this->getEntriesAndSetResponseCacheTags($settingTable, $params);
+        $service = new SettingsService($this->container);
+        $responseData = $service->findAll(
+            $request->getQueryParams()
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -71,13 +64,13 @@ class Settings extends Route
      *
      * @return Response
      */
-    public function one(Request $request, Response $response)
+    public function read(Request $request, Response $response)
     {
-        $params = $request->getQueryParams();
-        $settingsTable = $this->getTableGateway();
-
-        $params['id'] = $request->getAttribute('id');
-        $responseData = $settingsTable->getItems($params);
+        $service = new SettingsService($this->container);
+        $responseData = $service->find(
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -90,19 +83,11 @@ class Settings extends Route
      */
     public function update(Request $request, Response $response)
     {
-        $this->validateRequestWithTable($request, 'directus_settings');
-
-        $params = $request->getQueryParams();
-        $payload = $request->getParsedBody();
-        $settingsTable = $this->getTableGateway();
-
-        $payload['id'] = $request->getAttribute('id');
-        $newRecord = $settingsTable->updateRecord($payload, RelationalTableGateway::ACTIVITY_ENTRY_MODE_PARENT);
-
-        $responseData = $settingsTable->wrapData(
-            $newRecord->toArray(),
-            false,
-            ArrayUtils::get($params, 'meta', 0)
+        $service = new SettingsService($this->container);
+        $responseData = $service->update(
+            $request->getAttribute('id'),
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -116,21 +101,14 @@ class Settings extends Route
      */
     public function delete(Request $request, Response $response)
     {
-        $id = $request->getAttribute('id');
-        $settingsTable = $this->getTableGateway();
-        $settingsTable->delete(['id' => $id]);
+        $service = new SettingsService($this->container);
+        $service->delete(
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
+
+        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
-    }
-
-    /**
-     * @return DirectusSettingsTableGateway
-     */
-    public function getTableGateway()
-    {
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-
-        return new DirectusSettingsTableGateway($dbConnection, $acl);
     }
 }

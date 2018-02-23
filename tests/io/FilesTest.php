@@ -30,7 +30,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
 
     public static function resetDatabase()
     {
-        static::$uploadPath = realpath(__DIR__ . '/../../storage/uploads');
+        static::$uploadPath = realpath(__DIR__ . '/../../public/storage/uploads');
         static::$thumbsPath = static::$uploadPath . '/thumbs';
 
         static::$db = create_db_connection();
@@ -38,26 +38,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         reset_table_id(static::$db, 'directus_folders', 1);
         $uploadPath = static::$uploadPath;
 
-        $uploadsOmit = ['.gitignore', '.htaccess', '00000000001.jpg'];
-        foreach (glob($uploadPath . "/*.*") as $filename) {
-            $name = basename($filename);
-            if (is_dir($filename) || in_array($name, $uploadsOmit)) {
-                continue;
-            }
-
-            unlink($filename);
-        }
-
-        $thumbsOmit = ['.gitignore', '1.jpg'];
-        $thumbsPath = static::$thumbsPath;
-        foreach (glob($thumbsPath . "/*.*") as $filename) {
-            $name = basename($filename);
-            if (is_dir($filename) || in_array($name, $thumbsOmit)) {
-                continue;
-            }
-
-            unlink($filename);
-        }
+        clear_storage(static::$uploadPath);
     }
 
     public static function setUpBeforeClass()

@@ -57,6 +57,11 @@ class BaseRowGateway extends RowGateway
         parent::__construct($primaryKeyColumn, $table, $adapterOrSql);
     }
 
+    public function getId()
+    {
+        return $this->data[$this->primaryKeyColumn[0]];
+    }
+
     /**
      * Override this function to do table-specific record data filtration, pre-insert and update.
      * This method is called during #populate and #populateSkipAcl.

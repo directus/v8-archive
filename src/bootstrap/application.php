@@ -11,7 +11,8 @@ if (!file_exists($configFilePath)) {
 
 // Get Environment name
 $env = get_api_env();
-if ($env !== '_') {
+$reservedNames = ['server'];
+if ($env !== '_' && !in_array($env, $reservedNames)) {
     $configFilePath = sprintf('%s/api.%s.php', $configPath, $env);
     if (!file_exists($configFilePath)) {
         http_response_code(404);
@@ -27,7 +28,5 @@ if ($env !== '_') {
 }
 
 $app = new \Directus\Application\Application(realpath(__DIR__ . '/../../'), require $configFilePath);
-
-create_ping_route($app);
 
 return $app;

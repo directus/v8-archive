@@ -9,6 +9,7 @@ use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
 use Directus\Exception\Http\ForbiddenException;
+use Directus\Services\PermissionsService;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 
@@ -17,7 +18,7 @@ class Permissions extends Route
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id}', [$this, 'one']);
+        $app->get('/{id}', [$this, 'read']);
         $app->patch('/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
@@ -31,19 +32,10 @@ class Permissions extends Route
      */
     public function create(Request $request, Response $response)
     {
-        $this->validateRequestWithTable($request, 'directus_permissions');
-
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $groupsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
-
-        $newGroup = $groupsTableGateway->updateRecord($payload);
-        $responseData = $groupsTableGateway->wrapData(
-            $newGroup->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta')
+        $service = new PermissionsService($this->container);
+        $responseData = $service->create(
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -55,15 +47,13 @@ class Permissions extends Route
      *
      * @return Response
      */
-    public function one(Request $request, Response $response)
+    public function read(Request $request, Response $response)
     {
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $permissionsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
-
-        $params = ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta']);
-        $params['id'] = $request->getAttribute('id');
-        $responseData = $this->getEntriesAndSetResponseCacheTags($permissionsTableGateway, $params);
+        $service = new PermissionsService($this->container);
+        $responseData = $service->find(
+            $request->getAttribute('id'),
+            ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta'])
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -76,20 +66,11 @@ class Permissions extends Route
      */
     public function update(Request $request, Response $response)
     {
-        $this->validateRequestWithTable($request, 'directus_permissions');
-
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $permissionsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
-
-        $payload['id'] = $request->getAttribute('id');
-        $newGroup = $permissionsTableGateway->updateRecord($payload);
-        $responseData = $permissionsTableGateway->wrapData(
-            $newGroup->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta')
+        $service = new PermissionsService($this->container);
+        $responseData = $service->update(
+            $request->getAttribute('id'),
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -103,16 +84,13 @@ class Permissions extends Route
      */
     public function delete(Request $request, Response $response)
     {
-        $id = $request->getAttribute('id');
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
+        $service = new PermissionsService($this->container);
+        $service->delete(
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
 
-        $permissionsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
-        $this->getEntriesAndSetResponseCacheTags($permissionsTableGateway, [
-            'id' => $id
-        ]);
-
-        $permissionsTableGateway->delete(['id' => $id]);
+        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
     }
@@ -124,13 +102,10 @@ class Permissions extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $container = $this->container;
-        $acl = $container->get('acl');
-        $dbConnection = $container->get('database');
-        $params = $request->getQueryParams();
-
-        $permissionsTableGateway = new DirectusPermissionsTableGateway($dbConnection, $acl);
-        $responseData = $this->getEntriesAndSetResponseCacheTags($permissionsTableGateway, $params);
+        $service = new PermissionsService($this->container);
+        $responseData = $service->findAll(
+            $request->getQueryParams()
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }

@@ -144,6 +144,10 @@ function drop_table(Connection $db, $table)
 {
     $query = 'DROP TABLE IF EXISTS `%s`;';
     $db->execute(sprintf($query, $table));
+
+    delete_item($db, 'directus_collections', [
+        'collection' => $table
+    ]);
 }
 
 /**

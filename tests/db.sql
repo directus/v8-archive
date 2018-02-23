@@ -414,8 +414,10 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `group`, `password`, `avatar`, `company`, `title`, `locale`, `locale_options`, `timezone`, `last_ip`, `last_login`, `last_access`, `last_page`, `token`, `invite_token`, `invite_accepted`)
 VALUES
-	(1,1,'Admin','User','admin@getdirectus.com',1,1,'$2y$10$LqJIZyR8YvG3KDmUqwu/yea6zkGGezHUzbDnaPRYzVPm2wCwINsFC',NULL,NULL,NULL,'en-US',NULL,'America/New_York',NULL,NULL,NULL,NULL,'token',NULL,NULL),
-	(2,1,'Intern','User','intern@getdirectus.com',1,3,NULL,NULL,NULL,NULL,'en-US',NULL,'America/New_York',NULL,NULL,NULL,NULL,'intern_token',NULL,NULL);
+	(1, 1, 'Admin', 'User', 'admin@getdirectus.com', 1, 1, '$2y$12$AEG6wf0jknuKDUKhbrX4qu81ojPEuiS32bVS74/cfp0DQr6.gvwIq', NULL, NULL, NULL, 'en-US', NULL, 'America/New_York', NULL, NULL, NULL, NULL, 'token', '', 0),
+	(2, 1, 'Intern', 'User', 'intern@getdirectus.com', 1, 3, NULL, NULL, NULL, NULL, 'en-US', NULL, 'America/New_York', NULL, NULL, NULL, NULL, 'intern_token', NULL, 0),
+	(3, 2, 'Disabled', 'User', 'disabled@getdirectus.com', 1, 3, '$2y$10$LpSFVuA0TVz87Yed9uaUbeViZ4N8KXcWOiooU89G6x5qhMWJ49MUS', NULL, NULL, NULL, 'en-US', NULL, 'America/New_York', NULL, NULL, NULL, NULL, 'disabled_token', '', 0);
+
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;

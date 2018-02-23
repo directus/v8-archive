@@ -7,6 +7,7 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use Directus\Services\RevisionsService;
 
 class Revisions extends Route
 {
@@ -15,7 +16,7 @@ class Revisions extends Route
      */
     public function __invoke(Application $app)
     {
-        $app->get('/{table}/{id}', [$this, 'all']);
+        $app->get('/{collection}/{id}', [$this, 'all']);
     }
 
     /**
@@ -26,22 +27,13 @@ class Revisions extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $params = $request->getQueryParams();
-        $tableName = $request->getAttribute('table');
-        $id = $request->getAttribute('id');
-
-        $params['table_name'] = $tableName;
-        $params['id'] = $id;
-
-        $Activity = new DirectusActivityTableGateway($dbConnection, $acl);
-
-        $revisions = $this->getDataAndSetResponseCacheTags(
-            [$Activity, 'fetchRevisions'],
-            [$id, $tableName]
+        $service = new RevisionsService($this->container);
+        $responseData = $service->findItemAll(
+            $request->getAttribute('collection'),
+            $request->getAttribute('id'),
+            $request->getQueryParams()
         );
 
-        return $this->responseWithData($request, $response, $revisions);
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

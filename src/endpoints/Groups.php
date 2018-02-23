@@ -18,7 +18,7 @@ class Groups extends Route
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id}', [$this, 'one']);
+        $app->get('/{id}', [$this, 'read']);
         $app->patch('/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
@@ -32,17 +32,10 @@ class Groups extends Route
      */
     public function create(Request $request, Response $response)
     {
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $groupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
-
-        $newGroup = $groupsTableGateway->updateRecord($payload);
-        $responseData = $groupsTableGateway->wrapData(
-            $newGroup->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta')
+        $service = new GroupsService($this->container);
+        $responseData = $service->create(
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -54,15 +47,13 @@ class Groups extends Route
      *
      * @return Response
      */
-    public function one(Request $request, Response $response)
+    public function read(Request $request, Response $response)
     {
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $groupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
-
-        $params = ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta']);
-        $params['id'] = $request->getAttribute('id');
-        $responseData = $this->getEntriesAndSetResponseCacheTags($groupsTableGateway, $params);
+        $service = new GroupsService($this->container);
+        $responseData = $service->find(
+            $request->getAttribute('id'),
+            ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta'])
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -75,19 +66,11 @@ class Groups extends Route
      */
     public function update(Request $request, Response $response)
     {
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-        $acl = $this->container->get('acl');
-        $dbConnection = $this->container->get('database');
-        $groupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
-
-        $payload['id'] = $request->getAttribute('id');
-        $group = $groupsTableGateway->updateRecord($payload);
-
-        $responseData = $groupsTableGateway->wrapData(
-            $group->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta')
+        $service = new GroupsService($this->container);
+        $responseData = $service->update(
+            $request->getAttribute('id'),
+            $request->getParsedBody(),
+            $request->getQueryParams()
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -101,13 +84,8 @@ class Groups extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $container = $this->container;
-        $acl = $container->get('acl');
-        $dbConnection = $container->get('database');
-        $params = $request->getQueryParams();
-
-        $groupsTableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
-        $responseData = $this->getEntriesAndSetResponseCacheTags($groupsTableGateway, $params);
+        $service = new GroupsService($this->container);
+        $responseData = $service->findAll($request->getQueryParams());
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -120,32 +98,13 @@ class Groups extends Route
      */
     public function delete(Request $request, Response $response)
     {
-        $groupService = new GroupsService($this->container);
-        $id = $request->getAttribute('id');
+        $service = new GroupsService($this->container);
+        $service->delete(
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
 
-        $group = $groupService->find($id);
-        if (!$group) {
-            $response = $response->withStatus(404);
-
-            return $this->responseWithData($request, $response, [
-                'error' => [
-                    'message' => sprintf('Group [%d] not found', $id)
-                ]
-            ]);
-        }
-
-        if (!$groupService->canDelete($id)) {
-            $response = $response->withStatus(403);
-
-            return $this->responseWithData($request, $response, [
-                'error' => [
-                    'message' => sprintf('You are not allowed to delete group [%s]', $group->name)
-                ]
-            ]);
-        }
-
-        $tableGateway = $groupService->getTableGateway();
-        $tableGateway->delete(['id' => $id]);
+        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
     }

@@ -6,7 +6,7 @@ class GeneralTest extends \PHPUnit_Framework_TestCase
 {
     public function testPing()
     {
-        $response = request_get('ping', [], [
+        $response = request_get('server/ping', [], [
             'env' => false
         ]);
         assert_response_contents($this, $response, 'pong', [

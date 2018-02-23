@@ -9,7 +9,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     public static function resetDatabase()
     {
         $db = create_db_connection();
-        reset_table_id($db, 'directus_users', 3);
+        reset_table_id($db, 'directus_users', 4);
         // each new user creates a privileges
         reset_table_id($db, 'directus_permissions', 1);
     }
@@ -49,7 +49,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     {
         $queryParams = ['access_token' => 'token'];
 
-        $response = request_get('users/3', $queryParams);
+        $response = request_get('users/4', $queryParams);
         $currentData = response_get_data($response);
 
         $email = 'john2@getdirectus.com';
@@ -59,11 +59,11 @@ class UsersTest extends \PHPUnit_Framework_TestCase
             'password' => $password
         ];
 
-        $path = 'users/3';
+        $path = 'users/4';
         $response = request_patch($path, $data, ['query' => $queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'id' => 3,
+            'id' => 4,
             'email' => $email
         ]);
 
@@ -79,7 +79,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
         $response = request_get('users', $queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 3
+            'count' => 4
         ]);
     }
 
@@ -87,15 +87,15 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     {
         $queryParams = ['access_token' => 'token'];
 
-        $response = request_get('users/3', $queryParams);
+        $response = request_get('users/4', $queryParams);
         assert_response($this, $response);
 
         assert_response_data_contains($this, $response, [
-            'id' => 3,
+            'id' => 4,
             'email' => 'john2@getdirectus.com'
         ]);
 
-        $response = request_error_get('users/4', $queryParams);
+        $response = request_error_get('users/5', $queryParams);
         assert_response_error($this, $response, [
             'code' => ItemNotFoundException::ERROR_CODE,
             'status' => 404
@@ -143,10 +143,10 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     {
         $queryParams = ['access_token' => 'token'];
 
-        $response = request_delete('users/3', ['query' => $queryParams]);
+        $response = request_delete('users/4', ['query' => $queryParams]);
         assert_response_empty($this, $response);
 
-        $response = request_error_get('users/3', $queryParams);
+        $response = request_error_get('users/4', $queryParams);
         assert_response_error($this, $response, [
             'code' => ItemNotFoundException::ERROR_CODE,
             'status' => 404

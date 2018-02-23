@@ -6,7 +6,7 @@ use Directus\Exception\NotFoundException;
 
 class ItemNotFoundException extends NotFoundException
 {
-    const ERROR_CODE = 1;
+    const ERROR_CODE = 203;
 
     public function __construct($message = '')
     {

@@ -72,33 +72,34 @@ class RelationalTableGateway extends BaseTableGateway
     ];
 
     /**
-     * @param $recordData
-     * @param int $activityEntryMode
+     * @param array $data
+     * @param array $params
      *
      * @return BaseRowGateway
      */
-    public function updateRecord($recordData, $activityEntryMode = self::ACTIVITY_ENTRY_MODE_PARENT)
+    public function updateRecord($data, array $params = [])
     {
-        return $this->manageRecordUpdate($this->getTable(), $recordData, $activityEntryMode);
+        return $this->manageRecordUpdate($this->getTable(), $data, $params);
     }
 
     /**
-     * @param $tableName
-     * @param $recordData
-     * @param int $activityEntryMode
+     * @param string $tableName
+     * @param array $recordData
+     * @param array $params
      * @param null $childLogEntries
      * @param bool $parentCollectionRelationshipsChanged
      * @param array $parentData
      *
      * @return BaseRowGateway
      */
-    public function manageRecordUpdate($tableName, $recordData, $activityEntryMode = self::ACTIVITY_ENTRY_MODE_PARENT, &$childLogEntries = null, &$parentCollectionRelationshipsChanged = false, $parentData = [])
+    public function manageRecordUpdate($tableName, $recordData, array $params = [], &$childLogEntries = null, &$parentCollectionRelationshipsChanged = false, $parentData = [])
     {
         $TableGateway = $this;
         if ($tableName !== $this->getTable()) {
             $TableGateway = new RelationalTableGateway($tableName, $this->adapter, $this->acl);
         }
 
+        $activityEntryMode = ArrayUtils::get($params, 'activity_mode', static::ACTIVITY_ENTRY_MODE_PARENT);
         $recordIsNew = !array_key_exists($TableGateway->primaryKeyFieldName, $recordData);
 
         $tableSchema = TableSchema::getTableSchema($tableName);
@@ -276,7 +277,7 @@ class RelationalTableGateway extends BaseTableGateway
                         'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                         'collection' => $tableName,
                         'item' => $rowId,
-                        'message' => null
+                        'message' => ArrayUtils::get($params, 'activity_message')
                         // TODO: Move to revisions
                         // 'parent_id' => null,
                         // 'data' => json_encode($fullRecordData),
@@ -435,7 +436,14 @@ class RelationalTableGateway extends BaseTableGateway
                                 $foreignRecord[$foreignJoinColumn] = $parentRow['id'];
                             }
 
-                            $foreignRecord = $this->manageRecordUpdate($foreignTableName, $foreignRecord, self::ACTIVITY_ENTRY_MODE_CHILD, $childLogEntries, $parentCollectionRelationshipsChanged, $parentData);
+                            $foreignRecord = $this->manageRecordUpdate(
+                                $foreignTableName,
+                                $foreignRecord,
+                                ['activity_mode' => self::ACTIVITY_ENTRY_MODE_CHILD],
+                                $childLogEntries,
+                                $parentCollectionRelationshipsChanged,
+                                $parentData
+                            );
                         }
                         break;
 
@@ -485,7 +493,14 @@ class RelationalTableGateway extends BaseTableGateway
                             /** Update foreign record */
                             $foreignRecord = ArrayUtils::get($junctionRow, $junctionKeyRight, []);
                             if (is_array($foreignRecord)) {
-                                $foreignRecord = $ForeignTable->manageRecordUpdate($foreignTableName, $foreignRecord, self::ACTIVITY_ENTRY_MODE_CHILD, $childLogEntries, $parentCollectionRelationshipsChanged, $parentData);
+                                $foreignRecord = $ForeignTable->manageRecordUpdate(
+                                    $foreignTableName,
+                                    $foreignRecord,
+                                    ['activity_mode' => self::ACTIVITY_ENTRY_MODE_CHILD],
+                                    $childLogEntries,
+                                    $parentCollectionRelationshipsChanged,
+                                    $parentData
+                                );
                                 $foreignJoinColumnKey = $foreignRecord[$ForeignTable->primaryKeyFieldName];
                             } else {
                                 $foreignJoinColumnKey = $foreignRecord;
@@ -824,7 +839,7 @@ class RelationalTableGateway extends BaseTableGateway
         $results = $this->selectWith($builder->buildSelect())->toArray();
 
         if (!$results && ArrayUtils::has($params, 'single')) {
-            throw new Exception\ItemNotFoundException();
+            throw new Exception\ItemNotFoundException(sprintf('Item with id "%s" not found', $params['id']));
         }
 
         // ==========================================================================

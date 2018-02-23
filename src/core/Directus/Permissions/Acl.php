@@ -289,6 +289,23 @@ class Acl
         return $this->isAdmin();
     }
 
+    public function requireActivityMessage($collection)
+    {
+        $required = false;
+
+        if (!array_key_exists($collection, $this->groupPrivileges)) {
+            return $required;
+        }
+
+        $permission = $this->groupPrivileges[$collection];
+
+        if (!array_key_exists('require_activity_message', $permission)) {
+            return $required;
+        }
+
+        return $permission['require_activity_message'] === 1;
+    }
+
     /**
      * Throws an exception if the user can create a item in the given collection
      *

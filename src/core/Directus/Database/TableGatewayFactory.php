@@ -48,6 +48,10 @@ class TableGatewayFactory
             }
         }
 
+        if (!$acl) {
+            $acl = null;
+        }
+
         if (class_exists($tableGatewayClassName)) {
             $instance = new $tableGatewayClassName($dbConnection, $acl);
         } else {

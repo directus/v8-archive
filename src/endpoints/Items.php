@@ -8,23 +8,21 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\Http\BadRequestException;
-use Directus\Services\EntriesService;
+use Directus\Services\ItemsService;
 use Directus\Services\GroupsService;
 use Directus\Util\ArrayUtils;
 
 class Items extends Route
 {
-    use ActivityMode;
-
     public function __invoke(Application $app)
     {
-        $app->map(['GET', 'POST'], '/{collection}', [$this, 'all']);
-        $app->map(['PUT', 'PATCH', 'GET'], '/{collection}/{id}', [$this, 'one']);
+        $app->get('/{collection}', [$this, 'all']);
+        $app->post('/{collection}', [$this, 'create']);
+        $app->get('/{collection}/{id}', [$this, 'read']);
+        $app->patch('/{collection}/{id}', [$this, 'update']);
         $app->delete('/{collection}/{id}', [$this, 'delete']);
-        $app->get('/{collection}/{id}/meta', [$this, 'meta']);
 
         $app->map(['POST', 'PATCH', 'PUT', 'DELETE'], '/{collection}/batch', [$this, 'batch']);
     }
@@ -37,27 +35,102 @@ class Items extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $tableName = $request->getAttribute('collection');
+        $collection = $request->getAttribute('collection');
         $params = $request->getQueryParams();
+
+        $this->throwErrorIfSystemTable($collection);
+
+        $itemsService = new ItemsService($this->container);
+        $responseData = $itemsService->findAll($collection, $params);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function create(Request $request, Response $response)
+    {
+        $tableName = $request->getAttribute('collection');
 
         $this->throwErrorIfSystemTable($tableName);
 
-        // TODO: Use repository instead of tablegateway
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $tableGateway = new RelationalTableGateway($tableName, $dbConnection, $acl);
-        $primaryKey = $tableGateway->primaryKeyFieldName;
+        $itemsService = new ItemsService($this->container);
+        $responseData = $itemsService->createItem(
+            $tableName,
+            $request->getParsedBody(),
+            $request->getQueryParams()
+        );
 
-        if ($request->isPost()) {
-            $this->validateRequestWithTable($request, $tableName);
+        return $this->responseWithData($request, $response, $responseData);
+    }
 
-            $entriesService = new EntriesService($this->container);
-            $newRecord = $entriesService->createEntry($tableName, $request->getParsedBody(), $params);
-            $params['id'] = ArrayUtils::get($newRecord->toArray(), $primaryKey);
-            $params['status'] = null;
-        }
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws BadRequestException
+     */
+    public function read(Request $request, Response $response)
+    {
+        $collection = $request->getAttribute('collection');
+        $this->throwErrorIfSystemTable($collection);
 
-        $responseData = $this->getEntriesAndSetResponseCacheTags($tableGateway, $params);
+        $itemsService = new ItemsService($this->container);
+        $responseData = $itemsService->find(
+            $collection,
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws BadRequestException
+     */
+    public function update(Request $request, Response $response)
+    {
+        $collection = $request->getAttribute('collection');
+
+        $this->throwErrorIfSystemTable($collection);
+
+        $id = $request->getAttribute('id');
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+
+        $itemsService = new ItemsService($this->container);
+        $responseData = $itemsService->update($collection, $id, $payload, $params);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws BadRequestException
+     */
+    public function delete(Request $request, Response $response)
+    {
+        $collection = $request->getAttribute('collection');
+        $this->throwErrorIfSystemTable($collection);
+
+        $itemsService = new ItemsService($this->container);
+        $itemsService->delete($collection, $request->getAttribute('id'), $request->getQueryParams());
+        $responseData = [];
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -92,12 +165,12 @@ class Items extends Route
         $rowIds = [];
         $tableGateway = new RelationalTableGateway($tableName, $dbConnection, $acl);
         $primaryKeyFieldName = $tableGateway->primaryKeyFieldName;
+        $itemsService = new ItemsService($this->container);
 
         // hotfix add entries by bulk
         if ($request->isPost()) {
-            $entriesService = new EntriesService($this->container);
             foreach($rows as $row) {
-                $newRecord = $entriesService->createEntry($tableName, $row, $params);
+                $newRecord = $itemsService->createItem($tableName, $row, $params);
 
                 if (ArrayUtils::has($newRecord->toArray(), $primaryKeyFieldName)) {
                     $rowIds[] = $newRecord[$primaryKeyFieldName];
@@ -146,7 +219,7 @@ class Items extends Route
             ];
         }
 
-        $entries = $this->getEntriesAndSetResponseCacheTags($tableGateway, $params);
+        $entries = $itemsService->findAll($tableName, $params);
 
         if ($isDelete) {
             $responseData = [];
@@ -162,139 +235,6 @@ class Items extends Route
         } else {
             $responseData = ['data' => $entries];
         }
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     *
-     * @throws BadRequestException
-     */
-    public function one(Request $request, Response $response)
-    {
-        $tableName = $request->getAttribute('collection');
-        $id = $request->getAttribute('id');
-
-        $this->throwErrorIfSystemTable($tableName);
-
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-        $params['collection'] = $tableName;
-        $params['id'] = $id;
-
-        $TableGateway = RelationalTableGateway::makeTableGatewayFromTableName($tableName, $dbConnection, $acl);
-        switch ($request->getMethod()) {
-            // PUT an updated table entry
-            case 'PATCH':
-            case 'PUT':
-                // Fetch the entry even if it's not "published"
-                $params['status'] = '*';
-                $this->validateRequestWithTable($request, $tableName);
-                $payload[$TableGateway->primaryKeyFieldName] = $id;
-                $TableGateway->updateRecord($payload, $this->getActivityMode());
-                break;
-            // DELETE a given table entry
-            case 'DELETE':
-                if ($tableName === 'directus_groups') {
-                    $groupService = new GroupsService($this->container);
-                    $group = $groupService->find($id);
-                    if ($group && !$groupService->canDelete($id)) {
-                        $response = $response->withStatus(403);
-
-                        return $this->responseWithData($request, $response, [
-                            'error' => [
-                                'message' => sprintf('You are not allowed to delete group [%s]', $group->name)
-                            ]
-                        ]);
-                    }
-                }
-                $condition = [
-                    $TableGateway->primaryKeyFieldName => $id
-                ];
-
-                if (ArrayUtils::get($params, 'soft')) {
-                    if (!$TableGateway->getTableSchema()->hasStatusField()) {
-                        throw new BadRequestException(__t('cannot_soft_delete_missing_status_column'));
-                    }
-
-                    $success = $TableGateway->update([
-                        $TableGateway->getStatusColumnName() => $TableGateway->getDeletedValue()
-                    ], $condition);
-                } else {
-                    $success =  $TableGateway->delete($condition);
-                }
-
-                $responseData = [];
-                if (!$success) {
-                    $responseData['error'] = [
-                        'message' => __t('internal_server_error')
-                    ];
-                }
-
-                return $this->responseWithData($request, $response, $responseData);
-        }
-
-        // TODO: Do not fetch if this is after insert
-        // and the user doesn't have permission to read
-        $responseData = $this->getEntriesAndSetResponseCacheTags($TableGateway, $params);
-
-        if (!$responseData) {
-            $responseData = [
-                'error' => [
-                    'message' => __t('unable_to_find_record_in_x_with_id_x', ['table' => $tableName, 'id' => $id])
-                ],
-            ];
-        }
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     *
-     * @throws BadRequestException
-     */
-    public function delete(Request $request, Response $response)
-    {
-        return $this->one($request, $response);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return mixed
-     */
-    public function meta(Request $request, Response $response)
-    {
-        $tableName = $request->getAttribute('collection');
-
-        $this->throwErrorIfSystemTable($tableName);
-
-        $id = $request->getAttribute('id');
-        $params = $request->getQueryParams();
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-
-        $tableGateway = new DirectusActivityTableGateway($dbConnection, $acl);
-
-        $metaData = $this->getDataAndSetResponseCacheTags([$tableGateway, 'getMetadata'], [$tableName, $id]);
-
-        $responseData = [];
-        if (ArrayUtils::get($params, 'meta', 0) == 1) {
-            $responseData['meta'] = ['collection' => 'directus_activity', 'type' => 'item'];
-        }
-
-        $responseData['data'] = $metaData;
 
         return $this->responseWithData($request, $response, $responseData);
     }

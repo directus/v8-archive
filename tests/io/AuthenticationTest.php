@@ -128,15 +128,11 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 
     public function testDisabledUserCredentials()
     {
-        try {
-            $path = 'auth/authenticate';
-            $response = request_post($path, [
-                'email' => 'disabled@getdirectus.com',
-                'password' => 'password'
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+        $path = 'auth/authenticate';
+        $response = request_error_post($path, [
+            'email' => 'disabled@getdirectus.com',
+            'password' => 'password'
+        ]);
 
         assert_response_error($this, $response, [
             'status' => 401,

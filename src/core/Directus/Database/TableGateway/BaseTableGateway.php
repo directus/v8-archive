@@ -859,22 +859,28 @@ class BaseTableGateway extends TableGateway
             $deleteData = $ids;
 
             try {
-                $this->runHook('table.delete:before', [$deleteTable]);
-                $this->runHook('table.delete.' . $deleteTable . ':before');
-                $this->runHook('table.remove:before', [$deleteTable, $deleteData, 'soft' => false]);
-                $this->runHook('table.remove.' . $deleteTable . ':before', [$deleteData, 'soft' => false]);
+                foreach ($ids as $id) {
+                    $deleteData = ['id' => $id];
+                    $this->runHook('table.delete:before', [$deleteTable]);
+                    $this->runHook('table.delete.' . $deleteTable . ':before');
+                    $this->runHook('table.remove:before', [$deleteTable, $deleteData, 'soft' => false]);
+                    $this->runHook('table.remove.' . $deleteTable . ':before', [$deleteData, 'soft' => false]);
+                }
 
                 $result = parent::executeDelete($delete);
 
-                $this->runHook('table.delete', [$deleteTable]);
-                $this->runHook('table.delete:after', [$deleteTable]);
-                $this->runHook('table.delete.' . $deleteTable);
-                $this->runHook('table.delete.' . $deleteTable . ':after');
+                foreach ($ids as $id) {
+                    $deleteData = ['id' => $id];
+                    $this->runHook('table.delete', [$deleteTable, $deleteData]);
+                    $this->runHook('table.delete:after', [$deleteTable, $deleteData]);
+                    $this->runHook('table.delete.' . $deleteTable, [$deleteData]);
+                    $this->runHook('table.delete.' . $deleteTable . ':after', [$deleteData]);
 
-                $this->runHook('table.remove', [$deleteTable, $deleteData, 'soft' => false]);
-                $this->runHook('table.remove:after', [$deleteTable, $deleteData, 'soft' => false]);
-                $this->runHook('table.remove.' . $deleteTable, [$deleteData, 'soft' => false]);
-                $this->runHook('table.remove.' . $deleteTable . ':after', [$deleteData, 'soft' => false]);
+                    $this->runHook('table.remove', [$deleteTable, $deleteData, 'soft' => false]);
+                    $this->runHook('table.remove:after', [$deleteTable, $deleteData, 'soft' => false]);
+                    $this->runHook('table.remove.' . $deleteTable, [$deleteData, 'soft' => false]);
+                    $this->runHook('table.remove.' . $deleteTable . ':after', [$deleteData, 'soft' => false]);
+                }
 
                 return $result;
             } catch (InvalidQueryException $e) {

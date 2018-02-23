@@ -430,6 +430,7 @@ class MySQLSchema extends AbstractSchema
             case 'smallint':
             case 'mediumint':
             case 'int':
+            case 'integer':
             case 'long':
             case 'tinyint':
                 $data = ($data === null) ? null : (int)$data;

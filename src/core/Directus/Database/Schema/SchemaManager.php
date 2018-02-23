@@ -12,12 +12,15 @@ use Directus\Util\StringUtils;
 class SchemaManager
 {
     // Tables
-    const TABLE_PERMISSIONS = 'directus_permissions';
-    const TABLE_COLLECTIONS = 'directus_collections';
-    const TABLE_FIELDS = 'directus_fields';
-    const TABLE_FILES = 'directus_files';
-    const TABLE_COLLECTION_PRESETS = 'directus_collection_presets';
-    const TABLE_USERS = 'directus_users';
+    const TABLE_COLLECTIONS         = 'directus_collections';
+    const TABLE_COLLECTION_PRESETS  = 'directus_collection_presets';
+    const TABLE_FIELDS              = 'directus_fields';
+    const TABLE_FILES               = 'directus_files';
+    const TABLE_GROUPS              = 'directus_groups';
+    const TABLE_PERMISSIONS         = 'directus_permissions';
+    const TABLE_REVISIONS           = 'directus_revisions';
+    const TABLE_SETTINGS            = 'directus_settings';
+    const TABLE_USERS               = 'directus_users';
 
     /**
      * Schema source instance

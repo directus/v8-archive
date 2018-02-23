@@ -6,8 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Hash\HashManager;
-use Directus\Util\StringUtils;
+use Directus\Services\UtilsService;
 
 class Utils extends Route
 {
@@ -28,26 +27,20 @@ class Utils extends Route
      */
     public function hash(Request $request, Response $response)
     {
-        $string = $request->getParam('string');
-        $hasher = $request->getParam('hasher', 'core');
+        $service = new UtilsService($this->container);
+
         $options = $request->getParam('options', []);
-
-        $this->validate(['string' => $string], ['string' => 'required|string']);
-
         if (!is_array($options)) {
             $options = [$options];
         }
 
-        $options['hasher'] = $hasher;
-        /** @var HashManager $hashManager */
-        $hashManager = $this->container->get('hash_manager');
-        $hashedString = $hashManager->hash($string, $options);
+        $responseData = $service->hashString(
+            $request->getParam('string'),
+            $request->getParam('hasher', 'core'),
+            $options
+        );
 
-        return $this->responseWithData($request, $response, [
-            'data' => [
-                'hash' => $hashedString
-            ]
-        ]);
+        return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
@@ -58,18 +51,12 @@ class Utils extends Route
      */
     public function randomString(Request $request, Response $response)
     {
-        // TODO: Create a service/function that shared the same code with other part of Directus
-        // default random string length
-        $length = $request->getParam('length', 32);
+        $service = new UtilsService($this->container);
+        $responseData = $service->randomString(
+            $request->getParsedBodyParam('length', 32),
+            $request->getParsedBodyParam('options')
+        );
 
-        $this->validate(['length' => $length], ['length' => 'numeric']);
-
-        $randomString = StringUtils::randomString($length);
-
-        return $this->responseWithData($request, $response, [
-            'data' => [
-                'random' => $randomString
-            ]
-        ]);
+        return $this->responseWithData($request, $response, $responseData);
     }
 }
