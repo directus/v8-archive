@@ -11,8 +11,13 @@ if (!file_exists($configFilePath)) {
 
 // Get Environment name
 $env = get_api_env();
+$requestUri = trim(get_virtual_path(), '/');
+if (strpos($requestUri, $env) === 0) {
+    $requestUri = substr($requestUri, strlen($env));
+}
+
 $reservedNames = ['server'];
-if ($env !== '_' && !in_array($env, $reservedNames)) {
+if ($requestUri && !empty($env) && $env !== '_' && !in_array($env, $reservedNames)) {
     $configFilePath = sprintf('%s/api.%s.php', $configPath, $env);
     if (!file_exists($configFilePath)) {
         http_response_code(404);
