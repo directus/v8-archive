@@ -16,7 +16,7 @@ class Activity extends Route
     public function __invoke(Application $app)
     {
         $app->get('', [$this, 'all']);
-        $app->get('/{id}', [$this, 'one']);
+        $app->get('/{id}', [$this, 'read']);
     }
 
     /**
@@ -54,7 +54,7 @@ class Activity extends Route
      *
      * @return Response
      */
-    public function one(Request $request, Response $response)
+    public function read(Request $request, Response $response)
     {
         $dbConnection = $this->container->get('database');
         $acl = $this->container->get('acl');
