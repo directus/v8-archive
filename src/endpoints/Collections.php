@@ -109,14 +109,12 @@ class Collections extends Route
     public function delete(Request $request, Response $response)
     {
         $service = new TablesService($this->container);
-        $ok = $service->delete(
+        $service->delete(
             $request->getAttribute('name'),
             $request->getQueryParams()
         );
 
-        if ($ok) {
-            $response = $response->withStatus(204);
-        }
+        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
     }

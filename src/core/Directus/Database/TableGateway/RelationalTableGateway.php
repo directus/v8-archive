@@ -10,7 +10,9 @@ use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Query\Builder;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\Object\FieldRelationship;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableSchema;
+use Directus\Exception\ErrorException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
@@ -70,6 +72,37 @@ class RelationalTableGateway extends BaseTableGateway
 
         'nbetween' => ['operator' => 'between', 'not' => true],
     ];
+
+    public function deleteRecord($id, array $params = [])
+    {
+        // TODO: Add "item" hook, different from "table" hook
+        $success = $this->delete([
+            $this->primaryKeyFieldName => $id
+        ]);
+
+        if (!$success) {
+            throw new ErrorException(
+                sprintf('Error deleting a record in %s with id %s', $this->table, $id)
+            );
+        }
+
+        if ($this->table !== SchemaManager::TABLE_ACTIVITY) {
+            $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
+            $logData = [
+                'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
+                'action' => DirectusActivityTableGateway::ACTION_DELETE,
+                'user' => $this->acl->getUserId(),
+                'datetime' => DateUtils::now(),
+                'ip' => get_request_ip(),
+                'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+                'collection' => $this->table,
+                'item' => $id,
+                'message' => ArrayUtils::get($params, 'activity_message')
+            ];
+            $parentLogEntry->populate($logData, false);
+            $parentLogEntry->save();
+        }
+    }
 
     /**
      * @param array $data

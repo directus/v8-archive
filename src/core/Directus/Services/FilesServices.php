@@ -80,15 +80,7 @@ class FilesServices extends AbstractService
         $files->delete($file);
 
         // Delete file record
-        $success = $tableGateway->delete([
-            $tableGateway->primaryKeyFieldName => $id
-        ]);
-
-        if (!$success) {
-            throw new ErrorException('Error deleting file record: ' . $id);
-        }
-
-        return $success;
+        return $tableGateway->deleteRecord($id);
     }
 
     public function findAll(array $params = [])
@@ -106,7 +98,7 @@ class FilesServices extends AbstractService
 
         $foldersTableGateway = $this->createTableGateway($collection);
 
-        $newFolder = $foldersTableGateway->updateRecord($data);
+        $newFolder = $foldersTableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $foldersTableGateway->wrapData(
             $newFolder->toArray(),
@@ -125,10 +117,11 @@ class FilesServices extends AbstractService
 
     public function updateFolder($id, array $data, array $params = [])
     {
+        $this->enforcePermissions('directus_folders', $data, $params);
         $foldersTableGateway = $this->createTableGateway('directus_folders');
 
         $data['id'] = $id;
-        $group = $foldersTableGateway->updateRecord($data);
+        $group = $foldersTableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $foldersTableGateway->wrapData(
             $group->toArray(),
@@ -155,12 +148,6 @@ class FilesServices extends AbstractService
             'id' => $id
         ]);
 
-        $success = $foldersTableGateway->delete(['id' => $id]);
-
-        if (!$success) {
-            throw new ErrorException('Error deleting the folder: ' . $id);
-        }
-
-        return $success;
+        return $foldersTableGateway->deleteRecord($id, $this->getCRUDParams($params));
     }
 }

@@ -12,6 +12,7 @@ use Directus\Util\StringUtils;
 class SchemaManager
 {
     // Tables
+    const TABLE_ACTIVITY            = 'directus_activity';
     const TABLE_COLLECTIONS         = 'directus_collections';
     const TABLE_COLLECTION_PRESETS  = 'directus_collection_presets';
     const TABLE_FIELDS              = 'directus_fields';

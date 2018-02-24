@@ -138,15 +138,13 @@ class Fields extends Route
     {
         $service = new TablesService($this->container);
 
-        $ok = $service->deleteField(
+        $service->deleteField(
             $request->getAttribute('collection'),
             $request->getAttribute('field'),
             $request->getQueryParams()
         );
 
-        if ($ok) {
-            $response = $response->withStatus(204);
-        }
+        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
     }

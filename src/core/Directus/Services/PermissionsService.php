@@ -32,7 +32,7 @@ class PermissionsService extends AbstractService
         $this->validatePayload($this->collection, null, $data, $params);
 
         $tableGateway = $this->getTableGateway();
-        $newGroup = $tableGateway->updateRecord($data);
+        $newGroup = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
             $newGroup->toArray(),
@@ -55,7 +55,7 @@ class PermissionsService extends AbstractService
 
         $tableGateway = $this->getTableGateway();
         $data['id'] = $id;
-        $newGroup = $tableGateway->updateRecord($data);
+        $newGroup = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
             $newGroup->toArray(),
@@ -73,11 +73,7 @@ class PermissionsService extends AbstractService
             'id' => $id
         ]);
 
-        $success = $tableGateway->delete(['id' => $id]);
-
-        if (!$success) {
-            throw new ErrorException('Unable to delete permission with id: ' . $id);
-        }
+        $tableGateway->deleteRecord($id, $this->getCRUDParams($params));
 
         return true;
     }

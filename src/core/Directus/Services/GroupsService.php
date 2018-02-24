@@ -42,7 +42,7 @@ class GroupsService extends AbstractService
         $groupsTableGateway = $this->createTableGateway($this->collection);
         // make sure to create new one instead of update
         unset($data[$groupsTableGateway->primaryKeyFieldName]);
-        $newGroup = $groupsTableGateway->updateRecord($data);
+        $newGroup = $groupsTableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $groupsTableGateway->wrapData(
             $newGroup->toArray(),
@@ -75,7 +75,7 @@ class GroupsService extends AbstractService
         $groupsTableGateway = $this->getTableGateway();
 
         $data['id'] = $id;
-        $group = $groupsTableGateway->updateRecord($data);
+        $group = $groupsTableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $groupsTableGateway->wrapData(
             $group->toArray(),
@@ -107,9 +107,7 @@ class GroupsService extends AbstractService
 
         $tableGateway = $this->getTableGateway();
 
-        if (!$tableGateway->delete(['id' => $id])) {
-            throw new ErrorException('Unable to delete group record for: ' . $id);
-        }
+        $tableGateway->deleteRecord($id, $this->getCRUDParams($params));
 
         return true;
     }

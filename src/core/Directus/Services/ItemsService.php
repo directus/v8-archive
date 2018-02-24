@@ -106,12 +106,12 @@ class ItemsService extends AbstractService
             $success = $tableGateway->update([
                 $tableGateway->getStatusColumnName() => $tableGateway->getDeletedValue()
             ], $condition);
-        } else {
-            $success =  $tableGateway->delete($condition);
-        }
 
-        if (!$success) {
-            throw new ErrorException('Error deleting item id: ' . $id);
+            if (!$success) {
+                throw new ErrorException('Error soft-deleting item id: ' . $id);
+            }
+        } else {
+            $tableGateway->deleteRecord($id, $this->getCRUDParams($params));
         }
 
         return true;

@@ -57,6 +57,8 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     {
         self::clearData();
         truncate_table(static::$db, 'directus_permissions');
+        truncate_table(static::$db, 'directus_folders');
+        truncate_table(static::$db, 'directus_activity');
         drop_table(static::$db, 'test');
         drop_table(static::$db, 'test2');
     }
@@ -89,6 +91,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->doCollections();
         $this->doFields();
         $this->doFiles();
+        $this->doFilesFolders();
         $this->doGroups();
         $this->doItems();
         $this->doPermissions();
@@ -111,6 +114,9 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
 
         $this->setFlagOff('directus_files');
         $this->doFiles();
+
+        $this->setFlagOff('directus_folders');
+        $this->doFilesFolders();
 
         $this->setFlagOff('directus_groups');
         $this->doGroups();
@@ -148,6 +154,10 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->doFiles(true);
         $this->doFiles(false, 'message');
 
+        $this->setFlagOn('directus_folders');
+        $this->doFilesFolders(true);
+        $this->doFilesFolders(false, 'message');
+
         $this->setFlagOn('directus_groups');
         $this->doGroups(true);
         $this->doGroups(false, 'message');
@@ -178,6 +188,16 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->create('files', $data, $error, $message);
         $this->update('files/2', ['title' => 'Title test'], $error, $message);
         $this->delete('files/2', $error, $message);
+    }
+
+    protected function doFilesFolders($error = false, $message = null)
+    {
+        $data = [
+            'name' => 'folder'
+        ];
+        $this->create('files/folders', $data, $error, $message);
+        $this->update('files/folders/1', ['name' => 'logos'], $error, $message);
+        $this->delete('files/folders/1', $error, $message);
     }
 
     protected function doGroups($error = false, $message = null)

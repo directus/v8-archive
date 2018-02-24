@@ -88,14 +88,12 @@ class Files extends Route
     public function delete(Request $request, Response $response)
     {
         $service = new FilesServices($this->container);
-        $ok = $service->delete(
+        $service->delete(
             $request->getAttribute('id'),
             $request->getQueryParams()
         );
 
-        if ($ok) {
-            $response = $response->withStatus(204);
-        }
+        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
     }
@@ -191,13 +189,12 @@ class Files extends Route
     public function deleteFolder(Request $request, Response $response)
     {
         $service = new FilesServices($this->container);
-        $ok = $service->deleteFolder(
-            $request->getAttribute('id')
+        $service->deleteFolder(
+            $request->getAttribute('id'),
+            $request->getQueryParams()
         );
 
-        if ($ok) {
-            $response = $response->withStatus(204);
-        }
+        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
     }
