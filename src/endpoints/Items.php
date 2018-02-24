@@ -205,6 +205,7 @@ class Items extends Route
                         }
                     }
                 }
+                // TODO: Create a batch delete method
                 $deleted = $tableGateway->delete($where->in($primaryKeyFieldName, $rowIds));
             } else {
                 foreach ($rows as $row) {

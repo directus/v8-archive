@@ -20,6 +20,7 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 
+// TODO: Create activity for collection and fields
 class TablesService extends AbstractService
 {
     /**

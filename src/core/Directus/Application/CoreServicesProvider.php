@@ -235,37 +235,6 @@ class CoreServicesProvider
                 }
                 return $payload;
             });
-            $emitter->addAction('table.delete', function ($tableName, $id) use ($container) {
-                /** @var Acl $acl */
-                $acl = $container->get('acl');
-                $db = $container->get('database');
-
-                $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName(
-                    'id',
-                    'directus_activity',
-                    $db
-                );
-
-                $logData = [
-                    'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($tableName),
-                    'action' => DirectusActivityTableGateway::ACTION_DELETE,
-                    'user' => $acl->getUserId(),
-                    'datetime' => DateUtils::now(),
-                    'ip' => get_request_ip(),
-                    'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
-                    'collection' => $tableName,
-                    'item' => $id,
-                    'message' => null
-                    // TODO: Move to revisions
-                    // 'parent_id' => null,
-                    // 'data' => json_encode($fullRecordData),
-                    // 'delta' => json_encode($deltaRecordData),
-                    // 'parent_changed' => (int)$parentRecordChanged,
-                    // 'identifier' => $recordIdentifier,
-                ];
-                $parentLogEntry->populate($logData, false);
-                $parentLogEntry->save();
-            });
             $emitter->addAction('table.insert.directus_groups', function ($data) use ($container) {
                 $acl = $container->get('acl');
                 $zendDb = $container->get('database');
