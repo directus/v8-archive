@@ -1,0 +1,35 @@
+{
+  "name": "checkboxes",
+  "version": "1.0.0",
+  "dataTypes": {
+    "VARCHAR": 255,
+    "CHAR": 10,
+    "TINYTEXT": null,
+    "TEXT": null,
+    "MEDIUMTEXT": null,
+    "LONGTEXT": null
+  },
+  "options": {
+    "choices": {
+      "interface": "json",
+      "comment": "Enter JSON key value pairs with the saved value and text displayed.",
+      "defaultValue": "{\"option1\": \"Option 1\", \"option2\": \"Option 2\"}"
+    },
+    "wrapWithDelimiter": {
+      "interface": "toggle",
+      "comment": "Wrap the values with a pair of delimiters to allow strict searching for a single value",
+      "defaultValue": true
+    },
+    "formatting": {
+      "interface": "radio-buttons",
+      "comment": "The output format on the list view",
+      "defaultValue": "text",
+      "options": {
+        "choices": {
+          "text": "Display Text",
+          "value": "Value"
+        }
+      }
+    }
+  }
+}

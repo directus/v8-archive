@@ -8,6 +8,7 @@ $app = require __DIR__ . '/bootstrap.php';
 // TODO: Customized Method not allowed error
 // =============================================================================
 
+$app->group('/interfaces', \Directus\Api\Routes\Interfaces::class);
 $app->group('/server', \Directus\Api\Routes\Server::class);
 
 $app->group('/{env}', function () {

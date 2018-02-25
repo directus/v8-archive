@@ -1,0 +1,32 @@
+{
+  "name": "slider",
+  "version": "1.0.0",
+  "dataTypes": {
+    "INT": 11,
+    "TINYINT": 1,
+    "SMALLINT": 5,
+    "MEDIUMINT": 7,
+    "BIGINT": 18
+  },
+  "options": {
+    "minimum": {
+      "interface": "numeric",
+      "comment": "Minimum value",
+      "defaultValue": 0
+    },
+    "maximum": {
+      "interface": "numeric",
+      "comment": "Maximum value",
+      "defaultValue": 100
+    },
+    "step": {
+      "interface": "numeric",
+      "comment": "Increments at which the value can be set",
+      "defaultValue": 1
+    },
+    "unit": {
+      "interface": "text-input",
+      "comment": "Show unit next to slider value, e.g.: 15 Pounds"
+    }
+  }
+}

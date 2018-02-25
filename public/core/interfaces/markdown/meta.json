@@ -1,0 +1,12 @@
+{
+  "name": "markdown",
+  "version": "1.0.0",
+  "dataTypes": {
+    "VARCHAR": 1024,
+    "TINYTEXT": null,
+    "TEXT": null,
+    "MEDIUMTEXT": null,
+    "LONGTEXT": null
+  },
+  "options": {}
+}

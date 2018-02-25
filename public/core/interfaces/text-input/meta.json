@@ -1,0 +1,31 @@
+{
+  "name": "text-input",
+  "version": "1.0.0",
+  "dataTypes": {
+    "VARCHAR": 100,
+    "CHAR": 1
+  },
+  "options": {
+    "placeholder": {
+      "interface": "text-input",
+      "comment": "Enter placeholder text",
+      "defaultValue": "",
+      "length": 200
+    },
+    "trim": {
+      "interface": "toggle",
+      "comment": "Trim surrounding whitespace from the value before saving",
+      "defaultValue": true
+    },
+    "showCharacterCount": {
+      "interface": "toggle",
+      "comment": "Show the remaining characters available next to the input",
+      "defaultValue": true
+    },
+    "formatValue": {
+      "interface": "toggle",
+      "comment": "Use Directus' formatting logic",
+      "defaultValue": false
+    }
+  }
+}

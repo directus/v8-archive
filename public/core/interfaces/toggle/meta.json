@@ -1,0 +1,19 @@
+{
+  "name": "toggle",
+  "version": "1.0.0",
+  "dataTypes": {
+    "TINYINT": 1
+  },
+  "options": {
+    "label": {
+      "interface": "text-input",
+      "comment": "Label to show next to the toggle",
+      "defaultValue": ""
+    },
+    "showAsCheckbox": {
+      "interface": "toggle",
+      "comment": "Display a checkbox instead of the default switch",
+      "defaultValue": false
+    }
+  }
+}

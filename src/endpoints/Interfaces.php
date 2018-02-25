@@ -6,9 +6,9 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Services\ServerService;
+use Directus\Services\InterfacesService;
 
-class Server extends Route
+class Interfaces extends Route
 {
     /**
      * @param Application $app
@@ -17,13 +17,13 @@ class Server extends Route
     {
         create_ping_route($app);
 
-        $app->get('/info', [$this, 'info']);
+        $app->get('', [$this, 'all']);
     }
 
-    public function info(Request $request, Response $response)
+    public function all(Request $request, Response $response)
     {
-        $service = new ServerService($this->container);
-        $responseData = $service->findAllInfo();
+        $service = new InterfacesService($this->container);
+        $responseData = $service->findAll();
 
         return $this->responseWithData($request, $response, $responseData);
     }

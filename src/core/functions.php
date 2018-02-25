@@ -1100,6 +1100,21 @@ if (!function_exists('find_js_files')) {
     }
 }
 
+if (!function_exists('find_json_files')) {
+    /**
+     * Find JSON files in the given path
+     *
+     * @param $paths
+     * @param bool $includeSubDirectories
+     *
+     * @return array
+     */
+    function find_json_files($paths, $includeSubDirectories = false)
+    {
+        return find_files($paths, 0, '*.json', $includeSubDirectories);
+    }
+}
+
 if (!function_exists('find_php_files')) {
     /**
      * Find PHP files in the given path
