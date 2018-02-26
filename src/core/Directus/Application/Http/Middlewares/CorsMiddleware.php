@@ -42,7 +42,9 @@ class CorsMiddleware extends AbstractMiddleware
                 // 1. [Key, Value]
                 // 2. Key => Value
                 if (is_array($value)) {
-                    list($name, $value) = $value;
+                    // using $value will make name the first value character of $value value
+                    $temp = $value;
+                    list($name, $value) = $temp;
                 }
 
                 $response->setHeader($name, $value);
@@ -70,7 +72,7 @@ class CorsMiddleware extends AbstractMiddleware
     protected function getOrigin(Request $request)
     {
         $corsOptions = $this->getOptions();
-        $requestOrigin = $request->getHeader('Origin');
+        $requestOrigin = $request->getHeader('Origin') ?: $request->getServerParam('HTTP_ORIGIN');
         $responseOrigin = null;
         $allowedOrigins = ArrayUtils::get($corsOptions, 'origin', '*');
 
