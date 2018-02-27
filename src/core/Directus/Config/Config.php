@@ -41,10 +41,6 @@ class Config extends Collection implements ConfigInterface
     {
         $visibleStatus = $this->getStatusesValue('published', true, $statusMapping);
 
-        // if (empty($visibleStatus) && defined('STATUS_ACTIVE_NUM')) {
-        //     $visibleStatus[] = STATUS_ACTIVE_NUM;
-        // }
-
         return $visibleStatus;
     }
 

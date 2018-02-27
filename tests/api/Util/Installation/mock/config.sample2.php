@@ -1,7 +1,6 @@
 <?php
 
 define('STATUS_DELETED_NUM', 0);
-define('STATUS_ACTIVE_NUM', 1);
 
 return [
     'app' => [
