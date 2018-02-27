@@ -21,12 +21,11 @@ class InstallerUtils
      */
     public static function createConfig($data, $path)
     {
-        $requiredAttributes = ['db_host', 'db_name', 'db_user', 'db_password', 'directus_path'];
+        $requiredAttributes = ['db_host', 'db_name', 'db_user', 'db_password'];
         if (!ArrayUtils::contains($data, $requiredAttributes)) {
-            $message = sprintf(__t('creating_config_files_required_x', [
-                'attributes' => implode(', ', $requiredAttributes)
-            ]));
-            throw new \InvalidArgumentException($message);
+            throw new \InvalidArgumentException(
+                'Creating config files required: ' . implode(', ', $requiredAttributes)
+            );
         }
 
         static::createConfigFile($data, $path);
