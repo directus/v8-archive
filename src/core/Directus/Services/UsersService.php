@@ -40,17 +40,30 @@ class UsersService extends AbstractService
 
     public function update($id, array $data, array $params = [])
     {
-        return $this->itemsService->update($this->collection, $id, $data, $params);
+        return $this->itemsService->update(
+            $this->collection,
+            $this->getUserId($id),
+            $data,
+            $params
+        );
     }
 
     public function find($id, array $params = [])
     {
-        return $this->itemsService->find($this->collection, $id, $params);
+        return $this->itemsService->find(
+            $this->collection,
+            $this->getUserId($id),
+            $params
+        );
     }
 
     public function delete($id, array $params = [])
     {
-        return $this->itemsService->delete($this->collection, $id, $params);
+        return $this->itemsService->delete(
+            $this->collection,
+            $this->getUserId($id),
+            $params
+        );
     }
 
     /**
@@ -113,6 +126,22 @@ class UsersService extends AbstractService
                 send_user_invitation_email($email, $invitationToken);
             }
         }
+    }
+
+    /**
+     * Replace "me" with the authenticated user
+     *
+     * @param null $id
+     *
+     * @return int|null
+     */
+    protected function getUserId($id = null)
+    {
+        if ($id === 'me') {
+            $id = $this->getAcl()->getUserId();
+        }
+
+        return $id;
     }
 
     /**

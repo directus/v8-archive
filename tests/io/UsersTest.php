@@ -152,4 +152,15 @@ class UsersTest extends \PHPUnit_Framework_TestCase
             'status' => 404
         ]);
     }
+
+    public function testMe()
+    {
+        $queryParams = ['access_token' => 'token'];
+
+        $response = request_get('users/me', $queryParams);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, [
+            'email' => 'admin@getdirectus.com'
+        ]);
+    }
 }

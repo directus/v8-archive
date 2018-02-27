@@ -6,12 +6,8 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Authentication\Provider;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
-use Directus\Permissions\Acl;
 use Directus\Services\UsersService;
-use Directus\Util\DateUtils;
-use Directus\Util\StringUtils;
 
 class Users extends Route
 {
@@ -137,23 +133,5 @@ class Users extends Route
         $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
-    }
-
-    /**
-     * Replace "me" with the authenticated user
-     *
-     * @param null $id
-     *
-     * @return int|null
-     */
-    public function getUserId($id = null)
-    {
-        if ($id === 'me') {
-            /** @var Acl $acl */
-            $acl = $this->container->get('acl');
-            $id = $acl->getUserId();
-        }
-
-        return $id;
     }
 }
