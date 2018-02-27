@@ -587,7 +587,7 @@ if (!function_exists('base_path')) {
     }
 }
 
-if (!function_exists('get_timezones_list')) {
+if (!function_exists('get_timezone_list')) {
     function get_timezone_list()
     {
         // List from: https://github.com/tamaspap/timezones
