@@ -826,27 +826,15 @@ class RelationalTableGateway extends BaseTableGateway
         $hasActiveColumn = $tableSchema->hasStatusField();
 
         $params = $this->applyDefaultEntriesSelectParams($params);
+        $fields = $this->getSelectedFields(ArrayUtils::get($params, 'fields'));
 
-        // NOTE: fallback to all columns the user has permission to
-        $allColumns = TableSchema::getAllTableColumnsName($tableSchema->getName());
-
-        $columns = array_unique(ArrayUtils::get($params, 'fields', ['*']));
-        $wildCardIndex = array_search('*', $columns);
-        if ($wildCardIndex !== false) {
-            unset($columns[$wildCardIndex]);
-            $columns = array_merge(
-                $allColumns,
-                $columns
-            );
-        }
-
+        // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
         $builder = new Builder($this->getAdapter());
         $builder->from($this->getTable());
-        $builder->columns(ArrayUtils::intersection(
-            array_unique(array_merge([$tableSchema->getPrimaryKeyName()], get_columns_flat_at($columns, 0))),
-            TableSchema::getAllNonAliasTableColumnNames($tableSchema->getName())
-        ));
+        $builder->columns(
+            array_merge([$tableSchema->getPrimaryKeyName()], $this->getSelectedNonAliasFields($fields))
+        );
         $builder = $this->applyParamsToTableEntriesSelect($params, $builder, $tableSchema, $hasActiveColumn);
 
         // If we have user field and do not have big view privileges but have view then only show entries we created
@@ -876,14 +864,14 @@ class RelationalTableGateway extends BaseTableGateway
         // ==========================================================================
         $results = $this->parseRecord($results);
 
-        $columnsDepth = ArrayUtils::deepLevel(get_unflat_columns(ArrayUtils::get($params, 'fields', $allColumns)));
+        $columnsDepth = ArrayUtils::deepLevel(get_unflat_columns($fields));
         if ($columnsDepth > 0) {
             $relationalColumns = ArrayUtils::intersection(
-                get_columns_flat_at($columns, 0),
+                get_columns_flat_at($fields, 0),
                 $tableSchema->getRelationalFieldsName()
             );
 
-            $relationalColumns = array_filter(get_unflat_columns($columns), function ($key) use ($relationalColumns) {
+            $relationalColumns = array_filter(get_unflat_columns($fields), function ($key) use ($relationalColumns) {
                 return in_array($key, $relationalColumns);
             }, ARRAY_FILTER_USE_KEY);
 
@@ -903,8 +891,7 @@ class RelationalTableGateway extends BaseTableGateway
         // it should be included because each row gateway expects the primary key
         // after all the row gateway are created and initiated it only returns the chosen columns
         if (ArrayUtils::has($params, 'fields')) {
-            $visibleColumns = get_columns_flat_at($columns, 0);
-
+            $visibleColumns = get_columns_flat_at($fields, 0);
             $results = array_map(function ($entry) use ($visibleColumns) {
                 foreach ($entry as $key => $value) {
                     if (!in_array($key, $visibleColumns)) {
@@ -1916,30 +1903,56 @@ class RelationalTableGateway extends BaseTableGateway
      **/
 
     /**
-     * Parse visible columns
-     *
-     * @param $columns
+     * @param $fields
      *
      * @return array
      */
-    public function parseVisibleColumns($columns)
+    public function getSelectedFields($fields)
     {
-        $wildCard = isset($columns['*']) ? $columns['*'] : null;
-        unset($columns['*']);
+        $tableSchema = $this->getTableSchema();
 
-        if ($wildCard) {
-            $tableSchema = $this->getTableSchema();
-            $allColumns = TableSchema::getAllTableColumnsName($tableSchema->getName());
-            foreach ($allColumns as $column) {
-                $columns[$column] = $wildCard;
-            }
-        }
-        $filteredColumns = [];
-        if ($columns) {
-            $filteredColumns = array_merge([$this->primaryKeyFieldName], get_array_flat_columns($columns));
+        // NOTE: fallback to all columns the user has permission to
+        $allColumns = TableSchema::getAllTableColumnsName($tableSchema->getName());
+
+        if (!$fields) {
+            $fields = ['*'];
         }
 
-        return $filteredColumns;
+        $wildCardIndex = array_search('*', $fields);
+        if ($wildCardIndex !== false) {
+            unset($fields[$wildCardIndex]);
+            $fields = array_merge(
+                $allColumns,
+                $fields
+            );
+        }
+
+        return array_unique($fields);
+    }
+
+    /**
+     * Gets the non alias fields from the selected fields
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    public function getSelectedNonAliasFields(array $fields)
+    {
+        $selectedNames = get_columns_flat_at($fields, 0);
+        $pickedNames = array_filter($selectedNames, function ($value) {
+            return strpos($value, '-') !== 0;
+        });
+        $omittedNames = array_values(array_map(function ($value) {
+            return substr($value, 1);
+        }, array_filter($selectedNames, function ($value) {
+            return strpos($value, '-') === 0;
+        })));
+
+        return ArrayUtils::intersection(
+            array_values(array_flip(ArrayUtils::omit(array_flip($pickedNames), $omittedNames))),
+            TableSchema::getAllNonAliasTableColumnNames($this->getTable())
+        );
     }
 
     /**
