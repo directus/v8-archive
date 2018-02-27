@@ -50,36 +50,17 @@ class TablesService extends AbstractService
             throw new UnauthorizedException('Permission denied');
         }
 
-        $fields = ArrayUtils::get($params, 'fields', '*');
-        if (!is_array($fields)) {
-            $fields = StringUtils::csv($fields);
-        }
-
         // $this->tagResponseCache('tableColumnsSchema_'.$tableName);
-        $schemaManager = $this->getSchemaManager();
-        $tableObject = $schemaManager->getTableSchema($collectionName);
-        if (!$tableObject) {
-            throw new TableNotFoundException($collectionName);
-        }
 
-        $collectionTableObject = $schemaManager->getTableSchema('directus_fields');
-        if (in_array('*', $fields)) {
-            $fields = $collectionTableObject->getFieldsName();
-        }
-
-        $fields = array_map(function(Field $column) use ($fields) {
-            $data = $column->toArray();
-
-            if (!empty($fields)) {
-                $data = ArrayUtils::pick($data, $fields);
-            }
-
-            return $data;
-        }, TableSchema::getTableColumnsSchema($collectionName));
+        $this->validate(['collection' => $collectionName], ['collection' => 'required|string']);
 
         $tableGateway = $this->createTableGateway('directus_fields');
 
-        return $tableGateway->wrapData($fields, false, ArrayUtils::get($params, 'meta'));
+        return $tableGateway->getItems(array_merge($params, [
+            'filter' => [
+                'collection' => $collectionName
+            ]
+        ]));
     }
 
     public function find($name, array $params = [])
@@ -87,6 +68,7 @@ class TablesService extends AbstractService
         $this->validate(['collection' => $name], ['collection' => 'required|string']);
 
         $tableGateway = $this->createTableGateway($this->collection);
+
         return $tableGateway->getItems(array_merge($params, [
             'id' => $name
         ]));
