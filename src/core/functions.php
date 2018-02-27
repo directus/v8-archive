@@ -190,15 +190,7 @@ if (!function_exists('get_directus_path')) {
      */
     function get_directus_path($subPath = '')
     {
-        if (!defined('DIRECTUS_PATH')) {
-            $rootPath = realpath($_SERVER['DOCUMENT_ROOT']);
-            $basePath = realpath(__DIR__ . '/../..');
-            $position = (int) strpos($basePath, $rootPath);
-            $length = strlen($rootPath);
-            $path = normalize_path(substr($basePath, $position + $length));
-        } else {
-            $path = DIRECTUS_PATH;
-        }
+        $path = create_uri_from_global()->getBasePath();
 
         $path = trim($path, '/');
         $subPath = ltrim($subPath, '/');
@@ -234,39 +226,97 @@ if (!function_exists('get_url')) {
      * Get Directus URL
      *
      * @param $path - Extra path to add to the url
-     * @param $defaultHost
      *
      * @return string
      */
-    function get_url($path = '', $defaultHost = 'localhost')
+    function get_url($path = '')
     {
-        $schema = is_ssl() ? 'https://' : 'http://';
-        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $defaultHost;
-        // hotfix: When DIRECTUS_PATH is not set yet (no config file)
-        $directusPath = defined('DIRECTUS_PATH') ? DIRECTUS_PATH : get_directus_path();
-        $directusHost = rtrim($host . $directusPath, '/') . '/';
-
-        return $schema . $directusHost . ltrim($path, '/');
+        return create_uri_from_global()->getBaseUrl() . '/' . ltrim($path, '/');
     }
 }
 
-if (!function_exists('get_full_url')) {
-    /**
-     * Returns full URL to system
-     *
-     * @return string URL.
-     */
-    function get_full_url()
-    {
-        $https = is_ssl();
 
-        return
-            ($https ? 'https://' : 'http://') .
-            (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] . '@' : '') .
-            (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'] .
-                ($https && $_SERVER['SERVER_PORT'] === 443 ||
-                $_SERVER['SERVER_PORT'] === 80 ? '' : ':' . $_SERVER['SERVER_PORT']))) .
-            substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
+if (!function_exists('create_uri_from_global'))
+{
+    /**
+     * Creates a uri object based on $_SERVER
+     *
+     * Snippet copied from Slim URI class
+     *
+     * @return \Slim\Http\Uri
+     */
+    function create_uri_from_global()
+    {
+        // Scheme
+        $env = $_SERVER;
+        $isSecure = \Directus\Util\ArrayUtils::get($env, 'HTTPS');
+        $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
+
+        // Authority: Username and password
+        $username = \Directus\Util\ArrayUtils::get($env, 'PHP_AUTH_USER', '');
+        $password = \Directus\Util\ArrayUtils::get($env, 'PHP_AUTH_PW', '');
+
+        // Authority: Host
+        if (\Directus\Util\ArrayUtils::has($env, 'HTTP_HOST')) {
+            $host = \Directus\Util\ArrayUtils::get($env, 'HTTP_HOST');
+        } else {
+            $host = \Directus\Util\ArrayUtils::get($env, 'SERVER_NAME');
+        }
+
+        // Authority: Port
+        $port = (int)\Directus\Util\ArrayUtils::get($env, 'SERVER_PORT', 80);
+        if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
+            $host = $matches[1];
+
+            if (isset($matches[2])) {
+                $port = (int)substr($matches[2], 1);
+            }
+        } else {
+            $pos = strpos($host, ':');
+            if ($pos !== false) {
+                $port = (int)substr($host, $pos + 1);
+                $host = strstr($host, ':', true);
+            }
+        }
+
+        // Path
+        $requestScriptName = parse_url(\Directus\Util\ArrayUtils::get($env, 'SCRIPT_NAME'), PHP_URL_PATH);
+        $requestScriptDir = dirname($requestScriptName);
+
+        // parse_url() requires a full URL. As we don't extract the domain name or scheme,
+        // we use a stand-in.
+        $requestUri = parse_url('http://example.com' . \Directus\Util\ArrayUtils::get($env, 'REQUEST_URI'), PHP_URL_PATH);
+
+        $basePath = '';
+        $virtualPath = $requestUri;
+        if ($requestUri == $requestScriptName) {
+            $basePath = $requestScriptDir;
+        } elseif (stripos($requestUri, $requestScriptName) === 0) {
+            $basePath = $requestScriptName;
+        } elseif ($requestScriptDir !== '/' && stripos($requestUri, $requestScriptDir) === 0) {
+            $basePath = $requestScriptDir;
+        }
+
+        if ($basePath) {
+            $virtualPath = ltrim(substr($requestUri, strlen($basePath)), '/');
+        }
+
+        // Query string
+        $queryString = \Directus\Util\ArrayUtils::get($env, 'QUERY_STRING', '');
+        if ($queryString === '') {
+            $queryString = parse_url('http://example.com' . \Directus\Util\ArrayUtils::get($env, 'REQUEST_URI'), PHP_URL_QUERY);
+        }
+
+        // Fragment
+        $fragment = '';
+
+        // Build Uri
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $virtualPath, $queryString, $fragment, $username, $password);
+        if ($basePath) {
+            $uri = $uri->withBasePath($basePath);
+        }
+
+        return $uri;
     }
 }
 
@@ -278,27 +328,7 @@ if (!function_exists('get_virtual_path')) {
      */
     function get_virtual_path()
     {
-        // Path
-        $requestScriptName = parse_url($_SERVER['SCRIPT_NAME'], PHP_URL_PATH);
-        $requestScriptDir = dirname($requestScriptName);
-
-        // parse_url() requires a full URL. As we don't extract the domain name or scheme,
-        // we use a stand-in.
-        $requestUri = parse_url('http://example.com' . $_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-        $basePath = '';
-        $virtualPath = $requestUri;
-        if (stripos($requestUri, $requestScriptName) === 0) {
-            $basePath = $requestScriptName;
-        } elseif ($requestScriptDir !== '/' && stripos($requestUri, $requestScriptDir) === 0) {
-            $basePath = $requestScriptDir;
-        }
-
-        if ($basePath) {
-            $virtualPath = ltrim(substr($requestUri, strlen($basePath)), '/');
-        }
-
-        return $virtualPath;
+        return create_uri_from_global()->getPath();
     }
 }
 

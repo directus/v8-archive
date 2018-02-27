@@ -29,10 +29,8 @@ class InstallModule extends ModuleBase
                 . PHP_EOL . "\t\t-p " . __t('Password for the DB connection user. Default: directus')
                 . PHP_EOL . "\t\t-t " . __t('Database Server Type. Default: mysql')
                 . PHP_EOL . "\t\t-P " . __t('Database Server Port. Default: 3306')
-                . PHP_EOL . "\t\t-r " . __t('Directus root URI. Default: /')
-                . PHP_EOL . "\t\t-d " . __t('Installation path of Directus. Default: ' . BASE_PATH),
-            'database' => ''
-                . PHP_EOL . "\t\t-d " . __t('Installation path of Directus. Default: ' . BASE_PATH),
+                . PHP_EOL . "\t\t-r " . __t('Directus root URI. Default: /'),
+            'database' => '',
             'install' => ''
                 . PHP_EOL . "\t\t-e " . __t('Administrator e-mail address, used for administration login. Default: admin@directus.com')
                 . PHP_EOL . "\t\t-p " . __t('Initial administrator password. Default: directus')
@@ -61,7 +59,6 @@ class InstallModule extends ModuleBase
         $data['db_name'] = '';
         $data['db_user'] = '';
         $data['db_password'] = '';
-        $data['directus_path'] = '/';
 
         $directusPath = BASE_PATH;
 
@@ -87,9 +84,6 @@ class InstallModule extends ModuleBase
                     break;
                 case 'r':
                     $directusPath = $value;
-                    break;
-                case 'd':
-                    $data['directus_path'] = rtrim($value, '/') . '/';
                     break;
                 case 'e':
                     $data['directus_email'] = $value;

@@ -1,7 +1,5 @@
 <?php
 
-// Url path to Directus
-define('DIRECTUS_PATH', '/');
 define('STATUS_DELETED_NUM', 0);
 define('STATUS_ACTIVE_NUM', 1);
 define('STATUS_DRAFT_NUM', 2);
