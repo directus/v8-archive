@@ -21,6 +21,7 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Adapter\Exception\InvalidQueryException;
+use Zend\Db\Exception\UnexpectedValueException;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\ResultSet\ResultSetInterface;
 use Zend\Db\Sql\Ddl;
@@ -662,42 +663,38 @@ class BaseTableGateway extends TableGateway
             $this->enforceSelectPermission($select);
         }
 
-        try {
-            $selectState = $select->getRawState();
-            $selectTableName = $selectState['table'];
+        $selectState = $select->getRawState();
+        $selectTableName = $selectState['table'];
 
-            if ($useFilter) {
-                $selectState = $this->applyHooks([
-                    'table.select:before',
-                    'table.select.' . $selectTableName . ':before',
-                ], $selectState, [
-                    'tableName' => $selectTableName
-                ]);
+        if ($useFilter) {
+            $selectState = $this->applyHooks([
+                'table.select:before',
+                'table.select.' . $selectTableName . ':before',
+            ], $selectState, [
+                'tableName' => $selectTableName
+            ]);
 
-                // NOTE: This can be a "dangerous" hook, so for now we only support columns
-                $select->columns(ArrayUtils::get($selectState, 'columns', ['*']));
-            }
-
-            $result = parent::executeSelect($select);
-
-            if ($useFilter) {
-                $result = $this->applyHooks([
-                    'table.select',
-                    'table.select.' . $selectTableName
-                ], $result, [
-                    'selectState' => $selectState,
-                    'tableName' => $selectTableName
-                ]);
-            }
-
-            return $result;
-        } catch (InvalidQueryException $e) {
-            if ('production' !== DIRECTUS_ENV) {
-                throw new \RuntimeException('This query failed: ' . $this->dumpSql($select), 0, $e);
-            }
-            // @todo send developer warning
-            throw $e;
+            // NOTE: This can be a "dangerous" hook, so for now we only support columns
+            $select->columns(ArrayUtils::get($selectState, 'columns', ['*']));
         }
+
+        try {
+            $result = parent::executeSelect($select);
+        } catch (UnexpectedValueException $e) {
+            throw new \Directus\Database\Exception\InvalidQueryException($select, $e);
+        }
+
+        if ($useFilter) {
+            $result = $this->applyHooks([
+                'table.select',
+                'table.select.' . $selectTableName
+            ], $result, [
+                'selectState' => $selectState,
+                'tableName' => $selectTableName
+            ]);
+        }
+
+        return $result;
     }
 
     /**
@@ -705,10 +702,7 @@ class BaseTableGateway extends TableGateway
      *
      * @return mixed
      *
-     * @throws \Directus\Database\Exception\DuplicateEntryException
-     * @throws \Directus\Permissions\Exception\UnauthorizedTableAddException
-     * @throws \Directus\Permissions\Exception\UnauthorizedFieldReadException
-     * @throws \Directus\Permissions\Exception\UnauthorizedFieldWriteException
+     * @throws \Directus\Database\Exception\InvalidQueryException
      */
     protected function executeInsert(Insert $insert)
     {
@@ -716,47 +710,38 @@ class BaseTableGateway extends TableGateway
             $this->enforceInsertPermission($insert);
         }
 
+        $insertState = $insert->getRawState();
+        $insertTable = $this->getRawTableNameFromQueryStateTable($insertState['table']);
+        $insertData = $insertState['values'];
+        // Data to be inserted with the column name as assoc key.
+        $insertDataAssoc = array_combine($insertState['columns'], $insertData);
+
+        $this->runHook('table.insert:before', [$insertTable, $insertDataAssoc]);
+        $this->runHook('table.insert.' . $insertTable . ':before', [$insertDataAssoc]);
+
         try {
-            $insertState = $insert->getRawState();
-            $insertTable = $this->getRawTableNameFromQueryStateTable($insertState['table']);
-            $insertData = $insertState['values'];
-            // Data to be inserted with the column name as assoc key.
-            $insertDataAssoc = array_combine($insertState['columns'], $insertData);
-
-            $this->runHook('table.insert:before', [$insertTable, $insertDataAssoc]);
-            $this->runHook('table.insert.' . $insertTable . ':before', [$insertDataAssoc]);
-
             $result = parent::executeInsert($insert);
-            $insertTableGateway = $this->makeTable($insertTable);
-
-            // hotfix: directus_tables does not have auto generated value primary key
-            if ($this->getTable() === SchemaManager::TABLE_COLLECTIONS) {
-                $generatedValue = ArrayUtils::get($insertDataAssoc, $this->primaryKeyFieldName, 'table_name');
-            } else {
-                $generatedValue = $this->getLastInsertValue();
-            }
-
-            $resultData = $insertTableGateway->find($generatedValue);
-
-            $this->runHook('table.insert', [$insertTable, $resultData]);
-            $this->runHook('table.insert.' . $insertTable, [$resultData]);
-            $this->runHook('table.insert:after', [$insertTable, $resultData]);
-            $this->runHook('table.insert.' . $insertTable . ':after', [$resultData]);
-
-            return $result;
-        } catch (InvalidQueryException $e) {
-            // @todo send developer warning
-            // @TODO: This is not being call in BaseTableGateway
-            if (strpos(strtolower($e->getMessage()), 'duplicate entry') !== false) {
-                throw new DuplicateEntryException($e->getMessage());
-            }
-
-            if ('production' !== DIRECTUS_ENV) {
-                throw new \RuntimeException('This query failed: ' . $this->dumpSql($insert), 0, $e);
-            }
-
-            throw $e;
+        } catch (UnexpectedValueException $e) {
+            throw new \Directus\Database\Exception\InvalidQueryException($insert, $e);
         }
+
+        $insertTableGateway = $this->makeTable($insertTable);
+
+        // hotfix: directus_tables does not have auto generated value primary key
+        if ($this->getTable() === SchemaManager::TABLE_COLLECTIONS) {
+            $generatedValue = ArrayUtils::get($insertDataAssoc, $this->primaryKeyFieldName, 'table_name');
+        } else {
+            $generatedValue = $this->getLastInsertValue();
+        }
+
+        $resultData = $insertTableGateway->find($generatedValue);
+
+        $this->runHook('table.insert', [$insertTable, $resultData]);
+        $this->runHook('table.insert.' . $insertTable, [$resultData]);
+        $this->runHook('table.insert:after', [$insertTable, $resultData]);
+        $this->runHook('table.insert.' . $insertTable . ':after', [$resultData]);
+
+        return $result;
     }
 
     /**
@@ -764,11 +749,7 @@ class BaseTableGateway extends TableGateway
      *
      * @return mixed
      *
-     * @throws \Directus\Database\Exception\DuplicateEntryException
-     * @throws \Directus\Permissions\Exception\UnauthorizedTableBigEditException
-     * @throws \Directus\Permissions\Exception\UnauthorizedTableEditException
-     * @throws \Directus\Permissions\Exception\UnauthorizedFieldReadException
-     * @throws \Directus\Permissions\Exception\UnauthorizedFieldWriteException
+     * @throws \Directus\Database\Exception\InvalidQueryException
      */
     protected function executeUpdate(Update $update)
     {
@@ -783,36 +764,25 @@ class BaseTableGateway extends TableGateway
         $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
         $updateData = $updateState['set'];
 
-        try {
-            $isSoftDelete = $this->isSoftDelete($updateData);
+        $isSoftDelete = $this->isSoftDelete($updateData);
 
-            if ($useFilter) {
-                $updateData = $this->runBeforeUpdateHooks($updateTable, $updateData, $isSoftDelete);
-            }
-
-            $update->set($updateData);
-            $result = parent::executeUpdate($update);
-
-            if ($useFilter) {
-                $this->runAfterUpdateHooks($updateTable, $updateData, $isSoftDelete);
-            }
-
-            return $result;
-        } catch (InvalidQueryException $e) {
-            // @TODO: these lines are the same as the executeInsert,
-            // let's put it together
-            if (strpos(strtolower($e->getMessage()), 'duplicate entry') !== false) {
-                throw new DuplicateEntryException($e->getMessage());
-            }
-
-            // TODO: This needs to be logged instead
-            if ('production' !== DIRECTUS_ENV) {
-                throw new \RuntimeException('This query failed: ' . $this->dumpSql($update), 0, $e);
-            }
-
-            // @todo send developer warning
-            throw $e;
+        if ($useFilter) {
+            $updateData = $this->runBeforeUpdateHooks($updateTable, $updateData, $isSoftDelete);
         }
+
+        $update->set($updateData);
+
+        try {
+            $result = parent::executeUpdate($update);
+        } catch (UnexpectedValueException $e) {
+            throw new \Directus\Database\Exception\InvalidQueryException($update, $e);
+        }
+
+        if ($useFilter) {
+            $this->runAfterUpdateHooks($updateTable, $updateData, $isSoftDelete);
+        }
+
+        return $result;
     }
 
     /**
@@ -820,9 +790,7 @@ class BaseTableGateway extends TableGateway
      *
      * @return mixed
      *
-     * @throws \RuntimeException
-     * @throws \Directus\Permissions\Exception\UnauthorizedTableBigDeleteException
-     * @throws \Directus\Permissions\Exception\UnauthorizedTableDeleteException
+     * @throws \Directus\Database\Exception\InvalidQueryException
      */
     protected function executeDelete(Delete $delete)
     {
@@ -858,38 +826,34 @@ class BaseTableGateway extends TableGateway
             // a empty array is passed instead
             $deleteData = $ids;
 
-            try {
-                foreach ($ids as $id) {
-                    $deleteData = ['id' => $id];
-                    $this->runHook('table.delete:before', [$deleteTable]);
-                    $this->runHook('table.delete.' . $deleteTable . ':before');
-                    $this->runHook('table.remove:before', [$deleteTable, $deleteData, 'soft' => false]);
-                    $this->runHook('table.remove.' . $deleteTable . ':before', [$deleteData, 'soft' => false]);
-                }
-
-                $result = parent::executeDelete($delete);
-
-                foreach ($ids as $id) {
-                    $deleteData = ['id' => $id];
-                    $this->runHook('table.delete', [$deleteTable, $deleteData]);
-                    $this->runHook('table.delete:after', [$deleteTable, $deleteData]);
-                    $this->runHook('table.delete.' . $deleteTable, [$deleteData]);
-                    $this->runHook('table.delete.' . $deleteTable . ':after', [$deleteData]);
-
-                    $this->runHook('table.remove', [$deleteTable, $deleteData, 'soft' => false]);
-                    $this->runHook('table.remove:after', [$deleteTable, $deleteData, 'soft' => false]);
-                    $this->runHook('table.remove.' . $deleteTable, [$deleteData, 'soft' => false]);
-                    $this->runHook('table.remove.' . $deleteTable . ':after', [$deleteData, 'soft' => false]);
-                }
-
-                return $result;
-            } catch (InvalidQueryException $e) {
-                if ('production' !== DIRECTUS_ENV) {
-                    throw new \RuntimeException('This query failed: ' . $this->dumpSql($delete), 0, $e);
-                }
-                // @todo send developer warning
-                throw $e;
+            foreach ($ids as $id) {
+                $deleteData = ['id' => $id];
+                $this->runHook('table.delete:before', [$deleteTable]);
+                $this->runHook('table.delete.' . $deleteTable . ':before');
+                $this->runHook('table.remove:before', [$deleteTable, $deleteData, 'soft' => false]);
+                $this->runHook('table.remove.' . $deleteTable . ':before', [$deleteData, 'soft' => false]);
             }
+
+            try {
+                $result = parent::executeDelete($delete);
+            } catch (UnexpectedValueException $e) {
+                throw new \Directus\Database\Exception\InvalidQueryException($delete, $e);
+            }
+
+            foreach ($ids as $id) {
+                $deleteData = ['id' => $id];
+                $this->runHook('table.delete', [$deleteTable, $deleteData]);
+                $this->runHook('table.delete:after', [$deleteTable, $deleteData]);
+                $this->runHook('table.delete.' . $deleteTable, [$deleteData]);
+                $this->runHook('table.delete.' . $deleteTable . ':after', [$deleteData]);
+
+                $this->runHook('table.remove', [$deleteTable, $deleteData, 'soft' => false]);
+                $this->runHook('table.remove:after', [$deleteTable, $deleteData, 'soft' => false]);
+                $this->runHook('table.remove.' . $deleteTable, [$deleteData, 'soft' => false]);
+                $this->runHook('table.remove.' . $deleteTable . ':after', [$deleteData, 'soft' => false]);
+            }
+
+            return $result;
         }
     }
 

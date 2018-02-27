@@ -7,10 +7,6 @@ define('DIRECTUS_PATH', '/');
 // define('STATUS_DRAFT_NUM', 2);
 // define('STATUS_COLUMN_NAME', 'status');
 
-
-// Temporary
-define('DIRECTUS_ENV', 'production');
-
 return [
     'app' => [
         'path' => '/',

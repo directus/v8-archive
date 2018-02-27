@@ -7,7 +7,6 @@ require __DIR__ . '/tests/utils/io_functions.php';
 define_constant('BASE_PATH', __DIR__);
 define_constant('DIRECTUS_PATH', '/');
 define_constant('STATUS_COLUMN_NAME', 'active');
-define_constant('DIRECTUS_ENV', 'development');
 
 // force a timezone
 date_default_timezone_set('America/New_York');
