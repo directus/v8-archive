@@ -65,7 +65,7 @@ class Acl
         // key: table name ('*' = all tables, baseline definition)
         // value: array of column names
         // FIXME: use the user defined status column
-        '*' => ['id', 'status'], //STATUS_COLUMN_NAME],
+        '*' => ['id', 'status'],
         'directus_activity' => ['user'],
         'directus_files' => ['user']
     ];

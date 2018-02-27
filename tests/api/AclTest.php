@@ -191,7 +191,7 @@ class AclTest extends PHPUnit_Framework_TestCase
         $acl = $this->acl;
 
         $mandatoryFields = $acl->getTableMandatoryReadList('directus_files');
-        $expectedFields = ['id', STATUS_COLUMN_NAME, 'user'];
+        $expectedFields = ['id', 'user'];
         $this->assertEquals($expectedFields, $mandatoryFields);
 
         $this->assertTrue($acl->isTableListValue($acl::FIELD_READ_BLACKLIST));

@@ -503,17 +503,12 @@ class RelationalTableGateway extends BaseTableGateway
                             $hasPrimaryKey = isset($junctionRow[$JunctionTable->primaryKeyFieldName]);
                             $statusColumnName = TableSchema::getStatusFieldName($junctionTableName);
 
-                            if ($statusColumnName) {
-                                $statusColumnObject = $JunctionTable->getTableSchema()->getField($statusColumnName);
-                                $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value', STATUS_DELETED_NUM);
-                            } else {
-                                $statusColumnName = STATUS_COLUMN_NAME;
-                                $deletedValue = STATUS_DELETED_NUM;
-                            }
+                            $statusColumnObject = $JunctionTable->getTableSchema()->getField($statusColumnName);
+                            $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value');
 
                             $hasStatus = isset($junctionRow[$statusColumnName]);
 
-                            if ($hasPrimaryKey && $hasStatus && $junctionRow[$statusColumnName] == $deletedValue) {
+                            if ($hasPrimaryKey && $hasStatus && !is_null($deletedValue) && $junctionRow[$statusColumnName] == $deletedValue) {
                                 $Where = new Where;
                                 $Where->equalTo($JunctionTable->primaryKeyFieldName, $junctionRow[$JunctionTable->primaryKeyFieldName]);
                                 $JunctionTable->delete($Where);

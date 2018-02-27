@@ -5,7 +5,6 @@ $loader = require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/tests/utils/io_functions.php';
 
 define_constant('BASE_PATH', __DIR__);
-define_constant('STATUS_COLUMN_NAME', 'active');
 
 // force a timezone
 date_default_timezone_set('America/New_York');
