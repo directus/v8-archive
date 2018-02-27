@@ -7,7 +7,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Exception\BadRequestException;
-use Directus\Exception\Http\ForbiddenException;
+use Directus\Exception\ForbiddenException;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
 use Directus\Permissions\Acl;

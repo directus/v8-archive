@@ -6,12 +6,8 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
-use Directus\Database\TableGateway\DirectusPrivilegesTableGateway;
-use Directus\Exception\Http\ForbiddenException;
 use Directus\Services\PermissionsService;
 use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
 
 class Permissions extends Route
 {

@@ -6,6 +6,7 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
+use Directus\Exception\ForbiddenException;
 use Directus\Exception\NotFoundException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Hook\Emitter;
@@ -74,6 +75,8 @@ class ErrorHandler
             $httpCode = 404;
         } else if ($exception instanceof UnauthorizedException) {
             $httpCode = 401;
+        } else if ($exception instanceof ForbiddenException) {
+            $httpCode = 403;
         }
 
         $data = [

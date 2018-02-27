@@ -6,12 +6,11 @@ use Directus\Authentication\Provider as Auth;
 use Directus\Bootstrap;
 use Directus\Config\Config;
 use Directus\Database\Exception\ColumnNotFoundException;
+use Directus\Database\Exception\ForbiddenCollectionAccessException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\Schema\SystemInterface;
 use Directus\Database\TableGateway\DirectusCollectionPresetsTableGateway;
-use Directus\Exception\Http\ForbiddenException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\Sql\Predicate\NotIn;
@@ -175,14 +174,14 @@ class TableSchema
      * @param bool $skipCache
      * @param bool $skipAcl
      *
-     * @throws ForbiddenException
+     * @throws ForbiddenCollectionAccessException
      *
      * @return Collection
      */
     public static function getTableSchema($tableName, array $params = [], $skipCache = false, $skipAcl = false)
     {
         if (!$skipAcl && !static::getAclInstance()->canRead($tableName)) {
-            throw new ForbiddenException(sprintf('Cannot access collection: %s', $tableName));
+            throw new ForbiddenCollectionAccessException($tableName);
         }
 
         return static::getSchemaManagerInstance()->getTableSchema($tableName, $params, $skipCache);
