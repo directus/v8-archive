@@ -391,9 +391,9 @@ class CoreServicesProvider
                     // NOTE: If the array has value with comma it will be treat as a separate value
                     // should we encode the commas to "hide" the comma when splitting the values?
                     if (is_array($value)) {
-                        $value = serialize($value);
+                        $value = implode(',', $value);
                     } else {
-                        $value = unserialize($value);
+                        $value = explode(',', $value);
                     }
 
                     $data[$key] = $value;
@@ -440,9 +440,9 @@ class CoreServicesProvider
                     // NOTE: If the array has value with comma it will be treat as a separate value
                     // should we encode the commas to "hide" the comma when splitting the values?
                     if (is_string($value)) {
-                        $value = unserialize($value);
+                        $value = json_decode($value);
                     } else if ($value) {
-                        $value = serialize($value);
+                        $value = json_encode($value);
                     }
 
                     $data[$key] = $value;
