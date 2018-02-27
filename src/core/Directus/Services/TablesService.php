@@ -492,7 +492,8 @@ class TablesService extends AbstractService
     public function addColumnInfo($collectionName, array $column)
     {
         // TODO: Let's make this info a string ALL the time at this level
-        $options = ArrayUtils::get($column, 'options', []);
+        $options = ArrayUtils::get($column, 'options');
+
         $data = [
             'collection' => $collectionName,
             'field' => $column['field'],
@@ -503,7 +504,7 @@ class TablesService extends AbstractService
             'comment' => ArrayUtils::get($column, 'comment', false),
             'hidden_input' => ArrayUtils::get($column, 'hidden_input', false),
             'hidden_list' => ArrayUtils::get($column, 'hidden_list', false),
-            'options' => is_array($options) ? json_encode($options) : $options
+            'options' => $options ? json_encode($options) : $options
         ];
 
         $fieldsTableGateway = $this->createTableGateway('directus_fields');
