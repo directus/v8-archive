@@ -33,10 +33,6 @@ class CollectionPresetsService extends AbstractService
 
     public function createItem(array $payload, array $params = [])
     {
-        if (!ArrayUtils::has($payload, 'user')) {
-            $payload['user'] = $this->getAcl()->getUserId();
-        }
-
         return $this->itemsService->createItem($this->collection, $payload, $params);
     }
 

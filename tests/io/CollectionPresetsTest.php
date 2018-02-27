@@ -109,7 +109,7 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
 
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 4
+            'count' => 3
         ]);
 
         $response = request_get($path, [
