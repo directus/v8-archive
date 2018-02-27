@@ -148,14 +148,9 @@ class TablesService extends AbstractService
 
         $tableService = new TablesService($this->container);
 
-        $success = $tableService->dropColumn($collection, $field);
-        if (!$success) {
-            throw new ErrorException(sprintf(
-                'Unable to delete field %s in collection %s'
-            ), $collection, $field);
-        }
+        $tableService->dropColumn($collection, $field);
 
-        return $success;
+        return true;
     }
 
     /**
