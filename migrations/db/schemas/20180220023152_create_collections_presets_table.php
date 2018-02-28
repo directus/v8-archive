@@ -70,6 +70,10 @@ class CreateCollectionsPresetsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $table->addColumn('view_type', 'string', [
+            'limit' => 64,
+            'null' => false
+        ]);
         $table->addColumn('view_options', 'text', [
             'null' => true,
             'default' => null

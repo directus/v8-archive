@@ -2,18 +2,20 @@
 
 namespace Directus\Tests\Api\Io;
 
+use Directus\Validator\Exception\InvalidRequestException;
+
 class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var array
      */
     protected $data = [
-        ['collection' => 'products', 'fields' => 'id,name'],
-        ['collection' => 'products', 'user' => 2],
-        ['collection' => 'orders', 'user' => 1],
-        ['collection' => 'categories', 'user' => 1],
-        ['collection' => 'orders', 'user' => 2],
-        ['collection' => 'customers', 'user' => 1]
+        ['view_type' => 'tabular', 'collection' => 'products', 'fields' => 'id,name'],
+        ['view_type' => 'tabular', 'collection' => 'products', 'user' => 2],
+        ['view_type' => 'tabular', 'collection' => 'orders', 'user' => 1],
+        ['view_type' => 'tabular', 'collection' => 'categories', 'user' => 1],
+        ['view_type' => 'tabular', 'collection' => 'orders', 'user' => 2],
+        ['view_type' => 'tabular', 'collection' => 'customers', 'user' => 1]
     ];
 
     public static function resetDatabase()
@@ -41,6 +43,16 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
 
         assert_response($this, $response);
         assert_response_data_contains($this, $response, $data);
+    }
+
+    public function testCreateMissingViewType()
+    {
+        $data = ['collection' => 'products', 'fields' => 'id,name'];
+        $response = request_error_post('collection_presets', $data, ['query' => ['access_token' => 'token']]);
+        assert_response_error($this, $response, [
+            'status' => 400,
+            'code' => InvalidRequestException::ERROR_CODE
+        ]);
     }
 
     public function testUpdate()
