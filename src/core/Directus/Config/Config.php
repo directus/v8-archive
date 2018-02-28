@@ -55,10 +55,6 @@ class Config extends Collection implements ConfigInterface
     {
         $visibleStatus = $this->getStatusesValue('hard_delete', true, $statusMapping);
 
-        // if (empty($visibleStatus) && defined('STATUS_DELETED_NUM')) {
-        //     $visibleStatus[] = STATUS_DELETED_NUM;
-        // }
-
         return $visibleStatus;
     }
 

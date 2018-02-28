@@ -9,21 +9,28 @@ class InvalidQueryException extends ErrorException
 {
     const ERROR_CODE = 9;
 
-    protected $sql;
+    /**
+     * @var string
+     */
+    protected $query;
 
     /**
      * UnexpectedValueException constructor.
      *
-     * @param AbstractSql $sql
+     * @param string $query
      * @param \Exception|\Throwable $previous
      */
-    public function __construct(AbstractSql $sql, $previous = null)
+    public function __construct($query, $previous = null)
     {
         parent::__construct('Failed generating the SQL query', static::ERROR_CODE, $previous);
+        $this->query = $query;
     }
 
-    public function getSql()
+    /**
+     * @return string
+     */
+    public function getQuery()
     {
-        return $this->sql;
+        return $this->query;
     }
 }

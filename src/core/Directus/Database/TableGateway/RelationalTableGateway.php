@@ -286,19 +286,7 @@ class RelationalTableGateway extends BaseTableGateway
                  */
                 // Produce log if something changed.
                 if ($parentRecordChanged || $nestedCollectionRelationshipsChanged) {
-                    $statusField = $tableSchema->getStatusField();
-                    $statusColumnName = $statusField ? $statusField->getName() : null;
                     $logEntryAction = $recordIsNew ? DirectusActivityTableGateway::ACTION_ADD : DirectusActivityTableGateway::ACTION_UPDATE;
-                    //If we are updating and active is being set to 0 then we are deleting
-                    if (!$recordIsNew && array_key_exists($statusColumnName, $deltaRecordData)) {
-                        // Get status delete value
-                        $statusColumnObject = $tableSchema->getField($statusColumnName);
-                        $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value', STATUS_DELETED_NUM);
-
-                        if ($deltaRecordData[$statusColumnName] == $deletedValue) {
-                            $logEntryAction = DirectusActivityTableGateway::ACTION_DELETE;
-                        }
-                    }
                     // Save parent log entry
                     $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
                     $logData = [
@@ -429,39 +417,17 @@ class RelationalTableGateway extends BaseTableGateway
                                 continue;
                             }
 
-                            $foreignSchema = TableSchema::getTableSchema($ForeignTable->getTable());
-                            $hasActiveColumn = $foreignSchema->hasStatusField();
                             // TODO: Fix a bug when fetching a single column
                             // before fetching all columns from a table
                             // due to our basic "cache" implementation on schema layer
-                            $foreignColumn = $foreignSchema->getField($foreignJoinColumn);
                             $hasPrimaryKey = isset($foreignRecord[$ForeignTable->primaryKeyFieldName]);
-                            $canBeNull = $foreignColumn->isNullable();
 
-                            // Get status delete value
-                            $deletedValue = STATUS_DELETED_NUM;
-                            if ($hasActiveColumn) {
-                                $statusColumnName = $foreignSchema->getStatusField()->getName();
-                                $statusColumnObject = $foreignSchema->getField($statusColumnName);
-                                $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value', STATUS_DELETED_NUM);
-                            }
+                            if ($hasPrimaryKey && ArrayUtils::get($foreignRecord, $this->deleteFlag) === true) {
+                                $Where = new Where();
+                                $Where->equalTo($ForeignTable->primaryKeyFieldName, $foreignRecord[$ForeignTable->primaryKeyFieldName]);
+                                $ForeignTable->delete($Where);
 
-                            if ($hasPrimaryKey && isset($foreignRecord[$foreignSchema->getStatusField()->getName()]) && $foreignRecord[$foreignSchema->getStatusField()->getName()] === $deletedValue) {
-                                if (!$hasActiveColumn && !$canBeNull) {
-                                    $Where = new Where();
-                                    $Where->equalTo($ForeignTable->primaryKeyFieldName, $foreignRecord[$ForeignTable->primaryKeyFieldName]);
-                                    $ForeignTable->delete($Where);
-
-                                    continue;
-                                }
-
-                                if (!$hasActiveColumn || $canBeNull) {
-                                    unset($foreignRecord[$foreignSchema->getStatusField()->getName()]);
-                                }
-
-                                if (!$canBeNull) {
-                                    $foreignRecord[$foreignJoinColumn] = $parentRow['id'];
-                                }
+                                continue;
                             }
 
                             // only add parent id's to items that are lacking the parent column

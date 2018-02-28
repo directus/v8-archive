@@ -4,7 +4,7 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Config\Config;
 use Directus\Container\Container;
-use Directus\Database\Exception\DuplicateEntryException;
+use Directus\Database\Exception\InvalidQueryException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\RowGateway\BaseRowGateway;
@@ -20,7 +20,6 @@ use Directus\Permissions\Exception\UnauthorizedTableEditException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Adapter\Exception\InvalidQueryException;
 use Zend\Db\Exception\UnexpectedValueException;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\ResultSet\ResultSetInterface;
@@ -79,6 +78,15 @@ class BaseTableGateway extends TableGateway
      * @var Collection|null
      */
     protected $tableSchema = null;
+
+    /**
+     * Name of the field flag that mark a record as hard-delete
+     *
+     * Note: temporary is being hold by the base table gateway
+     *
+     * @var string
+     */
+    protected $deleteFlag = '.delete';
 
     /**
      * Constructor
@@ -681,7 +689,10 @@ class BaseTableGateway extends TableGateway
         try {
             $result = parent::executeSelect($select);
         } catch (UnexpectedValueException $e) {
-            throw new \Directus\Database\Exception\InvalidQueryException($select, $e);
+            throw new InvalidQueryException(
+                $this->dumpSql($select),
+                $e
+            );
         }
 
         if ($useFilter) {
@@ -722,7 +733,10 @@ class BaseTableGateway extends TableGateway
         try {
             $result = parent::executeInsert($insert);
         } catch (UnexpectedValueException $e) {
-            throw new \Directus\Database\Exception\InvalidQueryException($insert, $e);
+            throw new InvalidQueryException(
+                $this->dumpSql($insert),
+                $e
+            );
         }
 
         $insertTableGateway = $this->makeTable($insertTable);
@@ -775,7 +789,10 @@ class BaseTableGateway extends TableGateway
         try {
             $result = parent::executeUpdate($update);
         } catch (UnexpectedValueException $e) {
-            throw new \Directus\Database\Exception\InvalidQueryException($update, $e);
+            throw new InvalidQueryException(
+                $this->dumpSql($update),
+                $e
+            );
         }
 
         if ($useFilter) {
@@ -837,7 +854,10 @@ class BaseTableGateway extends TableGateway
             try {
                 $result = parent::executeDelete($delete);
             } catch (UnexpectedValueException $e) {
-                throw new \Directus\Database\Exception\InvalidQueryException($delete, $e);
+                throw new InvalidQueryException(
+                    $this->dumpSql($delete),
+                    $e
+                );
             }
 
             foreach ($ids as $id) {
@@ -866,23 +886,32 @@ class BaseTableGateway extends TableGateway
      */
     protected function isSoftDelete(array $data)
     {
-        $isSoftDelete = false;
         $tableSchema = $this->getTableSchema();
 
         if (!$tableSchema->getStatusField()) {
-            return $isSoftDelete;
+            return false;
+        }
+
+        $deleteFlag = ArrayUtils::get($data, $this->deleteFlag);
+        if ($deleteFlag === true) {
+            return false;
         }
 
         $statusColumnName = $tableSchema->getStatusField()->getName();
-        $hasStatusColumnData = ArrayUtils::has($data, $statusColumnName);
-        $deletedValues = $this->getDeletedStatuses();
 
-        if ($hasStatusColumnData) {
-            $statusColumnObject = $tableSchema->getField($statusColumnName);
-            $deletedValues[] = $statusColumnObject->getOptions('delete_value') ?: STATUS_DELETED_NUM;
-            $statusValue = ArrayUtils::get($data, $this->getStatusColumnName());
-            $isSoftDelete =  in_array($statusValue, $this->getDeletedStatuses());
+        if (!ArrayUtils::has($data, $statusColumnName)) {
+            return false;
         }
+
+        $statusColumnObject = $tableSchema->getField($statusColumnName);
+        $deletedValues = $this->getDeletedStatuses();
+        $deletedValue = $statusColumnObject->getOptions('delete_value');
+        if (!is_null($deletedValue)) {
+            $deletedValues[] = $deletedValue;
+        }
+
+        $statusValue = ArrayUtils::get($data, $statusColumnName);
+        $isSoftDelete =  in_array($statusValue, $this->getDeletedStatuses());
 
         return $isSoftDelete;
     }
@@ -1063,25 +1092,10 @@ class BaseTableGateway extends TableGateway
             return;
         }
 
-        $statusColumnName = TableSchema::getStatusField($updateTable)->getName();
-
-        // check if it's NOT soft delete
-        $updateFields = $updateState['set'];
-
         $permissionName = ACL::ACTION_UPDATE;
-        $hasStatusColumn = array_key_exists($statusColumnName, $updateFields) ? true : false;
 
         // Get status delete value
-        $deletedValue = STATUS_DELETED_NUM;
-        if ($hasStatusColumn) {
-            $tableSchema = TableSchema::getTableSchema($updateTable);
-            $statusColumnObject = $tableSchema->getField($statusColumnName);
-            $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value', STATUS_DELETED_NUM);
-        }
-
-        if ($hasStatusColumn && $updateFields[$statusColumnName] == $deletedValue) {
-            $permissionName = 'delete';
-        }
+        $deletedValue = null;
 
         if (!$this->acl->hasTablePrivilege($updateTable, 'big' . $permissionName)) {
             // Parsing for the column name is unnecessary. Zend enforces raw column names.
@@ -1426,8 +1440,8 @@ class BaseTableGateway extends TableGateway
         $deletedValue = null;
 
         if ($statusColumnName) {
-            $statusColumnObject = $this->getTableSchema()->getColumn($statusColumnName);
-            $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value', STATUS_DELETED_NUM);
+            $statusColumnObject = $this->getTableSchema()->getField($statusColumnName);
+            $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value');
         }
 
         return $deletedValue;
