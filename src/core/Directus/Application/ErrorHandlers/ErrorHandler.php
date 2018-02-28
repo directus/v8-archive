@@ -4,6 +4,7 @@ namespace Directus\Application\ErrorHandlers;
 
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
+use Directus\Database\Exception\InvalidQueryException;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
 use Directus\Exception\ForbiddenException;
@@ -83,6 +84,10 @@ class ErrorHandler
             'code' => $exception->getCode(),
             'message' => $message
         ];
+
+        if ($exception instanceof InvalidQueryException) {
+            $data['query'] = $exception->getQuery();
+        }
 
         if (!$productionMode) {
             $data = array_merge($data, [
