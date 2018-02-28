@@ -14,6 +14,8 @@ abstract class AbstractAddOnsController extends AbstractService
             return ['data' => $addOns];
         }
 
+        $directusBasePath = $this->container->get('path_base');
+
         $filePaths = find_directories($basePath);
         foreach ($filePaths as $path) {
             $path .= '/meta.json';
@@ -23,7 +25,12 @@ abstract class AbstractAddOnsController extends AbstractService
             }
 
             $addOnsPath = trim(substr($path, strlen($basePath)), '/');
-            $data = ['id' => basename(dirname($addOnsPath))];
+            $data = [
+                'id' => basename(dirname($addOnsPath)),
+                // NOTE: This is a temporary solution until we implement core config
+                // In this case /public is the public root path
+                'path' => trim(substr($path, strlen($directusBasePath) + strlen('/public')), '/')
+            ];
 
             $meta = @json_decode(file_get_contents($path), true);
             if ($meta) {
