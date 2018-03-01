@@ -5,10 +5,12 @@ namespace Directus\Services;
 use Directus\Application\Container;
 use Directus\Database\Exception\ColumnAlreadyExistsException;
 use Directus\Database\Exception\ColumnNotFoundException;
+use Directus\Database\Exception\FieldNotManagedException;
 use Directus\Database\Exception\TableAlreadyExistsException;
 use Directus\Database\Exception\TableNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\Object\Field;
+use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableSchema;
@@ -327,7 +329,7 @@ class TablesService extends AbstractService
         }
 
         $columnObject = $tableObject->getField($columnName);
-        if ($columnObject) {
+        if ($columnObject && $columnObject->isManaged()) {
             throw new ColumnAlreadyExistsException($columnName);
         }
 
@@ -335,13 +337,14 @@ class TablesService extends AbstractService
             'field' => $columnName
         ]);
 
+        // TODO: Only call this when necessary
         $this->updateTableSchema($collectionName, [
             'fields' => [$columnData]
         ]);
 
         // ----------------------------------------------------------------------------
 
-        $field = $this->addColumnInfo($collectionName, $columnData);
+        $field = $this->addFieldInfo($collectionName, $columnName, $columnData);
 
         return $this->createTableGateway('directus_fields')->wrapData(
             $field->toArray(),
@@ -361,6 +364,7 @@ class TablesService extends AbstractService
      * @return array
      *
      * @throws ColumnNotFoundException
+     * @throws FieldNotManagedException
      * @throws TableNotFoundException
      * @throws UnauthorizedException
      */
@@ -399,13 +403,18 @@ class TablesService extends AbstractService
             throw new ColumnNotFoundException($columnName);
         }
 
+        if (!$columnObject->isManaged()) {
+            throw new FieldNotManagedException($columnObject->getName());
+        }
+
+        // TODO: Only update schema when is needed
         $columnData = array_merge($columnObject->toArray(), $data);
         $this->updateTableSchema($collectionName, [
             'fields' => [$columnData]
         ]);
 
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
-        $field = $this->addColumnInfo($collectionName, $columnData);
+        $field = $this->addOrUpdateFieldInfo($collectionName, $columnName, $data);
         // ----------------------------------------------------------------------------
 
         return $this->createTableGateway('directus_fields')->wrapData(
@@ -452,49 +461,71 @@ class TablesService extends AbstractService
     {
         $resultsSet = [];
         foreach ($columns as $column) {
-            $resultsSet[] = $this->addColumnInfo($collectionName, $column);
+            $resultsSet[] = $this->addFieldInfo($collectionName, $column['field'], $column);
         }
 
         return $resultsSet;
     }
 
     /**
-     * Add field information to the field system table
+     * Adds or update a field data
      *
-     * @param $collectionName
-     * @param array $column
+     * @param string $collection
+     * @param string $field
+     * @param array $data
      *
      * @return BaseRowGateway
      */
-    public function addColumnInfo($collectionName, array $column)
+    protected function addOrUpdateFieldInfo($collection, $field, array $data)
     {
-        // TODO: Let's make this info a string ALL the time at this level
-        $options = ArrayUtils::get($column, 'options');
-
-        $data = [
-            'collection' => $collectionName,
-            'field' => $column['field'],
-            'type' => $column['type'],
-            'interface' => $column['interface'],
-            'required' => ArrayUtils::get($column, 'required', false),
-            'sort' => ArrayUtils::get($column, 'sort', false),
-            'comment' => ArrayUtils::get($column, 'comment', false),
-            'hidden_input' => ArrayUtils::get($column, 'hidden_input', false),
-            'hidden_list' => ArrayUtils::get($column, 'hidden_list', false),
-            'options' => $options ? json_encode($options) : $options
-        ];
-
         $fieldsTableGateway = $this->createTableGateway('directus_fields');
         $row = $fieldsTableGateway->findOneByArray([
-            'collection' => $collectionName,
-            'field' => $column['field']
+            'collection' => $collection,
+            'field' => $field
         ]);
 
         if ($row) {
-            $data['id'] = $row['id'];
+            $field = $this->updateFieldInfo($row['id'], $data);
+        } else {
+            $field = $this->addFieldInfo($collection, $field, $data);
         }
 
-        return $fieldsTableGateway->updateRecord($data);
+        return $field;
+    }
+
+    protected function addFieldInfo($collection, $field, array $data)
+    {
+        // TODO: Let's make this info a string ALL the time at this level
+        $options = ArrayUtils::get($data, 'options');
+
+        $defaults = [
+            'collection' => $collection,
+            'field' => $field,
+            'type' => null,
+            'interface' => null,
+            'required' => false,
+            'sort' => 0,
+            'comment' => null,
+            'hidden_input' => 0,
+            'hidden_list' => 0,
+            'options' => null
+        ];
+
+        $data = array_merge($defaults, $data, [
+            'collection' => $collection,
+            'field' => $field,
+            'options' => $options ? json_encode($options) : $options
+        ]);
+
+        return $this->createTableGateway('directus_fields')->updateRecord($data);
+    }
+
+    protected function updateFieldInfo($id, array $data)
+    {
+        ArrayUtils::remove($data, ['collection', 'field']);
+        $data['id'] = $id;
+
+        return $this->createTableGateway('directus_fields')->updateRecord($data);
     }
 
     /**

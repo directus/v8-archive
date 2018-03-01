@@ -463,6 +463,16 @@ class Field extends AbstractObject
     }
 
     /**
+     * Is the field being managed by Directus
+     *
+     * @return bool
+     */
+    public function isManaged()
+    {
+        return $this->attributes->get('managed') == 1;
+    }
+
+    /**
      * @return array
      */
     public function toArray()

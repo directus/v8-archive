@@ -170,6 +170,7 @@ class MySQLSchema extends AbstractSchema
             'SF.COLUMN_NAME = DF.field AND SF.TABLE_NAME = DF.collection',
             [
                 'type' => new Expression('UCASE(DF.type)'),
+                'managed' =>  new Expression('IF(ISNULL(DF.id),0,1)'),
                 'interface',
                 'hidden_input' => new Expression('IF(DF.hidden_input=1,1,0)'),
                 'required' => new Expression('IF(DF.required=1,1,0)'),
@@ -205,6 +206,7 @@ class MySQLSchema extends AbstractSchema
             'comment',
             'column_type' => new Expression('NULL'),
             'type' => new Expression('UCASE(type)'),
+            'managed' =>  new Expression('IF(ISNULL(DF2.id),0,1)'),
             'interface',
             'hidden_input',
             'required',
