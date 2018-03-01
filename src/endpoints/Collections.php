@@ -6,11 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\DirectusCollectionsTableGateway;
-use Directus\Database\TableSchema;
 use Directus\Exception\UnauthorizedException;
-use Directus\Permissions\Acl;
 use Directus\Services\TablesService;
 use Directus\Util\ArrayUtils;
 

@@ -577,43 +577,6 @@ class SchemaManager
     }
 
     /**
-     * Adds fixed core table columns information such as system columns name
-     *
-     * @param array $column
-     *
-     * @return array
-     */
-    public function parseSystemTablesColumn(array $column)
-    {
-        $tableName = ArrayUtils::get($column, 'table_name');
-        $columnName = ArrayUtils::get($column, 'column_name');
-
-        if (!StringUtils::startsWith($tableName, $this->prefix)) {
-            return $column;
-        }
-
-        // Status
-        $hasStatus = in_array($tableName, $this->getDirectusTables(['users', 'files']));
-        if ($columnName == 'status' && $hasStatus) {
-            $column['ui'] = static::INTERFACE_STATUS;
-        }
-
-        return $column;
-    }
-
-    /**
-     * @deprecated 6.4.4 See parseSystemTablesColumn
-     *
-     * @param array $column
-     *
-     * @return array
-     */
-    public function parseCoreTablesColumn(array $column)
-    {
-        return $this->parseSystemTablesColumn($column);
-    }
-
-    /**
      * Creates a column object from the given array
      *
      * @param array $column
@@ -622,25 +585,21 @@ class SchemaManager
      */
     public function createColumnObjectFromArray($column)
     {
+        // PRIMARY KEY must be required
+        if ($column['key'] === 'PRI') {
+            $column['required'] = true;
+            $column['interface'] = SystemInterface::INTERFACE_PRIMARY_KEY;
+        }
+
         if (!isset($column['interface'])) {
             $column['interface'] = $this->getFieldDefaultInterface($column['type']);
         }
 
-        $column = $this->parseSystemTablesColumn($column);
-
         $options = json_decode(isset($column['options']) ? $column['options'] : '', true);
-        $column['options'] = $options ? $options : [];
-
-        // $isSystemColumn = $this->isSystemField($column['interface']);
-        // $column['system'] = $isSystemColumn;
-
-        // PRIMARY KEY must be required
-        if ($column['key'] === 'PRI') {
-            $column['required'] = true;
-        }
+        $column['options'] = $options ? $options : null;
 
         // NOTE: Alias column must are nullable
-        if ($column['type'] === 'ALIAS') {
+        if (strtoupper($column['type']) === 'ALIAS') {
             $column['nullable'] = 1;
         }
 
@@ -650,19 +609,7 @@ class SchemaManager
             $column['default_value'] = null;
         }
 
-        $columnObject = new Field($column);
-        // if (isset($column['collection_b'])) {
-        //     // var_dump($column);
-        //     $columnObject->setRelationship([
-        //         'type' => ArrayUtils::get($column, 'relationship_type'),
-        //         'related_table' => ArrayUtils::get($column, 'collection_b'),
-        //         'junction_table' => ArrayUtils::get($column, 'store_collection'),
-        //         'junction_key_right' => ArrayUtils::get($column, 'store_key_a'),
-        //         'junction_key_left' => ArrayUtils::get($column, 'store_key_b'),
-        //     ]);
-        // }
-
-        return $columnObject;
+        return new Field($column);
     }
 
     /**

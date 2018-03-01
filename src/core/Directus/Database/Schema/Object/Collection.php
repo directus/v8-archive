@@ -106,6 +106,16 @@ class Collection extends AbstractObject
     }
 
     /**
+     * Checks whether the collection is being managed by Directus
+     *
+     * @return bool
+     */
+    public function isManaged()
+    {
+        return $this->attributes->get('managed') == 1;
+    }
+
+    /**
      * Get all fields data as array
      *
      * @return array

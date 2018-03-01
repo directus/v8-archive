@@ -3,13 +3,13 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Database\Exception\CollectionNotManagedException;
 use Directus\Database\Exception\ColumnAlreadyExistsException;
 use Directus\Database\Exception\ColumnNotFoundException;
 use Directus\Database\Exception\FieldNotManagedException;
 use Directus\Database\Exception\TableAlreadyExistsException;
 use Directus\Database\Exception\TableNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
-use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
@@ -19,7 +19,6 @@ use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 
 // TODO: Create activity for collection and fields
@@ -159,32 +158,51 @@ class TablesService extends AbstractService
         $this->enforcePermissions($this->collection, $data, $params);
 
         $data['collection'] = $name;
-        $collectionName = 'directus_collections';
-        $collectionObject = $this->getSchemaManager()->getTableSchema($collectionName);
-        $constraints = $this->createConstraintFor($collectionName, $collectionObject->getFieldsName());
-        // TODO: Default to primary key id
-        $constraints['fields'][] = 'required';
+        $collectionsCollectionName = 'directus_collections';
+        $collectionsCollectionObject = $this->getSchemaManager()->getTableSchema($collectionsCollectionName);
+        $constraints = $this->createConstraintFor($collectionsCollectionName, $collectionsCollectionObject->getFieldsName());
+
         $this->validate($data, array_merge(['fields' => 'array'], $constraints));
-
-        // ----------------------------------------------------------------------------
-
-        if ($this->getSchemaManager()->tableExists($name)) {
-            throw new TableAlreadyExistsException($name);
-        }
 
         if (!$this->isValidName($name)) {
             throw new InvalidRequestException('Invalid collection name');
         }
 
-        $success = $this->createTableSchema($name, $data);
+        $collectionObject = null;
+
+        try {
+            $collectionObject = $this->getSchemaManager()->getTableSchema($name);
+        } catch (TableNotFoundException $e) {
+            // TODO: Default to primary key id
+            $constraints['fields'][] = 'required';
+
+            $this->validate($data, array_merge(['fields' => 'array'], $constraints));
+        }
+
+        // ----------------------------------------------------------------------------
+
+        if ($collectionObject && $collectionObject->isManaged()) {
+            throw new TableAlreadyExistsException($name);
+        }
+
+        if ($collectionObject && !$collectionObject->isManaged()) {
+            $success = $this->updateTableSchema($name, $data);
+        } else {
+            $success = $this->createTableSchema($name, $data);
+        }
+
         if (!$success) {
             throw new ErrorException('Error creating the collection');
         }
 
         $collectionsTableGateway = $this->createTableGateway('directus_collections');
 
-        $columns = ArrayUtils::get($data, 'fields');
-        $this->addColumnsInfo($name, $columns);
+        $fields = ArrayUtils::get($data, 'fields');
+        if ($collectionObject && !$collectionObject->isManaged() && !$fields) {
+            $fields = $collectionObject->getFieldsArray();
+        }
+
+        $this->addColumnsInfo($name, $fields);
 
         $item = ArrayUtils::omit($data, 'fields');
         $item['collection'] = $name;
@@ -193,7 +211,7 @@ class TablesService extends AbstractService
 
         // ----------------------------------------------------------------------------
 
-        $collectionTableGateway = $this->createTableGateway($collectionName);
+        $collectionTableGateway = $this->createTableGateway($collectionsCollectionName);
         $tableData = $collectionTableGateway->parseRecord($table->toArray());
 
         return $collectionTableGateway->wrapData($tableData, true, ArrayUtils::get($params, 'meta'));
@@ -208,6 +226,7 @@ class TablesService extends AbstractService
      *
      * @return array
      *
+     * @throws CollectionNotManagedException
      * @throws ErrorException
      * @throws TableNotFoundException
      * @throws UnauthorizedException
@@ -227,10 +246,15 @@ class TablesService extends AbstractService
         $this->validate(['collection' => $name], ['collection' => 'required|string']);
 
         // Validates payload data
-        $collectionObject = $this->getSchemaManager()->getTableSchema($this->collection);
-        $constraints = $this->createConstraintFor($this->collection, $collectionObject->getFieldsName());
+        $collectionsCollectionObject = $this->getSchemaManager()->getTableSchema($this->collection);
+        $constraints = $this->createConstraintFor($this->collection, $collectionsCollectionObject->getFieldsName());
         $data['collection'] = $name;
         $this->validate($data, array_merge(['fields' => 'array'], $constraints));
+
+        $collectionObject = $this->getSchemaManager()->getTableSchema($name);
+        if (!$collectionObject->isManaged()) {
+            throw new CollectionNotManagedException($collectionObject->getName());
+        }
 
         // TODO: Create a check if exists method (quicker) + not found exception
         $tableGateway = $this->createTableGateway($this->collection);
@@ -254,7 +278,7 @@ class TablesService extends AbstractService
         $data['fields'] = $columns;
         $success = $this->updateTableSchema($name, $data);
         if (!$success) {
-            throw new ErrorException('Error creating the table');
+            throw new ErrorException('Error updating the collection');
         }
 
         $collectionsTableGateway = $this->createTableGateway('directus_collections');
