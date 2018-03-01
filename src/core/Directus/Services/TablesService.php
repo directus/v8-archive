@@ -461,7 +461,7 @@ class TablesService extends AbstractService
     {
         $resultsSet = [];
         foreach ($columns as $column) {
-            $resultsSet[] = $this->addFieldInfo($collectionName, $column['field'], $column);
+            $resultsSet[] = $this->addOrUpdateFieldInfo($collectionName, $column['field'], $column);
         }
 
         return $resultsSet;
@@ -496,7 +496,7 @@ class TablesService extends AbstractService
     protected function addFieldInfo($collection, $field, array $data)
     {
         // TODO: Let's make this info a string ALL the time at this level
-        $options = ArrayUtils::get($data, 'options');
+        $options = $this->parseOptions(ArrayUtils::get($data, 'options'));
 
         $defaults = [
             'collection' => $collection,
@@ -514,10 +514,14 @@ class TablesService extends AbstractService
         $data = array_merge($defaults, $data, [
             'collection' => $collection,
             'field' => $field,
-            'options' => $options ? json_encode($options) : $options
+            'options' => $options
         ]);
 
-        return $this->createTableGateway('directus_fields')->updateRecord($data);
+        $collectionObject = $this->getSchemaManager()->getTableSchema('directus_fields');
+
+        return $this->createTableGateway('directus_fields')->updateRecord(
+            ArrayUtils::pick($data, $collectionObject->getFieldsName())
+        );
     }
 
     protected function updateFieldInfo($id, array $data)
@@ -525,7 +529,35 @@ class TablesService extends AbstractService
         ArrayUtils::remove($data, ['collection', 'field']);
         $data['id'] = $id;
 
-        return $this->createTableGateway('directus_fields')->updateRecord($data);
+        if (ArrayUtils::has($data, 'options')) {
+            $data['options'] = $this->parseOptions($data['options']);
+        }
+
+        $collectionObject = $this->getSchemaManager()->getTableSchema('directus_fields');
+
+        return $this->createTableGateway('directus_fields')->updateRecord(
+            ArrayUtils::pick($data, $collectionObject->getFieldsName())
+        );
+    }
+
+    /**
+     * Parse Fields options column
+     *
+     * NOTE: This is temporary until system fields has the interfaces set
+     *
+     * @param $options
+     *
+     * @return null|string
+     */
+    protected function parseOptions($options)
+    {
+        if (is_array($options) && !empty($options)) {
+            $options = json_encode($options);
+        } else {
+            $options = null;
+        }
+
+        return $options;
     }
 
     /**
