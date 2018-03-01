@@ -123,7 +123,7 @@ function assert_response_data_contains(TestCase $testCase, ResponseInterface $re
 
     foreach ($expectedData as $key => $value) {
         $testCase->assertArrayHasKey($key, $data);
-        $testCase->assertSame($data[$key], $value);
+        $testCase->assertSame($value, $data[$key]);
     }
 }
 
