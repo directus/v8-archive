@@ -254,7 +254,8 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $data = [
             'group' => 1,
             'collection' => 'test',
-            'fields' => 'name'
+            'fields' => 'name',
+            'view_type' => 'tabular'
         ];
 
         $this->create('collection_presets', $data, $error, $message);
