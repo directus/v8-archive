@@ -57,7 +57,7 @@ class SchemaFactory
     {
         $table = new CreateTable($name);
 
-        $columnsData = $this->mergeDefaultColumnsData($columnsData);
+        // $columnsData = $this->mergeDefaultColumnsData($columnsData);
         $columns = $this->createColumns($columnsData);
 
         foreach ($columnsData as $column) {
