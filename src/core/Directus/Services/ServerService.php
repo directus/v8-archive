@@ -15,18 +15,20 @@ class ServerService extends AbstractService
         }
 
         return [
-            'api' => [
-                'version' => Application::DIRECTUS_VERSION
-            ],
-            'server' => [
-                'general' => [
-                    'php_version' => phpversion(),
-                    'php_api' => php_sapi_name()
+            'data' => [
+                'api' => [
+                    'version' => Application::DIRECTUS_VERSION
                 ],
-                'core' => [
-                    array_map(function ($v) {
-                        return ['current' => $v];
-                    }, ini_get_all('core', false))
+                'server' => [
+                    'general' => [
+                        'php_version' => phpversion(),
+                        'php_api' => php_sapi_name()
+                    ],
+                    'core' => [
+                        array_map(function ($v) {
+                            return ['current' => $v];
+                        }, ini_get_all('core', false))
+                    ]
                 ]
             ]
         ];
