@@ -262,7 +262,7 @@ class Field extends AbstractObject
             $options = $this->attributes->get('options');
         }
 
-        if ($key !== null) {
+        if ($key !== null && is_array($options)) {
             $options = ArrayUtils::get($options, $key);
         }
 
