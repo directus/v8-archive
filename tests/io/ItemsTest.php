@@ -38,6 +38,8 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             ['name' => 'Old Category']
         ]);
         fill_table(static::$db, 'products', static::$data);
+        $uploadPath = realpath(__DIR__ . '/../../public/storage/uploads');
+        clear_storage($uploadPath);
     }
 
     public static function setUpBeforeClass()

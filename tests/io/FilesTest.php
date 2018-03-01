@@ -36,7 +36,6 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         static::$db = create_db_connection();
         reset_table_id(static::$db, 'directus_files', 2);
         reset_table_id(static::$db, 'directus_folders', 1);
-        $uploadPath = static::$uploadPath;
 
         clear_storage(static::$uploadPath);
     }

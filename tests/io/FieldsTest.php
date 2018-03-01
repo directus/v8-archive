@@ -100,7 +100,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
             'field' => 'name',
-            'type' => 'VARCHAR',
+            'type' => 'varchar',
             'interface' => 'text_input'
         ]);
 
@@ -134,13 +134,14 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         ];
 
         $data = [
-            'options' => json_encode($options)
+            'options' => $options
         ];
 
+        // Using form_params convert true/false to "1"/"0"
         $response = request_patch('fields/' . static::$tableName . '/name', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'options' => json_encode($options)
+            'options' => json_encode(['option' => '1', 'read_only' => '0'])
         ]);
 
         $data = [
