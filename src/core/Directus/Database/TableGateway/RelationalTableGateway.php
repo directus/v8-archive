@@ -467,14 +467,8 @@ class RelationalTableGateway extends BaseTableGateway
                         foreach ($foreignDataSet as $junctionRow) {
                             /** This association is designated for removal */
                             $hasPrimaryKey = isset($junctionRow[$JunctionTable->primaryKeyFieldName]);
-                            $statusColumnName = TableSchema::getStatusFieldName($junctionTableName);
 
-                            $statusColumnObject = $JunctionTable->getTableSchema()->getField($statusColumnName);
-                            $deletedValue = ArrayUtils::get($statusColumnObject->getOptions(), 'delete_value');
-
-                            $hasStatus = isset($junctionRow[$statusColumnName]);
-
-                            if ($hasPrimaryKey && $hasStatus && !is_null($deletedValue) && $junctionRow[$statusColumnName] == $deletedValue) {
+                            if ($hasPrimaryKey && ArrayUtils::get($junctionRow, $this->deleteFlag) === true) {
                                 $Where = new Where;
                                 $Where->equalTo($JunctionTable->primaryKeyFieldName, $junctionRow[$JunctionTable->primaryKeyFieldName]);
                                 $JunctionTable->delete($Where);
