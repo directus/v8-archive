@@ -169,7 +169,7 @@ class MySQLSchema extends AbstractSchema
             ['DF' => 'directus_fields'],
             'SF.COLUMN_NAME = DF.field AND SF.TABLE_NAME = DF.collection',
             [
-                'type' => new Expression('UCASE(DF.type)'),
+                'type' => new Expression('UCASE(IFNULL(DF.type, SF.DATA_TYPE))'),
                 'managed' =>  new Expression('IF(ISNULL(DF.id),0,1)'),
                 'interface',
                 'hidden_input' => new Expression('IF(DF.hidden_input=1,1,0)'),
