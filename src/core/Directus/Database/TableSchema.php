@@ -174,17 +174,29 @@ class TableSchema
      * @param bool $skipCache
      * @param bool $skipAcl
      *
-     * @throws ForbiddenCollectionAccessException
-     *
      * @return Collection
      */
     public static function getTableSchema($tableName, array $params = [], $skipCache = false, $skipAcl = false)
     {
-        if (!$skipAcl && !static::getAclInstance()->canRead($tableName)) {
-            throw new ForbiddenCollectionAccessException($tableName);
-        }
+        // if (!$skipAcl) {
+            // static::getAclInstance()->enforceRead($tableName);
+        // }
 
         return static::getSchemaManagerInstance()->getTableSchema($tableName, $params, $skipCache);
+    }
+
+    public static function getCollectionOwnerField($collection)
+    {
+        $collectionObject = static::getTableSchema($collection);
+
+        return $collectionObject->getUserCreateField();
+    }
+
+    public static function getCollectionOwnerFieldName($collection)
+    {
+        $field = static::getCollectionOwnerField($collection);
+
+        return $field ? $field->getName() : null;
     }
 
     /**
@@ -444,7 +456,7 @@ class TableSchema
         $columns = static::getSchemaManagerInstance()->getFields($tableName);
 
         $acl = static::getAclInstance();
-        $readFieldBlacklist = $acl->getTablePrivilegeList($tableName, $acl::FIELD_READ_BLACKLIST);
+        $readFieldBlacklist = $acl->getReadFieldBlacklist($tableName);
 
         return array_filter($columns, function (Field $column) use ($readFieldBlacklist) {
             return !in_array($column->getName(), $readFieldBlacklist);

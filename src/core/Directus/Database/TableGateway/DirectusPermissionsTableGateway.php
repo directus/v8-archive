@@ -94,7 +94,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
                     $value = explode(',', $value);
                 }
 
-                $privilegesByTable[$row['collection']] = $this->parseRecord($row);
+                $privilegesByTable[$row['collection']][] = $this->parseRecord($row);
             }
         }
 

@@ -3,14 +3,10 @@
 namespace Directus\Database\RowGateway;
 
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
 use Directus\Permissions\Acl;
-use Directus\Permissions\Exception\UnauthorizedTableAddException;
-use Directus\Permissions\Exception\UnauthorizedTableBigDeleteException;
-use Directus\Permissions\Exception\UnauthorizedTableBigEditException;
-use Directus\Permissions\Exception\UnauthorizedTableDeleteException;
-use Directus\Permissions\Exception\UnauthorizedTableEditException;
+use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
+use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Formatting;
 use Zend\Db\Adapter\AdapterInterface;
@@ -121,30 +117,6 @@ class BaseRowGateway extends RowGateway
     }
 
     /**
-     * @param RelationalTableGateway $TableGateway
-     *
-     * @return array
-     *
-     * @throws \Directus\Database\Exception\RelationshipMetadataException
-     */
-    public function toArrayWithImmediateRelationships(RelationalTableGateway $TableGateway)
-    {
-        if ($this->table !== $TableGateway->getTable()) {
-            throw new \InvalidArgumentException('The table of the gateway parameter must match this row\'s table.');
-        }
-
-        $entry = $this->toArray();
-        $schemaArray = TableSchema::getSchemaArray($this->table);
-        $aliasColumns = $schemaArray->getAliasColumns();
-        // Many-to-One
-        list($entry) = $TableGateway->loadManyToOneRelationships($schemaArray, [$entry]);
-        // One-to-Many, Many-to-Many
-        $entry = $TableGateway->loadToManyRelationships($entry, $aliasColumns);
-
-        return $entry;
-    }
-
-    /**
      * Populate Data
      *
      * @param  array $rowData
@@ -206,27 +178,16 @@ class BaseRowGateway extends RowGateway
     }
 
     /**
-     * To array
+     * @return int
      *
-     * @return array
+     * @throws ForbiddenCollectionUpdateException
+     * @throws \Exception
      */
-    public function toArray()
-    {
-        $data = $this->data;
-
-        // Enforce field read blacklist
-        if ($this->acl) {
-            $data = $this->acl->censorFields($this->table, $data);
-        }
-
-        return $data;
-    }
-
     public function save()
     {
-        if (!$this->acl) {
+        // if (!$this->acl) {
             return parent::save();
-        }
+        // }
 
         // =============================================================================
         // ACL Enforcement
@@ -235,13 +196,13 @@ class BaseRowGateway extends RowGateway
         // BaseRowGateway::__set, BaseRowGateway::populate, BaseRowGateway::offsetSet)
         // =============================================================================
 
-        // Enforce Privilege: Table Add
-        if (!$this->rowExistsInDatabase() && !$this->acl->hasTablePrivilege($this->table, 'add')) {
-            $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-            throw new UnauthorizedTableAddException($aclErrorPrefix . 'Table add access forbidden on table ' . $this->table);
+        $isCreating = !$this->rowExistsInDatabase();
+        if ($isCreating) {
+            $this->acl->enforceCreate($this->table);
         }
 
         // Enforce Privilege: "Little" Edit (I am the record CMS owner)
+        $ownerFieldName = TableSchema::getCollectionOwnerFieldName($this->table);
         $cmsOwnerId = $this->acl->getRecordCmsOwnerId($this, $this->table);
         $currentUserId = $this->acl->getUserId();
         $canEdit = $this->acl->canUpdate($this->table);
@@ -253,14 +214,14 @@ class BaseRowGateway extends RowGateway
             $recordOwner = (false === $cmsOwnerId) ? 'no magic owner column' : 'the CMS owner #' . $cmsOwnerId;
             $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
 
-            throw new UnauthorizedTableBigEditException($aclErrorPrefix . 'Table bigedit access forbidden on `' . $this->table . '` table record with ' . $recordPk . ' and ' . $recordOwner . '.');
+            throw new ForbiddenCollectionUpdateException($aclErrorPrefix . 'Table bigedit access forbidden on `' . $this->table . '` table record with ' . $recordPk . ' and ' . $recordOwner . '.');
         }
 
         if (!$canEdit) {
             $recordPk = self::stringifyPrimaryKeyForRecordDebugRepresentation($this->primaryKeyData);
             $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
 
-            throw new UnauthorizedTableEditException($aclErrorPrefix . 'Table edit access forbidden on `' . $this->table . '` table record with ' . $recordPk . ' owned by the authenticated CMS user (#' . $cmsOwnerId . ').');
+            throw new ForbiddenCollectionUpdateException($aclErrorPrefix . 'Table edit access forbidden on `' . $this->table . '` table record with ' . $recordPk . ' owned by the authenticated CMS user (#' . $cmsOwnerId . ').');
         }
 
         try {
@@ -291,7 +252,7 @@ class BaseRowGateway extends RowGateway
             $recordPk = self::stringifyPrimaryKeyForRecordDebugRepresentation($this->primaryKeyData);
             $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
 
-            throw new UnauthorizedTableDeleteException($aclErrorPrefix . 'Table harddelete access forbidden on `' . $this->table . '` table record with ' . $recordPk . ' owned by the authenticated CMS user (#' . $cmsOwnerId . ').');
+            throw new ForbiddenCollectionDeleteException($aclErrorPrefix . 'Table harddelete access forbidden on `' . $this->table . '` table record with ' . $recordPk . ' owned by the authenticated CMS user (#' . $cmsOwnerId . ').');
         }
 
         // =============================================================================
@@ -302,15 +263,10 @@ class BaseRowGateway extends RowGateway
             $recordOwner = (false === $cmsOwnerId) ? 'no magic owner column' : 'the CMS owner #' . $cmsOwnerId;
             $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
 
-            throw new UnauthorizedTableBigDeleteException($aclErrorPrefix . 'Table bigharddelete access forbidden on `' . $this->table . '` table record with ' . $recordPk . ' and ' . $recordOwner . '.');
+            throw new ForbiddenCollectionDeleteException($aclErrorPrefix . 'Table bigharddelete access forbidden on `' . $this->table . '` table record with ' . $recordPk . ' and ' . $recordOwner . '.');
         }
 
         return parent::delete();
-    }
-
-    public function softDelete()
-    {
-        // @TODO: row soft delete
     }
 
     /**
@@ -323,7 +279,7 @@ class BaseRowGateway extends RowGateway
     {
         // Confirm user group has read privileges on field with name $name
         if ($this->acl) {
-            $this->acl->enforceBlacklist($this->table, $name, ACL::FIELD_READ_BLACKLIST);
+            $this->acl->enforceReadField($this->table, $name);
         }
 
         return parent::__get($name);
@@ -340,7 +296,7 @@ class BaseRowGateway extends RowGateway
     {
         // Confirm user group has read privileges on field with name $offset
         if ($this->acl) {
-            $this->acl->enforceBlacklist($this->table, $offset, ACL::FIELD_READ_BLACKLIST);
+            $this->acl->enforceReadField($this->table, $offset);
         }
 
         return parent::offsetGet($offset);
@@ -360,7 +316,7 @@ class BaseRowGateway extends RowGateway
     {
         // Enforce field write blacklist
         if ($this->acl) {
-            $this->acl->enforceBlacklist($this->table, $offset, Acl::FIELD_WRITE_BLACKLIST);
+            $this->acl->enforceWriteField($this->table, $offset);
         }
 
         return parent::offsetSet($offset, $value);
@@ -377,7 +333,7 @@ class BaseRowGateway extends RowGateway
     {
         // Enforce field write blacklist
         if ($this->acl) {
-            $this->acl->enforceBlacklist($this->table, $offset, Acl::FIELD_WRITE_BLACKLIST);
+            $this->acl->enforceWriteField($this->table, $offset);
         }
 
         return parent::offsetUnset($offset);

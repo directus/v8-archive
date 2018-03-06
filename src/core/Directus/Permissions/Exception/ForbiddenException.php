@@ -4,7 +4,7 @@ namespace Directus\Permissions\Exception;
 
 use Directus\Exception\Exception;
 
-class UnauthorizedException extends Exception
+class ForbiddenException extends Exception
 {
 
 }

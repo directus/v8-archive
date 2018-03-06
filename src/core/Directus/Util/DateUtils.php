@@ -113,10 +113,14 @@ class DateUtils
      *
      * @return \DateTime
      */
-    public static function convertUtcDateTimeToTimeZone($datetime, $targetTimeZone)
+    public static function convertUtcDateTimeToTimeZone($datetime, $targetTimeZone = null)
     {
         if (!($datetime instanceof DateTime)) {
             $datetime = new DateTime($datetime, new DateTimeZone('UTC'));
+        }
+
+        if ($targetTimeZone === null) {
+            $targetTimeZone = date_default_timezone_get();
         }
 
         if (!($targetTimeZone instanceof DateTimeZone)) {

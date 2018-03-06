@@ -18,10 +18,14 @@ class ItemsService extends AbstractService
         // TODO: Throw an exception if ID exist in payload
         $newRecord = $tableGateway->updateRecord($payload, $this->getCRUDParams($params));
 
-        $params['id'] = $newRecord->getId();
-        $params['status'] = null;
+        $item = null;
+        if ($this->getAcl()->canRead($collection)) {
+            $params['id'] = $newRecord->getId();
+            $params['status'] = null;
+            $item = $this->getItemsAndSetResponseCacheTags($tableGateway, $params);
+        }
 
-        return $this->getItemsAndSetResponseCacheTags($tableGateway, $params);
+        return $item;
     }
 
     /**
@@ -81,16 +85,22 @@ class ItemsService extends AbstractService
         $payload[$tableGateway->primaryKeyFieldName] = $id;
         $tableGateway->updateRecord($payload, $this->getCRUDParams($params));
 
-        // TODO: Do not fetch if this is after insert
-        // and the user doesn't have permission to read
-        return $this->find($collection, $id, $params);
+        $item = null;
+        if ($this->getAcl()->canRead($collection)) {
+            // TODO: Do not fetch if this is after insert
+            // and the user doesn't have permission to read
+            $item = $this->find($collection, $id, $params);
+        }
+
+        return $item;
     }
 
     public function delete($collection, $id, array $params = [])
     {
         $this->enforcePermissions($collection, [], $params);
 
-        $item = $this->find($collection, $id);
+        // TODO: Better way to check if the item exists
+        // $item = $this->find($collection, $id);
 
         $tableGateway = $this->createTableGateway($collection);
 

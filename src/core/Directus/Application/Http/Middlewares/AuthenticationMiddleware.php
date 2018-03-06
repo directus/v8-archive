@@ -95,7 +95,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
         /** @var Acl $acl */
         $acl = $this->container->get('acl');
-        $acl->setGroupPrivileges($permissionsByCollection);
+        $acl->setPermissions($permissionsByCollection);
         // TODO: Adding an user should auto set its ID and GROUP
         // TODO: User data should be casted to its data type
         // TODO: Make sure that the group is not empty
@@ -106,9 +106,9 @@ class AuthenticationMiddleware extends AbstractMiddleware
         }
 
         // Set full permission to Admin
-        if ($acl->isAdmin()) {
-            $acl->setTablePrivileges('*', $acl::PERMISSION_FULL);
-        }
+        // if ($acl->isAdmin()) {
+        //     $acl->setTablePrivileges('*', $acl::PERMISSION_FULL);
+        // }
 
         return $next($request, $response);
     }

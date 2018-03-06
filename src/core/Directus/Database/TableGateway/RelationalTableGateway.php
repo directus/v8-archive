@@ -774,16 +774,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function loadItems(array $params = [], \Closure $queryCallback = null)
     {
-        // Get table column schema
-        $tableSchema = $this->getTableSchema();
-
-        // table only has one column
-        // return an empty array
-        if ($tableSchema === false || count($tableSchema->getFields()) <= 1) {
-            return [];
-        }
-
-        $hasActiveColumn = $tableSchema->hasStatusField();
+        $collectionObject = $this->getTableSchema();
 
         $params = $this->applyDefaultEntriesSelectParams($params);
         $fields = $this->getSelectedFields(ArrayUtils::get($params, 'fields'));
@@ -793,22 +784,20 @@ class RelationalTableGateway extends BaseTableGateway
         $builder = new Builder($this->getAdapter());
         $builder->from($this->getTable());
         $builder->columns(
-            array_merge([$tableSchema->getPrimaryKeyName()], $this->getSelectedNonAliasFields($fields))
+            array_merge([$collectionObject->getPrimaryKeyName()], $this->getSelectedNonAliasFields($fields))
         );
-        $builder = $this->applyParamsToTableEntriesSelect($params, $builder, $tableSchema, $hasActiveColumn);
-
-        // If we have user field and do not have big view privileges but have view then only show entries we created
-        $cmsOwnerId = $this->acl ? $this->acl->getCmsOwnerColumnByTable($this->table) : null;
-        $currentUserId = $this->acl ? $this->acl->getUserId() : null;
-        // TODO: Find better names
-        $hasSmallViewPermission = !$this->acl->hasTablePrivilege($this->table, 'bigview') && $this->acl->hasTablePrivilege($this->table, 'view');
-        if ($cmsOwnerId && $hasSmallViewPermission && !$this->acl->isAdmin()) {
-            $builder->whereEqualTo($cmsOwnerId, $currentUserId);
-        }
+        $builder = $this->applyParamsToTableEntriesSelect(
+            $params,
+            $builder,
+            $collectionObject,
+            $collectionObject->hasStatusField()
+        );
 
         if ($queryCallback !== null) {
             $builder = $queryCallback($builder);
         }
+
+        $this->enforceReadPermission($builder);
 
         // Run the builder Select with this tablegateway
         // to run all the hooks against the result

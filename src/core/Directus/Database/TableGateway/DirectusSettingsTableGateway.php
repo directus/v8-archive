@@ -3,12 +3,7 @@
 namespace Directus\Database\TableGateway;
 
 use Directus\Permissions\Acl;
-use Directus\Permissions\Exception\UnauthorizedTableBigEditException;
-use Directus\Util\ArrayUtils;
-use Zend\Db\Adapter\Adapter;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Sql\Select;
-use Zend\Db\Sql\Sql;
 
 class DirectusSettingsTableGateway extends RelationalTableGateway
 {

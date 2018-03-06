@@ -273,12 +273,12 @@ class CoreServicesProvider
                 $userCreated = $tableObject->getUserCreateField();
                 $userModified = $tableObject->getUserUpdateField();
 
-                if ($userCreated && (!$payload->has($userCreated) || !$acl->isAdmin())) {
-                    $payload[$userCreated] = $acl->getUserId();
+                if ($userCreated && (!$payload->has($userCreated->getName()) || !$acl->isAdmin())) {
+                    $payload[$userCreated->getName()] = $acl->getUserId();
                 }
 
-                if ($userModified && (!$payload->has($userModified) || !$acl->isAdmin())) {
-                    $payload[$userModified] = $acl->getUserId();
+                if ($userModified && (!$payload->has($userModified->getName()) || !$acl->isAdmin())) {
+                    $payload[$userModified->getName()] = $acl->getUserId();
                 }
 
                 return $payload;
@@ -735,25 +735,14 @@ class CoreServicesProvider
             $auth = $container->get('auth');
             $dbConnection = $container->get('database');
 
-            /** @var Collection[] $tables */
-            // $tables = TableSchema::getTablesSchema([
-            //     'include_columns' => true
-            // ], true);
-            //
-            // $magicOwnerColumnsByTable = [];
-            // foreach ($tables as $table) {
-            //     $column = $table->getUserCreateField();
-            //
-            //     if ($column) {
-            //         $magicOwnerColumnsByTable[$table->getName()] = $table->getUserCreateField();
-            //     }
-            // }
-
             // TODO: Move this to a method
-            // $acl::$cms_owner_columns_by_table = array_merge($magicOwnerColumnsByTable, $acl::$cms_owner_columns_by_table);
             if ($auth->check()) {
                 $privilegesTable = new DirectusPermissionsTableGateway($dbConnection, $acl);
-                $acl->setGroupPrivileges($privilegesTable->getGroupPrivileges($auth->getUserAttributes('group')));
+                $acl->setPermissions(
+                    $privilegesTable->getGroupPrivileges(
+                        $auth->getUserAttributes('group')
+                    )
+                );
             }
 
             return $acl;

@@ -3,8 +3,8 @@
 namespace Directus\Permissions;
 
 use Directus\Database\TableGateway\BaseTableGateway;
-use Directus\Permissions\Exception\UnauthorizedFieldReadException;
-use Directus\Permissions\Exception\UnauthorizedFieldWriteException;
+use Directus\Permissions\Exception\ForbiddenFieldReadException;
+use Directus\Permissions\Exception\ForbiddenFieldWriteException;
 use Directus\Util\ArrayUtils;
 use Zend\Db\RowGateway\RowGateway;
 use Zend\Db\Sql\Predicate\PredicateSet;
@@ -17,65 +17,55 @@ class Acl
     const ACTION_UPDATE = 'update';
     const ACTION_DELETE = 'delete';
 
-    const TABLE_PERMISSIONS = 'permissions';
+    const LEVEL_NONE  = 0;
+    const LEVEL_USER  = 1;
+    const LEVEL_GROUP = 2;
+    const LEVEL_FULL  = 3;
+
     const FIELD_READ_BLACKLIST = 'read_field_blacklist';
     const FIELD_WRITE_BLACKLIST = 'write_field_blacklist';
+
     const PERMISSION_FULL = [
-        'create' => 1,
-        'read' => 2,
-        'update' => 2,
-        'delete' => 2
+        self::ACTION_CREATE => self::LEVEL_FULL,
+        self::ACTION_READ   => self::LEVEL_FULL,
+        self::ACTION_UPDATE => self::LEVEL_FULL,
+        self::ACTION_DELETE => self::LEVEL_FULL
     ];
+
     const PERMISSION_NONE = [
-        'create' => 0,
-        'read' => 0,
-        'update' => 0,
-        'delete' => 0
+        self::ACTION_CREATE => self::LEVEL_NONE,
+        self::ACTION_READ   => self::LEVEL_NONE,
+        self::ACTION_UPDATE => self::LEVEL_NONE,
+        self::ACTION_DELETE => self::LEVEL_NONE
+    ];
+
+    const PERMISSION_READ = [
+        self::ACTION_CREATE => self::LEVEL_NONE,
+        self::ACTION_READ   => self::LEVEL_FULL,
+        self::ACTION_UPDATE => self::LEVEL_NONE,
+        self::ACTION_DELETE => self::LEVEL_NONE
+    ];
+
+    const PERMISSION_WRITE = [
+        self::ACTION_CREATE => self::LEVEL_FULL,
+        self::ACTION_READ   => self::LEVEL_NONE,
+        self::ACTION_UPDATE => self::LEVEL_FULL,
+        self::ACTION_DELETE => self::LEVEL_NONE
+    ];
+
+    const PERMISSION_READ_WRITE = [
+        self::ACTION_CREATE => 1,
+        self::ACTION_READ   => 2,
+        self::ACTION_UPDATE => 3,
+        self::ACTION_DELETE => 0
     ];
 
     /**
-     * The magic Directus column identifying the record's CMS owner.
-     * NOTE: Out of use, in favor of the transitional mapper below.
-     * @see  self::$cms_owner_columns_by_table and self#getRecordCmsOwnerId
-     */
-    const ROW_OWNER_COLUMN = 'directus_user';
-
-    public static $cms_owner_columns_by_table = [
-        'directus_files' => 'user',
-        // 'directus_collection_presets' => 'user',
-        'directus_users' => 'id'
-    ];
-
-    /**
-     * Baseline/fallback ACL
-     * @var array
-     */
-    public static $base_acl = [
-        self::TABLE_PERMISSIONS => ['create', 'read', 'update', 'delete'],
-        self::FIELD_READ_BLACKLIST => [],
-        self::FIELD_WRITE_BLACKLIST => []
-    ];
-
-    /**
-     * These fields cannot be included on any FIELD_READ_BLACKLIST. (It is required
-     * that they are readable in order for the application to function.)
-     * @var array
-     */
-    public static $mandatory_read_lists = [
-        // key: table name ('*' = all tables, baseline definition)
-        // value: array of column names
-        // FIXME: use the user defined status column
-        '*' => ['id', 'status'],
-        'directus_activity' => ['user'],
-        'directus_files' => ['user']
-    ];
-
-    /**
-     * Group privileges grouped by table name
+     * Permissions grouped by collection
      *
      * @var array
      */
-    protected $groupPrivileges;
+    protected $permissions = [];
 
     /**
      * Authenticated user id
@@ -98,9 +88,9 @@ class Acl
      */
     protected $isPublic = null;
 
-    public function __construct(array $groupPrivileges = [])
+    public function __construct(array $permissions = [])
     {
-        $this->setGroupPrivileges($groupPrivileges);
+        $this->setPermissions($permissions);
     }
 
     /**
@@ -174,107 +164,347 @@ class Acl
     }
 
     /**
-     * Sets the group tables privileges
+     * Sets the group permissions
      *
-     * @param array $groupPrivileges
+     * @param array $permissions
      *
      * @return $this
      */
-    public function setGroupPrivileges(array $groupPrivileges)
+    public function setPermissions(array $permissions)
     {
-        $fixedPrivileges = $this->getFixedGroupPrivileges();
-        $this->groupPrivileges = ArrayUtils::defaults($groupPrivileges, $fixedPrivileges);
+        foreach ($permissions as $collection => $collectionPermissions) {
+            foreach ($collectionPermissions as $permission) {
+                $this->setCollectionPermission($collection, $permission);
+            }
+        }
 
         return $this;
     }
 
-    public function setTablePrivileges($tableName, array $privileges)
-    {
-        $this->groupPrivileges[$tableName] = $privileges;
-    }
-
     /**
-     * Gets the fixed group privileges
+     * Sets a collection permission
      *
-     * @return array
-     */
-    public function getFixedGroupPrivileges()
-    {
-        return [
-            'directus_collection_presets' => [
-                'create' => 1,
-                'read' => 1,
-                'update' => 1
-            ]
-        ];
-    }
-
-    /**
-     * Gets the group tables privileges
+     * @param $collection
+     * @param array $permission
      *
-     * @return array
+     * @return $this
      */
-    public function getGroupPrivileges()
+    public function setCollectionPermission($collection, array $permission)
     {
-        return $this->groupPrivileges;
-    }
+        $status = ArrayUtils::get($permission, 'status') ?: '*';
 
-    public function isTableListValue($value)
-    {
-        return array_key_exists($value, self::$base_acl);
-    }
-
-    public function getTableMandatoryReadList($table)
-    {
-        $list = self::$mandatory_read_lists['*'];
-        if (array_key_exists($table, self::$mandatory_read_lists)) {
-            $list = array_merge($list, self::$mandatory_read_lists[$table]);
+        if (!isset($this->permissions[$collection][$status])) {
+            $this->permissions[$collection][$status] = $permission;
         }
-        return $list;
-    }
 
-    public function getErrorMessagePrefix()
-    {
-        // %s and not %d so that null will appear as "null"
-        $aclErrorPrefix = '[Group #%s User #%s] ';
-        $aclErrorPrefix = sprintf($aclErrorPrefix, $this->getGroupId(), $this->getUserId());
-        return $aclErrorPrefix;
+        return $this;
     }
 
     /**
-     * Checks whether the user can add record in the given collection
+     * Gets the group permissions
      *
-     * @param $collection
-     *
-     * @return bool
+     * @return array
      */
-    public function canCreate($collection)
+    public function getPermissions()
     {
-        return $this->hasTablePrivilege($collection, 'create');
+        return $this->permissions;
     }
 
     /**
-     * Checks whether the user can view the given collection
+     * Gets a collection permissions
      *
-     * @param $collection
+     * @param string $collection
      *
-     * @return bool
+     * @return array
      */
-    public function canRead($collection)
+    public function getCollectionPermissions($collection)
     {
-        return $this->hasTablePrivilege($collection, 'read');
+        if (!array_key_exists($collection, $this->permissions)) {
+            return [];
+        }
+
+        return $this->permissions[$collection];
     }
 
     /**
-     * Checks whether the user can update the given collection
+     * Gets a collection permission
      *
-     * @param $collection
+     * @param string $collection
+     * @param null|int|string $status
+     *
+     * @return array
+     */
+    public function getPermission($collection, $status = null)
+    {
+        $permissions = $this->getCollectionPermissions($collection);
+
+        $key = $status ?: '*';
+
+        return ArrayUtils::get($permissions, $key, []);
+    }
+
+    /**
+     * Gets the given type (read/write) field blacklist
+     *
+     * @param string $type
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return array
+     */
+    public function getFieldBlacklist($type, $collection, $status = null)
+    {
+        $permission = $this->getPermission($collection, $status);
+
+        switch ($type) {
+            case static::FIELD_READ_BLACKLIST:
+                $fields = ArrayUtils::get($permission, static::FIELD_READ_BLACKLIST);
+                break;
+            case static::FIELD_WRITE_BLACKLIST:
+                $fields = ArrayUtils::get($permission, static::FIELD_WRITE_BLACKLIST);
+                break;
+            default:
+                $fields = [];
+        }
+
+        return $fields ?: [];
+    }
+
+    /**
+     * Gets the read field blacklist
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return array
+     */
+    public function getReadFieldBlacklist($collection, $status = null)
+    {
+        return $this->getFieldBlacklist(static::FIELD_READ_BLACKLIST, $collection, $status);
+    }
+
+    /**
+     * Gets the write field blacklist
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return array|mixed
+     */
+    public function getWriteFieldBlacklist($collection, $status = null)
+    {
+        return $this->getFieldBlacklist(static::FIELD_WRITE_BLACKLIST, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can add an item in the given collection
+     *
+     * @param string $collection
+     * @param string|int|null $status
      *
      * @return bool
      */
-    public function canUpdate($collection)
+    public function canCreate($collection, $status = null)
     {
-        return $this->hasTablePrivilege($collection, 'update');
+        return $this->allowTo(static::ACTION_CREATE, static::LEVEL_USER, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can view an item in the given collection
+     *
+     * @param int $level
+     * @param $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canReadAt($level, $collection, $status = null)
+    {
+        return $this->allowTo(static::ACTION_READ, $level, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can read at least their own items in the given collection
+     *
+     * @param $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canRead($collection, $status = null)
+    {
+        return $this->canReadMine($collection, $status);
+    }
+
+    /**
+     * Checks whether the user can read their own items in the given collection
+     *
+     * @param $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canReadMine($collection, $status = null)
+    {
+        return $this->canReadAt(static::LEVEL_USER, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can read same group users items in the given collection
+     *
+     * @param $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canReadFromGroup($collection, $status = null)
+    {
+        return $this->canReadAt(static::LEVEL_GROUP, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can read same group users items in the given collection
+     *
+     * @param $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canReadAll($collection, $status = null)
+    {
+        return $this->canReadAt(static::LEVEL_FULL, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can update an item in the given collection
+     *
+     * @param int $level
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return bool
+     */
+    public function canUpdateAt($level, $collection, $status = null)
+    {
+        return $this->allowTo(static::ACTION_UPDATE, $level, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can update at least their own items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return bool
+     */
+    public function canUpdate($collection, $status = null)
+    {
+        return $this->canUpdateMine($collection, $status);
+    }
+
+    /**
+     * Checks whether the user can update their own items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return bool
+     */
+    public function canUpdateMine($collection, $status = null)
+    {
+        return $this->canUpdateAt(static::LEVEL_USER, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can update items from the same user groups in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return bool
+     */
+    public function canUpdateFromGroup($collection, $status = null)
+    {
+        return $this->canUpdateAt(static::LEVEL_GROUP, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can update all items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return bool
+     */
+    public function canUpdateAll($collection, $status = null)
+    {
+        return $this->canUpdateAt(static::LEVEL_FULL, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can delete an item in the given collection
+     *
+     * @param int $level
+     * @param string $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canDeleteAt($level, $collection, $status = null)
+    {
+        return $this->allowTo(static::ACTION_DELETE, $level, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can delete at least their own items in the given collection
+     *
+     * @param string $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canDelete($collection, $status = null)
+    {
+        return $this->canDeleteMine($collection, $status);
+    }
+
+    /**
+     * Checks whether the user can delete its own items in the given collection
+     *
+     * @param string $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canDeleteMine($collection, $status = null)
+    {
+        return $this->canDeleteAt(static::LEVEL_USER, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can delete items that belongs to a user in the same group in the given collection
+     *
+     * @param string $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canDeleteFromGroup($collection, $status = null)
+    {
+        return $this->canDeleteAt(static::LEVEL_GROUP, $collection, $status);
+    }
+
+    /**
+     * Checks whether the user can delete any items in the given collection
+     *
+     * @param string $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function canDeleteAll($collection, $status = null)
+    {
+        return $this->canDeleteAt(static::LEVEL_FULL, $collection, $status);
     }
 
     /**
@@ -289,219 +519,322 @@ class Acl
         return $this->isAdmin();
     }
 
-    public function requireActivityMessage($collection)
+    /**
+     * Checks whether a given collection requires activity message
+     *
+     * @param string $collection
+     * @param string|int|null $status
+     *
+     * @return bool
+     */
+    public function requireActivityMessage($collection, $status = null)
     {
-        $required = false;
-
-        if (!array_key_exists($collection, $this->groupPrivileges)) {
-            return $required;
-        }
-
-        $permission = $this->groupPrivileges[$collection];
-
+        $permission = $this->getPermission($collection, $status);
         if (!array_key_exists('require_activity_message', $permission)) {
-            return $required;
+            return false;
         }
 
         return $permission['require_activity_message'] === 1;
     }
 
     /**
-     * Throws an exception if the user can create a item in the given collection
+     * Throws an exception if the user cannot read their own items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionReadException
+     */
+    public function enforceReadMine($collection, $status = null)
+    {
+        if (!$this->canReadMine($collection, $status)) {
+            throw new Exception\ForbiddenCollectionReadException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot read the same group items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionReadException
+     */
+    public function enforceReadFromGroup($collection, $status = null)
+    {
+        if (!$this->canReadFromGroup($collection, $status)) {
+            throw new Exception\ForbiddenCollectionReadException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot read all items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionReadException
+     */
+    public function enforceReadAll($collection, $status = null)
+    {
+        if (!$this->canReadAll($collection, $status)) {
+            throw new Exception\ForbiddenCollectionReadException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot create a item in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionReadException
+     */
+    public function enforceRead($collection, $status = null)
+    {
+        $this->enforceReadMine($collection, $status);
+    }
+
+    /**
+     * Throws an exception if the user cannot create a item in the given collection
      *
      * @param $collection
      *
-     * @throws Exception\UnauthorizedTableAddException
+     * @throws Exception\ForbiddenCollectionCreateException
      */
     public function enforceCreate($collection)
     {
         if (!$this->canCreate($collection)) {
-            $aclErrorPrefix = $this->getErrorMessagePrefix();
-            throw new Exception\UnauthorizedTableAddException($aclErrorPrefix . 'Table add access forbidden on table ' . $tableName);
+            throw new Exception\ForbiddenCollectionCreateException(
+                $collection
+            );
         }
     }
 
-    public function enforceAlter($tableName)
+    /**
+     * Throws an exception if the user cannot alter the given collection
+     *
+     * @param $collection
+     *
+     * @throws Exception\ForbiddenCollectionAlterException
+     */
+    public function enforceAlter($collection)
     {
-        if (!$this->canAlter($tableName)) {
-            $aclErrorPrefix = $this->getErrorMessagePrefix();
-            throw new Exception\UnauthorizedTableAlterException($aclErrorPrefix . 'Table alter access forbidden on table ' . $tableName);
+        if (!$this->canAlter($collection)) {
+            throw new Exception\ForbiddenCollectionAlterException(
+                $collection
+            );
         }
+    }
+
+    /**
+     * Throws an exception if the user cannot update their own items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionUpdateException
+     */
+    public function enforceUpdateMine($collection, $status = null)
+    {
+        if (!$this->canUpdateMine($collection, $status)) {
+            throw new Exception\ForbiddenCollectionUpdateException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot update items from the same group in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionUpdateException
+     */
+    public function enforceUpdateFromGroup($collection, $status = null)
+    {
+        if (!$this->canUpdateFromGroup($collection, $status)) {
+            throw new Exception\ForbiddenCollectionUpdateException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot update all items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionUpdateException
+     */
+    public function enforceUpdateAll($collection, $status = null)
+    {
+        if (!$this->canUpdateAll($collection, $status)) {
+            throw new Exception\ForbiddenCollectionUpdateException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot update an item in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionUpdateException
+     */
+    public function enforceUpdate($collection, $status = null)
+    {
+        $this->enforceUpdateMine($collection, $status);
+    }
+
+    /**
+     * Throws an exception if the user cannot delete their own items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionDeleteException
+     */
+    public function enforceDeleteMine($collection, $status = null)
+    {
+        if (!$this->canDeleteMine($collection, $status)) {
+            throw new Exception\ForbiddenCollectionDeleteException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot delete items from the same group in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionDeleteException
+     */
+    public function enforceDeleteFromGroup($collection, $status = null)
+    {
+        if (!$this->canDeleteFromGroup($collection, $status)) {
+            throw new Exception\ForbiddenCollectionDeleteException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot delete all items in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionDeleteException
+     */
+    public function enforceDeleteAll($collection, $status = null)
+    {
+        if (!$this->canDeleteAll($collection, $status)) {
+            throw new Exception\ForbiddenCollectionDeleteException(
+                $collection
+            );
+        }
+    }
+
+    /**
+     * Throws an exception if the user cannot delete an item in the given collection
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @throws Exception\ForbiddenCollectionDeleteException
+     */
+    public function enforceDelete($collection, $status = null)
+    {
+        $this->enforceDeleteMine($collection, $status);
     }
 
     /**
      * Checks whether the user can see the given column
      *
-     * @param $tableName
-     * @param $columnName
+     * @param string $collection
+     * @param string $field
+     * @param null|string|int $status
      *
      * @return bool
      */
-    public function canReadColumn($tableName, $columnName)
+    public function canReadField($collection, $field, $status = null)
     {
-        $readFieldBlacklist = $this->getTablePrivilegeList($tableName, static::FIELD_READ_BLACKLIST);
+        $fields = $this->getReadFieldBlacklist($collection, $status);
 
-        return !in_array($columnName, $readFieldBlacklist);
+        return !in_array($field, $fields);
     }
 
     /**
      * Checks whether the user can see the given column
      *
-     * @param $tableName
-     * @param $columnName
+     * @param string $collection
+     * @param string $field
+     * @param null|int|string $status
      *
      * @return bool
      */
-    public function canWriteColumn($tableName, $columnName)
+    public function canWriteField($collection, $field, $status = null)
     {
-        $writeFieldBlacklist = $this->getTablePrivilegeList($tableName, static::FIELD_WRITE_BLACKLIST);
+        $fields = $this->getWriteFieldBlacklist($collection, $status);
 
-        return !in_array($columnName, $writeFieldBlacklist);
+        return !in_array($field, $fields);
     }
 
     /**
-     * Confirm current user group has $blacklist privileges on fields in $offsets
-     * NOTE: Acl#getTablePrivilegeList enforces that $blacklist is a correct value
-     * @param  array|string $offsets One or more string table field names
-     * @param  integer $blacklist One of \Directus\Permissions\Acl's blacklist constants
-     * @throws  UnauthorizedFieldWriteException If the specified $offsets intersect with $table's field write blacklist
-     * @throws  UnauthorizedFieldReadException If the specified $offsets intersect with $table's field read blacklist
-     * @return  null
+     * Throws an exception if the user has not permission to read from the given field
+     *
+     * @param string $collection
+     * @param string|array $fields
+     * @param null|int|string $status
+     *
+     * @throws ForbiddenFieldReadException
      */
-    public function enforceBlacklist($table, $offsets, $blacklist)
+    public function enforceReadField($collection, $fields, $status = null)
     {
-        $offsets = is_array($offsets) ? $offsets : [$offsets];
-        $fieldBlacklist = $this->getTablePrivilegeList($table, $blacklist);
-        /**
-         * Enforce catch-all offset attempts.
-         */
-        if (self::FIELD_READ_BLACKLIST === $blacklist && count($fieldBlacklist) && in_array('*', $offsets)) {
-            // Cannot select all, given a non-empty field read blacklist.
-            $prefix = $this->getErrorMessagePrefix();
-            throw new UnauthorizedFieldReadException($prefix . 'Cannot select all (`*`) from table ' . $table . ' with non-empty read field blacklist.');
-        }
-        /**
-         * Enforce granular offset attempts.
-         * NOTE: array_intersect attempts to convert all array items to a string, causing exceptions
-         * if $offsets contains objects such as Zend\Db\Sql\Expression
-         * @todo How should ACL react to Expression objects?
-         */
-        $forbiddenIndices = [];
-        foreach ($offsets as $offset) {
-            if (in_array($offset, $fieldBlacklist)) {
-                $forbiddenIndices[] = $offset;
-            }
-        }
-        if (count($forbiddenIndices)) {
-            $forbiddenIndices = implode(', ', $forbiddenIndices);
-            switch ($blacklist) {
-                case self::FIELD_WRITE_BLACKLIST:
-                    $prefix = $this->getErrorMessagePrefix();
-                    throw new UnauthorizedFieldWriteException($prefix . __t('write_access_forbidden_to_table_x_indices_y', [
-                            'table' => $table,
-                            'indices' => $forbiddenIndices
-                        ]));
-                case self::FIELD_READ_BLACKLIST:
-                    $prefix = $this->getErrorMessagePrefix();
-                    throw new UnauthorizedFieldReadException($prefix . __t('read_access_forbidden_to_table_x_indices_y', [
-                            'table' => $table,
-                            'indices' => $forbiddenIndices
-                        ]));
-            }
+        if (!is_array($fields)) {
+            $fields = [$fields];
         }
 
-        return null;
+        foreach ($fields as $field) {
+            if (!$this->canReadField($collection, $field, $status)) {
+                throw new ForbiddenFieldReadException($collection, $field);
+            }
+        }
     }
 
     /**
-     * Given the loaded group privileges, yield the given privilege-/black-list type for the given table.
-     * @param  string $table Table name.
-     * @param  integer $list The privilege list type (Class constant, ::FIELD_*_BLACKLIST or ::TABLE_PERMISSIONS)
-     * @return array Array of string table privileges / table blacklist fields, depending on $list.
-     * @throws  \InvalidArgumentException If $list is not a known value.
+     * Throws an exception if the user has not permission to write to the given field
+     *
+     * @param string $collection
+     * @param string|array $fields
+     * @param null|int|string $status
+     *
+     * @throws ForbiddenFieldWriteException
      */
-    public function getTablePrivilegeList($table, $list)
+    public function enforceWriteField($collection, $fields, $status = null)
     {
-        if ($this->isAdmin()) {
-            return static::PERMISSION_FULL;
+        if (!is_array($fields)) {
+            $fields = [$fields];
         }
 
-        if (!$this->isTableListValue($list)) {
-            throw new \InvalidArgumentException(__t('invalid_list_x', ['list' => $list]));
-        }
-        $privilegeList = self::$base_acl[$list];
-        $groupHasTablePrivileges = array_key_exists($table, $this->groupPrivileges);
-        if (!$groupHasTablePrivileges && array_key_exists('*', $this->groupPrivileges)) {
-            $groupHasTablePrivileges = true;
-            $table = '*';
-        }
-
-        // @TODO: remove permissions.
-        if ($list === 'permissions') {
-            $permissionFields = self::$base_acl[self::TABLE_PERMISSIONS];
-
-            if ($groupHasTablePrivileges) {
-                $privilegeList = array_intersect_key($this->groupPrivileges[$table], array_flip($permissionFields));
-            } else if (array_key_exists('*', $this->groupPrivileges)) {
-                return $this->getTablePrivilegeList('*', self::TABLE_PERMISSIONS);
-            } else {
-                $privilegeList = [];
-                foreach ($permissionFields as $permission) {
-                    $privilegeList[$permission] = 0;
-                }
-            }
-
-            return $privilegeList;
-        }
-
-        if ($groupHasTablePrivileges) {
-            $privilegeList = ArrayUtils::get($this->groupPrivileges, $table . '.' . $list, []);
-            if (!is_array($privilegeList)) {
-                throw new \RuntimeException(__t('expected_permission_list_x_for_table_y_to_be_set_and_type_array', [
-                    'list' => $list,
-                    'table' => $table
-                ]));
-            }
-        } else {
-            $groupHasFallbackTablePrivileges = array_key_exists('*', $this->groupPrivileges);
-            if ($groupHasFallbackTablePrivileges) {
-                if (!isset($this->groupPrivileges['*'][$list]) || !is_array($this->groupPrivileges['*'][$list])) {
-                    throw new \RuntimeException(__t('expected_permission_list_x_for_table_y_to_be_set_and_type_array', [
-                        'list' => $list,
-                        'table' => $table
-                    ]));
-                }
-                $privilegeList = $this->groupPrivileges['*'][$list];
+        foreach ($fields as $field) {
+            if (!$this->canWriteField($collection, $field, $status)) {
+                throw new ForbiddenFieldWriteException($collection, $field);
             }
         }
-
-        if (self::FIELD_READ_BLACKLIST === $privilegeList) {
-            // Filter mandatory read fields from read blacklists
-            $mandatoryReadFields = $this->getTableMandatoryReadList($table);
-            $disallowedReadBlacklistFields = array_intersect($mandatoryReadFields, $privilegeList);
-            if (count($disallowedReadBlacklistFields)) {
-                trigger_error(
-                    __t('table_x_contains_read_blacklist_items_which_are_designated_as_mandatory_read_fields', ['table' => $table])
-                    . ': ' . print_r($disallowedReadBlacklistFields, true)
-                );
-                // Filter out mandatory read items
-                $privilegeList = array_diff($privilegeList, $mandatoryReadFields);
-            }
-        }
-
-        // Remove null values
-        return array_filter($privilegeList);
-    }
-
-    public function censorFields($table, $data)
-    {
-        $censorFields = $this->getTablePrivilegeList($table, self::FIELD_READ_BLACKLIST);
-        foreach ($censorFields as $key) {
-            if (array_key_exists($key, $data)) {
-                unset($data[$key]);
-            }
-        }
-        return $data;
     }
 
     /**
@@ -509,89 +842,22 @@ class Acl
      * value indicating whether the current user group has permission to perform
      * the specified table-level action on the specified table.
      *
-     * @param  string $table Table name
-     * @param  string $privilege Privilege constant defined by \Directus\Permissions\Acl
+     * @param string $action
+     * @param string $collection
+     * @param int $level
+     * @param mixed $status
      *
      * @return boolean
      */
-    public function hasTablePrivilege($table, $privilege)
+    public function allowTo($action, $level, $collection, $status = null)
     {
-        $tablePermissions = $this->getTablePrivilegeList($table, self::TABLE_PERMISSIONS);
-        $permissionLevel = 1;
-        $permissionName = $privilege;
-
-        if (strpos($privilege, 'big') === 0) {
-            $permissionLevel = 2;
-            $permissionName = substr($privilege, 3);
+        if ($this->isAdmin()) {
+            return true;
         }
 
-        if (!isset($tablePermissions[$permissionName])) {
-            return false;
-        }
+        $permission = $this->getPermission($collection, $status);
+        $permissionLevel = ArrayUtils::get($permission, $action, 0);
 
-        return $permissionLevel <= $tablePermissions[$permissionName];
-    }
-
-    public function getCmsOwnerColumnByTable($table)
-    {
-        if (!array_key_exists($table, self::$cms_owner_columns_by_table)) {
-            return false;
-        }
-
-        return self::$cms_owner_columns_by_table[$table];
-    }
-
-    /**
-     * Given $record, yield the ID contained by that $table's CMS owner column,
-     * if one exists. Otherwise return false.
-     *
-     * @param  \Zend\Db\RowGateway\RowGateway|array $record
-     * @param  string $table The name of the record's table.
-     *
-     * @return int|false
-     */
-    public function getRecordCmsOwnerId($record, $table)
-    {
-        $isRowGateway = $record instanceof RowGateway || is_subclass_of($record, 'Zend\Db\RowGateway\RowGateway');
-        if (!$isRowGateway && !is_array($record)) {
-            // @TODO: get_class only works on object
-            // if $record is an array get_class will return false
-            throw new \InvalidArgumentException(
-                sprintf('Record must be an array or a RowGateway. %s was given.',
-                    is_object($record) ? get_class($record) : gettype($record)
-                )
-            );
-        }
-
-        $ownerColumnName = $this->getCmsOwnerColumnByTable($table);
-
-        if (false === $ownerColumnName) {
-            return false;
-        }
-
-        if ($isRowGateway && !$record->offsetExists($ownerColumnName)) {
-            return false;
-        } elseif (is_array($record) && !array_key_exists($ownerColumnName, $record)) {
-            return false;
-        }
-
-        return (int) $record[$ownerColumnName];
-    }
-
-    public function getCmsOwnerIdsByTableGatewayAndPredicate(BaseTableGateway $TableGateway, PredicateSet $predicate)
-    {
-        $ownerIds = [];
-        $table = $TableGateway->getTable();
-        $cmsOwnerColumn = $this->getCmsOwnerColumnByTable($table);
-        $select = new Select($table);
-        $select
-            ->columns([$TableGateway->primaryKeyFieldName, $cmsOwnerColumn]);
-        $select->where($predicate);
-        $results = $TableGateway->ignoreFilters()->selectWith($select);
-        foreach ($results as $row) {
-            $ownerIds[] = $row[$cmsOwnerColumn];
-        }
-
-        return [count($results), $ownerIds];
+        return (int)$level <= $permissionLevel;
     }
 }
