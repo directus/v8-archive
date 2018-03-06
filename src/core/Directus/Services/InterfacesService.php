@@ -4,7 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 
-class InterfacesService extends AbstractAddOnsController
+class InterfacesService extends AbstractExtensionsController
 {
     public function __construct(Container $container)
     {

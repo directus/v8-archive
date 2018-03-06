@@ -4,14 +4,14 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 
-class ExtensionsService extends AbstractAddOnsController
+class PagesService extends AbstractExtensionsController
 {
     public function __construct(Container $container)
     {
         parent::__construct($container);
 
         $basePath = $this->container->get('path_base');
-        $this->basePath = $basePath . '/public/core/extensions';
+        $this->basePath = $basePath . '/public/core/pages';
     }
 
     public function findAll(array $params = [])

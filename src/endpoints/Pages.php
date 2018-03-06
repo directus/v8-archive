@@ -6,9 +6,9 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Services\ExtensionsService;
+use Directus\Services\PagesService;
 
-class Extensions extends Route
+class Pages extends Route
 {
     /**
      * @param Application $app
@@ -22,7 +22,7 @@ class Extensions extends Route
 
     public function all(Request $request, Response $response)
     {
-        $service = new ExtensionsService($this->container);
+        $service = new PagesService($this->container);
         $responseData = $service->findAll();
 
         return $this->responseWithData($request, $response, $responseData);

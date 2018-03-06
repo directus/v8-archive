@@ -6,9 +6,9 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Services\ListViewsService;
+use Directus\Services\ListingsService;
 
-class ListViews extends Route
+class Listings extends Route
 {
     /**
      * @param Application $app
@@ -22,7 +22,7 @@ class ListViews extends Route
 
     public function all(Request $request, Response $response)
     {
-        $service = new ListViewsService($this->container);
+        $service = new ListingsService($this->container);
         $responseData = $service->findAll();
 
         return $this->responseWithData($request, $response, $responseData);

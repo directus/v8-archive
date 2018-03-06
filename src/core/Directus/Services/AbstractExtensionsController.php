@@ -2,7 +2,7 @@
 
 namespace Directus\Services;
 
-abstract class AbstractAddOnsController extends AbstractService
+abstract class AbstractExtensionsController extends AbstractService
 {
     protected $basePath = null;
 
