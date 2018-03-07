@@ -30,7 +30,7 @@ class AclTest extends PHPUnit_Framework_TestCase
                     'require_activity_message' => 0
                 ]
             ],
-            'test_table' => [
+            'products' => [
                 [
                     'id' => 2,
                     'collection' => 'test_table',
@@ -42,8 +42,7 @@ class AclTest extends PHPUnit_Framework_TestCase
                     'create' => 1,
                     'read' => 1,
                     'update' => 1,
-                    'delete' => 0,
-                    'require_activity_message' => 1
+                    'delete' => 0
                 ],
                 [
                     'id' => 20,
@@ -56,7 +55,8 @@ class AclTest extends PHPUnit_Framework_TestCase
                     'create' => 0,
                     'read' => 2,
                     'update' => 0,
-                    'delete' => 0
+                    'delete' => 0,
+                    'require_activity_message' => 1
                 ],
                 [
                     'id' => 21,
@@ -72,6 +72,21 @@ class AclTest extends PHPUnit_Framework_TestCase
                     'delete' => 0
                 ]
             ],
+            'test_table' => [
+                [
+                    'id' => 2,
+                    'collection' => 'test_table',
+                    'group' => 2,
+                    'read_field_blacklist' => null,
+                    'write_field_blacklist' => null,
+                    'navigate' => 1,
+                    'status' => null,
+                    'create' => 1,
+                    'read' => 1,
+                    'update' => 1,
+                    'delete' => 0
+                ]
+            ],
             'forbid' => [
                 [
                     'id' => 3,
@@ -84,7 +99,8 @@ class AclTest extends PHPUnit_Framework_TestCase
                     'create' => 0,
                     'read' => 0,
                     'update' => 0,
-                    'delete' => 0
+                    'delete' => 0,
+                    'require_activity_message' => 1
                 ]
             ],
             'directus_collection_presets' => [
@@ -169,10 +185,6 @@ class AclTest extends PHPUnit_Framework_TestCase
         $this->assertEmpty($acl->getCollectionPermissions('directus_users'));
 
         $collectionPermission = $acl->getCollectionPermissions('odd_collection');
-        $this->assertCount(1, $collectionPermission);
-        $this->assertArrayHasKey('*', $collectionPermission);
-        $this->assertEmpty($collectionPermission['*']);
-        unset($collectionPermission['*']);
         $this->assertEmpty($collectionPermission);
     }
 
@@ -254,19 +266,19 @@ class AclTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($this->acl->canDeleteAll('test_table'));
 
         // Test table: status 1
-        $this->assertFalse($this->acl->canCreate('test_table', 1));
+        $this->assertFalse($this->acl->canCreate('products', 1));
 
-        $this->assertTrue($this->acl->canReadMine('test_table', 1));
-        $this->assertTrue($this->acl->canReadFromGroup('test_table', 1));
-        $this->assertFalse($this->acl->canReadAll('test_table', 1));
+        $this->assertTrue($this->acl->canReadMine('products', 1));
+        $this->assertTrue($this->acl->canReadFromGroup('products', 1));
+        $this->assertFalse($this->acl->canReadAll('products', 1));
 
-        $this->assertFalse($this->acl->canUpdateMine('test_table', 1));
-        $this->assertFalse($this->acl->canUpdateFromGroup('test_table', 1));
-        $this->assertFalse($this->acl->canUpdateAll('test_table', 1));
+        $this->assertFalse($this->acl->canUpdateMine('products', 1));
+        $this->assertFalse($this->acl->canUpdateFromGroup('products', 1));
+        $this->assertFalse($this->acl->canUpdateAll('products', 1));
 
-        $this->assertFalse($this->acl->canDeleteMine('test_table', 1));
-        $this->assertFalse($this->acl->canDeleteFromGroup('test_table', 1));
-        $this->assertFalse($this->acl->canDeleteAll('test_table', 1));
+        $this->assertFalse($this->acl->canDeleteMine('products', 1));
+        $this->assertFalse($this->acl->canDeleteFromGroup('products', 1));
+        $this->assertFalse($this->acl->canDeleteAll('products', 1));
     }
 
     public function testCanDo()
@@ -289,12 +301,15 @@ class AclTest extends PHPUnit_Framework_TestCase
         $acl = new Acl();
         $acl->setGroupId(1);
         $this->assertTrue($acl->canAlter('directus_files'));
+        $this->assertTrue($acl->canCreate('forbid'));
     }
 
     public function testRequireMessageActivity()
     {
-        $this->assertTrue($this->acl->requireActivityMessage('test_table'));
-        $this->assertFalse($this->acl->requireActivityMessage('forbidden'));
+        $this->assertFalse($this->acl->requireActivityMessage('directus_files'));
+        $this->assertFalse($this->acl->requireActivityMessage('test_table'));
+        $this->assertTrue($this->acl->requireActivityMessage('products', 1));
+        $this->assertTrue($this->acl->requireActivityMessage('forbid', 0));
     }
 
     /**
@@ -444,27 +459,74 @@ class AclTest extends PHPUnit_Framework_TestCase
     {
         $this->acl->enforceDeleteAll('forbid');
     }
-    //
-    // public function testOwnerColumn()
-    // {
-    //     $this->assertSame('user', $this->acl->getCmsOwnerColumnByTable('directus_files'));
-    //     $this->assertSame('id', $this->acl->getCmsOwnerColumnByTable('directus_users'));
-    //     $this->assertSame(false, $this->acl->getCmsOwnerColumnByTable('test_table'));
-    //     $this->assertSame(false, $this->acl->getCmsOwnerColumnByTable('no_a_table'));
-    // }
-    //
-    // protected function getMockAdapter()
-    // {
-    //     // mock the adapter, driver, and parts
-    //     $mockResult = create_mock($this, 'Zend\Db\Adapter\Driver\ResultInterface');
-    //     $mockStatement = create_mock($this,'Zend\Db\Adapter\Driver\StatementInterface');
-    //     $mockStatement->expects($this->any())->method('execute')->will($this->returnValue($mockResult));
-    //     $mockConnection = create_mock($this,'Zend\Db\Adapter\Driver\ConnectionInterface');
-    //     $mockDriver = create_mock($this,'Zend\Db\Adapter\Driver\DriverInterface');
-    //     $mockDriver->expects($this->any())->method('createStatement')->will($this->returnValue($mockStatement));
-    //     $mockDriver->expects($this->any())->method('getConnection')->will($this->returnValue($mockConnection));
-    //
-    //     // setup mock adapter
-    //     return create_mock($this,'Zend\Db\Adapter\Adapter', null, [$mockDriver]);
-    // }
+
+    public function testStatusPermission()
+    {
+        $acl = new Acl();
+        $acl->setUserId(2);
+        $acl->setGroupId(2);
+
+        $acl->setCollectionPermissions('articles', [
+            [
+                'id' => 1,
+                'collection' => 'articles',
+                'group' => 2,
+                'read_field_blacklist' => null,
+                'write_field_blacklist' => null,
+                'navigate' => 1,
+                'status' => null,
+                'create' => 1,
+                'read' => 3,
+                'update' => 3,
+                'delete' => 3,
+                'require_activity_message' => 1
+            ],
+            [
+                'id' => 2,
+                'collection' => 'articles',
+                'group' => 2,
+                'read_field_blacklist' => ['read'],
+                'write_field_blacklist' => ['write'],
+                'navigate' => 1,
+                'status' => 1,
+                'create' => 0,
+                'read' => 3,
+                'update' => 0,
+                'delete' => 0
+            ],
+            [
+                'id' => 3,
+                'collection' => 'articles',
+                'group' => 2,
+                'read_field_blacklist' => ['read_draft'],
+                'write_field_blacklist' => ['write_draft'],
+                'navigate' => 1,
+                'status' => 2,
+                'create' => 1,
+                'read' => 2,
+                'update' => 1,
+                'delete' => 1
+            ]
+        ]);
+
+        $this->assertFalse($acl->canCreate('articles', 1));
+        $this->assertFalse($acl->canCreate('articles'));
+        $this->assertFalse($acl->canCreate('articles', '*'));
+        $this->assertFalse($acl->canCreate('articles', null));
+
+        $this->assertTrue($acl->canReadAll('articles', 1));
+        $this->assertTrue($acl->canReadFromGroup('articles', 1));
+        $this->assertTrue($acl->canReadMine('articles', 1));
+        $this->assertTrue($acl->canRead('articles', 1));
+
+        $this->assertFalse($acl->canUpdateAll('articles', 1));
+        $this->assertFalse($acl->canUpdateFromGroup('articles', 1));
+        $this->assertFalse($acl->canUpdateMine('articles', 1));
+        $this->assertFalse($acl->canUpdate('articles', 1));
+
+        $this->assertFalse($acl->canDeleteAll('articles', 1));
+        $this->assertFalse($acl->canDeleteFromGroup('articles', 1));
+        $this->assertFalse($acl->canDeleteMine('articles', 1));
+        $this->assertFalse($acl->canDelete('articles', 1));
+    }
 }

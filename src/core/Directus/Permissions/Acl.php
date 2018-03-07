@@ -61,11 +61,18 @@ class Acl
     ];
 
     /**
+     * Permissions by status grouped by collection
+     *
+     * @var array
+     */
+    protected $statusPermissions = [];
+
+    /**
      * Permissions grouped by collection
      *
      * @var array
      */
-    protected $permissions = [];
+    protected $globalPermissions = [];
 
     /**
      * Authenticated user id
@@ -173,12 +180,23 @@ class Acl
     public function setPermissions(array $permissions)
     {
         foreach ($permissions as $collection => $collectionPermissions) {
-            foreach ($collectionPermissions as $permission) {
-                $this->setCollectionPermission($collection, $permission);
-            }
+            $this->setCollectionPermissions($collection, $collectionPermissions);
         }
 
         return $this;
+    }
+
+    /**
+     * Sets permissions to the given collection
+     *
+     * @param string $collection
+     * @param array $permissions
+     */
+    public function setCollectionPermissions($collection, array $permissions)
+    {
+        foreach ($permissions as $permission) {
+            $this->setCollectionPermission($collection, $permission);
+        }
     }
 
     /**
@@ -191,10 +209,13 @@ class Acl
      */
     public function setCollectionPermission($collection, array $permission)
     {
-        $status = ArrayUtils::get($permission, 'status') ?: '*';
+        $status = ArrayUtils::get($permission, 'status');
 
-        if (!isset($this->permissions[$collection][$status])) {
-            $this->permissions[$collection][$status] = $permission;
+        if (is_null($status) && !isset($this->globalPermissions[$collection])) {
+            $this->globalPermissions[$collection] = $permission;
+        } else if (!is_null($status) && !isset($this->statusPermissions[$collection][$status])) {
+            $this->statusPermissions[$collection][$status] = $permission;
+            unset($this->globalPermissions[$collection]);
         }
 
         return $this;
@@ -207,7 +228,7 @@ class Acl
      */
     public function getPermissions()
     {
-        return $this->permissions;
+        return array_merge($this->globalPermissions, $this->statusPermissions);
     }
 
     /**
@@ -219,11 +240,13 @@ class Acl
      */
     public function getCollectionPermissions($collection)
     {
-        if (!array_key_exists($collection, $this->permissions)) {
-            return [];
+        if (array_key_exists($collection, $this->statusPermissions)) {
+            return $this->statusPermissions[$collection];
+        } else if (array_key_exists($collection, $this->globalPermissions)) {
+            return $this->globalPermissions[$collection];
         }
 
-        return $this->permissions[$collection];
+        return [];
     }
 
     /**
@@ -238,9 +261,11 @@ class Acl
     {
         $permissions = $this->getCollectionPermissions($collection);
 
-        $key = $status ?: '*';
+        if (!is_null($status)) {
+            $permissions = ArrayUtils::get($permissions, $status, []);
+        }
 
-        return ArrayUtils::get($permissions, $key, []);
+        return $permissions;
     }
 
     /**
