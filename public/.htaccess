@@ -19,6 +19,10 @@ Options +SymLinksIfOwnerMatch
     RewriteRule ^ index.php?%{QUERY_STRING} [L]
 </ifModule>
 
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
 <ifModule mod_php5.c>
     # Fix $HTTP_RAW_POST_DATA deprecated warning
     php_value always_populate_raw_post_data -1
