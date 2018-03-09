@@ -529,4 +529,138 @@ class AclTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($acl->canDeleteMine('articles', 1));
         $this->assertFalse($acl->canDelete('articles', 1));
     }
+
+    public function testReadOnceAdmin()
+    {
+        $acl = new Acl();
+
+        $acl->setCollectionPermission('test', [
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $acl->enforceReadOnce('test');
+    }
+
+    public function testReadOnceGlobal()
+    {
+        $acl = new Acl();
+        $acl->setGroupId(1);
+        $acl->enforceReadOnce('test');
+    }
+
+    public function testReadOnce()
+    {
+        $acl = new Acl();
+
+        $acl->setCollectionPermission('test', [
+            'collection' => 'test',
+            'status' => 2,
+            'read' => 1
+        ]);
+
+        $acl->enforceReadOnce('test');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionReadException
+     */
+    public function testReadOnceFails()
+    {
+        $acl = new Acl();
+
+        $acl->setCollectionPermission('test', [
+            'collection' => 'test',
+            'status' => 2
+        ]);
+
+        $acl->enforceReadOnce('test');
+    }
+
+    public function testReadStatusPermission()
+    {
+        $acl = new Acl();
+        $this->assertFalse($acl->getCollectionStatusesReadPermission('test'));
+
+        $acl->setCollectionPermission('test', [
+            'status' => null,
+            'collection' => 'test'
+        ]);
+
+        $this->assertFalse($acl->getCollectionStatusesReadPermission('test'));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            'status' => null,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $this->assertNull($acl->getCollectionStatusesReadPermission('test'));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            'status' => 1,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $statuses = $acl->getCollectionStatusesReadPermission('test');
+        $this->assertInternalType('array', $statuses);
+        $this->assertCount(1, $statuses);
+        $this->assertTrue(in_array(1, $statuses));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            'status' => 1,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $acl->setCollectionPermission('test', [
+            'status' => 2,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $statuses = $acl->getCollectionStatusesReadPermission('test');
+        $this->assertInternalType('array', $statuses);
+        $this->assertCount(2, $statuses);
+        $this->assertTrue(in_array(1, $statuses));
+        $this->assertTrue(in_array(2, $statuses));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            'status' => 1,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $acl->setCollectionPermission('test', [
+            'status' => 2,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $acl->setCollectionPermission('test', [
+            'status' => 3,
+            'collection' => 'test',
+            'read' => 0
+        ]);
+
+        $statuses = $acl->getCollectionStatusesReadPermission('test');
+        $this->assertInternalType('array', $statuses);
+        $this->assertCount(2, $statuses);
+        $this->assertTrue(in_array(1, $statuses));
+        $this->assertTrue(in_array(2, $statuses));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setGroupId(1);
+        $this->assertNull($acl->getCollectionStatusesReadPermission('test'));
+    }
 }

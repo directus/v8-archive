@@ -58,6 +58,11 @@ class BaseRowGateway extends RowGateway
         return $this->data[$this->primaryKeyColumn[0]];
     }
 
+    public function getCollection()
+    {
+        return $this->table;
+    }
+
     /**
      * Override this function to do table-specific record data filtration, pre-insert and update.
      * This method is called during #populate and #populateSkipAcl.

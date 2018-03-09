@@ -261,7 +261,7 @@ class Acl
     {
         $permissions = $this->getCollectionPermissions($collection);
 
-        if (!is_null($status)) {
+        if (!is_null($status) && array_key_exists($collection, $this->statusPermissions)) {
             $permissions = ArrayUtils::get($permissions, $status, []);
         }
 
@@ -359,6 +359,18 @@ class Acl
     public function canRead($collection, $status = null)
     {
         return $this->canReadMine($collection, $status);
+    }
+
+    /**
+     * Checks whether the user can read at least in one permission level no matter the status
+     *
+     * @param string $collection
+     *
+     * @return bool
+     */
+    public function canReadOnce($collection)
+    {
+        return $this->allowToOnce(static::ACTION_READ, $collection);
     }
 
     /**
@@ -627,15 +639,32 @@ class Acl
     }
 
     /**
+     * Throws an exception if the user cannot read a item in any level or status
+     *
+     * @param string $collection
+     *
+     * @throws Exception\ForbiddenCollectionReadException
+     */
+    public function enforceReadOnce($collection)
+    {
+        if (!$this->canReadOnce($collection)) {
+            throw new Exception\ForbiddenCollectionReadException(
+                $collection
+            );
+        }
+    }
+
+    /**
      * Throws an exception if the user cannot create a item in the given collection
      *
-     * @param $collection
+     * @param string $collection
+     * @param mixed $status
      *
      * @throws Exception\ForbiddenCollectionCreateException
      */
-    public function enforceCreate($collection)
+    public function enforceCreate($collection, $status = null)
     {
-        if (!$this->canCreate($collection)) {
+        if (!$this->canCreate($collection, $status)) {
             throw new Exception\ForbiddenCollectionCreateException(
                 $collection
             );
@@ -884,5 +913,66 @@ class Acl
         $permissionLevel = ArrayUtils::get($permission, $action, 0);
 
         return (int)$level <= $permissionLevel;
+    }
+
+    public function allowToOnce($action, $collection)
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        $permissions = [];
+        if (array_key_exists($collection, $this->statusPermissions)) {
+            $permissions = $this->statusPermissions[$collection];
+        } else if (array_key_exists($collection, $this->globalPermissions)) {
+            $permissions = [$this->globalPermissions[$collection]];
+        }
+
+        $allowed = false;
+
+        foreach ($permissions as $permission) {
+            $permissionLevel = ArrayUtils::get($permission, $action, 0);
+
+            if ($permissionLevel > 0) {
+                $allowed = true;
+                break;
+            }
+        }
+
+        return $allowed;
+    }
+
+    /**
+     * Returns a list of status the given collection has permission to read
+     *
+     * @param string $collection
+     *
+     * @return array|mixed
+     */
+    public function getCollectionStatusesReadPermission($collection)
+    {
+        if ($this->isAdmin()) {
+            return null;
+        }
+
+        $statuses = false;
+
+        if (array_key_exists($collection, $this->statusPermissions)) {
+            $statuses = [];
+
+            foreach ($this->statusPermissions[$collection] as $status => $permission) {
+                if (ArrayUtils::get($permission, static::ACTION_READ, 0) > 0) {
+                    $statuses[] = $status;
+                }
+            }
+        } else if (array_key_exists($collection, $this->globalPermissions)) {
+            $permission = $this->globalPermissions[$collection];
+
+            if (ArrayUtils::get($permission, static::ACTION_READ, 0) > 0) {
+                $statuses = null;
+            }
+        }
+
+        return $statuses;
     }
 }

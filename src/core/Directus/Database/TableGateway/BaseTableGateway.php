@@ -1068,7 +1068,13 @@ class BaseTableGateway extends TableGateway
         $insertState = $insert->getRawState();
         $insertTable = $this->getRawTableNameFromQueryStateTable($insertState['table']);
 
-        $this->acl->enforceCreate($insertTable);
+        $statusValue = null;
+        $statusField = $this->getTableSchema()->getStatusField();
+        if ($statusField && $valueKey = array_search($statusField->getName(), $insertState['columns'])) {
+            $statusValue = ArrayUtils::get($insertState['values'], $valueKey);
+        }
+
+        $this->acl->enforceCreate($insertTable, $statusValue);
 
         // Enforce write field blacklist
         $this->acl->enforceWriteField($insertTable, $insertState['columns']);
@@ -1079,8 +1085,10 @@ class BaseTableGateway extends TableGateway
      */
     protected function enforceReadPermission(Builder $builder)
     {
+        // ----------------------------------------------------------------------------
         // Make sure the user has permission to at least their items
-        $this->acl->enforceRead($this->table);
+        // ----------------------------------------------------------------------------
+        $this->acl->enforceReadOnce($this->table);
 
         $userCreatedField = $this->getTableSchema()->getUserCreateField();
 
@@ -1188,10 +1196,6 @@ class BaseTableGateway extends TableGateway
         // $canBigDelete = $this->acl->hasTablePrivilege($deleteTable, 'bigdelete');
         // $canDelete = $this->acl->hasTablePrivilege($deleteTable, 'delete');
         // $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-
-        if (!$this->acl->canDelete($deleteTable)) {
-            throw new ForbiddenCollectionDeleteException($deleteTable);
-        }
 
         $select = $this->sql->select();
         $select->where($deleteState['where']);

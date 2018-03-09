@@ -2,9 +2,11 @@
 
 namespace Directus\Services;
 
+use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
 use Directus\Util\ArrayUtils;
+use Zend\Db\TableGateway\TableGateway;
 
 class ItemsService extends AbstractService
 {
@@ -18,11 +20,10 @@ class ItemsService extends AbstractService
         // TODO: Throw an exception if ID exist in payload
         $newRecord = $tableGateway->updateRecord($payload, $this->getCRUDParams($params));
 
-        $item = null;
-        if ($this->getAcl()->canRead($collection)) {
-            $params['id'] = $newRecord->getId();
-            $params['status'] = null;
-            $item = $this->getItemsAndSetResponseCacheTags($tableGateway, $params);
+        try {
+            $item = $this->find($collection, $newRecord->getId());
+        } catch (\Exception $e) {
+            $item = null;
         }
 
         return $item;
@@ -56,11 +57,15 @@ class ItemsService extends AbstractService
      */
     public function find($collection, $id, array $params = [])
     {
+        $statusValue = $this->getStatusValue($collection, $id);
         $tableGateway = $this->createTableGateway($collection);
 
-        $params['id'] = $id;
+        $this->getAcl()->enforceRead($collection, $statusValue);
 
-        return $this->getItemsAndSetResponseCacheTags($tableGateway, $params);
+        return $this->getItemsAndSetResponseCacheTags($tableGateway, array_merge($params, [
+            'id' => $id,
+            'status' => null
+        ]));
     }
 
     /**
@@ -83,13 +88,12 @@ class ItemsService extends AbstractService
         // Fetch the entry even if it's not "published"
         $params['status'] = '*';
         $payload[$tableGateway->primaryKeyFieldName] = $id;
-        $tableGateway->updateRecord($payload, $this->getCRUDParams($params));
+        $newRecord = $tableGateway->updateRecord($payload, $this->getCRUDParams($params));
 
-        $item = null;
-        if ($this->getAcl()->canRead($collection)) {
-            // TODO: Do not fetch if this is after insert
-            // and the user doesn't have permission to read
-            $item = $this->find($collection, $id, $params);
+        try {
+            $item = $this->find($collection, $newRecord->getId());
+        } catch (\Exception $e) {
+            $item = null;
         }
 
         return $item;
@@ -125,5 +129,42 @@ class ItemsService extends AbstractService
         }
 
         return true;
+    }
+
+    protected function getItem(BaseRowGateway $row)
+    {
+        $collection = $row->getCollection();
+        $item = null;
+        $statusValue = $this->getStatusValue($collection, $row->getId());
+        $tableGateway = $this->createTableGateway($collection);
+
+        if ($this->getAcl()->canRead($collection, $statusValue)) {
+            $params['id'] = $row->getId();
+            $params['status'] = null;
+            $item = $this->getItemsAndSetResponseCacheTags($tableGateway, $params);
+        }
+
+        return $item;
+    }
+
+    protected function getStatusValue($collection, $id)
+    {
+        $collectionObject = $this->getSchemaManager()->getTableSchema($collection);
+
+        if (!$collectionObject->hasStatusField()) {
+            return null;
+        }
+
+        $primaryFieldName = $collectionObject->getPrimaryKeyName();
+        $tableGateway = new TableGateway($collection, $this->getConnection());
+        $select = $tableGateway->getSql()->select();
+        $select->columns([$collectionObject->getStatusField()->getName()]);
+        $select->where([
+            $primaryFieldName => $id
+        ]);
+
+        $row = $tableGateway->selectWith($select)->current();
+
+        return $row[$collectionObject->getStatusField()->getName()];
     }
 }
