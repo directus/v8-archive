@@ -65,6 +65,11 @@ class Items extends Route
             $request->getQueryParams()
         );
 
+        if (is_null($responseData)) {
+            $response = $response->withStatus(204);
+            $responseData = [];
+        }
+
         return $this->responseWithData($request, $response, $responseData);
     }
 
@@ -112,6 +117,11 @@ class Items extends Route
         $itemsService = new ItemsService($this->container);
         $responseData = $itemsService->update($collection, $id, $payload, $params);
 
+        if (is_null($responseData)) {
+            $response = $response->withStatus(204);
+            $responseData = [];
+        }
+
         return $this->responseWithData($request, $response, $responseData);
     }
 
@@ -130,7 +140,9 @@ class Items extends Route
 
         $itemsService = new ItemsService($this->container);
         $itemsService->delete($collection, $request->getAttribute('id'), $request->getQueryParams());
+
         $responseData = [];
+        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, $responseData);
     }

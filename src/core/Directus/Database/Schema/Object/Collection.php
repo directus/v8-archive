@@ -482,7 +482,7 @@ class Collection extends AbstractObject
     /**
      * Gets the field storing the user updating the record
      *
-     * @return string
+     * @return Field|null
      */
     public function getUserUpdateField()
     {

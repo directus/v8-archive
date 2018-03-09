@@ -8,78 +8,114 @@ class AclTest extends PHPUnit_Framework_TestCase
      * @var \Directus\Permissions\Acl null
      */
     protected $acl = null;
-    protected $privileges = null;
+    protected $permissions = null;
 
     public function setUp()
     {
         $this->acl = new Acl();
-        $this->privileges = [
+        $this->permissions = [
             'directus_files' => [
-                'id' => 1,
-                'table_name' => 'directus_files',
-                'group_id' => 1,
-                'read_field_blacklist' => ['date_uploaded'],
-                'write_field_blacklist' => ['type'],
-                'nav_listed' => 1,
-                'status_id' => 0,
-                'allow_view' => 2,
-                'allow_add' => 1,
-                'allow_edit' => 2,
-                'allow_delete' => 2,
-                'allow_alter' => 1
+                [
+                    'id' => 1,
+                    'collection' => 'directus_files',
+                    'group' => 2,
+                    'status' => null,
+                    'read_field_blacklist' => ['date_uploaded'],
+                    'write_field_blacklist' => ['type'],
+                    'navigate' => 1,
+                    'read' => 3,
+                    'create' => 1,
+                    'update' => 3,
+                    'delete' => 3,
+                    'require_activity_message' => 0
+                ]
+            ],
+            'products' => [
+                [
+                    'id' => 2,
+                    'collection' => 'test_table',
+                    'group' => 2,
+                    'read_field_blacklist' => null,
+                    'write_field_blacklist' => null,
+                    'navigate' => 1,
+                    'status' => null,
+                    'create' => 1,
+                    'read' => 1,
+                    'update' => 1,
+                    'delete' => 0
+                ],
+                [
+                    'id' => 20,
+                    'collection' => 'test_table',
+                    'group' => 2,
+                    'read_field_blacklist' => ['read'],
+                    'write_field_blacklist' => ['write'],
+                    'navigate' => 1,
+                    'status' => 1,
+                    'create' => 0,
+                    'read' => 2,
+                    'update' => 0,
+                    'delete' => 0,
+                    'require_activity_message' => 1
+                ],
+                [
+                    'id' => 21,
+                    'collection' => 'test_table',
+                    'group' => 2,
+                    'read_field_blacklist' => ['read_draft'],
+                    'write_field_blacklist' => ['write_draft'],
+                    'navigate' => 1,
+                    'status' => 2,
+                    'create' => 1,
+                    'read' => 2,
+                    'update' => 0,
+                    'delete' => 0
+                ]
             ],
             'test_table' => [
-                'id' => 2,
-                'table_name' => 'test_table',
-                'group_id' => 1,
-                'read_field_blacklist' => null,
-                'write_field_blacklist' => null,
-                'nav_listed' => 1,
-                'status_id' => 0,
-                'allow_view' => 1,
-                'allow_add' => 1,
-                'allow_edit' => 1,
-                //'allow_delete' => 1,
-                'allow_alter' => 1
+                [
+                    'id' => 2,
+                    'collection' => 'test_table',
+                    'group' => 2,
+                    'read_field_blacklist' => null,
+                    'write_field_blacklist' => null,
+                    'navigate' => 1,
+                    'status' => null,
+                    'create' => 1,
+                    'read' => 1,
+                    'update' => 1,
+                    'delete' => 0
+                ]
             ],
             'forbid' => [
-                'id' => 3,
-                'table_name' => 'test_table',
-                'group_id' => 1,
-                'read_field_blacklist' => null,
-                'write_field_blacklist' => null,
-                'nav_listed' => 1,
-                'status_id' => 0,
-                'allow_view' => 0,
-                'allow_add' => 0,
-                'allow_edit' => 0,
-                'allow_delete' => 0,
-                'allow_alter' => null
+                [
+                    'id' => 3,
+                    'collection' => 'test_table',
+                    'group' => 2,
+                    'read_field_blacklist' => null,
+                    'write_field_blacklist' => null,
+                    'navigate' => 1,
+                    'status' => 0,
+                    'create' => 0,
+                    'read' => 0,
+                    'update' => 0,
+                    'delete' => 0,
+                    'require_activity_message' => 1
+                ]
             ],
-            '*' => [
-                'id' => 3,
-                'table_name' => '*',
-                'group_id' => 1,
-                'read_field_blacklist' => ['active'],
-                'write_field_blacklist' => null,
-                'nav_listed' => 1,
-                'status_id' => 0,
-                'allow_view' => 2,
-                'allow_add' => 1,
-                'allow_edit' => 2,
-                'allow_delete' => 2,
-                'allow_alter' => null
+            'directus_collection_presets' => [
+                [
+                    'create' => 1,
+                    'read' => 1,
+                    'update' => 1
+                ]
             ],
-            'directus_preferences' => [
-                'allow_add' => 1,
-                'allow_view' => 1,
-                'allow_edit' => 1
-            ]
+            'odd_collection' => [[]]
         ];
 
-        $this->acl->setGroupPrivileges($this->privileges);
-        $this->acl->setUserId(1);
-        $this->acl->setGroupId(1);
+        $this->acl->setPermissions($this->permissions);
+        $this->acl->setUserId(2);
+        $this->acl->setGroupId(2);
     }
 
     public function testPublic()
@@ -87,8 +123,16 @@ class AclTest extends PHPUnit_Framework_TestCase
         $acl = new Acl();
 
         $acl->setPublic(true);
-
         $this->assertTrue($acl->isPublic());
+
+        $acl->setPublic(false);
+        $this->assertFalse($acl->isPublic());
+
+        $acl->setPublic(1);
+        $this->assertTrue($acl->isPublic());
+
+        $acl->setPublic(0);
+        $this->assertFalse($acl->isPublic());
     }
 
     public function testIsAdmin()
@@ -96,83 +140,17 @@ class AclTest extends PHPUnit_Framework_TestCase
         $acl = new Acl();
 
         $acl->setGroupId(1);
-
         $this->assertTrue($acl->isAdmin());
-    }
 
-    public function testSetTablePermissions()
-    {
-        $acl = new Acl();
-        $acl->setTablePrivileges('test', [
-            'allow_edit' => 1
-        ]);
-
-        $this->assertTrue($acl->canEdit('test'));
-    }
-
-    public function testGroupPrivileges()
-    {
-        $acl = new Acl($this->privileges);
-        $privileges = $acl->getGroupPrivileges();
-
-        $this->assertEquals($privileges, $this->privileges);
-        $this->assertTrue(count($acl->getGroupPrivileges()) > 0);
-        $this->assertArrayHasKey('directus_files', $privileges);
-        $this->assertArrayNotHasKey('directus_users', $privileges);
-
-        $acl->setGroupPrivileges([]);
-        $this->assertTrue(!empty($acl->getGroupPrivileges()));
-        $this->assertTrue(!empty($acl->getGroupPrivileges()));
-        $this->assertCount(1, $acl->getGroupPrivileges());
-
-        $acl->setGroupPrivileges($this->privileges);
-        $privileges = $acl->getGroupPrivileges();
-        $this->assertEquals($privileges, $this->privileges);
-        $this->assertTrue(count($acl->getGroupPrivileges()) > 0);
-        $this->assertArrayHasKey('directus_files', $privileges);
-        $this->assertArrayNotHasKey('directus_users', $privileges);
-    }
-
-    /**
-     * @expectedException \Directus\Permissions\Exception\UnauthorizedFieldReadException
-     */
-    public function testEnforceReadBlacklist()
-    {
-        $acl = $this->acl;
-
-        $acl->enforceBlacklist('directus_files', ['name', 'type', 'date_uploaded'], $acl::FIELD_READ_BLACKLIST);
-    }
-
-    /**
-     * @expectedException \Directus\Permissions\Exception\UnauthorizedFieldReadException
-     */
-    public function testEnforceReadBlacklist2()
-    {
-        $acl = $this->acl;
-
-        $acl->enforceBlacklist('directus_files', ['*'], $acl::FIELD_READ_BLACKLIST);
-    }
-
-    /**
-     * @expectedException \Directus\Permissions\Exception\UnauthorizedFieldWriteException
-     */
-    public function testEnforceWriteBlacklist()
-    {
-        $acl = $this->acl;
-
-        $acl->enforceBlacklist('directus_files', ['name', 'type', 'date_uploaded'], $acl::FIELD_WRITE_BLACKLIST);
-    }
-
-    public function testEnforceBlacklist()
-    {
-        // Nothing happens here
-        $acl = $this->acl;
-
-        $acl->enforceBlacklist('directus_files', ['name', 'title', 'size'], $acl::FIELD_READ_BLACKLIST);
+        $acl->setGroupId(2);
+        $this->assertFalse($acl->isAdmin());
     }
 
     public function testUser()
     {
+        $this->assertSame(2, $this->acl->getUserId());
+        $this->assertSame(2, $this->acl->getGroupId());
+
         $acl = new Acl();
 
         $this->assertNull($acl->getUserId());
@@ -182,170 +160,507 @@ class AclTest extends PHPUnit_Framework_TestCase
         $acl->setGroupId(1);
         $this->assertSame(2, $acl->getUserId());
         $this->assertSame(1, $acl->getGroupId());
-
-        $this->assertInternalType('string', $acl->getErrorMessagePrefix());
     }
 
-    public function testTable()
+    public function testSetCollectionPermissions()
     {
-        $acl = $this->acl;
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            $acl::ACTION_UPDATE => 1
+        ]);
 
-        $mandatoryFields = $acl->getTableMandatoryReadList('directus_files');
-        $expectedFields = ['id', 'user'];
-        $this->assertEquals($expectedFields, $mandatoryFields);
-
-        $this->assertTrue($acl->isTableListValue($acl::FIELD_READ_BLACKLIST));
-        $this->assertTrue($acl->isTableListValue($acl::FIELD_WRITE_BLACKLIST));
+        $this->assertTrue($acl->canUpdateMine('test'));
+        $this->assertFalse($acl->canUpdateFromGroup('test'));
+        $this->assertFalse($acl->canUpdateAll('test'));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testGetPrivilegeListException()
+    public function testSettingPermissions()
     {
-        $this->acl->getTablePrivilegeList('directus_users', 'a_non_existing_field');
-    }
+        $acl = new Acl($this->permissions);
+        $permissions = $acl->getPermissions();
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testGetPrivilegeListException2()
-    {
-        $acl = $this->acl;
+        $this->assertTrue(count($acl->getPermissions()) > 0);
+        $this->assertEquals(count($permissions), count($this->permissions));
+        $this->assertNotEmpty($acl->getCollectionPermissions('directus_files'));
+        $this->assertEmpty($acl->getCollectionPermissions('directus_users'));
 
-        // when read/write permission value null
-        $privileges = $this->acl->getTablePrivilegeList('test_table', $acl::FIELD_READ_BLACKLIST);
+        $collectionPermission = $acl->getCollectionPermissions('odd_collection');
+        $this->assertEmpty($collectionPermission);
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \Directus\Permissions\Exception\ForbiddenFieldReadException
      */
-    public function testGetPrivilegeListException3()
+    public function testEnforceReadBlacklist()
     {
-        $acl = $this->acl;
-
-        // table does not exists in the group privileges
-        $privileges = $this->acl->getTablePrivilegeList('directus_users', $acl::FIELD_WRITE_BLACKLIST);
+        $this->acl->enforceReadField('directus_files', ['name', 'type', 'date_uploaded']);
     }
 
-    public function testGetPrivilegeList()
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenFieldWriteException
+     */
+    public function testEnforceWriteBlacklist()
     {
-        $acl = $this->acl;
+        $this->acl->enforceWriteField('directus_files', ['name', 'type', 'date_uploaded']);
+    }
 
-        // table does not exists in the group privileges
-        $privileges = $this->acl->getTablePrivilegeList('directus_users', $acl::FIELD_READ_BLACKLIST);
-        $this->assertInternalType('array', $privileges);
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenFieldReadException
+     */
+    public function testEnforceReadBlacklistString()
+    {
+        $this->acl->enforceReadField('directus_files', 'date_uploaded');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenFieldWriteException
+     */
+    public function testEnforceWriteBlacklistString()
+    {
+        $this->acl->enforceWriteField('directus_files', 'type');
+    }
+
+    public function testEnforceBlacklist()
+    {
+        // Nothing happens here
+        $this->acl->enforceReadField('directus_files', ['name', 'title', 'size']);
+        $this->acl->enforceWriteField('directus_files', ['name', 'title', 'size']);
+    }
+
+    public function testUnknownBlacklistType()
+    {
+        $fields = $this->acl->getFieldBlacklist('unknown', 'directus_files');
+        $this->assertInternalType('array', $fields);
+        $this->assertEmpty($fields);
     }
 
     public function testGetPrivilegeListPermissions()
     {
-        $privileges = $this->acl->getTablePrivilegeList('directus_files', 'permissions');
-        $this->assertInternalType('array', $privileges);
+        $permissions = $this->acl->getCollectionPermissions('directus_files');
+        $this->assertInternalType('array', $permissions);
+        $this->assertNotEmpty($permissions);
 
         // table that does not exists in the privilege list
-        $privileges = $this->acl->getTablePrivilegeList('directus_users', 'permissions');
-        $this->assertInternalType('array', $privileges);
+        $permissions = $this->acl->getCollectionPermissions('directus_users');
+        $this->assertInternalType('array', $permissions);
+        $this->assertEmpty($permissions);
     }
 
-    public function testHasPrivileges()
+    public function testHasPermission()
     {
-        $this->assertTrue($this->acl->hasTablePrivilege('directus_files', 'bigedit'));
-        $this->assertFalse($this->acl->hasTablePrivilege('test_table', 'bigedit'));
-        $this->assertFalse($this->acl->hasTablePrivilege('test_table', 'delete'));
+        $this->assertTrue($this->acl->canUpdateAll('directus_files'));
+
+        // Test table: all
+        $this->assertTrue($this->acl->canCreate('test_table'));
+
+        $this->assertTrue($this->acl->canReadMine('test_table'));
+        $this->assertFalse($this->acl->canReadFromGroup('test_table'));
+        $this->assertFalse($this->acl->canReadAll('test_table'));
+
+        $this->assertTrue($this->acl->canUpdateMine('test_table'));
+        $this->assertFalse($this->acl->canUpdateFromGroup('test_table'));
+        $this->assertFalse($this->acl->canUpdateAll('test_table'));
+
+        $this->assertFalse($this->acl->canDeleteMine('test_table'));
+        $this->assertFalse($this->acl->canDeleteFromGroup('test_table'));
+        $this->assertFalse($this->acl->canDeleteAll('test_table'));
+
+        // Test table: status 1
+        $this->assertFalse($this->acl->canCreate('products', 1));
+
+        $this->assertTrue($this->acl->canReadMine('products', 1));
+        $this->assertTrue($this->acl->canReadFromGroup('products', 1));
+        $this->assertFalse($this->acl->canReadAll('products', 1));
+
+        $this->assertFalse($this->acl->canUpdateMine('products', 1));
+        $this->assertFalse($this->acl->canUpdateFromGroup('products', 1));
+        $this->assertFalse($this->acl->canUpdateAll('products', 1));
+
+        $this->assertFalse($this->acl->canDeleteMine('products', 1));
+        $this->assertFalse($this->acl->canDeleteFromGroup('products', 1));
+        $this->assertFalse($this->acl->canDeleteAll('products', 1));
     }
 
-    public function testHasPrivilegesHelper()
+    public function testCanDo()
     {
-        $this->assertFalse($this->acl->canAdd('forbid'));
-        $this->assertTrue($this->acl->canAdd('directus_files'));
+        $this->assertFalse($this->acl->canCreate('forbid'));
+        $this->assertTrue($this->acl->canCreate('directus_files'));
 
-        $this->assertFalse($this->acl->canView('forbid'));
-        $this->assertTrue($this->acl->canView('directus_files'));
+        $this->assertFalse($this->acl->canRead('forbid'));
+        $this->assertTrue($this->acl->canRead('directus_files'));
+
+        $this->assertFalse($this->acl->canUpdate('forbid'));
+        $this->assertTrue($this->acl->canUpdate('directus_files'));
+
+        $this->assertFalse($this->acl->canDelete('forbid'));
+        $this->assertTrue($this->acl->canDelete('directus_files'));
 
         $this->assertFalse($this->acl->canAlter('forbid'));
-        $this->assertTrue($this->acl->canAlter('directus_files'));
+        $this->assertFalse($this->acl->canAlter('directus_files'));
+
+        $acl = new Acl();
+        $acl->setGroupId(1);
+        $this->assertTrue($acl->canAlter('directus_files'));
+        $this->assertTrue($acl->canCreate('forbid'));
     }
 
-    public function testEnforceCanAlterPassed()
+    public function testRequireMessageActivity()
+    {
+        $this->assertFalse($this->acl->requireActivityMessage('directus_files'));
+        $this->assertFalse($this->acl->requireActivityMessage('test_table'));
+        $this->assertTrue($this->acl->requireActivityMessage('products', 1));
+        $this->assertTrue($this->acl->requireActivityMessage('forbid', 0));
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionAlterException
+     */
+    public function testEnforceCanAlterFails()
     {
         $this->acl->enforceAlter('directus_files');
     }
 
-    public function testEnforceCanAddPassed()
+    public function testEnforceCanAlterPassed()
     {
-        $this->acl->enforceAdd('directus_files');
+        $acl = new Acl();
+        $acl->setGroupId(1);
+        $acl->enforceAlter('directus_files');
     }
 
     /**
-     * @expectedException \Directus\Permissions\Exception\UnauthorizedTableAlterException
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionCreateException
      */
-    public function testEnforceCanAlter()
+    public function testEnforceCanCreateFails()
     {
-        $this->acl->enforceAlter('forbid');
+        $this->acl->enforceCreate('forbid');
+    }
+
+    public function testEnforceCanCreatePassed()
+    {
+        $this->acl->enforceCreate('directus_files');
+    }
+
+    public function testEnforceCanReadPasses()
+    {
+        $this->acl->enforceReadMine('directus_files');
+        $this->acl->enforceReadFromGroup('directus_files');
+        $this->acl->enforceReadAll('directus_files');
+        $this->acl->enforceRead('directus_files');
+    }
+
+    public function testEnforceCanUpdatePasses()
+    {
+        $this->acl->enforceUpdateMine('directus_files');
+        $this->acl->enforceUpdateFromGroup('directus_files');
+        $this->acl->enforceUpdateAll('directus_files');
+        $this->acl->enforceUpdate('directus_files');
+    }
+
+    public function testEnforceCanDeletePasses()
+    {
+        $this->acl->enforceDeleteMine('directus_files');
+        $this->acl->enforceDeleteFromGroup('directus_files');
+        $this->acl->enforceDeleteAll('directus_files');
+        $this->acl->enforceDelete('directus_files');
     }
 
     /**
-     * @expectedException \Directus\Permissions\Exception\UnauthorizedTableAddException
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionReadException
      */
-    public function testEnforceCanAdd()
+    public function testEnforceCanReadMineFails()
     {
-        $this->acl->enforceAdd('forbid');
-    }
-
-    public function testCensorFields()
-    {
-        $expected = ['id' => 1, 'name' => 'file'];
-        $readFields = array_merge($expected, ['date_uploaded' => 'today']);
-        $this->assertEquals($expected, $this->acl->censorFields('directus_files', $readFields));
-    }
-
-    public function testOwnerColumn()
-    {
-        $this->assertSame('user', $this->acl->getCmsOwnerColumnByTable('directus_files'));
-        $this->assertSame('id', $this->acl->getCmsOwnerColumnByTable('directus_users'));
-        $this->assertSame(false, $this->acl->getCmsOwnerColumnByTable('test_table'));
-        $this->assertSame(false, $this->acl->getCmsOwnerColumnByTable('no_a_table'));
+        $this->acl->enforceReadMine('forbid');
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionReadException
      */
-    public function testGetOwnerIdException()
+    public function testEnforceCanReadFromGroupFails()
     {
-        $this->acl->getRecordCmsOwnerId(1, 'directus_files');
+        $this->acl->enforceReadFromGroup('forbid');
     }
 
-    public function testGetOwnerId()
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionReadException
+     */
+    public function testEnforceCanReadAllFails()
     {
-        $record = [
-            'id' => 1,
-            'name' => 'file',
-            'user' => 3
-        ];
-        $this->assertSame(3, $this->acl->getRecordCmsOwnerId($record, 'directus_files'));
-        $this->assertSame(false, $this->acl->getRecordCmsOwnerId($record, 'test_table'));
-        $this->assertSame(false, $this->acl->getRecordCmsOwnerId(['id' => 1, 'name' => 'file'], 'directus_files'));
-
-        $row = new \Zend\Db\RowGateway\RowGateway('id', 'directus_files', $this->getMockAdapter());
-        $row->populate($record, false);
-        $this->assertSame(3, $this->acl->getRecordCmsOwnerId($row, 'directus_files'));
-
-        $row->populate(['id' => 1, 'name' => 'file'], false);
-        $this->assertSame(false, $this->acl->getRecordCmsOwnerId($row, 'directus_files'));
+        $this->acl->enforceReadAll('forbid');
     }
 
-    protected function getMockAdapter()
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionReadException
+     */
+    public function testEnforceCanReadFails()
     {
-        // mock the adapter, driver, and parts
-        $mockResult = create_mock($this, 'Zend\Db\Adapter\Driver\ResultInterface');
-        $mockStatement = create_mock($this,'Zend\Db\Adapter\Driver\StatementInterface');
-        $mockStatement->expects($this->any())->method('execute')->will($this->returnValue($mockResult));
-        $mockConnection = create_mock($this,'Zend\Db\Adapter\Driver\ConnectionInterface');
-        $mockDriver = create_mock($this,'Zend\Db\Adapter\Driver\DriverInterface');
-        $mockDriver->expects($this->any())->method('createStatement')->will($this->returnValue($mockStatement));
-        $mockDriver->expects($this->any())->method('getConnection')->will($this->returnValue($mockConnection));
+        $this->acl->enforceRead('forbid');
+    }
 
-        // setup mock adapter
-        return create_mock($this,'Zend\Db\Adapter\Adapter', null, [$mockDriver]);
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionUpdateException
+     */
+    public function testEnforceCanUpdateFails()
+    {
+        $this->acl->enforceUpdate('forbid');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionUpdateException
+     */
+    public function testEnforceCanUpdateMineFails()
+    {
+        $this->acl->enforceUpdateMine('forbid');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionUpdateException
+     */
+    public function testEnforceCanUpdateFromGroupFails()
+    {
+        $this->acl->enforceUpdateFromGroup('forbid');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionUpdateException
+     */
+    public function testEnforceCanUpdateAllFails()
+    {
+        $this->acl->enforceUpdateAll('forbid');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionDeleteException
+     */
+    public function testEnforceCanDeleteFails()
+    {
+        $this->acl->enforceDelete('forbid');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionDeleteException
+     */
+    public function testEnforceCanDeleteMineFails()
+    {
+        $this->acl->enforceDeleteMine('forbid');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionDeleteException
+     */
+    public function testEnforceCanDeleteFromGroupFails()
+    {
+        $this->acl->enforceDeleteFromGroup('forbid');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionDeleteException
+     */
+    public function testEnforceCanDeleteAllFails()
+    {
+        $this->acl->enforceDeleteAll('forbid');
+    }
+
+    public function testStatusPermission()
+    {
+        $acl = new Acl();
+        $acl->setUserId(2);
+        $acl->setGroupId(2);
+
+        $acl->setCollectionPermissions('articles', [
+            [
+                'id' => 1,
+                'collection' => 'articles',
+                'group' => 2,
+                'read_field_blacklist' => null,
+                'write_field_blacklist' => null,
+                'navigate' => 1,
+                'status' => null,
+                'create' => 1,
+                'read' => 3,
+                'update' => 3,
+                'delete' => 3,
+                'require_activity_message' => 1
+            ],
+            [
+                'id' => 2,
+                'collection' => 'articles',
+                'group' => 2,
+                'read_field_blacklist' => ['read'],
+                'write_field_blacklist' => ['write'],
+                'navigate' => 1,
+                'status' => 1,
+                'create' => 0,
+                'read' => 3,
+                'update' => 0,
+                'delete' => 0
+            ],
+            [
+                'id' => 3,
+                'collection' => 'articles',
+                'group' => 2,
+                'read_field_blacklist' => ['read_draft'],
+                'write_field_blacklist' => ['write_draft'],
+                'navigate' => 1,
+                'status' => 2,
+                'create' => 1,
+                'read' => 2,
+                'update' => 1,
+                'delete' => 1
+            ]
+        ]);
+
+        $this->assertFalse($acl->canCreate('articles', 1));
+        $this->assertFalse($acl->canCreate('articles'));
+        $this->assertFalse($acl->canCreate('articles', '*'));
+        $this->assertFalse($acl->canCreate('articles', null));
+
+        $this->assertTrue($acl->canReadAll('articles', 1));
+        $this->assertTrue($acl->canReadFromGroup('articles', 1));
+        $this->assertTrue($acl->canReadMine('articles', 1));
+        $this->assertTrue($acl->canRead('articles', 1));
+
+        $this->assertFalse($acl->canUpdateAll('articles', 1));
+        $this->assertFalse($acl->canUpdateFromGroup('articles', 1));
+        $this->assertFalse($acl->canUpdateMine('articles', 1));
+        $this->assertFalse($acl->canUpdate('articles', 1));
+
+        $this->assertFalse($acl->canDeleteAll('articles', 1));
+        $this->assertFalse($acl->canDeleteFromGroup('articles', 1));
+        $this->assertFalse($acl->canDeleteMine('articles', 1));
+        $this->assertFalse($acl->canDelete('articles', 1));
+    }
+
+    public function testReadOnceAdmin()
+    {
+        $acl = new Acl();
+
+        $acl->setCollectionPermission('test', [
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $acl->enforceReadOnce('test');
+    }
+
+    public function testReadOnceGlobal()
+    {
+        $acl = new Acl();
+        $acl->setGroupId(1);
+        $acl->enforceReadOnce('test');
+    }
+
+    public function testReadOnce()
+    {
+        $acl = new Acl();
+
+        $acl->setCollectionPermission('test', [
+            'collection' => 'test',
+            'status' => 2,
+            'read' => 1
+        ]);
+
+        $acl->enforceReadOnce('test');
+    }
+
+    /**
+     * @expectedException \Directus\Permissions\Exception\ForbiddenCollectionReadException
+     */
+    public function testReadOnceFails()
+    {
+        $acl = new Acl();
+
+        $acl->setCollectionPermission('test', [
+            'collection' => 'test',
+            'status' => 2
+        ]);
+
+        $acl->enforceReadOnce('test');
+    }
+
+    public function testReadStatusPermission()
+    {
+        $acl = new Acl();
+        $this->assertFalse($acl->getCollectionStatusesReadPermission('test'));
+
+        $acl->setCollectionPermission('test', [
+            'status' => null,
+            'collection' => 'test'
+        ]);
+
+        $this->assertFalse($acl->getCollectionStatusesReadPermission('test'));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            'status' => null,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $this->assertNull($acl->getCollectionStatusesReadPermission('test'));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            'status' => 1,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $statuses = $acl->getCollectionStatusesReadPermission('test');
+        $this->assertInternalType('array', $statuses);
+        $this->assertCount(1, $statuses);
+        $this->assertTrue(in_array(1, $statuses));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            'status' => 1,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $acl->setCollectionPermission('test', [
+            'status' => 2,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $statuses = $acl->getCollectionStatusesReadPermission('test');
+        $this->assertInternalType('array', $statuses);
+        $this->assertCount(2, $statuses);
+        $this->assertTrue(in_array(1, $statuses));
+        $this->assertTrue(in_array(2, $statuses));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setCollectionPermission('test', [
+            'status' => 1,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $acl->setCollectionPermission('test', [
+            'status' => 2,
+            'collection' => 'test',
+            'read' => 1
+        ]);
+
+        $acl->setCollectionPermission('test', [
+            'status' => 3,
+            'collection' => 'test',
+            'read' => 0
+        ]);
+
+        $statuses = $acl->getCollectionStatusesReadPermission('test');
+        $this->assertInternalType('array', $statuses);
+        $this->assertCount(2, $statuses);
+        $this->assertTrue(in_array(1, $statuses));
+        $this->assertTrue(in_array(2, $statuses));
+
+        // ----------------------------------------------------------------------------
+        $acl = new Acl();
+        $acl->setGroupId(1);
+        $this->assertNull($acl->getCollectionStatusesReadPermission('test'));
     }
 }

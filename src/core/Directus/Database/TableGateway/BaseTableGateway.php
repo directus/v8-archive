@@ -5,7 +5,9 @@ namespace Directus\Database\TableGateway;
 use Directus\Config\Config;
 use Directus\Container\Container;
 use Directus\Database\Exception\InvalidQueryException;
+use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
+use Directus\Database\Query\Builder;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
@@ -13,10 +15,8 @@ use Directus\Database\TableGatewayFactory;
 use Directus\Database\TableSchema;
 use Directus\Filesystem\Thumbnail;
 use Directus\Permissions\Acl;
-use Directus\Permissions\Exception\UnauthorizedTableBigDeleteException;
-use Directus\Permissions\Exception\UnauthorizedTableBigEditException;
-use Directus\Permissions\Exception\UnauthorizedTableDeleteException;
-use Directus\Permissions\Exception\UnauthorizedTableEditException;
+use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
+use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
 use Zend\Db\Adapter\AdapterInterface;
@@ -658,8 +658,8 @@ class BaseTableGateway extends TableGateway
      *
      * @return ResultSet
      *
-     * @throws \Directus\Permissions\Exception\UnauthorizedFieldReadException
-     * @throws \Directus\Permissions\Exception\UnauthorizedFieldWriteException
+     * @throws \Directus\Permissions\Exception\ForbiddenFieldReadException
+     * @throws \Directus\Permissions\Exception\ForbiddenFieldWriteException
      * @throws \Exception
      */
     protected function executeSelect(Select $select)
@@ -1039,20 +1039,20 @@ class BaseTableGateway extends TableGateway
             // @TODO: Enforce must return a list of columns without the blacklist
             // when asterisk (*) is used
             // and only throw and error when all the selected columns are blacklisted
-            $this->acl->enforceBlacklist($table, $selectState['columns'], Acl::FIELD_READ_BLACKLIST);
+            $this->acl->enforceReadField($table, $selectState['columns']);
         } catch (\Exception $e) {
             if ($selectState['columns'][0] != '*') {
                 throw $e;
             }
 
             $selectState['columns'] = TableSchema::getAllNonAliasTableColumnsName($table);
-            $this->acl->enforceBlacklist($table, $selectState['columns'], Acl::FIELD_READ_BLACKLIST);
+            $this->acl->enforceReadField($table, $selectState['columns']);
         }
 
         // Enforce field read blacklist on Select's join tables
         foreach ($selectState['joins'] as $join) {
             $joinTable = $this->getRawTableNameFromQueryStateTable($join['name']);
-            $this->acl->enforceBlacklist($joinTable, $join['columns'], Acl::FIELD_READ_BLACKLIST);
+            $this->acl->enforceReadField($joinTable, $join['columns']);
         }
     }
 
@@ -1068,10 +1068,50 @@ class BaseTableGateway extends TableGateway
         $insertState = $insert->getRawState();
         $insertTable = $this->getRawTableNameFromQueryStateTable($insertState['table']);
 
-        $this->acl->enforceCreate($insertTable);
+        $statusValue = null;
+        $statusField = $this->getTableSchema()->getStatusField();
+        if ($statusField && $valueKey = array_search($statusField->getName(), $insertState['columns'])) {
+            $statusValue = ArrayUtils::get($insertState['values'], $valueKey);
+        }
+
+        $this->acl->enforceCreate($insertTable, $statusValue);
 
         // Enforce write field blacklist
-        $this->acl->enforceBlacklist($insertTable, $insertState['columns'], Acl::FIELD_WRITE_BLACKLIST);
+        $this->acl->enforceWriteField($insertTable, $insertState['columns']);
+    }
+
+    /**
+     * @param Builder $builder
+     */
+    protected function enforceReadPermission(Builder $builder)
+    {
+        // ----------------------------------------------------------------------------
+        // Make sure the user has permission to at least their items
+        // ----------------------------------------------------------------------------
+        $this->acl->enforceReadOnce($this->table);
+
+        $userCreatedField = $this->getTableSchema()->getUserCreateField();
+
+        // If there's not user created interface, user must have full read permission
+        if (!$userCreatedField) {
+            $this->acl->enforceReadAll($this->table);
+            return;
+        }
+
+        // User can read all items, nothing else to check
+        if ($this->acl->canReadAll($this->table)) {
+            return;
+        }
+
+        $ownerIds = [$this->acl->getUserId()];
+        if ($this->acl->canReadFromGroup($this->table)) {
+            $ownerIds = array_merge(
+                $ownerIds,
+                get_user_ids_in_group($this->acl->getGroupId())
+            );
+        }
+
+        $builder->whereIn($userCreatedField->getName(), $ownerIds);
     }
 
     /**
@@ -1083,63 +1123,59 @@ class BaseTableGateway extends TableGateway
      */
     public function enforceUpdatePermission(Update $update)
     {
-        $currentUserId = $this->acl->getUserId();
-        $updateState = $update->getRawState();
-        $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
-        $cmsOwnerColumn = $this->acl->getCmsOwnerColumnByTable($updateTable);
-
-        if (!TableSchema::hasStatusColumn($updateTable)) {
+        if ($this->acl->canUpdateAll($this->table)) {
             return;
         }
 
-        $permissionName = ACL::ACTION_UPDATE;
+        $collectionObject = $this->getTableSchema();
+        $currentUserId = $this->acl->getUserId();
+        $currentGroupId = $this->acl->getGroupId();
+        $updateState = $update->getRawState();
+        $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
+        $select = $this->sql->select();
+        $select->where($updateState['where']);
+        $select->limit(1);
+        $item = $this->ignoreFilters()->selectWith($select)->toArray();
+        $item = reset($item);
+        $statusId = null;
 
-        // Get status delete value
-        $deletedValue = null;
-
-        if (!$this->acl->hasTablePrivilege($updateTable, 'big' . $permissionName)) {
-            // Parsing for the column name is unnecessary. Zend enforces raw column names.
-            /**
-             * Enforce Privilege: "Big" Edit
-             */
-            if (!$cmsOwnerColumn) {
-                // All edits are "big" edits if there is no magic owner column.
-                $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-                throw new UnauthorizedTableBigEditException($aclErrorPrefix . 'The table `' . $updateTable . '` is missing the `user_create_column` within `directus_collections` (BigEdit Permission Forbidden)');
-            } else {
-                // Who are the owners of these rows?
-                list($resultQty, $ownerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $updateState['where']);
-                // Enforce
-                if (is_null($currentUserId) || count(array_diff($ownerIds, [$currentUserId]))) {
-                    // $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-                    // throw new UnauthorizedTableBigEditException($aclErrorPrefix . "Table bigedit access forbidden on $resultQty `$updateTable` table record(s) and " . count($ownerIds) . " CMS owner(s) (with ids " . implode(", ", $ownerIds) . ").");
-                    $groupsTableGateway = $this->makeTable('directus_groups');
-                    $group = $groupsTableGateway->find($this->acl->getGroupId());
-                    throw new UnauthorizedTableBigEditException('[' . $group['name'] . '] permissions only allow you to [' . $permissionName . '] your own items.');
-                }
-            }
-        }
-
-        if (!$this->acl->hasTablePrivilege($updateTable, $permissionName)) {
-            /**
-             * Enforce Privilege: "Little" Edit (I am the record CMS owner)
-             */
-            if (false !== $cmsOwnerColumn) {
-                if (!isset($predicateResultQty)) {
-                    // Who are the owners of these rows?
-                    list($predicateResultQty, $predicateOwnerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $updateState['where']);
-                }
-
-                if (in_array($currentUserId, $predicateOwnerIds)) {
-                    $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-                    throw new UnauthorizedTableEditException($aclErrorPrefix . 'Table edit access forbidden on ' . $predicateResultQty . '`' . $updateTable . '` table records owned by the authenticated CMS user (#' . $currentUserId . '.');
-                }
-            }
+        // Item not found, item cannot be updated
+        if (!$item) {
+            throw new ForbiddenCollectionUpdateException($updateTable);
         }
 
         // Enforce write field blacklist
-        $attemptOffsets = array_keys($updateState['set']);
-        $this->acl->enforceBlacklist($updateTable, $attemptOffsets, Acl::FIELD_WRITE_BLACKLIST);
+        $this->acl->enforceWriteField($updateTable, array_keys($updateState['set']));
+
+        if ($collectionObject->hasStatusField()) {
+            $statusField = $this->getTableSchema()->getStatusField();
+            $statusId = $item[$statusField->getName()];
+        }
+
+        // User Created Interface not found, item cannot be updated
+        $itemOwnerField = $this->getTableSchema()->getUserCreateField();
+        if (!$itemOwnerField) {
+            $this->acl->enforceUpdateAll($updateTable, $statusId);
+            return;
+        }
+
+        // Owner not found, item cannot be updated
+        $owner = get_item_owner($updateTable, $item[$collectionObject->getPrimaryKeyName()]);
+        if (!is_array($owner)) {
+            throw new ForbiddenCollectionUpdateException($updateTable);
+        }
+
+        $userItem = $currentUserId === $owner['id'];
+        $groupItem = $currentGroupId === $owner['group'];
+        if (!$userItem && !$groupItem && !$this->acl->canUpdateAll($updateTable, $statusId)) {
+            throw new ForbiddenCollectionUpdateException($updateTable);
+        }
+
+        if (!$userItem && $groupItem) {
+            $this->acl->enforceUpdateFromGroup($updateTable, $statusId);
+        } else if ($userItem) {
+            $this->acl->enforceUpdate($updateTable, $statusId);
+        }
     }
 
     /**
@@ -1147,49 +1183,88 @@ class BaseTableGateway extends TableGateway
      *
      * @param Delete $delete
      *
-     * @throws UnauthorizedTableBigDeleteException
-     * @throws UnauthorizedTableDeleteException
+     * @throws ForbiddenCollectionDeleteException
      */
     public function enforceDeletePermission(Delete $delete)
     {
+        $collectionObject = $this->getTableSchema();
         $currentUserId = $this->acl->getUserId();
+        $currentGroupId = $this->acl->getGroupId();
         $deleteState = $delete->getRawState();
         $deleteTable = $this->getRawTableNameFromQueryStateTable($deleteState['table']);
-        $cmsOwnerColumn = $this->acl->getCmsOwnerColumnByTable($deleteTable);
-        $canBigDelete = $this->acl->hasTablePrivilege($deleteTable, 'bigdelete');
-        $canDelete = $this->acl->hasTablePrivilege($deleteTable, 'delete');
-        $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
+        // $cmsOwnerColumn = $this->acl->getCmsOwnerColumnByTable($deleteTable);
+        // $canBigDelete = $this->acl->hasTablePrivilege($deleteTable, 'bigdelete');
+        // $canDelete = $this->acl->hasTablePrivilege($deleteTable, 'delete');
+        // $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
+
+        $select = $this->sql->select();
+        $select->where($deleteState['where']);
+        $select->limit(1);
+        $item = $this->ignoreFilters()->selectWith($select)->toArray();
+        $item = reset($item);
+        $statusId = null;
+
+        // Item not found, item cannot be updated
+        if (!$item) {
+            throw new ItemNotFoundException();
+        }
+
+        if ($collectionObject->hasStatusField()) {
+            $statusField = $this->getTableSchema()->getStatusField();
+            $statusId = $item[$statusField->getName()];
+        }
+
+        // User Created Interface not found, item cannot be updated
+        $itemOwnerField = $this->getTableSchema()->getUserCreateField();
+        if (!$itemOwnerField) {
+            $this->acl->enforceDeleteAll($deleteTable, $statusId);
+            return;
+        }
+
+        // Owner not found, item cannot be updated
+        $owner = get_item_owner($deleteTable, $item[$collectionObject->getPrimaryKeyName()]);
+        if (!is_array($owner)) {
+            throw new ForbiddenCollectionDeleteException($deleteTable);
+        }
+
+        $userItem = $currentUserId === $owner['id'];
+        $groupItem = $currentGroupId === $owner['group'];
+        if (!$userItem && !$groupItem && !$this->acl->canDeleteAll($deleteTable, $statusId)) {
+            throw new ForbiddenCollectionDeleteException($deleteTable);
+        }
+
+        if (!$userItem && $groupItem) {
+            $this->acl->enforceDeleteFromGroup($deleteTable, $statusId);
+        } else if ($userItem) {
+            $this->acl->enforceDelete($deleteTable, $statusId);
+        }
 
         // @todo: clean way
         // @TODO: this doesn't need to be bigdelete
         //        the user can only delete their own entry
-        if ($deleteTable === 'directus_bookmarks') {
-            $canBigDelete = true;
-        }
-
-        if (!$canBigDelete && !$canDelete) {
-            throw new UnauthorizedTableBigDeleteException($aclErrorPrefix . ' forbidden to hard delete on table `' . $deleteTable . '` because it has Status Column.');
-        }
+        // if ($deleteTable === 'directus_bookmarks') {
+        //     $canBigDelete = true;
+        // }
 
         // @TODO: Update conditions
         // =============================================================================
         // Cannot delete if there's no magic owner column and can't big delete
         // All deletes are "big" deletes if there is no magic owner column.
         // =============================================================================
-        if (false === $cmsOwnerColumn && !$canBigDelete) {
-            throw new UnauthorizedTableBigDeleteException($aclErrorPrefix . 'The table `' . $deleteTable . '` is missing the `user_create_column` within `directus_collections` (BigHardDelete Permission Forbidden)');
-        } else if (!$canBigDelete) {
-            // Who are the owners of these rows?
-            list($predicateResultQty, $predicateOwnerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $deleteState['where']);
-            if (!in_array($currentUserId, $predicateOwnerIds)) {
-                //   $exceptionMessage = "Table harddelete access forbidden on $predicateResultQty `$deleteTable` table records owned by the authenticated CMS user (#$currentUserId).";
-                $groupsTableGateway = $this->makeTable('directus_groups');
-                $group = $groupsTableGateway->find($this->acl->getGroupId());
-                $exceptionMessage = '[' . $group['name'] . '] permissions only allow you to [delete] your own items.';
-                //   $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-                throw new  UnauthorizedTableDeleteException($exceptionMessage);
-            }
-        }
+        // if (false === $cmsOwnerColumn && !$canBigDelete) {
+        //     throw new ForbiddenCollectionDeleteException($aclErrorPrefix . 'The table `' . $deleteTable . '` is missing the `user_create_column` within `directus_collections` (BigHardDelete Permission Forbidden)');
+        // } else if (!$canBigDelete) {
+        //     // Who are the owners of these rows?
+        //     list($predicateResultQty, $predicateOwnerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $deleteState['where']);
+        //     if (!in_array($currentUserId, $predicateOwnerIds)) {
+        //         //   $exceptionMessage = "Table harddelete access forbidden on $predicateResultQty `$deleteTable` table records owned by the authenticated CMS user (#$currentUserId).";
+        //         $groupsTableGateway = $this->makeTable('directus_groups');
+        //         $group = $groupsTableGateway->find($this->acl->getGroupId());
+        //         $exceptionMessage = '[' . $group['name'] . '] permissions only allow you to [delete] your own items.';
+        //         //   $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
+        //         throw new  ForbiddenCollectionDeleteException($exceptionMessage);
+        //     }
+        // }
     }
 
     /**

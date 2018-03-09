@@ -2,8 +2,6 @@
 
 namespace Directus\Database\RowGateway;
 
-use Directus\Authentication\Provider as AuthProvider;
-
 class DirectusFilesRowGateway extends BaseRowGateway
 {
     public function preSaveDataHook(array $rowData, $rowExistsInDatabase = false)
@@ -11,9 +9,9 @@ class DirectusFilesRowGateway extends BaseRowGateway
         // New record?
         // Attribute the currently authenticated user as the uploader
         if (!$rowExistsInDatabase) {
-            $currentUser = AuthProvider::getUserInfo();
-            $cmsOwnerColumnName = $this->acl->getCmsOwnerColumnByTable($this->table);
-            $rowData[$cmsOwnerColumnName] = $currentUser['id'];
+            // $currentUser = AuthProvider::getUserInfo();
+            // $cmsOwnerColumnName = $this->acl->getCmsOwnerColumnByTable($this->table);
+            // $rowData[$cmsOwnerColumnName] = $currentUser['id'];
         } else {
             if (array_key_exists('date_uploaded', $rowData))
                 unset($rowData['date_uploaded']);

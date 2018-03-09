@@ -101,6 +101,7 @@ function assert_response_meta(TestCase $testCase, ResponseInterface $response, a
     $meta = $result->meta;
     $validOptions = ['table', 'type', 'result_count'];
 
+    // TODO: Check for 204 status code
     if (!empty($options)) {
         foreach ($validOptions as $option) {
             if (isset($options[$option])) {
@@ -124,6 +125,27 @@ function assert_response_data_contains(TestCase $testCase, ResponseInterface $re
     foreach ($expectedData as $key => $value) {
         $testCase->assertArrayHasKey($key, $data);
         $testCase->assertSame($value, $data[$key]);
+    }
+}
+
+/**
+ * @param PHPUnit_Framework_TestCase $testCase
+ * @param ResponseInterface $response
+ * @param array $expectedKeys
+ */
+function assert_response_data_fields(TestCase $testCase, ResponseInterface $response, array $expectedKeys)
+{
+    $result = response_to_object($response);
+    $data = (array)$result->data;
+
+    if (is_object($result->data)) {
+        $data = [$data];
+    }
+
+    foreach ($data as $row) {
+        foreach ($row as $field => $value) {
+            $testCase->assertTrue(in_array($field, $expectedKeys));
+        }
     }
 }
 

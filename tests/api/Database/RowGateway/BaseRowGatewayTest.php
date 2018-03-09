@@ -74,7 +74,7 @@ class BaseRowGatewayTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Directus\Permissions\Exception\UnauthorizedFieldReadException
+     * @expectedException Directus\Permissions\Exception\ForbiddenFieldReadException
      */
     public function testGetException()
     {
@@ -83,7 +83,7 @@ class BaseRowGatewayTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Directus\Permissions\Exception\UnauthorizedFieldReadException
+     * @expectedException Directus\Permissions\Exception\ForbiddenFieldReadException
      */
     public function testOffsetGetException()
     {
@@ -92,7 +92,7 @@ class BaseRowGatewayTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Directus\Permissions\Exception\UnauthorizedFieldWriteException
+     * @expectedException Directus\Permissions\Exception\ForbiddenFieldWriteException
      */
     public function testUnsetException()
     {
@@ -101,7 +101,7 @@ class BaseRowGatewayTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Directus\Permissions\Exception\UnauthorizedFieldWriteException
+     * @expectedException Directus\Permissions\Exception\ForbiddenFieldWriteException
      */
     public function testSetException()
     {

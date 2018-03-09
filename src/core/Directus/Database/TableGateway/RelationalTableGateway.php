@@ -540,7 +540,7 @@ class RelationalTableGateway extends BaseTableGateway
             $params['single'] = true;
         }
 
-        // Fetch only one if single is param set
+        // Fetch only one if single param is set
         if (ArrayUtils::get($params, 'single')) {
             $params['limit'] = 1;
         }
@@ -567,8 +567,10 @@ class RelationalTableGateway extends BaseTableGateway
             unset($defaultParams['sort']);
         }
 
-        if (!ArrayUtils::has($params, 'status')) {
+        if (!ArrayUtils::has($params, 'id') && !ArrayUtils::has($params, 'status')) {
             $defaultParams['status'] = $this->getPublishedStatuses();
+        } else if (ArrayUtils::has($params, 'status') && is_string(ArrayUtils::get($params, 'status'))) {
+            $params['status'] = StringUtils::csv($params['status']);
         }
 
         $params = array_merge($defaultParams, $params);
@@ -600,13 +602,28 @@ class RelationalTableGateway extends BaseTableGateway
     /**
      * @param array $params
      * @param Builder $builder
-     * @param Collection $schema
-     * @param bool $hasActiveColumn
      *
      * @return Builder
      */
-    public function applyParamsToTableEntriesSelect(array $params, Builder $builder, Collection $schema, $hasActiveColumn = false)
+    public function applyParamsToTableEntriesSelect(array $params, Builder $builder)
     {
+        // ----------------------------------------------------------------------------
+        // STATUS VALUES
+        // ----------------------------------------------------------------------------
+        $statusField = $this->getTableSchema()->getStatusField();
+        $permissionStatuses = $this->acl->getCollectionStatusesReadPermission($this->getTable());
+        if ($statusField && is_array($permissionStatuses)) {
+            $paramStatuses = ArrayUtils::get($params, 'status');
+            if (is_array($paramStatuses)) {
+                $permissionStatuses = ArrayUtils::intersection(
+                    $permissionStatuses,
+                    $paramStatuses
+                );
+            }
+
+            $params['status'] = $permissionStatuses;
+        }
+
         // @TODO: Query Builder Object
         foreach($params as $type => $argument) {
             $method = 'process' . ucfirst($type);
@@ -774,16 +791,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function loadItems(array $params = [], \Closure $queryCallback = null)
     {
-        // Get table column schema
-        $tableSchema = $this->getTableSchema();
-
-        // table only has one column
-        // return an empty array
-        if ($tableSchema === false || count($tableSchema->getFields()) <= 1) {
-            return [];
-        }
-
-        $hasActiveColumn = $tableSchema->hasStatusField();
+        $collectionObject = $this->getTableSchema();
 
         $params = $this->applyDefaultEntriesSelectParams($params);
         $fields = $this->getSelectedFields(ArrayUtils::get($params, 'fields'));
@@ -793,18 +801,15 @@ class RelationalTableGateway extends BaseTableGateway
         $builder = new Builder($this->getAdapter());
         $builder->from($this->getTable());
         $builder->columns(
-            array_merge([$tableSchema->getPrimaryKeyName()], $this->getSelectedNonAliasFields($fields))
+            array_merge([$collectionObject->getPrimaryKeyName()], $this->getSelectedNonAliasFields($fields))
         );
-        $builder = $this->applyParamsToTableEntriesSelect($params, $builder, $tableSchema, $hasActiveColumn);
 
-        // If we have user field and do not have big view privileges but have view then only show entries we created
-        $cmsOwnerId = $this->acl ? $this->acl->getCmsOwnerColumnByTable($this->table) : null;
-        $currentUserId = $this->acl ? $this->acl->getUserId() : null;
-        // TODO: Find better names
-        $hasSmallViewPermission = !$this->acl->hasTablePrivilege($this->table, 'bigview') && $this->acl->hasTablePrivilege($this->table, 'view');
-        if ($cmsOwnerId && $hasSmallViewPermission && !$this->acl->isAdmin()) {
-            $builder->whereEqualTo($cmsOwnerId, $currentUserId);
-        }
+        $builder = $this->applyParamsToTableEntriesSelect(
+            $params,
+            $builder
+        );
+
+        $this->enforceReadPermission($builder);
 
         if ($queryCallback !== null) {
             $builder = $queryCallback($builder);
@@ -828,7 +833,7 @@ class RelationalTableGateway extends BaseTableGateway
         if ($columnsDepth > 0) {
             $relationalColumns = ArrayUtils::intersection(
                 get_columns_flat_at($fields, 0),
-                $tableSchema->getRelationalFieldsName()
+                $collectionObject->getRelationalFieldsName()
             );
 
             $relationalColumns = array_filter(get_unflat_columns($fields), function ($key) use ($relationalColumns) {
@@ -1365,9 +1370,9 @@ class RelationalTableGateway extends BaseTableGateway
                 }, explode(',', $params['status']));
             }
 
-            $statuses = array_filter($statuses, function ($value) {
-                return is_numeric($value);
-            });
+            // $statuses = array_filter($statuses, function ($value) {
+            //     return is_numeric($value);
+            // });
 
             if ($statuses) {
                 $query->whereIn(TableSchema::getStatusFieldName(

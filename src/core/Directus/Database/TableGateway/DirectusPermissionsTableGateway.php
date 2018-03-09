@@ -68,7 +68,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
      */
     public function getGroupPrivileges($groupId)
     {
-        return $this->fetchGroupPrivileges($groupId, null);
+        return $this->fetchGroupPrivileges($groupId);
     }
 
     public function fetchGroupPrivileges($groupId, $statusId = false)
@@ -93,9 +93,9 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
                 if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
                     $value = explode(',', $value);
                 }
-
-                $privilegesByTable[$row['collection']] = $this->parseRecord($row);
             }
+
+            $privilegesByTable[$row['collection']][] = $this->parseRecord($row);
         }
 
         return $privilegesByTable;

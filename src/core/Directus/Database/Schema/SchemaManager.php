@@ -288,9 +288,7 @@ class SchemaManager
      */
     public function getFields($tableName, $params = [])
     {
-        // TODO: filter black listed fields
-        // $acl = Bootstrap::get('acl');
-        // $blacklist = $readFieldBlacklist = $acl->getTablePrivilegeList($tableName, $acl::FIELD_READ_BLACKLIST);
+        // TODO: filter black listed fields on services level
 
         $columnsSchema = ArrayUtils::get($this->data, 'columns.' . $tableName, null);
         if (!$columnsSchema) {
