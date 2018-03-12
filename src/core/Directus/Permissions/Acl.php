@@ -54,9 +54,9 @@ class Acl
     ];
 
     const PERMISSION_READ_WRITE = [
-        self::ACTION_CREATE => 1,
-        self::ACTION_READ   => 2,
-        self::ACTION_UPDATE => 3,
+        self::ACTION_CREATE => self::LEVEL_FULL,
+        self::ACTION_READ   => self::LEVEL_FULL,
+        self::ACTION_UPDATE => self::LEVEL_FULL,
         self::ACTION_DELETE => 0
     ];
 
