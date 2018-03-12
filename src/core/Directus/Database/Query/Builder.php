@@ -20,7 +20,10 @@ use Zend\Db\Sql\Predicate\NotBetween;
 use Zend\Db\Sql\Predicate\NotIn;
 use Zend\Db\Sql\Predicate\NotLike;
 use Zend\Db\Sql\Predicate\Operator;
+use Zend\Db\Sql\Predicate\Predicate;
+use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Where;
 
 class Builder
 {
@@ -604,31 +607,7 @@ class Builder
         }
 
         foreach ($this->getWheres() as $condition) {
-            $logical = strtoupper(ArrayUtils::get($condition, 'logical', 'and'));
-
-            if (ArrayUtils::get($condition, 'type') === 'nest') {
-                $query = ArrayUtils::get($condition, 'query');
-                if ($logical === 'OR') {
-                    $select->where->or;
-                }
-
-                $where = $select->where->nest();
-                // @NOTE: only allow one level nested
-                foreach($query->getWheres() as $nestCondition) {
-                    if (ArrayUtils::get($nestCondition, 'logical') == 'or') {
-                        $whereLogical = $where::OP_OR;
-                    } else {
-                        $whereLogical = $where::OP_AND;
-                    }
-
-                    $where->addPredicate($this->buildConditionExpression($nestCondition), $whereLogical);
-                    $condition = null;
-                }
-
-                $where->unnest();
-            } else {
-                $select->where($this->buildConditionExpression($condition), $logical);
-            }
+            $this->buildCondition($select->where, $condition);
         }
 
         if ($this->groupBys !== null) {
@@ -691,6 +670,36 @@ class Builder
         $select = $this->buildSelect();
 
         return $sql->getSqlStringForSqlObject($select, $this->connection->getPlatform());
+    }
+
+    /**
+     * Build the condition expressions
+     *
+     * @param Predicate $where
+     * @param array $condition
+     */
+    protected function buildCondition(Predicate $where, array $condition)
+    {
+        $logical = strtoupper(ArrayUtils::get($condition, 'logical', 'and'));
+
+        if (ArrayUtils::get($condition, 'type') === 'nest') {
+            /** @var Builder $query */
+            $query = ArrayUtils::get($condition, 'query');
+            if ($logical === 'OR') {
+                $where->or;
+            }
+
+            $where = $where->nest();
+
+            foreach ($query->getWheres() as $condition) {
+                $query->from($this->getFrom());
+                $query->buildCondition($where, $condition);
+            }
+
+            $where->unnest();
+        } else {
+            $where->addPredicate($this->buildConditionExpression($condition), $logical);
+        }
     }
 
     protected function buildOrder()
