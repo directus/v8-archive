@@ -21,9 +21,7 @@ use Zend\Db\Sql\Predicate\NotIn;
 use Zend\Db\Sql\Predicate\NotLike;
 use Zend\Db\Sql\Predicate\Operator;
 use Zend\Db\Sql\Predicate\Predicate;
-use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Where;
 
 class Builder
 {
@@ -669,7 +667,7 @@ class Builder
         $sql = $this->getSqlObject();
         $select = $this->buildSelect();
 
-        return $sql->getSqlStringForSqlObject($select, $this->connection->getPlatform());
+        return $sql->buildSqlString($select, $this->connection);
     }
 
     /**
