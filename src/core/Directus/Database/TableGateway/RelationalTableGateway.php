@@ -567,7 +567,9 @@ class RelationalTableGateway extends BaseTableGateway
             unset($defaultParams['sort']);
         }
 
-        if (!ArrayUtils::has($params, 'id') && !ArrayUtils::has($params, 'status')) {
+        if (ArrayUtils::get($params, 'status') === '*') {
+            ArrayUtils::remove($params, 'status');
+        } else if (!ArrayUtils::has($params, 'id') && !ArrayUtils::has($params, 'status')) {
             $defaultParams['status'] = $this->getPublishedStatuses();
         } else if (ArrayUtils::has($params, 'status') && is_string(ArrayUtils::get($params, 'status'))) {
             $params['status'] = StringUtils::csv($params['status']);
