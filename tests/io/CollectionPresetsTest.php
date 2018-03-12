@@ -82,6 +82,18 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
         $response = request_get($path, ['access_token' => 'token']);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, $data);
+        assert_response_data_fields($this, $response, [
+            'id',
+            'title',
+            'user',
+            'group',
+            'collection',
+            'search_query',
+            'filters',
+            'view_type',
+            'view_query',
+            'view_options'
+        ]);
     }
 
     public function testList()
