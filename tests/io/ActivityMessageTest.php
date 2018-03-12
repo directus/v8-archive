@@ -49,8 +49,6 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     public static function tearDownAfterClass()
     {
         static::resetDatabase();
-
-        drop_table(static::$db, 'objects');
     }
 
     public static function resetDatabase()
@@ -61,6 +59,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         truncate_table(static::$db, 'directus_activity');
         drop_table(static::$db, 'test');
         drop_table(static::$db, 'test2');
+        drop_table(static::$db, 'objects');
     }
 
     public static function clearData()
@@ -73,6 +72,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
             truncate_table(static::$db, 'test2');
         }
 
+        truncate_table(static::$db, 'directus_permissions');
         truncate_table(static::$db, 'directus_collection_presets');
         truncate_table(static::$db, 'directus_settings');
         reset_table_id(static::$db, 'directus_groups', 4);
