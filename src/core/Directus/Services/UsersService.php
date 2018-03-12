@@ -6,6 +6,7 @@ use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
+use Directus\Exception\ForbiddenException;
 use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
 
@@ -78,6 +79,10 @@ class UsersService extends AbstractService
 
     public function invite(array $emails, array $params = [])
     {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new ForbiddenException('Inviting user was denied');
+        }
+
         foreach ($emails as $email) {
             $data = ['email' => $email];
             $this->validate($data, ['email' => 'required|email']);
