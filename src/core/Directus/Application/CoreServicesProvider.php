@@ -273,11 +273,11 @@ class CoreServicesProvider
                 $userCreated = $tableObject->getUserCreateField();
                 $userModified = $tableObject->getUserUpdateField();
 
-                if ($userCreated && (!$payload->has($userCreated->getName()) || !$acl->isAdmin())) {
+                if ($userCreated) {
                     $payload[$userCreated->getName()] = $acl->getUserId();
                 }
 
-                if ($userModified && (!$payload->has($userModified->getName()) || !$acl->isAdmin())) {
+                if ($userModified) {
                     $payload[$userModified->getName()] = $acl->getUserId();
                 }
 
