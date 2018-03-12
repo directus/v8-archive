@@ -802,9 +802,18 @@ class RelationalTableGateway extends BaseTableGateway
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
         $builder = new Builder($this->getAdapter());
         $builder->from($this->getTable());
-        $builder->columns(
-            array_merge([$collectionObject->getPrimaryKeyName()], $this->getSelectedNonAliasFields($fields))
+
+        $selectedFields = array_merge(
+            [$collectionObject->getPrimaryKeyName()],
+            $this->getSelectedNonAliasFields($fields)
         );
+
+        $statusField = $collectionObject->getStatusField();
+        if ($statusField && $this->acl->getCollectionStatuses($this->table)) {
+            $selectedFields = array_merge($selectedFields, [$statusField->getName()]);
+        }
+
+        $builder->columns($selectedFields);
 
         $builder = $this->applyParamsToTableEntriesSelect(
             $params,
@@ -868,6 +877,19 @@ class RelationalTableGateway extends BaseTableGateway
 
                 return $entry;
             }, $results);
+        }
+
+        if ($statusField && $this->acl->getCollectionStatuses($this->table)) {
+            foreach ($results as $index => &$item) {
+                $statusId = ArrayUtils::get($item, $statusField->getName());
+                $blacklist = $this->acl->getReadFieldBlacklist($this->table, $statusId);
+                $item = ArrayUtils::omit($item, $blacklist);
+                if (empty($item)) {
+                    unset($results[$index]);
+                }
+            }
+
+            $results = array_values($results);
         }
 
         if (ArrayUtils::has($params, 'single')) {
