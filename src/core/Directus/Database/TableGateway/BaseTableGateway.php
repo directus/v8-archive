@@ -1075,9 +1075,6 @@ class BaseTableGateway extends TableGateway
         }
 
         $this->acl->enforceCreate($insertTable, $statusValue);
-
-        // Enforce write field blacklist
-        $this->acl->enforceWriteField($insertTable, $insertState['columns']);
     }
 
     /**

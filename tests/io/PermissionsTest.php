@@ -1412,52 +1412,107 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response_data_fields($this, $response, ['id', 'title', 'status']);
     }
 
-    public function _testStatusFieldBlacklist()
+    public function testStatusFieldBlacklist()
     {
-        // $this->resetTestPosts();
-        // truncate_table(static::$db, 'directus_permissions');
-        //
-        // $this->addPermissionTo($this->internGroup, 'posts', [
-        //     'status' => 0,
-        //     'read' => 1,
-        //     // 'write_field_blacklist' => 'author,status',
-        //     'read_field_blacklist' => 'status,author'
-        // ]);
-        //
-        // $this->addPermissionTo($this->internGroup, 'posts', [
-        //     'status' => 1,
-        //     'read' => 1,
-        //     // 'write_field_blacklist' => 'author,status',
-        //     // 'read_field_blacklist' => 'status,author'
-        // ]);
-        //
-        // $this->addPermissionTo($this->internGroup, 'posts', [
-        //     'status' => 2,
-        //     'read' => 1,
-        //     // 'write_field_blacklist' => 'author,status',
-        //     'read_field_blacklist' => 'status'
-        // ]);
-        //
-        // // ----------------------------------------------------------------------------
-        // // STATUS: 0
-        // // ----------------------------------------------------------------------------
+        $this->resetTestPosts();
+        truncate_table(static::$db, 'directus_permissions');
+
+        $this->addPermissionTo($this->internGroup, 'posts', [
+            'status' => 0,
+            'read' => 1,
+            'write_field_blacklist' => 'author,status',
+            // 'read_field_blacklist' => 'status,author'
+        ]);
+
+        $this->addPermissionTo($this->internGroup, 'posts', [
+            'status' => 1,
+            'read' => 1,
+            'write_field_blacklist' => 'author,status',
+            // 'read_field_blacklist' => 'status,author'
+        ]);
+
+        $this->addPermissionTo($this->internGroup, 'posts', [
+            'status' => 2,
+            'read' => 1,
+            'write_field_blacklist' => 'author,status',
+            // 'read_field_blacklist' => 'status'
+        ]);
+
+        // ----------------------------------------------------------------------------
+        // STATUS: 0
+        // ----------------------------------------------------------------------------
+        // Read
         // $response = request_get('items/posts/1', $this->internQueryParams);
         // assert_response($this, $response);
         // assert_response_data_fields($this, $response, ['id', 'title']);
-        //
-        // // ----------------------------------------------------------------------------
-        // // STATUS: 1
-        // // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
+        // Write
+        // ----------------------------------------------------------------------------
+        $data = ['status' => 0, 'title' => 'Post 1', 'author' => 1];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
+
+        $data = ['status' => 0, 'title' => 'Post 1'];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // STATUS: 1
+        // ----------------------------------------------------------------------------
+        // Read
         // $response = request_get('items/posts/2', $this->internQueryParams);
         // assert_response($this, $response);
         // assert_response_data_fields($this, $response, ['id', 'title', 'author', 'status']);
-        //
-        // // ----------------------------------------------------------------------------
-        // // STATUS: 2
-        // // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
+        // Write
+        // ----------------------------------------------------------------------------
+        $data = ['status' => 1, 'title' => 'Post 1', 'author' => 1];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
+
+        $data = ['status' => 1, 'title' => 'Post 1'];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // STATUS: 2
+        // ----------------------------------------------------------------------------
+        // Read
         // $response = request_get('items/posts/3', $this->internQueryParams);
         // assert_response($this, $response);
         // assert_response_data_fields($this, $response, ['id', 'title', 'author']);
+        // ----------------------------------------------------------------------------
+        // Write
+        // ----------------------------------------------------------------------------
+        $data = ['status' => 2, 'title' => 'Post 1', 'author' => 1];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
+
+        $data = ['status' => 2, 'title' => 'Post 1'];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
+
+        $this->resetTestPosts();
+        truncate_table(static::$db, 'directus_permissions');
+
+        $this->addPermissionTo($this->internGroup, 'posts', [
+            'status' => null,
+            'read' => 1,
+            'write_field_blacklist' => 'author,status',
+            // 'read_field_blacklist' => 'status,author'
+        ]);
+
+        $data = ['status' => 2, 'title' => 'Post 1', 'author' => 1];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
+
+        $data = ['status' => 2, 'title' => 'Post 1'];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
+
+        $data = ['title' => 'Post 1', 'author' => 1];
+        $response = request_error_post('items/posts', $data, $this->internQueryParams);
+        assert_response_error($this, $response);
     }
 
     protected function addPermissionTo($group, $collection, array $data)

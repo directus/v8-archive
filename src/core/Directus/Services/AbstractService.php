@@ -322,5 +322,15 @@ abstract class AbstractService
         if ($requiredActivityMessage && empty($params['message'])) {
             throw new ForbiddenException('Activity message required for collection: ' . $collection);
         }
+
+        $status = null;
+        $collectionObject = $this->getSchemaManager()->getTableSchema($collection);
+        $statusField = $collectionObject->getStatusField();
+        if ($statusField) {
+            $status = ArrayUtils::get($payload, $statusField->getName(), $statusField->getDefaultValue());
+        }
+
+        // Enforce write field blacklist
+        $this->getAcl()->enforceWriteField($collection, array_keys($payload), $status);
     }
 }
