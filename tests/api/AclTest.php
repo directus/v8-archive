@@ -663,4 +663,15 @@ class AclTest extends PHPUnit_Framework_TestCase
         $acl->setGroupId(1);
         $this->assertNull($acl->getCollectionStatusesReadPermission('test'));
     }
+
+    public function testCollectionStatuses()
+    {
+        $this->assertNull($this->acl->getCollectionStatuses('directus_files'));
+
+        $productStatuses = $this->acl->getCollectionStatuses('products');
+        $this->assertInternalType('array', $productStatuses);
+        $this->assertCount(2, $productStatuses);
+        $this->assertTrue(in_array(1, $productStatuses));
+        $this->assertTrue(in_array(2, $productStatuses));
+    }
 }

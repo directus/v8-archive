@@ -3,7 +3,6 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ItemNotFoundException;
-use Directus\Exception\Exception;
 use Directus\Permissions\Exception\ForbiddenCollectionCreateException;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;

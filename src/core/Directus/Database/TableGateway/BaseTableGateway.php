@@ -1086,11 +1086,12 @@ class BaseTableGateway extends TableGateway
         // Make sure the user has permission to at least their items
         // ----------------------------------------------------------------------------
         $this->acl->enforceReadOnce($this->table);
-
-        $userCreatedField = $this->getTableSchema()->getUserCreateField();
+        $collectionObject = $this->getTableSchema();
+        $userCreatedField = $collectionObject->getUserCreateField();
+        $statusField = $collectionObject->getStatusField();
 
         // If there's not user created interface, user must have full read permission
-        if (!$userCreatedField) {
+        if (!$userCreatedField && !$statusField) {
             $this->acl->enforceReadAll($this->table);
             return;
         }
@@ -1100,15 +1101,52 @@ class BaseTableGateway extends TableGateway
             return;
         }
 
-        $ownerIds = [$this->acl->getUserId()];
-        if ($this->acl->canReadFromGroup($this->table)) {
-            $ownerIds = array_merge(
-                $ownerIds,
-                get_user_ids_in_group($this->acl->getGroupId())
-            );
-        }
+        $groupUsersId = get_user_ids_in_group($this->acl->getGroupId());
+        $authenticatedUserId = $this->acl->getUserId();
+        $statuses = $this->acl->getCollectionStatuses($this->table);
 
-        $builder->whereIn($userCreatedField->getName(), $ownerIds);
+        if (empty($statuses)) {
+            $ownerIds = [$authenticatedUserId];
+            if ($this->acl->canReadFromGroup($this->table)) {
+                $ownerIds = array_merge(
+                    $ownerIds,
+                    $groupUsersId
+                );
+            }
+
+            $builder->whereIn($userCreatedField->getName(), $ownerIds);
+        } else {
+            $collection = $this->table;
+            $builder->nestWhere(function (Builder $builder) use ($collection, $statuses, $statusField, $userCreatedField, $groupUsersId, $authenticatedUserId) {
+                foreach ($statuses as $status) {
+                    $canReadAll = $this->acl->canReadAll($collection, $status);
+                    $canReadMine = $this->acl->canReadMine($collection, $status);
+
+                    if ((!$canReadAll && !$userCreatedField) || !$canReadMine) {
+                        continue;
+                    }
+
+                    $ownerIds = $canReadAll ? null : [$authenticatedUserId];
+                    $canReadFromGroup = $this->acl->canReadFromGroup($collection, $status);
+                    if (!$canReadAll && $canReadFromGroup) {
+                        $ownerIds = array_merge(
+                            $ownerIds,
+                            $groupUsersId
+                        );
+                    }
+
+                    $builder->nestOrWhere(function (Builder $builder) use ($statuses, $ownerIds, $statusField, $userCreatedField, $status) {
+                        if ($ownerIds) {
+                            $builder->whereIn($userCreatedField->getName(), $ownerIds);
+                        }
+
+                        $builder->whereEqualTo($statusField->getName(), $status);
+                    });
+                }
+
+
+            });
+        }
     }
 
     /**

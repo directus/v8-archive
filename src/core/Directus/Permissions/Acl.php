@@ -231,6 +231,17 @@ class Acl
         return array_merge($this->globalPermissions, $this->statusPermissions);
     }
 
+    public function getCollectionStatuses($collection)
+    {
+        $statuses = null;
+        $permissions = ArrayUtils::get($this->statusPermissions, $collection);
+        if (!empty($permissions)) {
+            $statuses = array_keys($permissions);
+        }
+
+        return $statuses;
+    }
+
     /**
      * Gets a collection permissions
      *
@@ -929,7 +940,6 @@ class Acl
         }
 
         $allowed = false;
-
         foreach ($permissions as $permission) {
             $permissionLevel = ArrayUtils::get($permission, $action, 0);
 
