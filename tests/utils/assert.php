@@ -28,6 +28,10 @@ function assert_response(TestCase $testCase, ResponseInterface $response, array 
         $testCase->assertCount($options['count'], $result->data);
     }
 
+    if (isset($options['empty']) && $options['empty'] == true) {
+        $testCase->assertEmpty($result->data);
+    }
+
     // =============================================================================
     // Assert HTTP STATUS CODE
     // =============================================================================
@@ -136,13 +140,24 @@ function assert_response_data_contains(TestCase $testCase, ResponseInterface $re
 function assert_response_data_fields(TestCase $testCase, ResponseInterface $response, array $expectedKeys)
 {
     $result = response_to_object($response);
-    $data = (array)$result->data;
 
-    if (is_object($result->data)) {
-        $data = [$data];
+    assert_data_fields($testCase, $result->data, $expectedKeys);
+}
+
+/**
+ * @param PHPUnit_Framework_TestCase $testCase
+ * @param array|object $data
+ * @param array $expectedKeys
+ */
+function assert_data_fields(TestCase $testCase, $data, array $expectedKeys)
+{
+    if (is_object($data)) {
+        $data = [(array)$data];
     }
 
     foreach ($data as $row) {
+        $testCase->assertCount(count($expectedKeys), (array)$row, 'Expected fields are exactly on each data row');
+
         foreach ($row as $field => $value) {
             $testCase->assertTrue(in_array($field, $expectedKeys));
         }

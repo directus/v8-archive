@@ -1420,30 +1420,37 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'status' => 0,
             'read' => 1,
             'write_field_blacklist' => 'author,status',
-            // 'read_field_blacklist' => 'status,author'
+            'read_field_blacklist' => 'status,author'
         ]);
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 1,
             'read' => 1,
             'write_field_blacklist' => 'author,status',
-            // 'read_field_blacklist' => 'status,author'
+            'read_field_blacklist' => 'status,author'
         ]);
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 2,
             'read' => 1,
             'write_field_blacklist' => 'author,status',
-            // 'read_field_blacklist' => 'status'
+            'read_field_blacklist' => 'status'
+        ]);
+
+        $this->addPermissionTo($this->internGroup, 'posts', [
+            'status' => 3,
+            'read' => 1,
+            'read_field_blacklist' => 'id,status,title,author'
         ]);
 
         // ----------------------------------------------------------------------------
         // STATUS: 0
         // ----------------------------------------------------------------------------
         // Read
-        // $response = request_get('items/posts/1', $this->internQueryParams);
-        // assert_response($this, $response);
-        // assert_response_data_fields($this, $response, ['id', 'title']);
+        // ----------------------------------------------------------------------------
+        $response = request_get('items/posts/1', $this->internQueryParams);
+        assert_response($this, $response);
+        assert_response_data_fields($this, $response, ['id', 'title']);
         // ----------------------------------------------------------------------------
         // Write
         // ----------------------------------------------------------------------------
@@ -1459,9 +1466,10 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // STATUS: 1
         // ----------------------------------------------------------------------------
         // Read
-        // $response = request_get('items/posts/2', $this->internQueryParams);
-        // assert_response($this, $response);
-        // assert_response_data_fields($this, $response, ['id', 'title', 'author', 'status']);
+        // ----------------------------------------------------------------------------
+        $response = request_get('items/posts/2', $this->internQueryParams);
+        assert_response($this, $response);
+        assert_response_data_fields($this, $response, ['id', 'title']);
         // ----------------------------------------------------------------------------
         // Write
         // ----------------------------------------------------------------------------
@@ -1477,9 +1485,10 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // STATUS: 2
         // ----------------------------------------------------------------------------
         // Read
-        // $response = request_get('items/posts/3', $this->internQueryParams);
-        // assert_response($this, $response);
-        // assert_response_data_fields($this, $response, ['id', 'title', 'author']);
+        // ----------------------------------------------------------------------------
+        $response = request_get('items/posts/3', $this->internQueryParams);
+        assert_response($this, $response);
+        assert_response_data_fields($this, $response, ['id', 'title', 'author']);
         // ----------------------------------------------------------------------------
         // Write
         // ----------------------------------------------------------------------------
@@ -1491,6 +1500,40 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $response = request_error_post('items/posts', $data, $this->internQueryParams);
         assert_response_error($this, $response);
 
+
+        // ----------------------------------------------------------------------------
+        // STATUS: 3
+        // ----------------------------------------------------------------------------
+        // Read
+        // ----------------------------------------------------------------------------
+        $response = request_get('items/posts/4', $this->internQueryParams);
+        assert_response($this, $response, [
+            // TODO: Should be an object, but php convert empty array to JSON array instead of JSON object
+            // As it normally do
+            // NEED TO CHANGE HOW THE API TREAT DATA OBJECT AS ARRAY
+            'data' => 'array',
+            'empty' => true
+        ]);
+
+        // FETCH ALL
+        // Status 3 should be removed as the user cannot read any fields
+        $response = request_get('items/posts', array_merge(['status' => '*'], $this->internQueryParams));
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 3
+        ]);
+
+        $items = response_get_data($response);
+        $item0 = $items[0];
+        assert_data_fields($this, $item0, ['id', 'title']);
+
+        $item1 = $items[1];
+        assert_data_fields($this, $item1, ['id', 'title']);
+
+        $item2 = $items[2];
+        assert_data_fields($this, $item2, ['id', 'title', 'author']);
+
+
         $this->resetTestPosts();
         truncate_table(static::$db, 'directus_permissions');
 
@@ -1498,7 +1541,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'status' => null,
             'read' => 1,
             'write_field_blacklist' => 'author,status',
-            // 'read_field_blacklist' => 'status,author'
+            'read_field_blacklist' => 'status,author'
         ]);
 
         $data = ['status' => 2, 'title' => 'Post 1', 'author' => 1];
@@ -1512,6 +1555,18 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $data = ['title' => 'Post 1', 'author' => 1];
         $response = request_error_post('items/posts', $data, $this->internQueryParams);
         assert_response_error($this, $response);
+
+        // One item
+        $response = request_get('items/posts/1', $this->internQueryParams);
+        assert_response($this, $response);
+        assert_response_data_fields($this, $response, ['id', 'title']);
+
+        // List of items
+        $response = request_get('items/posts', $this->internQueryParams);
+        assert_response($this, $response, [
+            'data' => 'array'
+        ]);
+        assert_response_data_fields($this, $response, ['id', 'title']);
     }
 
     protected function addPermissionTo($group, $collection, array $data)
