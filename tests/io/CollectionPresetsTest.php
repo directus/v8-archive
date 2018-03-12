@@ -10,7 +10,7 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
      * @var array
      */
     protected $data = [
-        ['view_type' => 'tabular', 'collection' => 'products', 'fields' => 'id,name'],
+        ['view_type' => 'tabular', 'collection' => 'products'],
         ['view_type' => 'tabular', 'collection' => 'products', 'user' => 2],
         ['view_type' => 'tabular', 'collection' => 'orders', 'user' => 1],
         ['view_type' => 'tabular', 'collection' => 'categories', 'user' => 1],
@@ -61,7 +61,7 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
 
         $data = [
             'collection' => 'products',
-            'fields' => 'name,price'
+            'search_query' => 'a product'
         ];
         $response = request_patch($path, $data, ['query' => ['access_token' => 'token']]);
 
@@ -76,7 +76,7 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
         $data = [
             'id' => 1,
             'collection' => 'products',
-            'fields' => 'name,price'
+            'search_query' => 'a product'
         ];
 
         $response = request_get($path, ['access_token' => 'token']);

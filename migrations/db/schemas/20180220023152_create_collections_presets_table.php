@@ -31,7 +31,7 @@ class CreateCollectionsPresetsTable extends AbstractMigration
         $table = $this->table('directus_collection_presets');
 
         $table->addColumn('title', 'string', [
-            'limit' => 128,
+            'limit' => 255,
             'null' => true,
             'default' => null
         ]);
@@ -47,22 +47,8 @@ class CreateCollectionsPresetsTable extends AbstractMigration
             'limit' => 64,
             'null' => false
         ]);
-        $table->addColumn('fields', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('statuses', 'string', [
-            'limit' => 64,
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('sort', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('search_string', 'text', [
+        $table->addColumn('search_query', 'string', [
+            'limit' => 100,
             'null' => true,
             'default' => null
         ]);
@@ -71,8 +57,12 @@ class CreateCollectionsPresetsTable extends AbstractMigration
             'default' => null
         ]);
         $table->addColumn('view_type', 'string', [
-            'limit' => 64,
+            'limit' => 100,
             'null' => false
+        ]);
+        $table->addColumn('view_query', 'text', [
+            'null' => true,
+            'default' => null
         ]);
         $table->addColumn('view_options', 'text', [
             'null' => true,
