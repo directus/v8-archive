@@ -317,7 +317,7 @@ abstract class AbstractService
     protected function enforcePermissions($collection, array $payload, array $params)
     {
         $acl = $this->getAcl();
-        $requiredActivityMessage = $acl->requireActivityMessage($collection);
+        $requiredActivityMessage = $acl->requireExplain($collection);
 
         if ($requiredActivityMessage && empty($params['message'])) {
             throw new ForbiddenException('Activity message required for collection: ' . $collection);

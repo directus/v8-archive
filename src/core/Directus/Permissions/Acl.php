@@ -568,21 +568,21 @@ class Acl
     }
 
     /**
-     * Checks whether a given collection requires activity message
+     * Checks whether a given collection requires explanation message
      *
      * @param string $collection
      * @param string|int|null $status
      *
      * @return bool
      */
-    public function requireActivityMessage($collection, $status = null)
+    public function requireExplain($collection, $status = null)
     {
         $permission = $this->getPermission($collection, $status);
-        if (!array_key_exists('require_activity_message', $permission)) {
+        if (!array_key_exists('explain', $permission)) {
             return false;
         }
 
-        return $permission['require_activity_message'] === 1;
+        return $permission['explain'] === 1;
     }
 
     /**

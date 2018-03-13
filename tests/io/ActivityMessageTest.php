@@ -374,7 +374,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $data = [
             'collection' => $collection,
             'group' => 1,
-            'require_activity_message' => $value ? 1 : 0
+            'explain' => $value ? 1 : 0
         ];
         $options = ['query' => ['access_token' => 'token', 'message' => 'setting flag']];
 

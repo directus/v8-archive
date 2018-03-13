@@ -67,7 +67,7 @@ class CreatePermissionsTable extends AbstractMigration
             'null' => false,
             'default' => false,
         ]);
-        $table->addColumn('require_activity_message', 'boolean', [
+        $table->addColumn('explain', 'boolean', [
             'signed' => false,
             'null' => false,
             'default' => false

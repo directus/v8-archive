@@ -27,7 +27,7 @@ class AclTest extends PHPUnit_Framework_TestCase
                     'create' => 1,
                     'update' => 3,
                     'delete' => 3,
-                    'require_activity_message' => 0
+                    'explain' => 0
                 ]
             ],
             'products' => [
@@ -56,7 +56,7 @@ class AclTest extends PHPUnit_Framework_TestCase
                     'read' => 2,
                     'update' => 0,
                     'delete' => 0,
-                    'require_activity_message' => 1
+                    'explain' => 1
                 ],
                 [
                     'id' => 21,
@@ -100,7 +100,7 @@ class AclTest extends PHPUnit_Framework_TestCase
                     'read' => 0,
                     'update' => 0,
                     'delete' => 0,
-                    'require_activity_message' => 1
+                    'explain' => 1
                 ]
             ],
             'directus_collection_presets' => [
@@ -306,10 +306,10 @@ class AclTest extends PHPUnit_Framework_TestCase
 
     public function testRequireMessageActivity()
     {
-        $this->assertFalse($this->acl->requireActivityMessage('directus_files'));
-        $this->assertFalse($this->acl->requireActivityMessage('test_table'));
-        $this->assertTrue($this->acl->requireActivityMessage('products', 1));
-        $this->assertTrue($this->acl->requireActivityMessage('forbid', 0));
+        $this->assertFalse($this->acl->requireExplain('directus_files'));
+        $this->assertFalse($this->acl->requireExplain('test_table'));
+        $this->assertTrue($this->acl->requireExplain('products', 1));
+        $this->assertTrue($this->acl->requireExplain('forbid', 0));
     }
 
     /**
@@ -479,7 +479,7 @@ class AclTest extends PHPUnit_Framework_TestCase
                 'read' => 3,
                 'update' => 3,
                 'delete' => 3,
-                'require_activity_message' => 1
+                'explain' => 1
             ],
             [
                 'id' => 2,
