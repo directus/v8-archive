@@ -7,6 +7,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Exception\BadRequestException;
+use Directus\Exception\Exception;
 use Directus\Exception\ForbiddenException;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -316,18 +317,17 @@ abstract class AbstractService
      */
     protected function enforcePermissions($collection, array $payload, array $params)
     {
-        $acl = $this->getAcl();
-        $requiredActivityMessage = $acl->requireExplain($collection);
-
-        if ($requiredActivityMessage && empty($params['message'])) {
-            throw new ForbiddenException('Activity message required for collection: ' . $collection);
-        }
-
-        $status = null;
         $collectionObject = $this->getSchemaManager()->getTableSchema($collection);
+        $status = null;
         $statusField = $collectionObject->getStatusField();
         if ($statusField) {
             $status = ArrayUtils::get($payload, $statusField->getName(), $statusField->getDefaultValue());
+        }
+
+        $acl = $this->getAcl();
+        $requiredExplain = $acl->requireExplain($collection, $status);
+        if ($requiredExplain && empty($params['message'])) {
+            throw new ForbiddenException('Activity message required for collection: ' . $collection);
         }
 
         // Enforce write field blacklist

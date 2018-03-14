@@ -271,8 +271,11 @@ class Acl
     public function getPermission($collection, $status = null)
     {
         $permissions = $this->getCollectionPermissions($collection);
+        $hasStatusPermissions = array_key_exists($collection, $this->statusPermissions);
 
-        if (!is_null($status) && array_key_exists($collection, $this->statusPermissions)) {
+        if (is_null($status) && $hasStatusPermissions) {
+            $permissions = [];
+        } else if ($hasStatusPermissions) {
             $permissions = ArrayUtils::get($permissions, $status, []);
         }
 

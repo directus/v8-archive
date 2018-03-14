@@ -21,17 +21,27 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     {
         static::$db = create_db_connection();
         static::resetDatabase();
-        $query = 'CREATE TABLE `test` (
-            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-            `name` varchar(100) NOT NULL,
-            PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;';
-
-        static::$db->execute($query);
-
-        table_insert(static::$db, 'directus_collections', [
-            'collection' => 'test'
-        ]);
+        request_post('collections', [
+            'collection' => 'test',
+            'fields' => [
+                [
+                    'field' => 'id',
+                    'auto_increment' => true,
+                    'type' => 'integer',
+                    'interface' => 'primary_key'
+                ],
+                [
+                    'field' => 'name',
+                    'type' => 'varchar',
+                    'interface' => 'text_input'
+                ],
+                [
+                    'field' => 'status',
+                    'type' => 'integer',
+                    'interface' => 'status'
+                ],
+            ]
+        ], ['query' => ['access_token' => 'token']]);
 
         $query = 'CREATE TABLE `objects` (
             `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -86,6 +96,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     public function testWithoutFlag()
     {
         $this->clearData();
+        $this->flags = [];
 
         $this->doCollectionPresets();
         $this->doCollections();
@@ -102,6 +113,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     public function testWithFlagOff()
     {
         $this->clearData();
+        $this->flags = [];
 
         $this->setFlagOff('directus_collection_presets');
         $this->doCollectionPresets();
@@ -124,6 +136,11 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->setFlagOff('test');
         $this->doItems();
 
+        $this->setFlagOff('test', 0);
+        $this->doItemsWithStatus(0);
+        $this->setFlagOff('test', 1);
+        $this->doItemsWithStatus(0);
+
         $this->setFlagOff('directus_permissions');
         $this->doPermissions();
 
@@ -137,6 +154,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     public function testWithFlagOn()
     {
         $this->clearData();
+        $this->flags = [];
 
         $this->setFlagOn('directus_collection_presets');
         $this->doCollectionPresets(true);
@@ -165,6 +183,14 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->setFlagOn('test');
         $this->doItems(true);
         $this->doItems(false, 'message');
+
+        $this->setFlagOn('test', 0);
+        $this->doItemsWithStatus(0, true);
+        $this->doItemsWithStatus(0, false, 'message');
+
+        $this->setFlagOn('test', 1);
+        $this->doItemsWithStatus(1, true);
+        $this->doItemsWithStatus(1, false, 'message');
 
         $this->setFlagOn('directus_permissions');
         $this->doPermissions(true);
@@ -216,6 +242,18 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->delete('items/test/1', $error, $message);
     }
 
+    protected function doItemsWithStatus($status, $error = false, $message = null)
+    {
+        if (table_exists(static::$db, 'test')) {
+            truncate_table(static::$db, 'test');
+        }
+
+        $data = ['name' => 'new', 'status' => $status];
+        $this->create('items/test', $data, $error, $message);
+        $this->update('items/test/1', $data, $error, $message);
+        $this->delete('items/test/1', $error, $message);
+    }
+
     protected function doPermissions($error = false, $message = null)
     {
         $data = ['collection' => 'something', 'group' => 1];
@@ -253,13 +291,13 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     {
         $data = [
             'group' => 1,
-            'collection' => 'test',
-            'fields' => 'name',
+            'collection' => 'test2',
+            'search_query' => 'name',
             'view_type' => 'tabular'
         ];
 
         $this->create('collection_presets', $data, $error, $message);
-        $this->update('collection_presets/1', ['fields' => 'id,name'], $error, $message);
+        $this->update('collection_presets/1', ['search_query' => 'id+name'], $error, $message);
         $this->delete('collection_presets/1', $error, $message);
     }
 
@@ -369,11 +407,12 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         return $response;
     }
 
-    protected function setFlag($collection, $value)
+    protected function setFlag($collection, $value, $status)
     {
         $data = [
             'collection' => $collection,
             'group' => 1,
+            'status' => $status,
             'explain' => $value ? 1 : 0
         ];
         $options = ['query' => ['access_token' => 'token', 'message' => 'setting flag']];
@@ -386,13 +425,13 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    protected function setFlagOn($collection)
+    protected function setFlagOn($collection, $status = null)
     {
-        $this->setFlag($collection, true);
+        $this->setFlag($collection, true, $status);
     }
 
-    protected function setFlagOff($collection)
+    protected function setFlagOff($collection, $status = null)
     {
-        $this->setFlag($collection, false);
+        $this->setFlag($collection, false, $status);
     }
 }

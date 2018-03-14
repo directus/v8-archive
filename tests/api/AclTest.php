@@ -33,7 +33,7 @@ class AclTest extends PHPUnit_Framework_TestCase
             'products' => [
                 [
                     'id' => 2,
-                    'collection' => 'test_table',
+                    'collection' => 'products',
                     'group' => 2,
                     'read_field_blacklist' => null,
                     'write_field_blacklist' => null,
@@ -46,7 +46,7 @@ class AclTest extends PHPUnit_Framework_TestCase
                 ],
                 [
                     'id' => 20,
-                    'collection' => 'test_table',
+                    'collection' => 'products',
                     'group' => 2,
                     'read_field_blacklist' => ['read'],
                     'write_field_blacklist' => ['write'],
@@ -60,7 +60,7 @@ class AclTest extends PHPUnit_Framework_TestCase
                 ],
                 [
                     'id' => 21,
-                    'collection' => 'test_table',
+                    'collection' => 'products',
                     'group' => 2,
                     'read_field_blacklist' => ['read_draft'],
                     'write_field_blacklist' => ['write_draft'],
@@ -309,6 +309,7 @@ class AclTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($this->acl->requireExplain('directus_files'));
         $this->assertFalse($this->acl->requireExplain('test_table'));
         $this->assertTrue($this->acl->requireExplain('products', 1));
+        $this->assertFalse($this->acl->requireExplain('products', 2));
         $this->assertTrue($this->acl->requireExplain('forbid', 0));
     }
 
