@@ -251,16 +251,13 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'code' => ForbiddenCollectionCreateException::ERROR_CODE
         ]);
 
-        // Intern cannot create posts with default status (which is null)
+        // Intern can create posts with default status (because it is 2)
         $data = [
             'title' => 'Post 1'
         ];
 
-        $response = request_error_post('items/posts', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionCreateException::ERROR_CODE
-        ]);
+        $response = request_post('items/posts', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
 
         // Intern CAN create draft and CAN READ their own posts
         $this->updatePermission(1, [
@@ -1594,7 +1591,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'collection' => 'posts',
             'fields' => [
                 ['field' => 'id', 'interface' => 'primary_key', 'type' => 'integer', 'auto_increment' => true],
-                ['field' => 'status', 'interface' => 'status', 'type' => 'integer'],
+                ['field' => 'status', 'interface' => 'status', 'type' => 'integer', 'default_value' => 2],
                 ['field' => 'title', 'interface' => 'text_input', 'type' => 'varchar', 'length' => 100],
                 ['field' => 'author', 'interface' => 'user_created', 'type' => 'integer'],
             ]

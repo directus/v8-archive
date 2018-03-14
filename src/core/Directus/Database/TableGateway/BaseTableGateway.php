@@ -1070,8 +1070,13 @@ class BaseTableGateway extends TableGateway
 
         $statusValue = null;
         $statusField = $this->getTableSchema()->getStatusField();
-        if ($statusField && $valueKey = array_search($statusField->getName(), $insertState['columns'])) {
-            $statusValue = ArrayUtils::get($insertState['values'], $valueKey);
+        if ($statusField) {
+            $valueKey = array_search($statusField->getName(), $insertState['columns']);
+            if ($valueKey !== false) {;
+                $statusValue = ArrayUtils::get($insertState['values'], $valueKey);
+            } else {
+                $statusValue = $statusField->getDefaultValue();
+            }
         }
 
         $this->acl->enforceCreate($insertTable, $statusValue);
