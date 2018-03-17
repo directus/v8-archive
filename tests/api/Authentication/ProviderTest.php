@@ -152,7 +152,7 @@ class ProviderTest extends PHPUnit_Framework_TestCase
         $password = 'secret-password';
         $user = $this->provider->login(['email' => $email, 'password' => $password]);
 
-        $token = $this->provider->generateToken($user);
+        $token = $this->provider->generateAuthToken($user);
 
         $auth = $this->getAuth();
         $result = $auth->authenticateWithToken($token);
@@ -186,7 +186,7 @@ class ProviderTest extends PHPUnit_Framework_TestCase
 
     public function testRefreshToken()
     {
-        $token = $this->generateToken();
+        $token = $this->generateAuthToken();
         $payload = $this->decodeToken($token);
 
         $newToken = $this->provider->refreshToken($token);
@@ -426,7 +426,7 @@ class ProviderTest extends PHPUnit_Framework_TestCase
     // }
     //
 
-    protected function generateToken()
+    protected function generateAuthToken()
     {
         return \Firebase\JWT\JWT::encode(['id' => 10, 'group' => 2, 'exp' => time() + 60], $this->secretKey, 'HS256');
     }

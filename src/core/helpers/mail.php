@@ -17,34 +17,34 @@ if (!function_exists('send_email')) {
     }
 }
 
-if (!function_exists('send_forgot_password_email')) {
+if (!function_exists('send_reset_password_email')) {
     /**
      * Sends a new password email
      *
      * @param $user
      * @param string $password
      */
-    function send_forgot_password_email($user, $password)
+    function send_reset_password_email($user, $password)
     {
         $data = ['new_password' => $password];
-        send_email('forgot-password.twig', $data, function (Swift_Message $message) use ($user) {
+        send_email('reset-password.twig', $data, function (Swift_Message $message) use ($user) {
             $message->setSubject(__t('password_reset_new_password_email_subject'));
             $message->setTo($user['email']);
         });
     }
 }
 
-if (!function_exists('send_reset_password_email')) {
+if (!function_exists('send_forgot_password_email')) {
     /**
      * Sends a new reset password email
      *
      * @param $user
      * @param string $token
      */
-    function send_reset_password_email($user, $token)
+    function send_forgot_password_email($user, $token)
     {
         $data = ['reset_token' => $token];
-        Mail::send('reset-password.twig', $data, function (Swift_Message $message) use ($user) {
+        Mail::send('forgot-password.twig', $data, function (Swift_Message $message) use ($user) {
             $message->setSubject(__t('password_forgot_password_reset_email_subject'));
             $message->setTo($user['email']);
         });

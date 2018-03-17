@@ -42,10 +42,12 @@ interface UserProviderInterface
     public function find($id);
 
     /**
-     * Updates the token, salt and last login attribute
+     * Updates an user attributes
      *
      * @param UserInterface $user
+     * @param array $data
+     *
      * @return bool
      */
-    public function update($user);
+    public function update(UserInterface $user, array $data);
 }

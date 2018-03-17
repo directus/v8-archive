@@ -2,13 +2,18 @@
 
 namespace Directus\Services;
 
+use Directus\Authentication\Exception\ExpiredResetPasswordToken;
+use Directus\Authentication\Exception\InvalidResetPasswordTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
+use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Provider;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusGroupsTableGateway;
+use Directus\Exception\BadRequestException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Util\JWTUtils;
+use Directus\Util\StringUtils;
 
 class AuthService extends AbstractService
 {
@@ -24,16 +29,7 @@ class AuthService extends AbstractService
      */
     public function loginWithCredentials($email, $password)
     {
-        // throws an exception if the constraints are not met
-        $payload = [
-            'email' => $email,
-            'password' => $password
-        ];
-        $constraints = [
-            'email' => 'required|email',
-            'password' => 'required'
-        ];
-        $this->validate($payload, $constraints);
+        $this->validateCredentials($email, $password);
 
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
@@ -62,7 +58,7 @@ class AuthService extends AbstractService
 
         return [
             'data' => [
-                'token' => $this->generateToken($user)
+                'token' => $this->generateAuthToken($user)
             ]
         ];
     }
@@ -90,12 +86,58 @@ class AuthService extends AbstractService
      *
      * @return string
      */
-    public function generateToken(UserInterface $user)
+    public function generateAuthToken(UserInterface $user)
     {
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
 
-        return $auth->generateToken($user);
+        return $auth->generateAuthToken($user);
+    }
+
+    public function sendResetPasswordToken($email, $password)
+    {
+        $this->validateCredentials($email, $password);
+
+        /** @var Provider $auth */
+        $auth = $this->container->get('auth');
+        $user = $auth->findUserWithCredentials($email, $password);
+
+        if (!$user) {
+            throw new InvalidUserCredentialsException();
+        }
+
+        $resetToken = $auth->generateResetPasswordToken($user);
+
+        send_forgot_password_email($user->toArray(), $resetToken);
+    }
+
+    public function resetPasswordWithToken($token)
+    {
+        if (!JWTUtils::isJWT($token)) {
+            throw new InvalidResetPasswordTokenException($token);
+        }
+
+        if (JWTUtils::hasExpired($token)) {
+            throw new ExpiredResetPasswordToken($token);
+        }
+
+        $payload = JWTUtils::getPayload($token);
+
+        /** @var Provider $auth */
+        $auth = $this->container->get('auth');
+        $userProvider = $auth->getUserProvider();
+        $user = $userProvider->find($payload->id);
+
+        if (!$user) {
+            throw new UserNotFoundException();
+        }
+
+        $newPassword = StringUtils::randomString(16);
+        $userProvider->update($user, [
+            'password' => $auth->hashPassword($newPassword)
+        ]);
+
+        send_reset_password_email($user->toArray(), $newPassword);
     }
 
     public function refreshToken($token)
@@ -118,5 +160,28 @@ class AuthService extends AbstractService
     protected function getAuthProvider()
     {
         return $this->container->get('auth');
+    }
+
+    /**
+     * Validates email+password credentials
+     *
+     * @param $email
+     * @param $password
+     *
+     * @throws BadRequestException
+     */
+    protected function validateCredentials($email, $password)
+    {
+        $payload = [
+            'email' => $email,
+            'password' => $password
+        ];
+        $constraints = [
+            'email' => 'required|email',
+            'password' => 'required'
+        ];
+
+        // throws an exception if the constraints are not met
+        $this->validate($payload, $constraints);
     }
 }

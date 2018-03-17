@@ -100,4 +100,23 @@ class JWTUtils
 
         return JWT::jsonDecode(JWT::urlsafeB64Decode($bodyb64));
     }
+
+    /**
+     * Checks whether the token has expired
+     *
+     * @param $token
+     *
+     * @return bool|null
+     */
+    public static function hasExpired($token)
+    {
+        $expired = null;
+        $payload = static::getPayload($token);
+
+        if ($payload && isset($payload->exp)) {
+            $expired = time() >= $payload->exp;
+        }
+
+        return $expired;
+    }
 }

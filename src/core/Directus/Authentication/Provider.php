@@ -282,25 +282,61 @@ class Provider
     }
 
     /**
+     * Gets the user provider
+     *
+     * @return UserProviderInterface
+     */
+    public function getUserProvider()
+    {
+        return $this->userProvider;
+    }
+
+    /**
      * Generates a new access token
      *
      * @param UserInterface $user
      *
      * @return string
      */
-    public function generateToken(UserInterface $user)
+    public function generateAuthToken(UserInterface $user)
     {
-        // TODO: Allow customization of these values
-
-        $algo = 'HS256';
-        // TODO: Parse data types
         $payload = [
             'id' => (int) $user->getId(),
             'group' => (int) $user->getGroupId(),
             'exp' => $this->getNewExpirationTime()
         ];
 
-        return JWTUtils::encode($payload, $this->getSecretKey(), $algo);
+        return $this->generateToken($payload);
+    }
+
+    /**
+     * Generates a new reset password token
+     *
+     * @param UserInterface $user
+     *
+     * @return string
+     */
+    public function generateResetPasswordToken(UserInterface $user)
+    {
+        $payload = [
+            'id' => (int) $user->getId(),
+            // TODO: Separate time expiration for reset password token
+            'exp' => $this->getNewExpirationTime()
+        ];
+
+        return $this->generateToken($payload);
+    }
+
+    /**
+     * Generates a new JWT token
+     *
+     * @param $payload
+     *
+     * @return string
+     */
+    public function generateToken($payload)
+    {
+        return JWTUtils::encode($payload, $this->getSecretKey(), 'HS256');
     }
 
     /**

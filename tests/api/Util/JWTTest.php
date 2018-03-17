@@ -21,4 +21,19 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         $token = implode('.', [base64_encode('{"typ": "none"}'), 'k', 'en']);
         $this->assertFalse(JWTUtils::isJWT($token));
     }
+
+    public function testExpiration()
+    {
+        $data = ['exp' => 0];
+        $token = JWTUtils::encode($data, 123);
+        $this->assertTrue(JWTUtils::hasExpired($token));
+
+        $data = ['exp' => time() * 2];
+        $token = JWTUtils::encode($data, 123);
+        $this->assertFalse(JWTUtils::hasExpired($token));
+
+        $data = ['id' => 1];
+        $token = JWTUtils::encode($data, 123);
+        $this->assertNull(JWTUtils::hasExpired($token));
+    }
 }

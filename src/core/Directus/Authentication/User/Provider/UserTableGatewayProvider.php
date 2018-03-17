@@ -3,6 +3,7 @@
 namespace Directus\Authentication\User\Provider;
 
 use Directus\Authentication\User\User;
+use Directus\Authentication\User\UserInterface;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Util\DateUtils;
@@ -63,18 +64,12 @@ class UserTableGatewayProvider implements UserProviderInterface
     /**
      * @inheritdoc
      */
-    public function update($user)
+    public function update(UserInterface $user, array $data)
     {
         $condition = [
             $this->tableGateway->primaryKeyFieldName => $user->id
         ];
 
-        $set = [
-            'salt' => $user->salt,
-            'access_token' => $user->access_token,
-            'last_login' => DateUtils::now()
-        ];
-
-        return (bool)$this->tableGateway->ignoreFilters()->update($set, $condition);
+        return (bool)$this->tableGateway->ignoreFilters()->update($data, $condition);
     }
 }
