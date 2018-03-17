@@ -92,44 +92,6 @@ class Bootstrap
         ];
     }
 
-    private static function mailer()
-    {
-        $config = self::get('config');
-        if (!$config->has('mail')) {
-            return null;
-        }
-
-        $mailConfig = $config->get('mail');
-        switch ($mailConfig['transport']) {
-            case 'smtp':
-                $transport = \Swift_SmtpTransport::newInstance($mailConfig['host'], $mailConfig['port']);
-
-                if (array_key_exists('username', $mailConfig)) {
-                    $transport->setUsername($mailConfig['username']);
-                }
-
-                if (array_key_exists('password', $mailConfig)) {
-                    $transport->setPassword($mailConfig['password']);
-                }
-
-                if (array_key_exists('encryption', $mailConfig)) {
-                    $transport->setEncryption($mailConfig['encryption']);
-                }
-                break;
-            case 'sendmail':
-                $transport = \Swift_SendmailTransport::newInstance($mailConfig['sendmail']);
-                break;
-            case 'mail':
-            default:
-                $transport = \Swift_MailTransport::newInstance();
-                break;
-        }
-
-        $mailer = \Swift_Mailer::newInstance($transport);
-
-        return $mailer;
-    }
-
     /**
      * @return Application
      */

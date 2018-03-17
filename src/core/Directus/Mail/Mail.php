@@ -2,8 +2,8 @@
 
 namespace Directus\Mail;
 
-use Clousure;
-use Directus\Bootstrap;
+use Directus\Application\Application;
+use Directus\Exception\RuntimeException;
 use Directus\Util\ArrayUtils;
 use InvalidArgumentException;
 use Swift_Message;
@@ -26,25 +26,29 @@ class Mail
 
     public function getViewContent($viewPath, $data)
     {
-        $app = Bootstrap::get('app');
+        $app = Application::getInstance();
 
-        ob_start();
         $data = array_merge(['settings' => $this->settings], $data);
-        $app->render($viewPath, $data);
-
-        return ob_get_clean();
+        return $app->getContainer()->get('mail_view')->fetch($viewPath, $data);
     }
 
     public static function send($viewPath, $data, $callback)
     {
-        $config = Bootstrap::get('config');
-        $mailer = Bootstrap::get('mailer');
+        $app = Application::getInstance();
+        $config = $app->getConfig();
+        $mailer = $app->getContainer()->get('mailer');
 
         if (!$mailer) {
-            throw new InvalidArgumentException(__t('mail_configuration_no_defined'));
+            throw new RuntimeException('mail_configuration_no_defined');
         }
 
-        $instance = new static($mailer, Bootstrap::get('settings'));
+        $mailSettings = [];
+        $settings = $app->getContainer()->get('app_settings');
+        foreach ($settings as $setting) {
+            $mailSettings[$setting['scope']][$setting['key']] = $setting['value'];
+        }
+
+        $instance = new static($mailer, $mailSettings);
 
         $message = Swift_Message::newInstance();
 

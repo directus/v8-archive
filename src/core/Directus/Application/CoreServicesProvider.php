@@ -16,8 +16,6 @@ use Directus\Authentication\User\Provider\UserTableGatewayProvider;
 use Directus\Cache\Response;
 use Directus\Database\Connection;
 use Directus\Database\Schema\Object\Field;
-use Directus\Database\Schema\Object\Collection;
-use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\BaseTableGateway;
@@ -40,10 +38,12 @@ use Directus\Services\AuthService;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
+use Directus\View\Twig\DirectusTwigExtension;
 use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Slim\Views\Twig;
 use Zend\Db\TableGateway\TableGateway;
 
 class CoreServicesProvider
@@ -64,6 +64,9 @@ class CoreServicesProvider
         $container['embed_manager']     = $this->getEmbedManager();
         $container['filesystem']        = $this->getFileSystem();
         $container['files']             = $this->getFiles();
+        $container['mailer']            = $this->getMailer();
+        $container['mail_view']         = $this->getMailView();
+        $container['app_settings']      = $this->getSettings();
 
         // Move this separately to avoid clogging one class
         $container['cache']             = $this->getCache();
@@ -922,6 +925,78 @@ class CoreServicesProvider
             $config = $container->get('config');
 
             return new Filesystem(FilesystemFactory::createAdapter($config->get('filesystem')));
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getMailer()
+    {
+        return function (Container $container) {
+            $config = $container->get('config');
+
+            if (!$config->has('mail')) {
+                return null;
+            }
+
+            $mailConfig = $config->get('mail');
+            switch ($mailConfig['transport']) {
+                case 'smtp':
+                    $transport = \Swift_SmtpTransport::newInstance($mailConfig['host'], $mailConfig['port']);
+
+                    if (array_key_exists('username', $mailConfig)) {
+                        $transport->setUsername($mailConfig['username']);
+                    }
+
+                    if (array_key_exists('password', $mailConfig)) {
+                        $transport->setPassword($mailConfig['password']);
+                    }
+
+                    if (array_key_exists('encryption', $mailConfig)) {
+                        $transport->setEncryption($mailConfig['encryption']);
+                    }
+                    break;
+                case 'sendmail':
+                    $transport = \Swift_SendmailTransport::newInstance($mailConfig['sendmail']);
+                    break;
+                case 'mail':
+                default:
+                    $transport = \Swift_MailTransport::newInstance();
+                    break;
+            }
+
+            $mailer = \Swift_Mailer::newInstance($transport);
+
+            return $mailer;
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getSettings()
+    {
+        return function (Container $container) {
+            $dbConnection = $container->get('database');
+            $settingsTable = new TableGateway(SchemaManager::TABLE_SETTINGS, $dbConnection);
+
+            return $settingsTable->select()->toArray();
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getMailView()
+    {
+        return function (Container $container) {
+            $basePath = $container->get('path_base');
+            $view = new Twig($basePath . '/src/mail');
+
+            $view->addExtension(new DirectusTwigExtension());
+
+            return $view;
         };
     }
 
