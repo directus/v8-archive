@@ -102,20 +102,18 @@ class Provider
         $email = ArrayUtils::get($credentials, 'email');
         $password = ArrayUtils::get($credentials, 'password');
 
-        // TODO: email and password are required
-
-        // Verify Credentials
-        // TODO: Call this something else, we are not just verifying
-        // we are also getting the user data
-        $user = $this->verify($email, $password);
-
-        $this->setUser($user);
+        $user = null;
+        if ($email && $password) {
+            // Verify Credentials
+            $user = $this->findUserWithCredentials($email, $password);
+            $this->setUser($user);
+        }
 
         return $user;
     }
 
     /**
-     * Verify if the credentials matches a user
+     * Returns a user if the credentials matches
      *
      * @param string $email
      * @param string $password
@@ -124,7 +122,7 @@ class Provider
      *
      * @throws InvalidUserCredentialsException
      */
-    public function verify($email, $password)
+    public function findUserWithCredentials($email, $password)
     {
         $user = $this->user = $this->userProvider->findByEmail($email);
 
