@@ -8,11 +8,8 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\Http\BadRequestException;
 use Directus\Services\ItemsService;
-use Directus\Services\GroupsService;
-use Directus\Util\ArrayUtils;
 
 class Items extends Route
 {
@@ -23,8 +20,6 @@ class Items extends Route
         $app->get('/{collection}/{id}', [$this, 'read']);
         $app->patch('/{collection}/{id}', [$this, 'update']);
         $app->delete('/{collection}/{id}', [$this, 'delete']);
-
-        $app->map(['POST', 'PATCH', 'PUT', 'DELETE'], '/{collection}/batch', [$this, 'batch']);
     }
 
     /**
@@ -54,14 +49,18 @@ class Items extends Route
      */
     public function create(Request $request, Response $response)
     {
-        $tableName = $request->getAttribute('collection');
+        $payload = $request->getParsedBody();
+        if (isset($payload[0]) && is_array($payload[0])) {
+            return $this->batch($request, $response);
+        }
 
-        $this->throwErrorIfSystemTable($tableName);
+        $collection = $request->getAttribute('collection');
+        $this->throwErrorIfSystemTable($collection);
 
         $itemsService = new ItemsService($this->container);
         $responseData = $itemsService->createItem(
-            $tableName,
-            $request->getParsedBody(),
+            $collection,
+            $payload,
             $request->getQueryParams()
         );
 
@@ -111,6 +110,11 @@ class Items extends Route
         $this->throwErrorIfSystemTable($collection);
 
         $id = $request->getAttribute('id');
+
+        if (strpos($id, ',') !== false) {
+            return $this->batch($request, $response);
+        }
+
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
 
@@ -138,6 +142,11 @@ class Items extends Route
         $collection = $request->getAttribute('collection');
         $this->throwErrorIfSystemTable($collection);
 
+        $id = $request->getAttribute('id');
+        if (strpos($id, ',') !== false) {
+            return $this->batch($request, $response);
+        }
+
         $itemsService = new ItemsService($this->container);
         $itemsService->delete($collection, $request->getAttribute('id'), $request->getQueryParams());
 
@@ -155,98 +164,30 @@ class Items extends Route
      *
      * @throws \Exception
      */
-    public function batch(Request $request, Response $response)
+    protected function batch(Request $request, Response $response)
     {
-        $tableName = $request->getAttribute('collection');
+        $collection = $request->getAttribute('collection');
 
-        $this->throwErrorIfSystemTable($tableName);
-
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
+        $this->throwErrorIfSystemTable($collection);
 
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
-        $rows = array_key_exists('rows', $payload) ? $payload['rows'] : false;
-        $isDelete = $request->isDelete();
-        $deleted = false;
 
-        if (!is_array($rows) || count($rows) <= 0) {
-            throw new \Exception(__t('rows_no_specified'));
-        }
-
-        $rowIds = [];
-        $tableGateway = new RelationalTableGateway($tableName, $dbConnection, $acl);
-        $primaryKeyFieldName = $tableGateway->primaryKeyFieldName;
+        $responseData = null;
         $itemsService = new ItemsService($this->container);
-
-        // hotfix add entries by bulk
         if ($request->isPost()) {
-            foreach($rows as $row) {
-                $newRecord = $itemsService->createItem($tableName, $row, $params);
-
-                if (ArrayUtils::has($newRecord->toArray(), $primaryKeyFieldName)) {
-                    $rowIds[] = $newRecord[$primaryKeyFieldName];
-                }
-            }
-        } else {
-            foreach ($rows as $row) {
-                if (!array_key_exists($primaryKeyFieldName, $row)) {
-                    throw new \Exception(__t('row_without_primary_key_field'));
-                }
-
-                array_push($rowIds, $row[$primaryKeyFieldName]);
-            }
-
-            $where = new \Zend\Db\Sql\Where;
-
-            if ($isDelete) {
-                // TODO: Implement this into a hook
-                if ($tableName === 'directus_groups') {
-                    $groupService = new GroupsService($this->container);
-                    foreach ($rowIds as $id) {
-                        $group = $groupService->find($id);
-
-                        if ($group && !$groupService->canDelete($id)) {
-                            $response = $response->withStatus(403);
-
-                            return $this->responseWithData($request, $response, [
-                                'error' => [
-                                    'message' => sprintf('You are not allowed to delete group [%s]', $group->name)
-                                ]
-                            ]);
-                        }
-                    }
-                }
-                // TODO: Create a batch delete method
-                $deleted = $tableGateway->delete($where->in($primaryKeyFieldName, $rowIds));
-            } else {
-                foreach ($rows as $row) {
-                    $tableGateway->updateCollection($row);
-                }
-            }
+            $responseData = $itemsService->batchCreate($collection, $payload, $params);
+        } else if ($request->isPatch()) {
+            $ids = explode(',', $request->getAttribute('id'));
+            $responseData = $itemsService->batchUpdateWithIds($collection, $ids, $payload, $params);
+        } else if ($request->isDelete()) {
+            $ids = explode(',', $request->getAttribute('id'));
+            $itemsService->batchDeleteWithIds($collection, $ids, $params);
         }
 
-        if (!empty($rowIds)) {
-            $params['filters'] = [
-                $primaryKeyFieldName => ['in' => $rowIds]
-            ];
-        }
-
-        $entries = $itemsService->findAll($tableName, $params);
-
-        if ($isDelete) {
+        if (empty($responseData)) {
+            $response = $response->withStatus(204);
             $responseData = [];
-            // TODO: Parse params into the expected value data type
-            if (ArrayUtils::get($params, 'meta', 0) == 1) {
-                $responseData['meta'] = ['collection' => $tableGateway->getTable(), 'ids' => $rowIds];
-            }
-
-            // TODO: Add proper translated error
-            if (!$deleted) {
-                $responseData['error'] = ['message' => 'failed batch delete'];
-            }
-        } else {
-            $responseData = ['data' => $entries];
         }
 
         return $this->responseWithData($request, $response, $responseData);
