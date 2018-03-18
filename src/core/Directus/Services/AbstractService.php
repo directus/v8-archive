@@ -243,7 +243,7 @@ abstract class AbstractService
             $tableName = $payload->attribute('tableName');
 
             $this->tagResponseCache('table_'.$tableName);
-            $this->tagResponseCache('privilege_table_'.$tableName.'_group_'.$container->get('acl')->getGroupId());
+            $this->tagResponseCache('permissions_collection_'.$tableName.'_group_'.$container->get('acl')->getGroupId());
 
             foreach($payload->getData() as $item) {
                 $this->tagResponseCache('entity_'.$tableName.'_'.$item[$pkName]);

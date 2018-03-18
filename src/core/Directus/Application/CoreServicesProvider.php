@@ -215,9 +215,9 @@ class CoreServicesProvider
             $emitter->addAction('table.update.directus_privileges:after', function ($data) use($container, $cachePool) {
                 $acl = $container->get('acl');
                 $dbConnection = $container->get('database');
-                $privileges = new DirectusPrivilegesTableGateway($dbConnection, $acl);
+                $privileges = new DirectusPermissionsTableGateway($dbConnection, $acl);
                 $record = $privileges->fetchById($data['id']);
-                $cachePool->invalidateTags(['privilege_table_'.$record['table_name'].'_group_'.$record['group_id']]);
+                $cachePool->invalidateTags(['permissions_collection_'.$record['collection'].'_group_'.$record['group']]);
             });
             // /Cache subscriptions
 
