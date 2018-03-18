@@ -7,7 +7,6 @@ use Directus\Database\TableSchema;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
-use Directus\Util\StringUtils;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Insert;

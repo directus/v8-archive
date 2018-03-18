@@ -7,7 +7,6 @@ use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Sources\SchemaInterface;
 use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
 
 class SchemaManager
 {

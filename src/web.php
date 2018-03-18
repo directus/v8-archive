@@ -12,6 +12,7 @@ $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class);
 $app->group('/listings', \Directus\Api\Routes\Listings::class);
 $app->group('/pages', \Directus\Api\Routes\Pages::class);
 $app->group('/server', \Directus\Api\Routes\Server::class);
+$app->group('/types', \Directus\Api\Routes\Types::class);
 
 $app->group('/{env}', function () {
     $this->group('/activity', \Directus\Api\Routes\Activity::class);

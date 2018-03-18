@@ -13,7 +13,7 @@ if (!file_exists($configFilePath)) {
 $env = get_api_env();
 $requestUri = trim(get_virtual_path(), '/');
 
-$reservedNames = ['server', 'interfaces', 'pages', 'listings'];
+$reservedNames = ['server', 'interfaces', 'pages', 'listings', 'types'];
 if ($requestUri && !empty($env) && $env !== '_' && !in_array($env, $reservedNames)) {
     $configFilePath = sprintf('%s/api.%s.php', $configPath, $env);
     if (!file_exists($configFilePath)) {
