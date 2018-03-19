@@ -427,6 +427,24 @@ class CoreServicesProvider
                 return $payload;
             });
 
+            // TODO: improve Parse boolean/json/array almost similar code
+            $parseBoolean = function ($collection, $data) use ($container) {
+                /** @var SchemaManager $schemaManager */
+                $schemaManager = $container->get('schema_manager');
+                $collectionObject = $schemaManager->getTableSchema($collection);
+
+                foreach ($collectionObject->getFields(array_keys($data)) as $field) {
+                    if (!$field->isBoolean()) {
+                        continue;
+                    }
+
+                    $key = $field->getName();
+                    $data[$key] = boolval($data[$key]);
+                }
+
+                return $data;
+            };
+
             $parseJson = function ($collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
@@ -463,12 +481,13 @@ class CoreServicesProvider
 
                 return $payload;
             });
-            $emitter->addFilter('table.select', function (Payload $payload) use ($parseJson) {
+            $emitter->addFilter('table.select', function (Payload $payload) use ($parseJson, $parseBoolean) {
                 $rows = $payload->getData();
                 $collection = $payload->attribute('tableName');
 
                 foreach ($rows as $key => $row) {
                     $rows[$key] = $parseJson($collection, $row);
+                    $rows[$key] = $parseBoolean($collection, $row);
                 }
 
                 $payload->replace($rows);
