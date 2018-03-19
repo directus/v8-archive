@@ -378,6 +378,7 @@ class CoreServicesProvider
             });
 
             // -- Data types -----------------------------------------------------------------------------
+            // TODO: improve Parse boolean/json/array almost similar code
             $parseArray = function ($collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
@@ -404,30 +405,7 @@ class CoreServicesProvider
 
                 return $data;
             };
-            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($parseArray) {
-                $payload->replace($parseArray($payload->attribute('tableName'), $payload->getData()));
 
-                return $payload;
-            });
-            $emitter->addFilter('table.update:before', function (Payload $payload) use ($parseArray) {
-                $payload->replace($parseArray($payload->attribute('tableName'), $payload->getData()));
-
-                return $payload;
-            });
-            $emitter->addFilter('table.select', function (Payload $payload) use ($parseArray) {
-                $rows = $payload->getData();
-                $collection = $payload->attribute('tableName');
-
-                foreach ($rows as $key => $row) {
-                    $rows[$key] = $parseArray($collection, $row);
-                }
-
-                $payload->replace($rows);
-
-                return $payload;
-            });
-
-            // TODO: improve Parse boolean/json/array almost similar code
             $parseBoolean = function ($collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
@@ -444,7 +422,6 @@ class CoreServicesProvider
 
                 return $data;
             };
-
             $parseJson = function ($collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
@@ -471,23 +448,27 @@ class CoreServicesProvider
 
                 return $data;
             };
-            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($parseJson) {
+
+            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($parseJson, $parseArray) {
                 $payload->replace($parseJson($payload->attribute('tableName'), $payload->getData()));
+                $payload->replace($parseArray($payload->attribute('tableName'), $payload->getData()));
 
                 return $payload;
             });
-            $emitter->addFilter('table.update:before', function (Payload $payload) use ($parseJson) {
+            $emitter->addFilter('table.update:before', function (Payload $payload) use ($parseJson, $parseArray) {
                 $payload->replace($parseJson($payload->attribute('tableName'), $payload->getData()));
+                $payload->replace($parseArray($payload->attribute('tableName'), $payload->getData()));
 
                 return $payload;
             });
-            $emitter->addFilter('table.select', function (Payload $payload) use ($parseJson, $parseBoolean) {
+            $emitter->addFilter('table.select', function (Payload $payload) use ($parseJson, $parseArray, $parseBoolean) {
                 $rows = $payload->getData();
                 $collection = $payload->attribute('tableName');
 
                 foreach ($rows as $key => $row) {
                     $rows[$key] = $parseJson($collection, $row);
                     $rows[$key] = $parseBoolean($collection, $row);
+                    $rows[$key] = $parseArray($collection, $row);
                 }
 
                 $payload->replace($rows);
