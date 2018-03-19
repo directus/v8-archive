@@ -2,6 +2,7 @@
 
 namespace Directus\Database\Schema\Object;
 
+use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\SystemInterface;
 use Directus\Util\ArrayUtils;
 
@@ -343,6 +344,22 @@ class Field extends AbstractObject
                 static::TYPE_TINY_JSON,
                 static::TYPE_MEDIUM_JSON,
                 static::TYPE_LONG_JSON
+            ]
+        );
+    }
+
+    /**
+     * Checks whether the field is a boolean type
+     *
+     * @return bool
+     */
+    public function isBoolean()
+    {
+        return in_array(
+            strtoupper($this->getType()),
+            [
+                strtoupper(DataTypes::TYPE_BOOLEAN),
+                strtoupper(DataTypes::TYPE_BOOL)
             ]
         );
     }
