@@ -466,8 +466,8 @@ class CoreServicesProvider
                 $collection = $payload->attribute('tableName');
 
                 foreach ($rows as $key => $row) {
-                    $rows[$key] = $parseJson($collection, $row);
-                    $rows[$key] = $parseBoolean($collection, $row);
+                    $row = $parseJson($collection, $row);
+                    $row = $parseBoolean($collection, $row);
                     $rows[$key] = $parseArray($collection, $row);
                 }
 
