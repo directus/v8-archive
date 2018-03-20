@@ -1,8 +1,0 @@
-{
-  "name": "example",
-  "version": "1.0.0",
-  "dataTypes": {
-    "VARCHAR": 100
-  },
-  "options": {}
-}
