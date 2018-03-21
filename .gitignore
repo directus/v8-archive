@@ -3,6 +3,8 @@ config/*
 !config/migrations.php
 !config/api_sample.php
 
+public/core/
+
 documents
 
 assets/css/*.map
