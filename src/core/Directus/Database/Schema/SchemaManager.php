@@ -18,6 +18,7 @@ class SchemaManager
     const TABLE_FILES               = 'directus_files';
     const TABLE_GROUPS              = 'directus_groups';
     const TABLE_PERMISSIONS         = 'directus_permissions';
+    const TABLE_RELATIONS           = 'directus_relations';
     const TABLE_REVISIONS           = 'directus_revisions';
     const TABLE_SETTINGS            = 'directus_settings';
     const TABLE_USERS               = 'directus_users';

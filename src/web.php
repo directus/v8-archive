@@ -23,6 +23,7 @@ $app->group('/{env}', function () {
     $this->group('/items', \Directus\Api\Routes\Items::class);
     $this->group('/collection_presets', \Directus\Api\Routes\CollectionPresets::class);
     $this->group('/permissions', \Directus\Api\Routes\Permissions::class);
+    $this->group('/relations', \Directus\Api\Routes\Relations::class);
     $this->group('/revisions', \Directus\Api\Routes\Revisions::class);
     $this->group('/settings', \Directus\Api\Routes\Settings::class);
     $this->group('/collections', \Directus\Api\Routes\Collections::class);
