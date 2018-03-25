@@ -9,6 +9,7 @@ use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Authentication\Exception\UserIsNotLoggedInException;
 use Directus\Authentication\Exception\UserNotFoundException;
+use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\User\Provider\UserProviderInterface;
 use Directus\Authentication\User\UserInterface;
 use Directus\Exception\Exception;
@@ -177,6 +178,19 @@ class Provider
         return $user;
     }
 
+    public function authenticateWithEmail($email)
+    {
+        $user = $this->userProvider->findByEmail($email);
+
+        if (!$user) {
+            throw new UserWithEmailNotFoundException($email);
+        }
+
+        $this->setUser($user);
+
+        return $user;
+    }
+
     /**
      * Authenticate an user using a private token
      *
@@ -328,6 +342,18 @@ class Provider
     }
 
     /**
+     * Generate invitation token
+     *
+     * @param array $payload
+     *
+     * @return string
+     */
+    public function generateInvitationToken(array $payload)
+    {
+        return $this->generateToken($payload);
+    }
+
+    /**
      * Generates a new JWT token
      *
      * @param $payload
@@ -400,13 +426,13 @@ class Provider
      *
      * @param UserInterface $user
      *
-     * @throws InvalidTokenException
      * @throws UserInactiveException
+     * @throws UserNotFoundException
      */
     protected function setUser(UserInterface $user)
     {
-        if (!$user || !$user->getId()) {
-            throw new InvalidTokenException();
+        if (!$user->getId()) {
+            throw new UserNotFoundException();
         }
 
         if (!$this->isActive($user)) {

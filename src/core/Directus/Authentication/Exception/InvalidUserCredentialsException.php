@@ -10,6 +10,6 @@ class InvalidUserCredentialsException extends NotFoundException
 
     public function __construct()
     {
-        parent::__construct('auth_invalid_credentials', static::ERROR_CODE);
+        parent::__construct('Invalid user credentials', static::ERROR_CODE);
     }
 }

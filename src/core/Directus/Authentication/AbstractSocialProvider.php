@@ -75,11 +75,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
      */
     public function getRedirectUrl($name)
     {
-        // TODO: Fix redirection
-        // request is not available and won't be
-        $request = Application::getInstance()->request();
-
-        return rtrim($request->getUrl(), '/') . '/auth/' . $name . '/receive';
+        return get_url('/_/auth/authenticate/' . $name . '/callback');
     }
 
     /**

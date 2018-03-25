@@ -2,6 +2,7 @@
 
 namespace Directus\Authentication;
 
+use Directus\Util\ArrayUtils;
 use League\OAuth2\Client\Token\AccessToken;
 
 abstract class TwoSocialProvider extends AbstractSocialProvider
@@ -9,18 +10,23 @@ abstract class TwoSocialProvider extends AbstractSocialProvider
     /**
      * @inheritDoc
      */
-    public function request()
+    public function getRequestAuthorizationUrl()
     {
         $options = [
             'scope' => $this->getScopes()
         ];
 
-        $authUrl = $this->provider->getAuthorizationUrl($options);
-        $session = $this->container->get('session');
-        $session->set('oauth2state', $this->provider->getState());
+        return $this->provider->getAuthorizationUrl($options);
+    }
 
-        header('Location: ' . $authUrl);
-        // $this->app->response()->redirect($authUrl);
+    /**
+     * @inheritDoc
+     */
+    public function request()
+    {
+        $requestUrl = $this->getRequestAuthorizationUrl();
+
+        header('Location: ' . $requestUrl);
     }
 
     /**
@@ -28,16 +34,9 @@ abstract class TwoSocialProvider extends AbstractSocialProvider
      */
     public function handle()
     {
-        $session = $this->container->get('session');
-        if (empty($_GET['state']) || ($_GET['state'] !== $session->get('oauth2state'))) {
-
-            $session->remove('oauth2state');
-            throw new \Exception('Invalid state');
-        }
-
         // Try to get an access token (using the authorization code grant)
         $token = $this->provider->getAccessToken('authorization_code', [
-            'code' => $_GET['code']
+            'code' => ArrayUtils::get($_GET, 'code')
         ]);
 
         return new SocialUser([

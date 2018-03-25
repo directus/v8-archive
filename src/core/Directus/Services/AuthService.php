@@ -2,11 +2,14 @@
 
 namespace Directus\Services;
 
+use Directus\Authentication\AbstractSocialProvider;
 use Directus\Authentication\Exception\ExpiredResetPasswordToken;
 use Directus\Authentication\Exception\InvalidResetPasswordTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserNotFoundException;
+use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\Provider;
+use Directus\Authentication\Social;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusGroupsTableGateway;
@@ -63,6 +66,39 @@ class AuthService extends AbstractService
         ];
     }
 
+    public function getAuthenticationRequestData($name)
+    {
+        /** @var Social $socialAuth */
+        $socialAuth = $this->container->get('external_auth');
+        /** @var AbstractSocialProvider $service */
+        $service = $socialAuth->get($name);
+
+        return [
+            'data' => [
+                'url' => $service->getRequestAuthorizationUrl(),
+                'state' => $service->getProvider()->getState()
+            ]
+        ];
+    }
+
+    public function handleAuthenticationRequestCallback($name)
+    {
+        /** @var Social $socialAuth */
+        $socialAuth = $this->container->get('external_auth');
+        /** @var AbstractSocialProvider $service */
+        $service = $socialAuth->get($name);
+
+        $serviceUser = $service->handle();
+
+        $user = $this->authenticateWithEmail($serviceUser->getEmail());
+
+        return [
+            'data' => [
+                'token' => $this->generateAuthToken($user)
+            ]
+        ];
+    }
+
     /**
      * @param $token
      *
@@ -77,6 +113,20 @@ class AuthService extends AbstractService
         }
 
         return $authenticated;
+    }
+
+    /**
+     * Authenticates a user with the given email
+     *
+     * @param $email
+     *
+     * @return \Directus\Authentication\User\User
+     *
+     * @throws UserWithEmailNotFoundException
+     */
+    public function authenticateWithEmail($email)
+    {
+        return $this->getAuthProvider()->authenticateWithEmail($email);
     }
 
     /**

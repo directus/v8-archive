@@ -11,7 +11,12 @@ use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
 use Cache\Adapter\Void\VoidCachePool;
 use Directus\Application\ErrorHandlers\ErrorHandler;
+use Directus\Authentication\FacebookProvider;
+use Directus\Authentication\GitHubProvider;
+use Directus\Authentication\GoogleProvider;
 use Directus\Authentication\Provider;
+use Directus\Authentication\Social;
+use Directus\Authentication\TwitterProvider;
 use Directus\Authentication\User\Provider\UserTableGatewayProvider;
 use Directus\Cache\Response;
 use Directus\Database\Connection;
@@ -35,11 +40,14 @@ use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
+use Directus\Session\Session;
+use Directus\Session\Storage\NativeSessionStorage;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
 use Directus\View\Twig\DirectusTwigExtension;
 use League\Flysystem\Adapter\Local;
+use League\OAuth1\Client\Server\Twitter;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -54,6 +62,8 @@ class CoreServicesProvider
         $container['logger']            = $this->getLogger();
         $container['hook_emitter']      = $this->getEmitter();
         $container['auth']              = $this->getAuth();
+        $container['external_auth']     = $this->getExternalAuth();
+        // $container['session']           = $this->getSession();
         $container['acl']               = $this->getAcl();
         $container['errorHandler']      = $this->getErrorHandler();
         $container['phpErrorHandler']   = $this->getErrorHandler();
@@ -724,6 +734,50 @@ class CoreServicesProvider
                     'secret_key' => $container->get('config')->get('auth.secret_key')
                 ]
             );
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getExternalAuth()
+    {
+        return function (Container $container) {
+            $config = $container->get('config');
+            $authConfig = $config->get('auth.social_providers', []);
+
+            $socialAuth = new Social();
+
+            $socialAuthServices = [
+                'github' => GitHubProvider::class,
+                'facebook' => FacebookProvider::class,
+                'twitter' => TwitterProvider::class,
+                'google' => GoogleProvider::class
+            ];
+
+            foreach ($socialAuthServices as $name => $class) {
+                if (ArrayUtils::has($authConfig, $name)) {
+                    $config = ArrayUtils::get($authConfig, $name);
+                    $socialAuth->register(new $class($container, $config));
+                }
+            }
+
+            return $socialAuth;
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getSession()
+    {
+        return function (Container $container) {
+            $config = $container->get('config');
+
+            $session = new Session(new NativeSessionStorage($config->get('session', [])));
+            $session->getStorage()->start();
+
+            return $session;
         };
     }
 
