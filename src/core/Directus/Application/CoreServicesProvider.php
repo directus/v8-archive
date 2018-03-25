@@ -47,7 +47,6 @@ use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
 use Directus\View\Twig\DirectusTwigExtension;
 use League\Flysystem\Adapter\Local;
-use League\OAuth1\Client\Server\Twitter;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -744,7 +743,7 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $config = $container->get('config');
-            $authConfig = $config->get('auth.social_providers', []);
+            $providersConfig = $config->get('auth.social_providers', []);
 
             $socialAuth = new Social();
 
@@ -755,10 +754,23 @@ class CoreServicesProvider
                 'google' => GoogleProvider::class
             ];
 
-            foreach ($socialAuthServices as $name => $class) {
-                if (ArrayUtils::has($authConfig, $name)) {
-                    $config = ArrayUtils::get($authConfig, $name);
-                    $socialAuth->register(new $class($container, $config));
+            foreach ($providersConfig as $providerConfig) {
+                if (!is_array($providerConfig)) {
+                    continue;
+                }
+
+                if (ArrayUtils::get($providerConfig, 'enabled') !== true) {
+                    continue;
+                }
+
+                $name = ArrayUtils::get($providerConfig, 'provider');
+                if (!$name) {
+                    continue;
+                }
+
+                if (array_key_exists($name, $socialAuthServices)) {
+                    $class = $socialAuthServices[$name];
+                    $socialAuth->register(new $class($container, $providerConfig));
                 }
             }
 

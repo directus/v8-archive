@@ -6,6 +6,11 @@ use Directus\Util\ArrayUtils;
 
 class Social
 {
+    const PROVIDER_FACEBOOK = 'facebook';
+    const PROVIDER_GITHUB   = 'github';
+    const PROVIDER_TWITTER  = 'twitter';
+    const PROVIDER_GOOGLE   = 'google';
+
     /**
      * Register providers
      *

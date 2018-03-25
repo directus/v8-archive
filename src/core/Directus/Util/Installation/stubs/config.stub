@@ -158,20 +158,28 @@ return [
     'auth' => [
         'secret_key' => '<secret-authentication-key>',
         'social_providers' => [
-            // 'github' => [
+            // [
+            //     'provider' => 'github',
+            //     'enabled' => true,
             //     'client_id' => '',
             //     'client_secret' => ''
             // ],
-            // 'facebook' => [
+            // [
+            //     'provider' => 'facebook',
+            //     'enabled' => true,
             //     'client_id'          => '',
             //     'client_secret'      => '',
             //     'graph_api_version'  => 'v2.8',
             // ],
-            // 'google' => [
+            // [
+            //     'provider' => 'google',
+            //     'enabled' => true,
             //     'client_id'       => '',
             //     'client_secret'   => '',
             // ],
-            // 'twitter' => [
+            // [
+            //     'provider' => 'twitter',
+            //     'enabled' => true,
             //     'identifier'   => '',
             //     'secret'       => ''
             // ]
