@@ -3,12 +3,12 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Authentication\Provider;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\ForbiddenException;
 use Directus\Util\DateUtils;
-use Directus\Util\StringUtils;
 
 class UsersService extends AbstractService
 {
@@ -109,20 +109,23 @@ class UsersService extends AbstractService
         // $usersRepository = $repositoryCollection->get('users');
         // $usersRepository->add();
         $tableGateway = $this->createTableGateway($this->collection);
-        $invitationToken = StringUtils::randomString(128);
         $user = $tableGateway->findOneBy('email', $email);
 
         // TODO: Throw exception when email exists
         // Probably resend if the email exists?
         // TODO: Add activity
         if (!$user) {
+            /** @var Provider $auth */
+            $auth = $this->container->get('auth');
+            $invitationToken = $auth->generateInvitationToken([
+                'date' => DateUtils::now(),
+                'sender' => $this->getAcl()->getUserId()
+            ]);
+
             $result = $tableGateway->insert([
                 'status' => DirectusUsersTableGateway::STATUS_DISABLED,
                 'email' => $email,
-                'token' => StringUtils::randomString(32),
                 'invite_token' => $invitationToken,
-                'invite_date' => DateUtils::now(),
-                'invite_sender' => $this->getAcl()->getUserId(),
                 'invite_accepted' => 0
             ]);
 

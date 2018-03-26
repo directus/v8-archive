@@ -88,8 +88,11 @@ return [
     ],
 
     'mail' => [
-        'transport' => 'mail',
-        'from' => '{{directus_email}}'
+        'default' => [
+            'adapter' => 'swift_mailer',
+            'transport' => 'mail',
+            'from' => '{{directus_email}}'
+        ],
     ],
 
     'cors' => [

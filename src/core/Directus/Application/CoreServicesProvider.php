@@ -31,6 +31,7 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableSchema;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
@@ -38,6 +39,10 @@ use Directus\Filesystem\Thumbnail;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
+use Directus\Mail\Adapters\AbstractMailerAdapter;
+use Directus\Mail\Adapters\SimpleFileMailAdapter;
+use Directus\Mail\Adapters\SwiftMailerAdapter;
+use Directus\Mail\MailerManager;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
 use Directus\Session\Session;
@@ -73,7 +78,7 @@ class CoreServicesProvider
         $container['embed_manager']     = $this->getEmbedManager();
         $container['filesystem']        = $this->getFileSystem();
         $container['files']             = $this->getFiles();
-        $container['mailer']            = $this->getMailer();
+        $container['mailer_manager']    = $this->getMailerManager();
         $container['mail_view']         = $this->getMailView();
         $container['app_settings']      = $this->getSettings();
 
@@ -997,44 +1002,39 @@ class CoreServicesProvider
     /**
      * @return \Closure
      */
-    protected function getMailer()
+    protected function getMailerManager()
     {
         return function (Container $container) {
             $config = $container->get('config');
+            $manager = new MailerManager();
 
-            if (!$config->has('mail')) {
-                return null;
+            $adapters = [
+                'simple_file' => SimpleFileMailAdapter::class,
+                'swift_mailer' => SwiftMailerAdapter::class
+            ];
+
+            $mailConfigs = $config->get('mail');
+            foreach ($mailConfigs as $name => $mailConfig) {
+                $adapter = ArrayUtils::get($mailConfig, 'adapter');
+                $object = null;
+
+                if (class_exists($adapter)) {
+                    $object = new $adapter($mailConfig);
+                } else if (array_key_exists($adapter, $adapters)) {
+                    $class = $adapters[$adapter];
+                    $object = new $class($mailConfig);
+                }
+
+                if (!($object instanceof AbstractMailerAdapter)) {
+                    throw new RuntimeException(
+                        sprintf('%s is not a instance of %s', $adapter, AbstractMailerAdapter::class)
+                    );
+                }
+
+                $manager->register($name, $object);
             }
 
-            $mailConfig = $config->get('mail');
-            switch ($mailConfig['transport']) {
-                case 'smtp':
-                    $transport = \Swift_SmtpTransport::newInstance($mailConfig['host'], $mailConfig['port']);
-
-                    if (array_key_exists('username', $mailConfig)) {
-                        $transport->setUsername($mailConfig['username']);
-                    }
-
-                    if (array_key_exists('password', $mailConfig)) {
-                        $transport->setPassword($mailConfig['password']);
-                    }
-
-                    if (array_key_exists('encryption', $mailConfig)) {
-                        $transport->setEncryption($mailConfig['encryption']);
-                    }
-                    break;
-                case 'sendmail':
-                    $transport = \Swift_SendmailTransport::newInstance($mailConfig['sendmail']);
-                    break;
-                case 'mail':
-                default:
-                    $transport = \Swift_MailTransport::newInstance();
-                    break;
-            }
-
-            $mailer = \Swift_Mailer::newInstance($transport);
-
-            return $mailer;
+            return $manager;
         };
     }
 

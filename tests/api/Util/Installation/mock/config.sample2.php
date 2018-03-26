@@ -88,8 +88,11 @@ return [
     ],
 
     'mail' => [
-        'transport' => 'mail',
-        'from' => 'root@localhost'
+        'default' => [
+            'adapter' => 'swift_mailer',
+            'transport' => 'mail',
+            'from' => 'root@localhost'
+        ],
     ],
 
     'cors' => [

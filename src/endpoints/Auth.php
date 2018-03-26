@@ -19,6 +19,7 @@ class Auth extends Route
         $app->get('/authenticate/{service}', [$this, 'authenticateService']);
         $app->get('/authenticate/{service}/callback', [$this, 'authenticateServiceCallback']);
         $app->post('/forgot_password', [$this, 'forgotPassword']);
+        // $app->get('/invitation/{token}', [$this, 'acceptInvitation']);
         $app->get('/reset_password/{token}', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
     }

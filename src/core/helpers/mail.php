@@ -7,13 +7,68 @@ if (!function_exists('send_email')) {
     /**
      * Sends a new email
      *
-     * @param string $view
+     * @param string $viewPath
      * @param array $data
      * @param callable $callback
      */
-    function send_email($view, array $data, callable $callback)
+    function send_email($viewPath, array $data, callable $callback)
     {
-        Mail::send($view, $data, $callback);
+        $app = \Directus\Application\Application::getInstance();
+        /** @var \Directus\Mail\MailerManager $mailerManager */
+        $mailerManager = $app->getContainer()->get('mailer_manager');
+        $config = $app->getConfig();
+
+        $mailer = $mailerManager->getDefault();
+        $mailerKey = $mailer->getName();
+        $message = $mailer->createMessage();
+
+        // default mail from address
+        $mailConfig = $config->get('mail.' . $mailerKey);
+        $message->setFrom(ArrayUtils::get($mailConfig, 'from'));
+
+        $bcc = ArrayUtils::get($mailConfig, 'bcc', null);
+        if ($bcc !== null) {
+            $message->setBcc($bcc);
+        }
+
+        $cc =  ArrayUtils::get($mailConfig, 'cc', null);
+        if ($cc !== null) {
+            $message->setCc($cc);
+        }
+
+        call_user_func($callback, $message);
+
+        if ($message->getBody() === null) {
+            $content = parse_twig($viewPath, $data);
+            $message->setBody($content, 'text/html');
+        }
+
+        $mailer->send($message);
+    }
+}
+
+if (!function_exists('parse_twig')) {
+    /**
+     * Parse twig view
+     *
+     * @param string $viewPath
+     * @param array $data
+     *
+     * @return string
+     */
+    function parse_twig($viewPath, array $data)
+    {
+        $app = \Directus\Application\Application::getInstance();
+
+        $mailSettings = [];
+        $settings = $app->getContainer()->get('app_settings');
+        foreach ($settings as $setting) {
+            $mailSettings[$setting['scope']][$setting['key']] = $setting['value'];
+        }
+
+        $data = array_merge(['settings' => $mailSettings], $data);
+
+        return $app->getContainer()->get('mail_view')->fetch($viewPath, $data);
     }
 }
 
@@ -44,7 +99,7 @@ if (!function_exists('send_forgot_password_email')) {
     function send_forgot_password_email($user, $token)
     {
         $data = ['reset_token' => $token];
-        Mail::send('forgot-password.twig', $data, function (Swift_Message $message) use ($user) {
+        send_email('forgot-password.twig', $data, function (Swift_Message $message) use ($user) {
             $message->setSubject(__t('password_forgot_password_reset_email_subject'));
             $message->setTo($user['email']);
         });
@@ -77,7 +132,7 @@ if (!function_exists('send_message_notification_email')) {
             'sender' => $sender,
             'message_id' => ArrayUtils::get($payload, 'response_to', $payload['id'])
         ];
-        Mail::send('notification.twig', $data, function (Swift_Message $message) use ($user, $payload) {
+        send_email('notification.twig', $data, function (Swift_Message $message) use ($user, $payload) {
             $message->setSubject($payload['subject']);
             $message->setTo($user['email']);
         });
@@ -93,7 +148,7 @@ if (!function_exists('send_new_install_email')) {
      */
     function send_new_install_email(array $data)
     {
-        Mail::send('new-install.twig', $data, function (Swift_Message $message) use ($data) {
+        send_email('new-install.twig', $data, function (Swift_Message $message) use ($data) {
             $message->setSubject(__t('email_subject_your_new_directus_instance_x', [
                 'name' => $data['project']['name']
             ]));
@@ -112,7 +167,7 @@ if (!function_exists('send_user_invitation_email')) {
     function send_user_invitation_email($email, $token)
     {
         $data = ['token' => $token];
-        Mail::send('user-invitation.twig', $data, function (Swift_Message $message) use ($email) {
+        send_email('user-invitation.twig', $data, function (\Directus\Mail\MessageInterface $message) use ($email) {
             // TODO: Add a proper invitation subject
             $message->setSubject('Invitation to Directus');
             $message->setTo($email);
