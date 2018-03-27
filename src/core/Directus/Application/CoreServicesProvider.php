@@ -20,6 +20,7 @@ use Directus\Authentication\TwitterProvider;
 use Directus\Authentication\User\Provider\UserTableGatewayProvider;
 use Directus\Cache\Response;
 use Directus\Database\Connection;
+use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
@@ -714,9 +715,12 @@ class CoreServicesProvider
                 \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
             ];
 
-            $db = new Connection($dbConfig);
-
-            $db->connect();
+            try {
+                $db = new Connection($dbConfig);
+                $db->connect();
+            } catch (\Exception $e) {
+                throw new ConnectionFailedException($e);
+            }
 
             return $db;
         };
