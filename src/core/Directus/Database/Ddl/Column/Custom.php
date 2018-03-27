@@ -6,6 +6,13 @@ use Zend\Db\Sql\Ddl\Column\AbstractPrecisionColumn;
 
 class Custom extends AbstractPrecisionColumn
 {
+    public function __construct($type, $name, $digits = null, $decimal = null, $nullable = false, $default = null, array $options = [])
+    {
+        parent::__construct($name, $digits, $decimal, $nullable, $default, $options);
+
+        $this->setType($type);
+    }
+
     public function setType($type)
     {
         $this->type = $type;

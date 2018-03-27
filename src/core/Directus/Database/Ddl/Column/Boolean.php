@@ -7,7 +7,12 @@ class Boolean extends \Zend\Db\Sql\Ddl\Column\Column
     /**
      * @var int
      */
-    protected $length;
+    protected $length = 1;
+
+    /**
+     * @var string
+     */
+    protected $type = 'TINYINT';
 
     /**
      * @param null|string     $name

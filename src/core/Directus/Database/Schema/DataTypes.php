@@ -21,6 +21,7 @@ final class DataTypes
     const TYPE_TIME         = 'time';
     const TYPE_DATE         = 'date';
     const TYPE_DATETIME     = 'datetime';
+    const TYPE_TIMESTAMP    = 'timestamp';
 
     const TYPE_TINY_INT     = 'tinyint';
     const TYPE_SMALL_INT    = 'smallint';
