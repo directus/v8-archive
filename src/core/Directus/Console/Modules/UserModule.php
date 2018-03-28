@@ -20,7 +20,7 @@ class UserModule extends ModuleBase
             'password' => ''
                 . PHP_EOL . "\t\t-e " . __t('User e-mail address.')
                 . PHP_EOL . "\t\t-p " . __t('New password for the user.')
-                . PHP_EOL . "\t\t-d " . __t('Directus path. Default: ' . BASE_PATH)
+                . PHP_EOL . "\t\t-d " . __t('Directus path. Default: ' . base_path())
         ];
 
         $this->commands_help = [
@@ -34,7 +34,7 @@ class UserModule extends ModuleBase
 
     public function cmdPassword($args, $extra)
     {
-        $directus_path = BASE_PATH;
+        $directus_path = base_path();
 
         $data = [];
 

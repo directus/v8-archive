@@ -43,7 +43,7 @@ class DatabaseModule extends ModuleBase
 
     protected function runMigration($name)
     {
-        $directusPath = BASE_PATH;
+        $directusPath = base_path();
 
         $configPath = $directusPath . '/config';
         $apiConfig = require $configPath . '/api.php';

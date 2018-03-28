@@ -15,7 +15,7 @@ class Cli
 
     private $cmd_modules = [];
 
-    public function __construct($directusPath = BASE_PATH, $argv = [])
+    public function __construct($directusPath = null, $argv = [])
     {
         if (!$argv) {
             $argv = $_SERVER['argv'] ?: [];

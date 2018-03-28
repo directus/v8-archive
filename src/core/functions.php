@@ -508,27 +508,15 @@ if (!function_exists('get_user_timezone')) {
 if (!function_exists('get_auth_info')) {
     function get_auth_info($attribute)
     {
-        // if there's not config files created
-        if (!defined('BASE_PATH') || !defined('APPLICATION_PATH')) {
+        $app = \Directus\Application\Application::getInstance();
+        try {
+            /** @var \Directus\Authentication\Provider $authentication */
+            $authentication = $app->getContainer()->get('auth');
+        } catch (\Exception $e) {
             return null;
         }
 
-        $authentication = \Directus\Bootstrap::get('auth');
-        // Check for the cache refresh provider function
-        // if it doesn't exists we should move along
-        // this function create a temporary users cache
-        // that is required and used from the beginning of times of Directus
-        // this method will be replaced by the cache layer some time soon
-        // we are doing this because it throws an exception which results in a infinite loop
-        // error trying to translate the information by fetching the user language
-        // then throws an exception while fetching the auth info and so on
-        if (!$authentication->loggedIn() || !$authentication->getUserCacheRefreshProvider()) {
-            return null;
-        }
-
-        $userInfo = $authentication->getUserAttributes();
-
-        return isset($userInfo[$attribute]) ? $userInfo[$attribute] : null;
+        return $authentication->getUserAttributes($attribute);
     }
 }
 
@@ -1402,7 +1390,7 @@ if (!function_exists('get_missing_requirements')) {
             $errors[] = 'Your host needs to have cURL extension enabled to run this version of Directus!';
         }
 
-        if (!file_exists(BASE_PATH . '/vendor/autoload.php')) {
+        if (!file_exists(base_path() . '/vendor/autoload.php')) {
             $errors[] = 'Composer dependencies must be installed first.';
         }
 

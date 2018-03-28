@@ -36,7 +36,7 @@ class InstallModule extends ModuleBase
                 . PHP_EOL . "\t\t-p " . __t('Initial administrator password. Default: directus')
                 . PHP_EOL . "\t\t-t " . __t('Name for this Directus installation. Default: Directus')
                 . PHP_EOL . "\t\t-T " . __t('Administrator secret token. Default: Random')
-                . PHP_EOL . "\t\t-d " . __t('Installation path of Directus. Default: ' . BASE_PATH)
+                . PHP_EOL . "\t\t-d " . __t('Installation path of Directus. Default: ' . base_path())
         ];
 
         $this->commands_help = [
@@ -60,7 +60,7 @@ class InstallModule extends ModuleBase
         $data['db_user'] = '';
         $data['db_password'] = '';
 
-        $directusPath = BASE_PATH;
+        $directusPath = base_path();
 
         foreach ($args as $key => $value) {
             switch ($key) {
@@ -101,7 +101,7 @@ class InstallModule extends ModuleBase
 
     public function cmdDatabase($args, $extra)
     {
-        $directus_path = BASE_PATH . DIRECTORY_SEPARATOR;
+        $directus_path = base_path() . DIRECTORY_SEPARATOR;
         foreach ($args as $key => $value) {
             switch ($key) {
                 case 'd':
@@ -121,7 +121,7 @@ class InstallModule extends ModuleBase
         $data['directus_password'] = 'password';
         $data['directus_name'] = 'Directus';
 
-        $directus_path = BASE_PATH . DIRECTORY_SEPARATOR;
+        $directus_path = base_path() . DIRECTORY_SEPARATOR;
 
         foreach ($args as $key => $value) {
             switch ($key) {

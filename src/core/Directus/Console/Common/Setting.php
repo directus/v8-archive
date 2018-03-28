@@ -14,15 +14,12 @@ class Setting
 
     public function __construct($base_path)
     {
-
         if ($base_path == null) {
-            $base_path = BASE_PATH;
-        } else {
-            $this->directus_path = $base_path;
+            $base_path = base_path();
         }
 
+        $this->directus_path = $base_path;
         $app = new Application($base_path, require $this->directus_path . '/config/api.php');
-        // $this->db = new Connection();//Bootstrap::get('ZendDb');
         $this->db = $app->getContainer()->get('database');
 
         $this->settingsTableGateway = new TableGateway('directus_settings', $this->db);

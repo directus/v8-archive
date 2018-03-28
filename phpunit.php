@@ -4,8 +4,6 @@ $loader = require __DIR__ . '/vendor/autoload.php';
 // utils for I/O testing
 require __DIR__ . '/tests/utils/io_functions.php';
 
-define_constant('BASE_PATH', __DIR__);
-
 // force a timezone
 date_default_timezone_set('America/New_York');
 

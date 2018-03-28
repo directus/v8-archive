@@ -543,7 +543,7 @@ class SchemaManager
         // @TODO: SchemaManager shouldn't be a class with static methods anymore
         // the UI templates list will be provided by a container or bootstrap.
         $path = implode(DIRECTORY_SEPARATOR, [
-            BASE_PATH,
+            base_path(),
             'api',
             'migrations',
             'templates',

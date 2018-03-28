@@ -19,13 +19,11 @@ class User
 
     public function __construct($base_path)
     {
-
         if ($base_path == null) {
-            $base_path = BASE_PATH;
-        } else {
-            $this->directus_path = $base_path;
+            $base_path = base_path();
         }
 
+        $this->directus_path = $base_path;
         $this->app = new Application($base_path, require $base_path. '/config/api.php');
         $this->db = $this->app->getContainer()->get('database');
 
