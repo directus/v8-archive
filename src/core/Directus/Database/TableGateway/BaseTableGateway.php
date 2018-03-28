@@ -969,7 +969,7 @@ class BaseTableGateway extends TableGateway
                 }
 
                 if ($canConvert) {
-                    $columnName = $column->getId();
+                    $columnName = $column->getName();
                     if (array_key_exists($columnName, $row)) {
                         $records[$index][$columnName] = DateUtils::convertToISOFormat($row[$columnName], 'UTC', get_user_timezone());
                     }
