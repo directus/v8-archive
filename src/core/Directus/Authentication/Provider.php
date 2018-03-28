@@ -129,7 +129,6 @@ class Provider
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
         if (!password_verify($password, $user->get('password'))) {
-            // TODO: Add exception message
             throw new InvalidUserCredentialsException();
         }
 
