@@ -94,7 +94,7 @@ class UsersService extends AbstractService
 
         return $this->findAll([
             'status' => false,
-            'filters' => [
+            'filter' => [
                 'email' => ['in' => $emails]
             ]
         ]);
