@@ -67,6 +67,8 @@ class SwiftMailerAdapter extends AbstractMailerAdapter
             $swiftMessage->setCc($cc);
         }
 
+        $swiftMessage->setTo($message->getTo());
+
         $swiftMessage->setBody(
             $message->getBody(),
             $message->getContentType(),
