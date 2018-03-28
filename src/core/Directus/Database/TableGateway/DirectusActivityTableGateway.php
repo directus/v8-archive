@@ -17,17 +17,17 @@ use Zend\Db\Sql\Where;
 class DirectusActivityTableGateway extends RelationalTableGateway
 {
     // Populates directus_activity.type
-    const TYPE_ENTRY = 'ENTRY';
-    const TYPE_FILES = 'FILES';
+    const TYPE_ENTRY    = 'ENTRY';
+    const TYPE_FILES    = 'FILES';
     const TYPE_SETTINGS = 'SETTINGS';
-    const TYPE_LOGIN = 'LOGIN';
-    const TYPE_MESSAGE = 'MESSAGE';
+    const TYPE_LOGIN    = 'LOGIN';
+    const TYPE_MESSAGE  = 'MESSAGE';
 
     // Populates directus_activity.action
-    const ACTION_ADD = 'ADD';
+    const ACTION_ADD    = 'ADD';
     const ACTION_UPDATE = 'UPDATE';
     const ACTION_DELETE = 'DELETE';
-    const ACTION_LOGIN = 'LOGIN';
+    const ACTION_LOGIN  = 'LOGIN';
 
     public static $_tableName = 'directus_activity';
 
@@ -138,35 +138,24 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         $this->insertWith($insert);
     }
 
-    public function recordMessage($data, $userId)
+    /**
+     * Records a message activity
+     *
+     * @param $data
+     *
+     * @return \Directus\Database\RowGateway\BaseRowGateway
+     */
+    public function recordMessage($data)
     {
-        if (isset($data['response_to']) && $data['response_to'] > 0) {
-            $action = 'REPLY';
-        } else {
-            $action = 'ADD';
-        }
-
-        $logData = [
+        $logData = array_merge($data, [
             'type' => self::TYPE_MESSAGE,
-            'table_name' => 'directus_messages',
-            'action' => $action,
-            'user' => $userId,
+            'action' => static::ACTION_ADD,
             'datetime' => DateUtils::now(),
-            'parent_id' => null,
-            'data' => json_encode($data),
-            'delta' => '[]',
-            'identifier' => $data['subject'],
-            'row_id' => $data['id'],
-            'logged_ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
+            'ip' => get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
-        ];
+        ]);
 
-        $insert = new Insert($this->getTable());
-
-        $insert
-            ->values($logData);
-
-        $this->insertWith($insert);
+        return $this->updateRecord($logData);
     }
 
     /**

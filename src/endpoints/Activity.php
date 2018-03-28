@@ -17,6 +17,7 @@ class Activity extends Route
     {
         $app->get('', [$this, 'all']);
         $app->get('/{id}', [$this, 'read']);
+        $app->post('/message', [$this, 'createMessage']);
     }
 
     /**
@@ -66,5 +67,29 @@ class Activity extends Route
         $responseData = $activityTableGateway->getItems($params);
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function createMessage(Request $request, Response $response)
+    {
+        $payload = $request->getParsedBody();
+        $dbConnection = $this->container->get('database');
+        $acl = $this->container->get('acl');
+        $activityTableGateway = new DirectusActivityTableGateway($dbConnection, $acl);
+        $payload = array_merge($payload, [
+            'user' => $acl->getUserId()
+        ]);
+
+        $record = $activityTableGateway->recordMessage($payload);
+
+        return $this->responseWithData($request, $response, $activityTableGateway->wrapData(
+            $record->toArray(),
+            true
+        ));
     }
 }
