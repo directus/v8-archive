@@ -29,22 +29,22 @@ $app->group('/{env}', function () {
     $this->group('/collections', \Directus\Api\Routes\Collections::class);
     $this->group('/users', \Directus\Api\Routes\Users::class);
     $this->group('/utils', \Directus\Api\Routes\Utils::class);
-});
 
-$app->group('/customs', function () {
-    $endpointsList = get_custom_endpoints('/customs/endpoints');
+    $this->group('/customs', function () {
+        $endpointsList = get_custom_endpoints('/customs/endpoints');
 
-    foreach ($endpointsList as $name => $endpoints) {
-        create_group_route_from_array($this, $name, $endpoints);
-    }
-});
+        foreach ($endpointsList as $name => $endpoints) {
+            create_group_route_from_array($this, $name, $endpoints);
+        }
+    });
 
-$app->group('/pages', function () {
-    $endpointsList = get_custom_endpoints('/public/core/pages', true);
+    $this->group('/pages', function () {
+        $endpointsList = get_custom_endpoints('/public/core/pages', true);
 
-    foreach ($endpointsList as $name => $endpoints) {
-        create_group_route_from_array($this, $name, $endpoints);
-    }
+        foreach ($endpointsList as $name => $endpoints) {
+            create_group_route_from_array($this, $name, $endpoints);
+        }
+    });
 });
 
 // $app->add(new \Directus\Slim\HttpCacheMiddleware());
