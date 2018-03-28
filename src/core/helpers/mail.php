@@ -39,7 +39,10 @@ if (!function_exists('send_email')) {
         call_user_func($callback, $message);
 
         if ($message->getBody() === null) {
-            $content = parse_twig($viewPath, $data);
+            $content = parse_twig($viewPath, array_merge(
+                $data,
+                ['api' => ['env' => get_api_env()]]
+            ));
             $message->setBody($content, 'text/html');
         }
 
