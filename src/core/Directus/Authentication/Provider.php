@@ -125,12 +125,35 @@ class Provider
      */
     public function findUserWithCredentials($email, $password)
     {
-        $user = $this->user = $this->userProvider->findByEmail($email);
+        $user = $this->findUserWithEmail($email);
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
-        if (!$user || !$this->user->getId() || !password_verify($password, $this->user->get('password'))) {
+        if (!password_verify($password, $this->user->get('password'))) {
             // TODO: Add exception message
             throw new InvalidUserCredentialsException();
+        }
+
+        $this->user = $user;
+
+        return $user;
+    }
+
+    /**
+     * Returns a user with the given email if exists
+     * Otherwise throw an UserNotFoundException
+     *
+     * @param $email
+     *
+     * @return User\User
+     *
+     * @throws UserNotFoundException
+     */
+    public function findUserWithEmail($email)
+    {
+        $user = $this->userProvider->findByEmail($email);
+
+        if (!$user->getId()) {
+            throw new UserNotFoundException();
         }
 
         return $user;

@@ -85,7 +85,7 @@ if (!function_exists('send_reset_password_email')) {
     function send_reset_password_email($user, $password)
     {
         $data = ['new_password' => $password];
-        send_email('reset-password.twig', $data, function (Swift_Message $message) use ($user) {
+        send_email('reset-password.twig', $data, function (\Directus\Mail\MessageInterface $message) use ($user) {
             $message->setSubject(__t('password_reset_new_password_email_subject'));
             $message->setTo($user['email']);
         });
@@ -102,7 +102,7 @@ if (!function_exists('send_forgot_password_email')) {
     function send_forgot_password_email($user, $token)
     {
         $data = ['reset_token' => $token];
-        send_email('forgot-password.twig', $data, function (Swift_Message $message) use ($user) {
+        send_email('forgot-password.twig', $data, function (\Directus\Mail\MessageInterface  $message) use ($user) {
             $message->setSubject(__t('password_forgot_password_reset_email_subject'));
             $message->setTo($user['email']);
         });
@@ -135,7 +135,7 @@ if (!function_exists('send_message_notification_email')) {
             'sender' => $sender,
             'message_id' => ArrayUtils::get($payload, 'response_to', $payload['id'])
         ];
-        send_email('notification.twig', $data, function (Swift_Message $message) use ($user, $payload) {
+        send_email('notification.twig', $data, function (\Directus\Mail\MessageInterface $message) use ($user, $payload) {
             $message->setSubject($payload['subject']);
             $message->setTo($user['email']);
         });
@@ -151,7 +151,7 @@ if (!function_exists('send_new_install_email')) {
      */
     function send_new_install_email(array $data)
     {
-        send_email('new-install.twig', $data, function (Swift_Message $message) use ($data) {
+        send_email('new-install.twig', $data, function (\Directus\Mail\MessageInterface $message) use ($data) {
             $message->setSubject(__t('email_subject_your_new_directus_instance_x', [
                 'name' => $data['project']['name']
             ]));

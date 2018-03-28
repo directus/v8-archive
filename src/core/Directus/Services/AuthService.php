@@ -144,17 +144,18 @@ class AuthService extends AbstractService
         return $auth->generateAuthToken($user);
     }
 
-    public function sendResetPasswordToken($email, $password)
+    /**
+     * Sends a email with the reset password token
+     *
+     * @param $email
+     */
+    public function sendResetPasswordToken($email)
     {
-        $this->validateCredentials($email, $password);
+        $this->validate(['email' => $email], ['email' => 'required|email']);
 
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
-        $user = $auth->findUserWithCredentials($email, $password);
-
-        if (!$user) {
-            throw new InvalidUserCredentialsException();
-        }
+        $user = $auth->findUserWithEmail($email);
 
         $resetToken = $auth->generateResetPasswordToken($user);
 
