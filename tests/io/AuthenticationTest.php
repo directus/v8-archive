@@ -6,6 +6,7 @@ use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserInactiveException;
+use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Exception\BadRequestException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
@@ -122,7 +123,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         assert_response_error($this, $response, [
             'status' => 404,
             'data' => 'array',
-            'code' => InvalidUserCredentialsException::ERROR_CODE
+            'code' => UserNotFoundException::ERROR_CODE
         ]);
     }
 

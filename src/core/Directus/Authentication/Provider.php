@@ -128,7 +128,7 @@ class Provider
         $user = $this->findUserWithEmail($email);
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
-        if (!password_verify($password, $this->user->get('password'))) {
+        if (!password_verify($password, $user->get('password'))) {
             // TODO: Add exception message
             throw new InvalidUserCredentialsException();
         }
@@ -152,7 +152,7 @@ class Provider
     {
         $user = $this->userProvider->findByEmail($email);
 
-        if (!$user->getId()) {
+        if (!$user || !$user->getId()) {
             throw new UserNotFoundException();
         }
 
