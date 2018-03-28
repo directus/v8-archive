@@ -31,6 +31,22 @@ $app->group('/{env}', function () {
     $this->group('/utils', \Directus\Api\Routes\Utils::class);
 });
 
+$app->group('/customs', function () {
+    $endpointsList = get_custom_endpoints('/customs/endpoints');
+
+    foreach ($endpointsList as $name => $endpoints) {
+        create_group_route_from_array($this, $name, $endpoints);
+    }
+});
+
+$app->group('/pages', function () {
+    $endpointsList = get_custom_endpoints('/public/core/pages', true);
+
+    foreach ($endpointsList as $name => $endpoints) {
+        create_group_route_from_array($this, $name, $endpoints);
+    }
+});
+
 // $app->add(new \Directus\Slim\HttpCacheMiddleware());
 // $app->add(new \Directus\Slim\ResponseCacheMiddleware());
 //
@@ -49,37 +65,6 @@ $app->group('/{env}', function () {
 //     // API/Server is about to shutdown
 //     $app->hookEmitter->run('application.shutdown', $app);
 // });
-//
-// // $app->group('/custom', function () {
-// //     $endpoints = $this->getCustomEndpoints();
-// //
-// //     // TODO: Add a way to prevent more user defined errors
-// //     // by not including a file directly
-// //     foreach ($endpoints as $endpoint) {
-// //         require $endpoint;
-// //     }
-// // });
-//
-// /**
-//  * Extension Alias
-//  */
-// $runExtensions = isset($_REQUEST['run_extension']) && $_REQUEST['run_extension'];
-// if ($runExtensions) {
-//     // Validate extension name
-//     $extensionName = $_REQUEST['run_extension'];
-//     if (!Bootstrap::extensionExists($extensionName)) {
-//         throw new \RuntimeException(__t('extension_x_not_found', [
-//             'name' => $extensionName
-//         ]));
-//     }
-//
-//     $extensionsDirectory = APPLICATION_PATH . '/customs/extensions';
-//     $extensionEndpointsPath = "$extensionsDirectory/$extensionName/api.php";
-//
-//     $app->group(sprintf('/extensions/%s/?', $extensionName), function () use ($app, $extensionEndpointsPath) {
-//         require $extensionEndpointsPath;
-//     });
-// }
 //
 // $app->notFound(function () use ($app, $acl) {
 //     $projectInfo = get_project_info();

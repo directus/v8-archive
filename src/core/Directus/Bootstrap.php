@@ -62,23 +62,6 @@ class Bootstrap
     }
 
     /**
-     * Get all custom endpoints
-     * @return array - list of endpoint files loaded
-     * @throws \Exception
-     */
-    public static function getCustomEndpoints()
-    {
-        self::requireConstants('APPLICATION_PATH', __FUNCTION__);
-        $endpointsDirectory = APPLICATION_PATH . '/customs/endpoints';
-
-        if (!file_exists($endpointsDirectory)) {
-            return [];
-        }
-
-        return find_php_files($endpointsDirectory, true);
-    }
-
-    /**
      * SINGLETON FACTORY FUNCTIONS
      */
 

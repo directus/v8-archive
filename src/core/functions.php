@@ -1,6 +1,7 @@
 <?php
 
 require __DIR__ . '/constants.php';
+require __DIR__ . '/helpers/extensions.php';
 require __DIR__ . '/helpers/items.php';
 require __DIR__ . '/helpers/mail.php';
 require __DIR__ . '/helpers/sorting.php';
@@ -1099,10 +1100,10 @@ if (!function_exists('find_files')) {
      * Find files inside $paths, directories and file name starting with "_" will be ignored.
      *
      *
-     * @param $searchPaths
+     * @param string $searchPaths
      * @param int $flags
      * @param string $pattern
-     * @param bool $includeSubDirectories
+     * @param bool|int $includeSubDirectories
      * @param callable - $ignore filter
      *
      * @return array
@@ -1125,7 +1126,11 @@ if (!function_exists('find_files')) {
             $result = array_filter(glob($searchPath . '/' . rtrim($pattern, '/'), $flags), $validPath);
             $filesPath = array_merge($filesPath, $result);
 
-            if ($includeSubDirectories === true) {
+            if ($includeSubDirectories === true || (int)$includeSubDirectories > 0) {
+                if (is_numeric($includeSubDirectories)) {
+                    $includeSubDirectories--;
+                }
+
                 foreach (glob($searchPath . '/*', GLOB_ONLYDIR) as $subDir) {
                     if ($validPath($subDir)) {
                         $result = find_files($subDir, $flags, $pattern, $includeSubDirectories);
@@ -1143,8 +1148,8 @@ if (!function_exists('find_js_files')) {
     /**
      * Find JS files in the given path
      *
-     * @param $paths
-     * @param bool $includeSubDirectories
+     * @param string $paths
+     * @param bool|int $includeSubDirectories
      *
      * @return array
      */
@@ -1158,8 +1163,8 @@ if (!function_exists('find_json_files')) {
     /**
      * Find JSON files in the given path
      *
-     * @param $paths
-     * @param bool $includeSubDirectories
+     * @param string $paths
+     * @param bool|int $includeSubDirectories
      *
      * @return array
      */
@@ -1173,8 +1178,8 @@ if (!function_exists('find_php_files')) {
     /**
      * Find PHP files in the given path
      *
-     * @param $paths
-     * @param bool $includeSubDirectories
+     * @param string $paths
+     * @param bool|int $includeSubDirectories
      *
      * @return array
      */
@@ -1188,8 +1193,8 @@ if (!function_exists('find_html_files')) {
     /**
      * Find HTML files in the given path
      *
-     * @param $paths
-     * @param bool $includeSubDirectories
+     * @param string $paths
+     * @param bool|int $includeSubDirectories
      *
      * @return array
      */
@@ -1203,8 +1208,8 @@ if (!function_exists('find_twig_files')) {
     /**
      * Find Twig files in the given path
      *
-     * @param $paths
-     * @param bool $includeSubDirectories
+     * @param string $paths
+     * @param bool|int $includeSubDirectories
      *
      * @return array
      */
