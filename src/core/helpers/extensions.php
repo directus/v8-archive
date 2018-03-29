@@ -54,6 +54,14 @@ if (!function_exists('get_custom_endpoints')) {
                 throw new \Directus\Exception\Exception('endpoint information must be an array ' . gettype($endpointInfo) . ' was given in ' . $relativePath);
             }
 
+            // When a directory and file has the same name inside the path
+            // /example/endpoints.php and example.php
+            if (isset($endpoints[$endpointName])) {
+                throw new \Directus\Exception\Exception(
+                    sprintf('There is an endpoint already named "%s"', $endpointName)
+                );
+            }
+
             $endpoints[$endpointName] = $endpointInfo;
         }
 
