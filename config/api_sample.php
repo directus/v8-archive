@@ -176,6 +176,7 @@ return [
             //     'enabled' => true,
             //     'client_id'       => '',
             //     'client_secret'   => '',
+            //     'hosted_domain'   => '*',
             // ],
             // [
             //     'provider' => 'twitter',
