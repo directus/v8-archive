@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Database\Schema\SystemInterface;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Exception\BadRequestException;
@@ -184,7 +185,13 @@ abstract class AbstractService
                 continue;
             }
 
-            if ($field->isRequired() || (!$field->isNullable() && $field->getDefaultValue() == null)) {
+            $isRequired = $field->isRequired();
+            $isStatusInterface = $field->getInterface() === SystemInterface::INTERFACE_STATUS;
+            if (!$isRequired && $isStatusInterface && $field->getDefaultValue() === null) {
+                $isRequired = true;
+            }
+
+            if ($isRequired || (!$field->isNullable() && $field->getDefaultValue() == null)) {
                 $columnConstraints[] = 'required';
             }
 
