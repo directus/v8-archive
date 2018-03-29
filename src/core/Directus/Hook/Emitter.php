@@ -212,10 +212,14 @@ class Emitter
      *
      * @return int Listener's index {@see removeListenerWithIndex}
      */
-    protected function addListener($name, $listener, $priority = self::P_NORMAL, $type = self::TYPE_ACTION)
+    protected function addListener($name, $listener, $priority = null, $type = self::TYPE_ACTION)
     {
         if (is_string($listener) && class_exists($listener)) {
             $listener = new $listener();
+        }
+
+        if ($priority === null) {
+            $priority = self::P_NORMAL;
         }
 
         $this->validateListener($listener);

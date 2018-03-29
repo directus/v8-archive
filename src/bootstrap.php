@@ -33,10 +33,8 @@ date_default_timezone_set($app->getConfig()->get('timezone', 'America/New_York')
 
 $container = $app->getContainer();
 
-// =============================================================================
-// Load registered hooks
-// =============================================================================
-load_registered_hooks($app);
+register_global_hooks($app);
+register_extensions_hooks($app);
 
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 

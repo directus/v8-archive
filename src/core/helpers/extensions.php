@@ -1,37 +1,33 @@
 <?php
 
-if (!function_exists('get_custom_endpoints')) {
+if (!function_exists('get_custom_x')) {
     /**
-     * Get the list of custom endpoints information
-     *
+     * @param string $type
      * @param string $path
-     * @param bool $directoryOnly Ignores files in the given path
-     *
+     * @param bool $onlyDirectories Ignores files in the given path
      * @return array
-     *
      * @throws \Directus\Exception\Exception
      */
-    function get_custom_endpoints($path, $directoryOnly = false)
+    function get_custom_x($type, $path, $onlyDirectories = false)
     {
-        $endpointsPath = base_path($path);
-
-        if (!file_exists($endpointsPath)) {
+        $extensionsPath = base_path($path);
+        if (!file_exists($extensionsPath)) {
             return [];
         }
 
-        $files = find_php_files($endpointsPath, 1);
-        $endpoints = [];
+        $files = find_php_files($extensionsPath, 1);
+        $extensions = [];
         $ignoredDirectories = [];
 
-        if ($directoryOnly) {
+        if ($onlyDirectories) {
             $ignoredDirectories[] = '/';
         }
 
         foreach ($files as $file) {
-            $relativePath = substr($file, strlen($endpointsPath));
+            $relativePath = substr($file, strlen($extensionsPath));
             $pathInfo = pathinfo($relativePath);
             $dirname = $pathInfo['dirname'];
-            $endpointName = $pathInfo['filename'];
+            $extensionName = $pathInfo['filename'];
             $isDirectory = $dirname !== '/';
 
             // TODO: Need to improve logic
@@ -40,32 +36,55 @@ if (!function_exists('get_custom_endpoints')) {
             }
 
             if ($isDirectory) {
-                if ($pathInfo['filename'] === 'endpoints') {
+                if ($pathInfo['filename'] === $type) {
                     $ignoredDirectories[] = $dirname;
-                    $endpointName = ltrim($dirname, '/');
+                    $extensionName = ltrim($dirname, '/');
                 } else {
                     continue;
                 }
             }
 
-            $endpointInfo = require $file;
-
-            if (!is_array($endpointInfo)) {
-                throw new \Directus\Exception\Exception('endpoint information must be an array ' . gettype($endpointInfo) . ' was given in ' . $relativePath);
+            $extensionInfo = require $file;
+            if (!is_array($extensionInfo)) {
+                throw new \Directus\Exception\Exception(
+                    sprintf(
+                        'information for "%s" must be an array. "%s" was given instead in %s',
+                        $type,
+                        gettype($extensionInfo),
+                        $relativePath
+                    )
+                );
             }
 
             // When a directory and file has the same name inside the path
             // /example/endpoints.php and example.php
-            if (isset($endpoints[$endpointName])) {
+            if (isset($extensions[$extensionName])) {
                 throw new \Directus\Exception\Exception(
-                    sprintf('There is an endpoint already named "%s"', $endpointName)
+                    sprintf('There is an endpoint already named "%s"', $extensionName)
                 );
             }
 
-            $endpoints[$endpointName] = $endpointInfo;
+            $extensions[$extensionName] = $extensionInfo;
         }
 
-        return $endpoints;
+        return $extensions;
+    }
+}
+
+if (!function_exists('get_custom_endpoints')) {
+    /**
+     * Get the list of custom endpoints information
+     *
+     * @param string $path
+     * @param bool $onlyDirectories
+     *
+     * @return array
+     *
+     * @throws \Directus\Exception\Exception
+     */
+    function get_custom_endpoints($path, $onlyDirectories = false)
+    {
+        return get_custom_x('endpoints', $path, $onlyDirectories);
     }
 }
 
@@ -122,5 +141,20 @@ if (!function_exists('create_route_from_array')) {
         }
 
         $app->map($methods, $routePath, $handler);
+    }
+}
+
+if (!function_exists('get_custom_hooks')) {
+    /**
+     * Get a list of hooks in the given path
+     *
+     * @param string $path
+     * @param bool $onlyDirectories
+     *
+     * @return array
+     */
+    function get_custom_hooks($path, $onlyDirectories = false)
+    {
+        return get_custom_x('hooks', $path, $onlyDirectories);
     }
 }

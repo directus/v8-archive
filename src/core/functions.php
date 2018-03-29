@@ -1,6 +1,7 @@
 <?php
 
 require __DIR__ . '/constants.php';
+require __DIR__ . '/helpers/arrays.php';
 require __DIR__ . '/helpers/extensions.php';
 require __DIR__ . '/helpers/items.php';
 require __DIR__ . '/helpers/mail.php';
@@ -426,27 +427,61 @@ if (!function_exists('debug')) {
     }
 }
 
-if (!function_exists('load_registered_hooks')) {
+if (!function_exists('register_global_hooks')) {
     /**
-     * Load all registered hooks
+     * Register all the hooks from the configuration file
      *
      * @param \Directus\Application\Application $app
      */
-    function load_registered_hooks(\Directus\Application\Application $app)
+    function register_global_hooks(\Directus\Application\Application $app)
     {
         $config = $app->getConfig();
-        if ($config->has('hooks')) {
-            load_hooks($app, $config->get('hooks'), false);
-        }
-
-        // if ($config->get('filters')) {
-        //     // Set seconds parameter "true" to add as filters
-        //     load_hooks($app, $config->get('filters'), true);
-        // }
+        register_hooks_list($app, [$config->get('hooks')]);
     }
 }
 
-if (!function_exists('load_hooks')) {
+if (!function_exists('register_extensions_hooks')) {
+    /**
+     * Register all extensions hooks
+     *
+     * @param \Directus\Application\Application $app
+     */
+    function register_extensions_hooks(\Directus\Application\Application $app)
+    {
+        register_hooks_list(
+            $app,
+            get_custom_hooks('/customs/hooks')
+        );
+
+        register_hooks_list(
+            $app,
+            get_custom_hooks('/public/core/pages', true)
+        );
+
+        register_hooks_list(
+            $app,
+            get_custom_hooks('/public/core/interfaces', true)
+        );
+    }
+}
+
+if (!function_exists('register_hooks_list')) {
+    /**
+     * Register an array of hooks (containing a list of actions and filters)
+     *
+     * @param \Directus\Application\Application $app
+     * @param array $hooksList
+     */
+    function register_hooks_list(\Directus\Application\Application $app, array $hooksList)
+    {
+        foreach ($hooksList as $hooks) {
+            register_hooks($app, array_get($hooks, 'actions', []), false);
+            register_hooks($app, array_get($hooks, 'filters', []), true);
+        }
+    }
+}
+
+if (!function_exists('register_hooks')) {
     /**
      * Load one or multiple listeners
      *
@@ -454,7 +489,7 @@ if (!function_exists('load_hooks')) {
      * @param array|Closure $listeners
      * @param bool $areFilters
      */
-    function load_hooks(\Directus\Application\Application $app, $listeners, $areFilters = false)
+    function register_hooks(\Directus\Application\Application $app, $listeners, $areFilters = false)
     {
         $hookEmitter = $app->getContainer()->get('hook_emitter');
 
@@ -468,7 +503,7 @@ if (!function_exists('load_hooks')) {
             }
 
             foreach ($handlers as $handler) {
-                register_hook($hookEmitter, $event, $handler, $areFilters);
+                register_hook($hookEmitter, $event, $handler, null, $areFilters);
             }
         }
     }
@@ -480,16 +515,47 @@ if (!function_exists('register_hook')) {
      *
      * @param \Directus\Hook\Emitter $emitter
      * @param string $name
-     * @param array|Closure $listener
+     * @param callable $listener
+     * @param int|null $priority
      * @param bool $areFilters
      */
-    function register_hook(\Directus\Hook\Emitter $emitter, $name, $listener, $areFilters = false)
+    function register_hook(\Directus\Hook\Emitter $emitter, $name, $listener, $priority = null, $areFilters = false)
     {
         if (!$areFilters) {
-            $emitter->addAction($name, $listener);
+            register_action_hook($emitter, $name, $listener, $priority);
         } else {
-            $emitter->addFilter($name, $listener);
+            register_filter_hook($emitter, $name, $listener, $priority);
         }
+    }
+}
+
+if (!function_exists('register_action_hook')) {
+    /**
+     * Register a hook action
+     *
+     * @param \Directus\Hook\Emitter $emitter
+     * @param string $name
+     * @param callable $listener
+     * @param int|null $priority
+     */
+    function register_action_hook(\Directus\Hook\Emitter $emitter, $name, $listener, $priority = null)
+    {
+        $emitter->addAction($name, $listener, $priority);
+    }
+}
+
+if (!function_exists('register_hook_filter')) {
+    /**
+     * Register a hook action
+     *
+     * @param \Directus\Hook\Emitter $emitter
+     * @param string $name
+     * @param callable $listener
+     * @param int|null $priority
+     */
+    function register_filter_hook(\Directus\Hook\Emitter $emitter, $name, $listener, $priority = null)
+    {
+        $emitter->addFilter($name, $listener, $priority);
     }
 }
 

@@ -7,7 +7,7 @@ use Directus\Collection\Collection;
 class Payload extends Collection
 {
     /**
-     * @var array
+     * @var Collection
      */
     protected $attributes = [];
 
@@ -28,6 +28,14 @@ class Payload extends Collection
     public function attribute($key)
     {
         return $this->attributes[$key];
+    }
+
+    /**
+     * @return Collection
+     */
+    public function attributes()
+    {
+        return $this->attributes;
     }
 
     /**
