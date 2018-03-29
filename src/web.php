@@ -1,12 +1,7 @@
 <?php
 
+/** @var \Directus\Application\Application $app */
 $app = require __DIR__ . '/bootstrap.php';
-
-// =============================================================================
-// TODO: User-defined endpoints
-// TODO: User-defined extensions endpoints
-// TODO: Customized Method not allowed error
-// =============================================================================
 
 $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class);
 $app->group('/listings', \Directus\Api\Routes\Listings::class);
@@ -40,6 +35,14 @@ $app->group('/{env}', function () {
 
     $this->group('/pages', function () {
         $endpointsList = get_custom_endpoints('/public/core/pages', true);
+
+        foreach ($endpointsList as $name => $endpoints) {
+            create_group_route_from_array($this, $name, $endpoints);
+        }
+    });
+
+    $this->group('/interfaces', function () {
+        $endpointsList = get_custom_endpoints('/public/core/interfaces');
 
         foreach ($endpointsList as $name => $endpoints) {
             create_group_route_from_array($this, $name, $endpoints);
