@@ -42,7 +42,7 @@ $app->group('/{env}', function () {
     });
 
     $this->group('/interfaces', function () {
-        $endpointsList = get_custom_endpoints('/public/core/interfaces');
+        $endpointsList = get_custom_endpoints('/public/core/interfaces', true);
 
         foreach ($endpointsList as $name => $endpoints) {
             create_group_route_from_array($this, $name, $endpoints);
