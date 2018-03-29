@@ -2,7 +2,6 @@
 
 namespace Directus\Config;
 
-use Directus\Collection\Collection;
 use Directus\Util\ArrayUtils;
 
 class StatusItem

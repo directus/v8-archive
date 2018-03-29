@@ -19,6 +19,7 @@ use Directus\Authentication\Social;
 use Directus\Authentication\TwitterProvider;
 use Directus\Authentication\User\Provider\UserTableGatewayProvider;
 use Directus\Cache\Response;
+use Directus\Config\StatusMapping;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Database\Schema\Object\Field;
@@ -82,6 +83,7 @@ class CoreServicesProvider
         $container['mailer_manager']    = $this->getMailerManager();
         $container['mail_view']         = $this->getMailView();
         $container['app_settings']      = $this->getSettings();
+        $container['status_mapping']    = $this->getStatusMapping();
 
         // Move this separately to avoid clogging one class
         $container['cache']             = $this->getCache();
@@ -1052,6 +1054,34 @@ class CoreServicesProvider
             $settingsTable = new TableGateway(SchemaManager::TABLE_SETTINGS, $dbConnection);
 
             return $settingsTable->select()->toArray();
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getStatusMapping()
+    {
+        return function (Container $container) {
+            $settings = $container->get('app_settings');
+
+            $statusMapping = [];
+            foreach ($settings as $setting) {
+                if (
+                    ArrayUtils::get($setting, 'scope') == 'status'
+                    && ArrayUtils::get($setting, 'group') == 'global'
+                    && ArrayUtils::get($setting, 'key') == 'status_mapping'
+                ) {
+                    $statusMapping = json_decode($setting['value'], true);
+                    break;
+                }
+            }
+
+            if (!is_array($statusMapping)) {
+                $statusMapping = [];
+            }
+
+            return new StatusMapping($statusMapping);
         };
     }
 

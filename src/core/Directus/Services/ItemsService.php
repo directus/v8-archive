@@ -110,26 +110,7 @@ class ItemsService extends AbstractService
         // $item = $this->find($collection, $id);
 
         $tableGateway = $this->createTableGateway($collection);
-
-        $condition = [
-            $tableGateway->primaryKeyFieldName => $id
-        ];
-
-        if (ArrayUtils::get($params, 'soft') == 1) {
-            if (!$tableGateway->getTableSchema()->hasStatusField()) {
-                throw new BadRequestException('Cannot soft-delete because the collection is missing status interface field');
-            }
-
-            $success = $tableGateway->update([
-                $tableGateway->getStatusColumnName() => $tableGateway->getDeletedValue()
-            ], $condition);
-
-            if (!$success) {
-                throw new ErrorException('Error soft-deleting item id: ' . $id);
-            }
-        } else {
-            $tableGateway->deleteRecord($id, $this->getCRUDParams($params));
-        }
+        $tableGateway->deleteRecord($id, $this->getCRUDParams($params));
 
         return true;
     }

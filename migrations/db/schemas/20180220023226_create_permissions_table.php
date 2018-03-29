@@ -38,7 +38,8 @@ class CreatePermissionsTable extends AbstractMigration
             'signed' => false,
             'null' => false
         ]);
-        $table->addColumn('status', 'integer', [
+        $table->addColumn('status', 'string', [
+            'length' => 64,
             'default' => null,
             'null' => true
         ]);
