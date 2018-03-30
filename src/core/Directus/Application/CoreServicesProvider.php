@@ -229,7 +229,7 @@ class CoreServicesProvider
                 }
             });
 
-            $emitter->addAction('table.update.directus_privileges:after', function ($data) use($container, $cachePool) {
+            $emitter->addAction('table.update.directus_permissions:after', function ($data) use($container, $cachePool) {
                 $acl = $container->get('acl');
                 $dbConnection = $container->get('database');
                 $privileges = new DirectusPermissionsTableGateway($dbConnection, $acl);
