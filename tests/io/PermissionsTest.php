@@ -35,6 +35,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         reset_table_id($db, 'directus_permissions', 1);
         truncate_table($db, 'products');
         truncate_table($db, 'posts');
+        truncate_table($db, 'articles');
         fill_table($db, 'products', static::$data);
     }
 
@@ -231,663 +232,74 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
     public function testStatusCreate()
     {
-        truncate_table(static::$db, 'directus_permissions');
+        $this->tryStatusCreate('posts', 2, 1);
+    }
 
-        // Intern CAN create draft but CANNOT READ any posts
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 2,
-            'create' => 1
-        ]);
-
-        // Intern cannot create draft posts
-        $data = [
-            'title' => 'Post 1',
-            'status' => 1
-        ];
-
-        $response = request_error_post('items/posts', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionCreateException::ERROR_CODE
-        ]);
-
-        // Intern can create posts with default status (because it is 2)
-        $data = [
-            'title' => 'Post 1'
-        ];
-
-        $response = request_post('items/posts', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // Intern CAN create draft and CAN READ their own posts
-        $this->updatePermission(1, [
-            'create' => 1,
-            'read' => 1
-        ]);
-
-        $data = [
-            'title' => 'Post 1',
-            'status' => 2
-        ];
-
-        $response = request_post('items/posts', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
-        assert_response_data_contains($this, $response, $data);
+    public function testStringStatusCreate()
+    {
+        $this->tryStatusCreate('articles', 'draft', 'published');
     }
 
     public function testStatusRead()
     {
-        truncate_table(static::$db, 'directus_permissions');
-        truncate_table(static::$db, 'posts');
+        $publishedStatus = 1;
+        $draftStatus = 2;
+        $noPermissionStatusOne = 0;
+        $noPermissionStatusTwo = 3;
+        $this->tryStatusRead('posts', $publishedStatus, $draftStatus, $noPermissionStatusOne, $noPermissionStatusTwo);
+    }
 
-        // Intern CAN read draft and published (1) but CANNOT READ deleted (0)
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 2,
-            'read' => 1
-        ]);
-
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 1,
-            'read' => 1
-        ]);
-
-        $data0 = ['title' => 'Deleted Post', 'status' => 0, 'author' => 2];
-        table_insert(static::$db, 'posts', $data0);
-
-        $data1 = ['title' => 'Published Post', 'status' => 1, 'author' => 2];
-        table_insert(static::$db, 'posts', $data1);
-
-        $data2 = ['title' => 'Draft Post', 'status' => 2, 'author' => 2];
-        table_insert(static::$db, 'posts', $data2);
-
-        $data3 = ['title' => 'Under Review Post', 'status' => 3, 'author' => 2];
-        table_insert(static::$db, 'posts', $data3);
-
-        $response = request_error_get('items/posts/1', $this->internQueryParams);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionReadException::ERROR_CODE
-        ]);
-
-        $response = request_get('items/posts/2', $this->internQueryParams);
-        assert_response($this, $response);
-        assert_response_data_contains($this, $response, $data1);
-
-        $response = request_get('items/posts/3', $this->internQueryParams);
-        assert_response($this, $response);
-        assert_response_data_contains($this, $response, $data2);
-
-        $response = request_error_get('items/posts/4', $this->internQueryParams);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionReadException::ERROR_CODE
-        ]);
-
-        $response = request_get('items/posts', $this->internQueryParams);
-        assert_response($this, $response, [
-            'data' => 'array',
-            'count' => 1
-        ]);
-
-        $response = request_get('items/posts', $this->queryParams);
-        assert_response($this, $response, [
-            'data' => 'array',
-            'count' => 1
-        ]);
-
-        $response = request_get('items/posts', array_merge($this->internQueryParams, ['status' => '0,1,2']));
-        assert_response($this, $response, [
-            'data' => 'array',
-            'count' => 2
-        ]);
-
-        $response = request_get('items/posts', array_merge($this->queryParams, ['status' => '0,1,2']));
-        assert_response($this, $response, [
-            'data' => 'array',
-            'count' => 3
-        ]);
+    public function testStringStatusRead()
+    {
+        $publishedStatus = 'published';
+        $draftStatus = 'draft';
+        $noPermissionStatusOne = 'deleted';
+        $noPermissionStatusTwo = 'under_review';
+        $this->tryStatusRead('articles', $publishedStatus, $draftStatus, $noPermissionStatusOne, $noPermissionStatusTwo);
     }
 
     public function testStatusUpdate()
     {
-        truncate_table(static::$db, 'directus_permissions');
-        truncate_table(static::$db, 'posts');
-
-        $this->resetTestPosts();
-
-        // ----------------------------------------------------------------------------
-        // Intern CANNOT update posts
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_error_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own posts BUT CANNOT read any posts
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => null,
-            'update' => 1
-        ]);
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own group posts BUT CANNOT read any posts
-        $this->updatePermission(1, [
-            'update' => 2
-        ]);
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts BUT CANNOT read any posts
-        $this->updatePermission(1, [
-            'update' => 3
-        ]);
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // UPDATE + READ PERMISSION
-        // ----------------------------------------------------------------------------
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts BUT CAN only read their own posts
-        $this->updatePermission(1, [
-            'update' => 3,
-            'read' => 1
-        ]);
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
-
-        $response = request_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts BUT CAN only read their own group posts
-        $this->updatePermission(1, [
-            'update' => 3,
-            'read' => 2
-        ]);
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
-
-        $response = request_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts AND CAN read any posts
-        $this->updatePermission(1, [
-            'update' => 3,
-            'read' => 3
-        ]);
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
-
-        $response = request_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
-
-        $response = request_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // PERMISSION BY STATUS
-        // ----------------------------------------------------------------------------
-        truncate_table(static::$db, 'directus_permissions');
-
-        // ----------------------------------------------------------------------------
-        // Intern CANNOT update posts with any status
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 0,
-            'update' => 0
-        ]);
-
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 1,
-            'update' => 0
-        ]);
-
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 2,
-            'update' => 0
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_error_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/3', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/4', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/6', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/7', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/8', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        // ----------------------------------------------------------------------------
-        // WITH STATUS: 0
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own posts with status = 0
-        $this->updatePermission(1, [
-            'status' => 0,
-            'update' => 1
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own group posts with status = 0
-        $this->updatePermission(1, [
-            'status' => 0,
-            'update' => 2
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts with status = 0
-        $this->updatePermission(1, [
-            'status' => 0,
-            'update' => 3
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/1', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_patch('items/posts/5', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/9', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // WITH STATUS: 1
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'update' => 1
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/3', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/6', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/10', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own group posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'update' => 2
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/6', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_patch('items/posts/10', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'update' => 3
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/6', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/10', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // WITH STATUS: 2
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'update' => 1
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/6', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/10', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own group posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'update' => 2
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/6', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_patch('items/posts/10', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'update' => 3
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/2', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/6', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/10', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // WITH STATUS: 2
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own posts with status = 0
-        $this->updatePermission(3, [
-            'status' => 2,
-            'update' => 1
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/3', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/7', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_error_patch('items/posts/11', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own group posts with status = 0
-        $this->updatePermission(3, [
-            'status' => 2,
-            'update' => 2
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/3', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_error_patch('items/posts/7', $data, ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
-        ]);
-
-        $response = request_patch('items/posts/11', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts with status = 0
-        $this->updatePermission(3, [
-            'status' => 2,
-            'update' => 3
-        ]);
-
-        $data = [
-            'title' => 'Post title changed'
-        ];
-
-        $response = request_patch('items/posts/3', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/7', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-
-        $response = request_patch('items/posts/11', $data, ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
+        $this->tryStatusUpdate('posts');
+    }
+
+    public function testStringUpdate()
+    {
+        $this->tryStatusUpdate('articles');
     }
 
     public function testStatusDelete()
     {
-        truncate_table(static::$db, 'directus_permissions');
-        $this->resetTestPosts();
+        $this->tryStatusDelete('posts');
+    }
 
-        $data = $this->getPostsData();
+    public function testStringStatusDelete()
+    {
+        $this->tryStatusDelete('articles');
+    }
+
+    public function tryStatusDelete($collection)
+    {
+        truncate_table(static::$db, 'directus_permissions');
+        $this->resetTestItems($collection);
+        $data = $this->getItemsData($this->getStatuses($collection));
 
         // ----------------------------------------------------------------------------
         // Intern CANNOT delete posts
 
-        $response = request_error_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
@@ -895,22 +307,22 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
         // ----------------------------------------------------------------------------
         // Intern CAN delete their own posts BUT CANNOT read any posts
-        $this->addPermissionTo($this->internGroup, 'posts', [
+        $this->addPermissionTo($this->internGroup, $collection, [
             'status' => null,
             'delete' => 1
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_error_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
@@ -922,19 +334,19 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'delete' => 2
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_error_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 9], $data['data8']));
+        table_insert(static::$db, $collection, array_merge(['id' => 9], $data['data8']));
 
         // ----------------------------------------------------------------------------
         // Intern CAN update any posts BUT CANNOT read any posts
@@ -942,17 +354,17 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'delete' => 3
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 5], $data['data4']));
+        table_insert(static::$db, $collection, array_merge(['id' => 5], $data['data4']));
 
-        $response = request_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 9], $data['data8']));
+        table_insert(static::$db, $collection, array_merge(['id' => 9], $data['data8']));
 
         // ----------------------------------------------------------------------------
         // UPDATE + READ PERMISSION
@@ -965,17 +377,17 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'read' => 1
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 5], $data['data4']));
+        table_insert(static::$db, $collection, array_merge(['id' => 5], $data['data4']));
 
-        $response = request_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 9], $data['data8']));
+        table_insert(static::$db, $collection, array_merge(['id' => 9], $data['data8']));
 
         // ----------------------------------------------------------------------------
         // Intern CAN update any posts BUT CAN only read their own group posts
@@ -984,17 +396,17 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'read' => 2
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 5], $data['data4']));
+        table_insert(static::$db, $collection, array_merge(['id' => 5], $data['data4']));
 
-        $response = request_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 9], $data['data8']));
+        table_insert(static::$db, $collection, array_merge(['id' => 9], $data['data8']));
 
         // ----------------------------------------------------------------------------
         // Intern CAN update any posts AND CAN read any posts
@@ -1003,17 +415,17 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'read' => 3
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 5], $data['data4']));
+        table_insert(static::$db, $collection, array_merge(['id' => 5], $data['data4']));
 
-        $response = request_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 9], $data['data8']));
+        table_insert(static::$db, $collection, array_merge(['id' => 9], $data['data8']));
 
         // ----------------------------------------------------------------------------
         // PERMISSION BY STATUS
@@ -1022,64 +434,57 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
         // ----------------------------------------------------------------------------
         // Intern CANNOT update posts with any status
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 0,
-            'delete' => 0
-        ]);
+        $statuses = $this->getStatuses($collection);
+        foreach ($statuses as $status) {
+            $this->addPermissionTo($this->internGroup, $collection, [
+                'status' => $status,
+                'delete' => 0
+            ]);
+        }
 
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 1,
-            'delete' => 0
-        ]);
-
-        $this->addPermissionTo($this->internGroup, 'posts', [
-            'status' => 2,
-            'delete' => 0
-        ]);
-
-        $response = request_error_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/2', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/2', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/3', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/3', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/4', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/4', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/6', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/6', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/7', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/7', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/8', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/8', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
@@ -1089,28 +494,29 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // WITH STATUS: 0
         // ----------------------------------------------------------------------------
         // Intern CAN update their own posts with status = 0
+        $currentStatus = $statuses[0];
         $this->updatePermission(1, [
-            'status' => 0,
+            'status' => $currentStatus,
             'delete' => 1
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_error_delete('items/posts/2', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/2', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
@@ -1119,75 +525,76 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Intern CAN update their own group posts with status = 0
         $this->updatePermission(1, [
-            'status' => 0,
+            'status' => $currentStatus,
             'delete' => 2
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_error_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 9], $data['data8']));
+        table_insert(static::$db, $collection, array_merge(['id' => 9], $data['data8']));
 
         // ----------------------------------------------------------------------------
         // Intern CAN update any posts with status = 0
         $this->updatePermission(1, [
-            'status' => 0,
+            'status' => $currentStatus,
             'delete' => 3
         ]);
 
-        $response = request_delete('items/posts/1', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 1], $data['data0']));
+        table_insert(static::$db, $collection, array_merge(['id' => 1], $data['data0']));
 
-        $response = request_error_delete('items/posts/2', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/2', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_delete('items/posts/5', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/5', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 5], $data['data4']));
+        table_insert(static::$db, $collection, array_merge(['id' => 5], $data['data4']));
 
-        $response = request_delete('items/posts/9', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/9', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 9], $data['data8']));
+        table_insert(static::$db, $collection, array_merge(['id' => 9], $data['data8']));
 
         // ----------------------------------------------------------------------------
         // WITH STATUS: 1
         // ----------------------------------------------------------------------------
         // Intern CAN update their own posts with status = 1
+        $currentStatus = $statuses[1];
         $this->updatePermission(2, [
-            'status' => 1,
+            'status' => $currentStatus,
             'delete' => 1
         ]);
 
-        $response = request_delete('items/posts/2', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/2', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 2], $data['data1']));
+        table_insert(static::$db, $collection, array_merge(['id' => 2], $data['data1']));
 
-        $response = request_error_delete('items/posts/3', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/3', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/6', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/6', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/10', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/10', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
@@ -1196,128 +603,64 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Intern CAN update their own group posts with status = 1
         $this->updatePermission(2, [
-            'status' => 1,
+            'status' => $currentStatus,
             'delete' => 2
         ]);
 
-        $response = request_delete('items/posts/2', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/2', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 2], $data['data1']));
+        table_insert(static::$db, $collection, array_merge(['id' => 2], $data['data1']));
 
-        $response = request_error_delete('items/posts/6', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/6', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_delete('items/posts/10', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/10', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 10], $data['data9']));
+        table_insert(static::$db, $collection, array_merge(['id' => 10], $data['data9']));
 
         // ----------------------------------------------------------------------------
         // Intern CAN update any posts with status = 1
         $this->updatePermission(2, [
-            'status' => 1,
+            'status' => $currentStatus,
             'delete' => 3
         ]);
 
-        $response = request_delete('items/posts/2', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/2', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 2], $data['data1']));
+        table_insert(static::$db, $collection, array_merge(['id' => 2], $data['data1']));
 
-        $response = request_delete('items/posts/6', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/6', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 6], $data['data5']));
+        table_insert(static::$db, $collection, array_merge(['id' => 6], $data['data5']));
 
-        $response = request_delete('items/posts/10', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/10', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 10], $data['data9']));
-
-        // ----------------------------------------------------------------------------
-        // WITH STATUS: 2
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'delete' => 1
-        ]);
-
-        $response = request_delete('items/posts/2', ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 2], $data['data1']));
-
-        $response = request_error_delete('items/posts/6', ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionDeleteException::ERROR_CODE
-        ]);
-
-        $response = request_error_delete('items/posts/10', ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionDeleteException::ERROR_CODE
-        ]);
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update their own group posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'delete' => 2
-        ]);
-
-        $response = request_delete('items/posts/2', ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 2], $data['data1']));
-
-        $response = request_error_delete('items/posts/6', ['query' => $this->internQueryParams]);
-        assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionDeleteException::ERROR_CODE
-        ]);
-
-        $response = request_delete('items/posts/10', ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 10], $data['data9']));
-
-        // ----------------------------------------------------------------------------
-        // Intern CAN update any posts with status = 1
-        $this->updatePermission(2, [
-            'status' => 1,
-            'delete' => 3
-        ]);
-
-        $response = request_delete('items/posts/2', ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 2], $data['data1']));
-
-        $response = request_delete('items/posts/6', ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 6], $data['data5']));
-
-        $response = request_delete('items/posts/10', ['query' => $this->internQueryParams]);
-        assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 10], $data['data9']));
+        table_insert(static::$db, $collection, array_merge(['id' => 10], $data['data9']));
 
         // ----------------------------------------------------------------------------
         // WITH STATUS: 2
         // ----------------------------------------------------------------------------
         // Intern CAN update their own posts with status = 0
+        $currentStatus = $statuses[2];
         $this->updatePermission(3, [
-            'status' => 2,
+            'status' => $currentStatus,
             'delete' => 1
         ]);
 
-        $response = request_delete('items/posts/3', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/3', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 3], $data['data2']));
+        table_insert(static::$db, $collection, array_merge(['id' => 3], $data['data2']));
 
-        $response = request_error_delete('items/posts/7', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/7', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_error_delete('items/posts/11', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/11', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
@@ -1326,42 +669,42 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Intern CAN update their own group posts with status = 0
         $this->updatePermission(3, [
-            'status' => 2,
+            'status' => $currentStatus,
             'delete' => 2
         ]);
 
-        $response = request_delete('items/posts/3', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/3', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 3], $data['data2']));
+        table_insert(static::$db, $collection, array_merge(['id' => 3], $data['data2']));
 
-        $response = request_error_delete('items/posts/7', ['query' => $this->internQueryParams]);
+        $response = request_error_delete('items/'.$collection.'/7', ['query' => $this->internQueryParams]);
         assert_response_error($this, $response, [
             'status' => 403,
             'code' => ForbiddenCollectionDeleteException::ERROR_CODE
         ]);
 
-        $response = request_delete('items/posts/11', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/11', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 11], $data['data10']));
+        table_insert(static::$db, $collection, array_merge(['id' => 11], $data['data10']));
 
         // ----------------------------------------------------------------------------
         // Intern CAN update any posts with status = 0
         $this->updatePermission(3, [
-            'status' => 2,
+            'status' => $currentStatus,
             'delete' => 3
         ]);
 
-        $response = request_delete('items/posts/3', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/3', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 3], $data['data2']));
+        table_insert(static::$db, $collection, array_merge(['id' => 3], $data['data2']));
 
-        $response = request_delete('items/posts/7', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/7', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 7], $data['data6']));
+        table_insert(static::$db, $collection, array_merge(['id' => 7], $data['data6']));
 
-        $response = request_delete('items/posts/11', ['query' => $this->internQueryParams]);
+        $response = request_delete('items/'.$collection.'/11', ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
-        table_insert(static::$db, 'posts', array_merge(['id' => 11], $data['data10']));
+        table_insert(static::$db, $collection, array_merge(['id' => 11], $data['data10']));
     }
 
     public function testFieldBlacklist()
@@ -1585,6 +928,570 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, $data, false);
     }
 
+    protected function tryStatusCreate($collection, $statusWithPermission, $statusWithoutPermission)
+    {
+        truncate_table(static::$db, 'directus_permissions');
+
+        // Intern CAN create draft but CANNOT READ any items
+        $this->addPermissionTo($this->internGroup, $collection, [
+            'status' => $statusWithPermission,
+            'create' => 1
+        ]);
+
+        // Intern cannot create draft posts
+        $data = [
+            'title' => 'Post 1',
+            'status' => $statusWithoutPermission
+        ];
+
+        $response = request_error_post('items/' . $collection, $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionCreateException::ERROR_CODE
+        ]);
+
+        // Intern can create posts with default status (because it is 2)
+        $data = [
+            'title' => 'Post 1'
+        ];
+
+        $response = request_post('items/' . $collection, $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // Intern CAN create draft and CAN READ their own posts
+        $this->updatePermission(1, [
+            'create' => 1,
+            'read' => 1
+        ]);
+
+        $data = [
+            'title' => 'Post 1',
+            'status' => $statusWithPermission
+        ];
+
+        $response = request_post('items/' . $collection, $data, ['query' => $this->internQueryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data);
+    }
+
+    protected function tryStatusRead($collection, $publishedStatus, $draftStatus, $noPermissionStatusOne, $noPermissionStatusTwo)
+    {
+        truncate_table(static::$db, 'directus_permissions');
+        truncate_table(static::$db, $collection);
+
+        // Intern CAN read draft and published (1) but CANNOT READ deleted (0)
+        $this->addPermissionTo($this->internGroup, $collection, [
+            'status' => $publishedStatus,
+            'read' => 1
+        ]);
+
+        $this->addPermissionTo($this->internGroup, $collection, [
+            'status' => $draftStatus,
+            'read' => 1
+        ]);
+
+        $data0 = ['title' => 'Deleted Post', 'status' => $noPermissionStatusOne, 'author' => 2];
+        table_insert(static::$db, $collection, $data0);
+
+        $data1 = ['title' => 'Published Post', 'status' => $publishedStatus, 'author' => 2];
+        table_insert(static::$db, $collection, $data1);
+
+        $data2 = ['title' => 'Draft Post', 'status' => $draftStatus, 'author' => 2];
+        table_insert(static::$db, $collection, $data2);
+
+        $data3 = ['title' => 'Under Review Post', 'status' => $noPermissionStatusTwo, 'author' => 2];
+        table_insert(static::$db, 'posts', $data3);
+
+        $response = request_error_get('items/'.$collection.'/1', $this->internQueryParams);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionReadException::ERROR_CODE
+        ]);
+
+        $response = request_get('items/'.$collection.'/2', $this->internQueryParams);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data1);
+
+        $response = request_get('items/'.$collection.'/3', $this->internQueryParams);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, $data2);
+
+        $response = request_error_get('items/'.$collection.'/4', $this->internQueryParams);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionReadException::ERROR_CODE
+        ]);
+
+        $response = request_get('items/' . $collection, $this->internQueryParams);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 1
+        ]);
+
+        $response = request_get('items/' . $collection, $this->queryParams);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 1
+        ]);
+
+        $statuses = implode(',', [
+            $noPermissionStatusOne,
+            $publishedStatus,
+            $draftStatus
+        ]);
+        $response = request_get('items/' . $collection, array_merge($this->internQueryParams, ['status' => $statuses]));
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 2
+        ]);
+
+        $response = request_get('items/' . $collection, array_merge($this->queryParams, ['status' => $statuses]));
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 3
+        ]);
+    }
+
+    protected function tryStatusUpdate($collection)
+    {
+        truncate_table(static::$db, 'directus_permissions');
+        truncate_table(static::$db, $collection);
+
+        $this->resetTestItems($collection);
+
+        // ----------------------------------------------------------------------------
+        // Intern CANNOT update posts
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_error_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update their own posts BUT CANNOT read any posts
+        $this->addPermissionTo($this->internGroup, $collection, [
+            'status' => null,
+            'update' => 1
+        ]);
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update their own group posts BUT CANNOT read any posts
+        $this->updatePermission(1, [
+            'update' => 2
+        ]);
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update any posts BUT CANNOT read any posts
+        $this->updatePermission(1, [
+            'update' => 3
+        ]);
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // UPDATE + READ PERMISSION
+        // ----------------------------------------------------------------------------
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update any posts BUT CAN only read their own posts
+        $this->updatePermission(1, [
+            'update' => 3,
+            'read' => 1
+        ]);
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response($this, $response);
+
+        $response = request_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update any posts BUT CAN only read their own group posts
+        $this->updatePermission(1, [
+            'update' => 3,
+            'read' => 2
+        ]);
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response($this, $response);
+
+        $response = request_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update any posts AND CAN read any posts
+        $this->updatePermission(1, [
+            'update' => 3,
+            'read' => 3
+        ]);
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response($this, $response);
+
+        $response = request_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response($this, $response);
+
+        $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // PERMISSION BY STATUS
+        // ----------------------------------------------------------------------------
+        truncate_table(static::$db, 'directus_permissions');
+
+        $statuses = $this->getStatuses($collection);
+        // ----------------------------------------------------------------------------
+        // Intern CANNOT update posts with any status
+        foreach ($statuses as $status) {
+            $this->addPermissionTo($this->internGroup, $collection, [
+                'status' => $status,
+                'update' => 0
+            ]);
+        }
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_error_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/2', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/3', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/4', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/6', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/7', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/8', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        // ----------------------------------------------------------------------------
+        // WITH STATUS: 0
+        // ----------------------------------------------------------------------------
+        // Intern CAN update their own posts with status = 0
+        $currentStatus = $statuses[0];
+        $this->updatePermission(1, [
+            'status' => $currentStatus,
+            'update' => 1
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/'.$collection.'/2', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update their own group posts with status = 0
+        $this->updatePermission(1, [
+            'status' => $currentStatus,
+            'update' => 2
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update any posts with status = 0
+        $this->updatePermission(1, [
+            'status' => $currentStatus,
+            'update' => 3
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/'.$collection.'/2', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // WITH STATUS: 1
+        // ----------------------------------------------------------------------------
+        // Intern CAN update their own posts with status = 1
+        $currentStatus = $statuses[1];
+        $this->updatePermission(2, [
+            'status' => $currentStatus,
+            'update' => 1
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/2', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/'.$collection.'/3', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/6', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/10', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update their own group posts with status = 1
+        $this->updatePermission(2, [
+            'status' => $currentStatus,
+            'update' => 2
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/2', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/'.$collection.'/6', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_patch('items/'.$collection.'/10', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update any posts with status = 1
+        $this->updatePermission(2, [
+            'status' => $currentStatus,
+            'update' => 3
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/2', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/6', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/10', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // WITH STATUS: 2
+        // ----------------------------------------------------------------------------
+        // Intern CAN update their own posts with status = 2
+        $currentStatus = $statuses[2];
+        $this->updatePermission(3, [
+            'status' => $currentStatus,
+            'update' => 1
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/3', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/'.$collection.'/7', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_error_patch('items/'.$collection.'/11', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update their own group posts with status = 2
+        $this->updatePermission(3, [
+            'status' => $currentStatus,
+            'update' => 2
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/3', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_error_patch('items/posts/7', $data, ['query' => $this->internQueryParams]);
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionUpdateException::ERROR_CODE
+        ]);
+
+        $response = request_patch('items/'.$collection.'/11', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        // ----------------------------------------------------------------------------
+        // Intern CAN update any posts with status = 2
+        $this->updatePermission(3, [
+            'status' => $currentStatus,
+            'update' => 3
+        ]);
+
+        $data = [
+            'title' => 'Post title changed'
+        ];
+
+        $response = request_patch('items/'.$collection.'/3', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/7', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+
+        $response = request_patch('items/'.$collection.'/11', $data, ['query' => $this->internQueryParams]);
+        assert_response_empty($this, $response);
+    }
+
     protected static function createTestTable()
     {
         $statusOptions = [
@@ -1604,38 +1511,84 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         ];
 
         $response = request_post('collections', $data, ['query' => ['access_token' => 'token']]);
+
+        $statusOptions = [
+            'status_mapping' => [
+                'draft' => ['name' => 'Draft', 'published' => false],
+                'published' => ['name' => 'Published']
+            ]
+        ];
+        $data = [
+            'collection' => 'articles',
+            'fields' => [
+                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'integer', 'auto_increment' => true],
+                ['field' => 'status', 'interface' => 'status', 'type' => 'varchar', 'default_value' => 'draft', 'options' => $statusOptions],
+                ['field' => 'title', 'interface' => 'text_input', 'type' => 'varchar', 'length' => 100],
+                ['field' => 'author', 'interface' => 'user_created', 'type' => 'integer'],
+            ]
+        ];
+
+        $response = request_post('collections', $data, ['query' => ['access_token' => 'token']]);
     }
 
     protected static function dropTestTable()
     {
         $response = request_error_delete('collections/posts', ['query' => ['access_token' => 'token']]);
+        $response = request_error_delete('collections/articles', ['query' => ['access_token' => 'token']]);
+    }
+
+    protected function getStatuses($collection)
+    {
+        switch ($collection) {
+            case 'articles':
+                $statuses = ['deleted', 'published', 'draft', 'under_review'];
+                break;
+            default:
+                $statuses = [0, 1, 2, 3];
+        }
+
+        return $statuses;
     }
 
     protected function getPostsData()
     {
+        return $this->getItemsData($this->getStatuses('posts'));
+    }
+
+    protected function getArticlesData()
+    {
+        return $this->getItemsData($this->getStatuses('articles'));
+    }
+
+    protected function getItemsData(array $statuses)
+    {
+        $statusOne = array_shift($statuses);
+        $statusTwo = array_shift($statuses);
+        $statusThree = array_shift($statuses);
+        $statusFour = array_shift($statuses);
         // ----------------------------------------------------------------------------
         // Intern user
         // ----------------------------------------------------------------------------
-        $data0 = ['title' => 'Deleted Post', 'status' => 0, 'author' => 2];
-        $data1 = ['title' => 'Published Post', 'status' => 1, 'author' => 2];
-        $data2 = ['title' => 'Draft Post', 'status' => 2, 'author' => 2];
-        $data3 = ['title' => 'Under Review Post', 'status' => 3, 'author' => 2];
+        $data0 = ['title' => 'Deleted Post', 'status' => $statusOne, 'author' => 2];
+        $data1 = ['title' => 'Published Post', 'status' => $statusTwo, 'author' => 2];
+        $data2 = ['title' => 'Draft Post', 'status' => $statusThree, 'author' => 2];
+        $data3 = ['title' => 'Under Review Post', 'status' => $statusFour, 'author' => 2];
 
         // ----------------------------------------------------------------------------
         // Admin group
         // ----------------------------------------------------------------------------
-        $data4 = ['title' => 'Deleted Post', 'status' => 0, 'author' => 1];
-        $data5 = ['title' => 'Published Post', 'status' => 1, 'author' => 1];
-        $data6 = ['title' => 'Draft Post', 'status' => 2, 'author' => 1];
-        $data7 = ['title' => 'Under Review Post', 'status' => 3, 'author' => 1];
+        $data4 = ['title' => 'Deleted Post', 'status' => $statusOne, 'author' => 1];
+        $data5 = ['title' => 'Published Post', 'status' => $statusTwo, 'author' => 1];
+        $data6 = ['title' => 'Draft Post', 'status' => $statusThree, 'author' => 1];
+        $data7 = ['title' => 'Under Review Post', 'status' => $statusFour, 'author' => 1];
 
         // ----------------------------------------------------------------------------
         // Group user
         // ----------------------------------------------------------------------------
-        $data8 = ['title' => 'Deleted Post', 'status' => 0, 'author' => 3];
-        $data9 = ['title' => 'Published Post', 'status' => 1, 'author' => 3];
-        $data10 = ['title' => 'Draft Post', 'status' => 2, 'author' => 3];
-        $data11 = ['title' => 'Under Review Post', 'status' => 3, 'author' => 3];
+        $data8 = ['title' => 'Deleted Post', 'status' => $statusOne, 'author' => 3];
+        $data9 = ['title' => 'Published Post', 'status' => $statusTwo, 'author' => 3];
+        $data10 = ['title' => 'Draft Post', 'status' => $statusThree, 'author' => 3];
+        $data11 = ['title' => 'Under Review Post', 'status' => $statusFour, 'author' => 3];
 
         $variables = [];
         for ($i = 0; $i <= 11; $i++) {
@@ -1649,54 +1602,68 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
     protected function resetTestPosts()
     {
-        truncate_table(static::$db, 'posts');
+        $this->resetTestItems('posts');
+    }
 
-        $data = $this->getPostsData();
+    protected function resetTestArticles()
+    {
+        $this->resetTestItems('articles');
+    }
+
+    protected function resetTestItems($collection)
+    {
+        truncate_table(static::$db, $collection);
+
+        if ($collection == 'articles' ) {
+            $data = $this->getArticlesData();
+        } else {
+            $data = $this->getPostsData();
+        }
         extract($data);
 
         // ----------------------------------------------------------------------------
         // Intern user
         // ----------------------------------------------------------------------------
         // $data0 = ['title' => 'Deleted Post', 'status' => 0, 'author' => 2];
-        table_insert(static::$db, 'posts', $data0);
+        table_insert(static::$db, $collection, $data0);
 
         // $data1 = ['title' => 'Published Post', 'status' => 1, 'author' => 2];
-        table_insert(static::$db, 'posts', $data1);
+        table_insert(static::$db, $collection, $data1);
 
         // $data2 = ['title' => 'Draft Post', 'status' => 2, 'author' => 2];
-        table_insert(static::$db, 'posts', $data2);
+        table_insert(static::$db, $collection, $data2);
 
         // $data3 = ['title' => 'Under Review Post', 'status' => 3, 'author' => 2];
-        table_insert(static::$db, 'posts', $data3);
+        table_insert(static::$db, $collection, $data3);
 
         // ----------------------------------------------------------------------------
         // Admin group
         // ----------------------------------------------------------------------------
         // $data4 = ['title' => 'Deleted Post', 'status' => 0, 'author' => 1];
-        table_insert(static::$db, 'posts', $data4);
+        table_insert(static::$db, $collection, $data4);
 
         // $data5 = ['title' => 'Published Post', 'status' => 1, 'author' => 1];
-        table_insert(static::$db, 'posts', $data5);
+        table_insert(static::$db, $collection, $data5);
 
         // $data6 = ['title' => 'Draft Post', 'status' => 2, 'author' => 1];
-        table_insert(static::$db, 'posts', $data6);
+        table_insert(static::$db, $collection, $data6);
 
         // $data7 = ['title' => 'Under Review Post', 'status' => 3, 'author' => 1];
-        table_insert(static::$db, 'posts', $data7);
+        table_insert(static::$db, $collection, $data7);
 
         // ----------------------------------------------------------------------------
         // Group user
         // ----------------------------------------------------------------------------
         // $data8 = ['title' => 'Deleted Post', 'status' => 0, 'author' => 3];
-        table_insert(static::$db, 'posts', $data8);
+        table_insert(static::$db, $collection, $data8);
 
         // $data9 = ['title' => 'Published Post', 'status' => 1, 'author' => 3];
-        table_insert(static::$db, 'posts', $data9);
+        table_insert(static::$db, $collection, $data9);
 
         // $data10 = ['title' => 'Draft Post', 'status' => 2, 'author' => 3];
-        table_insert(static::$db, 'posts', $data10);
+        table_insert(static::$db, $collection, $data10);
 
         // $data11 = ['title' => 'Under Review Post', 'status' => 3, 'author' => 3];
-        table_insert(static::$db, 'posts', $data11);
+        table_insert(static::$db, $collection, $data11);
     }
 }
