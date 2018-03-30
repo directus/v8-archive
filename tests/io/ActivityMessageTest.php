@@ -38,7 +38,8 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'status',
                     'type' => 'integer',
-                    'interface' => 'status'
+                    'interface' => 'status',
+                    'default_value' => 2
                 ],
             ]
         ], ['query' => ['access_token' => 'token']]);
