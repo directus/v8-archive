@@ -6,8 +6,6 @@ use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Predicate\In;
-use Zend\Db\Sql\Predicate\IsNotNull;
-use Zend\Db\Sql\Predicate\NotIn;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\TableIdentifier;

@@ -421,7 +421,7 @@ class SchemaManager
      */
     public function isNumericType($type)
     {
-        return $this->source->isNumericType($type);
+        return DataTypes::isNumericType($type);
     }
 
     /**
@@ -433,7 +433,7 @@ class SchemaManager
      */
     public function isStringType($type)
     {
-        return $this->source->isStringType($type);
+        return DataTypes::isStringType($type);
     }
 
     /**
@@ -445,7 +445,7 @@ class SchemaManager
      */
     public function isIntegerType($type)
     {
-        return $this->source->isIntegerType($type);
+        return DataTypes::isIntegerType($type);
     }
 
     /**
@@ -455,9 +455,9 @@ class SchemaManager
      *
      * @return bool
      */
-    public function isDecimalType($type)
+    public function isFloatingPointType($type)
     {
-        return $this->source->isDecimalType($type);
+        return static::isFloatingPointType($type);
     }
 
     /**

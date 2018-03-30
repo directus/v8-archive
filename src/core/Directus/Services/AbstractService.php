@@ -200,6 +200,12 @@ abstract class AbstractService
             } else if ($field->isJson()) {
                 $columnConstraints[] = 'json';
             }
+            // TODO: Relational accept its type, null (if allowed) and a object
+            // else if ($schemaManager->isNumericType($field->getType())) {
+            //     $columnConstraints[] = 'numeric';
+            // } else if ($schemaManager->isStringType($field->getType())) {
+            //     $columnConstraints[] = 'string';
+            // }
 
             if (!empty($columnConstraints)) {
                 $constraints[$field->getName()] = $columnConstraints;

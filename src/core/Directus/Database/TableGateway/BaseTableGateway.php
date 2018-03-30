@@ -590,7 +590,7 @@ class BaseTableGateway extends TableGateway
             // SET and ENUM data type has its values in the char_length attribute
             // each value are separated by commas
             // it must be wrap into quotes
-            if (!$this->schemaManager->isDecimalType($dataType) && strpos($charLength, ',') !== false) {
+            if (!$this->schemaManager->isFloatingPointType($dataType) && strpos($charLength, ',') !== false) {
                 $charLength = implode(',', array_map(function ($value) {
                     return '"' . trim($value) . '"';
                 }, explode(',', $charLength)));

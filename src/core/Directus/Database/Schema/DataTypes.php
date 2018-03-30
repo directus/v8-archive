@@ -89,6 +89,18 @@ final class DataTypes
     }
 
     /**
+     * Checks whether the given type is a string type or not
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isStringType($type)
+    {
+        return in_array(strtolower($type), static::getStringTypes());
+    }
+
+    /**
      * Returns a list of JSON data types
      *
      * @return array
@@ -131,6 +143,18 @@ final class DataTypes
     }
 
     /**
+     * Checks whether or not the given type is a numeric type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isNumericType($type)
+    {
+        return in_array(strtolower($type), static::getNumericTypes());
+    }
+
+    /**
      * Returns a list of Integer data types
      *
      * @return array
@@ -149,6 +173,18 @@ final class DataTypes
     }
 
     /**
+     * Checks whether or not the given type is a integer type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isIntegerType($type)
+    {
+        return in_array(strtolower($type), static::getIntegerTypes());
+    }
+
+    /**
      * Returns a list of floating point numeric types
      *
      * @return array
@@ -163,6 +199,18 @@ final class DataTypes
             static::TYPE_NUMERIC,
             static::TYPE_CURRENCY
         ];
+    }
+
+    /**
+     * Checks whether or not the given type is a floating point number type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isFloatingPointType($type)
+    {
+        return in_array(strtolower($type), static::getFloatingPointTypes());
     }
 
     /**
