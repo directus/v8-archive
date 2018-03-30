@@ -120,15 +120,20 @@ function assert_response_meta(TestCase $testCase, ResponseInterface $response, a
  * @param TestCase $testCase
  * @param ResponseInterface $response
  * @param array $expectedData
+ * @param bool $strict
  */
-function assert_response_data_contains(TestCase $testCase, ResponseInterface $response, array $expectedData)
+function assert_response_data_contains(TestCase $testCase, ResponseInterface $response, array $expectedData, $strict = true)
 {
     $result = response_to_object($response);
     $data = (array)$result->data;
 
     foreach ($expectedData as $key => $value) {
         $testCase->assertArrayHasKey($key, $data);
-        $testCase->assertSame($value, $data[$key]);
+        if ($strict) {
+            $testCase->assertSame($value, $data[$key]);
+        } else {
+            $testCase->assertEquals($value, $data[$key]);
+        }
     }
 }
 

@@ -8,6 +8,11 @@ use Directus\Util\ArrayUtils;
 
 class StatusMapping extends Collection
 {
+    /**
+     * @var StatusItem[]
+     */
+    protected $items;
+
     public function __construct(array $mapping = [])
     {
         $items = [];
@@ -34,13 +39,11 @@ class StatusMapping extends Collection
     /**
      * Get a list of published statuses
      *
-     * @param array $statusMapping
-     *
      * @return array
      */
-    public function getPublishedStatusesValue($statusMapping = [])
+    public function getPublishedStatusesValue()
     {
-        $visibleStatus = $this->getStatusesValue('published', true, $statusMapping);
+        $visibleStatus = $this->getStatusesValue('published', true);
 
         return $visibleStatus;
     }
@@ -48,20 +51,13 @@ class StatusMapping extends Collection
     /**
      * Get all statuses value
      *
-     * @param array $statusMapping
-     *
      * @return array
      */
-    public function getAllStatusesValue($statusMapping = [])
+    public function getAllStatusesValue()
     {
-        if (empty($statusMapping)) {
-            $statusMapping = $this->items;
-        }
-
         $statuses = [];
 
-        /** @var StatusItem $status */
-        foreach ($statusMapping as $status) {
+        foreach ($this->items as $status) {
             $statuses[] = $status->getValue();
         }
 
@@ -73,20 +69,13 @@ class StatusMapping extends Collection
      *
      * @param string $type
      * @param mixed $value
-     * @param array $statusMapping
      *
      * @return array
      */
-    protected function getStatusesValue($type, $value, $statusMapping = [])
+    protected function getStatusesValue($type, $value)
     {
-        if (empty($statusMapping)) {
-            $statusMapping = $this->items;
-        }
-
         $statuses = [];
-
-        /** @var StatusItem $status */
-        foreach ($statusMapping as $status) {
+        foreach ($this->items as $status) {
             if ($status->getAttribute($type) === $value) {
                 $statuses[] = $status->getValue();
             }

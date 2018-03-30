@@ -1494,12 +1494,10 @@ class BaseTableGateway extends TableGateway
     public function getAllStatuses()
     {
         $statuses = [];
+        $statusMapping = $this->getStatusMapping();
 
-        if (static::$container && TableSchema::hasStatusColumn($this->table, true)) {
-            /** @var StatusMapping $config */
-            $config = static::$container->get('status_mapping');
-            $statusMapping = $this->getTableSchema()->getStatusMapping() ?: [];
-            $statuses = $config->getAllStatusesValue($statusMapping);
+        if ($statusMapping) {
+            $statuses = $statusMapping->getAllStatusesValue();
         }
 
         return $statuses;
@@ -1525,19 +1523,37 @@ class BaseTableGateway extends TableGateway
     protected function getStatuses($type)
     {
         $statuses = [];
+        $statusMapping = $this->getStatusMapping();
 
-        if (static::$container && TableSchema::hasStatusColumn($this->table, true)) {
-            /** @var StatusMapping $globalStatusMapping */
-            $globalStatusMapping = static::$container->get('status_mapping');
-            $collectionStatusMapping = $this->getTableSchema()->getStatusMapping() ?: [];
-
+        if ($statusMapping) {
             switch ($type) {
                 case 'published':
-                    $statuses = $globalStatusMapping->getPublishedStatusesValue($collectionStatusMapping);
+                    $statuses = $statusMapping->getPublishedStatusesValue();
                     break;
             }
         }
 
         return $statuses;
+    }
+
+    /**
+     * Gets the collection status mapping
+     *
+     * @return StatusMapping|null
+     */
+    protected function getStatusMapping()
+    {
+        $statusMapping = null;
+
+        if (static::$container && TableSchema::hasStatusColumn($this->table, true)) {
+            /** @var StatusMapping $statusMapping */
+            $statusMapping = static::$container->get('status_mapping');
+            $collectionStatusMapping = $this->getTableSchema()->getStatusMapping();
+            if ($collectionStatusMapping) {
+                $statusMapping = $collectionStatusMapping;
+            }
+        }
+
+        return $statusMapping;
     }
 }

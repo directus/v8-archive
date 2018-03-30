@@ -1575,23 +1575,29 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_post('permissions', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
-        assert_response_data_contains($this, $response, $data);
+        assert_response_data_contains($this, $response, $data, false);
     }
 
     protected function updatePermission($id, $data)
     {
         $response = request_patch('permissions/' . $id, $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
-        assert_response_data_contains($this, $response, $data);
+        assert_response_data_contains($this, $response, $data, false);
     }
 
     protected static function createTestTable()
     {
+        $statusOptions = [
+            'status_mapping' => [
+                2 => ['name' => 'Draft', 'published' => false],
+                1 => ['name' => 'Published']
+            ]
+        ];
         $data = [
             'collection' => 'posts',
             'fields' => [
                 ['field' => 'id', 'interface' => 'primary_key', 'type' => 'integer', 'auto_increment' => true],
-                ['field' => 'status', 'interface' => 'status', 'type' => 'integer', 'default_value' => 2],
+                ['field' => 'status', 'interface' => 'status', 'type' => 'integer', 'default_value' => 2, 'options' => $statusOptions],
                 ['field' => 'title', 'interface' => 'text_input', 'type' => 'varchar', 'length' => 100],
                 ['field' => 'author', 'interface' => 'user_created', 'type' => 'integer'],
             ]

@@ -302,7 +302,7 @@ class Collection extends AbstractObject
     /**
      * Gets the collection custom status mapping
      *
-     * @return array|null
+     * @return StatusMapping|null
      */
     public function getStatusMapping()
     {
