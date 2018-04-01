@@ -4,7 +4,7 @@ namespace Directus\Database\Exception;
 
 use Directus\Exception\NotFoundException;
 
-class TableNotFoundException extends NotFoundException
+class CollectionNotFoundException extends NotFoundException
 {
     const ERROR_CODE = 200;
 

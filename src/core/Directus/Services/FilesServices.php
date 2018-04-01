@@ -18,7 +18,7 @@ class FilesServices extends AbstractService
     public function __construct(Container $container)
     {
         parent::__construct($container);
-        $this->collection = SchemaManager::TABLE_FILES;
+        $this->collection = SchemaManager::COLLECTION_FILES;
     }
 
     public function create(array $data, array $params = [])

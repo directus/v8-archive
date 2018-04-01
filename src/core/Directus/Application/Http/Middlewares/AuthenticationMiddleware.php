@@ -33,9 +33,9 @@ class AuthenticationMiddleware extends AbstractMiddleware
     {
         // TODO: Improve this, move back from api.php to make the table gateway work with its dependency
         $container = $this->container;
-        \Directus\Database\TableSchema::setAclInstance($container->get('acl'));
-        \Directus\Database\TableSchema::setConnectionInstance($container->get('database'));
-        \Directus\Database\TableSchema::setConfig($container->get('config'));
+        \Directus\Database\SchemaService::setAclInstance($container->get('acl'));
+        \Directus\Database\SchemaService::setConnectionInstance($container->get('database'));
+        \Directus\Database\SchemaService::setConfig($container->get('config'));
         BaseTableGateway::setHookEmitter($container->get('hook_emitter'));
         BaseTableGateway::setContainer($container);
         TableGatewayFactory::setContainer($container);

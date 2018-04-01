@@ -6,12 +6,12 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\Exception\ColumnNotFoundException;
-use Directus\Database\Exception\TableNotFoundException;
+use Directus\Database\Exception\FieldNotFoundException;
+use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Permissions\Acl;
@@ -64,8 +64,8 @@ class Fields extends Route
      *
      * @return Response
      *
-     * @throws ColumnNotFoundException
-     * @throws TableNotFoundException
+     * @throws FieldNotFoundException
+     * @throws CollectionNotFoundException
      * @throws UnauthorizedException
      */
     public function read(Request $request, Response $response)
@@ -111,7 +111,7 @@ class Fields extends Route
      *
      * @return Response
      *
-     * @throws TableNotFoundException
+     * @throws CollectionNotFoundException
      * @throws UnauthorizedException
      */
     public function all(Request $request, Response $response)

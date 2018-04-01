@@ -2,7 +2,7 @@
 
 namespace Directus\Database\Schema;
 
-use Directus\Database\Exception\TableNotFoundException;
+use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Sources\SchemaInterface;
@@ -11,17 +11,17 @@ use Directus\Util\ArrayUtils;
 class SchemaManager
 {
     // Tables
-    const TABLE_ACTIVITY            = 'directus_activity';
-    const TABLE_COLLECTIONS         = 'directus_collections';
-    const TABLE_COLLECTION_PRESETS  = 'directus_collection_presets';
-    const TABLE_FIELDS              = 'directus_fields';
-    const TABLE_FILES               = 'directus_files';
-    const TABLE_GROUPS              = 'directus_groups';
-    const TABLE_PERMISSIONS         = 'directus_permissions';
-    const TABLE_RELATIONS           = 'directus_relations';
-    const TABLE_REVISIONS           = 'directus_revisions';
-    const TABLE_SETTINGS            = 'directus_settings';
-    const TABLE_USERS               = 'directus_users';
+    const COLLECTION_ACTIVITY            = 'directus_activity';
+    const COLLECTION_COLLECTIONS         = 'directus_collections';
+    const COLLECTION_COLLECTION_PRESETS  = 'directus_collection_presets';
+    const COLLECTION_FIELDS              = 'directus_fields';
+    const COLLECTION_FILES               = 'directus_files';
+    const COLLECTION_GROUPS              = 'directus_groups';
+    const COLLECTION_PERMISSIONS         = 'directus_permissions';
+    const COLLECTION_RELATIONS           = 'directus_relations';
+    const COLLECTION_REVISIONS           = 'directus_revisions';
+    const COLLECTION_SETTINGS            = 'directus_settings';
+    const COLLECTION_USERS               = 'directus_users';
 
     /**
      * Schema source instance
@@ -104,27 +104,27 @@ class SchemaManager
      * @param array  $params
      * @param bool   $skipCache
      *
-     * @throws TableNotFoundException
+     * @throws CollectionNotFoundException
      *
      * @return \Directus\Database\Schema\Object\Collection
      */
-    public function getTableSchema($tableName, $params = [], $skipCache = false)
+    public function getCollection($collectionName, $params = [], $skipCache = false)
     {
-        $tableSchema = ArrayUtils::get($this->data, 'tables.' . $tableName, null);
-        if (!$tableSchema || $skipCache) {
+        $collection = ArrayUtils::get($this->data, 'collections.' . $collectionName, null);
+        if (!$collection || $skipCache) {
             // Get the table schema data from the source
-            $tableResult = $this->source->getCollection($tableName);
-            $tableData = $tableResult->current();
+            $collectionResult = $this->source->getCollection($collectionName);
+            $collectionData = $collectionResult->current();
 
-            if (!$tableData) {
-                throw new TableNotFoundException($tableName);
+            if (!$collectionData) {
+                throw new CollectionNotFoundException($collectionName);
             }
 
             // Create a table object based of the table schema data
-            $tableSchema = $this->createTableObjectFromArray(array_merge($tableData, [
+            $collection = $this->createCollectionFromArray(array_merge($collectionData, [
                 'schema' => $this->source->getSchemaName()
             ]));
-            $this->addTable($tableName, $tableSchema);
+            $this->addCollection($collectionName, $collection);
         }
 
         // =============================================================================
@@ -132,12 +132,12 @@ class SchemaManager
         // -----------------------------------------------------------------------------
         // @TODO: Do not allow to add duplicate column names
         // =============================================================================
-        if (empty($tableSchema->getFields())) {
-            $tableColumns = $this->getFields($tableName);
-            $tableSchema->setFields($tableColumns);
+        if (empty($collection->getFields())) {
+            $fields = $this->getFields($collectionName);
+            $collection->setFields($fields);
         }
 
-        return $tableSchema;
+        return $collection;
     }
 
     /**
@@ -149,18 +149,18 @@ class SchemaManager
      *
      * @return Field
      */
-    public function getColumnSchema($tableName, $columnName, $skipCache = false)
+    public function getField($tableName, $columnName, $skipCache = false)
     {
-        $columnSchema = ArrayUtils::get($this->data, 'columns.' . $tableName . '.' . $columnName, null);
+        $columnSchema = ArrayUtils::get($this->data, 'fields.' . $tableName . '.' . $columnName, null);
 
         if (!$columnSchema || $skipCache) {
             // Get the column schema data from the source
-            $columnResult = $this->source->getColumns($tableName, ['column_name' => $columnName]);
+            $columnResult = $this->source->getFields($tableName, ['column_name' => $columnName]);
             $columnData = $columnResult->current();
 
             // Create a column object based of the table schema data
-            $columnSchema = $this->createColumnObjectFromArray($columnData);
-            $this->addColumn($columnSchema);
+            $columnSchema = $this->createFieldFromArray($columnData);
+            $this->addField($columnSchema);
         }
 
         return $columnSchema;
@@ -169,32 +169,20 @@ class SchemaManager
     /**
      * Add the system table prefix to to a table name.
      *
-     * @param string|array $tables
+     * @param string|array $names
      *
-     * @return string|array
+     * @return array
      */
-    public function addSystemTablePrefix($tables)
+    public function addSystemCollectionPrefix($names)
     {
-        if (!is_array($tables)) {
-            $tables = [$tables];
+        if (!is_array($names)) {
+            $names = [$names];
         }
 
-        return array_map(function ($table) {
+        return array_map(function ($name) {
             // TODO: Directus tables prefix _probably_ will be dynamic
-            return $this->prefix . $table;
-        }, $tables);
-    }
-
-    /**
-     * @deprecated 6.4.4 See addSystemTablesPrefix
-     *
-     * @param $tables
-     *
-     * @return array|string
-     */
-    public function addCoreTablePrefix($tables)
-    {
-        return $this->addSystemTablePrefix($tables);
+            return $this->prefix . $name;
+        }, $names);
     }
 
     /**
@@ -202,19 +190,9 @@ class SchemaManager
      *
      * @return array
      */
-    public function getSystemTables()
+    public function getSystemCollections()
     {
-        return $this->addSystemTablePrefix($this->directusTables);
-    }
-
-    /**
-     * @deprecated 6.4.4 See getSystemTables
-     *
-     * @return array
-     */
-    public function getCoreTables()
-    {
-        return $this->getSystemTables();
+        return $this->addSystemCollectionPrefix($this->directusTables);
     }
 
     /**
@@ -224,9 +202,9 @@ class SchemaManager
      *
      * @return bool
      */
-    public function isSystemTables($name)
+    public function isSystemCollection($name)
     {
-        return in_array($name, $this->getSystemTables());
+        return in_array($name, $this->getSystemCollections());
     }
 
     /**
@@ -238,11 +216,6 @@ class SchemaManager
     public function tableExists($tableName)
     {
         return $this->source->collectionExists($tableName);
-    }
-
-    public function getTable($name)
-    {
-        return $this->source->getTable($name);
     }
 
     /**
@@ -266,11 +239,11 @@ class SchemaManager
         $tables = [];
         foreach ($collections as $collection) {
             // Create a table object based of the table schema data
-            $tableSchema = $this->createTableObjectFromArray(array_merge($collection, [
+            $tableSchema = $this->createCollectionFromArray(array_merge($collection, [
                 'schema' => $this->source->getSchemaName()
             ]));
             $tableName = $tableSchema->getName();
-            $this->addTable($tableName, $tableSchema);
+            $this->addCollection($tableName, $tableSchema);
 
             $tables[$tableName] = $tableSchema;
         }
@@ -308,7 +281,7 @@ class SchemaManager
 
             $columnsSchema = [];
             foreach ($columnsResult as $column) {
-                $field = $this->createColumnObjectFromArray($column);
+                $field = $this->createFieldFromArray($column);
 
                 if (array_key_exists($field->getName(), $relationsA)) {
                     $field->setRelationship($relationsA[$field->getName()]);
@@ -325,9 +298,9 @@ class SchemaManager
         return $columnsSchema;
     }
 
-    public function getColumnsName($tableName)
+    public function getFieldsName($tableName)
     {
-        $columns = $this->getColumns($tableName);
+        $columns = $this->getFIELDS($tableName);
 
         $columnNames = [];
         foreach ($columns as $column) {
@@ -348,7 +321,7 @@ class SchemaManager
 
         $columns = [];
         foreach($allColumns as $column) {
-            $columns[] = $this->createColumnObjectFromArray($column);
+            $columns[] = $this->createFieldFromArray($column);
         }
 
         return $columns;
@@ -359,7 +332,7 @@ class SchemaManager
      *
      * @return array
      */
-    public function getAllFieldsByTable()
+    public function getAllFieldsByCollection()
     {
         $fields = [];
         foreach ($this->getAllFields() as $field) {
@@ -376,7 +349,7 @@ class SchemaManager
 
     public function getPrimaryKey($tableName)
     {
-        $collection = $this->getTableSchema($tableName);
+        $collection = $this->getCollection($tableName);
         if ($collection) {
             return $collection->getPrimaryKeyName();
         }
@@ -384,9 +357,9 @@ class SchemaManager
         return false;
     }
 
-    public function hasSystemDateColumn($tableName)
+    public function hasSystemDateField($tableName)
     {
-        $tableObject = $this->getTableSchema($tableName);
+        $tableObject = $this->getCollection($tableName);
 
         return $tableObject->getDateCreateField() || $tableObject->getDateUpdateField();
     }
@@ -487,7 +460,7 @@ class SchemaManager
      *
      * @return array
      */
-    public function getDirectusTables(array $filterNames = [])
+    public function getDirectusCollections(array $filterNames = [])
     {
         $tables = $this->directusTables;
         if ($filterNames) {
@@ -498,7 +471,7 @@ class SchemaManager
             }
         }
 
-        return $this->addSystemTablePrefix($tables);
+        return $this->addSystemCollectionPrefix($tables);
     }
 
     /**
@@ -508,9 +481,9 @@ class SchemaManager
      *
      * @return bool
      */
-    public function isDirectusTable($tableName)
+    public function isDirectusCollection($tableName)
     {
-        return in_array($tableName, $this->getDirectusTables());
+        return in_array($tableName, $this->getDirectusCollections());
     }
 
     /**
@@ -569,7 +542,7 @@ class SchemaManager
      *
      * @return Collection
      */
-    public function createTableObjectFromArray($data)
+    public function createCollectionFromArray($data)
     {
         return new Collection($data);
     }
@@ -581,7 +554,7 @@ class SchemaManager
      *
      * @return Field
      */
-    public function createColumnObjectFromArray($column)
+    public function createFieldFromArray($column)
     {
         // PRIMARY KEY must be required
         if ($column['key'] === 'PRI') {
@@ -634,7 +607,7 @@ class SchemaManager
         return $interface === SystemInterface::INTERFACE_PRIMARY_KEY;
     }
 
-    protected function addTable($name, $schema)
+    protected function addCollection($name, $schema)
     {
         // save the column into the data
         // @NOTE: this is the early implementation of cache
@@ -642,11 +615,11 @@ class SchemaManager
         $this->data['tables'][$name] = $schema;
     }
 
-    protected function addColumn(Field $column)
+    protected function addField(Field $column)
     {
-        $tableName = $column->getTableName();
+        $tableName = $column->getCollectionName();
         $columnName = $column->getName();
-        $this->data['columns'][$tableName][$columnName] = $column;
+        $this->data['fields'][$tableName][$columnName] = $column;
     }
 
     /**

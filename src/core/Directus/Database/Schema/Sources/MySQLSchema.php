@@ -243,7 +243,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function getField($tableName, $columnName)
     {
-        return $this->getColumns($tableName, ['field' => $columnName])->current();
+        return $this->getFields($tableName, ['field' => $columnName])->current();
     }
 
     /**
@@ -354,7 +354,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function addPrimaryKey($table, $column)
     {
-        $columnData = $this->getColumn($table, $column);
+        $columnData = $this->getField($table, $column);
 
         if (!$columnData) {
             // TODO: Better error message
@@ -385,7 +385,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function dropPrimaryKey($table, $column)
     {
-        $columnData = $this->getColumn($table, $column);
+        $columnData = $this->getField($table, $column);
 
         if (!$columnData) {
             // TODO: Better message

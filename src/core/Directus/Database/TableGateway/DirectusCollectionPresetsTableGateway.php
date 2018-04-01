@@ -2,7 +2,7 @@
 
 namespace Directus\Database\TableGateway;
 
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
@@ -64,7 +64,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         }
 
         // Global default values
-        $primaryKeyFieldName = TableSchema::getTablePrimaryKey($table);
+        $primaryKeyFieldName = SchemaService::getCollectionPrimaryKey($table);
         if ($primaryKeyFieldName) {
             self::$defaultPreferencesValues['sort'] = $primaryKeyFieldName;
         }
@@ -78,8 +78,8 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         }
 
         if (isset($preferences['sort'])) {
-            if (!TableSchema::hasTableSortColumn($table)) {
-                $preferences['sort'] = TableSchema::getTableSortColumn($table);
+            if (!SchemaService::hasCollectionSortField($table)) {
+                $preferences['sort'] = SchemaService::getCollectionSortField($table);
             }
         }
 
@@ -94,7 +94,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             // @todo enforce non-empty set
             if (empty($preferences['columns_visible'])) {
                 $newPreferencesData = true;
-                $columns_visible = TableSchema::getTableColumns($table, 6);
+                $columns_visible = SchemaService::getCollectionFields($table, 6);
                 $preferences['columns_visible'] = implode(',', $columns_visible);
             }
 
@@ -112,7 +112,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         $insert = new Insert($this->table);
 
         // User doesn't have any preferences for this table yet. Please create!
-        $columns_visible = TableSchema::getTableColumns($table, 6);
+        $columns_visible = SchemaService::getCollectionFields($table, 6);
         $data = [
             'user' => $user_id,
             'columns_visible' => implode(',', $columns_visible),
@@ -120,8 +120,8 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             'title' => $title
         ];
 
-        if (TableSchema::hasTableSortColumn($table)) {
-            $data['sort'] = TableSchema::getTableSortColumn($table);
+        if (SchemaService::hasCollectionSortField($table)) {
+            $data['sort'] = SchemaService::getCollectionSortField($table);
         }
 
         $data = $this->applyDefaultPreferences($table, $data);
@@ -320,7 +320,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         //Get Default Preferences
         foreach ($tables as $key => $table) {
             // Honor ACL. Skip the tables that the user doesn't have access too
-            if (!TableSchema::canGroupReadCollection($table)) {
+            if (!SchemaService::canGroupReadCollection($table)) {
                 continue;
             }
 

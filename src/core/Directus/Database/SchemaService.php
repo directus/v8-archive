@@ -2,23 +2,15 @@
 
 namespace Directus\Database;
 
-use Directus\Authentication\Provider as Auth;
 use Directus\Bootstrap;
 use Directus\Config\Config;
-use Directus\Database\Exception\ColumnNotFoundException;
-use Directus\Database\Exception\ForbiddenCollectionAccessException;
+use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
+use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\DirectusCollectionPresetsTableGateway;
-use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
-use Zend\Db\Sql\Predicate\NotIn;
-use Zend\Db\Sql\Select;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\TableIdentifier;
 
-class TableSchema
+class SchemaService
 {
     /**
      * Schema Manager Instance
@@ -149,7 +141,7 @@ class TableSchema
 
     public static function getStatusMap($tableName)
     {
-        $tableObject = static::getTableSchema($tableName);
+        $tableObject = static::getCollection($tableName);
         $statusMapping = $tableObject->getStatusMapping();
 
         if (!$statusMapping) {
@@ -176,18 +168,18 @@ class TableSchema
      *
      * @return Collection
      */
-    public static function getTableSchema($tableName, array $params = [], $skipCache = false, $skipAcl = false)
+    public static function getCollection($tableName, array $params = [], $skipCache = false, $skipAcl = false)
     {
         // if (!$skipAcl) {
             // static::getAclInstance()->enforceRead($tableName);
         // }
 
-        return static::getSchemaManagerInstance()->getTableSchema($tableName, $params, $skipCache);
+        return static::getSchemaManagerInstance()->getCollection($tableName, $params, $skipCache);
     }
 
     public static function getCollectionOwnerField($collection)
     {
-        $collectionObject = static::getTableSchema($collection);
+        $collectionObject = static::getCollection($collection);
 
         return $collectionObject->getUserCreateField();
     }
@@ -208,12 +200,12 @@ class TableSchema
      *
      * @return Field[]
      */
-    public static function getTableColumnsSchema($tableName, array $params = [], $skipCache = false)
+    public static function getFields($tableName, array $params = [], $skipCache = false)
     {
-        $tableObject = static::getTableSchema($tableName, $params, $skipCache);
+        $tableObject = static::getCollection($tableName, $params, $skipCache);
 
         return array_values(array_filter($tableObject->getFields(), function (Field $column) {
-            return static::canReadColumn($column->getCollectionName(), $column->getName());
+            return static::canReadField($column->getCollectionName(), $column->getName());
         }));
     }
 
@@ -227,14 +219,14 @@ class TableSchema
      *
      * @return Field
      */
-    public static function getColumnSchema($tableName, $columnName, $skipCache = false, $skipAcl = false)
+    public static function getField($tableName, $columnName, $skipCache = false, $skipAcl = false)
     {
         // Due to a problem the way we use to cache using array
         // if a column information is fetched before its table
         // the table is going to be created with only one column
         // to prevent this we always get the table even if we only want one column
         // Stop using getColumnSchema($tableName, $columnName); until we fix this.
-        $tableObject = static::getTableSchema($tableName, [], $skipCache, $skipAcl);
+        $tableObject = static::getCollection($tableName, [], $skipCache, $skipAcl);
         $column = $tableObject->getField($columnName);
 
         return $column;
@@ -243,31 +235,6 @@ class TableSchema
     /**
      * @todo  for ALTER requests, caching schemas can't be allowed
      */
-    /**
-     * Gets the table columns schema as array
-     *
-     * @param $table
-     * @param array $params
-     * @param bool $skipCache
-     *
-     * @return array
-     */
-    public static function getSchemaArray($table, array $params = [], $skipCache = false)
-    {
-        $columnsSchema = static::getTableColumnsSchema($table, $params, $skipCache);
-
-        // Only return this column if column_name is set as parameter
-        $onlyColumnName = ArrayUtils::get($params, 'column_name', null);
-        if ($onlyColumnName) {
-            foreach($columnsSchema as $key => $column) {
-                if ($column['name'] !== $onlyColumnName) {
-                    unset($columnsSchema[$key]);
-                }
-            }
-        }
-
-        return count($columnsSchema) == 1 ? reset($columnsSchema) : $columnsSchema;
-    }
 
     /**
      * Checks whether the given table has a status column
@@ -277,9 +244,9 @@ class TableSchema
      *
      * @return bool
      */
-    public static function hasStatusColumn($tableName,  $skipAcl = false)
+    public static function hasStatusField($tableName, $skipAcl = false)
     {
-        $schema = static::getTableSchema($tableName, [], false, $skipAcl);
+        $schema = static::getCollection($tableName, [], false, $skipAcl);
 
         return $schema->hasStatusField();
     }
@@ -294,7 +261,7 @@ class TableSchema
      */
     public static function getStatusField($tableName, $skipAcl = false)
     {
-        $schema = static::getTableSchema($tableName, [], false, $skipAcl);
+        $schema = static::getCollection($tableName, [], false, $skipAcl);
 
         return $schema->getStatusField();
     }
@@ -330,7 +297,7 @@ class TableSchema
      */
     public static function hasSomeRelational($tableName, array $columns, $skipAcl = false)
     {
-        $tableSchema = static::getTableSchema($tableName, [], false, $skipAcl);
+        $tableSchema = static::getCollection($tableName, [], false, $skipAcl);
         $relationalColumns = $tableSchema->getRelationalFieldsName();
 
         $has = false;
@@ -370,11 +337,11 @@ class TableSchema
      * @param $tableName
      * @param $columnName
      *
-     * @return Object\FieldRelationship|null
+     * @return FieldRelationship|null
      */
     public static function getColumnRelationship($tableName, $columnName)
     {
-        $column = static::getColumnSchema($tableName, $columnName);
+        $column = static::getField($tableName, $columnName);
 
         return $column && $column->hasRelationship() ? $column->getRelationship() : null;
     }
@@ -387,15 +354,15 @@ class TableSchema
      *
      * @return bool
      *
-     * @throws ColumnNotFoundException
+     * @throws FieldNotFoundException
      */
     public static function hasRelationship($tableName, $columnName)
     {
-        $tableObject = static::getTableSchema($tableName);
-        $columnObject = $tableObject->getColumn($columnName);
+        $tableObject = static::getCollection($tableName);
+        $columnObject = $tableObject->getField($columnName);
 
         if (!$columnObject) {
-            throw new ColumnNotFoundException($columnName);
+            throw new FieldNotFoundException($columnName);
         }
 
         return $columnObject->hasRelationship();
@@ -409,16 +376,16 @@ class TableSchema
      *
      * @return string
      */
-    public static function getRelatedTableName($tableName, $columnName)
+    public static function getRelatedCollectionName($tableName, $columnName)
     {
         if (!static::hasRelationship($tableName, $columnName)) {
             return null;
         }
 
-        $tableObject = static::getTableSchema($tableName);
-        $columnObject = $tableObject->getColumn($columnName);
+        $tableObject = static::getCollection($tableName);
+        $columnObject = $tableObject->getField($columnName);
 
-        return $columnObject->getRelationship()->getRelatedTable();
+        return $columnObject->getRelationship()->getCollectionB();
     }
 
     // @NOTE: This was copy-paste to Column Object
@@ -441,9 +408,9 @@ class TableSchema
      *
      * @return bool
      */
-    public static function isSystemTable($tableName)
+    public static function isSystemCollection($tableName)
     {
-        return static::getSchemaManagerInstance()->isSystemTables($tableName);
+        return static::getSchemaManagerInstance()->isSystemCollection($tableName);
     }
 
     /**
@@ -451,7 +418,7 @@ class TableSchema
      *
      * @return \Directus\Database\Schema\Object\Field[] |bool
      */
-    public static function getAllTableColumns($tableName)
+    public static function getAllCollectionFields($tableName)
     {
         $columns = static::getSchemaManagerInstance()->getFields($tableName);
 
@@ -468,21 +435,21 @@ class TableSchema
      *
      * @return array
      */
-    public static function getAllTableColumnsName($tableName)
+    public static function getAllCollectionFieldsName($tableName)
     {
         // @TODO: make all these methods name more standard
         // TableColumnsName vs TableColumnNames
-        $fields = static::getAllTableColumns($tableName);
+        $fields = static::getAllCollectionFields($tableName);
 
         return array_map(function(Field $field) {
             return $field->getName();
         }, $fields);
     }
 
-    public static function getAllNonAliasTableColumnNames($table)
+    public static function getAllNonAliasCollectionFieldNames($table)
     {
         $columnNames = [];
-        $columns = self::getAllNonAliasTableColumns($table);
+        $columns = self::getAllNonAliasCollectionFields($table);
         if (false === $columns) {
             return false;
         }
@@ -502,10 +469,10 @@ class TableSchema
      *
      * @return Field[]|bool
      */
-    public static function getAllNonAliasTableColumns($tableName, $onlyNames = false)
+    public static function getAllNonAliasCollectionFields($tableName, $onlyNames = false)
     {
         $columns = [];
-        $schemaArray = static::getAllTableColumns($tableName);
+        $schemaArray = static::getAllCollectionFields($tableName);
         if (false === $schemaArray) {
             return false;
         }
@@ -525,12 +492,12 @@ class TableSchema
      * @param string $tableName
      * @param bool $onlyNames
      *
-     * @return \Directus\Database\Object\Field[]|bool
+     * @return Field[]|bool
      */
-    public static function getAllAliasTableColumns($tableName, $onlyNames = false)
+    public static function getAllAliasCollectionFields($tableName, $onlyNames = false)
     {
         $columns = [];
-        $schemaArray = static::getAllTableColumns($tableName);
+        $schemaArray = static::getAllCollectionFields($tableName);
         if (false === $schemaArray) {
             return false;
         }
@@ -549,11 +516,11 @@ class TableSchema
      *
      * @param string $tableName
      *
-     * @return \Directus\Database\Object\Field[]|bool
+     * @return Field[]|bool
      */
-    public static function getAllNonAliasTableColumnsName($tableName)
+    public static function getAllNonAliasCollectionFieldsName($tableName)
     {
-        return static::getAllNonAliasTableColumns($tableName, true);
+        return static::getAllNonAliasCollectionFields($tableName, true);
     }
 
     /**
@@ -561,21 +528,21 @@ class TableSchema
      *
      * @param string $tableName
      *
-     * @return \Directus\Database\Object\Field[]|bool
+     * @return Field[]|bool
      */
-    public static function getAllAliasTableColumnsName($tableName)
+    public static function getAllAliasCollectionFieldsName($tableName)
     {
-        return static::getAllAliasTableColumns($tableName, true);
+        return static::getAllAliasCollectionFields($tableName, true);
     }
 
-    public static function getTableColumns($table, $limit = null, $skipIgnore = false)
+    public static function getCollectionFields($table, $limit = null, $skipIgnore = false)
     {
         if (!self::canGroupReadCollection($table)) {
             return [];
         }
 
         $schemaManager = static::getSchemaManagerInstance();
-        $tableObject = $schemaManager->getTableSchema($table);
+        $tableObject = $schemaManager->getCollection($table);
         $columns = $tableObject->getFields();
         $columnsName = [];
         $count = 0;
@@ -602,18 +569,18 @@ class TableSchema
         return $columnsName;
     }
 
-    public static function getColumnsName($table)
+    public static function getFieldsName($table)
     {
         if (isset(static::$_schemas[$table])) {
             $columns = array_map(function($column) {
                 return $column['column_name'];
             }, static::$_schemas[$table]);
         } else {
-            $columns = SchemaManager::getColumnsNames($table);
+            $columns = static::getSchemaManagerInstance()->getFieldsName($table);
         }
 
         $names = [];
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             $names[] = $column;
         }
 
@@ -628,16 +595,16 @@ class TableSchema
      *
      * @return bool
      */
-    public static function hasTableSortColumn($table, $includeAlias = false)
+    public static function hasCollectionSortField($table, $includeAlias = false)
     {
-        $column = static::getTableSortColumn($table);
+        $column = static::getCollectionSortField($table);
 
-        return static::hasTableColumn($table, $column, $includeAlias);
+        return static::hasCollectionField($table, $column, $includeAlias);
     }
 
-    public static function hasTableColumn($table, $column, $includeAlias = false, $skipAcl = false)
+    public static function hasCollectionField($table, $column, $includeAlias = false, $skipAcl = false)
     {
-        $tableObject = static::getTableSchema($table, [], false, $skipAcl);
+        $tableObject = static::getCollection($table, [], false, $skipAcl);
 
         $columns = $tableObject->getNonAliasFieldsName();
         if ($includeAlias) {
@@ -658,9 +625,9 @@ class TableSchema
      *
      * @return string
      */
-    public static function getTableSortColumn($table)
+    public static function getCollectionSortField($table)
     {
-        $tableObject = static::getTableSchema($table);
+        $tableObject = static::getCollection($table);
 
         $sortColumnName = $tableObject->getSortingField();
         if (!$sortColumnName) {
@@ -668,60 +635,6 @@ class TableSchema
         }
 
         return $sortColumnName;
-    }
-
-    public static function getUniqueColumnName($tbl_name)
-    {
-        // @todo for safe joins w/o name collision
-    }
-
-    /**
-     * Get info about all tables
-     */
-    public static function getTables($userGroupId, $versionHash)
-    {
-        $acl = Bootstrap::get('acl');
-        $zendDb = Bootstrap::get('ZendDb');
-        $Preferences = new DirectusCollectionPresetsTableGateway($zendDb, $acl);
-        $getTablesFn = function () use ($Preferences, $zendDb) {
-            $return = [];
-            $schemaName = $zendDb->getCurrentSchema();
-
-            $select = new Select();
-            $select->columns([
-                'id' => 'TABLE_NAME'
-            ]);
-            $select->from(['S' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')]);
-            $select->where([
-                'TABLE_SCHEMA' => $schemaName,
-                new NotIn('TABLE_NAME', Schema::getDirectusTables())
-            ]);
-
-            $sql = new Sql($zendDb);
-            $statement = $sql->prepareStatementForSqlObject($select);
-            $result = $statement->execute();
-
-            $currentUser = Auth::getUserInfo();
-
-            foreach ($result as $row) {
-                if (!self::canGroupReadCollection($row['id'])) {
-                    continue;
-                }
-
-                $tbl['schema'] = self::getTable($row['id']);
-                //$tbl['columns'] = $this->get_table($row['id']);
-                $tbl['preferences'] = $Preferences->fetchByUserAndTableAndTitle($currentUser['id'], $row['id']);
-                // $tbl['preferences'] = $this->get_table_preferences($currentUser['id'], $row['id']);
-                $return[] = $tbl;
-            }
-
-            return $return;
-        };
-
-        $cacheKey = MemcacheProvider::getKeyDirectusGroupSchema($userGroupId, $versionHash);
-        $tables = $Preferences->memcache->getOrCache($cacheKey, $getTablesFn, 10800); // 3 hr cache
-
-        return $tables;
     }
 
     /**
@@ -750,7 +663,7 @@ class TableSchema
      *
      * @return bool
      */
-    public static function canReadColumn($tableName, $columnName)
+    public static function canReadField($tableName, $columnName)
     {
         $acl = static::getAclInstance();
 
@@ -758,82 +671,7 @@ class TableSchema
             return true;
         }
 
-        return $acl->canReadColumn($tableName, $columnName);
-    }
-
-    public static function getTable($tableName, array $params = [])
-    {
-        $acl = static::getAclInstance();
-        $zendDb = static::getConnectionInstance();
-
-        // TODO: getTable should return an empty object
-        // or and empty array instead of false
-        // in any given situation that the table
-        // can be find or used.
-        if (!self::canGroupReadCollection($tableName)) {
-            return false;
-        }
-
-        $table = static::getTableSchema($tableName, $params);
-
-        if (!$table) {
-            return false;
-        }
-
-        // include the fake relational column "columns"
-        // It is fake because the relation is not being done by Directus relationships
-        $allColumnsName = array_merge(['columns', 'preferences'], array_keys($table->propertyArray()));
-        $fields = ArrayUtils::get($params, 'fields', $allColumnsName);
-        if ($fields === '*') {
-            $fields = $allColumnsName;
-        }
-
-        if (!is_array($fields)) {
-            $fields = StringUtils::csv($fields);
-        }
-
-        $info = $table->toArray();
-        $info = ArrayUtils::pick($info, get_columns_flat_at($fields, 0));
-        $unflatFields = get_unflat_columns($fields);
-
-        if (in_array('columns', get_columns_flat_at($fields, 0))) {
-            $columnsFields = ArrayUtils::get($unflatFields, 'columns', []);
-            $columns = array_values(array_filter($table->getColumnsArray(), function ($column) {
-                return static::canReadColumn($column['table_name'], $column['name']);
-            }));
-
-            // if the columns is a non-array it means "pick all"
-            if (is_array($columnsFields)) {
-                $columns = array_map(function ($column) use ($columnsFields) {
-                    return ArrayUtils::pick($column, array_keys($columnsFields));
-                }, $columns);
-            }
-
-            $info['columns'] = [];
-            if (ArrayUtils::get($params, 'meta', 0)) {
-                $info['columns']['meta'] = [
-                    'table' => 'directus_columns',
-                    'type' => 'collection'
-                ];
-            }
-
-            $info['columns']['data'] = $columns;
-        }
-
-        if (in_array('preferences', get_columns_flat_at($fields, 0))) {
-            $directusPreferencesTableGateway = new DirectusCollectionPresetsTableGateway($zendDb, $acl);
-            $currentUserId = static::getAclInstance()->getUserId();
-            $preferencesColumns = ArrayUtils::get($unflatFields, 'preferences');
-            $info['preferences'] = [
-                'data' => $directusPreferencesTableGateway->fetchByUserAndTable(
-                    $currentUserId,
-                    $tableName,
-                    is_array($preferencesColumns) ? array_keys($preferencesColumns) : []
-                )
-            ];
-        }
-
-        return $info;
+        return $acl->canReadField($tableName, $columnName);
     }
 
     /**
@@ -841,13 +679,13 @@ class TableSchema
      * @param $tableName
      * @return String|boolean - column name or false
      */
-    public static function getTablePrimaryKey($tableName)
+    public static function getCollectionPrimaryKey($tableName)
     {
         if (isset(self::$_primaryKeys[$tableName])) {
             return self::$_primaryKeys[$tableName];
         }
 
-        $schemaManager = static::getSchemaManagerInstance();//Bootstrap::get('schemaManager');
+        $schemaManager = static::getSchemaManagerInstance();
 
         $columnName = $schemaManager->getPrimaryKey($tableName);
 
@@ -863,130 +701,5 @@ class TableSchema
         }
 
         return $result;
-    }
-
-    public static function getAllSchemas($userGroupId, $versionHash)
-    {
-        $cacheKey = MemcacheProvider::getKeyDirectusGroupSchema($userGroupId, $versionHash);
-        $acl = Bootstrap::get('acl');
-        $ZendDb = Bootstrap::get('ZendDb');
-        $auth = Bootstrap::get('auth');
-        $directusPreferencesTableGateway = new DirectusCollectionPresetsTableGateway($ZendDb, $acl);
-
-        $getPreferencesFn = function () use ($directusPreferencesTableGateway, $auth) {
-            $currentUser = $auth->getUserInfo();
-            $preferences = $directusPreferencesTableGateway->fetchAllByUser($currentUser['id']);
-
-            return $preferences;
-        };
-
-        $getSchemasFn = function () {
-            /** @var Collection[] $tableSchemas */
-            $tableSchemas = TableSchema::getTablesSchema(['include_system' => true]);
-            $columnSchemas = TableSchema::getColumnsSchema(['include_system' => true]);
-            // Nest column schemas in table schemas
-            foreach ($tableSchemas as &$table) {
-                $table->setColumns($columnSchemas[$table->getName()]);
-
-                $table = $table->toArray();
-                $tableName = $table['id'];
-                $table['columns'] = array_map(function(Field $column) {
-                    return $column->toArray();
-                }, array_values($columnSchemas[$tableName]));
-
-                $table = [
-                    'schema' => $table,
-                ];
-            }
-
-            return $tableSchemas;
-        };
-
-        // 3 hr cache
-        // $schemas = $directusPreferencesTableGateway->memcache->getOrCache($cacheKey, $getSchemasFn, 10800);
-        $schemas = $getSchemasFn();
-
-        // Append preferences post cache
-        $preferences = $getPreferencesFn();
-        foreach ($schemas as &$table) {
-            $table['preferences'] = ArrayUtils::get($preferences, $table['schema']['id']);
-        }
-
-        return $schemas;
-    }
-
-    /**
-     * Get all the tables schema
-     *
-     * @param array $params
-     * @param bool $skipAcl
-     *
-     * @return array
-     */
-    public static function getTablesSchema(array $params = [], $skipAcl = false)
-    {
-        $schema = static::getSchemaManagerInstance();
-        $includeSystemTables = ArrayUtils::get($params, 'include_system', false);
-        $includeColumns = ArrayUtils::get($params, 'include_columns', false);
-
-        $allTables = $schema->getCollections();
-        if ($includeColumns === true) {
-            $columns = $schema->getAllFieldsByTable();
-            foreach ($columns as $table => $column) {
-                // Make sure the table exists
-                if (isset($allTables[$table])) {
-                    $allTables[$table]->setFields($column);
-                }
-            }
-        }
-
-        $tables = [];
-        foreach ($allTables as $table) {
-            $tableName = $table->getName();
-            if ($includeSystemTables !== true && $schema->isDirectusTable($tableName)) {
-                continue;
-            }
-            // Only include tables w ACL privileges
-            if ($skipAcl === false && !self::canGroupReadCollection($tableName)) {
-                continue;
-            }
-
-            $tables[] = $table;
-        }
-
-        return $tables;
-    }
-
-    public static function getColumnsSchema(array $params = [])
-    {
-        $schema = static::getSchemaManagerInstance();
-        $includeSystemTables = ArrayUtils::get($params, 'include_system', false);
-
-        $columns = [];
-        foreach($schema->getAllColumns() as $column) {
-            $tableName = $column->getTableName();
-
-            if (! static::canReadColumn($tableName, $column->getName())) {
-                continue;
-            }
-
-            if ($schema->isDirectusTable($tableName) && ! $includeSystemTables) {
-                continue;
-            }
-
-            // Only include tables w ACL privileges
-            if (! static::canGroupReadCollection($tableName)) {
-                continue;
-            }
-
-            $columns[$tableName][] = $column;
-        }
-
-        return $columns;
-    }
-
-    public static function columnTypeToUIType($type)
-    {
-        return static::getSchemaManagerInstance()->getColumnDefaultInterface($type);
     }
 }

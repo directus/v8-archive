@@ -177,10 +177,11 @@ interface SchemaInterface
      *
      * @param mixed $data
      * @param null  $type
+     * @param null|int $length
      *
      * @return mixed
      */
-    public function castValue($data, $type = null);
+    public function castValue($data, $type = null, $length = null);
 
     /**
      * Gets the default interface name per type

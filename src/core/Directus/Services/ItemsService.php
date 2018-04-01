@@ -186,7 +186,7 @@ class ItemsService extends AbstractService
     public function batchDeleteWithIds($collection, array $ids, array $params = [])
     {
         // TODO: Implement this into a hook
-        if ($collection === SchemaManager::TABLE_GROUPS) {
+        if ($collection === SchemaManager::COLLECTION_GROUPS) {
             $groupService = new GroupsService($this->container);
 
             foreach ($ids as $id) {
@@ -223,7 +223,7 @@ class ItemsService extends AbstractService
 
     protected function getStatusValue($collection, $id)
     {
-        $collectionObject = $this->getSchemaManager()->getTableSchema($collection);
+        $collectionObject = $this->getSchemaManager()->getCollection($collection);
 
         if (!$collectionObject->hasStatusField()) {
             return null;

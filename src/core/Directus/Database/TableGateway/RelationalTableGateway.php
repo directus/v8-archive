@@ -11,7 +11,7 @@ use Directus\Database\Query\Builder;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
@@ -86,7 +86,7 @@ class RelationalTableGateway extends BaseTableGateway
             );
         }
 
-        if ($this->table !== SchemaManager::TABLE_ACTIVITY) {
+        if ($this->table !== SchemaManager::COLLECTION_ACTIVITY) {
             $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
             $logData = [
                 'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
@@ -135,7 +135,7 @@ class RelationalTableGateway extends BaseTableGateway
         $activityEntryMode = ArrayUtils::get($params, 'activity_mode', static::ACTIVITY_ENTRY_MODE_PARENT);
         $recordIsNew = !array_key_exists($TableGateway->primaryKeyFieldName, $recordData);
 
-        $tableSchema = TableSchema::getTableSchema($tableName);
+        $tableSchema = SchemaService::getCollection($tableName);
 
         $currentUserId = $this->acl ? $this->acl->getUserId() : null;
         $currentUserGroupId = $this->acl ? $this->acl->getGroupId() : null;
@@ -230,7 +230,7 @@ class RelationalTableGateway extends BaseTableGateway
         $draftRecord = $TableGateway->addOrUpdateToManyRelationships($tableSchema, $draftRecord, $nestedLogEntries, $nestedCollectionRelationshipsChanged, $parentData);
         $rowId = $draftRecord[$this->primaryKeyFieldName];
 
-        $columnNames = TableSchema::getAllNonAliasTableColumnNames($tableName);
+        $columnNames = SchemaService::getAllNonAliasCollectionFieldNames($tableName);
         $TemporaryTableGateway = new TableGateway($tableName, $this->adapter);
         $fullRecordData = $TemporaryTableGateway->select(function ($select) use ($rowId, $columnNames) {
             $select->where->equalTo($this->primaryKeyFieldName, $rowId);
@@ -391,7 +391,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relationship = $field->getRelationship();
-            $fieldIsCollectionAssociation = $relationship->isToMany();// in_array($relationship['type'], TableSchema::$association_types);
+            $fieldIsCollectionAssociation = $relationship->isToMany();
 
             // Ignore non-arrays and empty collections
             if (empty($parentRow[$fieldName])) {//} || ($fieldIsOneToMany && )) {
@@ -561,7 +561,7 @@ class RelationalTableGateway extends BaseTableGateway
         $defaultParams['sort'] = $sortingColumnName ? $sortingColumnName : $this->primaryKeyFieldName;
 
         // Is not there a sort column?
-        $tableColumns = array_flip(TableSchema::getTableColumns($this->table, null, true));
+        $tableColumns = array_flip(SchemaService::getCollectionFields($this->table, null, true));
         if (!$this->primaryKeyFieldName || !array_key_exists($this->primaryKeyFieldName, $tableColumns)) {
             unset($defaultParams['sort']);
         }
@@ -975,12 +975,12 @@ class RelationalTableGateway extends BaseTableGateway
 
             $nextColumn = array_shift($columnList);
             $nextTable = $this->getTable();
-            $relational = TableSchema::hasRelationship($nextTable, $nextColumn);
+            $relational = SchemaService::hasRelationship($nextTable, $nextColumn);
 
             while ($relational) {
-                $nextTable = TableSchema::getRelatedTableName($nextTable, $nextColumn);
+                $nextTable = SchemaService::getRelatedCollectionName($nextTable, $nextColumn);
                 $nextColumn = array_shift($columnList);
-                $relational = TableSchema::hasRelationship($nextTable, $nextColumn);
+                $relational = SchemaService::hasRelationship($nextTable, $nextColumn);
                 $columnsTable[] = $nextTable;
             }
 
@@ -989,7 +989,7 @@ class RelationalTableGateway extends BaseTableGateway
             // which we will call this as column not found
             // TODO: Better error message
             if (!empty($columnList)) {
-                throw new Exception\ColumnNotFoundException($nextColumn);
+                throw new Exception\FieldNotFoundException($nextColumn);
             }
 
             // Remove the original filter column with dot-notation
@@ -1087,7 +1087,7 @@ class RelationalTableGateway extends BaseTableGateway
 
     protected function doFilter(Builder $query, $column, $condition, $table)
     {
-        $columnObject = $this->getColumnSchema(
+        $columnObject = $this->getField(
             // $table will be the default value to get
             // if the column has not identifier format
             $this->getColumnFromIdentifier($column),
@@ -1173,7 +1173,7 @@ class RelationalTableGateway extends BaseTableGateway
         // TODO: Move this into QueryBuilder if possible
         if (in_array($operator, ['like']) && $columnObject->isManyToOne()) {
             $relatedTable = $columnObject->getRelationship()->getRelatedTable();
-            $tableSchema = TableSchema::getTableSchema($relatedTable);
+            $tableSchema = SchemaService::getCollection($relatedTable);
             $relatedTableColumns = $tableSchema->getColumns();
             $relatedPrimaryColumnName = $tableSchema->getPrimaryColumn();
             $query->orWhereRelational($this->getColumnFromIdentifier($column), $relatedTable, $relatedPrimaryColumnName, function (Builder $query) use ($column, $relatedTable, $relatedTableColumns, $value) {
@@ -1272,7 +1272,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     protected function processQ(Builder $query, $search)
     {
-        $columns = TableSchema::getAllTableColumns($this->getTable());
+        $columns = SchemaService::getAllCollectionFields($this->getTable());
         $table = $this->getTable();
 
         $query->nestWhere(function (Builder $query) use ($columns, $search, $table) {
@@ -1287,7 +1287,7 @@ class RelationalTableGateway extends BaseTableGateway
                 if ($column->isManyToOne()) {
                     $relationship = $column->getRelationship();
                     $relatedTable = $relationship->getCollectionB();
-                    $tableSchema = TableSchema::getTableSchema($relatedTable);
+                    $tableSchema = SchemaService::getCollection($relatedTable);
                     $relatedTableColumns = $tableSchema->getFields();
                     $relatedPrimaryColumnName = $tableSchema->getPrimaryKeyName();
                     $query->orWhereRelational($column->getName(), $relatedTable, $relatedPrimaryColumnName, function (Builder $query) use ($column, $relatedTable, $relatedTableColumns, $search) {
@@ -1306,7 +1306,7 @@ class RelationalTableGateway extends BaseTableGateway
                     $relationship = $column->getRelationship();
                     $relatedTable = $relationship->getCollectionB();
                     $relatedRightColumn = $relationship->getJunctionKeyB();
-                    $relatedTableColumns = TableSchema::getAllTableColumns($relatedTable);
+                    $relatedTableColumns = SchemaService::getAllCollectionFields($relatedTable);
 
                     $query->from($table);
                     // TODO: Test here it may be not setting the proper primary key name
@@ -1335,7 +1335,7 @@ class RelationalTableGateway extends BaseTableGateway
      * @param Builder $query
      * @param array $columns
      *
-     * @throws Exception\ColumnNotFoundException
+     * @throws Exception\FieldNotFoundException
      */
     protected function processSort(Builder $query, array $columns)
     {
@@ -1344,8 +1344,8 @@ class RelationalTableGateway extends BaseTableGateway
             $orderBy = key($compact);
             $orderDirection = current($compact);
 
-            if (!TableSchema::hasTableColumn($this->table, $orderBy, $this->acl === null)) {
-                throw new Exception\ColumnNotFoundException($column);
+            if (!SchemaService::hasCollectionField($this->table, $orderBy, $this->acl === null)) {
+                throw new Exception\FieldNotFoundException($column);
             }
 
             $query->orderBy($orderBy, $orderDirection);
@@ -1380,12 +1380,12 @@ class RelationalTableGateway extends BaseTableGateway
      * @param Builder $query
      * @param array $params
      *
-     * @throws Exception\ColumnNotFoundException
+     * @throws Exception\FieldNotFoundException
      */
     protected function applyLegacyParams(Builder $query, array $params = [])
     {
         $skipAcl = $this->acl === null;
-        if (ArrayUtils::get($params, 'status') && TableSchema::hasStatusColumn($this->getTable(), $skipAcl)) {
+        if (ArrayUtils::get($params, 'status') && SchemaService::hasStatusField($this->getTable(), $skipAcl)) {
             $statuses = $params['status'];
             if (!is_array($statuses)) {
                 $statuses = array_map(function($item) {
@@ -1398,7 +1398,7 @@ class RelationalTableGateway extends BaseTableGateway
             // });
 
             if ($statuses) {
-                $query->whereIn(TableSchema::getStatusFieldName(
+                $query->whereIn(SchemaService::getStatusFieldName(
                     $this->getTable(),
                     $this->acl === null
                 ), $statuses);
@@ -1426,7 +1426,7 @@ class RelationalTableGateway extends BaseTableGateway
             $search = ArrayUtils::get($params, 'search', '');
 
             if ($search) {
-                $columns = TableSchema::getAllNonAliasTableColumns($this->getTable());
+                $columns = SchemaService::getAllNonAliasCollectionFields($this->getTable());
                 $query->nestWhere(function (Builder $query) use ($columns, $search) {
                     foreach ($columns as $column) {
                         if ($column->getType() === 'VARCHAR' || $column->getType()) {
@@ -1480,7 +1480,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getCollectionB();
-            if ($this->acl && !TableSchema::canGroupReadCollection($relatedTableName)) {
+            if ($this->acl && !SchemaService::canGroupReadCollection($relatedTableName)) {
                 continue;
             }
 
@@ -1577,7 +1577,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getCollectionB();
-            if ($this->acl && !TableSchema::canGroupReadCollection($relatedTableName)) {
+            if ($this->acl && !SchemaService::canGroupReadCollection($relatedTableName)) {
                 continue;
             }
 
@@ -1596,10 +1596,10 @@ class RelationalTableGateway extends BaseTableGateway
             $junctionTableName = $alias->getRelationship()->getJunctionCollection();
 
             $relatedTableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
-            $relatedTablePrimaryKey = TableSchema::getTablePrimaryKey($relatedTableName);
+            $relatedTablePrimaryKey = SchemaService::getCollectionPrimaryKey($relatedTableName);
 
             $on = $this->getColumnIdentifier($junctionKeyRightColumn, $junctionTableName) . ' = ' . $this->getColumnIdentifier($relatedTablePrimaryKey, $relatedTableName);
-            $junctionColumns = TableSchema::getAllNonAliasTableColumnNames($junctionTableName);
+            $junctionColumns = SchemaService::getAllNonAliasCollectionFieldNames($junctionTableName);
             if (in_array('sort', $junctionColumns)) {
                 $joinColumns[] = 'sort';
             }
@@ -1621,8 +1621,8 @@ class RelationalTableGateway extends BaseTableGateway
             $queryCallBack = function(Builder $query) use ($junctionTableName, $on, $joinColumns, $ids, $joinColumnsPrefix) {
                 $query->join($junctionTableName, $on, $joinColumns);
 
-                if (TableSchema::hasTableSortColumn($junctionTableName)) {
-                    $sortColumnName = TableSchema::getTableSortColumn($junctionTableName);
+                if (SchemaService::hasCollectionSortField($junctionTableName)) {
+                    $sortColumnName = SchemaService::getCollectionSortField($junctionTableName);
                     $query->orderBy($this->getColumnIdentifier($sortColumnName, $junctionTableName), 'ASC');
                 }
 
@@ -1712,7 +1712,7 @@ class RelationalTableGateway extends BaseTableGateway
                 }, $data);
 
                 $junctionTableGateway = new RelationalTableGateway($junctionTableName, $this->getAdapter(), $this->acl);
-                $junctionData = $this->getSchemaManager()->castRecordValues($junctionData, TableSchema::getTableSchema($junctionTableName)->getFields());
+                $junctionData = $this->getSchemaManager()->castRecordValues($junctionData, SchemaService::getCollection($junctionTableName)->getFields());
 
                 // Sorting junction data by its sorting column or ID column
                 // NOTE: All the junction table are fetched all together from all the rows IDs
@@ -1787,7 +1787,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             // if user doesn't have permission to view the related table
             // fill the data with only the id, which the user has permission to
-            if ($this->acl && !TableSchema::canGroupReadCollection($relatedTable)) {
+            if ($this->acl && !SchemaService::canGroupReadCollection($relatedTable)) {
                 $tableGateway = new RelationalTableGateway($relatedTable, $this->adapter, null);
                 $primaryKeyName = $tableGateway->primaryKeyFieldName;
 
@@ -1900,7 +1900,7 @@ class RelationalTableGateway extends BaseTableGateway
         $tableSchema = $this->getTableSchema();
 
         // NOTE: fallback to all columns the user has permission to
-        $allColumns = TableSchema::getAllTableColumnsName($tableSchema->getName());
+        $allColumns = SchemaService::getAllCollectionFieldsName($tableSchema->getName());
 
         if (!$fields) {
             $fields = ['*'];
@@ -1939,7 +1939,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         return ArrayUtils::intersection(
             array_values(array_flip(ArrayUtils::omit(array_flip($pickedNames), $omittedNames))),
-            TableSchema::getAllNonAliasTableColumnNames($this->getTable())
+            SchemaService::getAllNonAliasCollectionFieldNames($this->getTable())
         );
     }
 
@@ -2012,7 +2012,7 @@ class RelationalTableGateway extends BaseTableGateway
 
     public function countByStatus()
     {
-        $tableSchema = TableSchema::getTableSchema($this->getTable());
+        $tableSchema = SchemaService::getCollection($this->getTable());
         if (!$tableSchema->hasStatusColumn()) {
             return ['total_entries' => $this->countTotal()];
         }
@@ -2028,7 +2028,7 @@ class RelationalTableGateway extends BaseTableGateway
         $statement = $sql->prepareStatementForSqlObject($select);
         $results = $statement->execute();
 
-        $statusMap = TableSchema::getStatusMap($this->getTable());
+        $statusMap = SchemaService::getStatusMap($this->getTable());
         $stats = [];
         foreach ($results as $row) {
             if (isset($row[$statusColumnName])) {

@@ -2,6 +2,6 @@
 
 return [
     'filters' => [
-        'table.insert:before' => new \Directus\Customs\Hooks\Products\BeforeInsertProducts()
+        'collection.insert:before' => new \Directus\Customs\Hooks\Products\BeforeInsertProducts()
     ]
 ];

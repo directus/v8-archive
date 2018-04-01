@@ -21,7 +21,7 @@ class RelationsService extends AbstractService
     {
         parent::__construct($container);
 
-        $this->collection = SchemaManager::TABLE_RELATIONS;
+        $this->collection = SchemaManager::COLLECTION_RELATIONS;
         $this->itemsService = new ItemsService($this->container);
     }
 

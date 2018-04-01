@@ -30,7 +30,7 @@ use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGateway\DirectusSettingsTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\RuntimeException;
@@ -183,7 +183,7 @@ class CoreServicesProvider
                     throw new \Exception('Translations language table not defined for ' . $languageIdColumn);
                 }
 
-                $tableSchema = TableSchema::getTableSchema($languagesTable);
+                $tableSchema = SchemaService::getCollection($languagesTable);
                 $primaryKeyColumn = 'id';
                 foreach($tableSchema->getColumns() as $column) {
                     if ($column->isPrimary()) {
@@ -219,17 +219,17 @@ class CoreServicesProvider
                 $cachePool->invalidateTags(['table_'.$tableName]);
             };
 
-            foreach (['table.update:after', 'table.drop:after'] as $action) {
+            foreach (['collection.update:after', 'collection.drop:after'] as $action) {
                 $emitter->addAction($action, $cacheTableTagInvalidator);
             }
 
-            $emitter->addAction('table.remove:after', function ($tableName, $ids) use ($cachePool){
+            $emitter->addAction('collection.delete:after', function ($tableName, $ids) use ($cachePool){
                 foreach ($ids as $id) {
                     $cachePool->invalidateTags(['entity_'.$tableName.'_'.$id]);
                 }
             });
 
-            $emitter->addAction('table.update.directus_permissions:after', function ($data) use($container, $cachePool) {
+            $emitter->addAction('collection.update.directus_permissions:after', function ($data) use($container, $cachePool) {
                 $acl = $container->get('acl');
                 $dbConnection = $container->get('database');
                 $privileges = new DirectusPermissionsTableGateway($dbConnection, $acl);
@@ -254,7 +254,7 @@ class CoreServicesProvider
                 }
                 return $payload;
             });
-            $emitter->addAction('table.insert.directus_groups', function ($data) use ($container) {
+            $emitter->addAction('collection.insert.directus_groups', function ($data) use ($container) {
                 $acl = $container->get('acl');
                 $zendDb = $container->get('database');
                 $privilegesTable = new DirectusPermissionsTableGateway($zendDb, $acl);
@@ -269,29 +269,29 @@ class CoreServicesProvider
                     'write_field_blacklist' => 'group,token'
                 ]);
             });
-            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($container) {
-                $tableName = $payload->attribute('tableName');
-                $tableObject = TableSchema::getTableSchema($tableName);
+            $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($container) {
+                $collectionName = $payload->attribute('collection_name');
+                $collection = SchemaService::getCollection($collectionName);
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
 
 
-                if ($dateCreated = $tableObject->getDateCreateField()) {
+                if ($dateCreated = $collection->getDateCreateField()) {
                     $payload[$dateCreated] = DateUtils::now();
                 }
 
-                if ($dateCreated = $tableObject->getDateUpdateField()) {
+                if ($dateCreated = $collection->getDateUpdateField()) {
                     $payload[$dateCreated] = DateUtils::now();
                 }
 
                 // Directus Users created user are themselves (primary key)
                 // populating that field will be a duplicated primary key violation
-                if ($tableName === 'directus_users') {
+                if ($collection->getName() === 'directus_users') {
                     return $payload;
                 }
 
-                $userCreated = $tableObject->getUserCreateField();
-                $userModified = $tableObject->getUserUpdateField();
+                $userCreated = $collection->getUserCreateField();
+                $userModified = $collection->getUserUpdateField();
 
                 if ($userCreated) {
                     $payload[$userCreated->getName()] = $acl->getUserId();
@@ -303,25 +303,24 @@ class CoreServicesProvider
 
                 return $payload;
             }, Emitter::P_HIGH);
-            $emitter->addFilter('table.update:before', function (Payload $payload) use ($container) {
-                $tableName = $payload->attribute('tableName');
-                $tableObject = TableSchema::getTableSchema($tableName);
+            $emitter->addFilter('collection.update:before', function (Payload $payload) use ($container) {
+                $collection = SchemaService::getCollection($payload->attribute('collection_name'));
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
-                if ($dateModified = $tableObject->getDateUpdateField()) {
+                if ($dateModified = $collection->getDateUpdateField()) {
                     $payload[$dateModified] = DateUtils::now();
                 }
-                if ($userModified = $tableObject->getUserUpdateField()) {
+                if ($userModified = $collection->getUserUpdateField()) {
                     $payload[$userModified] = $acl->getUserId();
                 }
                 // NOTE: exclude date_uploaded from updating a file record
-                if ($payload->attribute('tableName') === 'directus_files') {
+                if ($collection->getName() === 'directus_files') {
                     $payload->remove('date_uploaded');
                 }
                 return $payload;
             }, Emitter::P_HIGH);
-            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($container) {
-                if ($payload->attribute('tableName') === 'directus_files') {
+            $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($container) {
+                if ($payload->attribute('collection_name') === 'directus_files') {
                     /** @var Acl $auth */
                     $acl = $container->get('acl');
                     $data = $payload->getData();
@@ -385,7 +384,7 @@ class CoreServicesProvider
                 }
                 return $rows;
             };
-            $emitter->addFilter('table.select.directus_files:before', function (Payload $payload) {
+            $emitter->addFilter('collection.select.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
                 if (!in_array('filename', $columns)) {
                     $columns[] = 'filename';
@@ -399,7 +398,7 @@ class CoreServicesProvider
             $parseArray = function ($collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
-                $collectionObject = $schemaManager->getTableSchema($collection);
+                $collectionObject = $schemaManager->getCollection($collection);
 
                 foreach ($collectionObject->getFields(array_keys($data)) as $field) {
                     if (!$field->isArray()) {
@@ -426,7 +425,7 @@ class CoreServicesProvider
             $parseBoolean = function ($collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
-                $collectionObject = $schemaManager->getTableSchema($collection);
+                $collectionObject = $schemaManager->getCollection($collection);
 
                 foreach ($collectionObject->getFields(array_keys($data)) as $field) {
                     if (!$field->isBoolean()) {
@@ -442,7 +441,7 @@ class CoreServicesProvider
             $parseJson = function ($collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
-                $collectionObject = $schemaManager->getTableSchema($collection);
+                $collectionObject = $schemaManager->getCollection($collection);
 
                 foreach ($collectionObject->getFields(array_keys($data)) as $field) {
                     if (!$field->isJson()) {
@@ -466,26 +465,26 @@ class CoreServicesProvider
                 return $data;
             };
 
-            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($parseJson, $parseArray) {
-                $payload->replace($parseJson($payload->attribute('tableName'), $payload->getData()));
-                $payload->replace($parseArray($payload->attribute('tableName'), $payload->getData()));
+            $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($parseJson, $parseArray) {
+                $payload->replace($parseJson($payload->attribute('collection_name'), $payload->getData()));
+                $payload->replace($parseArray($payload->attribute('collection_name'), $payload->getData()));
 
                 return $payload;
             });
-            $emitter->addFilter('table.update:before', function (Payload $payload) use ($parseJson, $parseArray) {
-                $payload->replace($parseJson($payload->attribute('tableName'), $payload->getData()));
-                $payload->replace($parseArray($payload->attribute('tableName'), $payload->getData()));
+            $emitter->addFilter('collection.update:before', function (Payload $payload) use ($parseJson, $parseArray) {
+                $payload->replace($parseJson($payload->attribute('collection_name'), $payload->getData()));
+                $payload->replace($parseArray($payload->attribute('collection_name'), $payload->getData()));
 
                 return $payload;
             });
-            $emitter->addFilter('table.select', function (Payload $payload) use ($parseJson, $parseArray, $parseBoolean) {
+            $emitter->addFilter('collection.select', function (Payload $payload) use ($parseJson, $parseArray, $parseBoolean) {
                 $rows = $payload->getData();
-                $collection = $payload->attribute('tableName');
+                $collectionName = $payload->attribute('collection_name');
 
                 foreach ($rows as $key => $row) {
-                    $row = $parseJson($collection, $row);
-                    $row = $parseBoolean($collection, $row);
-                    $rows[$key] = $parseArray($collection, $row);
+                    $row = $parseJson($collectionName, $row);
+                    $row = $parseBoolean($collectionName, $row);
+                    $rows[$key] = $parseArray($collectionName, $row);
                 }
 
                 $payload->replace($rows);
@@ -494,7 +493,7 @@ class CoreServicesProvider
             });
             // -------------------------------------------------------------------------------------------
             // Add file url and thumb url
-            $emitter->addFilter('table.select', function (Payload $payload) use ($addFilesUrl, $container) {
+            $emitter->addFilter('collection.select', function (Payload $payload) use ($addFilesUrl, $container) {
                 $selectState = $payload->attribute('selectState');
                 $rows = $payload->getData();
                 if ($selectState['table'] == 'directus_files') {
@@ -537,7 +536,7 @@ class CoreServicesProvider
                 $payload->replace($rows);
                 return $payload;
             });
-            $emitter->addFilter('table.select.directus_users', function (Payload $payload) use ($container) {
+            $emitter->addFilter('collection.select.directus_users', function (Payload $payload) use ($container) {
                 $acl = $container->get('acl');
                 $rows = $payload->getData();
                 $userId = $acl->getUserId();
@@ -569,56 +568,61 @@ class CoreServicesProvider
                 return $payload;
             };
             $slugifyString = function ($insert, Payload $payload) {
-                $tableName = $payload->attribute('tableName');
-                $tableObject = TableSchema::getTableSchema($tableName);
+                $collection = SchemaService::getCollection($payload->attribute('collection_name'));
                 $data = $payload->getData();
-                foreach ($tableObject->getFields() as $column) {
+                foreach ($collection->getFields() as $column) {
                     if ($column->getInterface() !== 'slug') {
                         continue;
                     }
+
                     $parentColumnName = $column->getOptions('mirrored_field');
                     if (!ArrayUtils::has($data, $parentColumnName)) {
                         continue;
                     }
+
                     $onCreationOnly = boolval($column->getOptions('only_on_creation'));
                     if (!$insert && $onCreationOnly) {
                         continue;
                     }
+
                     $payload->set($column->getName(), slugify(ArrayUtils::get($data, $parentColumnName, '')));
                 }
+
                 return $payload;
             };
-            $emitter->addFilter('table.insert:before', function (Payload $payload) use ($slugifyString) {
+            $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($slugifyString) {
                 return $slugifyString(true, $payload);
             });
-            $emitter->addFilter('table.update:before', function (Payload $payload) use ($slugifyString) {
+            $emitter->addFilter('collection.update:before', function (Payload $payload) use ($slugifyString) {
                 return $slugifyString(false, $payload);
             });
             // TODO: Merge with hash user password
             $onInsertOrUpdate = function (Payload $payload) use ($container) {
                 /** @var Provider $auth */
                 $auth = $container->get('auth');
-                $tableName = $payload->attribute('tableName');
+                $collectionName = $payload->attribute('collection_name');
 
-                if (TableSchema::isSystemTable($tableName)) {
+                if (SchemaService::isSystemCollection($collectionName)) {
                     return $payload;
                 }
 
-                $tableObject = TableSchema::getTableSchema($tableName);
+                $collection = SchemaService::getCollection($collectionName);
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
-                    $columnObject = $tableObject->getField($key);
-                    if (!$columnObject) {
+                    $column = $collection->getField($key);
+                    if (!$column) {
                         continue;
                     }
-                    if ($columnObject->getInterface() === 'password') {
+
+                    if ($column->getInterface() === 'password') {
                         // TODO: Use custom password hashing method
                         $payload->set($key, $auth->hashPassword($value));
                     }
                 }
+
                 return $payload;
             };
-            $emitter->addFilter('table.update.directus_users:before', function (Payload $payload) use ($container) {
+            $emitter->addFilter('collection.update.directus_users:before', function (Payload $payload) use ($container) {
                 $acl = $container->get('acl');
                 $currentUserId = $acl->getUserId();
                 if ($currentUserId != $payload->get('id')) {
@@ -637,11 +641,11 @@ class CoreServicesProvider
                 // ----------------------------------------------------------------------------
                 return $payload;
             });
-            $emitter->addFilter('table.insert.directus_users:before', $hashUserPassword);
-            $emitter->addFilter('table.update.directus_users:before', $hashUserPassword);
+            $emitter->addFilter('collection.insert.directus_users:before', $hashUserPassword);
+            $emitter->addFilter('collection.update.directus_users:before', $hashUserPassword);
             // Hash value to any non system table password interface column
-            $emitter->addFilter('table.insert:before', $onInsertOrUpdate);
-            $emitter->addFilter('table.update:before', $onInsertOrUpdate);
+            $emitter->addFilter('collection.insert:before', $onInsertOrUpdate);
+            $emitter->addFilter('collection.update:before', $onInsertOrUpdate);
             $preventUsePublicGroup = function (Payload $payload) use ($container) {
                 $data = $payload->getData();
                 if (!ArrayUtils::has($data, 'group')) {
@@ -663,8 +667,8 @@ class CoreServicesProvider
                 }
                 return $payload;
             };
-            $emitter->addFilter('table.insert.directus_users:before', $preventUsePublicGroup);
-            $emitter->addFilter('table.update.directus_users:before', $preventUsePublicGroup);
+            $emitter->addFilter('collection.insert.directus_users:before', $preventUsePublicGroup);
+            $emitter->addFilter('collection.update.directus_users:before', $preventUsePublicGroup);
             $beforeSavingFiles = function ($payload) use ($container) {
                 $acl = $container->get('acl');
                 $currentUserId = $acl->getUserId();
@@ -684,9 +688,9 @@ class CoreServicesProvider
             $emitter->addAction('files.saving', $beforeSavingFiles);
             $emitter->addAction('files.thumbnail.saving', $beforeSavingFiles);
             // TODO: Make insert actions and filters
-            $emitter->addFilter('table.insert.directus_files:before', $beforeSavingFiles);
-            $emitter->addFilter('table.update.directus_files:before', $beforeSavingFiles);
-            $emitter->addFilter('table.delete.directus_files:before', $beforeSavingFiles);
+            $emitter->addFilter('collection.insert.directus_files:before', $beforeSavingFiles);
+            $emitter->addFilter('collection.update.directus_files:before', $beforeSavingFiles);
+            $emitter->addFilter('collection.delete.directus_files:before', $beforeSavingFiles);
 
             return $emitter;
         };
@@ -1051,7 +1055,7 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $dbConnection = $container->get('database');
-            $settingsTable = new TableGateway(SchemaManager::TABLE_SETTINGS, $dbConnection);
+            $settingsTable = new TableGateway(SchemaManager::COLLECTION_SETTINGS, $dbConnection);
 
             return $settingsTable->select()->toArray();
         };

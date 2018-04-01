@@ -2,7 +2,7 @@
 
 namespace Directus\Database\TableGateway;
 
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Zend\Db\Adapter\AdapterInterface;
@@ -190,7 +190,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $rowset = $this->selectWith($select);
         $rowset = $rowset->toArray();
 
-        $tableSchema = new TableSchema();
+        $tableSchema = new SchemaService();
         $tables = $tableSchema->getTablenames();
         $privileges = [];
         $privilegesHash = [];

@@ -23,7 +23,7 @@ if (!function_exists('get_item_owner')) {
         /** @var \Directus\Database\Schema\SchemaManager $schemaManager */
         $schemaManager = $app->getContainer()->get('schema_manager');
 
-        $collectionObject = $schemaManager->getTableSchema($collection);
+        $collectionObject = $schemaManager->getCollection($collection);
         $userCreatedField = $collectionObject->getUserCreateField();
 
         $owner = null;

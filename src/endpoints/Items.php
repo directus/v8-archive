@@ -197,7 +197,7 @@ class Items extends Route
     {
         /** @var SchemaManager $schemaManager */
         $schemaManager = $this->container->get('schema_manager');
-        if (in_array($name, $schemaManager->getSystemTables())) {
+        if (in_array($name, $schemaManager->getSystemCollections())) {
             throw new ForbiddenSystemTableDirectAccessException($name);
         }
     }

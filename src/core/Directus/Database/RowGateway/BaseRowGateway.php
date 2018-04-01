@@ -3,7 +3,7 @@
 namespace Directus\Database\RowGateway;
 
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
@@ -207,7 +207,7 @@ class BaseRowGateway extends RowGateway
         }
 
         // Enforce Privilege: "Little" Edit (I am the record CMS owner)
-        $ownerFieldName = TableSchema::getCollectionOwnerFieldName($this->table);
+        $ownerFieldName = SchemaService::getCollectionOwnerFieldName($this->table);
         $cmsOwnerId = $this->acl->getRecordCmsOwnerId($this, $this->table);
         $currentUserId = $this->acl->getUserId();
         $canEdit = $this->acl->canUpdate($this->table);

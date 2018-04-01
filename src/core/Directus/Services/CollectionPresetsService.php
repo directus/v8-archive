@@ -22,7 +22,7 @@ class CollectionPresetsService extends AbstractService
     {
         parent::__construct($container);
 
-        $this->collection = SchemaManager::TABLE_COLLECTION_PRESETS;
+        $this->collection = SchemaManager::COLLECTION_COLLECTION_PRESETS;
         $this->itemsService = new ItemsService($this->container);
     }
 

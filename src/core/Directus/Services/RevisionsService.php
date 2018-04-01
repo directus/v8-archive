@@ -15,7 +15,7 @@ class RevisionsService extends AbstractService
     public function __construct(Container $container)
     {
         parent::__construct($container);
-        $this->collection = SchemaManager::TABLE_REVISIONS;
+        $this->collection = SchemaManager::COLLECTION_REVISIONS;
     }
 
     public function findItemAll($collection, $id, array $params = [])

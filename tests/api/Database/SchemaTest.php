@@ -24,16 +24,17 @@ class SchemaTest extends PHPUnit_Framework_TestCase
 
     public function testCoreTablesPrefix()
     {
+        /** @var \Directus\Database\Schema\SchemaManager $schema */
         $schema = $this->schema;
-        $this->assertSame('directus_users', $schema->addCoreTablePrefix('users'));
+        $this->assertSame('directus_users', $schema->addSystemCollectionPrefix('users'));
 
         $tables = ['users', 'tables'];
-        $prefixedTables = $schema->addCoreTablePrefix($tables);
+        $prefixedTables = $schema->addSystemCollectionPrefix($tables);
         foreach ($tables as $table) {
             $this->assertTrue(in_array('directus_' . $table, $prefixedTables));
         }
 
-        $coreTables = $schema->getCoreTables();
+        $coreTables = $schema->getSystemCollections();
         foreach($coreTables as $table) {
             $this->assertTrue(\Directus\Util\StringUtils::startsWith($table, 'directus_'));
         }
@@ -41,9 +42,10 @@ class SchemaTest extends PHPUnit_Framework_TestCase
 
     public function testCoreTables()
     {
+        /** @var \Directus\Database\Schema\SchemaManager $schema */
         $schema = $this->schema;
 
-        $coreTables = $schema->addCoreTablePrefix([
+        $coreTables = $schema->addSystemCollectionPrefix([
             'activity',
             'bookmarks',
             'columns',
@@ -60,7 +62,7 @@ class SchemaTest extends PHPUnit_Framework_TestCase
         ]);
 
         foreach ($coreTables as $coreTable) {
-            $this->assertTrue(in_array($coreTable, $this->schema->getDirectusTables()));
+            $this->assertTrue(in_array($coreTable, $this->schema->getDirectusCollections()));
         }
     }
 
@@ -179,8 +181,8 @@ class SchemaTest extends PHPUnit_Framework_TestCase
         ]);
         $schema = new Schema($adapter);
 
-        $this->assertInternalType('array', $schema->getColumns('files'));
-        $this->assertInternalType('array', $schema->getAllColumns());
+        $this->assertInternalType('array', $schema->getFields('files'));
+        $this->assertInternalType('array', $schema->getAllFields());
     }
 
     public function testSupportedDatabase()
@@ -195,8 +197,8 @@ class SchemaTest extends PHPUnit_Framework_TestCase
 
     public function testDirectusTables()
     {
-        $this->assertTrue($this->schema->isDirectusTable('directus_files'));
-        $this->assertFalse($this->schema->isDirectusTable('directus_storage'));
+        $this->assertTrue($this->schema->isDirectusCollection('directus_files'));
+        $this->assertFalse($this->schema->isDirectusCollection('directus_storage'));
     }
 
     private function checkArrayKeys(array $array)

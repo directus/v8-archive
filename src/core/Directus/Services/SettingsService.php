@@ -21,7 +21,7 @@ class SettingsService extends AbstractService
     {
         parent::__construct($container);
 
-        $this->collection = SchemaManager::TABLE_SETTINGS;
+        $this->collection = SchemaManager::COLLECTION_SETTINGS;
         $this->itemsService = new ItemsService($this->container);
     }
 

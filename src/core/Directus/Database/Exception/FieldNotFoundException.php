@@ -4,13 +4,13 @@ namespace Directus\Database\Exception;
 
 use Directus\Exception\NotFoundException;
 
-class ColumnNotFoundException extends NotFoundException
+class FieldNotFoundException extends NotFoundException
 {
     const ERROR_CODE = 202;
 
-    public function __construct($column)
+    public function __construct($field)
     {
-        $message = __t('unable_to_find_column_x', ['column' => $column]);
+        $message = sprintf('Unable to find field "%s"', $field);
 
         parent::__construct($message, static::ERROR_CODE);
     }

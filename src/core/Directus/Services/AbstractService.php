@@ -170,7 +170,7 @@ abstract class AbstractService
     {
         /** @var SchemaManager $schemaManager */
         $schemaManager = $this->container->get('schema_manager');
-        $collectionObject = $schemaManager->getTableSchema($collectionName);
+        $collectionObject = $schemaManager->getCollection($collectionName);
 
         $constraints = [];
 
@@ -253,13 +253,13 @@ abstract class AbstractService
         }
 
         $setIdTags = function(Payload $payload) use($pkName, $container) {
-            $tableName = $payload->attribute('tableName');
+            $collectionName = $payload->attribute('collection_name');
 
-            $this->tagResponseCache('table_'.$tableName);
-            $this->tagResponseCache('permissions_collection_'.$tableName.'_group_'.$container->get('acl')->getGroupId());
+            $this->tagResponseCache('table_'.$collectionName);
+            $this->tagResponseCache('permissions_collection_'.$collectionName.'_group_'.$container->get('acl')->getGroupId());
 
             foreach($payload->getData() as $item) {
-                $this->tagResponseCache('entity_'.$tableName.'_'.$item[$pkName]);
+                $this->tagResponseCache('entity_'.$collectionName.'_'.$item[$pkName]);
             }
 
             return $payload;
@@ -268,7 +268,7 @@ abstract class AbstractService
         /** @var Emitter $hookEmitter */
         $hookEmitter = $container->get('hook_emitter');
 
-        $listenerId = $hookEmitter->addFilter('table.select', $setIdTags, Emitter::P_LOW);
+        $listenerId = $hookEmitter->addFilter('collection.select', $setIdTags, Emitter::P_LOW);
         $result = call_user_func_array($callable, $callableParams);
         $hookEmitter->removeListenerWithIndex($listenerId);
 
@@ -300,7 +300,7 @@ abstract class AbstractService
      */
     protected function validatePayload($collection, $fields, array $payload, array $params)
     {
-        $collectionObject = $this->getSchemaManager()->getTableSchema($collection);
+        $collectionObject = $this->getSchemaManager()->getCollection($collection);
         $payloadCount = count($payload);
         $hasPrimaryKeyData = ArrayUtils::has($payload, $collectionObject->getPrimaryKeyName());
 
@@ -330,7 +330,7 @@ abstract class AbstractService
      */
     protected function enforcePermissions($collection, array $payload, array $params)
     {
-        $collectionObject = $this->getSchemaManager()->getTableSchema($collection);
+        $collectionObject = $this->getSchemaManager()->getCollection($collection);
         $status = null;
         $statusField = $collectionObject->getStatusField();
         if ($statusField) {

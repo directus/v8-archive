@@ -8,7 +8,7 @@ use Directus\Authentication\GitHubProvider;
 use Directus\Authentication\GoogleProvider;
 use Directus\Authentication\Social;
 use Directus\Authentication\TwitterProvider;
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
 use Directus\Language\LanguageManager;

@@ -3,7 +3,7 @@
 namespace Directus\Database\TableGateway;
 
 use Directus\Database\Query\Builder;
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
@@ -66,7 +66,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
 
         // TODO: Move this to applyDefaultEntriesSelectParams method
         $tableSchema = $this->getTableSchema();
-        $columns = TableSchema::getAllTableColumnsName($tableSchema->getName());
+        $columns = SchemaService::getAllCollectionFieldsName($tableSchema->getName());
         if (ArrayUtils::has($params, 'columns')) {
             $columns = ArrayUtils::get($params, 'columns');
         }

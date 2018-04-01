@@ -30,7 +30,7 @@ class UsersService extends AbstractService
     public function __construct(Container $container)
     {
         parent::__construct($container);
-        $this->collection = SchemaManager::TABLE_USERS;
+        $this->collection = SchemaManager::COLLECTION_USERS;
         $this->itemsService = new ItemsService($this->container);
     }
 

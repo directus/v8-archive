@@ -17,7 +17,7 @@ class PermissionsService extends AbstractService
     public function __construct(Container $container)
     {
         parent::__construct($container);
-        $this->collection = SchemaManager::TABLE_PERMISSIONS;
+        $this->collection = SchemaManager::COLLECTION_PERMISSIONS;
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Directus\Database\TableGateway;
 
-use Directus\Config\Config;
 use Directus\Config\StatusMapping;
 use Directus\Container\Container;
 use Directus\Database\Exception\InvalidQueryException;
@@ -11,9 +10,10 @@ use Directus\Database\Exception\SuppliedArrayAsColumnValue;
 use Directus\Database\Query\Builder;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\RowGateway\BaseRowGateway;
+use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGatewayFactory;
-use Directus\Database\TableSchema;
+use Directus\Database\SchemaService;
 use Directus\Filesystem\Thumbnail;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
@@ -193,7 +193,7 @@ class BaseTableGateway extends TableGateway
         }
 
         $skipAcl = $this->acl === null;
-        $tableSchema = TableSchema::getTableSchema($tableName, [], false, $skipAcl);
+        $tableSchema = SchemaService::getCollection($tableName, [], false, $skipAcl);
 
         if ($tableName === $this->getTable()) {
             $this->tableSchema = $tableSchema;
@@ -208,9 +208,9 @@ class BaseTableGateway extends TableGateway
      * @param $columnName
      * @param null $tableName
      *
-     * @return \Directus\Database\Object\Field
+     * @return Field
      */
-    public function getColumnSchema($columnName, $tableName = null)
+    public function getField($columnName, $tableName = null)
     {
         if ($tableName === null) {
             $tableName = $this->getTable();
@@ -218,7 +218,7 @@ class BaseTableGateway extends TableGateway
 
         $skipAcl = $this->acl === null;
 
-        return TableSchema::getColumnSchema($tableName, $columnName, false, $skipAcl);
+        return SchemaService::getField($tableName, $columnName, false, $skipAcl);
     }
 
     /**
@@ -226,9 +226,9 @@ class BaseTableGateway extends TableGateway
      *
      * @return string
      */
-    public function getStatusColumnName()
+    public function getStatusFieldName()
     {
-        return $this->getTableSchema()->getStatusColumn();
+        return $this->getTableSchema()->getStatusField();
     }
 
     public function withKey($key, $resultSet)
@@ -334,16 +334,16 @@ class BaseTableGateway extends TableGateway
         return $row->toArray();
     }
 
-    public function addOrUpdateRecordByArray(array $recordData, $tableName = null)
+    public function addOrUpdateRecordByArray(array $recordData, $collectionName = null)
     {
-        $tableName = is_null($tableName) ? $this->table : $tableName;
-        $collectionObject = $this->getTableSchema($tableName);
+        $collectionName = is_null($collectionName) ? $this->table : $collectionName;
+        $collectionObject = $this->getTableSchema($collectionName);
         foreach ($recordData as $columnName => $columnValue) {
             $fieldObject = $collectionObject->getField($columnName);
             // TODO: Should this be validate in here? should we let the database fails?
             if (($fieldObject && is_array($columnValue) && (!$fieldObject->isJson() && !$fieldObject->isArray()))) {
                 // $table = is_null($tableName) ? $this->table : $tableName;
-                throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $tableName . '`.`' . $columnName . '.');
+                throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $collectionName . '`.`' . $columnName . '.');
             }
         }
 
@@ -351,13 +351,13 @@ class BaseTableGateway extends TableGateway
         // Commented out because date are not saved correctly in GMT
         // $recordData = $this->parseRecord($recordData);
 
-        $TableGateway = $this->makeTable($tableName);
+        $TableGateway = $this->makeTable($collectionName);
         $primaryKey = $TableGateway->primaryKeyFieldName;
         $hasPrimaryKeyData = isset($recordData[$primaryKey]);
         $rowExists = false;
 
         if ($hasPrimaryKeyData) {
-            $select = new Select($tableName);
+            $select = new Select($collectionName);
             $select->columns([$primaryKey]);
             $select->where([
                 $primaryKey => $recordData[$primaryKey]
@@ -367,7 +367,7 @@ class BaseTableGateway extends TableGateway
         }
 
         if ($rowExists) {
-            $Update = new Update($tableName);
+            $Update = new Update($collectionName);
             $Update->set($recordData);
             $Update->where([
                 $primaryKey => $recordData[$primaryKey]
@@ -376,10 +376,10 @@ class BaseTableGateway extends TableGateway
 
             $this->runHook('postUpdate', [$TableGateway, $recordData, $this->adapter, null]);
         } else {
-            $recordData = $this->applyHook('table.insert:before', $recordData, [
-                'tableName' => $tableName
+            $recordData = $this->applyHook('collection.insert:before', $recordData, [
+                'collection_name' => $collectionName
             ]);
-            $recordData = $this->applyHook('table.insert.' . $tableName . ':before', $recordData);
+            $recordData = $this->applyHook('collection.insert.' . $collectionName . ':before', $recordData);
             $TableGateway->insert($recordData);
 
             // Only get the last inserted id, if the column has auto increment value
@@ -388,7 +388,7 @@ class BaseTableGateway extends TableGateway
                 $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
             }
 
-            if ($tableName == 'directus_files' && static::$container) {
+            if ($collectionName == 'directus_files' && static::$container) {
                 $Files = static::$container->get('files');
                 $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
 
@@ -411,7 +411,7 @@ class BaseTableGateway extends TableGateway
                 }
 
                 if (!empty($updateArray)) {
-                    $Update = new Update($tableName);
+                    $Update = new Update($collectionName);
                     $Update->set($updateArray);
                     $Update->where([$TableGateway->primaryKeyFieldName => $recordData[$TableGateway->primaryKeyFieldName]]);
                     $TableGateway->updateWith($Update);
@@ -421,7 +421,7 @@ class BaseTableGateway extends TableGateway
             $this->runHook('postInsert', [$TableGateway, $recordData, $this->adapter, null]);
         }
 
-        $columns = TableSchema::getAllNonAliasTableColumnNames($tableName);
+        $columns = SchemaService::getAllNonAliasCollectionFieldNames($collectionName);
         $recordData = $TableGateway->fetchAll(function ($select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
@@ -449,14 +449,14 @@ class BaseTableGateway extends TableGateway
             $drop = new Ddl\DropTable($tableName);
             $query = $sql->buildSqlString($drop);
 
-            $this->runHook('table.drop:before', [$tableName]);
+            $this->runHook('collection.drop:before', [$tableName]);
 
             $dropped = $this->getAdapter()->query(
                 $query
             )->execute();
 
-            $this->runHook('table.drop', [$tableName]);
-            $this->runHook('table.drop:after', [$tableName]);
+            $this->runHook('collection.drop', [$tableName]);
+            $this->runHook('collection.drop:after', [$tableName]);
         }
 
         $this->stopManaging();
@@ -478,25 +478,25 @@ class BaseTableGateway extends TableGateway
         }
 
         // Remove table privileges
-        if ($tableName != SchemaManager::TABLE_PERMISSIONS) {
-            $privilegesTableGateway = new TableGateway(SchemaManager::TABLE_PERMISSIONS, $this->adapter);
+        if ($tableName != SchemaManager::COLLECTION_PERMISSIONS) {
+            $privilegesTableGateway = new TableGateway(SchemaManager::COLLECTION_PERMISSIONS, $this->adapter);
             $privilegesTableGateway->delete(['collection' => $tableName]);
         }
 
         // Remove columns from directus_columns
-        $columnsTableGateway = new TableGateway(SchemaManager::TABLE_FIELDS, $this->adapter);
+        $columnsTableGateway = new TableGateway(SchemaManager::COLLECTION_FIELDS, $this->adapter);
         $columnsTableGateway->delete([
             'collection' => $tableName
         ]);
 
         // Remove table from directus_tables
-        $tablesTableGateway = new TableGateway(SchemaManager::TABLE_COLLECTIONS, $this->adapter);
+        $tablesTableGateway = new TableGateway(SchemaManager::COLLECTION_COLLECTIONS, $this->adapter);
         $tablesTableGateway->delete([
             'collection' => $tableName
         ]);
 
         // Remove table from directus_collection_presets
-        $preferencesTableGateway = new TableGateway(SchemaManager::TABLE_COLLECTION_PRESETS, $this->adapter);
+        $preferencesTableGateway = new TableGateway(SchemaManager::COLLECTION_COLLECTION_PRESETS, $this->adapter);
         $preferencesTableGateway->delete([
             'collection' => $tableName
         ]);
@@ -504,7 +504,7 @@ class BaseTableGateway extends TableGateway
         return true;
     }
 
-    public function dropColumn($columnName, $tableName = null)
+    public function dropField($columnName, $tableName = null)
     {
         if ($tableName == null) {
             $tableName = $this->table;
@@ -514,12 +514,12 @@ class BaseTableGateway extends TableGateway
             $this->acl->enforceAlter($tableName);
         }
 
-        if (!TableSchema::hasTableColumn($tableName, $columnName, true)) {
+        if (!SchemaService::hasCollectionField($tableName, $columnName, true)) {
             return false;
         }
 
         // Drop table column if is a non-alias column
-        if (!array_key_exists($columnName, array_flip(TableSchema::getAllAliasTableColumns($tableName, true)))) {
+        if (!array_key_exists($columnName, array_flip(SchemaService::getAllAliasCollectionFields($tableName, true)))) {
             $sql = new Sql($this->adapter);
             $alterTable = new Ddl\AlterTable($tableName);
             $dropColumn = $alterTable->dropColumn($columnName);
@@ -531,14 +531,14 @@ class BaseTableGateway extends TableGateway
         }
 
         // Remove column from directus_columns
-        $columnsTableGateway = new TableGateway(SchemaManager::TABLE_FIELDS, $this->adapter);
+        $columnsTableGateway = new TableGateway(SchemaManager::COLLECTION_FIELDS, $this->adapter);
         $columnsTableGateway->delete([
             'table_name' => $tableName,
             'column_name' => $columnName
         ]);
 
         // Remove column from sorting column in directus_preferences
-        $preferencesTableGateway = new TableGateway(SchemaManager::TABLE_COLLECTION_PRESETS, $this->adapter);
+        $preferencesTableGateway = new TableGateway(SchemaManager::COLLECTION_COLLECTION_PRESETS, $this->adapter);
         $preferencesTableGateway->update([
             'sort' => $this->primaryKeyFieldName,
             'sort_order' => 'ASC'
@@ -673,14 +673,14 @@ class BaseTableGateway extends TableGateway
         }
 
         $selectState = $select->getRawState();
-        $selectTableName = $selectState['table'];
+        $selectCollectionName = $selectState['table'];
 
         if ($useFilter) {
             $selectState = $this->applyHooks([
-                'table.select:before',
-                'table.select.' . $selectTableName . ':before',
+                'collection.select:before',
+                'collection.select.' . $selectCollectionName . ':before',
             ], $selectState, [
-                'tableName' => $selectTableName
+                'collection_name' => $selectCollectionName
             ]);
 
             // NOTE: This can be a "dangerous" hook, so for now we only support columns
@@ -698,11 +698,11 @@ class BaseTableGateway extends TableGateway
 
         if ($useFilter) {
             $result = $this->applyHooks([
-                'table.select',
-                'table.select.' . $selectTableName
+                'collection.select',
+                'collection.select.' . $selectCollectionName
             ], $result, [
                 'selectState' => $selectState,
-                'tableName' => $selectTableName
+                'collection_name' => $selectCollectionName
             ]);
         }
 
@@ -728,8 +728,8 @@ class BaseTableGateway extends TableGateway
         // Data to be inserted with the column name as assoc key.
         $insertDataAssoc = array_combine($insertState['columns'], $insertData);
 
-        $this->runHook('table.insert:before', [$insertTable, $insertDataAssoc]);
-        $this->runHook('table.insert.' . $insertTable . ':before', [$insertDataAssoc]);
+        $this->runHook('collection.insert:before', [$insertTable, $insertDataAssoc]);
+        $this->runHook('collection.insert.' . $insertTable . ':before', [$insertDataAssoc]);
 
         try {
             $result = parent::executeInsert($insert);
@@ -743,7 +743,7 @@ class BaseTableGateway extends TableGateway
         $insertTableGateway = $this->makeTable($insertTable);
 
         // hotfix: directus_tables does not have auto generated value primary key
-        if ($this->getTable() === SchemaManager::TABLE_COLLECTIONS) {
+        if ($this->getTable() === SchemaManager::COLLECTION_COLLECTIONS) {
             $generatedValue = ArrayUtils::get($insertDataAssoc, $this->primaryKeyFieldName, 'table_name');
         } else {
             $generatedValue = $this->getLastInsertValue();
@@ -751,10 +751,10 @@ class BaseTableGateway extends TableGateway
 
         $resultData = $insertTableGateway->find($generatedValue);
 
-        $this->runHook('table.insert', [$insertTable, $resultData]);
-        $this->runHook('table.insert.' . $insertTable, [$resultData]);
-        $this->runHook('table.insert:after', [$insertTable, $resultData]);
-        $this->runHook('table.insert.' . $insertTable . ':after', [$resultData]);
+        $this->runHook('collection.insert', [$insertTable, $resultData]);
+        $this->runHook('collection.insert.' . $insertTable, [$resultData]);
+        $this->runHook('collection.insert:after', [$insertTable, $resultData]);
+        $this->runHook('collection.insert.' . $insertTable . ':after', [$resultData]);
 
         return $result;
     }
@@ -837,17 +837,10 @@ class BaseTableGateway extends TableGateway
             $expression = new In($pk, $ids);
             $delete->where($expression);
 
-            // NOTE: this is used to send the "delete" data to table.remove hook
-            // on update this hook pass the updated data array, on delete has nothing,
-            // a empty array is passed instead
-            $deleteData = $ids;
-
             foreach ($ids as $id) {
                 $deleteData = ['id' => $id];
-                $this->runHook('table.delete:before', [$deleteTable]);
-                $this->runHook('table.delete.' . $deleteTable . ':before');
-                $this->runHook('table.remove:before', [$deleteTable, $deleteData, 'soft' => false]);
-                $this->runHook('table.remove.' . $deleteTable . ':before', [$deleteData, 'soft' => false]);
+                $this->runHook('collection.delete:before', [$deleteTable, $deleteData]);
+                $this->runHook('collection.delete.' . $deleteTable . ':before', [$deleteData]);
             }
 
             try {
@@ -861,15 +854,10 @@ class BaseTableGateway extends TableGateway
 
             foreach ($ids as $id) {
                 $deleteData = ['id' => $id];
-                $this->runHook('table.delete', [$deleteTable, $deleteData]);
-                $this->runHook('table.delete:after', [$deleteTable, $deleteData]);
-                $this->runHook('table.delete.' . $deleteTable, [$deleteData]);
-                $this->runHook('table.delete.' . $deleteTable . ':after', [$deleteData]);
-
-                $this->runHook('table.remove', [$deleteTable, $deleteData, 'soft' => false]);
-                $this->runHook('table.remove:after', [$deleteTable, $deleteData, 'soft' => false]);
-                $this->runHook('table.remove.' . $deleteTable, [$deleteData, 'soft' => false]);
-                $this->runHook('table.remove.' . $deleteTable . ':after', [$deleteData, 'soft' => false]);
+                $this->runHook('collection.delete', [$deleteTable, $deleteData]);
+                $this->runHook('collection.delete:after', [$deleteTable, $deleteData]);
+                $this->runHook('collection.delete.' . $deleteTable, [$deleteData]);
+                $this->runHook('collection.delete.' . $deleteTable . ':after', [$deleteData]);
             }
 
             return $result;
@@ -902,8 +890,8 @@ class BaseTableGateway extends TableGateway
     public function convertDates(array $records, Collection $tableSchema, $tableName = null)
     {
         $tableName = $tableName === null ? $this->table : $tableName;
-        $isCustomTable = !$this->schemaManager->isDirectusTable($tableName);
-        $hasSystemDateColumn = $this->schemaManager->hasSystemDateColumn($tableName);
+        $isCustomTable = !$this->schemaManager->isDirectusCollection($tableName);
+        $hasSystemDateColumn = $this->schemaManager->hasSystemDateField($tableName);
 
         if (!$hasSystemDateColumn && $isCustomTable) {
             return $records;
@@ -954,7 +942,7 @@ class BaseTableGateway extends TableGateway
         $tableName = $tableName === null ? $this->table : $tableName;
         // Get the columns directly from the source
         // otherwise will keep in a circle loop loading Acl Instances
-        $columns = TableSchema::getSchemaManagerInstance()->getFields($tableName);
+        $columns = SchemaService::getSchemaManagerInstance()->getFields($tableName);
 
         return $this->schemaManager->castRecordValues($records, $columns);
     }
@@ -1005,7 +993,7 @@ class BaseTableGateway extends TableGateway
                 throw $e;
             }
 
-            $selectState['columns'] = TableSchema::getAllNonAliasTableColumnsName($table);
+            $selectState['columns'] = SchemaService::getAllNonAliasCollectionFieldsName($table);
             $this->acl->enforceReadField($table, $selectState['columns']);
         }
 
@@ -1434,22 +1422,22 @@ class BaseTableGateway extends TableGateway
     /**
      * Run before table update hooks and filters
      *
-     * @param string $updateTable
+     * @param string $updateCollectionName
      * @param array $updateData
      *
      * @return array|\ArrayObject
      */
-    protected function runBeforeUpdateHooks($updateTable, $updateData)
+    protected function runBeforeUpdateHooks($updateCollectionName, $updateData)
     {
         // Filters
-        $updateData = $this->applyHook('table.update:before', $updateData, [
-            'tableName' => $updateTable
+        $updateData = $this->applyHook('collection.update:before', $updateData, [
+            'collection_name' => $updateCollectionName
         ]);
-        $updateData = $this->applyHook('table.update.' . $updateTable . ':before', $updateData);
+        $updateData = $this->applyHook('collection.update.' . $updateCollectionName . ':before', $updateData);
 
         // Hooks
-        $this->runHook('table.update:before', [$updateTable, $updateData]);
-        $this->runHook('table.update.' . $updateTable . ':before', [$updateData]);
+        $this->runHook('collection.update:before', [$updateCollectionName, $updateData]);
+        $this->runHook('collection.update.' . $updateCollectionName . ':before', [$updateData]);
 
         return $updateData;
     }
@@ -1462,10 +1450,10 @@ class BaseTableGateway extends TableGateway
      */
     protected function runAfterUpdateHooks($updateTable, $updateData)
     {
-        $this->runHook('table.update', [$updateTable, $updateData]);
-        $this->runHook('table.update:after', [$updateTable, $updateData]);
-        $this->runHook('table.update.' . $updateTable, [$updateData]);
-        $this->runHook('table.update.' . $updateTable . ':after', [$updateData]);
+        $this->runHook('collection.update', [$updateTable, $updateData]);
+        $this->runHook('collection.update:after', [$updateTable, $updateData]);
+        $this->runHook('collection.update.' . $updateTable, [$updateData]);
+        $this->runHook('collection.update.' . $updateTable . ':after', [$updateData]);
     }
 
     /**
@@ -1545,7 +1533,7 @@ class BaseTableGateway extends TableGateway
     {
         $statusMapping = null;
 
-        if (static::$container && TableSchema::hasStatusColumn($this->table, true)) {
+        if (static::$container && SchemaService::hasStatusField($this->table, true)) {
             /** @var StatusMapping $statusMapping */
             $statusMapping = static::$container->get('status_mapping');
             $collectionStatusMapping = $this->getTableSchema()->getStatusMapping();
