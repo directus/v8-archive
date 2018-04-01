@@ -16,7 +16,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             'preview_url' => 'http://localhost/users/{id}',
             'hidden' => 0,
             'single' => 0,
-            // 'status_mapping' => '[{"name": "active"}]',
             'comment' => 'All my clients',
             'schema' => 'marketing'
         ];

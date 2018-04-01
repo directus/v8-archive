@@ -57,10 +57,6 @@ class CreateCollectionsTable extends AbstractMigration
             'null' => false,
             'default' => false
         ]);
-        $table->addColumn('status_mapping', 'text', [
-            'null' => true,
-            'default' => null
-        ]);
         $table->addColumn('comment', 'string', [
             'limit' => 255,
             'null' => true,
