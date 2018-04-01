@@ -60,7 +60,7 @@ class ProviderTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Directus\Authentication\Exception\UserIsNotLoggedInException
+     * @expectedException \Directus\Authentication\Exception\UserNotAuthenticatedException
      */
     public function testAuthenticationEnforcement()
     {
@@ -68,7 +68,7 @@ class ProviderTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Directus\Authentication\Exception\UserIsNotLoggedInException
+     * @expectedException \Directus\Authentication\Exception\UserNotAuthenticatedException
      */
     public function testAuthenticationEnforcement2()
     {

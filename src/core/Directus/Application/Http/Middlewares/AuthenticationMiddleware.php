@@ -6,7 +6,7 @@ use Directus\Application\Container;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
-use Directus\Authentication\Exception\UserIsNotLoggedInException;
+use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\User\User;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\BaseTableGateway;
@@ -27,7 +27,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
      * @return Response
      *
      * @throws InvalidUserCredentialsException
-     * @throws UserIsNotLoggedInException
+     * @throws UserNotAuthenticatedException
      */
     public function __invoke(Request $request, Response $response, callable $next)
     {
@@ -62,7 +62,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
         $authenticated = $this->authenticate($request);
         $publicGroupId = $this->getPublicGroupId();
         if (!$authenticated && !$publicGroupId) {
-            throw new UserIsNotLoggedInException();
+            throw new UserNotAuthenticatedException();
         }
 
         // =============================================================================
