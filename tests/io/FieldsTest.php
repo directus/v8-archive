@@ -3,7 +3,7 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Connection;
-use Directus\Database\Exception\ColumnNotFoundException;
+use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
@@ -180,7 +180,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_get('fields/'. static::$tableName . '/name', $this->queryParams);
         assert_response_error($this, $response, [
-            'code' => ColumnNotFoundException::ERROR_CODE,
+            'code' => FieldNotFoundException::ERROR_CODE,
             'status' => 404
         ]);
 
