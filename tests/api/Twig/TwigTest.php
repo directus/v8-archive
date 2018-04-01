@@ -13,6 +13,5 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $extension->getFilters());
         $this->assertInternalType('array', $extension->getFunctions());
         $this->assertInternalType('string', $extension->getName());
-        $this->assertInternalType('string', $extension->translation('key'));
     }
 }

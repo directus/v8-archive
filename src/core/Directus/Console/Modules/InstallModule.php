@@ -23,28 +23,28 @@ class InstallModule extends ModuleBase
     {
         $this->help = [
             'config' => ''
-                . PHP_EOL . "\t\t-h " . __t('Hostname or IP address of the MySQL DB to be used. Default: localhost')
-                . PHP_EOL . "\t\t-n " . __t('Name of the database to use for Directus. Default: directus')
-                . PHP_EOL . "\t\t-u " . __t('Username for DB connection. Default: directus')
-                . PHP_EOL . "\t\t-p " . __t('Password for the DB connection user. Default: directus')
-                . PHP_EOL . "\t\t-t " . __t('Database Server Type. Default: mysql')
-                . PHP_EOL . "\t\t-P " . __t('Database Server Port. Default: 3306')
-                . PHP_EOL . "\t\t-r " . __t('Directus root URI. Default: /'),
+                . PHP_EOL . "\t\t-h " . 'Hostname or IP address of the MySQL DB to be used. Default: localhost'
+                . PHP_EOL . "\t\t-n " . 'Name of the database to use for Directus. Default: directus'
+                . PHP_EOL . "\t\t-u " . 'Username for DB connection. Default: directus'
+                . PHP_EOL . "\t\t-p " . 'Password for the DB connection user. Default: directus'
+                . PHP_EOL . "\t\t-t " . 'Database Server Type. Default: mysql'
+                . PHP_EOL . "\t\t-P " . 'Database Server Port. Default: 3306'
+                . PHP_EOL . "\t\t-r " . 'Directus root URI. Default: /',
             'database' => '',
             'install' => ''
-                . PHP_EOL . "\t\t-e " . __t('Administrator e-mail address, used for administration login. Default: admin@directus.com')
-                . PHP_EOL . "\t\t-p " . __t('Initial administrator password. Default: directus')
-                . PHP_EOL . "\t\t-t " . __t('Name for this Directus installation. Default: Directus')
-                . PHP_EOL . "\t\t-T " . __t('Administrator secret token. Default: Random')
-                . PHP_EOL . "\t\t-d " . __t('Installation path of Directus. Default: ' . base_path())
+                . PHP_EOL . "\t\t-e " . 'Administrator e-mail address, used for administration login. Default: admin@directus.com'
+                . PHP_EOL . "\t\t-p " . 'Initial administrator password. Default: directus'
+                . PHP_EOL . "\t\t-t " . 'Name for this Directus installation. Default: Directus'
+                . PHP_EOL . "\t\t-T " . 'Administrator secret token. Default: Random'
+                . PHP_EOL . "\t\t-d " . 'Installation path of Directus. Default: ' . base_path()
         ];
 
         $this->commands_help = [
-            'config' => __t('Configure Directus: ') . PHP_EOL . PHP_EOL . "\t\t"
+            'config' => 'Configure Directus: ' . PHP_EOL . PHP_EOL . "\t\t"
                 . $this->__module_name . ':config -h db_host -n db_name -u db_user -p db_pass -d directus_path' . PHP_EOL,
-            'database' => __t('Populate the Database Schema: ') . PHP_EOL . PHP_EOL . "\t\t"
+            'database' => 'Populate the Database Schema: ' . PHP_EOL . PHP_EOL . "\t\t"
                 . $this->__module_name . ':database -d directus_path' . PHP_EOL,
-            'install' => __t('Install Initial Configurations: ') . PHP_EOL . PHP_EOL . "\t\t"
+            'install' => 'Install Initial Configurations: ' . PHP_EOL . PHP_EOL . "\t\t"
                 . $this->__module_name . ':install -e admin_email -p admin_password -t site_name' . PHP_EOL,
         ];
     }
@@ -157,14 +157,14 @@ class InstallModule extends ModuleBase
                      $user->changeEmail(1, $data['directus_email']);
                      $user->changePassword($data['directus_email'], $data['directus_password']);
                  } catch (UserUpdateException $ex) {
-                     throw new CommandFailedException(__t('Error changing admin e-mail') . ': ' . $ex->getMessage());
+                     throw new CommandFailedException('Error changing admin e-mail' . ': ' . $ex->getMessage());
                  } catch (PasswordChangeException $ex) {
-                     throw new CommandFailedException(__t('Error changing user password') . ': ' . $ex->getMessage());
+                     throw new CommandFailedException('Error changing user password' . ': ' . $ex->getMessage());
                  }
             }
         } catch (\PDOException $e) {
             echo PHP_EOL . "PDO Excetion!!" . PHP_EOL;
-            echo PHP_EOL . PHP_EOL . __t('Module ') . $this->__module_name . __t(' error: ') . $e->getMessage() . PHP_EOL . PHP_EOL;
+            echo PHP_EOL . PHP_EOL . 'Module ' . $this->__module_name . ' error: ' . $e->getMessage() . PHP_EOL . PHP_EOL;
         }
     }
 }

@@ -38,7 +38,7 @@ class YoutubeProvider extends AbstractProvider
 
         // Can't find the video ID
         if (!$videoID) {
-            throw new \Exception(__t('x_x_id_not_detected', ['type' => __t('video'), 'service' => 'YouTube']));
+            throw new \Exception('YouTube ID not detected');
         }
 
         return $videoID;
@@ -54,7 +54,7 @@ class YoutubeProvider extends AbstractProvider
     {
         $info = [];
 
-        $info['title'] = __t('unable_to_retrieve_x_title', ['service' => 'YouTube']);
+        $info['title'] = 'Unable to retrieve YouTube title';
         $info['size'] = 0;
         $info['height'] = 340;
         $info['width'] = 560;
@@ -79,7 +79,7 @@ class YoutubeProvider extends AbstractProvider
         }
 
         if (property_exists($content, 'error')) {
-            throw new \Exception(__t('bad_x_api_key', ['service' => 'YouTube']));
+            throw new \Exception('Bad YouTube API Key');
         }
 
         if (property_exists($content, 'items') && count($content->items) > 0) {

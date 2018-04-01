@@ -18,15 +18,15 @@ class DatabaseModule extends ModuleBase
     public function __construct()
     {
         $commands = [
-            'install' => __t('Install the database schema'),
-            'upgrade' => __t('Upgrade the database schema')
+            'install' => 'Install the database schema',
+            'upgrade' => 'Upgrade the database schema'
         ];
         $this->help = $this->commands_help = $commands;
     }
 
     public function cmdHelp($args, $extra)
     {
-        echo PHP_EOL . __t('Database Command ') . $this->__module_name . ':' . $extra[0] . __t(' help') . PHP_EOL . PHP_EOL;
+        echo PHP_EOL . 'Database Command ' . $this->__module_name . ':' . $extra[0] . ' help' . PHP_EOL . PHP_EOL;
         echo "\t" . $this->commands_help[$extra[0]] . PHP_EOL;
         echo PHP_EOL . PHP_EOL;
     }

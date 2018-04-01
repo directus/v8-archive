@@ -663,7 +663,7 @@ class CoreServicesProvider
                 $tableGateway = new BaseTableGateway('directus_groups', $zendDb, $acl);
                 $row = $tableGateway->select(['id' => $groupId])->current();
                 if (strtolower($row->name) == 'public') {
-                    throw new ForbiddenException(__t('exception_users_cannot_be_added_into_public_group'));
+                    throw new ForbiddenException('Users cannot be added into the public group');
                 }
                 return $payload;
             };

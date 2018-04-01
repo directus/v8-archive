@@ -82,7 +82,7 @@ class Provider
     protected function enforceUserIsAuthenticated()
     {
         if (!$this->check()) {
-            throw new UserIsNotLoggedInException(__t('attempting_to_inspect_the_authenticated_user_when_a_user_is_not_authenticated'));
+            throw new UserIsNotLoggedInException('Attempting to inspect a non-authenticated user');
         }
     }
 

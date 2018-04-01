@@ -27,9 +27,4 @@ class DirectusTwigExtension extends \Twig_Extension
             'trans' => new \Twig_Filter_Method($this, 'translation')
         ];
     }
-
-    public function translation($key)
-    {
-        return __t($key);
-    }
 }

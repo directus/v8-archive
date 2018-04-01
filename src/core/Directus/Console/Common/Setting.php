@@ -102,8 +102,8 @@ class Setting
 
         try {
             $this->settingsTableGateway->insert($insert);
-        } catch (PDOException $ex) {
-            throw new SettingUpdateException(__t('Could not create setting ') . $collection . '.' . $setting . ': ' . __t('PDO Error: ') . string($ex));
+        } catch (\PDOException $ex) {
+            throw new SettingUpdateException('Could not create setting ' . $collection . '.' . $setting . ': ' . 'PDO Error: ' . string($ex));
         }
 
     }
@@ -140,7 +140,7 @@ class Setting
                 'key' => $setting
             ]);
         } catch (\PDOException $ex) {
-            throw new SettingUpdateException(__t('Could not change setting ') . $scope . '.' . $setting . ': ' . __t('PDO Error: ') . string($ex));
+            throw new SettingUpdateException('Could not change setting ' . $scope . '.' . $setting . ': ' . 'PDO Error: ' . string($ex));
         }
     }
 

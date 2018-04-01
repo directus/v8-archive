@@ -594,13 +594,6 @@ if (!function_exists('get_auth_timezone')) {
     }
 }
 
-if (!function_exists('__t')) {
-    function __t($key, $data = [])
-    {
-        return $key;
-    }
-}
-
 if (!function_exists('base_path')) {
     function base_path($suffix = '')
     {

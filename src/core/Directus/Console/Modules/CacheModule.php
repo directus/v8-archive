@@ -17,17 +17,17 @@ class CacheModule extends ModuleBase
     public function __construct()
     {
         $this->commands_help = [
-            'clear' => __t('Clear the whole cache'),
-            'delete' => __t('Delete cache item'),
-            'get' => __t('Get item from cache'),
-            'invalidate' => __t('Invalidate specified tags'),
+            'clear' => 'Clear the whole cache',
+            'delete' => 'Delete cache item',
+            'get' => 'Get item from cache',
+            'invalidate' => 'Invalidate specified tags',
         ];
 
         $this->help = [
-            'clear' => '-f ' . __t('force (do nothing otherwise)'),
-            'delete' => __t('Item name'),
-            'get' => __t('Item name').'. -e '.__t('to var_export the value (should be used after the value key'),
-            'invalidate' => __t('List of tags to invalidate')
+            'clear' => '-f ' . 'force (do nothing otherwise)',
+            'delete' => 'Item name',
+            'get' => 'Item name'.'. -e '.'to var_export the value (should be used after the value key',
+            'invalidate' => 'List of tags to invalidate'
         ];
 
         $helpArrays = [
@@ -74,7 +74,7 @@ class CacheModule extends ModuleBase
     public function cmdClear($args, $extra)
     {
         if(empty($args['f'])) {
-            throw new WrongArgumentsException($this->__module_name . ':clear ' . __t('Refusing to do anything without -f'));
+            throw new WrongArgumentsException($this->__module_name . ':clear ' . 'Refusing to do anything without -f');
         }
 
         $this->pool->clear();

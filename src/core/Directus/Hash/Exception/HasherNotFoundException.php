@@ -8,9 +8,9 @@ class HasherNotFoundException extends BadRequestException
 {
     const ERROR_CODE = 1000;
 
-    public function __construct($algo, $message = '')
+    public function __construct($algo)
     {
-        $message = __t('hasher_x_not_found', ['name' => $algo]);
+        $message = sprintf('Hasher "%s" not found', $algo);
 
         parent::__construct($message, static::ERROR_CODE);
     }

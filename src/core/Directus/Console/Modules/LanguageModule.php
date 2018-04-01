@@ -17,17 +17,17 @@ class LanguageModule extends ModuleBase
     public function __construct()
     {
         $this->help = array(
-            'diff' => __t('The Languages difference keys.')
+            'diff' => 'The Languages difference keys.'
         );
 
         $this->commands_help = array(
-            'diff' => __t('The Languages difference keys.')
+            'diff' => 'The Languages difference keys.'
         );
     }
 
     public function cmdHelp($args, $extra)
     {
-        echo PHP_EOL . __t('Directus Command ') . $this->__module_name . ':' . $extra[0] . __t(' help') . PHP_EOL . PHP_EOL;
+        echo PHP_EOL . 'Directus Command ' . $this->__module_name . ':' . $extra[0] . ' help' . PHP_EOL . PHP_EOL;
         echo "\t" . $this->commands_help[$extra[0]] . PHP_EOL;
         echo PHP_EOL . PHP_EOL;
     }

@@ -86,7 +86,7 @@ if (!function_exists('send_reset_password_email')) {
     {
         $data = ['new_password' => $password];
         send_email('reset-password.twig', $data, function (\Directus\Mail\MessageInterface $message) use ($user) {
-            $message->setSubject(__t('password_reset_new_password_email_subject'));
+            $message->setSubject('New password');
             $message->setTo($user['email']);
         });
     }
@@ -103,7 +103,7 @@ if (!function_exists('send_forgot_password_email')) {
     {
         $data = ['reset_token' => $token];
         send_email('forgot-password.twig', $data, function (\Directus\Mail\MessageInterface  $message) use ($user) {
-            $message->setSubject(__t('password_forgot_password_reset_email_subject'));
+            $message->setSubject('Reset password');
             $message->setTo($user['email']);
         });
     }
@@ -152,9 +152,7 @@ if (!function_exists('send_new_install_email')) {
     function send_new_install_email(array $data)
     {
         send_email('new-install.twig', $data, function (\Directus\Mail\MessageInterface $message) use ($data) {
-            $message->setSubject(__t('email_subject_your_new_directus_instance_x', [
-                'name' => $data['project']['name']
-            ]));
+            $message->setSubject(sprintf('Your new Directus instance: %s', $data['project']['name']));
             $message->setTo($data['user']['email']);
         });
     }

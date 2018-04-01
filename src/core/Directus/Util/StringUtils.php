@@ -91,7 +91,7 @@ class StringUtils
     {
         $length = (int)$length;
         if ($length <= 0) {
-            throw new \InvalidArgumentException(__t('random_length_must_be_greater_then_zero'));
+            throw new \InvalidArgumentException('Random length must be greater than zero');
         }
 
         if (function_exists('random_bytes')) {

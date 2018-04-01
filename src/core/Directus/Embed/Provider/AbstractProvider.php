@@ -35,14 +35,13 @@ abstract class AbstractProvider implements ProviderInterface
     public function parse($url)
     {
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException(__t('invalid_unsupported_url'));
+            throw new \InvalidArgumentException('Invalid or unsupported URL');
         }
 
         if (!$this->validateURL($url)) {
-            throw new \InvalidArgumentException(__t('url_x_cannot_be_parse_by_x', [
-                'url' => $url,
-                'class' => get_class($this)
-            ]));
+            throw new \InvalidArgumentException(
+                sprintf('URL: "%s" cannot be parsed by "%s"', $url, get_class($this))
+            );
         }
 
         $embedID = $this->parseURL($url);
@@ -102,9 +101,7 @@ abstract class AbstractProvider implements ProviderInterface
     {
         $defaultInfo = [
             'embed_id' => $embedID,
-            'title' => __t('x_type_x', [
-                    'service' => $this->getName(),
-                    'type' => $this->getProviderType()]) . ': ' . $embedID,
+            'title' => sprintf('%s %s: %s', $this->getName(), $this->getProviderType(), $embedID),
             'size' => 0,
             'name' => $this->getName() . '_' . $embedID . '.jpg',
             'type' => $this->getType()

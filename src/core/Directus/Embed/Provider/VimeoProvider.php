@@ -38,7 +38,7 @@ class VimeoProvider extends AbstractProvider
 
         // Can't find the video ID
         if (!$videoID) {
-            throw new \Exception(__t('x_x_id_not_detected', ['type' => __t('video'), 'service' => 'Vimeo']));
+            throw new \Exception('Vimeo id not detected');
         }
 
         return $videoID;
@@ -53,7 +53,7 @@ class VimeoProvider extends AbstractProvider
     {
         $info = [];
 
-        $info['title'] = __t('unable_to_retrieve_x_title', ['service' => 'Vimeo']);
+        $info['title'] = 'Unable to retreieve Vimeo title';
         $info['size'] = 0;
         $info['width'] = 560;
         $info['height'] = 540;

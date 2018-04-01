@@ -69,48 +69,48 @@ class Cli
         list($module, $command) = explode(':', $this->command . ':');
 
         if (empty($command)) {
-            echo PHP_EOL . __t('Error: Missing module name or command.') . PHP_EOL . PHP_EOL;
-            echo __t('Command are executed as follows:') . PHP_EOL;
+            echo PHP_EOL . 'Error: Missing module name or command.' . PHP_EOL . PHP_EOL;
+            echo 'Command are executed as follows:' . PHP_EOL;
             echo "\tdirectus <module>:<command> <args|...>" . PHP_EOL . PHP_EOL;
             echo "Example: " . PHP_EOL . "\tdirectus install:help database" . PHP_EOL . PHP_EOL;
             return;
         }
 
         if (!array_key_exists($module, $this->cmd_modules)) {
-            echo PHP_EOL . PHP_EOL . __t('Module ') . $module . __t(': does not exists!') . PHP_EOL . PHP_EOL;
+            echo PHP_EOL . PHP_EOL . 'Module ' . $module . ': does not exists!' . PHP_EOL . PHP_EOL;
             return;
         }
 
         try {
             $this->cmd_modules[$module]->runCommand($command, $this->options, $this->extra);
         } catch (WrongArgumentsException $e) {
-            echo PHP_EOL . PHP_EOL . __t('Module ') . $module . __t(' error: ') . $e->getMessage() . PHP_EOL . PHP_EOL;
+            echo PHP_EOL . PHP_EOL . 'Module ' . $module . ' error: ' . $e->getMessage() . PHP_EOL . PHP_EOL;
         } catch (UnsupportedCommandException $e) {
-            echo PHP_EOL . PHP_EOL . __t('Module ') . $module . __t(' error: ') . $e->getMessage() . PHP_EOL . PHP_EOL;
+            echo PHP_EOL . PHP_EOL . 'Module ' . $module . ' error: ' . $e->getMessage() . PHP_EOL . PHP_EOL;
         }
     }
 
     private function showHelp()
     {
-        echo PHP_EOL . __t('Directus CLI Modules: ') . PHP_EOL . PHP_EOL;
+        echo PHP_EOL . 'Directus CLI Modules: ' . PHP_EOL . PHP_EOL;
         foreach ($this->cmd_modules as $name => $module) {
             echo "\t" . $module->getInfo() . PHP_EOL;
         }
-        echo PHP_EOL . __t('For more information on a module use: "directus help <module name>"') . PHP_EOL . PHP_EOL;
+        echo PHP_EOL . 'For more information on a module use: "directus help <module name>"' . PHP_EOL . PHP_EOL;
     }
 
     private function showModuleHelp()
     {
         if (!array_key_exists($this->help_module, $this->cmd_modules)) {
-            echo PHP_EOL . PHP_EOL . __t('Module ') . $this->help_module . __t(': does not exists!') . PHP_EOL . PHP_EOL;
+            echo PHP_EOL . PHP_EOL . 'Module ' . $this->help_module . ': does not exists!' . PHP_EOL . PHP_EOL;
             return;
         }
-        echo PHP_EOL . __t('Directus Module ') . ucfirst($this->help_module) . __t(' Commands') . PHP_EOL . PHP_EOL;
+        echo PHP_EOL . 'Directus Module ' . ucfirst($this->help_module) . ' Commands' . PHP_EOL . PHP_EOL;
         $module_commands = $this->cmd_modules[$this->help_module]->getCommands();
         foreach ($module_commands as $command => $cmd_help) {
             echo "\t" . $cmd_help . PHP_EOL . PHP_EOL;
         }
-        echo PHP_EOL . __t('For more information on a command use: "directus <module name>:help command"') . PHP_EOL . PHP_EOL;
+        echo PHP_EOL . 'For more information on a command use: "directus <module name>:help command"' . PHP_EOL . PHP_EOL;
     }
 
     private function parseOptions($argv)

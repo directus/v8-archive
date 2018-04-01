@@ -56,7 +56,7 @@ class User
         $user = $this->usersTableGateway->select(['email' => $email])->current();
 
         if (!$user) {
-            throw new \InvalidArgumentException(__t('User not found'));
+            throw new \InvalidArgumentException('User not found');
         }
 
         try {
@@ -66,10 +66,10 @@ class User
 
             $changed = $this->usersTableGateway->update($update, ['email' => $email]);
             if ($changed == 0) {
-                throw new PasswordChangeException(__t('Could not change password for ') . $email . ': ' . __t('e-mail not found.'));
+                throw new PasswordChangeException('Could not change password for ' . $email . ': ' . 'e-mail not found.');
             }
         } catch (\PDOException $ex) {
-            throw new PasswordChangeException(__t('Failed to change password') . ': ' . str($ex));
+            throw new PasswordChangeException('Failed to change password' . ': ' . str($ex));
         }
 
     }
@@ -100,7 +100,7 @@ class User
         try {
             $this->usersTableGateway->update($update, ['id' => $id]);
         } catch (\PDOException $ex) {
-            throw new PasswordChangeException(__t('Could not change email for ID ') . $id . ': ' . str($ex));
+            throw new PasswordChangeException('Could not change email for ID ' . $id . ': ' . str($ex));
         }
     }
 
