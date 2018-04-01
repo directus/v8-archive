@@ -2,9 +2,9 @@
 
 namespace Directus\Authentication\Exception;
 
-use Directus\Exception\Exception;
+use Directus\Exception\UnauthorizedException;
 
-class UserNotAuthenticatedException extends Exception
+class UserNotAuthenticatedException extends UnauthorizedException
 {
     const ERROR_CODE = 108;
 
