@@ -10,6 +10,6 @@ class UserNotAuthenticatedException extends UnauthorizedException
 
     public function __construct($message = 'User not authenticated')
     {
-        parent::__construct($message, static::ERROR_CODE);
+        parent::__construct($message);
     }
 }
