@@ -7,7 +7,7 @@ use Directus\Authentication\Exception\InvalidInvitationCodeException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserInactiveException;
-use Directus\Authentication\Exception\UserIsNotLoggedInException;
+use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\User\Provider\UserProviderInterface;
@@ -77,12 +77,12 @@ class Provider
     }
 
     /**
-     * @throws UserIsNotLoggedInException
+     * @throws UserNotAuthenticatedException
      */
     protected function enforceUserIsAuthenticated()
     {
         if (!$this->check()) {
-            throw new UserIsNotLoggedInException('Attempting to inspect a non-authenticated user');
+            throw new UserNotAuthenticatedException('Attempting to inspect a non-authenticated user');
         }
     }
 
@@ -293,7 +293,7 @@ class Provider
      *
      * @return mixed|array Authenticated user metadata.
      *
-     * @throws  \Directus\Authentication\Exception\UserIsNotLoggedInException
+     * @throws  \Directus\Authentication\Exception\UserNotAuthenticatedException
      */
     public function getUserAttributes($attribute = null)
     {
