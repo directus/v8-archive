@@ -60,24 +60,42 @@ class ErrorHandler
      */
     public function __invoke(Request $request, Response $response, $exception)
     {
+        $data = $this->processException($exception);
+
+        return $response
+            ->withStatus($data['http_status_code'])
+            ->withJson(['error' => $data['error']]);
+    }
+
+    /**
+     * Returns an exception error and http status code information
+     *
+     * http_status_code and error key returned in the array
+     *
+     * @param \Exception|\Throwable $exception
+     *
+     * @return array
+     */
+    public function processException($exception)
+    {
         $productionMode = ArrayUtils::get($this->settings, 'env', 'development') === 'production';
         $this->trigger($exception);
 
         $message = $exception->getMessage();
         // Not showing internal PHP errors (for PHP7) for production
         if ($productionMode && $this->isError($exception)) {
-            $message = __t('internal_server_error');
+            $message = 'Internal Server Error';
         }
 
-        $httpCode = 500;
+        $httpStatusCode = 500;
         if ($exception instanceof BadRequestException) {
-            $httpCode = 400;
+            $httpStatusCode = 400;
         } else if ($exception instanceof NotFoundException) {
-            $httpCode = 404;
+            $httpStatusCode = 404;
         } else if ($exception instanceof UnauthorizedException) {
-            $httpCode = 401;
+            $httpStatusCode = 401;
         } else if ($exception instanceof ForbiddenException) {
-            $httpCode = 403;
+            $httpStatusCode = 403;
         }
 
         $data = [
@@ -104,9 +122,10 @@ class ErrorHandler
             ]);
         }
 
-        return $response
-            ->withStatus($httpCode)
-            ->withJson(['error' => $data]);
+        return [
+            'http_status_code' => $httpStatusCode,
+            'error' => $data
+        ];
     }
 
     /**

@@ -47,11 +47,11 @@ class Application extends App
      * Application constructor.
      *
      * @param string $basePath
-     * @param array $container
+     * @param array $config
      */
-    public function __construct($basePath, array $container = [])
+    public function __construct($basePath, array $config = [])
     {
-        $container = $this->createConfig($container);
+        $container = $this->createConfig($config);
         $container = new Container($container);
 
         static::$instance = $this;
@@ -71,6 +71,18 @@ class Application extends App
     public static function getInstance()
     {
         return static::$instance;
+    }
+
+    /**
+     * Gets an item from the application container
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function fromContainer($key)
+    {
+        return $this->getContainer()->get($key);
     }
 
     /**

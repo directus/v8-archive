@@ -1,6 +1,5 @@
 <?php
 
-use Directus\Mail\Mail;
 use Directus\Util\ArrayUtils;
 
 if (!function_exists('send_email')) {
