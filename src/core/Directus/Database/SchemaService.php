@@ -2,6 +2,7 @@
 
 namespace Directus\Database;
 
+use Directus\Application\Application;
 use Directus\Bootstrap;
 use Directus\Config\Config;
 use Directus\Database\Exception\FieldNotFoundException;
@@ -75,7 +76,9 @@ class SchemaService
     public static function getSchemaManagerInstance()
     {
         if (static::$schemaManager === null) {
-            static::setSchemaManagerInstance(Bootstrap::get('schemaManager'));
+            static::setSchemaManagerInstance(
+                Application::getInstance()->fromContainer('schema_manager')
+            );
         }
 
         return static::$schemaManager;
@@ -99,7 +102,9 @@ class SchemaService
     public static function getAclInstance()
     {
         if (static::$acl === null) {
-            static::setAclInstance(Bootstrap::get('acl'));
+            static::setAclInstance(
+                Application::getInstance()->fromContainer('acl')
+            );
         }
 
         return static::$acl;
@@ -123,7 +128,9 @@ class SchemaService
     public static function getConnectionInstance()
     {
         if (static::$connection === null) {
-            static::setConnectionInstance(Bootstrap::get('zendDb'));
+            static::setConnectionInstance(
+                Application::getInstance()->fromContainer('schema_manager')
+            );
         }
 
         return static::$connection;

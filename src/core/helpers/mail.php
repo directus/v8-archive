@@ -109,40 +109,6 @@ if (!function_exists('send_forgot_password_email')) {
     }
 }
 
-if (!function_exists('send_message_notification_email')) {
-    /**
-     * Sends a new message notification
-     *
-     * @param $user
-     * @param array $payload
-     *   [from] => 1
-     *   [responses] => Array()
-     *   [subject] => RE: Subject
-     *   [recipients] => 0_1,0_2,0_1
-     *   [response_to] => 3
-     *   [message] => Lorem ipsum!
-     *   [attachment] =>
-     *   [id] => 15
-     */
-    function send_message_notification_email($user, array $payload)
-    {
-        $adapter = \Directus\Bootstrap::get('zendDb');
-        $acl = \Directus\Bootstrap::get('acl');
-        $table = new \Directus\Database\TableGateway\DirectusUsersTableGateway($adapter, $acl);
-        $sender = $table->find($payload['from']);
-        $data = [
-            'message' => $payload['message'],
-            'sender' => $sender,
-            'message_id' => ArrayUtils::get($payload, 'response_to', $payload['id'])
-        ];
-        send_email('notification.twig', $data, function (\Directus\Mail\MessageInterface $message) use ($user, $payload) {
-            $message->setSubject($payload['subject']);
-            $message->setTo($user['email']);
-        });
-    }
-}
-
-
 if (!function_exists('send_new_install_email')) {
     /**
      * Sends a new installation email

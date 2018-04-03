@@ -259,7 +259,7 @@ class InstallerUtils
      */
     public static function installSchemaFromSQL($sql)
     {
-        $dbConnection = Bootstrap::get('ZendDb');
+        $dbConnection = Application::getInstance()->fromContainer('database');
 
         $dbConnection->execute($sql);
     }
