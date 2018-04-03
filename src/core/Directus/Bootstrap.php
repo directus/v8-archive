@@ -8,14 +8,10 @@ use Directus\Authentication\GitHubProvider;
 use Directus\Authentication\GoogleProvider;
 use Directus\Authentication\Social;
 use Directus\Authentication\TwitterProvider;
-use Directus\Database\SchemaService;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
-use Directus\Language\LanguageManager;
-use Directus\Providers\FilesServiceProvider;
 use Directus\Session\Session;
 use Directus\Session\Storage\NativeSessionStorage;
-use Directus\Util\ArrayUtils;
 
 
 /**
@@ -182,25 +178,5 @@ class Bootstrap
             }
         }
         return $listViews;
-    }
-
-    /**
-     * @return \Directus\Language\LanguageManager
-     */
-    private static function languagesManager()
-    {
-        $languages = get_locales_filename();
-
-        return new LanguageManager($languages);
-    }
-
-    private static function session()
-    {
-        return new Session(new NativeSessionStorage());
-    }
-
-    private static function socialAuth()
-    {
-        return new Social();
     }
 }
