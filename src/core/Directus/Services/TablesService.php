@@ -10,6 +10,7 @@ use Directus\Database\Exception\FieldNotManagedException;
 use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
+use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
@@ -166,10 +167,10 @@ class TablesService extends AbstractService
             throw new InvalidRequestException('Invalid collection name');
         }
 
-        $collectionObject = null;
+        $collection = null;
 
         try {
-            $collectionObject = $this->getSchemaManager()->getCollection($name);
+            $collection = $this->getSchemaManager()->getCollection($name);
         } catch (CollectionNotFoundException $e) {
             // TODO: Default to primary key id
             $constraints['fields'][] = 'required';
@@ -179,12 +180,12 @@ class TablesService extends AbstractService
 
         // ----------------------------------------------------------------------------
 
-        if ($collectionObject && $collectionObject->isManaged()) {
+        if ($collection && $collection->isManaged()) {
             throw new CollectionAlreadyExistsException($name);
         }
 
-        if ($collectionObject && !$collectionObject->isManaged()) {
-            $success = $this->updateTableSchema($name, $data);
+        if ($collection && !$collection->isManaged()) {
+            $success = $this->updateTableSchema($collection, $data);
         } else {
             $success = $this->createTableSchema($name, $data);
         }
@@ -196,8 +197,8 @@ class TablesService extends AbstractService
         $collectionsTableGateway = $this->createTableGateway('directus_collections');
 
         $fields = ArrayUtils::get($data, 'fields');
-        if ($collectionObject && !$collectionObject->isManaged() && !$fields) {
-            $fields = $collectionObject->getFieldsArray();
+        if ($collection && !$collection->isManaged() && !$fields) {
+            $fields = $collection->getFieldsArray();
         }
 
         $this->addColumnsInfo($name, $fields);
@@ -263,27 +264,25 @@ class TablesService extends AbstractService
             throw new CollectionNotFoundException($name);
         }
 
-        $tableObject = $this->getSchemaManager()->getCollection($name);
-        $columns = ArrayUtils::get($data, 'fields', []);
-        foreach ($columns as $i => $column) {
-            $columnObject = $tableObject->getField($column['field']);
-            if ($columnObject) {
-                $currentColumnData = $columnObject->toArray();
-                $columns[$i] = array_merge($currentColumnData, $columns[$i]);
+        $collection = $this->getSchemaManager()->getCollection($name);
+        $fields = ArrayUtils::get($data, 'fields', []);
+        foreach ($fields as $i => $field) {
+            $field = $collection->getField($field['field']);
+            if ($field) {
+                $currentColumnData = $field->toArray();
+                $fields[$i] = array_merge($currentColumnData, $fields[$i]);
             }
         }
 
-        $data['fields'] = $columns;
-        $success = $this->updateTableSchema($name, $data);
+        $data['fields'] = $fields;
+        $success = $this->updateTableSchema($collection, $data);
         if (!$success) {
             throw new ErrorException('Error updating the collection');
         }
 
         $collectionsTableGateway = $this->createTableGateway('directus_collections');
-
-        $columns = ArrayUtils::get($data, 'fields', []);
-        if (!empty($columns)) {
-            $this->addColumnsInfo($name, $columns);
+        if (!empty($fields)) {
+            $this->addColumnsInfo($name, $fields);
         }
 
         $item = ArrayUtils::omit($data, 'fields');
@@ -345,13 +344,13 @@ class TablesService extends AbstractService
 
         // ----------------------------------------------------------------------------
 
-        $tableObject = $this->getSchemaManager()->getCollection($collectionName);
-        if (!$tableObject) {
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+        if (!$collection) {
             throw new CollectionNotFoundException($collectionName);
         }
 
-        $columnObject = $tableObject->getField($columnName);
-        if ($columnObject && $columnObject->isManaged()) {
+        $field = $collection->getField($columnName);
+        if ($field && $field->isManaged()) {
             throw new FieldAlreadyExistsException($columnName);
         }
 
@@ -360,7 +359,7 @@ class TablesService extends AbstractService
         ]);
 
         // TODO: Only call this when necessary
-        $this->updateTableSchema($collectionName, [
+        $this->updateTableSchema($collection, [
             'fields' => [$columnData]
         ]);
 
@@ -390,7 +389,7 @@ class TablesService extends AbstractService
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
      */
-    public function changeColumn($collectionName, $columnName, array $data, array $params = [])
+    public function changeColumn($collectionName, $fieldName, array $data, array $params = [])
     {
         if (!$this->getAcl()->isAdmin()) {
             throw new UnauthorizedException('Permission denied');
@@ -402,7 +401,7 @@ class TablesService extends AbstractService
         // TODO: Create new constraint that validates the column data type to be one of the list supported
         $this->validate([
             'collection' => $collectionName,
-            'field' => $columnName,
+            'field' => $fieldName,
             'payload' => $data
         ], [
             'collection' => 'required|string',
@@ -415,28 +414,28 @@ class TablesService extends AbstractService
 
         // ----------------------------------------------------------------------------
 
-        $tableObject = $this->getSchemaManager()->getCollection($collectionName);
-        if (!$tableObject) {
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+        if (!$collection) {
             throw new CollectionNotFoundException($collectionName);
         }
 
-        $columnObject = $tableObject->getField($columnName);
-        if (!$columnObject) {
-            throw new FieldNotFoundException($columnName);
+        $field = $collection->getField($fieldName);
+        if (!$field) {
+            throw new FieldNotFoundException($fieldName);
         }
 
-        if (!$columnObject->isManaged()) {
-            throw new FieldNotManagedException($columnObject->getName());
+        if (!$field->isManaged()) {
+            throw new FieldNotManagedException($field->getName());
         }
 
         // TODO: Only update schema when is needed
-        $columnData = array_merge($columnObject->toArray(), $data);
-        $this->updateTableSchema($collectionName, [
-            'fields' => [$columnData]
+        $fieldData = array_merge($field->toArray(), $data);
+        $this->updateTableSchema($collection, [
+            'fields' => [$fieldData]
         ]);
 
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
-        $field = $this->addOrUpdateFieldInfo($collectionName, $columnName, $data);
+        $field = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
         // ----------------------------------------------------------------------------
 
         return $this->createTableGateway('directus_fields')->wrapData(
@@ -692,15 +691,16 @@ class TablesService extends AbstractService
     }
 
     /**
-     * @param $name
+     * @param Collection $collection
      * @param array $data
      *
      * @return bool
      */
-    protected function updateTableSchema($name, array $data)
+    protected function updateTableSchema(Collection $collection, array $data)
     {
         /** @var SchemaFactory $schemaFactory */
         $schemaFactory = $this->container->get('schema_factory');
+        $name = $collection->getName();
 
         $columns = ArrayUtils::get($data, 'fields', []);
         $this->validateSystemFields($columns);

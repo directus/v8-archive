@@ -137,7 +137,9 @@ class SchemaFactory
     {
         $columns = [];
         foreach ($data as $column) {
-            $columns[] = $this->createColumn(ArrayUtils::get($column, 'field'), $column);
+            if (!DataTypes::isAliasType(ArrayUtils::get($column, 'type'))) {
+                $columns[] = $this->createColumn(ArrayUtils::get($column, 'field'), $column);
+            }
         }
 
         return $columns;

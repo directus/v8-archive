@@ -50,6 +50,11 @@ final class DataTypes
     const TYPE_SET          = 'set';
     const TYPE_ENUM         = 'enum';
 
+    const TYPE_ALIAS        = 'alias';
+    const TYPE_M2O          = 'm2o';
+    const TYPE_M2M          = 'm2m';
+    const TYPE_O2M          = 'o2m';
+
     /**
      * Returns a list all data types
      *
@@ -255,5 +260,32 @@ final class DataTypes
             static::TYPE_MEDIUM_BLOB,
             static::TYPE_LONG_BLOB
         ];
+    }
+
+    /**
+     * Returns all the alias data types
+     *
+     * @return array
+     */
+    public static function getAliasTypes()
+    {
+        return [
+            static::TYPE_ALIAS,
+            static::TYPE_M2O,
+            static::TYPE_M2M,
+            static::TYPE_O2M
+        ];
+    }
+
+    /**
+     * Checks whether the given type is an alias type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isAliasType($type)
+    {
+        return in_array(strtolower($type), static::getAliasTypes());
     }
 }
