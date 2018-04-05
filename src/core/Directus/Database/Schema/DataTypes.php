@@ -271,7 +271,6 @@ final class DataTypes
     {
         return [
             static::TYPE_ALIAS,
-            static::TYPE_M2O,
             static::TYPE_M2M,
             static::TYPE_O2M
         ];
