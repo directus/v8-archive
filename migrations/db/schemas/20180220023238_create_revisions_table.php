@@ -45,18 +45,21 @@ class CreateRevisionsTable extends AbstractMigration
             'limit' => 4294967295
         ]);
         $table->addColumn('delta', 'text', [
-            'limit' => 4294967295
+            'limit' => 4294967295,
+            'null' => true
         ]);
         $table->addColumn('parent_item', 'string', [
-            'limit' => 255
+            'limit' => 255,
+            'null' => true
         ]);
         $table->addColumn('parent_collection', 'string', [
             'limit' => 64,
-            'null' => false
+            'null' => true
         ]);
         $table->addColumn('parent_changed', 'boolean', [
             'signed' => false,
-            'default' => false
+            'default' => false,
+            'null' => true
         ]);
 
         $table->create();

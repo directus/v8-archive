@@ -222,8 +222,8 @@ class RelationalTableGateway extends BaseTableGateway
         // parent
         if ($activityEntryMode === self::ACTIVITY_ENTRY_MODE_PARENT) {
             $parentData = [
-                'id' => array_key_exists($this->primaryKeyFieldName, $recordData) ? $recordData[$this->primaryKeyFieldName] : null,
-                'table_name' => $tableName
+                'item' => array_key_exists($this->primaryKeyFieldName, $recordData) ? $recordData[$this->primaryKeyFieldName] : null,
+                'collection' => $tableName
             ];
         }
 
@@ -243,7 +243,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         $fullRecordData = (array) $fullRecordData;
-        $deltaRecordData = $recordIsNew ? [] : array_intersect_key((array)$parentRecordWithoutAlias, (array) $fullRecordData);
+        $deltaRecordData = $recordIsNew ? [] : array_intersect_key((array)$parentRecordWithoutAlias, $fullRecordData);
 
         switch ($activityEntryMode) {
             // Activity logging is enabled, and I am a nested action
@@ -254,14 +254,14 @@ class RelationalTableGateway extends BaseTableGateway
                     'action' => $logEntryAction,
                     'user' => $currentUserId,
                     'datetime' => DateUtils::now(),
-                    'ip' => get_request_ip(),// isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
+                    'ip' => get_request_ip(),
                     'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                     'collection' => $tableName,
-                    // 'parent_id' => isset($parentData['id']) ? $parentData['id'] : null,
-                    // 'parent_table' => isset($parentData['table_name']) ? $parentData['table_name'] : null,
-                    // 'data' => json_encode($fullRecordData),
-                    // 'delta' => json_encode($deltaRecordData),
-                    // 'parent_changed' => (int)$parentRecordChanged,
+                    'parent_item' => isset($parentData['item']) ? $parentData['item'] : null,
+                    'parent_collection' => isset($parentData['collection']) ? $parentData['collection'] : null,
+                    'data' => json_encode($fullRecordData),
+                    'delta' => !empty($deltaRecordData) ? json_encode($deltaRecordData) : null,
+                    'parent_changed' => boolval($parentRecordChanged),
                     'item' => $rowId,
                     'message' => null
                 ];
@@ -299,21 +299,44 @@ class RelationalTableGateway extends BaseTableGateway
                         'collection' => $tableName,
                         'item' => $rowId,
                         'message' => ArrayUtils::get($params, 'activity_message')
-                        // TODO: Move to revisions
-                        // 'parent_id' => null,
-                        // 'data' => json_encode($fullRecordData),
-                        // 'delta' => json_encode($deltaRecordData),
-                        // 'parent_changed' => (int)$parentRecordChanged,
-                        // 'identifier' => $recordIdentifier,
                     ];
                     $parentLogEntry->populate($logData, false);
                     $parentLogEntry->save();
+
+                    // Add Revisions
+                    $revisionTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_REVISIONS, $this->adapter);
+                    $revisionTableGateway->insert([
+                        'activity' => $parentLogEntry->getId(),
+                        'collection' => $tableName,
+                        'item' => $rowId,
+                        'data' => json_encode($fullRecordData),
+                        'delta' => !empty($deltaRecordData) ? json_encode($deltaRecordData) : null,
+                        'parent_item' => null,
+                        'parent_collection' => null,
+                        'parent_changed' => null,//boolval($parentRecordChanged)
+                    ]);
+
                     // Update & insert nested activity entries
                     $ActivityGateway = new DirectusActivityTableGateway($this->adapter);
                     foreach ($nestedLogEntries as $entry) {
-                        // $entry['parent_id'] = $rowId;
-                        // @todo ought to insert these in one batch
-                        $ActivityGateway->insert($entry);
+                        // TODO: ought to insert these in one batch
+                        $ActivityGateway->insert(ArrayUtils::omit($entry, [
+                            'parent_item',
+                            'parent_collection',
+                            'data',
+                            'delta',
+                            'parent_changed',
+                        ]));
+                        $revisionTableGateway->insert([
+                            'activity' => $ActivityGateway->lastInsertValue,
+                            'collection' => ArrayUtils::get($entry, 'collection'),
+                            'item' => ArrayUtils::get($entry, 'item'),
+                            'data' => ArrayUtils::get($entry, 'data'),
+                            'delta' => ArrayUtils::get($entry, 'delta'),
+                            'parent_item' => ArrayUtils::get($entry, 'parent_item'),
+                            'parent_collection' => ArrayUtils::get($entry, 'parent_collection'),
+                            'parent_changed' => ArrayUtils::get($entry, 'parent_changed')
+                        ]);
                     }
                 }
                 break;
