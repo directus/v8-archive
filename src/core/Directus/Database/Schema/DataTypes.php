@@ -53,6 +53,7 @@ final class DataTypes
     const TYPE_ALIAS        = 'alias';
     const TYPE_M2M          = 'm2m';
     const TYPE_O2M          = 'o2m';
+    const TYPE_GROUP        = 'group';
 
     /**
      * Returns a list all data types
@@ -271,7 +272,8 @@ final class DataTypes
         return [
             static::TYPE_ALIAS,
             static::TYPE_M2M,
-            static::TYPE_O2M
+            static::TYPE_O2M,
+            static::TYPE_GROUP
         ];
     }
 
