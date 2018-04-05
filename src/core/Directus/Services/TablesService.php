@@ -10,6 +10,7 @@ use Directus\Database\Exception\FieldNotManagedException;
 use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
+use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaFactory;
@@ -378,7 +379,7 @@ class TablesService extends AbstractService
      * Adds a column to an existing table
      *
      * @param string $collectionName
-     * @param string $columnName
+     * @param string $fieldName
      * @param array $data
      * @param array $params
      *
@@ -702,26 +703,28 @@ class TablesService extends AbstractService
         $schemaFactory = $this->container->get('schema_factory');
         $name = $collection->getName();
 
-        $columns = ArrayUtils::get($data, 'fields', []);
-        $this->validateSystemFields($columns);
+        $fields = ArrayUtils::get($data, 'fields', []);
+        $this->validateSystemFields($fields);
 
-        $toAdd = $toChange = $aliasColumn = [];
-        $tableObject = $this->getSchemaManager()->getCollection($name);
-        foreach ($columns as $i => $column) {
-            $columnObject = $tableObject->getField($column['field']);
-            $type = ArrayUtils::get($column, 'type');
-            if ($columnObject) {
-                $toChange[] = array_merge($columnObject->toArray(), $column);
-            } else if (strtoupper($type) !== 'ALIAS') {
-                $toAdd[] = $column;
+        $toAdd = $toChange = $toDrop = [];
+        foreach ($fields as $i => $fieldData) {
+            $field = $collection->getField($fieldData['field']);
+
+            if ($field) {
+                if (!$field->isAlias() && DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
+                    $toDrop[] = $field->getName();
+                } else {
+                    $toChange[] = array_merge($field->toArray(), $fieldData);
+                }
             } else {
-                $aliasColumn[] = $column;
+                $toAdd[] = $fieldData;
             }
         }
 
         $table = $schemaFactory->alterTable($name, [
             'add' => $toAdd,
-            'change' => $toChange
+            'change' => $toChange,
+            'drop' => $toDrop
         ]);
 
         /** @var Emitter $hookEmitter */
@@ -729,7 +732,7 @@ class TablesService extends AbstractService
         $hookEmitter->run('collection.update:before', $name);
 
         $result = $schemaFactory->buildTable($table);
-        $this->updateColumnsRelation($name, array_merge($toAdd, $toChange, $aliasColumn));
+        $this->updateColumnsRelation($name, array_merge($toAdd, $toChange));
 
         $hookEmitter->run('collection.update', $name);
         $hookEmitter->run('collection.update:after', $name);

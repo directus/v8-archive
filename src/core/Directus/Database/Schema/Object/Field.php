@@ -8,7 +8,6 @@ use Directus\Util\ArrayUtils;
 
 class Field extends AbstractObject
 {
-    const TYPE_ALIAS        = 'ALIAS';
     const TYPE_ARRAY        = 'ARRAY';
     const TYPE_JSON         = 'JSON';
     const TYPE_TINY_JSON    = 'TINYJSON';
@@ -317,7 +316,7 @@ class Field extends AbstractObject
      */
     public function isAlias()
     {
-        return strtoupper($this->getType()) === static::TYPE_ALIAS;
+        return DataTypes::isAliasType($this->getType());
     }
 
     /**
