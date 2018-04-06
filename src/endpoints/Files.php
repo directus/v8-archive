@@ -6,8 +6,11 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Exception\Exception;
+use Directus\Filesystem\Exception\FailedUploadException;
 use Directus\Services\FilesServices;
 use Directus\Util\ArrayUtils;
+use Slim\Http\UploadedFile;
 
 class Files extends Route
 {
@@ -38,12 +41,37 @@ class Files extends Route
      * @param Response $response
      *
      * @return Response
+     *
+     * @throws Exception
      */
     public function create(Request $request, Response $response)
     {
         $service = new FilesServices($this->container);
+        $uploadedFiles = $request->getUploadedFiles();
+        $payload = $request->getParsedBody();
+
+        if (!empty($uploadedFiles)) {
+            /** @var UploadedFile $uploadedFile */
+            $uploadedFile = array_shift($uploadedFiles);
+            if (!is_uploaded_file_okay($uploadedFile->getError())) {
+                throw new FailedUploadException($uploadedFile->getError());
+            }
+
+            if (empty($payload)) {
+                $payload = [];
+            }
+
+            // TODO: the file already exists move it to the upload path location
+            $data = file_get_contents($uploadedFile->file);
+            $payload = array_merge([
+                'filename' => $uploadedFile->getClientFilename(),
+                'type' => $uploadedFile->getClientMediaType(),
+                'data' => base64_encode($data)
+            ], $payload);
+        }
+
         $responseData = $service->create(
-            $request->getParsedBody(),
+            $payload,
             $request->getQueryParams()
         );
 
