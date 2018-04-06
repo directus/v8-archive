@@ -1114,9 +1114,18 @@ class CoreServicesProvider
                 $dbConnection = $container->get('database');
                 $settingsTable = new TableGateway('directus_settings', $dbConnection);
 
-                return $settingsTable->select([
+                $result = $settingsTable->select([
+                    'group' => 'global',
                     'scope' => 'files'
                 ])->toArray();
+
+                // Convert result into a key-value array
+                $settings = [];
+                foreach ($result as $setting) {
+                    $settings[$setting['key']] = $setting['value'];
+                }
+
+                return $settings;
             };
 
             $filesystem = $container->get('filesystem');
