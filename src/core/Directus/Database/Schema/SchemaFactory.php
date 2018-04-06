@@ -8,6 +8,7 @@ use Directus\Database\Ddl\Column\CollectionLength;
 use Directus\Database\Ddl\Column\Custom;
 use Directus\Database\Ddl\Column\Double;
 use Directus\Database\Ddl\Column\Enum;
+use Directus\Database\Ddl\Column\File;
 use Directus\Database\Ddl\Column\LongBlob;
 use Directus\Database\Ddl\Column\LongText;
 use Directus\Database\Ddl\Column\MediumBlob;
@@ -326,6 +327,10 @@ class SchemaFactory
                 break;
             case DataTypes::TYPE_ENUM:
                 $column = new Enum($name);
+                break;
+
+            case DataTypes::TYPE_FILE:
+                $column = new File($name);
                 break;
 
             default:

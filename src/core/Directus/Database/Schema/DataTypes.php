@@ -55,6 +55,8 @@ final class DataTypes
     const TYPE_O2M          = 'o2m';
     const TYPE_GROUP        = 'group';
 
+    const TYPE_FILE         = 'file';
+
     /**
      * Returns a list all data types
      *
@@ -287,5 +289,29 @@ final class DataTypes
     public static function isAliasType($type)
     {
         return in_array(strtolower($type), static::getAliasTypes());
+    }
+
+    /**
+     * Returns all the files type
+     *
+     * @return array
+     */
+    public static function getFilesType()
+    {
+        return [
+            static::TYPE_FILE
+        ];
+    }
+
+    /**
+     * Checks whether or not the given type is file type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isFilesType($type)
+    {
+        return in_array($type, static::getFilesType());
     }
 }
