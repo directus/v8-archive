@@ -22,7 +22,7 @@ class InvalidQueryException extends ErrorException
      */
     public function __construct($query, $previous = null)
     {
-        parent::__construct('Failed generating the SQL query', static::ERROR_CODE, $previous);
+        parent::__construct('Failed generating the SQL query.', static::ERROR_CODE, $previous);
         $this->query = $query;
     }
 

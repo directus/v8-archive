@@ -82,13 +82,15 @@ class ErrorHandler
         $productionMode = ArrayUtils::get($this->settings, 'env', 'development') === 'production';
         $this->trigger($exception);
 
-        $message = $exception->getMessage();
+        $message = $exception->getMessage() ?: 'Unknown Error';
         $code = null;
         // Not showing internal PHP errors (for PHP7) for production
         if ($productionMode && $this->isError($exception)) {
             $message = 'Internal Server Error';
-        } else if (empty($message)) {
-            $message = 'Unknown Error';
+        }
+
+        if (!$productionMode && ($previous = $exception->getPrevious())) {
+            $message .= ' ' . $previous->getMessage();
         }
 
         if ($exception instanceof Exception) {
