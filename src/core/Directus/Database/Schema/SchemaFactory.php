@@ -23,6 +23,7 @@ use Directus\Database\Ddl\Column\TinyBlob;
 use Directus\Database\Ddl\Column\TinyInteger;
 use Directus\Database\Ddl\Column\TinyText;
 use Directus\Database\Ddl\Column\Uuid;
+use Directus\Database\Exception\UnknownDataTypeException;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
@@ -155,7 +156,7 @@ class SchemaFactory
     public function createColumn($name, array $data)
     {
         $this->validate($data);
-        $type = $this->schemaManager->getDataType(strtoupper(ArrayUtils::get($data, 'type')));
+        $type = $this->schemaManager->getDataType(ArrayUtils::get($data, 'type'));
         $interface = ArrayUtils::get($data, 'interface');
         $autoincrement = ArrayUtils::get($data, 'auto_increment', false);
         $length = ArrayUtils::get($data, 'length', $this->schemaManager->getFieldDefaultLength($type));
@@ -212,11 +213,12 @@ class SchemaFactory
      * @param $type
      *
      * @return Column
+     *
+     * @throws UnknownDataTypeException
      */
     protected function createColumnFromType($name, $type)
     {
         switch (strtolower($type)) {
-
             case DataTypes::TYPE_CHAR:
                 $column = new Char($name);
                 break;
@@ -334,7 +336,7 @@ class SchemaFactory
                 break;
 
             default:
-                $column = new Custom($type, $name);
+                throw new UnknownDataTypeException($type);
                 break;
         }
 

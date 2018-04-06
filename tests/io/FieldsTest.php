@@ -5,6 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Database\Connection;
 use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Database\Exception\UnknownDataTypeException;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
 use Directus\Util\ArrayUtils;
@@ -89,6 +90,32 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(column_exists(static::$db, static::$tableName, 'name'));
     }
 
+    public function testCreateUnknownDataType()
+    {
+        // Create a test table
+        $data = [
+            'collection' => 'unknown_type',
+            'fields' => [
+                [
+                    'field' => 'id',
+                    'type' => 'integer',
+                    'interface' => 'primary_key'
+                ],
+                [
+                    'field' => 'test',
+                    'type' => 'unknown',
+                    'interface' => 'unknown'
+                ]
+            ]
+        ];
+
+        $response = request_error_post('collections', $data, ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'code' => UnknownDataTypeException::ERROR_CODE,
+            'status' => 400
+        ]);
+    }
+
     public function testUpdate()
     {
         $data = [
@@ -110,6 +137,20 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         ]);
         $this->assertSame(2, count($result));
         $this->assertTrue(column_exists(static::$db, static::$tableName, 'name'));
+    }
+
+    public function testUpdateUnknownDataType()
+    {
+        $data = [
+            'type' => 'unknown',
+            'length' => 255,
+        ];
+
+        $response = request_error_patch('fields/' . static::$tableName . '/name', $data, ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'code' => UnknownDataTypeException::ERROR_CODE,
+            'status' => 400
+        ]);
     }
 
     public function testGetOne()
