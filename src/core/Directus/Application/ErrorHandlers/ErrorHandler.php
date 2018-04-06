@@ -85,6 +85,8 @@ class ErrorHandler
         // Not showing internal PHP errors (for PHP7) for production
         if ($productionMode && $this->isError($exception)) {
             $message = 'Internal Server Error';
+        } else if (empty($message)) {
+            $message = 'Unknown Error';
         }
 
         $httpStatusCode = 500;
