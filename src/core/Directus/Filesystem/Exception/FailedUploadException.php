@@ -14,6 +14,6 @@ class FailedUploadException extends FilesystemException
 
     public function getErrorCode()
     {
-        return $this->uploadedError;
+        return static::ERROR_CODE + $this->uploadedError;
     }
 }
