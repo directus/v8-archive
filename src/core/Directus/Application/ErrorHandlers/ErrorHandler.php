@@ -7,6 +7,7 @@ use Directus\Application\Http\Response;
 use Directus\Database\Exception\InvalidQueryException;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
+use Directus\Exception\Exception;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\NotFoundException;
 use Directus\Exception\UnauthorizedException;
@@ -82,11 +83,16 @@ class ErrorHandler
         $this->trigger($exception);
 
         $message = $exception->getMessage();
+        $code = null;
         // Not showing internal PHP errors (for PHP7) for production
         if ($productionMode && $this->isError($exception)) {
             $message = 'Internal Server Error';
         } else if (empty($message)) {
             $message = 'Unknown Error';
+        }
+
+        if ($exception instanceof Exception) {
+            $code = $exception->getErrorCode();
         }
 
         $httpStatusCode = 500;
@@ -101,7 +107,7 @@ class ErrorHandler
         }
 
         $data = [
-            'code' => $exception->getCode(),
+            'code' => $code,
             'message' => $message
         ];
 
