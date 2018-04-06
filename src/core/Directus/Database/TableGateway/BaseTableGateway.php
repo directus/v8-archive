@@ -4,6 +4,7 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Config\StatusMapping;
 use Directus\Container\Container;
+use Directus\Database\Exception\DuplicateItemException;
 use Directus\Database\Exception\InvalidQueryException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
@@ -734,6 +735,17 @@ class BaseTableGateway extends TableGateway
         try {
             $result = parent::executeInsert($insert);
         } catch (UnexpectedValueException $e) {
+            if (
+                strtolower($this->adapter->platform->getName()) === 'mysql'
+                && strpos(strtolower($e->getMessage()), 'duplicate entry') !== false
+            ) {
+                preg_match("/Duplicate entry '([^']+)' for key '([^']+)'/i", $e->getMessage(), $output);
+
+                if ($output) {
+                    throw new DuplicateItemException($this->table, $output[1]);
+                }
+            }
+
             throw new InvalidQueryException(
                 $this->dumpSql($insert),
                 $e

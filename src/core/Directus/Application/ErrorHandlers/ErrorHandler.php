@@ -6,6 +6,7 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Database\Exception\InvalidQueryException;
 use Directus\Exception\BadRequestExceptionInterface;
+use Directus\Exception\ConflictExceptionInterface;
 use Directus\Exception\ErrorException;
 use Directus\Exception\Exception;
 use Directus\Exception\ForbiddenException;
@@ -106,6 +107,8 @@ class ErrorHandler
             $httpStatusCode = 401;
         } else if ($exception instanceof ForbiddenException) {
             $httpStatusCode = 403;
+        } else if ($exception instanceof ConflictExceptionInterface) {
+            $httpStatusCode = 409;
         }
 
         $data = [
