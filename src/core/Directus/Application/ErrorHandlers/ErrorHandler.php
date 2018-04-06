@@ -5,12 +5,12 @@ namespace Directus\Application\ErrorHandlers;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Database\Exception\InvalidQueryException;
-use Directus\Exception\BadRequestException;
+use Directus\Exception\BadRequestExceptionInterface;
 use Directus\Exception\ErrorException;
 use Directus\Exception\Exception;
 use Directus\Exception\ForbiddenException;
-use Directus\Exception\NotFoundException;
-use Directus\Exception\UnauthorizedException;
+use Directus\Exception\NotFoundExceptionInterface;
+use Directus\Exception\UnauthorizedExceptionInterface;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 
@@ -96,11 +96,11 @@ class ErrorHandler
         }
 
         $httpStatusCode = 500;
-        if ($exception instanceof BadRequestException) {
+        if ($exception instanceof BadRequestExceptionInterface) {
             $httpStatusCode = 400;
-        } else if ($exception instanceof NotFoundException) {
+        } else if ($exception instanceof NotFoundExceptionInterface) {
             $httpStatusCode = 404;
-        } else if ($exception instanceof UnauthorizedException) {
+        } else if ($exception instanceof UnauthorizedExceptionInterface) {
             $httpStatusCode = 401;
         } else if ($exception instanceof ForbiddenException) {
             $httpStatusCode = 403;

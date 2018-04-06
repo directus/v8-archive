@@ -2,7 +2,7 @@
 
 namespace Directus\Exception;
 
-class UnauthorizedException extends Exception
+class UnauthorizedException extends Exception implements UnauthorizedExceptionInterface
 {
     const ERROR_CODE = 3;
 

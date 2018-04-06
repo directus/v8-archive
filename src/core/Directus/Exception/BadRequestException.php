@@ -2,7 +2,7 @@
 
 namespace Directus\Exception;
 
-class BadRequestException extends Exception
+class BadRequestException extends Exception implements BadRequestExceptionInterface
 {
     const ERROR_CODE = 2;
 
