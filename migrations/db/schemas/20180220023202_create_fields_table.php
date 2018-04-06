@@ -84,6 +84,11 @@ class CreateFieldsTable extends AbstractMigration
             'null' => false,
             'default' => 0
         ]);
+        $table->addColumn('group', 'integer', [
+            'signed' => false,
+            'null' => true,
+            'default' => null
+        ]);
 
         $table->addIndex(['collection', 'field'], [
             'unique' => true,
