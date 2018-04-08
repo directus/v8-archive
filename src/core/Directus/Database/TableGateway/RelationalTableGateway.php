@@ -818,7 +818,7 @@ class RelationalTableGateway extends BaseTableGateway
         $collectionObject = $this->getTableSchema();
 
         $params = $this->applyDefaultEntriesSelectParams($params);
-        $fields = $this->getSelectedFields(ArrayUtils::get($params, 'fields'));
+        $fields = ArrayUtils::get($params, 'fields');
 
         // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
@@ -827,7 +827,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $selectedFields = array_merge(
             [$collectionObject->getPrimaryKeyName()],
-            $this->getSelectedNonAliasFields($fields)
+            $this->getSelectedNonAliasFields($fields ?: ['*'])
         );
 
         $statusField = $collectionObject->getStatusField();
@@ -864,14 +864,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $columnsDepth = ArrayUtils::deepLevel(get_unflat_columns($fields));
         if ($columnsDepth > 0) {
-            $relationalColumns = ArrayUtils::intersection(
-                get_columns_flat_at($fields, 0),
-                $collectionObject->getRelationalFieldsName()
-            );
-
-            $relationalColumns = array_filter(get_unflat_columns($fields), function ($key) use ($relationalColumns) {
-                return in_array($key, $relationalColumns);
-            }, ARRAY_FILTER_USE_KEY);
+            $relatedFields = $this->getSelectedRelatedFields($fields);
 
             $relationalParams = [
                 'meta' => ArrayUtils::get($params, 'meta'),
@@ -880,7 +873,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $results = $this->loadRelationalData(
                 $results,
-                get_array_flat_columns($relationalColumns),
+                get_array_flat_columns($relatedFields),
                 $relationalParams
             );
         }
@@ -888,8 +881,8 @@ class RelationalTableGateway extends BaseTableGateway
         // When the params column list doesn't include the primary key
         // it should be included because each row gateway expects the primary key
         // after all the row gateway are created and initiated it only returns the chosen columns
-        if (ArrayUtils::has($params, 'fields')) {
-            $visibleColumns = get_columns_flat_at($fields, 0);
+        if ($fields) {
+            $visibleColumns = $this->getSelectedFields($fields);
             $results = array_map(function ($entry) use ($visibleColumns) {
                 foreach ($entry as $key => $value) {
                     if (!in_array($key, $visibleColumns)) {
@@ -1537,12 +1530,7 @@ class RelationalTableGateway extends BaseTableGateway
             ], $params));
 
             $relatedEntries = [];
-            // TODO: Create fields parser helper
-            if (in_array('*', $filterFields)) {
-                $key = array_search('*', $filterFields);
-                unset($filterFields[$key]);
-                $filterFields = array_merge($tableGateway->getTableSchema()->getFieldsName(), $filterFields);
-            }
+            $selectedFields = $tableGateway->getSelectedFields($filterFields);
 
             foreach ($results as $row) {
                 // Quick fix
@@ -1552,12 +1540,12 @@ class RelationalTableGateway extends BaseTableGateway
                 // $row->getId(); RowGateway perhaps?
                 $relationalColumnId = $row[$relationalColumnName];
                 if (is_array($relationalColumnId)) {
-                    $relationalColumnId = $relationalColumnId['data']['id'];
+                    $relationalColumnId = $relationalColumnId[$tableGateway->primaryKeyFieldName];
                 }
 
                 $relatedEntries[$relationalColumnId][] = ArrayUtils::pick(
                     $row,
-                    $filterFields
+                    $selectedFields
                 );
             }
 
@@ -1874,14 +1862,10 @@ class RelationalTableGateway extends BaseTableGateway
 
             $relatedEntries = [];
             foreach ($results as $row) {
-                $relatedEntries[$row[$primaryKeyName]] = $row;
-
-                if (!in_array('*', $filterColumns)) {
-                    $relatedEntries[$row[$primaryKeyName]] = ArrayUtils::pick(
-                        $row,
-                        array_keys(get_unflat_columns($filterColumns))
-                    );
-                }
+                $relatedEntries[$row[$primaryKeyName]] = ArrayUtils::pick(
+                    $row,
+                    $tableGateway->getSelectedFields($filterColumns)
+                );
 
                 $tableGateway->wrapData(
                     $relatedEntries[$row[$primaryKeyName]],
@@ -1918,27 +1902,12 @@ class RelationalTableGateway extends BaseTableGateway
      *
      * @return array
      */
-    public function getSelectedFields($fields)
+    public function getSelectedFields(array $fields)
     {
-        $tableSchema = $this->getTableSchema();
-
-        // NOTE: fallback to all columns the user has permission to
-        $allColumns = SchemaService::getAllCollectionFieldsName($tableSchema->getName());
-
-        if (!$fields) {
-            $fields = ['*'];
-        }
-
-        $wildCardIndex = array_search('*', $fields);
-        if ($wildCardIndex !== false) {
-            unset($fields[$wildCardIndex]);
-            $fields = array_merge(
-                $allColumns,
-                $fields
-            );
-        }
-
-        return array_unique($fields);
+        return $this->replaceWildcardFieldWith(
+            $fields,
+            SchemaService::getAllCollectionFieldsName($this->getTable())
+        );
     }
 
     /**
@@ -1950,7 +1919,77 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function getSelectedNonAliasFields(array $fields)
     {
+        $nonAliasFields = SchemaService::getAllNonAliasCollectionFieldsName($this->getTableSchema()->getName());
+        $allFields = $this->replaceWildcardFieldWith(
+            $fields,
+            $nonAliasFields
+        );
+
+        // Remove alias fields
+        return ArrayUtils::intersection(
+            $allFields,
+            $nonAliasFields
+        );
+    }
+
+    /**
+     * Returns the related fields from the selected fields array
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    public function getSelectedRelatedFields(array $fields)
+    {
+        $fieldsLevel = get_unflat_columns($fields);
+
+        foreach ($fieldsLevel as $parent => $children) {
+            if ($parent === '*') {
+                $parentFields = $fieldsLevel[$parent];
+                unset($fieldsLevel[$parent]);
+                $allFields = SchemaService::getAllCollectionFieldsName($this->getTable());
+                foreach ($allFields as $field) {
+                    if (isset($fieldsLevel[$field])) {
+                        continue;
+                    }
+
+                    $fieldsLevel[$field] = $parentFields;
+                }
+
+                break;
+            }
+        }
+
+        $relatedFields = ArrayUtils::intersection(
+            array_keys($fieldsLevel),
+            $this->getTableSchema()->getRelationalFieldsName()
+        );
+
+        return array_filter($fieldsLevel, function ($key) use ($relatedFields) {
+            return in_array($key, $relatedFields);
+        }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Remove the wildcards fields and append the replacement fields
+     *
+     * @param array $fields
+     * @param array $replacementFields
+     *
+     * @return array
+     */
+    protected function replaceWildcardFieldWith(array $fields, array $replacementFields)
+    {
         $selectedNames = get_columns_flat_at($fields, 0);
+        // remove duplicate field name
+        $selectedNames = array_unique($selectedNames);
+
+        $wildCardIndex = array_search('*', $selectedNames);
+        if ($wildCardIndex !== false) {
+            unset($selectedNames[$wildCardIndex]);
+            $selectedNames = array_merge($selectedNames, $replacementFields);
+        }
+
         $pickedNames = array_filter($selectedNames, function ($value) {
             return strpos($value, '-') !== 0;
         });
@@ -1960,10 +1999,7 @@ class RelationalTableGateway extends BaseTableGateway
             return strpos($value, '-') === 0;
         })));
 
-        return ArrayUtils::intersection(
-            array_values(array_flip(ArrayUtils::omit(array_flip($pickedNames), $omittedNames))),
-            SchemaService::getAllNonAliasCollectionFieldNames($this->getTable())
-        );
+        return array_values(array_flip(ArrayUtils::omit(array_flip($pickedNames), $omittedNames)));
     }
 
     /**
