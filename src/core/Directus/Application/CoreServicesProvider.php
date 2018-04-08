@@ -33,7 +33,6 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\SchemaService;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\ForbiddenException;
-use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
@@ -41,10 +40,9 @@ use Directus\Filesystem\Thumbnail;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
-use Directus\Mail\Adapters\AbstractMailerAdapter;
-use Directus\Mail\Adapters\SimpleFileMailAdapter;
-use Directus\Mail\Adapters\SwiftMailerAdapter;
-use Directus\Mail\MailerManager;
+use Directus\Mail\Mailer;
+use Directus\Mail\TransportManager;
+use Directus\Mail\Transports\SimpleFileTransport;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
 use Directus\Session\Session;
@@ -52,7 +50,6 @@ use Directus\Session\Storage\NativeSessionStorage;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateUtils;
 use Directus\Util\StringUtils;
-use Directus\View\Twig\DirectusTwigExtension;
 use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
@@ -80,7 +77,8 @@ class CoreServicesProvider
         $container['embed_manager']     = $this->getEmbedManager();
         $container['filesystem']        = $this->getFileSystem();
         $container['files']             = $this->getFiles();
-        $container['mailer_manager']    = $this->getMailerManager();
+        $container['mailer_transport']  = $this->getMailerTransportManager();
+        $container['mailer']            = $this->getMailer();
         $container['mail_view']         = $this->getMailView();
         $container['app_settings']      = $this->getSettings();
         $container['status_mapping']    = $this->getStatusMapping();
@@ -1012,39 +1010,40 @@ class CoreServicesProvider
     /**
      * @return \Closure
      */
-    protected function getMailerManager()
+    protected function getMailerTransportManager()
     {
         return function (Container $container) {
             $config = $container->get('config');
-            $manager = new MailerManager();
+            $manager = new TransportManager();
 
-            $adapters = [
-                'simple_file' => SimpleFileMailAdapter::class,
-                'swift_mailer' => SwiftMailerAdapter::class
+            $transports = [
+                'simple_file' => SimpleFileTransport::class,
+                'smtp' => \Swift_SmtpTransport::class,
+                'sendmail' => \Swift_SendmailTransport::class
             ];
 
             $mailConfigs = $config->get('mail');
             foreach ($mailConfigs as $name => $mailConfig) {
-                $adapter = ArrayUtils::get($mailConfig, 'adapter');
-                $object = null;
+                $transport = ArrayUtils::get($mailConfig, 'transport');
 
-                if (class_exists($adapter)) {
-                    $object = new $adapter($mailConfig);
-                } else if (array_key_exists($adapter, $adapters)) {
-                    $class = $adapters[$adapter];
-                    $object = new $class($mailConfig);
+                if (array_key_exists($transport, $transports)) {
+                    $transport = $transports[$transport];
                 }
 
-                if (!($object instanceof AbstractMailerAdapter)) {
-                    throw new RuntimeException(
-                        sprintf('%s is not a instance of %s', $adapter, AbstractMailerAdapter::class)
-                    );
-                }
-
-                $manager->register($name, $object);
+                $manager->register($name, $transport, $mailConfig);
             }
 
             return $manager;
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getMailer()
+    {
+        return function (Container $container) {
+            return new Mailer($container->get('mailer_transport'));
         };
     }
 
@@ -1096,11 +1095,8 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $basePath = $container->get('path_base');
-            $view = new Twig($basePath . '/src/mail');
 
-            $view->addExtension(new DirectusTwigExtension());
-
-            return $view;
+            return new Twig($basePath . '/src/mail');
         };
     }
 
