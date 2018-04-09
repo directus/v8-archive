@@ -148,11 +148,11 @@ class DateTimeUtils extends \DateTime
             return new DateTimeZone(date_default_timezone_get());
         }
 
-        $timezone = new DateTimeZone($timezone);
-
-        if (!$timezone) {
+        try {
+            $timezone = new DateTimeZone($timezone);
+        } catch (\Exception $e) {
             throw new \InvalidArgumentException(
-                sprintf('Invalid timezone: "%s"', $timezone)
+                sprintf('Unknown or bad timezone (%s)', $timezone)
             );
         }
 
