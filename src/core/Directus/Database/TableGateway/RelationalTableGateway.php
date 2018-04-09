@@ -881,7 +881,7 @@ class RelationalTableGateway extends BaseTableGateway
         // When the params column list doesn't include the primary key
         // it should be included because each row gateway expects the primary key
         // after all the row gateway are created and initiated it only returns the chosen columns
-        if ($fields) {
+        if ($fields && !in_array('*', $fields)) {
             $visibleColumns = $this->getSelectedFields($fields);
             $results = array_map(function ($entry) use ($visibleColumns) {
                 foreach ($entry as $key => $value) {
@@ -1543,10 +1543,14 @@ class RelationalTableGateway extends BaseTableGateway
                     $relationalColumnId = $relationalColumnId[$tableGateway->primaryKeyFieldName];
                 }
 
-                $relatedEntries[$relationalColumnId][] = ArrayUtils::pick(
-                    $row,
-                    $selectedFields
-                );
+                if (!in_array('*', $filterFields)) {
+                    $row = ArrayUtils::pick(
+                        $row,
+                        $selectedFields
+                    );
+                }
+
+                $relatedEntries[$relationalColumnId][] = $row;
             }
 
             // Replace foreign keys with foreign rows
@@ -1581,8 +1585,8 @@ class RelationalTableGateway extends BaseTableGateway
     public function loadManyToManyRelationships($entries, $columns, array $params = [])
     {
         $columnsTree = get_unflat_columns($columns);
-        $visibleColumns = $this->getTableSchema()->getFields(array_keys($columnsTree));
-        foreach ($visibleColumns as $alias) {
+        $visibleFields = $this->getTableSchema()->getFields(array_keys($columnsTree));
+        foreach ($visibleFields as $alias) {
             if (!$alias->isAlias() || !$alias->isManyToMany()) {
                 continue;
             }
@@ -1623,11 +1627,6 @@ class RelationalTableGateway extends BaseTableGateway
 
             // Only select the fields not on the currently authenticated user group's read field blacklist
             $relatedTableColumns = array_keys(ArrayUtils::get($columnsTree, $alias->getName(), ['*']) ?: ['*']);
-            $visibleColumns = array_merge(
-                [$relatedTablePrimaryKey],
-                $relatedTableColumns,
-                array_keys($joinColumns)
-            );
 
             $queryCallBack = function(Builder $query) use ($junctionTableName, $on, $joinColumns, $ids, $joinColumnsPrefix) {
                 $query->join($junctionTableName, $on, $joinColumns);
@@ -1645,7 +1644,11 @@ class RelationalTableGateway extends BaseTableGateway
                 'limit' => -1,
                 // Add the aliases of the join columns to prevent being removed from array
                 // because there aren't part of the "visible" columns list
-                'fields' => $visibleColumns,
+                'fields' => array_merge(
+                    [$relatedTablePrimaryKey],
+                    $relatedTableColumns,
+                    array_keys($joinColumns)
+                ),
                 'filter' => [
                     new In(
                         $relatedTableGateway->getColumnIdentifier($junctionKeyLeftColumn, $junctionTableName),
@@ -1741,11 +1744,13 @@ class RelationalTableGateway extends BaseTableGateway
                 $tempRow = $row;
                 $_byId = [];
                 foreach ($tempRow as $item) {
-                    $_byId[$item[$relatedTablePrimaryKey]] = $item;
+                    $rowId = $item[$relatedTablePrimaryKey];
 
-                    if ($relatedTableColumns && !ArrayUtils::contains($relatedTableColumns, $relatedTablePrimaryKey)) {
-                        ArrayUtils::remove($item, $relatedTablePrimaryKey);
+                    if (!in_array('*', $relatedTableColumns)) {
+                        $item = ArrayUtils::pick($item, $relatedTableColumns);
                     }
+
+                    $_byId[$rowId] = $item;
                 }
 
                 $row = [];
@@ -1862,13 +1867,18 @@ class RelationalTableGateway extends BaseTableGateway
 
             $relatedEntries = [];
             foreach ($results as $row) {
-                $relatedEntries[$row[$primaryKeyName]] = ArrayUtils::pick(
-                    $row,
-                    $tableGateway->getSelectedFields($filterColumns)
-                );
+                $rowId = $row[$primaryKeyName];
+                if (!in_array('*', $filterColumns)) {
+                    $row = ArrayUtils::pick(
+                        $row,
+                        $tableGateway->getSelectedFields($filterColumns)
+                    );
+                }
+
+                $relatedEntries[$rowId] = $row;
 
                 $tableGateway->wrapData(
-                    $relatedEntries[$row[$primaryKeyName]],
+                    $relatedEntries[$rowId],
                     true,
                     ArrayUtils::get($params, 'meta', 0)
                 );
