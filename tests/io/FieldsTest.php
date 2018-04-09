@@ -6,6 +6,7 @@ use Directus\Database\Connection;
 use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Exception\UnknownDataTypeException;
+use Directus\Database\Schema\DataTypes;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
 use Directus\Util\ArrayUtils;
@@ -88,6 +89,106 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         ]);
         $this->assertTrue(count($result) === 2);
         $this->assertTrue(column_exists(static::$db, static::$tableName, 'name'));
+    }
+
+    public function testCreateAliasFields()
+    {
+        $fieldsCount = 2;
+        $types = DataTypes::getAliasTypes();
+        foreach ($types as $type) {
+            $data = [
+                'field' => $type,
+                'interface' => 'text_input',
+                'type' => $type
+            ];
+
+            $response = request_post('fields/' . static::$tableName, $data, ['query' => $this->queryParams]);
+            assert_response($this, $response);
+            assert_response_data_contains($this, $response, $data);
+
+            // Has columns records
+            $result = table_find(static::$db, 'directus_fields', [
+                'collection' => static::$tableName
+            ]);
+
+            $fieldsCount++;
+            $this->assertTrue(count($result) === $fieldsCount);
+            $this->assertFalse(column_exists(static::$db, static::$tableName, $type));
+        }
+
+        // ----------------------------------------------------------------------------
+        // change type to another alias type
+        // ----------------------------------------------------------------------------
+        $typeIdx = count($types);
+        foreach ($types as $type) {
+            $typeIdx--;
+            $data = [
+                'type' => $types[$typeIdx]
+            ];
+
+            $path = sprintf('fields/%s/%s', static::$tableName, $type);
+            $response = request_patch($path, $data, ['query' => $this->queryParams]);
+            assert_response($this, $response);
+            assert_response_data_contains($this, $response, $data);
+
+            // Has columns records
+            $result = table_find(static::$db, 'directus_fields', [
+                'collection' => static::$tableName
+            ]);
+
+            $this->assertTrue(count($result) === $fieldsCount);
+            $this->assertFalse(column_exists(static::$db, static::$tableName, $type));
+        }
+
+        // ----------------------------------------------------------------------------
+        // change alias type to a non-alias type
+        // ----------------------------------------------------------------------------
+        foreach ($types as $type) {
+            $data = [
+                'type' => 'integer'
+            ];
+
+            $path = sprintf('fields/%s/%s', static::$tableName, $type);
+            $response = request_patch($path, $data, ['query' => $this->queryParams]);
+            assert_response($this, $response);
+            assert_response_data_contains($this, $response, $data);
+
+            // Has columns records
+            $result = table_find(static::$db, 'directus_fields', [
+                'collection' => static::$tableName
+            ]);
+
+            $this->assertTrue(count($result) === $fieldsCount);
+            $this->assertTrue(column_exists(static::$db, static::$tableName, $type));
+        }
+
+        // ----------------------------------------------------------------------------
+        // change non-alias type to an alias type
+        // ----------------------------------------------------------------------------
+        foreach ($types as $type) {
+            $data = [
+                'type' => $type
+            ];
+
+            $path = sprintf('fields/%s/%s', static::$tableName, $type);
+            $response = request_patch($path, $data, ['query' => $this->queryParams]);
+            assert_response($this, $response);
+            assert_response_data_contains($this, $response, $data);
+
+            // Has columns records
+            $result = table_find(static::$db, 'directus_fields', [
+                'collection' => static::$tableName
+            ]);
+
+            $this->assertTrue(count($result) === $fieldsCount);
+            $this->assertFalse(column_exists(static::$db, static::$tableName, $type));
+        }
+
+        foreach ($types as $type) {
+            $response = request_delete('fields/' . static::$tableName . '/' . $type, ['query' => $this->queryParams]);
+            echo response_get_body_contents($response);
+            assert_response_empty($this, $response);
+        }
     }
 
     public function testCreateUnknownDataType()

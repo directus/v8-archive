@@ -2,6 +2,7 @@
 
 namespace Directus\Database\Schema\Sources;
 
+use Directus\Database\Schema\DataTypes;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Zend\Db\Sql\Expression;
@@ -213,7 +214,7 @@ class MySQLSchema extends AbstractSchema
         $selectTwo->from(['DF2' => 'directus_fields']);
 
         $where = new Where();
-        $where->addPredicate(new In(new Expression('UCASE(type)'), ['ALIAS']));
+        $where->addPredicate(new In(new Expression('UCASE(type)'), DataTypes::getAliasTypes()));
         if (isset($params['collection'])) {
             $where->equalTo('DF2.collection', $params['collection']);
         }

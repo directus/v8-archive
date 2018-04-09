@@ -462,8 +462,10 @@ class TablesService extends AbstractService
             throw new BadRequestException('Cannot delete the last field');
         }
 
-        if (!$this->dropColumnSchema($collectionName, $fieldName)) {
-            throw new ErrorException('Error deleting the field');
+        if (!$columnObject->isAlias()) {
+            if (!$this->dropColumnSchema($collectionName, $fieldName)) {
+                throw new ErrorException('Error deleting the field');
+            }
         }
 
         if (!$this->removeColumnInfo($collectionName, $fieldName)) {
@@ -707,12 +709,14 @@ class TablesService extends AbstractService
         $this->validateSystemFields($fields);
 
         $toAdd = $toChange = $toDrop = [];
-        foreach ($fields as $i => $fieldData) {
+        foreach ($fields as $fieldData) {
             $field = $collection->getField($fieldData['field']);
 
             if ($field) {
                 if (!$field->isAlias() && DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
                     $toDrop[] = $field->getName();
+                } else if ($field->isAlias() && !DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
+                    $toAdd[] = array_merge($field->toArray(), $fieldData);
                 } else {
                     $toChange[] = array_merge($field->toArray(), $fieldData);
                 }

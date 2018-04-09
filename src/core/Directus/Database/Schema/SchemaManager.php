@@ -300,7 +300,7 @@ class SchemaManager
 
     public function getFieldsName($tableName)
     {
-        $columns = $this->getFIELDS($tableName);
+        $columns = $this->getFields($tableName);
 
         $columnNames = [];
         foreach ($columns as $column) {
