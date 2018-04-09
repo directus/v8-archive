@@ -223,6 +223,22 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
+    public function testCreateMessage()
+    {
+        $response = request_post('activity/message', [
+            'message' => 'comment'
+        ], ['query' => ['access_token' => 'token']]);
+
+        assert_response($this, $response, [
+            'data' => 'object'
+        ]);
+
+        assert_response_data_contains($this, $response, [
+            'type' => DirectusActivityTableGateway::TYPE_MESSAGE,
+            'message' => 'comment'
+        ]);
+    }
+
     protected function truncateTable()
     {
         truncate_table($this->db, 'directus_activity');
