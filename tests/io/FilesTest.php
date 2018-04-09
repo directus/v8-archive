@@ -66,6 +66,39 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(file_exists(static::$thumbsPath . '/2.jpg'));
     }
 
+    public function testCreateWithMultipart()
+    {
+        $name = 'image.jpg';
+        $title = 'new file';
+
+        $response = request('POST', 'files', [
+            'multipart' => [
+                [
+                    'name' => 'filename',
+                    'contents' => $name
+                ],
+                [
+                    'name' => 'title',
+                    'contents' => $title,
+                ],
+                [
+                    'name' => 'data',
+                    'contents' => $this->getImageStream()
+                ]
+            ],
+            'query' => $this->queryParams
+        ]);
+
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, [
+            'filename' => $name,
+            'title' => $title
+        ]);
+
+        $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
+        $this->assertTrue(file_exists(static::$thumbsPath . '/3.jpg'));
+    }
+
     public function testUpdate()
     {
         $data = [
@@ -113,7 +146,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, ['filename' => $name]);
 
         $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
-        $this->assertTrue(file_exists(static::$thumbsPath . '/3.jpg'));
+        $this->assertTrue(file_exists(static::$thumbsPath . '/4.jpg'));
     }
 
     public function testUpdateFolder()
@@ -168,7 +201,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $response = request_get('files', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 3
+            'count' => 4
         ]);
     }
 
@@ -187,17 +220,17 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(file_exists(static::$thumbsPath . '/2.jpg'));
 
         // delete second file
-        $response = request_delete('files/3', ['query' => $this->queryParams]);
+        $response = request_delete('files/4', ['query' => $this->queryParams]);
         assert_response_empty($this, $response);
 
-        $response = request_error_get('files/3', $this->queryParams);
+        $response = request_error_get('files/4', $this->queryParams);
         assert_response_error($this, $response, [
             'code' => ItemNotFoundException::ERROR_CODE,
             'status' => 404
         ]);
 
         $this->assertFalse(file_exists(static::$uploadPath . '/' . static::$fileName2));
-        $this->assertFalse(file_exists(static::$thumbsPath . '/3.jpg'));
+        $this->assertFalse(file_exists(static::$thumbsPath . '/4.jpg'));
     }
 
     protected function getImageBase64()
@@ -206,5 +239,10 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         // TODO: Guess the data type
         // TODO: Confirm is base64
         return 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAB4AKADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAUH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AugILDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/9k=';
+    }
+
+    protected function getImageStream()
+    {
+        return fopen(__DIR__ . '/../assets/image.jpeg', 'r');
     }
 }
