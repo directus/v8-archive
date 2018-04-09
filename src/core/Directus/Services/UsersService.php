@@ -8,7 +8,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\ForbiddenException;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 
 class UsersService extends AbstractService
 {
@@ -118,7 +118,7 @@ class UsersService extends AbstractService
             /** @var Provider $auth */
             $auth = $this->container->get('auth');
             $invitationToken = $auth->generateInvitationToken([
-                'date' => DateUtils::now(),
+                'date' => DateTimeUtils::nowInUTC()->toString(),
                 'sender' => $this->getAcl()->getUserId()
             ]);
 

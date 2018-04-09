@@ -5,13 +5,11 @@ namespace Directus\Database\TableGateway;
 use Directus\Database\Query\Builder;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Select;
-use Zend\Db\Sql\Update;
 
 class DirectusMessagesTableGateway extends RelationalTableGateway
 {
@@ -39,7 +37,7 @@ class DirectusMessagesTableGateway extends RelationalTableGateway
                 'from' => $from,
                 'subject' => $payload['subject'],
                 'message' => $payload['message'],
-                'datetime' => DateUtils::now(),
+                'datetime' => DateTimeUtils::nowInUTC()->toString(),
                 'attachment' => ArrayUtils::get($payload, 'attachment'),
                 'comment_metadata' => ArrayUtils::get($payload, 'comment_metadata'),
                 'response_to' => $payload['response_to']

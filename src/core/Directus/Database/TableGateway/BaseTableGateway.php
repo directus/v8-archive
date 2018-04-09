@@ -20,7 +20,7 @@ use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Exception\UnexpectedValueException;
 use Zend\Db\ResultSet\ResultSet;
@@ -239,24 +239,6 @@ class BaseTableGateway extends TableGateway
             $withKey[$row[$key]] = $row;
         }
         return $withKey;
-    }
-
-    protected function convertResultSetDateTimesTimeZones(array $resultSet, $targetTimeZone, $fields = ['datetime'], $yieldObjects = false)
-    {
-        foreach ($resultSet as &$result) {
-            $result = $this->convertRowDateTimesToTimeZone($result, $targetTimeZone, $fields);
-        }
-        return $resultSet;
-    }
-
-    protected function convertRowDateTimesToTimeZone(array $row, $targetTimeZone, $fields = ['datetime'], $yieldObjects = false)
-    {
-        foreach ($fields as $field) {
-            $col =& $row[$field];
-            $datetime = DateUtils::convertUtcDateTimeToTimeZone($col, $targetTimeZone);
-            $col = $yieldObjects ? $datetime : $datetime->format('Y-m-d H:i:s T');
-        }
-        return $row;
     }
 
     /**
@@ -930,8 +912,11 @@ class BaseTableGateway extends TableGateway
 
                 if ($canConvert) {
                     $columnName = $column->getName();
-                    if (array_key_exists($columnName, $row)) {
-                        $records[$index][$columnName] = DateUtils::convertToISOFormat($row[$columnName], 'UTC', get_user_timezone());
+
+                    if (isset($row[$columnName])) {
+                        $datetime = DateTimeUtils::createFromDefaultFormat($row[$columnName], 'UTC');
+                        $datetime->switchToTimeZone(get_user_timezone());
+                        $records[$index][$columnName] = $datetime->toISO8601Format();
                     }
                 }
             }

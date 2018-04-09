@@ -4,9 +4,8 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Exception\ErrorException;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 
 class FilesServices extends AbstractService
 {
@@ -29,7 +28,7 @@ class FilesServices extends AbstractService
         $tableGateway = $this->createTableGateway($this->collection);
 
         $data['upload_user'] = $this->getAcl()->getUserId();
-        $data['upload_date'] = DateUtils::now();
+        $data['upload_date'] = DateTimeUtils::nowInUTC()->toString();
 
         $validationConstraints = $this->createConstraintFor($this->collection);
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));

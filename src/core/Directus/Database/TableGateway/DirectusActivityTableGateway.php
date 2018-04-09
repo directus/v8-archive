@@ -6,7 +6,7 @@ use Directus\Database\Query\Builder;
 use Directus\Database\SchemaService;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Insert;
@@ -126,7 +126,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
             'action' => self::ACTION_LOGIN,
             'user' => $userId,
             'item' => $userId,
-            'datetime' => DateUtils::now(),
+            'datetime' => DateTimeUtils::nowInUTC()->toString(),
             'ip' => get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
         ];
@@ -150,7 +150,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         $logData = array_merge($data, [
             'type' => self::TYPE_MESSAGE,
             'action' => static::ACTION_ADD,
-            'datetime' => DateUtils::now(),
+            'datetime' => DateTimeUtils::nowInUTC()->toString(),
             'ip' => get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
         ]);

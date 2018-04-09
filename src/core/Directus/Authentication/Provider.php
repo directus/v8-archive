@@ -14,7 +14,7 @@ use Directus\Authentication\User\Provider\UserProviderInterface;
 use Directus\Authentication\User\UserInterface;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
 
 class Provider
@@ -440,7 +440,7 @@ class Provider
      */
     public function getNewExpirationTime()
     {
-        return time() + ($this->ttl * DateUtils::MINUTE_IN_SECONDS);
+        return time() + ($this->ttl * DateTimeUtils::MINUTE_IN_SECONDS);
     }
 
     /**

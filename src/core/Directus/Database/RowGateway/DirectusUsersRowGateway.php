@@ -3,7 +3,7 @@
 namespace Directus\Database\RowGateway;
 
 use Directus\Database\TableGateway\BaseTableGateway;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 
 class DirectusUsersRowGateway extends BaseRowGateway
 {
@@ -23,7 +23,7 @@ class DirectusUsersRowGateway extends BaseRowGateway
         // Updated their "last_access" value.
         if ($this->acl) {
             if (isset($rowData['id']) && $rowData['id'] == $this->acl->getUserId()) {
-                $rowData['last_access'] = DateUtils::now();
+                $rowData['last_access'] = DateTimeUtils::nowInUTC()->toString();
             }
         }
 

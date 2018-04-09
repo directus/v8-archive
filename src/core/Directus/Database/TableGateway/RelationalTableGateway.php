@@ -14,7 +14,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Predicate\PredicateInterface;
@@ -92,7 +92,7 @@ class RelationalTableGateway extends BaseTableGateway
                 'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
                 'action' => DirectusActivityTableGateway::ACTION_DELETE,
                 'user' => $this->acl->getUserId(),
-                'datetime' => DateUtils::now(),
+                'datetime' => DateTimeUtils::nowInUTC()->toString(),
                 'ip' => get_request_ip(),
                 'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                 'collection' => $this->table,
@@ -253,7 +253,7 @@ class RelationalTableGateway extends BaseTableGateway
                     'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
                     'action' => $logEntryAction,
                     'user' => $currentUserId,
-                    'datetime' => DateUtils::now(),
+                    'datetime' => DateTimeUtils::nowInUTC()->toString(),
                     'ip' => get_request_ip(),
                     'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                     'collection' => $tableName,
@@ -293,7 +293,7 @@ class RelationalTableGateway extends BaseTableGateway
                         'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
                         'action' => $logEntryAction,
                         'user' => $currentUserId,
-                        'datetime' => DateUtils::now(),
+                        'datetime' => DateTimeUtils::nowInUTC()->toString(),
                         'ip' => get_request_ip(),
                         'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                         'collection' => $tableName,

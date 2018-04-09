@@ -4,7 +4,7 @@ namespace Directus\Filesystem;
 
 use Directus\Application\Application;
 use Directus\Filesystem\Exception\ForbiddenException;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
 
 class Files
@@ -140,7 +140,7 @@ class Files
         }
 
         if ($info) {
-            $info['upload_date'] = DateUtils::now();
+            $info['upload_date'] = DateTimeUtils::nowInUTC()->toString();
             $info['storage_adapter'] = $this->getConfig('adapter');
             $info['charset'] = isset($info['charset']) ? $info['charset'] : '';
         }
@@ -266,7 +266,7 @@ class Files
         $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
         $fileData['filename'] = basename($filePath);
-        $fileData['upload_date'] = DateUtils::now();
+        $fileData['upload_date'] = DateTimeUtils::nowInUTC()->toString();
         $fileData['storage_adapter'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
@@ -524,7 +524,7 @@ class Files
         $this->emitter->run('files.saving:after', ['name' => $targetName, 'size' => strlen($data)]);
 
         $fileData['name'] = basename($finalPath);
-        $fileData['date_uploaded'] = DateUtils::now();
+        $fileData['date_uploaded'] = DateTimeUtils::nowInUTC()->toString();
         $fileData['storage_adapter'] = $this->config['adapter'];
 
         return $fileData;

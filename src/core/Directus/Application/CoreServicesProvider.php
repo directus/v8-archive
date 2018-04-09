@@ -48,7 +48,7 @@ use Directus\Services\AuthService;
 use Directus\Session\Session;
 use Directus\Session\Storage\NativeSessionStorage;
 use Directus\Util\ArrayUtils;
-use Directus\Util\DateUtils;
+use Directus\Util\DateTimeUtils;
 use Directus\Util\StringUtils;
 use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
@@ -275,11 +275,11 @@ class CoreServicesProvider
 
 
                 if ($dateCreated = $collection->getDateCreateField()) {
-                    $payload[$dateCreated] = DateUtils::now();
+                    $payload[$dateCreated] = DateTimeUtils::nowInUTC()->toString();
                 }
 
                 if ($dateCreated = $collection->getDateUpdateField()) {
-                    $payload[$dateCreated] = DateUtils::now();
+                    $payload[$dateCreated] = DateTimeUtils::nowInUTC()->toString();
                 }
 
                 // Directus Users created user are themselves (primary key)
@@ -306,7 +306,7 @@ class CoreServicesProvider
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
                 if ($dateModified = $collection->getDateUpdateField()) {
-                    $payload[$dateModified] = DateUtils::now();
+                    $payload[$dateModified] = DateTimeUtils::nowInUTC()->toString();
                 }
                 if ($userModified = $collection->getUserUpdateField()) {
                     $payload[$userModified] = $acl->getUserId();
@@ -343,7 +343,7 @@ class CoreServicesProvider
                     $payload->replace(array_merge($recordData, ArrayUtils::omit($data, 'filename')));
                     $payload->remove('data');
                     $payload->set('upload_user', $acl->getUserId());
-                    $payload->set('upload_date', DateUtils::now());
+                    $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
                 }
 
                 return $payload;

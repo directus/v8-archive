@@ -6,7 +6,6 @@ use Directus\Authentication\User\User;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\TableGateway\BaseTableGateway;
-use Directus\Util\DateUtils;
 use Zend\Db\Sql\Select;
 
 class UserTableGatewayProvider implements UserProviderInterface
