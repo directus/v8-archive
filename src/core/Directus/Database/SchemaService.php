@@ -39,8 +39,6 @@ class SchemaService
      */
     protected static $config = [];
 
-    public static $many_to_one_uis = ['many_to_one', 'single_files'];
-
     // These columns types are aliases for "associations". They don't have
     // real, corresponding columns in the DB.
     public static $association_types = ['ONETOMANY', 'MANYTOMANY', 'ALIAS'];
