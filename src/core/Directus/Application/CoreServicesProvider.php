@@ -1096,7 +1096,10 @@ class CoreServicesProvider
         return function (Container $container) {
             $basePath = $container->get('path_base');
 
-            return new Twig($basePath . '/src/mail');
+            return new Twig([
+                $basePath . '/customs/mail',
+                $basePath . '/src/mail'
+            ]);
         };
     }
 
