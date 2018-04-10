@@ -589,7 +589,7 @@ class RelationalTableGateway extends BaseTableGateway
             unset($defaultParams['sort']);
         }
 
-        if (ArrayUtils::get($params, 'status') === '*') {
+        if (!$this->getTableSchema()->hasStatusField() || ArrayUtils::get($params, 'status') === '*') {
             ArrayUtils::remove($params, 'status');
         } else if (!ArrayUtils::has($params, 'id') && !ArrayUtils::has($params, 'status')) {
             $defaultParams['status'] = $this->getPublishedStatuses();

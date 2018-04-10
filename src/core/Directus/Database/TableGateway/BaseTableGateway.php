@@ -4,17 +4,22 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Config\StatusMapping;
 use Directus\Container\Container;
+use Directus\Database\Exception\CollectionHasNotStatusInterface;
 use Directus\Database\Exception\DuplicateItemException;
 use Directus\Database\Exception\InvalidQueryException;
 use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Database\Exception\StatusMappingEmptyException;
+use Directus\Database\Exception\StatusMappingWrongValueTypeException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
 use Directus\Database\Query\Builder;
+use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGatewayFactory;
 use Directus\Database\SchemaService;
+use Directus\Exception\Exception;
 use Directus\Filesystem\Thumbnail;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
@@ -1525,20 +1530,60 @@ class BaseTableGateway extends TableGateway
      * Gets the collection status mapping
      *
      * @return StatusMapping|null
+     *
+     * @throws CollectionHasNotStatusInterface
+     * @throws Exception
      */
     protected function getStatusMapping()
     {
-        $statusMapping = null;
-
-        if (static::$container && SchemaService::hasStatusField($this->table, true)) {
-            /** @var StatusMapping $statusMapping */
-            $statusMapping = static::$container->get('status_mapping');
-            $collectionStatusMapping = $this->getTableSchema()->getStatusMapping();
-            if ($collectionStatusMapping) {
-                $statusMapping = $collectionStatusMapping;
-            }
+        if (!$this->getTableSchema()->hasStatusField()) {
+            throw new CollectionHasNotStatusInterface($this->table);
         }
 
-        return $statusMapping;
+        $collectionStatusMapping = $this->getTableSchema()->getStatusMapping();
+        if (!$collectionStatusMapping) {
+            if (!static::$container) {
+                throw new Exception('collection status interface is missing status mapping and the system was unable to find the global status mapping');
+            }
+
+            $collectionStatusMapping = static::$container->get('status_mapping');
+        }
+
+        $this->validateStatusMapping($collectionStatusMapping);
+
+        return $collectionStatusMapping;
+    }
+
+    /**
+     * Validates a status mapping against the field type
+     *
+     * @param StatusMapping $statusMapping
+     *
+     * @throws CollectionHasNotStatusInterface
+     * @throws StatusMappingEmptyException
+     * @throws StatusMappingWrongValueTypeException
+     */
+    protected function validateStatusMapping(StatusMapping $statusMapping)
+    {
+        if ($statusMapping->isEmpty()) {
+            throw new StatusMappingEmptyException($this->table);
+        }
+
+        $statusField = $this->getTableSchema()->getStatusField();
+        if (!$statusField) {
+            throw new CollectionHasNotStatusInterface($this->table);
+        }
+
+        $type = 'string';
+        if (DataTypes::isNumericType($statusField->getType())) {
+            $type = 'numeric';
+        }
+
+        foreach ($statusMapping as $status) {
+            if (!call_user_func('is_' . $type, $status->getValue())) {
+                throw new StatusMappingWrongValueTypeException($type, $statusField->getName(), $this->table);
+
+            }
+        }
     }
 }

@@ -70,7 +70,7 @@ class Collection implements CollectionInterface, \Iterator
      */
     public function isEmpty()
     {
-        return empty($this->items);
+        return $this->count() === 0;
     }
 
     /**
