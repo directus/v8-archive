@@ -6,6 +6,7 @@ require __DIR__ . '/helpers/extensions.php';
 require __DIR__ . '/helpers/file.php';
 require __DIR__ . '/helpers/items.php';
 require __DIR__ . '/helpers/mail.php';
+require __DIR__ . '/helpers/settings.php';
 require __DIR__ . '/helpers/sorting.php';
 require __DIR__ . '/helpers/url.php';
 
