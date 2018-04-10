@@ -797,7 +797,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         if ($tableSchema->hasStatusField() && in_array('status', $list)) {
             $statusCount = $this->countByStatus();
-            $metadata = array_merge($metadata, $statusCount);
+            $metadata['status'] = $statusCount;
         }
 
         return $metadata;
@@ -2083,7 +2083,7 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $collection = $this->schemaManager->getCollection($this->getTable());
         if (!$collection->hasStatusField()) {
-            return ['total_entries' => $this->countTotal()];
+            return [];
         }
 
         $statusFieldName = $collection->getStatusField()->getName();
