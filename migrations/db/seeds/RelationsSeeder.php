@@ -77,7 +77,7 @@ class RelationsSeeder extends AbstractSeed
             ]
         ];
 
-        $files = $this->table('directus_files');
+        $files = $this->table('directus_relations');
         $files->insert($data)->save();
     }
 }
