@@ -144,25 +144,6 @@ class SchemaService
         static::$config = $config;
     }
 
-    public static function getStatusMap($tableName)
-    {
-        $tableObject = static::getCollection($tableName);
-        $statusMapping = $tableObject->getStatusMapping();
-
-        if (!$statusMapping) {
-            $statusMapping = static::$config->getAllStatuses();
-        }
-
-        if ($statusMapping) {
-            array_walk($statusMapping, function (&$status, $key) {
-                $status['id'] = $key;
-                return $status;
-            });
-        }
-
-        return $statusMapping;
-    }
-
     /**
      * Gets table schema object
      *

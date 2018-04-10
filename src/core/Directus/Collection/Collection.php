@@ -4,7 +4,7 @@ namespace Directus\Collection;
 
 use Directus\Util\ArrayUtils;
 
-class Collection implements CollectionInterface
+class Collection implements CollectionInterface, \Iterator
 {
     /**
      * Collection items
@@ -146,5 +146,45 @@ class Collection implements CollectionInterface
     public function count()
     {
         return count($this->items);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function current()
+    {
+        return current($this->items);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function next()
+    {
+        return next($this->items);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function key()
+    {
+        return key($this->items);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function valid()
+    {
+        return $this->key() !== null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function rewind()
+    {
+        return reset($this->items);
     }
 }

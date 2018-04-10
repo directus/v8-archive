@@ -2081,30 +2081,29 @@ class RelationalTableGateway extends BaseTableGateway
 
     public function countByStatus()
     {
-        $tableSchema = SchemaService::getCollection($this->getTable());
-        if (!$tableSchema->hasStatusColumn()) {
+        $collection = $this->schemaManager->getCollection($this->getTable());
+        if (!$collection->hasStatusField()) {
             return ['total_entries' => $this->countTotal()];
         }
 
-        $statusColumnName = $tableSchema->getStatusColumn();
+        $statusFieldName = $collection->getStatusField()->getName();
 
         $select = new Select($this->getTable());
         $select
-            ->columns([$statusColumnName, 'quantity' => new Expression('COUNT(*)')])
-            ->group($statusColumnName);
+            ->columns([$statusFieldName, 'quantity' => new Expression('COUNT(*)')])
+            ->group($statusFieldName);
 
         $sql = new Sql($this->adapter, $this->table);
         $statement = $sql->prepareStatementForSqlObject($select);
         $results = $statement->execute();
 
-        $statusMap = SchemaService::getStatusMap($this->getTable());
+        $statusMap = $this->getStatusMapping();
         $stats = [];
         foreach ($results as $row) {
-            if (isset($row[$statusColumnName])) {
+            if (isset($row[$statusFieldName])) {
                 foreach ($statusMap as $status) {
-                    if ($status['id'] == $row[$statusColumnName]) {
-                        $statSlug = $statusMap[$row[$statusColumnName]];
-                        $stats[$statSlug['name']] = (int) $row['quantity'];
+                    if ($status->getValue() == $row[$statusFieldName]) {
+                        $stats[$status->getName()] = (int) $row['quantity'];
                     }
                 }
             }
@@ -2112,7 +2111,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $vals = [];
         foreach ($statusMap as $value) {
-            array_push($vals, $value['name']);
+            array_push($vals, $value->getName());
         }
 
         $possibleValues = array_values($vals);
