@@ -40,6 +40,18 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         fill_table(static::$db, 'products', static::$data);
         $uploadPath = realpath(__DIR__ . '/../../public/storage/uploads');
         clear_storage($uploadPath);
+
+        request_patch('fields/products/status', ['options' => [
+            'status_mapping' => [
+                '1' => [
+                    'name' => 'Published'
+                ],
+                2 => [
+                    'name' => 'Draft',
+                    'published' => false
+                ]
+            ]
+        ]], ['query' => ['access_token' => 'token']]);
     }
 
     public static function setUpBeforeClass()
@@ -691,6 +703,106 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response, [
             'data' => 'array',
             'count' => 7
+        ]);
+    }
+
+    public function testStatusInterfaceMapping()
+    {
+        request_patch('fields/products/status', ['field' => 'status', 'options' => ""], ['query' => ['access_token' => 'token']]);
+        truncate_table(static::$db, 'directus_settings');
+
+        $response = request_error_get('items/products', ['access_token' => 'token']);
+        assert_response_error($this, $response);
+
+        // {"status_mapping": {"1":{"name":"Published","published":true},"2":{"name":"Draft","published":false}}}
+        // Insert global status mapping
+        $data = [
+            'scope' => 'status',
+            'group' => 'global',
+            'key' => 'status_mapping',
+            'value' => json_encode([
+                'one' => [
+                    'name' => 'Published'
+                ],
+                'two' => [
+                    'name' => 'Draft'
+                ]
+            ])
+        ];
+        request_post('settings', $data, ['query' => ['access_token' => 'token']]);
+
+        $response = request_error_get('items/products', ['access_token' => 'token']);
+        assert_response_error($this, $response);
+
+        // update global status mapping
+        $data = [
+            'value' => json_encode([
+                '1' => [
+                    'name' => 'Published'
+                ],
+                '2' => [
+                    'name' => 'Draft',
+                    'published' => false
+                ]
+            ])
+        ];
+        request_patch('settings/1', $data, ['query' => ['access_token' => 'token']]);
+
+        $response = request_get('items/products', ['access_token' => 'token']);
+        assert_response($this, $response, [
+            'data' => 'array'
+        ]);
+
+        // update status mapping on field interface with string-type
+        $options = [
+            'status_mapping' => [
+                'one' => [
+                    'name' => 'Published'
+                ],
+                'two' => [
+                    'name' => 'Draft'
+                ]
+            ]
+        ];
+        request_patch('fields/products/status', ['options' => $options], ['query' => ['access_token' => 'token']]);
+
+        $response = request_error_get('items/products', ['access_token' => 'token']);
+        assert_response_error($this, $response);
+
+        // update status mapping on field interface with integer-type
+        $options = [
+            'status_mapping' => [
+                1 => [
+                    'name' => 'Published'
+                ],
+                2 => [
+                    'name' => 'Draft'
+                ]
+            ]
+        ];
+        request_patch('fields/products/status', ['options' => $options], ['query' => ['access_token' => 'token']]);
+
+        $response = request_get('items/products', ['access_token' => 'token']);
+        assert_response($this, $response, [
+            'data' => 'array'
+        ]);
+
+        // update status mapping on field interface with numeric-type
+        $options = [
+            'status_mapping' => [
+                '1' => [
+                    'name' => 'Published'
+                ],
+                '2' => [
+                    'name' => 'Draft'
+                ]
+            ]
+        ];
+        request_patch('fields/products/status', ['options' => $options], ['query' => ['access_token' => 'token']]);
+
+        $response = request_get('items/products', ['access_token' => 'token']);
+        assert_response($this, $response, [
+            'data' => 'array'
         ]);
     }
 

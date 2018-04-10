@@ -1582,7 +1582,6 @@ class BaseTableGateway extends TableGateway
         foreach ($statusMapping as $status) {
             if (!call_user_func('is_' . $type, $status->getValue())) {
                 throw new StatusMappingWrongValueTypeException($type, $statusField->getName(), $this->table);
-
             }
         }
     }
