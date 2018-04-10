@@ -279,12 +279,14 @@ class InstallerUtils
             ],
             [
                 'scope' => 'global',
-                'key' => 'project_name',
+                'group' => 'project',
+                'key' => 'name',
                 'value' => $data['directus_name']
             ],
             [
                 'scope' => 'global',
-                'key' => 'project_url',
+                'group' => 'project',
+                'key' => 'url',
                 'value' => get_url()
             ],
             [
