@@ -61,8 +61,19 @@ if (!function_exists('get_uploaded_file_error')) {
 
 if (!function_exists('append_storage_information'))
 {
+    /**
+     * append storage information to one or multiple file items
+     *
+     * @param array $rows
+     *
+     * @return array
+     */
     function append_storage_information(array $rows)
     {
+        if (empty($rows)) {
+            return $rows;
+        }
+
         $container = \Directus\Application\Application::getInstance()->getContainer();
         $config = $container->get('config');
         $fileRootUrl = $config->get('filesystem.root_url');
