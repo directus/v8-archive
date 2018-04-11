@@ -42,9 +42,9 @@ class CreateSettingsTable extends AbstractMigration
             'default' => null
         ]);
 
-        $table->addIndex(['scope', 'group', 'key'], [
+        $table->addIndex(['scope', 'key'], [
             'unique' => true,
-            'name' => 'idx_scope_group_name'
+            'name' => 'idx_scope_name'
         ]);
 
         $table->create();
