@@ -267,7 +267,6 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     {
         $data = [
             'scope' => 'scope-name',
-            'group' => 'group-name',
             'key' => 'value',
             'value' => 1
         ];

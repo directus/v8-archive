@@ -718,7 +718,6 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // Insert global status mapping
         $data = [
             'scope' => 'status',
-            'group' => 'global',
             'key' => 'status_mapping',
             'value' => json_encode([
                 'one' => [
