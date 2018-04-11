@@ -1060,7 +1060,6 @@ class CoreServicesProvider
             foreach ($settings as $setting) {
                 if (
                     ArrayUtils::get($setting, 'scope') == 'status'
-                    && ArrayUtils::get($setting, 'group') == 'global'
                     && ArrayUtils::get($setting, 'key') == 'status_mapping'
                 ) {
                     $statusMapping = json_decode($setting['value'], true);
@@ -1102,7 +1101,6 @@ class CoreServicesProvider
                 $settingsTable = new TableGateway('directus_settings', $dbConnection);
 
                 $result = $settingsTable->select([
-                    'group' => 'global',
                     'scope' => 'files'
                 ])->toArray();
 

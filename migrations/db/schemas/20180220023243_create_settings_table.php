@@ -33,10 +33,6 @@ class CreateSettingsTable extends AbstractMigration
             'limit' => 64,
             'default' => null
         ]);
-        $table->addColumn('group', 'string', [
-            'limit' => 64,
-            'default' => null
-        ]);
         $table->addColumn('key', 'string', [
             'limit' => 64,
             'null' => false
