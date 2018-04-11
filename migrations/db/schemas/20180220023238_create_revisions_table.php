@@ -41,8 +41,7 @@ class CreateRevisionsTable extends AbstractMigration
             'limit' => 255
         ]);
         $table->addColumn('data', 'text', [
-            'limit' => 4294967295,
-            'null' => true
+            'limit' => 4294967295
         ]);
         $table->addColumn('delta', 'text', [
             'limit' => 4294967295,
