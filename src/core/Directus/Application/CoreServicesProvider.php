@@ -365,37 +365,56 @@ class CoreServicesProvider
                 return $payload;
             });
             $addFilesUrl = function ($rows) use ($container) {
+                $config = $container->get('config');
+                $fileRootUrl = $config->get('filesystem.root_url');
+                $thumbnailRootUrl = $config->get('filesystem.root_thumb_url');
+                $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
+                $hasThumbnailRootUrlHost = parse_url($thumbnailRootUrl, PHP_URL_HOST);
+                $isLocalStorageAdapter = $config->get('filesystem.adapter') == 'local';
+
                 foreach ($rows as &$row) {
-                    $config = $container->get('config');
-                    $fileURL = $config['filesystem']['root_url'];
-                    $thumbnailURL = $config['filesystem']['root_thumb_url'];
+                    $storage = [];
                     $thumbnailFilenameParts = explode('.', $row['filename']);
                     $thumbnailExtension = array_pop($thumbnailFilenameParts);
-                    $row['url'] = $fileURL . '/' . $row['filename'];
+                    $storage['url'] = $storage['full_url'] = $fileRootUrl . '/' . $row['filename'];
+
+                    // Add Full url
+                    if ($isLocalStorageAdapter && !$hasFileRootUrlHost) {
+                        $storage['full_url'] = get_url($storage['url']);
+                    }
+
+                    // Add Thumbnails
                     if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
                         $thumbnailExtension = Thumbnail::defaultFormat();
                     }
+
                     $thumbnailFilename = $row['id'] . '.' . $thumbnailExtension;
-                    $row['thumbnail_url'] = $thumbnailURL . '/' . $thumbnailFilename;
-                    // filename-ext-100-100-true.jpg
-                    // @TODO: This should be another hook listener
-                    $filename = implode('.', $thumbnailFilenameParts);
-                    if (isset($row['type']) && $row['type'] == 'embed/vimeo') {
-                        $oldThumbnailFilename = $row['filename'] . '-vimeo-220-124-true.jpg';
-                    } else {
-                        $oldThumbnailFilename = $filename . '-' . $thumbnailExtension . '-160-160-true.jpg';
+                    $defaultThumbnailUrl = $defaultThumbnailFullUrl = $thumbnailRootUrl . '/' . $thumbnailFilename;
+                    if ($isLocalStorageAdapter && !$hasThumbnailRootUrlHost) {
+                        $defaultThumbnailFullUrl = get_url($defaultThumbnailFullUrl);
                     }
-                    // 314551321-vimeo-220-124-true.jpg
-                    // hotfix: there's not thumbnail for this file
-                    $row['old_thumbnail_url'] = $thumbnailURL . '/' . $oldThumbnailFilename;
+
+                    $storage['thumbnails'][] = [
+                        'full_url' => $defaultThumbnailFullUrl,
+                        'url' => $defaultThumbnailUrl
+                    ];
+
+                    // Add embed content
+                    /** @var EmbedManager $embedManager */
                     $embedManager = $container->get('embed_manager');
                     $provider = isset($row['type']) ? $embedManager->getByType($row['type']) : null;
-                    $row['html'] = null;
+                    $embed = null;
                     if ($provider) {
-                        $row['html'] = $provider->getCode($row);
-                        $row['embed_url'] = $provider->getUrl($row);
+                        $embed = [
+                            'html' => $provider->getCode($row),
+                            'url' => $provider->getUrl($row)
+                        ];
                     }
+                    $storage['embed'] = $embed;
+
+                    $row['storage'] = $storage;
                 }
+
                 return $rows;
             };
             $emitter->addFilter('collection.select.directus_files:before', function (Payload $payload) {
