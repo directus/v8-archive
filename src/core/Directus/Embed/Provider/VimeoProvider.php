@@ -24,7 +24,7 @@ class VimeoProvider extends AbstractProvider
      */
     public function getFormatUrl()
     {
-        return 'https://vimeo.com/{{embed_id}}';
+        return 'https://vimeo.com/{{embed}}';
     }
 
     /**
@@ -53,8 +53,8 @@ class VimeoProvider extends AbstractProvider
     {
         $info = [];
 
-        $info['title'] = 'Unable to retreieve Vimeo title';
-        $info['size'] = 0;
+        $info['title'] = 'Unable to retrieve Vimeo title';
+        $info['filesize'] = 0;
         $info['width'] = 560;
         $info['height'] = 540;
 
@@ -105,6 +105,6 @@ class VimeoProvider extends AbstractProvider
      */
     protected function getFormatTemplate()
     {
-        return '<iframe src="//player.vimeo.com/video/{{embed_id}}?title=false&amp;byline=false&amp;portrait=false&amp;color=FFFFFF" width="{{width}}" height="{{height}}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+        return '<iframe src="//player.vimeo.com/video/{{embed}}?title=false&amp;byline=false&amp;portrait=false&amp;color=FFFFFF" width="{{width}}" height="{{height}}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
     }
 }

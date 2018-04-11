@@ -3,7 +3,6 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
-use Directus\Exception\Exception;
 use Directus\Filesystem\Exception\ForbiddenException;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
@@ -306,10 +305,12 @@ class Files
             return [];
         }
 
-        $fileName = isset($fileInfo['name']) ? $fileInfo['name'] : md5(time()) . '.jpg';
+        $fileName = isset($fileInfo['filename']) ? $fileInfo['filename'] : md5(time()) . '.jpg';
         $imageData = $this->saveData($fileInfo['data'], $fileName);
 
-        return array_merge($imageData, $fileInfo);
+        return array_merge($imageData, $fileInfo, [
+            'filename' => $fileName
+        ]);
     }
 
     /**

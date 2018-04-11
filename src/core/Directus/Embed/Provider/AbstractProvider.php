@@ -100,10 +100,10 @@ abstract class AbstractProvider implements ProviderInterface
     public function parseID($embedID)
     {
         $defaultInfo = [
-            'embed_id' => $embedID,
+            'embed' => $embedID,
             'title' => sprintf('%s %s: %s', $this->getName(), $this->getProviderType(), $embedID),
-            'size' => 0,
-            'name' => $this->getName() . '_' . $embedID . '.jpg',
+            'filesize' => 0,
+            'filename' => $this->getName() . '_' . $embedID . '.jpg',
             'type' => $this->getType()
         ];
 

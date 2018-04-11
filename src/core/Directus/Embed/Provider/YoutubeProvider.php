@@ -24,7 +24,7 @@ class YoutubeProvider extends AbstractProvider
      */
     public function getFormatUrl()
     {
-        return 'https://www.youtube.com/watch?v={{embed_id}}';
+        return 'https://www.youtube.com/watch?v={{embed}}';
     }
 
     /**
@@ -55,7 +55,7 @@ class YoutubeProvider extends AbstractProvider
         $info = [];
 
         $info['title'] = 'Unable to retrieve YouTube title';
-        $info['size'] = 0;
+        $info['filesize'] = 0;
         $info['height'] = 340;
         $info['width'] = 560;
         $info['data'] = $this->getThumbnail($videoID);
@@ -96,7 +96,7 @@ class YoutubeProvider extends AbstractProvider
             $videoContentDetails = $content->items[0]->contentDetails;
             $videoStart = new \DateTime('@0'); // Unix epoch
             $videoStart->add(new \DateInterval($videoContentDetails->duration));
-            $info['size'] = $videoStart->format('U');
+            $info['duration'] = $videoStart->format('U');
         }
 
         return $info;
@@ -124,6 +124,6 @@ class YoutubeProvider extends AbstractProvider
      */
     protected function getFormatTemplate()
     {
-        return '<iframe width="{{width}}" height="{{height}}" src="//www.youtube.com/embed/{{embed_id}}" frameborder="0" allowfullscreen></iframe>';
+        return '<iframe width="{{width}}" height="{{height}}" src="//www.youtube.com/embed/{{embed}}" frameborder="0" allowfullscreen></iframe>';
     }
 }
