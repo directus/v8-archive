@@ -23,8 +23,6 @@ class FilesServices extends AbstractService
     public function create(array $data, array $params = [])
     {
         $this->enforcePermissions($this->collection, $data, $params);
-
-        // $table = 'directus_files';
         $tableGateway = $this->createTableGateway($this->collection);
 
         $data['upload_user'] = $this->getAcl()->getUserId();
@@ -35,7 +33,7 @@ class FilesServices extends AbstractService
         $newFile = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
-            $newFile->toArray(),
+            append_storage_information($newFile->toArray()),
             true,
             ArrayUtils::get($params, 'meta')
         );
@@ -59,7 +57,7 @@ class FilesServices extends AbstractService
         $newFile = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
-            $newFile->toArray(),
+            append_storage_information($newFile->toArray()),
             true,
             ArrayUtils::get($params, 'meta')
         );

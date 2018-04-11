@@ -58,3 +58,67 @@ if (!function_exists('get_uploaded_file_error')) {
         return $message;
     }
 }
+
+if (!function_exists('append_storage_information'))
+{
+    function append_storage_information(array $rows)
+    {
+        $container = \Directus\Application\Application::getInstance()->getContainer();
+        $config = $container->get('config');
+        $fileRootUrl = $config->get('filesystem.root_url');
+        $thumbnailRootUrl = $config->get('filesystem.root_thumb_url');
+        $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
+        $hasThumbnailRootUrlHost = parse_url($thumbnailRootUrl, PHP_URL_HOST);
+        $isLocalStorageAdapter = $config->get('filesystem.adapter') == 'local';
+        $list = isset($rows[0]);
+
+        if (!$list) {
+            $rows = [$rows];
+        }
+
+        foreach ($rows as &$row) {
+            $storage = [];
+            $thumbnailFilenameParts = explode('.', $row['filename']);
+            $thumbnailExtension = array_pop($thumbnailFilenameParts);
+            $storage['url'] = $storage['full_url'] = $fileRootUrl . '/' . $row['filename'];
+
+            // Add Full url
+            if ($isLocalStorageAdapter && !$hasFileRootUrlHost) {
+                $storage['full_url'] = get_url($storage['url']);
+            }
+
+            // Add Thumbnails
+            if (\Directus\Filesystem\Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
+                $thumbnailExtension = \Directus\Filesystem\Thumbnail::defaultFormat();
+            }
+
+            $thumbnailFilename = $row['id'] . '.' . $thumbnailExtension;
+            $defaultThumbnailUrl = $defaultThumbnailFullUrl = $thumbnailRootUrl . '/' . $thumbnailFilename;
+            if ($isLocalStorageAdapter && !$hasThumbnailRootUrlHost) {
+                $defaultThumbnailFullUrl = get_url($defaultThumbnailFullUrl);
+            }
+
+            $storage['thumbnails'][] = [
+                'full_url' => $defaultThumbnailFullUrl,
+                'url' => $defaultThumbnailUrl
+            ];
+
+            // Add embed content
+            /** @var \Directus\Embed\EmbedManager $embedManager */
+            $embedManager = $container->get('embed_manager');
+            $provider = isset($row['type']) ? $embedManager->getByType($row['type']) : null;
+            $embed = null;
+            if ($provider) {
+                $embed = [
+                    'html' => $provider->getCode($row),
+                    'url' => $provider->getUrl($row)
+                ];
+            }
+            $storage['embed'] = $embed;
+
+            $row['storage'] = $storage;
+        }
+
+        return $list ? $rows : reset($rows);
+    }
+}
