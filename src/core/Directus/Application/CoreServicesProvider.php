@@ -335,8 +335,10 @@ class CoreServicesProvider
                 $payload->replace(array_merge($recordData, ArrayUtils::omit($data, 'filename')));
                 $payload->remove('data');
                 $payload->remove('html');
-                $payload->set('upload_user', $acl->getUserId());
-                $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
+                if (!$replace) {
+                    $payload->set('upload_user', $acl->getUserId());
+                    $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
+                }
             };
             $emitter->addFilter('collection.update:before', function (Payload $payload) use ($container, $savesFile) {
                 $collection = SchemaService::getCollection($payload->attribute('collection_name'));
