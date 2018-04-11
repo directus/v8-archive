@@ -301,50 +301,66 @@ class CoreServicesProvider
 
                 return $payload;
             }, Emitter::P_HIGH);
-            $emitter->addFilter('collection.update:before', function (Payload $payload) use ($container) {
+            $savesFile = function (Payload $payload, $replace = false) use ($container) {
+                $collectionName = $payload->attribute('collection_name');
+                if ($collectionName !== SchemaManager::COLLECTION_FILES) {
+                    return null;
+                }
+
+                if ($replace === true && !$payload->has('data')) {
+                    return null;
+                }
+
+                /** @var Acl $auth */
+                $acl = $container->get('acl');
+                $data = $payload->getData();
+
+                /** @var \Directus\Filesystem\Files $files */
+                $files = $container->get('files');
+
+                if (array_key_exists('data', $data) && filter_var($data['data'], FILTER_VALIDATE_URL)) {
+                    $dataInfo = $files->getLink($data['data']);
+                } else {
+                    $dataInfo = $files->getDataInfo($data['data']);
+                }
+
+                $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
+
+                if (strpos($type, 'embed/') === 0) {
+                    $recordData = $files->saveEmbedData($dataInfo);
+                } else {
+                    $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
+                }
+
+                $payload->replace(array_merge($recordData, ArrayUtils::omit($data, 'filename')));
+                $payload->remove('data');
+                $payload->set('upload_user', $acl->getUserId());
+                $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
+            };
+            $emitter->addFilter('collection.update:before', function (Payload $payload) use ($container, $savesFile) {
                 $collection = SchemaService::getCollection($payload->attribute('collection_name'));
+
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
                 if ($dateModified = $collection->getDateUpdateField()) {
                     $payload[$dateModified] = DateTimeUtils::nowInUTC()->toString();
                 }
+
                 if ($userModified = $collection->getUserUpdateField()) {
                     $payload[$userModified] = $acl->getUserId();
                 }
+
                 // NOTE: exclude date_uploaded from updating a file record
                 if ($collection->getName() === 'directus_files') {
                     $payload->remove('date_uploaded');
                 }
+
+                $savesFile($payload, true);
+
                 return $payload;
             }, Emitter::P_HIGH);
-            $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($container) {
-                if ($payload->attribute('collection_name') === 'directus_files') {
-                    /** @var Acl $auth */
-                    $acl = $container->get('acl');
-                    $data = $payload->getData();
-
-                    /** @var \Directus\Filesystem\Files $files */
-                    $files = $container->get('files');
-
-                    if (array_key_exists('data', $data) && filter_var($data['data'], FILTER_VALIDATE_URL)) {
-                        $dataInfo = $files->getLink($data['data']);
-                    } else {
-                        $dataInfo = $files->getDataInfo($data['data']);
-                    }
-
-                    $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
-
-                    if (strpos($type, 'embed/') === 0) {
-                        $recordData = $files->saveEmbedData($dataInfo);
-                    } else {
-                        $recordData = $files->saveData($payload['data'], $payload['filename']);
-                    }
-
-                    $payload->replace(array_merge($recordData, ArrayUtils::omit($data, 'filename')));
-                    $payload->remove('data');
-                    $payload->set('upload_user', $acl->getUserId());
-                    $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
-                }
+            $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($savesFile) {
+                $savesFile($payload, false);
 
                 return $payload;
             });

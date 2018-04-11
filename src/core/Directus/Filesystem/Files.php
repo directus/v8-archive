@@ -3,6 +3,7 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
+use Directus\Exception\Exception;
 use Directus\Filesystem\Exception\ForbiddenException;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
@@ -59,8 +60,12 @@ class Files
         return $this->filesystem->getAdapter()->has($path);
     }
 
-    public function rename($path, $newPath)
+    public function rename($path, $newPath, $replace = false)
     {
+        if ($replace === true && $this->filesystem->exists($newPath)) {
+            $this->filesystem->getAdapter()->delete($newPath);
+        }
+
         return $this->filesystem->getAdapter()->rename($path, $newPath);
     }
 
@@ -73,7 +78,7 @@ class Files
         }
 
         $ext = pathinfo($file['filename'], PATHINFO_EXTENSION);
-        if ($ext) {
+        if ($ext && isset($file['id'])) {
             $thumbPath = 'thumbs/' . $file['id'] . '.' . $ext;
             if ($this->exists($thumbPath)) {
                 $this->emitter->run('files.thumbnail.deleting', [$file]);
@@ -245,23 +250,25 @@ class Files
      *
      * @param string $fileData - base64 data
      * @param string $fileName - name of the file
+     * @param bool $replace
      *
      * @return array
      */
-    public function saveData($fileData, $fileName)
+    public function saveData($fileData, $fileName, $replace = false)
     {
         $fileData = base64_decode($this->getDataInfo($fileData)['data']);
 
         // @TODO: merge with upload()
-        $fileName = $this->getFileName($fileName);
+        $fileName = $this->getFileName($fileName, $replace !== true);
+
         $filePath = $this->getConfig('root') . '/' . $fileName;
 
         $this->emitter->run('files.saving', ['name' => $fileName, 'size' => strlen($fileData)]);
-        $this->write($fileName, $fileData);
+        $this->write($fileName, $fileData, $replace);
         $this->emitter->run('files.saving:after', ['name' => $fileName, 'size' => strlen($fileData)]);
 
         unset($fileData);
-        $this->createThumbnails($fileName);
+        $this->createThumbnails($fileName, $replace);
 
         $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
@@ -434,10 +441,11 @@ class Files
      *
      * TODO: it should return thumbnail info.
      * @param string $imageName - the name of the image. it must exists on files.
+     * @param bool $replace
      *
      * @return void
      */
-    private function createThumbnails($imageName)
+    private function createThumbnails($imageName, $replace = false)
     {
         $targetFileName = $this->filesystem->getPath($imageName);
         $info = pathinfo($targetFileName);
@@ -451,7 +459,7 @@ class Files
                 $thumbnailTempName = 'thumbs/THUMB_' . $imageName;
                 $thumbImg = Thumbnail::writeImage($info['extension'], $thumbnailTempName, $img, $this->getSettings('thumbnail_quality'));
                 $this->emitter->run('files.thumbnail.saving', ['name' => $imageName, 'size' => strlen($thumbImg)]);
-                $this->write($thumbnailTempName, $thumbImg);
+                $this->write($thumbnailTempName, $thumbImg, $replace);
                 $this->emitter->run('files.thumbnail.saving:after', ['name' => $imageName, 'size' => strlen($thumbImg)]);
             }
         }
@@ -462,14 +470,19 @@ class Files
      *
      * @param $location
      * @param $data
+     * @param bool $replace
      *
      * @throws \RuntimeException
      */
-    public function write($location, $data)
+    public function write($location, $data, $replace = false)
     {
         $throwException = function () use ($location) {
             throw new ForbiddenException(sprintf('No permission to write: %s', $location));
         };
+
+        if ($replace === true && $this->filesystem->exists($location)) {
+            $this->filesystem->getAdapter()->delete($location);
+        }
 
         try {
             if (!$this->filesystem->getAdapter()->write($location, $data)) {
@@ -591,10 +604,11 @@ class Files
      * Get file name based on file naming setting
      *
      * @param string $fileName
+     * @param bool $unique
      *
      * @return string
      */
-    private function getFileName($fileName)
+    private function getFileName($fileName, $unique = true)
     {
         switch ($this->getSettings('file_naming')) {
             case 'file_hash':
@@ -602,7 +616,11 @@ class Files
                 break;
         }
 
-        return $this->uniqueName($fileName, $this->filesystem->getPath());
+        if ($unique) {
+            $fileName = $this->uniqueName($fileName, $this->filesystem->getPath());
+        }
+
+        return $fileName;
     }
 
     /**

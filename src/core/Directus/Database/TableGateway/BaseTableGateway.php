@@ -20,6 +20,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGatewayFactory;
 use Directus\Database\SchemaService;
 use Directus\Exception\Exception;
+use Directus\Filesystem\Files;
 use Directus\Filesystem\Thumbnail;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
@@ -343,16 +344,61 @@ class BaseTableGateway extends TableGateway
         $primaryKey = $TableGateway->primaryKeyFieldName;
         $hasPrimaryKeyData = isset($recordData[$primaryKey]);
         $rowExists = false;
+        $currentItem = null;
+        $originalFilename = null;
 
         if ($hasPrimaryKeyData) {
             $select = new Select($collectionName);
-            $select->columns([$primaryKey]);
+            $select->columns(['*']);
             $select->where([
                 $primaryKey => $recordData[$primaryKey]
             ]);
             $select->limit(1);
-            $rowExists = $TableGateway->ignoreFilters()->selectWith($select)->count() > 0;
+            $result = $TableGateway->ignoreFilters()->selectWith($select);
+            $rowExists = $result->count() > 0;
+            if ($rowExists) {
+                $currentItem = $result->current()->toArray();
+            }
+
+            if ($collectionName === SchemaManager::COLLECTION_FILES) {
+                $originalFilename = ArrayUtils::get($currentItem, 'filename');
+                $recordData = array_merge([
+                    'filename' => $originalFilename
+                ], $recordData);
+            }
         }
+
+        $afterAction = function ($collectionName, $recordData, $replace = false) use ($TableGateway) {
+            if ($collectionName == SchemaManager::COLLECTION_FILES && static::$container) {
+                $Files = static::$container->get('files');
+                $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
+
+                // hotfix: pdf thumbnails are being saved to its original extension
+                // file.pdf results into a thumbs/thumb.pdf instead of thumbs/thumb.jpeg
+                if (Thumbnail::isNonImageFormatSupported($thumbnailExt)) {
+                    $thumbnailExt = Thumbnail::defaultFormat();
+                }
+
+                $thumbnailPath = 'thumbs/THUMB_' . $recordData['filename'];
+                if ($Files->exists($thumbnailPath)) {
+                    $Files->rename($thumbnailPath, 'thumbs/' . $recordData[$this->primaryKeyFieldName] . '.' . $thumbnailExt, $replace);
+                }
+
+                $updateArray = [];
+                if ($Files->getSettings('file_naming') == 'file_id') {
+                    $Files->rename($recordData['filename'], str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext, $replace);
+                    $updateArray['filename'] = str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
+                    $recordData['filename'] = $updateArray['filename'];
+                }
+
+                if (!empty($updateArray)) {
+                    $Update = new Update($collectionName);
+                    $Update->set($updateArray);
+                    $Update->where([$TableGateway->primaryKeyFieldName => $recordData[$TableGateway->primaryKeyFieldName]]);
+                    $TableGateway->updateWith($Update);
+                }
+            }
+        };
 
         if ($rowExists) {
             $Update = new Update($collectionName);
@@ -361,6 +407,16 @@ class BaseTableGateway extends TableGateway
                 $primaryKey => $recordData[$primaryKey]
             ]);
             $TableGateway->updateWith($Update);
+
+            if ($collectionName == 'directus_files' && static::$container) {
+                if ($originalFilename && $recordData['filename'] !== $originalFilename) {
+                    /** @var Files $Files */
+                    $Files = static::$container->get('files');
+                    $Files->delete(['filename' => $originalFilename]);
+                }
+            }
+
+            $afterAction($collectionName, $recordData, true);
 
             $this->runHook('postUpdate', [$TableGateway, $recordData, $this->adapter, null]);
         } else {
@@ -376,35 +432,7 @@ class BaseTableGateway extends TableGateway
                 $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
             }
 
-            if ($collectionName == 'directus_files' && static::$container) {
-                $Files = static::$container->get('files');
-                $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
-
-                // hotfix: pdf thumbnails are being saved to its original extension
-                // file.pdf results into a thumbs/thumb.pdf instead of thumbs/thumb.jpeg
-                if (Thumbnail::isNonImageFormatSupported($thumbnailExt)) {
-                    $thumbnailExt = Thumbnail::defaultFormat();
-                }
-
-                $thumbnailPath = 'thumbs/THUMB_' . $recordData['filename'];
-                if ($Files->exists($thumbnailPath)) {
-                    $Files->rename($thumbnailPath, 'thumbs/' . $recordData[$this->primaryKeyFieldName] . '.' . $thumbnailExt);
-                }
-
-                $updateArray = [];
-                if ($Files->getSettings('file_naming') == 'file_id') {
-                    $Files->rename($recordData['filename'], str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext);
-                    $updateArray['filename'] = str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
-                    $recordData['filename'] = $updateArray['filename'];
-                }
-
-                if (!empty($updateArray)) {
-                    $Update = new Update($collectionName);
-                    $Update->set($updateArray);
-                    $Update->where([$TableGateway->primaryKeyFieldName => $recordData[$TableGateway->primaryKeyFieldName]]);
-                    $TableGateway->updateWith($Update);
-                }
-            }
+            $afterAction($collectionName, $recordData);
 
             $this->runHook('postInsert', [$TableGateway, $recordData, $this->adapter, null]);
         }
