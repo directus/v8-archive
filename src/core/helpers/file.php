@@ -75,11 +75,16 @@ if (!function_exists('append_storage_information'))
         }
 
         $container = \Directus\Application\Application::getInstance()->getContainer();
+        $thumbnailDimensions = array_filter(
+            explode(',', get_directus_setting('thumbnailer', 'dimensions'))
+        );
+
+        // Add default size
+        array_unshift($thumbnailDimensions, '200x200');
+
         $config = $container->get('config');
         $fileRootUrl = $config->get('filesystem.root_url');
-        $thumbnailRootUrl = $config->get('filesystem.root_thumb_url');
         $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
-        $hasThumbnailRootUrlHost = parse_url($thumbnailRootUrl, PHP_URL_HOST);
         $isLocalStorageAdapter = $config->get('filesystem.adapter') == 'local';
         $list = isset($rows[0]);
 
@@ -99,20 +104,27 @@ if (!function_exists('append_storage_information'))
             }
 
             // Add Thumbnails
-            if (\Directus\Filesystem\Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
-                $thumbnailExtension = \Directus\Filesystem\Thumbnail::defaultFormat();
-            }
+            foreach (array_unique($thumbnailDimensions) as $dimension) {
+                if (\Directus\Filesystem\Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
+                    $thumbnailExtension = \Directus\Filesystem\Thumbnail::defaultFormat();
+                }
 
-            $thumbnailFilename = $row['id'] . '.' . $thumbnailExtension;
-            $defaultThumbnailUrl = $defaultThumbnailFullUrl = $thumbnailRootUrl . '/' . $thumbnailFilename;
-            if ($isLocalStorageAdapter && !$hasThumbnailRootUrlHost) {
-                $defaultThumbnailFullUrl = get_url($defaultThumbnailFullUrl);
-            }
+                if (!is_string($dimension)) {
+                    continue;
+                }
 
-            $storage['thumbnails'][] = [
-                'full_url' => $defaultThumbnailFullUrl,
-                'url' => $defaultThumbnailUrl
-            ];
+                $size = explode('x', $dimension);
+                if (count($size) == 2) {
+                    $thumbnailUrl = get_thumbnail_url($row['filename'], $size[0], $size[1]);
+                    $storage['thumbnails'][] = [
+                        'full_url' => $thumbnailUrl,
+                        'url' => $thumbnailUrl,
+                        'dimension' => $dimension,
+                        'width' => $size[0],
+                        'height' => $size[1]
+                    ];
+                }
+            }
 
             // Add embed content
             /** @var \Directus\Embed\EmbedManager $embedManager */
@@ -131,5 +143,28 @@ if (!function_exists('append_storage_information'))
         }
 
         return $list ? $rows : reset($rows);
+    }
+}
+
+if (!function_exists('get_thumbnail_url'))
+{
+    /**
+     * Returns a url to the thumbnailer
+     *
+     * @param string $name
+     * @param int $width
+     * @param int $height
+     * @param string $mode
+     * @param string $quality
+     *
+     * @return string
+     */
+    function get_thumbnail_url($name, $width, $height, $mode = 'crop', $quality = 'good')
+    {
+        // width/height/mode/quality/name
+        return get_url(sprintf(
+            'thumbnail/%d/%d/%s/%s/%s',
+            $width, $height, $mode, $quality, $name
+        ));
     }
 }
