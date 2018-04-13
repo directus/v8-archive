@@ -20,6 +20,7 @@ Options +SymLinksIfOwnerMatch
 </ifModule>
 
 <IfModule mod_headers.c>
+    # Set CORS header for static files
     Header set Access-Control-Allow-Origin "*"
 </IfModule>
 
