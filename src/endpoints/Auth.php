@@ -17,13 +17,13 @@ class Auth extends Route
     public function __invoke(Application $app)
     {
         $app->post('/authenticate', [$this, 'authenticate']);
-        $app->get('/authenticate/{service}', [$this, 'authenticateService']);
-        $app->get('/authenticate/{service}/callback', [$this, 'authenticateServiceCallback']);
         $app->post('/forgot_password', [$this, 'forgotPassword']);
         // $app->get('/invitation/{token}', [$this, 'acceptInvitation']);
         $app->get('/reset_password/{token}', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
         $app->get('/sso', [$this, 'listSsoAuthServices']);
+        $app->get('/sso/{service}', [$this, 'authenticateService']);
+        $app->get('/sso/{service}/callback', [$this, 'authenticateServiceCallback']);
     }
 
     /**
