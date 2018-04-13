@@ -159,9 +159,12 @@ class Auth extends Route
         $providersConfig = $config->get('auth.social_providers', []);
 
         $services = [];
-        foreach ($providersConfig as $name => $provider) {
+        foreach ($providersConfig as $provider) {
             if (ArrayUtils::get($provider, 'enabled') === true) {
-                $services[] = $name;
+                $name = ArrayUtils::get($provider, 'provider');
+                if ($name) {
+                    $services[] = $name;
+                }
             }
         }
 
