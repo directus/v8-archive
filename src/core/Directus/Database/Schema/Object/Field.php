@@ -392,12 +392,15 @@ class Field extends AbstractObject
      */
     public function setRelationship($relationship)
     {
-        // Relationship can be pass as an array
-        if (!($relationship instanceof FieldRelationship)) {
-            $relationship = new FieldRelationship($this, $relationship);
-        }
+        // Ignore relationship information if the field is primary key
+        if (!$this->hasPrimaryKey()) {
+            // Relationship can be pass as an array
+            if (!($relationship instanceof FieldRelationship)) {
+                $relationship = new FieldRelationship($this, $relationship);
+            }
 
-        $this->relationship = $relationship;
+            $this->relationship = $relationship;
+        }
 
         return $this;
     }
