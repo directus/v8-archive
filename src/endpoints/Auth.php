@@ -7,6 +7,7 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Services\AuthService;
+use Directus\Util\ArrayUtils;
 
 class Auth extends Route
 {
@@ -22,6 +23,7 @@ class Auth extends Route
         // $app->get('/invitation/{token}', [$this, 'acceptInvitation']);
         $app->get('/reset_password/{token}', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
+        $app->get('/sso', [$this, 'listSsoAuthServices']);
     }
 
     /**
@@ -141,6 +143,29 @@ class Auth extends Route
         $responseData = $authService->refreshToken(
             $request->getParsedBodyParam('token')
         );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function listSsoAuthServices(Request $request, Response $response)
+    {
+        $config = $this->container->get('config');
+        $providersConfig = $config->get('auth.social_providers', []);
+
+        $services = [];
+        foreach ($providersConfig as $name => $provider) {
+            if (ArrayUtils::get($provider, 'enabled') === true) {
+                $services[] = $name;
+            }
+        }
+
+        $responseData = ['data' => $services];
 
         return $this->responseWithData($request, $response, $responseData);
     }
