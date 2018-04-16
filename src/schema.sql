@@ -91,7 +91,6 @@ CREATE TABLE `directus_collections` (
   `preview_url` varchar(255) DEFAULT NULL,
   `hidden` tinyint(1) NOT NULL DEFAULT '0',
   `single` tinyint(1) NOT NULL DEFAULT '0',
-  `status_mapping` text,
   `comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`collection`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
