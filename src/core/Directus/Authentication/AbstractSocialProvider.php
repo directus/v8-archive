@@ -2,7 +2,6 @@
 
 namespace Directus\Authentication;
 
-use Directus\Application\Application;
 use Directus\Application\Container;
 use Directus\Config\Config;
 
@@ -75,7 +74,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
      */
     public function getRedirectUrl($name)
     {
-        return get_url('/_/auth/authenticate/' . $name . '/callback');
+        return get_url('/_/auth/sso/' . $name . '/callback');
     }
 
     /**
