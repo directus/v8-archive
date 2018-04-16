@@ -14,6 +14,7 @@ use Directus\Application\ErrorHandlers\ErrorHandler;
 use Directus\Authentication\FacebookProvider;
 use Directus\Authentication\GitHubProvider;
 use Directus\Authentication\GoogleProvider;
+use Directus\Authentication\OktaProvider;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Social;
 use Directus\Authentication\TwitterProvider;
@@ -36,7 +37,6 @@ use Directus\Exception\ForbiddenException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
-use Directus\Filesystem\Thumbnail;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -752,7 +752,8 @@ class CoreServicesProvider
                 'github' => GitHubProvider::class,
                 'facebook' => FacebookProvider::class,
                 'twitter' => TwitterProvider::class,
-                'google' => GoogleProvider::class
+                'google' => GoogleProvider::class,
+                'okta' => OktaProvider::class
             ];
 
             foreach ($providersConfig as $providerConfig) {
