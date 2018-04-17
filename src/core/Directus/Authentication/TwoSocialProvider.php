@@ -34,9 +34,17 @@ abstract class TwoSocialProvider extends AbstractSocialProvider
      */
     public function handle()
     {
+        return $this->getUserFromCode(ArrayUtils::get($_GET, 'code'));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUserFromCode(array $data)
+    {
         // Try to get an access token (using the authorization code grant)
         $token = $this->provider->getAccessToken('authorization_code', [
-            'code' => ArrayUtils::get($_GET, 'code')
+            'code' => ArrayUtils::get($data, 'code')
         ]);
 
         return new SocialUser([

@@ -33,4 +33,13 @@ interface SocialProviderInterface
      * @return string
      */
     public function getName();
+
+    /**
+     * Gets user object using the authorization code
+     *
+     * @param array $data
+     *
+     * @return SocialUser
+     */
+    public function getUserFromCode(array $data);
 }

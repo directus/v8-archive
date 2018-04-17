@@ -8,6 +8,7 @@ use Directus\Authentication\Exception\InvalidResetPasswordTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
+use Directus\Authentication\OneSocialProvider;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Social;
 use Directus\Authentication\User\UserInterface;
@@ -15,6 +16,7 @@ use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusGroupsTableGateway;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\UnauthorizedException;
+use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
 
@@ -66,7 +68,24 @@ class AuthService extends AbstractService
         ];
     }
 
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
     public function getAuthenticationRequestData($name)
+    {
+        return [
+            'data' => $this->getSsoAuthorizationData($name)
+        ];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
+    public function getSsoAuthorizationData($name)
     {
         /** @var Social $socialAuth */
         $socialAuth = $this->container->get('external_auth');
@@ -74,10 +93,25 @@ class AuthService extends AbstractService
         $service = $socialAuth->get($name);
 
         return [
-            'data' => [
-                'url' => $service->getRequestAuthorizationUrl(),
-                'state' => $service->getProvider()->getState()
-            ]
+            'authorization_url' => $service->getRequestAuthorizationUrl(),
+            'state' => $service->getProvider()->getState()
+        ];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
+    public function getSsoCallbackData($name)
+    {
+        /** @var Social $socialAuth */
+        $socialAuth = $this->container->get('external_auth');
+        /** @var AbstractSocialProvider $service */
+        $service = $socialAuth->get($name);
+
+        return [
+            'callback_url' => $service->getRequestAuthorizationUrl()
         ];
     }
 
@@ -127,6 +161,37 @@ class AuthService extends AbstractService
     public function authenticateWithEmail($email)
     {
         return $this->getAuthProvider()->authenticateWithEmail($email);
+    }
+
+    /**
+     * Authenticate an user with the SSO authorization code
+     *
+     * @param string $service
+     * @param array $params
+     *
+     * @return array
+     */
+    public function authenticateWithSsoCode($service, array $params)
+    {
+        /** @var Social $socialAuth */
+        $socialAuth = $this->container->get('external_auth');
+        /** @var AbstractSocialProvider $service */
+        $service = $socialAuth->get($service);
+
+        if ($service instanceof OneSocialProvider) {
+            $data = ArrayUtils::pick($params, ['oauth_token', 'oauth_verifier']);
+        } else {
+            $data = ArrayUtils::pick($params, ['code']);
+        }
+
+        $serviceUser = $service->getUserFromCode($data);
+        $user = $this->authenticateWithEmail($serviceUser->getEmail());
+
+        return [
+            'data' => [
+                'token' => $this->generateAuthToken($user)
+            ]
+        ];
     }
 
     /**

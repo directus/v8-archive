@@ -22,8 +22,9 @@ class Auth extends Route
         $app->get('/reset_password/{token}', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
         $app->get('/sso', [$this, 'listSsoAuthServices']);
-        $app->get('/sso/{service}', [$this, 'authenticateService']);
-        $app->get('/sso/{service}/callback', [$this, 'authenticateServiceCallback']);
+        $app->get('/sso/{service}', [$this, 'ssoService']);
+        $app->post('/sso/{service}', [$this, 'ssoAuthenticate']);
+        $app->get('/sso/{service}/callback', [$this, 'ssoServiceCallback']);
     }
 
     /**
@@ -42,42 +43,6 @@ class Auth extends Route
         $responseData = $authService->loginWithCredentials(
             $request->getParsedBodyParam('email'),
             $request->getParsedBodyParam('password')
-        );
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function authenticateService(Request $request, Response $response)
-    {
-        /** @var AuthService $authService */
-        $authService = $this->container->get('services')->get('auth');
-
-        $responseData = $authService->getAuthenticationRequestData(
-            $request->getAttribute('service')
-        );
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function authenticateServiceCallback(Request $request, Response $response)
-    {
-        /** @var AuthService $authService */
-        $authService = $this->container->get('services')->get('auth');
-
-        $responseData = $authService->handleAuthenticationRequestCallback(
-            $request->getAttribute('service')
         );
 
         return $this->responseWithData($request, $response, $responseData);
@@ -157,18 +122,79 @@ class Auth extends Route
     {
         $config = $this->container->get('config');
         $providersConfig = $config->get('auth.social_providers', []);
+        /** @var AuthService $authService */
+        $authService = $this->container->get('services')->get('auth');
 
         $services = [];
         foreach ($providersConfig as $provider) {
             if (ArrayUtils::get($provider, 'enabled') === true) {
                 $name = ArrayUtils::get($provider, 'provider');
                 if ($name) {
-                    $services[] = $name;
+                    $services[] = array_merge(
+                        ['name' => $name],
+                        $authService->getSsoAuthorizationData($name),
+                        $authService->getSsoCallbackData($name)
+                    );
                 }
             }
         }
 
         $responseData = ['data' => $services];
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function ssoService(Request $request, Response $response)
+    {
+        /** @var AuthService $authService */
+        $authService = $this->container->get('services')->get('auth');
+
+        $responseData = $authService->getAuthenticationRequestData(
+            $request->getAttribute('service')
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function ssoAuthenticate(Request $request, Response $response)
+    {
+        /** @var AuthService $authService */
+        $authService = $this->container->get('services')->get('auth');
+
+        $responseData = $authService->authenticateWithSsoCode(
+            $request->getAttribute('service'),
+            $request->getParsedBody() ?: []
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function ssoServiceCallback(Request $request, Response $response)
+    {
+        /** @var AuthService $authService */
+        $authService = $this->container->get('services')->get('auth');
+
+        $responseData = $authService->handleAuthenticationRequestCallback(
+            $request->getAttribute('service')
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }

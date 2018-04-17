@@ -43,8 +43,20 @@ abstract class OneSocialProvider extends AbstractSocialProvider
      */
     public function handle()
     {
-        $oauthToken = ArrayUtils::get($_GET, 'oauth_token');
-        $oauthVerifier = ArrayUtils::get($_GET, 'oauth_verifier');
+        return $this->getUserFromCode([
+            'oauth_token' => ArrayUtils::get($_GET, 'oauth_token'),
+            'oauth_verifier' => ArrayUtils::get($_GET, 'oauth_verifier')
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUserFromCode(array $data)
+    {
+        $oauthToken = ArrayUtils::get($data, 'oauth_token');
+        $oauthVerifier = ArrayUtils::get($data, 'oauth_verifier');
+
         if (!isset($oauthToken) || !isset($oauthVerifier)) {
             throw new \Exception('Invalid request');
         }
