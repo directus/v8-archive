@@ -95,7 +95,7 @@ class AuthService extends AbstractService
         /** @var AbstractSocialProvider $service */
         $service = $socialAuth->get($name);
 
-        $oauthVersion = 'unknown';
+        $oauthVersion = null;
         if ($service instanceof OneSocialProvider) {
             $oauthVersion = 1.0;
         } else if ($service instanceof TwoSocialProvider) {
