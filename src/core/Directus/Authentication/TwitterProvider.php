@@ -34,4 +34,12 @@ class TwitterProvider extends OneSocialProvider
 
         return $this->provider;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getScopes()
+    {
+        return null;
+    }
 }

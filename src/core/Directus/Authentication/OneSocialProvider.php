@@ -1,12 +1,25 @@
 <?php
 
 namespace Directus\Authentication;
+use Directus\Util\ArrayUtils;
 
 /**
  * Provider for OAuth 1.0
  */
 abstract class OneSocialProvider extends AbstractSocialProvider
 {
+    public function getRequestAuthorizationUrl()
+    {
+        $options = [];
+        $scopes = $this->getScopes();
+
+        if ($scopes) {
+            $options['scope'] = $this->getScopes();
+        }
+
+        return $this->provider->getAuthorizationUrl($options);
+    }
+
     /**
      * @inheritDoc
      */
@@ -30,8 +43,9 @@ abstract class OneSocialProvider extends AbstractSocialProvider
      */
     public function handle()
     {
-        $get = $this->app->request()->get();
-        if (!isset($get['oauth_token']) || !isset($get['oauth_verifier'])) {
+        $oauthToken = ArrayUtils::get($_GET, 'oauth_token');
+        $oauthVerifier = ArrayUtils::get($_GET, 'oauth_verifier');
+        if (!isset($oauthToken) || !isset($oauthVerifier)) {
             throw new \Exception('Invalid request');
         }
 
@@ -43,7 +57,7 @@ abstract class OneSocialProvider extends AbstractSocialProvider
         // Third and final part to OAuth 1.0 authentication is to retrieve token
         // credentials (formally known as access tokens in earlier OAuth 1.0
         // specs).
-        $tokenCredentials = $this->provider->getTokenCredentials($temporaryCredentials, $_GET['oauth_token'], $_GET['oauth_verifier']);
+        $tokenCredentials = $this->provider->getTokenCredentials($temporaryCredentials, $oauthToken, $oauthVerifier);
 
         $user = $this->provider->getUserDetails($tokenCredentials);
 
@@ -51,4 +65,11 @@ abstract class OneSocialProvider extends AbstractSocialProvider
             'email' => $user->email
         ]);
     }
+
+    /**
+     * Get the list of scopes for the current service
+     *
+     * @return array
+     */
+    abstract public function getScopes();
 }
