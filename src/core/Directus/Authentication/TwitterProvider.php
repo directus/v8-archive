@@ -29,7 +29,7 @@ class TwitterProvider extends OneSocialProvider
         $this->provider = new Twitter([
             'identifier'    => $this->config->get('identifier'),
             'secret'        => $this->config->get('secret'),
-            'callback_uri'  => $this->getRedirectUrl($this->getName()),
+            'callback_uri'  => $this->getRedirectUrl(),
         ]);
 
         return $this->provider;

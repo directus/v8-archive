@@ -68,13 +68,17 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     /**
      * Gets the redirect url for the given service name
      *
-     * @param $name
-     *
      * @return string
      */
-    public function getRedirectUrl($name)
+    public function getRedirectUrl()
     {
-        return get_url('/_/auth/sso/' . $name . '/callback');
+        if ($this->config->has('callback_url')) {
+            $url = $this->config->get('callback_url');
+        } else {
+            $url = get_url('/_/auth/sso/' . $this->getName(). '/callback');
+        }
+
+        return $url;
     }
 
     /**

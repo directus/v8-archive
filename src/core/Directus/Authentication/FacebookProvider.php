@@ -39,7 +39,7 @@ class FacebookProvider extends TwoSocialProvider
         $this->provider = new Facebook([
             'clientId'          => $this->config->get('client_id'),
             'clientSecret'      => $this->config->get('client_secret'),
-            'redirectUri'       => $this->getRedirectUrl($this->getName()),
+            'redirectUri'       => $this->getRedirectUrl(),
             'graphApiVersion'   => $this->config->get('graph_api_version'),
         ]);
 

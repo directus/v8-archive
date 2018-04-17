@@ -38,7 +38,7 @@ class OktaProvider extends TwoSocialProvider
             'baseUrl'           => $this->config->get('base_url'),
             'clientId'          => $this->config->get('client_id'),
             'clientSecret'      => $this->config->get('client_secret'),
-            'redirectUri'       => $this->getRedirectUrl($this->getName())
+            'redirectUri'       => $this->getRedirectUrl()
         ]);
 
         return $this->provider;
