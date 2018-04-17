@@ -11,6 +11,7 @@ use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\OneSocialProvider;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Social;
+use Directus\Authentication\TwoSocialProvider;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusGroupsTableGateway;
@@ -73,10 +74,37 @@ class AuthService extends AbstractService
      *
      * @return array
      */
-    public function getAuthenticationRequestData($name)
+    public function getAuthenticationRequestInfo($name)
     {
         return [
-            'data' => $this->getSsoAuthorizationData($name)
+            'data' => $this->getSsoAuthorizationInfo($name)
+        ];
+    }
+
+    /**
+     * Gets the basic information of a sso service
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    public function getSsoBasicInfo($name)
+    {
+        /** @var Social $socialAuth */
+        $socialAuth = $this->container->get('external_auth');
+        /** @var AbstractSocialProvider $service */
+        $service = $socialAuth->get($name);
+
+        $oauthVersion = 'unknown';
+        if ($service instanceof OneSocialProvider) {
+            $oauthVersion = 1.0;
+        } else if ($service instanceof TwoSocialProvider) {
+            $oauthVersion = 2.0;
+        }
+
+        return [
+            'name' => $service->getName(),
+            'oauth_version' => $oauthVersion
         ];
     }
 
@@ -85,7 +113,7 @@ class AuthService extends AbstractService
      *
      * @return array
      */
-    public function getSsoAuthorizationData($name)
+    public function getSsoAuthorizationInfo($name)
     {
         /** @var Social $socialAuth */
         $socialAuth = $this->container->get('external_auth');
@@ -103,7 +131,7 @@ class AuthService extends AbstractService
      *
      * @return array
      */
-    public function getSsoCallbackData($name)
+    public function getSsoCallbackInfo($name)
     {
         /** @var Social $socialAuth */
         $socialAuth = $this->container->get('external_auth');
@@ -113,6 +141,22 @@ class AuthService extends AbstractService
         return [
             'callback_url' => $service->getRequestAuthorizationUrl()
         ];
+    }
+
+    /**
+     * Gets the given SSO service information
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    public function getSsoInfo($name)
+    {
+        return array_merge(
+            $this->getSsoBasicInfo($name),
+            $this->getSsoAuthorizationInfo($name),
+            $this->getSsoCallbackInfo($name)
+        );
     }
 
     public function handleAuthenticationRequestCallback($name)

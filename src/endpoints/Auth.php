@@ -130,11 +130,7 @@ class Auth extends Route
             if (ArrayUtils::get($provider, 'enabled') === true) {
                 $name = ArrayUtils::get($provider, 'provider');
                 if ($name) {
-                    $services[] = array_merge(
-                        ['name' => $name],
-                        $authService->getSsoAuthorizationData($name),
-                        $authService->getSsoCallbackData($name)
-                    );
+                    $services[] = $authService->getSsoInfo($name);
                 }
             }
         }
@@ -155,7 +151,7 @@ class Auth extends Route
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
 
-        $responseData = $authService->getAuthenticationRequestData(
+        $responseData = $authService->getAuthenticationRequestInfo(
             $request->getAttribute('service')
         );
 
