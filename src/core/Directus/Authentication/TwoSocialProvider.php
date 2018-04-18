@@ -34,7 +34,9 @@ abstract class TwoSocialProvider extends AbstractSocialProvider
      */
     public function handle()
     {
-        return $this->getUserFromCode(ArrayUtils::get($_GET, 'code'));
+        return $this->getUserFromCode([
+            'code' => ArrayUtils::get($_GET, 'code')
+        ]);
     }
 
     /**
