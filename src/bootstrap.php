@@ -40,8 +40,4 @@ $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
 // TODO: Implement old Slim 2 hooks into middlewares
 
-$app->add(new RKA\Middleware\IpAddress());
-$app->add(new \Directus\Application\Http\Middlewares\AuthenticationMiddleware($app->getContainer()));
-$app->add(new \Directus\Application\Http\Middlewares\CorsMiddleware($app->getContainer()));
-
 return $app;

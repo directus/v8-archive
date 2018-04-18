@@ -3,6 +3,7 @@
 namespace Directus\Api\Routes;
 
 use Directus\Application\Application;
+use Directus\Application\Http\Middlewares\AdminMiddleware;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
@@ -17,7 +18,7 @@ class Server extends Route
     {
         create_ping_route($app);
 
-        $app->get('/info', [$this, 'info']);
+        $app->get('/info', [$this, 'info'])->add(new AdminMiddleware($this->container));
     }
 
     public function info(Request $request, Response $response)

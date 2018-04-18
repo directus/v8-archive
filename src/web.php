@@ -3,11 +3,9 @@
 /** @var \Directus\Application\Application $app */
 $app = require __DIR__ . '/bootstrap.php';
 
-$app->group('/interfaces', \Directus\Api\Routes\Interfaces::class);
-$app->group('/listings', \Directus\Api\Routes\Listings::class);
-$app->group('/pages', \Directus\Api\Routes\Pages::class);
-$app->group('/server', \Directus\Api\Routes\Server::class);
-$app->group('/types', \Directus\Api\Routes\Types::class);
+$app->add(new \Directus\Application\Http\Middlewares\AuthenticationMiddleware($app->getContainer()))
+    ->add(new \Directus\Application\Http\Middlewares\CorsMiddleware($app->getContainer()))
+    ->add(new RKA\Middleware\IpAddress());
 
 $app->group('/{env}', function () {
     $this->group('/activity', \Directus\Api\Routes\Activity::class);
@@ -49,6 +47,13 @@ $app->group('/{env}', function () {
         }
     });
 });
+
+$app->group('/interfaces', \Directus\Api\Routes\Interfaces::class);
+$app->group('/listings', \Directus\Api\Routes\Listings::class);
+$app->group('/pages', \Directus\Api\Routes\Pages::class);
+$app->group('/server', \Directus\Api\Routes\Server::class);
+$app->group('/types', \Directus\Api\Routes\Types::class)
+    ->add(new \Directus\Application\Http\Middlewares\AuthenticatedMiddleware($app->getContainer()));
 
 // $app->add(new \Directus\Slim\HttpCacheMiddleware());
 // $app->add(new \Directus\Slim\ResponseCacheMiddleware());
