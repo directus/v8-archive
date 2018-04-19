@@ -950,7 +950,7 @@ class CoreServicesProvider
 
             $path = implode(DIRECTORY_SEPARATOR, [
                 $basePath,
-                'customs',
+                'custom',
                 'hashers',
                 '*.php'
             ]);
@@ -966,7 +966,7 @@ class CoreServicesProvider
                         continue;
                     }
 
-                    $hashers[] = '\\Directus\\Customs\\Hasher\\' . $name;
+                    $hashers[] = '\\Directus\\Custom\\Hasher\\' . $name;
                 }
             }
 
@@ -1076,7 +1076,7 @@ class CoreServicesProvider
             $basePath = $container->get('path_base');
 
             return new Twig([
-                $basePath . '/customs/mail',
+                $basePath . '/custom/mail',
                 $basePath . '/src/mail'
             ]);
         };
@@ -1143,7 +1143,7 @@ class CoreServicesProvider
 
             $path = implode(DIRECTORY_SEPARATOR, [
                 $app->getContainer()->get('path_base'),
-                'customs',
+                'custom',
                 'embeds',
                 '*.php'
             ]);

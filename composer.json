@@ -35,9 +35,9 @@
       "Directus\\": "src/core/Directus/",
       "Directus\\Authentication\\Sso\\Provider\\": "public/extensions/core/auth",
       "Directus\\Api\\Routes\\": "src/endpoints/",
-      "Directus\\Customs\\Embed\\Provider\\": "customs/embeds/",
-      "Directus\\Customs\\Hooks\\": "customs/hooks/",
-      "Directus\\Customs\\Hasher\\": "customs/hashers/"
+      "Directus\\Custom\\Embed\\Provider\\": "public/extensions/custom/embeds/",
+      "Directus\\Custom\\Hooks\\": "public/extensions/custom/hooks/",
+      "Directus\\Custom\\Hasher\\": "public/extensions/custom/hashers/"
     },
     "files": [
       "src/core/functions.php"

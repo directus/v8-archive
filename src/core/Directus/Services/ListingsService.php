@@ -11,7 +11,7 @@ class ListingsService extends AbstractExtensionsController
         parent::__construct($container);
 
         $basePath = $this->container->get('path_base');
-        $this->basePath = $basePath . '/public/core/listings';
+        $this->basePath = $basePath . '/public/extensions/core/listings';
     }
 
     public function findAll(array $params = [])

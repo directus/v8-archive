@@ -23,8 +23,8 @@ $app->group('/{env}', function () {
     $this->group('/users', \Directus\Api\Routes\Users::class);
     $this->group('/utils', \Directus\Api\Routes\Utils::class);
 
-    $this->group('/customs', function () {
-        $endpointsList = get_custom_endpoints('/customs/endpoints');
+    $this->group('/custom', function () {
+        $endpointsList = get_custom_endpoints('/public/custom/endpoints');
 
         foreach ($endpointsList as $name => $endpoints) {
             create_group_route_from_array($this, $name, $endpoints);
@@ -32,7 +32,7 @@ $app->group('/{env}', function () {
     });
 
     $this->group('/pages', function () {
-        $endpointsList = get_custom_endpoints('/public/core/pages', true);
+        $endpointsList = get_custom_endpoints('public/extensions/core/pages', true);
 
         foreach ($endpointsList as $name => $endpoints) {
             create_group_route_from_array($this, $name, $endpoints);
@@ -40,7 +40,7 @@ $app->group('/{env}', function () {
     });
 
     $this->group('/interfaces', function () {
-        $endpointsList = get_custom_endpoints('/public/core/interfaces', true);
+        $endpointsList = get_custom_endpoints('public/extensions/core/interfaces', true);
 
         foreach ($endpointsList as $name => $endpoints) {
             create_group_route_from_array($this, $name, $endpoints);

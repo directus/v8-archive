@@ -11,7 +11,7 @@ class PagesService extends AbstractExtensionsController
         parent::__construct($container);
 
         $basePath = $this->container->get('path_base');
-        $this->basePath = $basePath . '/public/core/pages';
+        $this->basePath = $basePath . '/public/extensions/core/pages';
     }
 
     public function findAll(array $params = [])

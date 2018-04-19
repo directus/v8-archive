@@ -452,17 +452,17 @@ if (!function_exists('register_extensions_hooks')) {
     {
         register_hooks_list(
             $app,
-            get_custom_hooks('/customs/hooks')
+            get_custom_hooks('public/extensions/custom/hooks')
         );
 
         register_hooks_list(
             $app,
-            get_custom_hooks('/public/core/pages', true)
+            get_custom_hooks('public/extensions/core/pages', true)
         );
 
         register_hooks_list(
             $app,
-            get_custom_hooks('/public/core/interfaces', true)
+            get_custom_hooks('public/extensions/core/interfaces', true)
         );
     }
 }

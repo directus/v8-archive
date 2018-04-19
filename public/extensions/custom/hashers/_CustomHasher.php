@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Customs\Hasher;
+namespace Directus\Custom\Hasher;
 
 class CustomHasher implements \Directus\Hash\Hasher\HasherInterface
 {
