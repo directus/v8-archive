@@ -11,13 +11,8 @@ use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
 use Cache\Adapter\Void\VoidCachePool;
 use Directus\Application\ErrorHandlers\ErrorHandler;
-use Directus\Authentication\FacebookProvider;
-use Directus\Authentication\GitHubProvider;
-use Directus\Authentication\GoogleProvider;
-use Directus\Authentication\OktaProvider;
 use Directus\Authentication\Provider;
-use Directus\Authentication\Social;
-use Directus\Authentication\TwitterProvider;
+use Directus\Authentication\Sso\Social;
 use Directus\Authentication\User\Provider\UserTableGatewayProvider;
 use Directus\Cache\Response;
 use Directus\Config\StatusMapping;
@@ -748,14 +743,10 @@ class CoreServicesProvider
 
             $socialAuth = new Social();
 
-            $socialAuthServices = [
-                'github' => GitHubProvider::class,
-                'facebook' => FacebookProvider::class,
-                'twitter' => TwitterProvider::class,
-                'google' => GoogleProvider::class,
-                'okta' => OktaProvider::class
-            ];
+            $coreSso = get_custom_x('auth', 'public/extensions/core/auth', true);
+            $customSso = get_custom_x('auth', 'public/extensions/custom/auth', true);
 
+            $ssoProviders = array_merge($coreSso, $customSso);
             foreach ($providersConfig as $providerConfig) {
                 if (!is_array($providerConfig)) {
                     continue;
@@ -770,8 +761,8 @@ class CoreServicesProvider
                     continue;
                 }
 
-                if (array_key_exists($name, $socialAuthServices)) {
-                    $class = $socialAuthServices[$name];
+                if (array_key_exists($name, $ssoProviders) && isset($ssoProviders[$name]['provider'])) {
+                    $class = $ssoProviders[$name]['provider'];
                     $socialAuth->register(new $class($container, $providerConfig));
                 }
             }

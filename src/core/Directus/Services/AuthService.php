@@ -2,16 +2,15 @@
 
 namespace Directus\Services;
 
-use Directus\Authentication\AbstractSocialProvider;
+use Directus\Authentication\Sso\AbstractSocialProvider;
 use Directus\Authentication\Exception\ExpiredResetPasswordToken;
 use Directus\Authentication\Exception\InvalidResetPasswordTokenException;
-use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
-use Directus\Authentication\OneSocialProvider;
+use Directus\Authentication\Sso\OneSocialProvider;
 use Directus\Authentication\Provider;
-use Directus\Authentication\Social;
-use Directus\Authentication\TwoSocialProvider;
+use Directus\Authentication\Sso\Social;
+use Directus\Authentication\Sso\TwoSocialProvider;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusGroupsTableGateway;
@@ -104,7 +103,8 @@ class AuthService extends AbstractService
 
         return [
             'name' => $service->getName(),
-            'oauth_version' => $oauthVersion
+            'oauth_version' => $oauthVersion,
+            'icon' => get_url('extensions/core/auth/' . $service->getName() . '/icon.svg')
         ];
     }
 

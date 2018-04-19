@@ -608,7 +608,7 @@ if (!function_exists('base_path')) {
         }
 
         if ($suffix) {
-            $path = rtrim($path, '/') . $suffix;
+            $path = rtrim($path, '/') . '/' . ltrim($suffix, '/');
         }
 
         return $path;

@@ -5,7 +5,9 @@ if (!function_exists('get_custom_x')) {
      * @param string $type
      * @param string $path
      * @param bool $onlyDirectories Ignores files in the given path
+     *
      * @return array
+     *
      * @throws \Directus\Exception\Exception
      */
     function get_custom_x($type, $path, $onlyDirectories = false)
@@ -56,6 +58,7 @@ if (!function_exists('get_custom_x')) {
                 );
             }
 
+            $extensionName = strtolower($extensionName);
             // When a directory and file has the same name inside the path
             // /example/endpoints.php and example.php
             if (isset($extensions[$extensionName])) {
