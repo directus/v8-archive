@@ -29,6 +29,7 @@ class InstallModule extends ModuleBase
                 . PHP_EOL . "\t\t-p " . 'Password for the DB connection user. Default: directus'
                 . PHP_EOL . "\t\t-t " . 'Database Server Type. Default: mysql'
                 . PHP_EOL . "\t\t-P " . 'Database Server Port. Default: 3306'
+                . PHP_EOL . "\t\t-c " . 'CORS Enabled. Default: false'
                 . PHP_EOL . "\t\t-r " . 'Directus root URI. Default: /',
             'database' => '',
             'install' => ''
@@ -87,6 +88,9 @@ class InstallModule extends ModuleBase
                     break;
                 case 'e':
                     $data['directus_email'] = $value;
+                    break;
+                case 'c':
+                    $data['cors_enabled'] = boolval($value);
                     break;
             }
         }

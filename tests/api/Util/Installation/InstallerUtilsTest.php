@@ -45,7 +45,8 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'directus_path' => '/directus/',
             'directus_email' => 'admin@directus.local',
             'feedback_token' => 'token',
-            'feedback_login' => true
+            'feedback_login' => true,
+            'cors_enabled' => true
         ], __DIR__ . '/');
 
         $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample.php'), sha1_file(__DIR__ . '/api.php'));
@@ -64,7 +65,8 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'db_password' => 'password',
             'directus_path' => '/directus/',
             'feedback_token' => 'token',
-            'feedback_login' => true
+            'feedback_login' => true,
+            'cors_enabled' => true
         ], __DIR__ . '/');
 
         $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample2.php'), sha1_file(__DIR__ . '/api.php'));

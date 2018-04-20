@@ -54,7 +54,8 @@ class InstallerUtils
             'directus_email' => 'root@localhost',
             'default_language' => 'en',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
-            'feedback_login' => true
+            'feedback_login' => true,
+            'cors_enabled' => false
         ], $data);
 
         $configStub = static::createConfigFileContent($data);

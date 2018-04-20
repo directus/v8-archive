@@ -96,7 +96,7 @@ return [
     ],
 
     'cors' => [
-        'enabled' => false,
+        'enabled' => {{cors_enabled}},
         'origin' => ['*'],
         'headers' => [
             ['Access-Control-Allow-Headers', 'Authorization, Content-Type, Access-Control-Allow-Origin'],
