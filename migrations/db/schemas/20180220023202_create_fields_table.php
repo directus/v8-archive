@@ -58,6 +58,11 @@ class CreateFieldsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $table->addColumn('readonly', 'boolean', [
+            'signed' => false,
+            'null' => false,
+            'default' => false
+        ]);
         $table->addColumn('required', 'boolean', [
             'signed' => false,
             'null' => false,
@@ -68,6 +73,11 @@ class CreateFieldsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $table->addColumn('view_width', 'integer', [
+            'signed' => false,
+            'null' => false,
+            'default' => 4
+        ]);
         $table->addColumn('comment', 'string', [
             'limit' => 1024,
             'null' => true,
@@ -77,6 +87,11 @@ class CreateFieldsTable extends AbstractMigration
             'signed' => false,
             'null' => false,
             'default' => 0
+        ]);
+        $table->addColumn('validation', 'string', [
+            'limit' => 255,
+            'null' => true,
+            'default' => null
         ]);
         $table->addColumn('hidden_list', 'boolean', [
             'signed' => false,

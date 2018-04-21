@@ -84,6 +84,11 @@ class CreateUsersTable extends AbstractMigration
             'null' => true,
             'default' => 'en-US'
         ]);
+        $table->addColumn('high_contrast_mode', 'boolean', [
+            'signed' => false,
+            'null' => true,
+            'default' => false
+        ]);
         $table->addColumn('locale_options', 'text', [
             'null' => true,
             'default' => null
