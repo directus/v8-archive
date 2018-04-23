@@ -50,7 +50,7 @@ All output will adhere to the same general JSON structure:
 
 Gets the items from a given collection.
 
-```url
+```http
 /items/<collection>
 ```
 
@@ -65,6 +65,22 @@ Gets the items from a given collection.
 #### Examples
 
 * Search for all projects in the `design` category
+  ```bash
+  curl -g https://demo-api.getdirectus.com/_/items/projects?filter[category][eq]=design
   ```
-  GET /items/projects?filter[category][eq]=design
-  ```
+
+::: tip
+This is tip message
+:::
+
+::: warning
+This is a warning
+:::
+
+::: danger
+This is a danger Note
+:::
+
+::: danger STOP
+This is danger note with a custom title
+:::
