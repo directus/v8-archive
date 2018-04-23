@@ -8,6 +8,9 @@ module.exports = {
     nav: [
       { text: 'Home', link: 'https://directus.github.io/app' },
       { text: 'API Reference', link: '/' }
-    ]
+    ],
+    repo: 'directus/api',
+    docsDir: 'docs',
+    editLinks: true,
   }
 };
