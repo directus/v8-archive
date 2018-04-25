@@ -148,10 +148,6 @@ GET /items/projects?filter[category][in]=development,design
     *   `collection` if it is a collection of items
     *   `item` if it is a single item
 
-### Status
-
-`status` is a CSV of status keys that should be returned. This parameter can only be used when a Status field has been included in the collection. By default, this parameter returns all items with a status that is has `published=true`. This parameter supports the wildcard (`*`) to return items regardless of status. @TODO SOFT DELETED TOO?
-
 ### Language
 
 `lang` is a CSV of languages that should be returned with the response. This parameter can only be used when a Translation field has been included in the collection. This parameter supports the wildcard (`*`) to return all translations.
