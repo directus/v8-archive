@@ -15,9 +15,8 @@ if (!function_exists('cors_get_allowed_origin')) {
      */
     function cors_get_allowed_origin($allowedOrigins, $requestedOrigin)
     {
-
         if (is_array($requestedOrigin)) {
-            $requestedOrigin = array_shift($requestOrigin);
+            $requestedOrigin = array_shift($requestedOrigin);
         }
 
         if (!is_array($allowedOrigins)) {
