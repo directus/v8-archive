@@ -432,7 +432,8 @@ PUT /items/[collection-name]/[pk],[pk],[pk]
 
 *   **PATCH** partially updates the item with the provided data, any missing data is ignored
 *   **PUT** overwrites the item and any missing data will fallback to its default value
-    :::
+
+:::
 
 #### Body
 
