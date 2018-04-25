@@ -92,9 +92,47 @@ There are many common query parameters used throughout the API. Those are descri
 
 ### Filtering
 
-Used to fetch specific items from a collection based on one or more filters.
+Used to fetch specific items from a collection based on one or more filters. Filters follow the syntax `filter[<field-name>][<operator>]=<value>`.
 
-@TODO Operators, etc
+#### Filter Operators
+
+| Operator             | Description                            |
+| -------------------- | -------------------------------------- |
+| `=`, `eq`            | Equal to                               |
+| `<>`, `!=`, `neq`    | Not Equal to                           |
+| `<`, `lt`            | Less than                              |
+| `<=`, `lte`          | Less than or equal to                  |
+| `>`, `gt`            | Greater than                           |
+| `>=`, `gte`          | Greater than or equal to               |
+| `in`                 | One of these                           |
+| `nin`                | Not one of these                       |
+| `null`               | Is null                                |
+| `nnull`              | Is not null                            |
+| `contains`, `like`   | Contains the substring                 |
+| `ncontains`, `nlike` | Doesn't contain this substring         |
+| `between`            | Is between                             |
+| `nbetween`           | Is not between                         |
+| `empty`              | Is empty (null or falsy value)         |
+| `nempty`             | Is not empty (null or falsy value)     |
+| `all`                | Match all related items @TODO: Clarify |
+| `has`                | Has one or more related items          |
+
+#### AND vs OR
+
+By default, all chained filters are treated as ANDs. To create an OR combination, you can add the `logical` operator like follows:
+
+```
+GET /items/projects?filter[category][eq]=development&filter[logical][or]&filter[category][eq]=design
+```
+
+::: tip
+In nearly all cases, it makes more sense to use the `in` operator instead of going with the logical-or. For example, the above example can be rewritten as
+
+```
+GET /items/projects?filter[category][in]=development,design
+```
+
+:::
 
 ### Metadata
 
