@@ -63,115 +63,6 @@ The API performs two types of validation on submitted data:
 *   **Data Type** – The API checks the submitted value's type against against the database's field type. For example, a String submitted for an INT field will result in an error.
 *   **RegEx** – The API checks the submitted value against its column's `directus_fields.validation` RegEx. If the value doesn't match then an error will be returned.
 
-## Parameters
-
-There are many common query parameters used throughout the API. Those are described here and referenced from within each endpoint's section.
-
-### Sorting
-
-`sort` is a CSV of fields used to sort fetched items. Sorting defaults to ascending (ASC) but a minus sign (`-`) can be used to reverse this to descending (DESC). Fields are prioritized by their order in the CSV. You can use a `?` to sort by random.
-
-#### Examples
-
-*   `sort=?` Sorts randomly
-*   `sort=name` Sorts by `name` ASC
-*   `&sort=name,-age` Sorts by `name` ASC followed by `age` DESC
-*   `sort=name,-age,?` Sorts by `name` ASC followed by `age` DESC, followed by random
-
-### Fields
-
-`fields` is a CSV of columns to include in the output. This parameter supports dot notation to request nested relational fields. You can also use a wildcard (`*`) for "everything".
-
-#### Examples
-
-*   `fields=*` Gets all top-level fields
-*   `fields=*.*` Gets all top-level fields and all relational fields one-level deep
-*   `fields=*,images.*` Gets all top-level fields and all relational fields within `images`
-*   `fields=first_name,last_name` Gets only the `first_name` and `last_name` fields
-*   `fields=*.*,images.thumbnails.*` Get all fields for top level and one level deep, as well as three levels deep within `images.thumbnails`
-
-### Filtering
-
-Used to fetch specific items from a collection based on one or more filters. Filters follow the syntax `filter[<field-name>][<operator>]=<value>`.
-
-#### Filter Operators
-
-| Operator             | Description                            |
-| -------------------- | -------------------------------------- |
-| `=`, `eq`            | Equal to                               |
-| `<>`, `!=`, `neq`    | Not Equal to                           |
-| `<`, `lt`            | Less than                              |
-| `<=`, `lte`          | Less than or equal to                  |
-| `>`, `gt`            | Greater than                           |
-| `>=`, `gte`          | Greater than or equal to               |
-| `in`                 | One of these                           |
-| `nin`                | Not one of these                       |
-| `null`               | Is null                                |
-| `nnull`              | Is not null                            |
-| `contains`, `like`   | Contains the substring                 |
-| `ncontains`, `nlike` | Doesn't contain this substring         |
-| `between`            | Is between                             |
-| `nbetween`           | Is not between                         |
-| `empty`              | Is empty (null or falsy value)         |
-| `nempty`             | Is not empty (null or falsy value)     |
-| `all`                | Match all related items @TODO: Clarify |
-| `has`                | Has one or more related items          |
-
-#### AND vs OR
-
-By default, all chained filters are treated as ANDs. To create an OR combination, you can add the `logical` operator like follows:
-
-```
-GET /items/projects?filter[category][eq]=development&filter[logical][or]&filter[category][eq]=design
-```
-
-::: tip
-In nearly all cases, it makes more sense to use the `in` operator instead of going with the logical-or. For example, the above example can be rewritten as
-
-```
-GET /items/projects?filter[category][in]=development,design
-```
-
-:::
-
-### Metadata
-
-`meta` is a CSV of metadata fields to include. This parameter supports the wildcard (`*`) to return all metadata fields.
-
-#### Options
-
-*   `result_count` - Number of items returned in this response
-*   `total_count` - Total number of items in this collection
-*   `status` - Collection item count by statuses
-*   `collection` - The collection name
-*   `type`
-    *   `collection` if it is a collection of items
-    *   `item` if it is a single item
-
-### Language
-
-`lang` is a CSV of languages that should be returned with the response. This parameter can only be used when a Translation field has been included in the collection. This parameter supports the wildcard (`*`) to return all translations.
-
-### Search Query
-
-`q` is a search query that will perform a filter on all string-based fields within the collection (see list below). It's an easy way to search for an item without creating complex field filters – though it is far less optimized.
-
-#### Searched Datatypes
-
-*   `VARCHAR`
-*   `TEXT`
-    @TODO LIST ALL DATATYPES HERE
-
-### Skip Activity Log
-
-`skip_activity` is a parameter used if you need to perform an action through the API but do not want the event stored within `directus_activity`.
-
-::: warning
-
-Many features of Directus use the activity table, and it is important for accountability – so please use this parameter judiciously.
-
-:::
-
 ## Authentication
 
 Most endpoints are checked against the permissions settings. If a user is not authenticated or isn’t allowed to access certain endpoints then API will respond with either a `401 Unauthorized` or a `403 Forbidden` respectively. In addition to these status codes, the API returns a specific reason in the `error.message` field.
@@ -291,6 +182,115 @@ GET /auth/reset/[reset-token]
 | Code   | Description                                                                |
 | ------ | -------------------------------------------------------------------------- |
 | 200 OK | Always returns success to avoid malicious checks for valid email addresses |
+
+## Parameters
+
+There are many common query parameters used throughout the API. Those are described here and referenced from within each endpoint's section.
+
+### Sorting
+
+`sort` is a CSV of fields used to sort fetched items. Sorting defaults to ascending (ASC) but a minus sign (`-`) can be used to reverse this to descending (DESC). Fields are prioritized by their order in the CSV. You can use a `?` to sort by random.
+
+#### Examples
+
+*   `sort=?` Sorts randomly
+*   `sort=name` Sorts by `name` ASC
+*   `&sort=name,-age` Sorts by `name` ASC followed by `age` DESC
+*   `sort=name,-age,?` Sorts by `name` ASC followed by `age` DESC, followed by random
+
+### Fields
+
+`fields` is a CSV of columns to include in the output. This parameter supports dot notation to request nested relational fields. You can also use a wildcard (`*`) for "everything".
+
+#### Examples
+
+*   `fields=*` Gets all top-level fields
+*   `fields=*.*` Gets all top-level fields and all relational fields one-level deep
+*   `fields=*,images.*` Gets all top-level fields and all relational fields within `images`
+*   `fields=first_name,last_name` Gets only the `first_name` and `last_name` fields
+*   `fields=*.*,images.thumbnails.*` Get all fields for top level and one level deep, as well as three levels deep within `images.thumbnails`
+
+### Filtering
+
+Used to fetch specific items from a collection based on one or more filters. Filters follow the syntax `filter[<field-name>][<operator>]=<value>`.
+
+#### Filter Operators
+
+| Operator             | Description                            |
+| -------------------- | -------------------------------------- |
+| `=`, `eq`            | Equal to                               |
+| `<>`, `!=`, `neq`    | Not Equal to                           |
+| `<`, `lt`            | Less than                              |
+| `<=`, `lte`          | Less than or equal to                  |
+| `>`, `gt`            | Greater than                           |
+| `>=`, `gte`          | Greater than or equal to               |
+| `in`                 | One of these                           |
+| `nin`                | Not one of these                       |
+| `null`               | Is null                                |
+| `nnull`              | Is not null                            |
+| `contains`, `like`   | Contains the substring                 |
+| `ncontains`, `nlike` | Doesn't contain this substring         |
+| `between`            | Is between                             |
+| `nbetween`           | Is not between                         |
+| `empty`              | Is empty (null or falsy value)         |
+| `nempty`             | Is not empty (null or falsy value)     |
+| `all`                | Match all related items @TODO: Clarify |
+| `has`                | Has one or more related items          |
+
+#### AND vs OR
+
+By default, all chained filters are treated as ANDs. To create an OR combination, you can add the `logical` operator like follows:
+
+```
+GET /items/projects?filter[category][eq]=development&filter[logical][or]&filter[category][eq]=design
+```
+
+::: tip
+In nearly all cases, it makes more sense to use the `in` operator instead of going with the logical-or. For example, the above example can be rewritten as
+
+```
+GET /items/projects?filter[category][in]=development,design
+```
+
+:::
+
+### Metadata
+
+`meta` is a CSV of metadata fields to include. This parameter supports the wildcard (`*`) to return all metadata fields.
+
+#### Options
+
+*   `result_count` - Number of items returned in this response
+*   `total_count` - Total number of items in this collection
+*   `status` - Collection item count by statuses
+*   `collection` - The collection name
+*   `type`
+    *   `collection` if it is a collection of items
+    *   `item` if it is a single item
+
+### Language
+
+`lang` is a CSV of languages that should be returned with the response. This parameter can only be used when a Translation field has been included in the collection. This parameter supports the wildcard (`*`) to return all translations.
+
+### Search Query
+
+`q` is a search query that will perform a filter on all string-based fields within the collection (see list below). It's an easy way to search for an item without creating complex field filters – though it is far less optimized.
+
+#### Searched Datatypes
+
+*   `VARCHAR`
+*   `TEXT`
+    @TODO LIST ALL DATATYPES HERE
+
+### Skip Activity Log
+
+`skip_activity` is a parameter used if you need to perform an action through the API but do not want the event stored within `directus_activity`.
+
+::: warning
+
+Many features of Directus use the activity table, and it is important for accountability – so please use this parameter judiciously.
+
+:::
 
 ## Items
 
