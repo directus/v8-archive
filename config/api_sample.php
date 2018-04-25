@@ -116,26 +116,26 @@ return [
     'auth' => [
         'secret_key' => '<secret-authentication-key>',
         'social_providers' => [
-            // 'Okta' => [
+            // 'okta' => [
             //     'client_id' => '',
             //     'client_secret' => '',
             //     'base_url' => 'https://dev-000000.oktapreview.com/oauth2/default'
             // ],
-            // 'GitHub' => [
+            // 'github' => [
             //     'client_id' => '',
             //     'client_secret' => ''
             // ],
-            // 'Facebook' => [
+            // 'facebook' => [
             //     'client_id'          => '',
             //     'client_secret'      => '',
             //     'graph_api_version'  => 'v2.8',
             // ],
-            // 'Google' => [
+            // 'google' => [
             //     'client_id'       => '',
             //     'client_secret'   => '',
             //     'hosted_domain'   => '*',
             // ],
-            // 'Twitter' => [
+            // 'twitter' => [
             //     'identifier'   => '',
             //     'secret'       => ''
             // ]
