@@ -505,17 +505,19 @@ Batch Delete can quickly destroy large amounts of data. Please be careful when i
 
 ## System
 
+@TODO All these endpoints need to have the same reference as listed above
+
 All system tables (`directus_*`) are blocked from being used through the regular `/items` endpoint to prevent security leaks or because they require additional processing before sending to the end user. This means that any requests to `/items/directus_*` will always return `401 Unauthorized`.
 
 These system endpoints still follow the same spec as a “regular” `/items/[collection-name]` endpoint but require the additional processing outlined below:
 
 ### Columns
 
-`/columns` is used for creating, updating, or deleting columns through the API requires the API to modify the database schema directly. @TODO
+`/columns` is used for creating, updating, or deleting columns through the API requires the API to modify the database schema directly.
 
 ### Files
 
-`/files` is used for creating or updating a file requires the API to accept a special field allowing for the base64 file data. Beyond that, it must accept POST requests with the multipart-formdata enctype, to allow for easier uploading of file(s), and must accept uploading by chunk, to allow for larger filesizes. @TODO
+`/files` is used for creating or updating a file requires the API to accept a special field allowing for the base64 file data. Beyond that, it accepts POST requests with the multipart-formdata enctype, to allow for easier uploading of file(s).
 
 ### Permissions
 
@@ -523,7 +525,7 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 
 ### Collections
 
-`/collections` is similar to columns, this endpoint must alter the database schema directly. @TODO
+`/collections` is similar to columns, this endpoint alters the database schema directly.
 
 ### Create User
 
@@ -539,9 +541,8 @@ The email and password for the new user to be created. Any other submitted field
 
 ```json
 {
-  "email": "rijk@directus.io",
-  "password": "d1r3ctus",
-  [other user fields, optional]
+    "email": "rijk@directus.io",
+    "password": "d1r3ctus"
 }
 ```
 
