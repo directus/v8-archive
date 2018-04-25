@@ -44,7 +44,7 @@ The API uses HTTP status codes in addition to the message value. Everything in t
 |------|------------------------------------|
 | 200  | OK                                 |
 | 201  | Created                            |
-| 202  | No Content                         |
+| 204  | No Content                         |
 | 400  | Bad Request                        |
 | 401  | Unauthorized                       |
 | 403  | Forbidden                          |
@@ -116,6 +116,13 @@ Used to fetch specific items from a collection based on one or more filters.
 * `TEXT`
 @TODO LIST ALL DATATYPES HERE
 
+### Skip Activity Log
+`skip_activity` is a parameter used if you need to perform an action through the API but do not want the event stored within `directus_activity`. Many features of Directus use the activity table, and it is important for accountability – so please use this parameter judiciously.
+
+
+
+
+
 
 ## Authentication
 Most endpoints are checked against the permissions settings. If a user is not authenticated or isn’t allowed to access certain endpoints then API will respond with either a `401 Unauthorized` or a `403 Forbidden` respectively. In addition to these status codes, the API returns a specific reason in the `error.message` field.
@@ -146,19 +153,19 @@ POST /auth/authenticate
 The users credentials
 ```json
 {
-  "email": "rijk@example.com",
+  "email": "rijk@directus.io",
   "password": "supergeheimwachtwoord"
 }
 ```
 
-#### Possible Results
+#### Common Responses
 | Code             | Description                                        |
 |------------------|----------------------------------------------------|
 | 200 OK           | `data: [new access token]`                         |
 | 400 Bad Request  | `message: wrong email or password`                 |
 
 ::: warning
-The access token that is returned through this endpoint must be used with any subsequent requests except for endpoints that don’t require auth.
+The access token that is returned through this endpoint must be used with any subsequent requests except for endpoints that don’t require auth. @TODO LIST ENDPOINTS THAT DON'T REQUIRE AUTH
 :::
 
 
@@ -179,7 +186,7 @@ A valid token
 }
 ```
 
-#### Possible Results
+#### Common Responses
 | Code             | Description                                        |
 |------------------|----------------------------------------------------|
 | 200 OK           | `data: [new access token]`                         |
@@ -202,15 +209,16 @@ POST /auth/reset-request/
 ```
 
 #### Body
-A valid token
+The user's email address and the app URL from which the reset is requested
+
 ```json
 {
-  "email": "rijk@example.com",
+  "email": "rijk@directus.io",
   "instance": "https://example.com/admin/"
 }
 ```
 
-#### Possible Results
+#### Common Responses
 | Code             | Description                                        |
 |------------------|----------------------------------------------------|
 | 200 OK           | Always returns success to avoid malicious checks for valid email addresses     |
@@ -226,16 +234,7 @@ The API checks the validity of the reset token, that it hasn't expired, and matc
 GET /auth/reset/[reset-token]
 ```
 
-#### Body
-A valid token
-```json
-{
-  "email": "rijk@example.com",
-  "instance": "https://example.com/admin/"
-}
-```
-
-#### Possible Results
+#### Common Responses
 | Code             | Description                                        |
 |------------------|----------------------------------------------------|
 | 200 OK           | Always returns success to avoid malicious checks for valid email addresses     |
@@ -246,7 +245,7 @@ A valid token
 
 
 ## Items
-
+Items are essentially individual database records which each contain one or more fields (database columns). Each item belongs to a specific container (database table) and is identified by the value of its primary key field. In this section we describe the different ways you can manage items.
 
 
 
@@ -260,27 +259,50 @@ POST /items/[collection-name]/
 #### Body
 A single item or an array of multiple items to be created. Field keys must match the collection's column names.
 
-#### Possible Results
+##### One Item (Regular)
+```json
+{
+  "title": "Project One",
+  "category": "Design"
+}
+```
+
+##### Multiple Items (Batch)
+```json
+[
+  {
+    "title": "Project One",
+    "category": "Design"
+  },
+  {
+    "title": "Project Two",
+    "category": "Development"
+  }
+]
+```
+
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 201 Created              | `data`: The created item(s), including default fields added by Directus  |
 | 400 Bad Request          | `message`: Syntax error in provided JSON    |
 | 404 Not Found            | `message`: Collection doesn’t exist    |
-| 422 Unprocessable Entity | `message`: Column doesn’t exist in collection    |
+| 422 Unprocessable Entity | `message`: Field doesn’t exist in collection    |
 
 
 ::: tip
-The API may not return any data for successful requests if the user doesn't have adequate read permission
+The API may not return any data for successful requests if the user doesn't have adequate read permission @TODO DOES THAT MEAN A 403 IS RETURNED?
 :::
 
 
 
 
 ### Get Item
-Gets a single item from within a given collection
+Get one or more single items from within a given collection
 
 ```http
-GET /items/[collection-name]/[primary-key-value]
+GET /items/[collection-name]/[pk]
+GET /items/[collection-name]/[pk],[pk],[pk]
 ```
 
 #### Query Parameters
@@ -291,7 +313,7 @@ GET /items/[collection-name]/[primary-key-value]
 | status        | Published | CSV of statuses [Learn More](#status)  |
 | lang          | *         | Include translation(s) [Learn More](#language)  |
 
-#### Possible Results
+#### Common Responses
 | Code             | Description                                        |
 |------------------|----------------------------------------------------|
 | 200 OK           | `data`: Retrieved item<br>`meta`: Depends on requested metadata  |
@@ -301,14 +323,18 @@ GET /items/[collection-name]/[primary-key-value]
 
 * Return the project item with an ID of `1`
   ```bash
-  curl -g https://api.directus.io/_/items/projects/1
+  curl https://api.directus.io/_/items/projects/1
+  ```
+  * Return project items with IDs of `1`, `3`, `11`
+  ```bash
+  curl https://api.directus.io/_/items/projects/1,3,11
   ```
 
 
 
 
 ### Get Items
-Gets items from within a given collection
+Get an array of items from within a given collection
 
 ```http
 GET /items/[collection-name]/
@@ -328,7 +354,9 @@ GET /items/[collection-name]/
 | q             |           | Search string [Learn More](#search-query)  |
 | id            |           | CSV of primary keys to fetch  |
 
-#### Possible Results
+@TODO SHOULD `id` BECOME `pk`? Do we need this if GetItem supports a CSV or PKs?
+
+#### Common Responses
 | Code             | Description                                        |
 |------------------|----------------------------------------------------|
 | 200 OK           | `data`: Array of items<br>`meta`: Depends on requested metadata  |
@@ -345,23 +373,25 @@ GET /items/[collection-name]/
 
 
 ### Update Item
-Update a single item from within a given collection
+Update or replace a single item from within a given collection
+
+@TODO LOOK INTO ALLOWING FILTER PARAM FOR UPDATES, EG: `PUT /items/projects?filter[title][eq]=title`
 
 ```http
-PATCH /items/[collection-name]/[primary-key-value]
-PUT /items/[collection-name]/[primary-key-value]
+PATCH /items/[collection-name]/[pk]
+PUT /items/[collection-name]/[pk],[pk],[pk]
 ```
 
 ::: warning PATCH VS PUT
 * **PATCH** partially updates the item with the provided data, any missing data is ignored
-* **PUT** fully updates the item and any missing data will fallback to its default value
+* **PUT** overwrites the item and any missing data will fallback to its default value
 :::
 
 
 #### Body
 A single item to be updated. Field keys must match the collection's column names
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 200 OK                   | `data`: The updated item, including default fields added by Directus  |
@@ -373,7 +403,7 @@ A single item to be updated. Field keys must match the collection's column names
 
 * Return the project item with an ID of `1`
   ```bash
-  curl -g https://api.directus.io/_/items/projects/1
+  curl https://api.directus.io/_/items/projects/1
   ```
 
 
@@ -381,7 +411,6 @@ A single item to be updated. Field keys must match the collection's column names
 
 ### Update Items
 Update multiple items within a given collection
-@TODO WHY DOES THIS NOT USE A CSV OF IDS WITH UPDATE ITEM?
 
 ```http
 PATCH /items/[collection-name]
@@ -396,6 +425,8 @@ PUT /items/[collection-name]
 #### Body
 An array of items to be updated. Field keys must match the collection's column names. Alternatively, you can use the following syntax to overwrite the values of multiple items at once (Batch Update).
 
+@TODO THIS IS NOT VALID JSON
+
 ```json
 {
   keys: [2, 15, 31],
@@ -409,7 +440,7 @@ An array of items to be updated. Field keys must match the collection's column n
 Batch Update can quickly overwrite large amounts of data. Please be careful when implementing this request.
 :::
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 200 OK                   | `data`: The updated item, including default fields added by Directus  |
@@ -421,47 +452,30 @@ Batch Update can quickly overwrite large amounts of data. Please be careful when
 
 
 ### Delete Item
-Deletes an item from a specific collection
+Deletes one or more items from a specific collection. This endpoint also accepts CSV of primary key values, and would then return an array of items
 
 ```http
-DELETE /items/[collection-name]/[primary-key-value]
+DELETE /items/[collection-name]/[pk]
+DELETE /items/[collection-name]/[pk],[pk],[pk]
 ```
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 204 No Content           | Record was successfully deleted        |
 | 404 Not Found            | `message`: Item doesn't exist within collection    |
 
 
-
-
-### Delete Items
-Deletes multiple items from a specific collection
-
-```http
-DELETE /items/[collection-name]/
-```
-
-#### Body
-An array of IDs of records to be deleted @TODO SHOULD THIS BE PKs?
-
-#### Possible Results
-| Code                     | Description                                        |
-|--------------------------|----------------------------------------------------|
-| 202 No Content @TODO 204?                  | Items were deleted successfully  |
-| 400 Bad Request          | `message`: Syntax error in provided JSON    |
-| 404 Not Found            | `message`: Collection doesn’t exist    |
-| 422 Unprocessable Entity | `message`: Items don't exist in collection    |
-
-
+::: danger WARNING
+Batch Delete can quickly destroy large amounts of data. Please be careful when implementing this request.
+:::
 
 
 
 
 ## System
 
-All system tables (`directus_*`) are blocked from being used through the regular `/items` endpoint to prevent security leaks or because they require additional processing before sending to the end user. This means that any requests to `/items/directus_*` will always return `403 Forbidden`.
+All system tables (`directus_*`) are blocked from being used through the regular `/items` endpoint to prevent security leaks or because they require additional processing before sending to the end user. This means that any requests to `/items/directus_*` will always return `403 Forbidden`. @TODO OR IS IT A 404?
 
 These system endpoints still follow the same spec as a “regular” `/items/[collection-name]` endpoint but require the additional processing outlined below:
 
@@ -472,7 +486,7 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 `/files` is used for creating or updating a file requires the API to accept a special field allowing for the base64 file data. Beyond that, it must accept POST requests with the multipart-formdata enctype, to allow for easier uploading of file(s), and must accept uploading by chunk, to allow for larger filesizes. @TODO
 
 ### Permissions
-`/permissions` is... @TODO WHAT DOES THIS ENDPOINT DO THAT IS SPECIAL?
+`/permissions` does not have any additional processing, it is simply an alias for the blocked `/items/directus_permissions`
 
 ### Collections
 `/collections` is similar to columns, this endpoint must alter the database schema directly. @TODO
@@ -492,13 +506,13 @@ The email and password for the new user to be created. Any other submitted field
 
 ```json
 {
-  "email": "rijk@example.com",
+  "email": "rijk@directus.io",
   "password": "d1r3ctus",
   [other user fields, optional]
 }
 ```
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 201 Created              | `data`: The created user, including default fields added by Directus  |
@@ -512,15 +526,19 @@ The email and password for the new user to be created. Any other submitted field
 Gets a single user from within this instance
 
 ```http
-GET /users/[primary-key-value]
+GET /users/[pk]
+GET /users/[pk],[pk],[pk]
 ```
 
 #### Query Parameters
 | Name          | Default   | Description                                      |
 |---------------|-----------|--------------------------------------------------|
+| fields        | *         | CSV of fields to include in response [Learn More](#fields)  |
 | meta          |           | CSV of metadata fields to include [Learn More](#metadata)  |
+| status        | Published | CSV of statuses [Learn More](#status)  |
+| lang          | *         | Include translation(s) [Learn More](#language)  |
 
-#### Possible Results
+#### Common Responses
 | Code             | Description                                        |
 |------------------|----------------------------------------------------|
 | 200 OK           | `data`: Retrieved user<br>`meta`: Depends on requested metadata  |
@@ -530,7 +548,7 @@ GET /users/[primary-key-value]
 
 * Return the user with an ID of `1`
   ```bash
-  curl -g https://api.directus.io/_/users/1
+  curl https://api.directus.io/_/users/1
   ```
 
 
@@ -546,19 +564,28 @@ GET /users
 #### Query Parameters
 | Name          | Default   | Description                                      |
 |---------------|-----------|--------------------------------------------------|
+| limit         | 200       | The number of items to request                   |
+| offset        | 0         | How many items to skip before fetching results   |
+| sort          | id        | CSV of fields to sort by [Learn More](#sorting)  |
+| fields        | *         | CSV of fields to include in response [Learn More](#fields)  |
+| filter[field] |           | Filter items using operators [Learn More](#filtering)  |
 | meta          |           | CSV of metadata fields to include [Learn More](#metadata)  |
-@TODO DOES THIS REALLY NOT ALLOW FOR FILTERING OFFSET ETC?
+| status        | Published | CSV of statuses [Learn More](#status)  |
+| lang          | *         | Include translation(s) [Learn More](#language)  |
+| q             |           | Search string [Learn More](#search-query)  |
+| id            |           | CSV of primary keys to fetch  |
 
-#### Possible Results
-| Code             | Description                                        |
-|------------------|----------------------------------------------------|
-| 200 OK           | `data`: Array of Directus users<br>`meta`: Depends on requested metadata  |
+#### Common Responses
+| Code                     | Description                                        |
+|--------------------------|----------------------------------------------------|
+| 200 OK                   | `data`: Array of Directus users<br>`meta`: Depends on requested metadata  |
+| 400 Bad Request          | `message`: Syntax error in provided JSON    |
 
 #### Examples
 
 * Get all the Directus users for this instance
   ```bash
-  curl -g https://api.directus.io/_/users
+  curl https://api.directus.io/_/users
   ```
 
 
@@ -568,9 +595,11 @@ GET /users
 Update a user within this instance
 
 ```http
-PATCH /users/[primary-key-value]
-PUT /users/[primary-key-value]
+PATCH /users/[pk]
+PUT /users/[pk]
 ```
+
+@TODO DO WE WANT TO SUPPORT CSV OF PKs HERE TOO?
 
 * **PATCH** will partially update the item with the provided data, any missing fields will be ignored
 * **PUT** will update the item and any missing data will fallback to its default value
@@ -578,7 +607,7 @@ PUT /users/[primary-key-value]
 #### Body
 A single user to be updated. Field keys must match column names within `directus_users`.
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 200 OK                   | `data`: The updated item, including default fields added by Directus  |
@@ -590,13 +619,14 @@ A single user to be updated. Field keys must match column names within `directus
 
 
 ### Delete User
-Deletes a user from this instance
+Deletes one or more users from this instance
 
 ```http
-DELETE /users/[primary-key-value]
+DELETE /users/[pk]
+DELETE /users/[pk],[pk],[pk]
 ```
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 204 No Content           | User was successfully deleted        |
@@ -617,21 +647,21 @@ An email, or an array of emails to send invites to.
 
 ```json
 {
-  "email": "rijk@example.com"
+  "email": "rijk@directus.io"
 }
 ```
 or
 ```
 {
   "email": [
-    "rijk@example.com",
-    "welling@example.com",
-    "ben@example.com"
+    "rijk@directus.io",
+    "welling@directus.io",
+    "ben@directus.io"
   ]
 }
 ```
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 200 OK                   | Emails successfully sent  |
@@ -657,10 +687,10 @@ The path to the last page the user was on in the Directus App
 }
 ```
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
-| 200 OK                   | Emails successfully sent @TODO IS THIS USED?  |
+| 200 OK                   | User successfully tracked @TODO `data`?  |
 | 400 Bad Request          | `message`: Syntax error in provided JSON    |
 | 422 Unprocessable Entity | `message`: Field is invalid    |
 
@@ -687,7 +717,7 @@ The hashing algorithm to use and the string to hash
 }
 ```
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 200 OK                   | `data`: The hashed string  |
@@ -714,7 +744,7 @@ The hashing algorithm to use and the string to hash
 }
 ```
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 200 OK                   | `data`: Boolean. Note that `false` (string does not match hash) is a successful response  |
@@ -734,7 +764,7 @@ GET /utils/random/
 |---------------|-----------|--------------------------------------------------|
 | length        |  32       | Length of string to return                       |
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 200 OK                   | `data`: The random string |
@@ -750,16 +780,15 @@ GET /utils/random/
 Directus can easily be extended through the addition of several types of extensions. Extensions are important pieces of the Directus App that live in the decoupled Directus API. These include Interfaces, Listing Views, and Pages. These three different types of extensions  live in their own directory and may have their own endpoints.
 
 ### Get Interfaces, List Views, Pages
-These endpoints read the API's file system for directory names and return an array of extension names.
+These endpoints read the API's file system for directory names and return an array of extension names as well as the contents of each's `meta.json` files.
 
 ```http
 GET /interfaces
 GET /listviews
-GET /extensions
+GET /pages
 ```
-@TODO extensions -> pages
 
-#### Possible Results
+#### Common Responses
 | Code                     | Description                                        |
 |--------------------------|----------------------------------------------------|
 | 200 OK                   | `data`: An array of extension names                |
