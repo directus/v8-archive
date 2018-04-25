@@ -78,8 +78,6 @@ There are many common query parameters used throughout the API. Those are descri
 *   `&sort=name,-age` Sorts by `name` ASC followed by `age` DESC
 *   `sort=name,-age,?` Sorts by `name` ASC followed by `age` DESC, followed by random
 
-@TODO does sort by random work?
-
 ### Fields
 
 `fields` is a CSV of columns to include in the output. This parameter supports dot notation to request nested relational fields. You can also use a wildcard (`*`) for "everything".
