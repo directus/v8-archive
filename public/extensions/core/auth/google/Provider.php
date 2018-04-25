@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Authentication\Sso\Provider\Google;
+namespace Directus\Authentication\Sso\Provider\google;
 
 use Directus\Application\Application;
 use Directus\Authentication\Sso\TwoSocialProvider;

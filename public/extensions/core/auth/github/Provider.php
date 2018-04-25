@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Authentication\Sso\Provider\GitHub;
+namespace Directus\Authentication\Sso\Provider\github;
 
 use Directus\Authentication\Sso\TwoSocialProvider;
 use Directus\Util\ArrayUtils;

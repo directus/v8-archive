@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Authentication\Sso\Provider\Twitter;
+namespace Directus\Authentication\Sso\Provider\twitter;
 
 use Directus\Authentication\Sso\OneSocialProvider;
 use League\OAuth1\Client\Server\Twitter;
