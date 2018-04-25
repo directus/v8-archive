@@ -528,6 +528,118 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 
 `/collections` is similar to columns, this endpoint alters the database schema directly.
 
+### Get All Revisions
+
+Get all item revisions, for all collections within this instance
+
+```http
+GET /revisions
+```
+
+#### Query Parameters
+
+| Name   | Default   | Description                                                |
+| ------ | --------- | ---------------------------------------------------------- |
+|        |           | @TODO |
+
+#### Common Responses
+
+| Code            | Description                                                                  |
+| --------------- | ---------------------------------------------------------------------------- |
+| 200 OK          | `data`: Array of Directus Revisions<br>`meta`: Depends on requested metadata |
+| 400 Bad Request | `message`: Syntax error in provided JSON                                     |
+
+#### Examples
+
+*   Get all the Directus revisions for this instance
+    ```bash
+    curl https://api.directus.io/_/revisions
+    ```
+
+### Get Revision
+
+Get a specific revision
+
+```http
+GET /revisions/[pk]
+```
+
+#### Query Parameters
+
+| Name   | Default   | Description                                                |
+| ------ | --------- | ---------------------------------------------------------- |
+|        |           | @TODO |
+
+#### Common Responses
+
+| Code            | Description                                                                  |
+| --------------- | ---------------------------------------------------------------------------- |
+| 200 OK          | `data`: A single Directus Revision<br>`meta`: Depends on requested metadata |
+| 400 Bad Request | `message`: Syntax error in provided JSON                                     |
+
+#### Examples
+
+*   Get the revision with primary key 91
+    ```bash
+    curl https://api.directus.io/_/revisions/91
+    ```
+
+### Get Collection Revisions
+
+Get all revisions from items in a specific collection
+
+```http
+GET /revisions/[collection-name]
+```
+
+#### Query Parameters
+
+| Name   | Default   | Description                                                |
+| ------ | --------- | ---------------------------------------------------------- |
+|        |           | @TODO |
+
+#### Common Responses
+
+| Code            | Description                                                                  |
+| --------------- | ---------------------------------------------------------------------------- |
+| 200 OK          | `data`: Array of Directus Revisions<br>`meta`: Depends on requested metadata |
+| 400 Bad Request | `message`: Syntax error in provided JSON                                     |
+
+#### Examples
+
+*   Get all revisions from items in the projects collection
+    ```bash
+    curl https://api.directus.io/_/revisions/projects
+    ```
+
+### Get Item Revisions
+
+Get all revisions from a specific item
+
+```http
+GET /revisions/[collection-name]/[pk]
+```
+
+#### Query Parameters
+
+| Name   | Default   | Description                                                |
+| ------ | --------- | ---------------------------------------------------------- |
+|        |           | @TODO |
+
+#### Common Responses
+
+| Code            | Description                                                                  |
+| --------------- | ---------------------------------------------------------------------------- |
+| 200 OK          | `data`: Array of Directus Revisions<br>`meta`: Depends on requested metadata |
+| 400 Bad Request | `message`: Syntax error in provided JSON                                     |
+
+#### Examples
+
+*   Get all revisions from the project's item with a primary key of 2
+    ```bash
+    curl https://api.directus.io/_/revisions/projects/2
+    ```
+
 ### Create User
 
 Creates a new user within this instance
