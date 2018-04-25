@@ -61,7 +61,7 @@ class CoreServicesProvider
         $container['hook_emitter']      = $this->getEmitter();
         $container['auth']              = $this->getAuth();
         $container['external_auth']     = $this->getExternalAuth();
-        // $container['session']           = $this->getSession();
+        $container['session']           = $this->getSession();
         $container['acl']               = $this->getAcl();
         $container['errorHandler']      = $this->getErrorHandler();
         $container['phpErrorHandler']   = $this->getErrorHandler();

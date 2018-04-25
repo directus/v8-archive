@@ -72,29 +72,10 @@ class CorsMiddleware extends AbstractMiddleware
     protected function getOrigin(Request $request)
     {
         $corsOptions = $this->getOptions();
-        $requestOrigin = $request->getHeader('Origin') ?: $request->getServerParam('HTTP_ORIGIN');
-        $responseOrigin = null;
+        $requestOrigin = $request->getOrigin();
         $allowedOrigins = ArrayUtils::get($corsOptions, 'origin', '*');
 
-        if (is_array($requestOrigin)) {
-            $requestOrigin = array_shift($requestOrigin);
-        }
-
-        if (!is_array($allowedOrigins)) {
-            if (is_string($allowedOrigins)) {
-                $allowedOrigins = StringUtils::csv($allowedOrigins);
-            } else {
-                $allowedOrigins = [$allowedOrigins];
-            }
-        }
-
-        if (in_array($requestOrigin, $allowedOrigins)) {
-            $responseOrigin = $requestOrigin;
-        } else if (in_array('*', $allowedOrigins)) {
-            $responseOrigin = '*';
-        }
-
-        return $responseOrigin;
+        return cors_get_allowed_origin($allowedOrigins, $requestOrigin);
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace Directus\Services;
 
+use Directus\Authentication\Exception\ExpiredRequestTokenException;
+use Directus\Authentication\Exception\InvalidRequestTokenException;
 use Directus\Authentication\Sso\AbstractSocialProvider;
 use Directus\Authentication\Exception\ExpiredResetPasswordToken;
 use Directus\Authentication\Exception\InvalidResetPasswordTokenException;
@@ -172,7 +174,7 @@ class AuthService extends AbstractService
         );
     }
 
-    public function handleAuthenticationRequestCallback($name)
+    public function handleAuthenticationRequestCallback($name, $generateRequestToken = false)
     {
         /** @var Social $socialAuth */
         $socialAuth = $this->container->get('external_auth');
@@ -182,10 +184,15 @@ class AuthService extends AbstractService
         $serviceUser = $service->handle();
 
         $user = $this->authenticateWithEmail($serviceUser->getEmail());
+        if ($generateRequestToken) {
+            $token = $this->generateRequestToken($user);
+        } else {
+            $token = $this->generateAuthToken($user);
+        }
 
         return [
             'data' => [
-                'token' => $this->generateAuthToken($user)
+                'token' => $token
             ]
         ];
     }
@@ -252,6 +259,41 @@ class AuthService extends AbstractService
     }
 
     /**
+     * Gets the access token from a request token
+     *
+     * @param string $token
+     *
+     * @return array
+     *
+     * @throws ExpiredRequestTokenException
+     * @throws InvalidRequestTokenException
+     */
+    public function authenticateWithRequestToken($token)
+    {
+        if (!JWTUtils::isJWT($token)) {
+            throw new InvalidRequestTokenException();
+        }
+
+        if (JWTUtils::hasExpired($token)) {
+            throw new ExpiredRequestTokenException();
+        }
+
+        $payload = JWTUtils::getPayload($token);
+        /** @var Provider $auth */
+        $auth = $this->container->get('auth');
+        $user = $auth->getUserProvider()->findWhere([
+            'id' => $payload->id,
+            'group' => $payload->group
+        ]);
+
+        return [
+            'data' => [
+                'token' => $this->generateAuthToken($user)
+            ]
+        ];
+    }
+
+    /**
      * Generates JWT Token
      *
      * @param UserInterface $user
@@ -264,6 +306,21 @@ class AuthService extends AbstractService
         $auth = $this->container->get('auth');
 
         return $auth->generateAuthToken($user);
+    }
+
+    /**
+     * Generates a Request JWT Token use for SSO Authentication
+     *
+     * @param UserInterface $user
+     *
+     * @return string
+     */
+    public function generateRequestToken(UserInterface $user)
+    {
+        /** @var Provider $auth */
+        $auth = $this->container->get('auth');
+
+        return $auth->generateRequestToken($user);
     }
 
     /**

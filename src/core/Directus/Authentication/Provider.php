@@ -346,6 +346,25 @@ class Provider
     }
 
     /**
+     * Generates a new request token used to SSO to request an Access Token
+     *
+     * @param UserInterface $user
+     *
+     * @return string
+     */
+    public function generateRequestToken(UserInterface $user)
+    {
+        $payload = [
+            'type' => 'request_token',
+            'id' => (int) $user->getId(),
+            'group' => (int) $user->getGroupId(),
+            'exp' => time() + (5 * DateTimeUtils::MINUTE_IN_SECONDS)
+        ];
+
+        return $this->generateToken($payload);
+    }
+
+    /**
      * Generates a new reset password token
      *
      * @param UserInterface $user

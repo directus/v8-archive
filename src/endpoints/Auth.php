@@ -8,6 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
+use Directus\Session\Session;
 use Directus\Util\ArrayUtils;
 
 class Auth extends Route
@@ -26,6 +27,7 @@ class Auth extends Route
         $app->get('/sso/{service}', [$this, 'ssoService']);
         $app->post('/sso/{service}', [$this, 'ssoAuthenticate']);
         $app->get('/sso/{service}/callback', [$this, 'ssoServiceCallback']);
+        $app->post('/access_token', [$this, 'ssoAccessToken']);
     }
 
     /**
@@ -146,10 +148,24 @@ class Auth extends Route
     {
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
+        $origin = $request->getReferer();
+        $config = $this->container->get('config');
+        $corsOptions = $config->get('cors', []);
+        $allowedOrigins = ArrayUtils::get($corsOptions, 'origin');
+        $session = $this->container->get('session');
 
         $responseData = $authService->getAuthenticationRequestInfo(
             $request->getAttribute('service')
         );
+
+        if (cors_is_origin_allowed($allowedOrigins, $origin)) {
+            if (is_array($origin)) {
+                $origin = array_shift($origin);
+            }
+
+            $session->set('sso_origin_url', $origin);
+            $response = $response->withRedirect(array_get($responseData, 'data.authorization_url'));
+        }
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -178,14 +194,63 @@ class Auth extends Route
      * @param Response $response
      *
      * @return Response
+     *
+     * @throws \Exception
      */
     public function ssoServiceCallback(Request $request, Response $response)
     {
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
+        $session = $this->container->get('session');
+        // TODO: Implement a pull method
+        $redirectUrl = $session->get('sso_origin_url');
+        $session->remove('sso_origin_url');
 
-        $responseData = $authService->handleAuthenticationRequestCallback(
-            $request->getAttribute('service')
+        $responseData = [];
+        $urlParams = [];
+        try {
+            $responseData = $authService->handleAuthenticationRequestCallback(
+                $request->getAttribute('service'),
+                !!$redirectUrl
+            );
+
+            $urlParams['request_token'] = array_get($responseData, 'data.token');
+        } catch (\Exception $e) {
+            if (!$redirectUrl) {
+                throw $e;
+            }
+
+            $urlParams['error'] = $e->getMessage();
+        }
+
+        if ($redirectUrl) {
+            $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
+            $redirectUrlParts = explode('?', $redirectUrl);
+            $redirectUrl = $redirectUrlParts[0];
+            $redirectQueryParams = parse_str($redirectQueryString);
+            if (is_array($redirectQueryParams)) {
+                $urlParams = array_merge($redirectQueryParams, $urlParams);
+            }
+
+            $response = $response->withRedirect($redirectUrl . '?' . http_build_query($urlParams));
+        }
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function ssoAccessToken(Request $request, Response $response)
+    {
+        /** @var AuthService $authService */
+        $authService = $this->container->get('services')->get('auth');
+
+        $responseData = $authService->authenticateWithRequestToken(
+            $request->getParsedBodyParam('request_token')
         );
 
         return $this->responseWithData($request, $response, $responseData);
