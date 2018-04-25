@@ -417,6 +417,73 @@ GET /items/[collection-name]/
     curl -g https://api.directus.io/_/items/projects?filter[category][eq]=design
     ```
 
+### Get Item Revision
+
+Get a specific revision from a given item. This endpoint uses a zero-based offset to select a revision, where `0` is the creation revision. Negative offsets are allowed, and select as if `0` is the current revisions.
+
+```http
+GET /items/[collection-name]/[pk]/revisions/[offset]
+```
+
+#### Query Parameters
+
+| Name   | Default   | Description                                                |
+| ------ | --------- | ---------------------------------------------------------- |
+| fields | \*        | CSV of fields to include in response [Learn More](#fields) |
+| meta   |           | CSV of metadata fields to include [Learn More](#metadata)  |
+| status | Published | CSV of statuses [Learn More](#status)                      |
+| lang   | \*        | Include translation(s) [Learn More](#language)             |
+
+#### Common Responses
+
+| Code          | Description                                                                  |
+| ------------- | ---------------------------------------------------------------------------- |
+| 200 OK        | `data`: Retrieved item<br>`meta`: Depends on requested metadata              |
+| 404 Not Found | `message`: Collection doesn’t exist, or item doesn't exist within collection |
+
+#### Examples
+
+*   Return the 2nd revision (from creation) for the project item with a primary key of 1
+    ```bash
+    curl https://api.directus.io/_/items/projects/1/revisions/2
+    ```
+*   Return the 2nd from current revision for the project item with a primary key of 1
+    ```bash
+    curl https://api.directus.io/_/items/projects/1/revisions/-2
+    ```
+
+### Get Item Revisions
+
+Get an array of revisions from a given item
+
+```http
+GET /items/[collection-name]/[pk]/revisions
+```
+
+#### Query Parameters
+
+| Name          | Default   | Description                                                |
+| ------------- | --------- | ---------------------------------------------------------- |
+| limit         | 200       | The number of items to request                             |
+| offset        | 0         | How many items to skip before fetching results             |
+| fields        | \*        | CSV of fields to include in response [Learn More](#fields) |
+| meta          |           | CSV of metadata fields to include [Learn More](#metadata)  |
+| lang          | \*        | Include translation(s) [Learn More](#language)             |
+
+#### Common Responses
+
+| Code          | Description                                                     |
+| ------------- | --------------------------------------------------------------- |
+| 200 OK        | `data`: Array of items<br>`meta`: Depends on requested metadata |
+| 404 Not Found | `message`: Collection doesn’t exist                             |
+
+#### Examples
+
+*   Get all revisions from the project item with a primary key of 1
+    ```bash
+    curl https://api.directus.io/_/items/projects/1/revisions
+    ```
+
 ### Update Item
 
 Update or replace a single item from a given collection
@@ -528,34 +595,6 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 
 `/collections` is similar to columns, this endpoint alters the database schema directly.
 
-### Get All Revisions
-
-Get all item revisions, for all collections within this instance
-
-```http
-GET /revisions
-```
-
-#### Query Parameters
-
-| Name   | Default   | Description                                                |
-| ------ | --------- | ---------------------------------------------------------- |
-|        |           | @TODO |
-
-#### Common Responses
-
-| Code            | Description                                                                  |
-| --------------- | ---------------------------------------------------------------------------- |
-| 200 OK          | `data`: Array of Directus Revisions<br>`meta`: Depends on requested metadata |
-| 400 Bad Request | `message`: Syntax error in provided JSON                                     |
-
-#### Examples
-
-*   Get all the Directus revisions for this instance
-    ```bash
-    curl https://api.directus.io/_/revisions
-    ```
-
 ### Get Revision
 
 Get a specific revision
@@ -584,12 +623,12 @@ GET /revisions/[pk]
     curl https://api.directus.io/_/revisions/91
     ```
 
-### Get Collection Revisions
+### Get Revisions
 
-Get all revisions from items in a specific collection
+Get all item revisions, for all collections within this instance
 
 ```http
-GET /revisions/[collection-name]
+GET /revisions
 ```
 
 #### Query Parameters
@@ -607,37 +646,9 @@ GET /revisions/[collection-name]
 
 #### Examples
 
-*   Get all revisions from items in the projects collection
+*   Get all the Directus revisions for this instance
     ```bash
-    curl https://api.directus.io/_/revisions/projects
-    ```
-
-### Get Item Revisions
-
-Get all revisions from a specific item
-
-```http
-GET /revisions/[collection-name]/[pk]
-```
-
-#### Query Parameters
-
-| Name   | Default   | Description                                                |
-| ------ | --------- | ---------------------------------------------------------- |
-|        |           | @TODO |
-
-#### Common Responses
-
-| Code            | Description                                                                  |
-| --------------- | ---------------------------------------------------------------------------- |
-| 200 OK          | `data`: Array of Directus Revisions<br>`meta`: Depends on requested metadata |
-| 400 Bad Request | `message`: Syntax error in provided JSON                                     |
-
-#### Examples
-
-*   Get all revisions from the project's item with a primary key of 2
-    ```bash
-    curl https://api.directus.io/_/revisions/projects/2
+    curl https://api.directus.io/_/revisions
     ```
 
 ### Create User
