@@ -164,7 +164,13 @@ GET /items/projects?filter[category][in]=development,design
 
 ### Skip Activity Log
 
-`skip_activity` is a parameter used if you need to perform an action through the API but do not want the event stored within `directus_activity`. Many features of Directus use the activity table, and it is important for accountability – so please use this parameter judiciously.
+`skip_activity` is a parameter used if you need to perform an action through the API but do not want the event stored within `directus_activity`.
+
+::: warning
+
+Many features of Directus use the activity table, and it is important for accountability – so please use this parameter judiciously.
+
+:::
 
 ## Authentication
 
