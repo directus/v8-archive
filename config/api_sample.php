@@ -116,36 +116,26 @@ return [
     'auth' => [
         'secret_key' => '<secret-authentication-key>',
         'social_providers' => [
-            // [
-            //     'enabled' => false,
-            //     'provider' => 'okta',
+            // 'Okta' => [
             //     'client_id' => '',
             //     'client_secret' => '',
             //     'base_url' => 'https://dev-000000.oktapreview.com/oauth2/default'
             // ],
-            // [
-            //     'provider' => 'github',
-            //     'enabled' => true,
+            // 'GitHub' => [
             //     'client_id' => '',
             //     'client_secret' => ''
             // ],
-            // [
-            //     'provider' => 'facebook',
-            //     'enabled' => true,
+            // 'Facebook' => [
             //     'client_id'          => '',
             //     'client_secret'      => '',
             //     'graph_api_version'  => 'v2.8',
             // ],
-            // [
-            //     'provider' => 'google',
-            //     'enabled' => true,
+            // 'Google' => [
             //     'client_id'       => '',
             //     'client_secret'   => '',
             //     'hosted_domain'   => '*',
             // ],
-            // [
-            //     'provider' => 'twitter',
-            //     'enabled' => true,
+            // 'Twitter' => [
             //     'identifier'   => '',
             //     'secret'       => ''
             // ]

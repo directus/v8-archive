@@ -754,7 +754,7 @@ class CoreServicesProvider
             }, $customSso);
 
             $ssoProviders = array_merge($coreSso, $customSso);
-            foreach ($providersConfig as $providerConfig) {
+            foreach ($providersConfig as $providerName => $providerConfig) {
                 if (!is_array($providerConfig)) {
                     continue;
                 }
@@ -763,18 +763,14 @@ class CoreServicesProvider
                     continue;
                 }
 
-                $name = ArrayUtils::get($providerConfig, 'provider');
-                if (!$name) {
-                    continue;
-                }
+                if (array_key_exists($providerName, $ssoProviders) && isset($ssoProviders[$providerName]['provider'])) {
+                    $providerInfo = $ssoProviders[$providerName];
+                    $class = array_get($providerInfo, 'provider');
+                    $custom = array_get($providerInfo, 'custom');
 
-                if (array_key_exists($name, $ssoProviders) && isset($ssoProviders[$name]['provider'])) {
-                    $class = $ssoProviders[$name]['provider'];
-                    $custom = array_get($ssoProviders[$name], 'custom');
-
-                    $socialAuth->register($name, new $class($container, array_merge([
+                    $socialAuth->register($providerName, new $class($container, array_merge([
                         'custom' => $custom,
-                        'callback_url' => get_url('/_/auth/sso/' . $name. '/callback')
+                        'callback_url' => get_url('/_/auth/sso/' . $providerName . '/callback')
                     ], $providerConfig)));
                 }
             }
