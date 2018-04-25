@@ -97,13 +97,6 @@ class AuthService extends AbstractService
         $service = $socialAuth->get($name);
         $basePath = $this->container->get('path_base');
 
-        $oauthVersion = null;
-        if ($service instanceof OneSocialProvider) {
-            $oauthVersion = 1.0;
-        } else if ($service instanceof TwoSocialProvider) {
-            $oauthVersion = 2.0;
-        }
-
         $iconUrl = null;
         $type = $service->getConfig()->get('custom') === true ? 'custom' : 'core';
         $iconPath = sprintf('/extensions/%s/auth/%s/icon.svg', $type, $name);
@@ -113,7 +106,6 @@ class AuthService extends AbstractService
 
         return [
             'name' => $name,
-            'oauth_version' => $oauthVersion,
             'icon' => $iconUrl
         ];
     }

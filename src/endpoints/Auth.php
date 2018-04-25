@@ -130,7 +130,7 @@ class Auth extends Route
 
         $services = [];
         foreach ($externalAuth->getAll() as $name => $provider) {
-            $services[] = $authService->getSsoInfo($name);
+            $services[] = $authService->getSsoBasicInfo($name);
         }
 
         $responseData = ['data' => $services];
