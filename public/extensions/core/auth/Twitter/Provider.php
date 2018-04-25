@@ -13,14 +13,6 @@ class Provider extends OneSocialProvider
     protected $provider = null;
 
     /**
-     * @inheritDoc
-     */
-    public function getName()
-    {
-        return 'twitter';
-    }
-
-    /**
      * Creates the Twitter provider oAuth client
      *
      * @return Twitter

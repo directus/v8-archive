@@ -2,15 +2,11 @@
 
 namespace Directus\Authentication\Sso;
 
+use Directus\Exception\RuntimeException;
 use Directus\Util\ArrayUtils;
 
 class Social
 {
-    const PROVIDER_FACEBOOK = 'facebook';
-    const PROVIDER_GITHUB   = 'github';
-    const PROVIDER_TWITTER  = 'twitter';
-    const PROVIDER_GOOGLE   = 'google';
-
     /**
      * Register providers
      *
@@ -18,37 +14,41 @@ class Social
      */
     protected $providers = [];
 
-    public function __construct($providers = [])
+    public function __construct(array $providers = [])
     {
-        $this->register($providers);
+        foreach ($providers as $key => $provider) {
+            $this->register($key, $provider);
+        }
     }
 
     /**
      * Register a provider
      *
-     * @param $providers
+     * @param string $key
+     * @param SocialProviderInterface $provider
      *
      * @return $this
      */
-    public function register($providers)
+    public function register($key, $provider)
     {
-        if (!is_array($providers)) {
-            $providers = [$providers];
+        if (!$key || !is_string($key)) {
+            throw new \RuntimeException('Social Login name must be a string');
         }
 
-        foreach($providers as $provider) {
-            $name = $provider->getName();
-
-            if (!$name || !is_string($name)) {
-                throw new \RuntimeException('Social Login name must be a string');
-            }
-
-            if (ArrayUtils::has($this->providers, $name)) {
-                throw new \RuntimeException(sprintf('Social Login "%s" already exists', $name));
-            }
-
-            $this->providers[$name] = $provider;
+        if (ArrayUtils::has($this->providers, $key)) {
+            throw new \RuntimeException(sprintf('Social Login "%s" already exists', $key));
         }
+
+        if (!($provider instanceof SocialProviderInterface)) {
+            throw new RuntimeException(
+                sprintf(
+                    'Single Sign On provider must be a instance of %s, instead %s was given',
+                    SocialProviderInterface::class, gettype($provider)
+                )
+            );
+        }
+
+        $this->providers[$key] = $provider;
 
         return $this;
     }
@@ -69,32 +69,5 @@ class Social
         }
 
         return $this->providers[$key];
-    }
-
-    /**
-     * Checks whether the given service name is supported
-     *
-     * @param $name
-     *
-     * @return bool
-     */
-    public static function isSupported($name)
-    {
-        return in_array($name, static::supported());
-    }
-
-    /**
-     * List of supported services
-     *
-     * @return array
-     */
-    public static function supported()
-    {
-        return [
-            'google',
-            'facebook',
-            'twitter',
-            'github'
-        ];
     }
 }

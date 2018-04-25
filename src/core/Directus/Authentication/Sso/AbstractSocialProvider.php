@@ -3,7 +3,7 @@
 namespace Directus\Authentication\Sso;
 
 use Directus\Application\Container;
-use Directus\Config\Config;
+use Directus\Collection\Collection;
 
 abstract class AbstractSocialProvider implements SocialProviderInterface
 {
@@ -13,7 +13,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     protected $container;
 
     /**
-     * @var Config
+     * @var Collection
      */
     protected $config;
 
@@ -36,7 +36,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     public function __construct(Container $container, array $config)
     {
         $this->container = $container;
-        $this->config = new Config($config);
+        $this->config = new Collection($config);
 
         $this->createProvider();
     }
@@ -56,6 +56,14 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
      * Gets authorization token
      *
      * @return string|null
@@ -72,13 +80,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
      */
     public function getRedirectUrl()
     {
-        if ($this->config->has('callback_url')) {
-            $url = $this->config->get('callback_url');
-        } else {
-            $url = get_url('/_/auth/sso/' . $this->getName(). '/callback');
-        }
-
-        return $url;
+        return $this->config->get('callback_url');
     }
 
     /**

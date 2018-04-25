@@ -93,6 +93,7 @@ class AuthService extends AbstractService
         $socialAuth = $this->container->get('external_auth');
         /** @var AbstractSocialProvider $service */
         $service = $socialAuth->get($name);
+        $basePath = $this->container->get('path_base');
 
         $oauthVersion = null;
         if ($service instanceof OneSocialProvider) {
@@ -101,10 +102,17 @@ class AuthService extends AbstractService
             $oauthVersion = 2.0;
         }
 
+        $iconUrl = null;
+        $type = $service->getConfig()->get('custom') === true ? 'custom' : 'core';
+        $iconPath = sprintf('/extensions/%s/auth/%s/icon.svg', $type, $name);
+        if (file_exists($basePath . '/public' . $iconPath)) {
+            $iconUrl = get_url($iconPath);
+        }
+
         return [
-            'name' => $service->getName(),
+            'name' => $name,
             'oauth_version' => $oauthVersion,
-            'icon' => get_url('extensions/core/auth/' . $service->getName() . '/icon.svg')
+            'icon' => $iconUrl
         ];
     }
 
@@ -120,10 +128,15 @@ class AuthService extends AbstractService
         /** @var AbstractSocialProvider $service */
         $service = $socialAuth->get($name);
 
-        return [
-            'authorization_url' => $service->getRequestAuthorizationUrl(),
-            'state' => $service->getProvider()->getState()
+        $authorizationInfo = [
+            'authorization_url' => $service->getRequestAuthorizationUrl()
         ];
+
+        if ($service instanceof TwoSocialProvider) {
+            $authorizationInfo['state'] = $service->getProvider()->getState();
+        }
+
+        return $authorizationInfo;
     }
 
     /**

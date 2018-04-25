@@ -14,14 +14,6 @@ class Provider extends TwoSocialProvider
     protected $provider = null;
 
     /**
-     * @inheritDoc
-     */
-    public function getName()
-    {
-        return 'google';
-    }
-
-    /**
      * @inheritdoc
      */
     public function getScopes()

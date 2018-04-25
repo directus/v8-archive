@@ -746,13 +746,20 @@ class CoreServicesProvider
             $coreSso = get_custom_x('auth', 'public/extensions/core/auth', true);
             $customSso = get_custom_x('auth', 'public/extensions/custom/auth', true);
 
+            // Flag the customs providers in order to choose the correct path for the icons
+            $customSso = array_map(function ($config) {
+                $config['custom'] = true;
+
+                return $config;
+            }, $customSso);
+
             $ssoProviders = array_merge($coreSso, $customSso);
             foreach ($providersConfig as $providerConfig) {
                 if (!is_array($providerConfig)) {
                     continue;
                 }
 
-                if (ArrayUtils::get($providerConfig, 'enabled') !== true) {
+                if (ArrayUtils::get($providerConfig, 'enabled') === false) {
                     continue;
                 }
 
@@ -763,7 +770,12 @@ class CoreServicesProvider
 
                 if (array_key_exists($name, $ssoProviders) && isset($ssoProviders[$name]['provider'])) {
                     $class = $ssoProviders[$name]['provider'];
-                    $socialAuth->register(new $class($container, $providerConfig));
+                    $custom = array_get($ssoProviders[$name], 'custom');
+
+                    $socialAuth->register($name, new $class($container, array_merge([
+                        'custom' => $custom,
+                        'callback_url' => get_url('/_/auth/sso/' . $name. '/callback')
+                    ], $providerConfig)));
                 }
             }
 

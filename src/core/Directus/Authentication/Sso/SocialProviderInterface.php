@@ -3,6 +3,7 @@
 namespace Directus\Authentication\Sso;
 
 use Directus\Authentication\User\UserInterface;
+use Directus\Collection\Collection;
 
 interface SocialProviderInterface
 {
@@ -28,11 +29,11 @@ interface SocialProviderInterface
     public function handle();
 
     /**
-     * Gets providers name
+     * Gets the provider config object
      *
-     * @return string
+     * @return Collection
      */
-    public function getName();
+    public function getConfig();
 
     /**
      * Gets user object using the authorization code

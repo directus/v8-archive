@@ -127,7 +127,7 @@ class Auth extends Route
 
         $services = [];
         foreach ($providersConfig as $provider) {
-            if (ArrayUtils::get($provider, 'enabled') === true) {
+            if (ArrayUtils::get($provider, 'enabled') !== false) {
                 $name = ArrayUtils::get($provider, 'provider');
                 if ($name) {
                     $services[] = $authService->getSsoInfo($name);
