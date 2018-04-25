@@ -70,4 +70,14 @@ class Social
 
         return $this->providers[$key];
     }
+
+    /**
+     * Get all registered providers
+     *
+     * @return SocialProviderInterface[]
+     */
+    public function getAll()
+    {
+        return $this->providers;
+    }
 }

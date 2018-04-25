@@ -6,6 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
 use Directus\Util\ArrayUtils;
 
@@ -120,19 +121,14 @@ class Auth extends Route
      */
     public function listSsoAuthServices(Request $request, Response $response)
     {
-        $config = $this->container->get('config');
-        $providersConfig = $config->get('auth.social_providers', []);
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
+        /** @var Social $externalAuth */
+        $externalAuth = $this->container->get('external_auth');
 
         $services = [];
-        foreach ($providersConfig as $provider) {
-            if (ArrayUtils::get($provider, 'enabled') !== false) {
-                $name = ArrayUtils::get($provider, 'provider');
-                if ($name) {
-                    $services[] = $authService->getSsoInfo($name);
-                }
-            }
+        foreach ($externalAuth->getAll() as $name => $provider) {
+            $services[] = $authService->getSsoInfo($name);
         }
 
         $responseData = ['data' => $services];
