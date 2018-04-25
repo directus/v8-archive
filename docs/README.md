@@ -402,9 +402,6 @@ GET /items/[collection-name]/
 | status        | Published | CSV of statuses [Learn More](#status)                      |
 | lang          | \*        | Include translation(s) [Learn More](#language)             |
 | q             |           | Search string [Learn More](#search-query)                  |
-| id            |           | CSV of primary keys to fetch                               |
-
-@TODO SHOULD `id` BECOME `pk`? Do we need this if GetItem supports a CSV or PKs?
 
 #### Common Responses
 
