@@ -143,8 +143,8 @@ GET /items/projects?filter[category][in]=development,design
 *   `result_count` - Number of items returned in this response
 *   `total_count` - Total number of items in this collection
 *   `status` - Collection item count by statuses
-*   `table` - The collection name @TODO SHOULD BE COLLECTION
-*   Type @TODO WHAT DOES THIS MEAN?
+*   `collection` - The collection name
+*   `type`
     *   `collection` if it is a collection of items
     *   `item` if it is a single item
 
