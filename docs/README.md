@@ -726,7 +726,7 @@ The path to the last page the user was on in the Directus App
 
 | Code                     | Description                              |
 | ------------------------ | ---------------------------------------- |
-| 200 OK                   | User successfully tracked @TODO `data`?  |
+| 200 OK                   | User successfully tracked                |
 | 400 Bad Request          | `message`: Syntax error in provided JSON |
 | 422 Unprocessable Entity | `message`: Field is invalid              |
 
