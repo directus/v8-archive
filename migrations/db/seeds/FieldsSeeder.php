@@ -294,7 +294,20 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'last_page',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
-            ]
+            ],
+            // Revisions
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'data',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_LONG_JSON,
+                'interface' => 'json'
+            ],
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'delta',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_LONG_JSON,
+                'interface' => 'json'
+            ],
         ];
 
         $files = $this->table('directus_fields');
