@@ -298,7 +298,7 @@ Items are essentially individual database records which each contain one or more
 
 ### Create Item
 
-Creates one or more items within a given collection
+Creates one or more items in a given collection
 
 ```http
 POST /items/[collection-name]/
@@ -347,7 +347,7 @@ The API may not return any data for successful requests if the user doesn't have
 
 ### Get Item
 
-Get one or more single items from within a given collection
+Get one or more single items from a given collection
 
 ```http
 GET /items/[collection-name]/[pk]
@@ -383,7 +383,7 @@ GET /items/[collection-name]/[pk],[pk],[pk]
 
 ### Get Items
 
-Get an array of items from within a given collection
+Get an array of items from a given collection
 
 ```http
 GET /items/[collection-name]/
@@ -419,7 +419,7 @@ GET /items/[collection-name]/
 
 ### Update Item
 
-Update or replace a single item from within a given collection
+Update or replace a single item from a given collection
 
 @TODO LOOK INTO ALLOWING FILTER PARAM FOR UPDATES, EG: `PUT /items/projects?filter[title][eq]=title`
 
@@ -456,7 +456,7 @@ A single item to be updated. Field keys must match the collection's column names
 
 ### Update Items
 
-Update multiple items within a given collection
+Update multiple items in a given collection
 
 ```http
 PATCH /items/[collection-name]
