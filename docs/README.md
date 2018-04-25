@@ -467,22 +467,8 @@ PUT /items/[collection-name]
 
 *   **PATCH** partially updates the item with the provided data, any missing data is ignored
 *   **PUT** fully updates the item and any missing data will fallback to its default value
-    :::
 
-#### Body
-
-An array of items to be updated. Field keys must match the collection's column names. Alternatively, you can use the following syntax to overwrite the values of multiple items at once (Batch Update).
-
-@TODO THIS IS NOT VALID JSON
-
-```json
-{
-    keys: [2, 15, 31],
-    values: {
-        name: value
-    }
-}
-```
+:::
 
 ::: danger WARNING
 Batch Update can quickly overwrite large amounts of data. Please be careful when implementing this request.
