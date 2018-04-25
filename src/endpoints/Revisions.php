@@ -16,9 +16,9 @@ class Revisions extends Route
     public function __invoke(Application $app)
     {
         $app->get('', [$this, 'all']);
-        $app->get('/{id:[0-9]+}', [$this, 'read']);
-        $app->get('/{collection}', [$this, 'allFromCollection']);
-        $app->get('/{collection}/{id}', [$this, 'readFromCollection']);
+        $app->get('/{id}', [$this, 'read']);
+        $app->get('/collection/{collection}', [$this, 'allFromCollection']);
+        $app->get('/collection/{collection}/{id}', [$this, 'readFromCollection']);
     }
 
     /**
