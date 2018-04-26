@@ -53,7 +53,7 @@ class RevisionsService extends AbstractService
 
         return $this->getDataAndSetResponseCacheTags(
             [$tableGateway, 'getItems'],
-            [array_merge($params, ['filter' => ['collection' => $collection]])]
+            [array_merge_recursive($params, ['filter' => ['collection' => $collection]])]
         );
     }
 
@@ -71,12 +71,12 @@ class RevisionsService extends AbstractService
 
         return $this->getDataAndSetResponseCacheTags(
             [$tableGateway, 'getItems'],
-            [array_merge($params, ['filter' => ['id' => $id]])]
+            [array_merge_recursive($params, ['filter' => ['id' => $id]])]
         );
     }
 
     /**
-     * Returns one revision with the given item id in the given collection
+     * Returns all revision from a given item
      *
      * @param string $collection
      * @param mixed $item
@@ -84,13 +84,44 @@ class RevisionsService extends AbstractService
      *
      * @return array
      */
-    public function findOneByItem($collection, $item, array $params = [])
+    public function findAllByItem($collection, $item, array $params = [])
     {
         $tableGateway = $this->getTableGateway();
 
         return $this->getDataAndSetResponseCacheTags(
             [$tableGateway, 'getItems'],
             [array_merge($params, ['filter' => ['item' => $item, 'collection' => $collection]])]
+        );
+    }
+
+    /**
+     * @param string $collection
+     * @param string $item
+     * @param int $offset
+     * @param array $params
+     *
+     * @return array|mixed
+     */
+    public function findOneByItemOffset($collection, $item, $offset, array $params = [])
+    {
+        $tableGateway = $this->getTableGateway();
+
+        $this->validate(['offset' => $offset], ['offset' => 'required|numeric']);
+
+        return $this->getDataAndSetResponseCacheTags(
+            [$tableGateway, 'getItems'],
+            [array_merge(
+                $params,
+                [
+                    // Make sure it's sorted by ID ascending
+                    // to proper pick the offset based on creation order
+                    'sort' => 'id',
+                    'filter' => ['item' => $item, 'collection' => $collection],
+                    'single' => true,
+                    'limit' => 1,
+                    'offset' => (int)$offset
+                ]
+            )]
         );
     }
 

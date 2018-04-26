@@ -10,6 +10,7 @@ use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\Http\BadRequestException;
 use Directus\Services\ItemsService;
+use Directus\Services\RevisionsService;
 
 class Items extends Route
 {
@@ -20,6 +21,10 @@ class Items extends Route
         $app->get('/{collection}/{id}', [$this, 'read']);
         $app->patch('/{collection}/{id}', [$this, 'update']);
         $app->delete('/{collection}/{id}', [$this, 'delete']);
+
+        // Revisions
+        $app->get('/{collection}/{id}/revisions', [$this, 'itemRevisions']);
+        $app->get('/{collection}/{id}/revisions/{offset}', [$this, 'oneItemRevision']);
     }
 
     /**
@@ -152,6 +157,43 @@ class Items extends Route
 
         $responseData = [];
         $response = $response->withStatus(204);
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function itemRevisions(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->findAllByItem(
+            $request->getAttribute('collection'),
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function oneItemRevision(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->findOneByItemOffset(
+            $request->getAttribute('collection'),
+            $request->getAttribute('id'),
+            $request->getAttribute('offset'),
+            $request->getQueryParams()
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }

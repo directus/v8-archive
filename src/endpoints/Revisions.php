@@ -17,8 +17,6 @@ class Revisions extends Route
     {
         $app->get('', [$this, 'all']);
         $app->get('/{id}', [$this, 'read']);
-        $app->get('/collection/{collection}', [$this, 'allFromCollection']);
-        $app->get('/collection/{collection}/{id}', [$this, 'readFromCollection']);
     }
 
     /**
@@ -47,41 +45,6 @@ class Revisions extends Route
     {
         $service = new RevisionsService($this->container);
         $responseData = $service->findOne(
-            $request->getAttribute('id'),
-            $request->getQueryParams()
-        );
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function allFromCollection(Request $request, Response $response)
-    {
-        $service = new RevisionsService($this->container);
-        $responseData = $service->findByCollection(
-            $request->getAttribute('collection'),
-            $request->getQueryParams()
-        );
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function readFromCollection(Request $request, Response $response)
-    {
-        $service = new RevisionsService($this->container);
-        $responseData = $service->findOneByItem(
-            $request->getAttribute('collection'),
             $request->getAttribute('id'),
             $request->getQueryParams()
         );
