@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'provider' => \Directus\Authentication\Sso\Provider\Facebook\Provider::class
+    'provider' => \Directus\Authentication\Sso\Provider\facebook\Provider::class
 ];

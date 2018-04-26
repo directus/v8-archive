@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'provider' => \Directus\Authentication\Sso\Provider\Twitter\Provider::class
+    'provider' => \Directus\Authentication\Sso\Provider\twitter\Provider::class
 ];

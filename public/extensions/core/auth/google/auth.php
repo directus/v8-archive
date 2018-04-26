@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'provider' => \Directus\Authentication\Sso\Provider\Google\Provider::class
+    'provider' => \Directus\Authentication\Sso\Provider\google\Provider::class
 ];

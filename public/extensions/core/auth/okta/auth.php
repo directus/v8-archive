@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'provider' => \Directus\Authentication\Sso\Provider\Okta\Provider::class
+    'provider' => \Directus\Authentication\Sso\Provider\okta\Provider::class
 ];
