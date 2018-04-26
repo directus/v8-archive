@@ -29,6 +29,7 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\SchemaService;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
@@ -767,6 +768,10 @@ class CoreServicesProvider
                     $providerInfo = $ssoProviders[$providerName];
                     $class = array_get($providerInfo, 'provider');
                     $custom = array_get($providerInfo, 'custom');
+
+                    if (!class_exists($class)) {
+                        throw new RuntimeException(sprintf('Class %s not found', $class));
+                    }
 
                     $socialAuth->register($providerName, new $class($container, array_merge([
                         'custom' => $custom,
