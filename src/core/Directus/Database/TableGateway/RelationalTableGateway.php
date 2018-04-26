@@ -750,15 +750,15 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function createGlobalMetadata($single, array $list = [])
     {
-        $allKeys = ['table', 'type'];
+        $allKeys = ['collection', 'type'];
         $metadata = [];
 
         if (empty($list) || in_array('*', $list)) {
             $list = $allKeys;
         }
 
-        if (in_array('table', $list)) {
-            $metadata['table'] = $this->getTable();
+        if (in_array('collection', $list)) {
+            $metadata['collection'] = $this->getTable();
         }
 
         if (in_array('type', $list)) {
