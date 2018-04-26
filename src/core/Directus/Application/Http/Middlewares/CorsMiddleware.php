@@ -36,6 +36,8 @@ class CorsMiddleware extends AbstractMiddleware
 
         if ($origin) {
             $response->setHeader('Access-Control-Allow-Origin', $origin);
+            // NOTE: Ideally will be best to actually set the actual allowed methods
+            $response->setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, HEAD');
 
             foreach (ArrayUtils::get($corsOptions, 'headers', []) as $name => $value) {
                 // Support two options:
