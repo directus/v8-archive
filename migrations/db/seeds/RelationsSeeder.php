@@ -69,6 +69,7 @@ class RelationsSeeder extends AbstractSeed
                 'collection_a' => 'directus_users',
                 'field_a' => 'roles',
                 'junction_key_a' => 'user',
+                'junction_collection' => 'directus_user_roles',
                 'junction_key_b' => 'role',
                 'field_b' => 'users',
                 'collection_b' => 'directus_roles'
