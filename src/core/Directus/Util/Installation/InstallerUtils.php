@@ -88,33 +88,26 @@ class InstallerUtils
      */
     public static function createTables($directusPath)
     {
-        $directusPath = rtrim($directusPath, '/');
-        /**
-         * Check if configuration files exists
-         *
-         * @throws \InvalidArgumentException
-         */
-        static::checkConfigurationFile($directusPath);
-
-        $configPath = $directusPath . '/config';
-
-        $apiConfig = require $configPath . '/api.php';
-        $configArray = require $configPath . '/migrations.php';
-        $configArray['paths']['migrations'] = $directusPath . '/migrations/db/schemas';
-        $configArray['paths']['seeds'] = $directusPath . '/migrations/db/seeds';
-        $configArray['environments']['development'] = [
-            'adapter' => ArrayUtils::get($apiConfig, 'database.type'),
-            'host' => ArrayUtils::get($apiConfig, 'database.host'),
-            'port' => ArrayUtils::get($apiConfig, 'database.port'),
-            'name' => ArrayUtils::get($apiConfig, 'database.name'),
-            'user' => ArrayUtils::get($apiConfig, 'database.username'),
-            'pass' => ArrayUtils::get($apiConfig, 'database.password'),
-            'charset' => ArrayUtils::get($apiConfig, 'database.charset', 'utf8')
-        ];
-        $config = new Config($configArray);
+        $config = static::getMigrationConfig($directusPath);
 
         $manager = new Manager($config, new StringInput(''), new NullOutput());
         $manager->migrate('development');
+        $manager->seed('development');
+    }
+
+    public static function runMigration($directusPath)
+    {
+        $config = static::getMigrationConfig($directusPath);
+
+        $manager = new Manager($config, new StringInput(''), new NullOutput());
+        $manager->migrate('development');
+    }
+
+    public static function runSeeder($directusPath)
+    {
+        $config = static::getMigrationConfig($directusPath);
+
+        $manager = new Manager($config, new StringInput(''), new NullOutput());
         $manager->seed('development');
     }
 
@@ -263,6 +256,40 @@ class InstallerUtils
         $dbConnection = Application::getInstance()->fromContainer('database');
 
         $dbConnection->execute($sql);
+    }
+
+    /**
+     * @param $directusPath
+     *
+     * @return Config
+     */
+    private static function getMigrationConfig($directusPath)
+    {
+        $directusPath = rtrim($directusPath, '/');
+        /**
+         * Check if configuration files exists
+         *
+         * @throws \InvalidArgumentException
+         */
+        static::checkConfigurationFile($directusPath);
+
+        $configPath = $directusPath . '/config';
+
+        $apiConfig = require $configPath . '/api.php';
+        $configArray = require $configPath . '/migrations.php';
+        $configArray['paths']['migrations'] = $directusPath . '/migrations/db/schemas';
+        $configArray['paths']['seeds'] = $directusPath . '/migrations/db/seeds';
+        $configArray['environments']['development'] = [
+            'adapter' => ArrayUtils::get($apiConfig, 'database.type'),
+            'host' => ArrayUtils::get($apiConfig, 'database.host'),
+            'port' => ArrayUtils::get($apiConfig, 'database.port'),
+            'name' => ArrayUtils::get($apiConfig, 'database.name'),
+            'user' => ArrayUtils::get($apiConfig, 'database.username'),
+            'pass' => ArrayUtils::get($apiConfig, 'database.password'),
+            'charset' => ArrayUtils::get($apiConfig, 'database.charset', 'utf8')
+        ];
+
+        return new Config($configArray);
     }
 
     /**
