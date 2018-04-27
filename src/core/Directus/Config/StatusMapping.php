@@ -43,9 +43,17 @@ class StatusMapping extends Collection
      */
     public function getPublishedStatusesValue()
     {
-        $visibleStatus = $this->getStatusesValue('published', true);
+        return $this->getStatusesValue('published', true);
+    }
 
-        return $visibleStatus;
+    /**
+     * Returns a list of soft delete status values
+     *
+     * @return array
+     */
+    public function getSoftDeleteStatusesValue()
+    {
+        return $this->getStatusesValue('soft_delete', true);
     }
 
     /**

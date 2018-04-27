@@ -245,10 +245,27 @@ class RelationalTableGateway extends BaseTableGateway
         $fullRecordData = (array) $fullRecordData;
         $deltaRecordData = $recordIsNew ? [] : array_intersect_key((array)$parentRecordWithoutAlias, $fullRecordData);
 
+        $statusField = $tableSchema->getStatusField();
+        if ($recordIsNew) {
+            $logEntryAction = DirectusActivityTableGateway::ACTION_ADD;
+        } else {
+            $logEntryAction = DirectusActivityTableGateway::ACTION_UPDATE;
+
+            if (
+                $statusField
+                && ArrayUtils::has($deltaRecordData, $statusField->getName())
+                && in_array(
+                    ArrayUtils::get($deltaRecordData, $tableSchema->getStatusField()->getName()),
+                    $this->getStatusMapping()->getSoftDeleteStatusesValue()
+                )
+            ) {
+                $logEntryAction = DirectusActivityTableGateway::ACTION_SOFT_DELETE;
+            }
+        }
+
         switch ($activityEntryMode) {
             // Activity logging is enabled, and I am a nested action
             case self::ACTIVITY_ENTRY_MODE_CHILD:
-                $logEntryAction = $recordIsNew ? DirectusActivityTableGateway::ACTION_ADD : DirectusActivityTableGateway::ACTION_UPDATE;
                 $childLogEntries[] = [
                     'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
                     'action' => $logEntryAction,
@@ -286,7 +303,6 @@ class RelationalTableGateway extends BaseTableGateway
                  */
                 // Produce log if something changed.
                 if ($parentRecordChanged || $nestedCollectionRelationshipsChanged) {
-                    $logEntryAction = $recordIsNew ? DirectusActivityTableGateway::ACTION_ADD : DirectusActivityTableGateway::ACTION_UPDATE;
                     // Save parent log entry
                     $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
                     $logData = [

@@ -32,9 +32,9 @@ class StatusItem
     protected $defaultAttributes = [
         'text_color' => '#000000',
         'background_color' => '#FFFFFF',
-        'subdued_in_listing' => false,
-        'show_listing_badge' => false,
-        'hidden_globally' => false,
+        'listing_subdued' => false,
+        'listing_badge' => false,
+        'soft_delete' => false,
         'hard_delete' => false,
         'published' => true,
     ];
@@ -69,6 +69,14 @@ class StatusItem
     public function getSort()
     {
         return $this->sort;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSoftDelete()
+    {
+        return $this->getAttribute('soft_delete') === true;
     }
 
     /**
