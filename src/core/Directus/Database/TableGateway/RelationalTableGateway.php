@@ -251,15 +251,19 @@ class RelationalTableGateway extends BaseTableGateway
         } else {
             $logEntryAction = DirectusActivityTableGateway::ACTION_UPDATE;
 
-            if (
-                $statusField
-                && ArrayUtils::has($deltaRecordData, $statusField->getName())
-                && in_array(
-                    ArrayUtils::get($deltaRecordData, $tableSchema->getStatusField()->getName()),
-                    $this->getStatusMapping()->getSoftDeleteStatusesValue()
-                )
-            ) {
-                $logEntryAction = DirectusActivityTableGateway::ACTION_SOFT_DELETE;
+            try {
+                if (
+                    $statusField
+                    && ArrayUtils::has($deltaRecordData, $statusField->getName())
+                    && in_array(
+                        ArrayUtils::get($deltaRecordData, $tableSchema->getStatusField()->getName()),
+                        $this->getStatusMapping()->getSoftDeleteStatusesValue()
+                    )
+                ) {
+                    $logEntryAction = DirectusActivityTableGateway::ACTION_SOFT_DELETE;
+                }
+            } catch (\Exception $e) {
+                // the field doesn't have a status mapping
             }
         }
 
