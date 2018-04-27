@@ -3,9 +3,11 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Database\Exception\RevisionInvalidDeltaException;
 use Directus\Database\Exception\RevisionNotFoundException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
+use Directus\Exception\Exception;
 use Zend\Db\TableGateway\TableGateway;
 
 class RevisionsService extends AbstractService
@@ -139,10 +141,13 @@ class RevisionsService extends AbstractService
 
         $result = $revisionTableGateway->selectWith($select)->current();
         if (!$result) {
-            throw new RevisionNotFoundException();
+            throw new RevisionNotFoundException($revision);
         }
 
         $data = json_decode($result->delta, true);
+        if (!$data) {
+            throw new RevisionInvalidDeltaException($revision);
+        }
 
         $collection = SchemaService::getCollection($collectionName);
         $tableGateway = $this->createTableGateway($collectionName);
