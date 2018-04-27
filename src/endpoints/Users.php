@@ -6,7 +6,9 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
+use Directus\Services\RevisionsService;
 use Directus\Services\UsersService;
 
 class Users extends Route
@@ -25,6 +27,10 @@ class Users extends Route
         $app->post('/invite', [$this, 'invite']);
         $app->patch('/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
+
+        // Revisions
+        $app->get('/{id}/revisions', [$this, 'userRevisions']);
+        $app->get('/{id}/revisions/{offset}', [$this, 'oneUserRevision']);
     }
 
     /**
@@ -133,5 +139,42 @@ class Users extends Route
         $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function userRevisions(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->findAllByItem(
+            SchemaManager::COLLECTION_USERS,
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function oneUserRevision(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->findOneByItemOffset(
+            SchemaManager::COLLECTION_USERS,
+            $request->getAttribute('id'),
+            $request->getAttribute('offset'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

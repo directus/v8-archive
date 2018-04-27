@@ -6,9 +6,11 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\Exception;
 use Directus\Filesystem\Exception\FailedUploadException;
 use Directus\Services\FilesServices;
+use Directus\Services\RevisionsService;
 use Directus\Util\ArrayUtils;
 use Slim\Http\UploadedFile;
 
@@ -34,6 +36,10 @@ class Files extends Route
             $this->delete('/{id:[0-9]+}', [$controller, 'deleteFolder']);
             $this->get('', [$controller, 'allFolder']);
         });
+
+        // Revisions
+        $app->get('/{id}/revisions', [$this, 'fileRevisions']);
+        $app->get('/{id}/revisions/{offset}', [$this, 'oneFileRevision']);
     }
 
     /**
@@ -225,5 +231,42 @@ class Files extends Route
         $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function fileRevisions(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->findAllByItem(
+            SchemaManager::COLLECTION_FILES,
+            $request->getAttribute('id'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function oneFileRevision(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->findOneByItemOffset(
+            SchemaManager::COLLECTION_FILES,
+            $request->getAttribute('id'),
+            $request->getAttribute('offset'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 }
