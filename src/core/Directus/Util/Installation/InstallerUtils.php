@@ -177,9 +177,15 @@ class InstallerUtils
             'last_name' => 'User',
             'email' => $data['directus_email'],
             'password' => $hash,
-            'roles' => [['role' => 1]],
             'token' => $data['directus_token'],
             'locale' => ArrayUtils::get($data, 'app.default_locale', 'en-US')
+        ]);
+
+        $userRolesTableGateway = new TableGateway('directus_user_roles', $db);
+
+        $userRolesTableGateway->insert([
+            'user' => $tableGateway->getLastInsertValue(),
+            'role' => 1
         ]);
 
         return $data;
