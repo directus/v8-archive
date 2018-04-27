@@ -4,26 +4,24 @@ $textColor = #2c3e50
 $borderColor = #eeeeee // eaecef
 $codeBgColor = #282c34
 
-// Nav underline
+// Nav Underline
 .nav-item > a:hover,
 .nav-item > a.router-link-active {
     border-bottom: 2px solid #3498DB;
 }
 
-// "Tip" accent
+// "Tip" Accent
 .custom-block.tip {
     border-color: #3498DB !important;
 }
 
-// Main code color
+// Code Styling
 .token.property,
 .token.class-name,
 .token.constant,
 .token.symbol {
     color: #4FC3F7; // f8c555
 }
-
-// Main code string
 .token.string,
 .token.char,
 .token.attr-value,
@@ -31,22 +29,34 @@ $codeBgColor = #282c34
 .token.variable {
     color: #FFFFFF; // 7ec699
 }
-
-// Code
 .token.boolean,
 .token.number,
 .token.function {
     color: #4FC3F7; // f08d49
 }
-
-// Operator
 .token.operator,
 .token.entity,
 .token.url {
     color: #B39DDB;
 }
-
 .content pre,
 .content pre[class*="language-"] {
     border-radius: 3px !important;
+}
+
+// Header Spacing
+.content:not(.custom) > h1,
+.content:not(.custom) > h2 {
+    margin-top: -0.0rem !important;
+    // padding-top: 4.6rem;
+}
+.content:not(.custom) > h3 {
+    margin-top: -2.0rem !important;
+    // padding-top: 4.6rem;
+}
+.content:not(.custom) > h4,
+.content:not(.custom) > h5,
+.content:not(.custom) > h6 {
+    // margin-top: -2.0rem !important;
+    // padding-top: 4.6rem;
 }
