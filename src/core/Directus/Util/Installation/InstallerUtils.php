@@ -95,6 +95,11 @@ class InstallerUtils
         $manager->seed('development');
     }
 
+    /**
+     * Run the migration files
+     *
+     * @param $directusPath
+     */
     public static function runMigration($directusPath)
     {
         $config = static::getMigrationConfig($directusPath);
@@ -103,6 +108,11 @@ class InstallerUtils
         $manager->migrate('development');
     }
 
+    /**
+     * Run the seeder files
+     *
+     * @param $directusPath
+     */
     public static function runSeeder($directusPath)
     {
         $config = static::getMigrationConfig($directusPath);
