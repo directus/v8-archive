@@ -23,11 +23,6 @@ class ServerService extends AbstractService
                     'general' => [
                         'php_version' => phpversion(),
                         'php_api' => php_sapi_name()
-                    ],
-                    'core' => [
-                        array_map(function ($v) {
-                            return ['current' => $v];
-                        }, ini_get_all('core', false))
                     ]
                 ]
             ]
