@@ -1601,7 +1601,7 @@ class BaseTableGateway extends TableGateway
         }
 
         $type = 'string';
-        if (DataTypes::isNumericType($statusField->getType())) {
+        if (DataTypes::isNumericType($statusField->getOriginalType())) {
             $type = 'numeric';
         }
 
