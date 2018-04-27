@@ -10,7 +10,7 @@ class StatusMappingWrongValueTypeException extends Exception
     {
         parent::__construct(
             sprintf(
-                'Status Interface mapping must be a "%s" value for "%s" field in "$s"',
+                'Status Interface mapping must be a "%s" value for "%s" field in "%s"',
                 $type,
                 $field,
                 $collection
