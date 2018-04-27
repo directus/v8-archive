@@ -853,7 +853,13 @@ class RelationalTableGateway extends BaseTableGateway
         $results = $this->selectWith($builder->buildSelect())->toArray();
 
         if (!$results && ArrayUtils::has($params, 'single')) {
-            throw new Exception\ItemNotFoundException(sprintf('Item with id "%s" not found', $params['id']));
+            if (ArrayUtils::has($params, 'id')) {
+                $message = sprintf('Item with id "%s" not found', $params['id']);
+            } else {
+                $message = 'Item not found';
+            }
+
+            throw new Exception\ItemNotFoundException($message);
         }
 
         // ==========================================================================
