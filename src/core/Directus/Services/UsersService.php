@@ -49,6 +49,29 @@ class UsersService extends AbstractService
         );
     }
 
+    /**
+     * @param int $id
+     * @param string $lastPage
+     * @param array $params
+     *
+     * @return array
+     */
+    public function updateLastPage($id, $lastPage, array $params = [])
+    {
+        $data = [
+            'last_ip' => get_request_ip(),
+            'last_page' => $lastPage,
+            'last_access' => DateTimeUtils::nowInUTC()->toString()
+        ];
+
+        return $this->itemsService->update(
+            $this->collection,
+            $this->getUserId($id),
+            $data,
+            $params
+        );
+    }
+
     public function find($id, array $params = [])
     {
         return $this->itemsService->find(

@@ -32,6 +32,9 @@ class Users extends Route
         $app->get('/{id}/revisions', [$this, 'userRevisions']);
         $app->get('/{id}/revisions/{offset}', [$this, 'oneUserRevision']);
         $app->patch('/{id}/rollback/{revision}', [$this, 'userRollback']);
+
+        // Tracking
+        $app->patch('/{id}/tracking/page', [$this, 'trackPage']);
     }
 
     /**
@@ -192,6 +195,24 @@ class Users extends Route
             SchemaManager::COLLECTION_USERS,
             $request->getAttribute('id'),
             $request->getAttribute('revision'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function trackPage(Request $request, Response $response)
+    {
+        $service = new UsersService($this->container);
+        $responseData = $service->updateLastPage(
+            $request->getAttribute('id'),
+            $request->getParsedBodyParam('last_page'),
             $request->getQueryParams()
         );
 
