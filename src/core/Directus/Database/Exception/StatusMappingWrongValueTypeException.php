@@ -6,6 +6,11 @@ use Directus\Exception\Exception;
 
 class StatusMappingWrongValueTypeException extends Exception
 {
+    /**
+     * @param string $type
+     * @param int $field
+     * @param string $collection
+     */
     public function __construct($type, $field, $collection)
     {
         parent::__construct(
