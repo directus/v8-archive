@@ -31,6 +31,7 @@ class Users extends Route
         // Revisions
         $app->get('/{id}/revisions', [$this, 'userRevisions']);
         $app->get('/{id}/revisions/{offset}', [$this, 'oneUserRevision']);
+        $app->patch('/{id}/rollback/{revision}', [$this, 'userRollback']);
     }
 
     /**
@@ -172,6 +173,25 @@ class Users extends Route
             SchemaManager::COLLECTION_USERS,
             $request->getAttribute('id'),
             $request->getAttribute('offset'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function userRollback(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->rollback(
+            SchemaManager::COLLECTION_USERS,
+            $request->getAttribute('id'),
+            $request->getAttribute('revision'),
             $request->getQueryParams()
         );
 

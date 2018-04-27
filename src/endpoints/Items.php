@@ -25,6 +25,7 @@ class Items extends Route
         // Revisions
         $app->get('/{collection}/{id}/revisions', [$this, 'itemRevisions']);
         $app->get('/{collection}/{id}/revisions/{offset}', [$this, 'oneItemRevision']);
+        $app->patch('/{collection}/{id}/rollback/{revision}', [$this, 'itemRollback']);
     }
 
     /**
@@ -192,6 +193,25 @@ class Items extends Route
             $request->getAttribute('collection'),
             $request->getAttribute('id'),
             $request->getAttribute('offset'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function itemRollback(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->rollback(
+            $request->getAttribute('collection'),
+            $request->getAttribute('id'),
+            $request->getAttribute('revision'),
             $request->getQueryParams()
         );
 

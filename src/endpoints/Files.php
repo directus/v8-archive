@@ -40,6 +40,7 @@ class Files extends Route
         // Revisions
         $app->get('/{id}/revisions', [$this, 'fileRevisions']);
         $app->get('/{id}/revisions/{offset}', [$this, 'oneFileRevision']);
+        $app->patch('/{id}/rollback/{revision}', [$this, 'fileRollback']);
     }
 
     /**
@@ -264,6 +265,25 @@ class Files extends Route
             SchemaManager::COLLECTION_FILES,
             $request->getAttribute('id'),
             $request->getAttribute('offset'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function fileRollback(Request $request, Response $response)
+    {
+        $service = new RevisionsService($this->container);
+        $responseData = $service->rollback(
+            SchemaManager::COLLECTION_FILES,
+            $request->getAttribute('id'),
+            $request->getAttribute('revision'),
             $request->getQueryParams()
         );
 

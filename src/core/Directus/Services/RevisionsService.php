@@ -3,7 +3,10 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Database\Exception\RevisionNotFoundException;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Database\SchemaService;
+use Zend\Db\TableGateway\TableGateway;
 
 class RevisionsService extends AbstractService
 {
@@ -120,6 +123,40 @@ class RevisionsService extends AbstractService
                     'single' => true,
                     'limit' => 1,
                     'offset' => (int)$offset
+                ]
+            )]
+        );
+    }
+
+    public function rollback($collectionName, $item, $revision, array $params = [])
+    {
+        $revisionTableGateway = new TableGateway(SchemaManager::COLLECTION_REVISIONS, $this->getConnection());
+        $select = $revisionTableGateway->getSql()->select();
+        $select->columns(['delta']);
+        $select->where->equalTo('id', $revision);
+        $select->where->equalTo('collection', $collectionName);
+        $select->where->equalTo('item', $item);
+
+        $result = $revisionTableGateway->selectWith($select)->current();
+        if (!$result) {
+            throw new RevisionNotFoundException();
+        }
+
+        $data = json_decode($result->delta, true);
+
+        $collection = SchemaService::getCollection($collectionName);
+        $tableGateway = $this->createTableGateway($collectionName);
+
+        $data[$collection->getPrimaryKeyName()] = $item;
+        $tableGateway->updateRecord($data);
+
+        return $this->getDataAndSetResponseCacheTags(
+            [$tableGateway, 'getItems'],
+            [array_merge(
+                $params,
+                [
+                    'single' => true,
+                    'id' => $item
                 ]
             )]
         );
