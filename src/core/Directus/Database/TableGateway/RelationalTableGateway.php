@@ -600,8 +600,8 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         $tableSchema = $this->getTableSchema();
-        $sortingColumnName = $tableSchema->getSortingField();
-        $defaultParams['sort'] = $sortingColumnName ? $sortingColumnName : $this->primaryKeyFieldName;
+        $sortingField = $tableSchema->getSortingField();
+        $defaultParams['sort'] = $sortingField ? $sortingField->getName() : $this->primaryKeyFieldName;
 
         // Is not there a sort column?
         $tableColumns = array_flip(SchemaService::getCollectionFields($this->table, null, true));
