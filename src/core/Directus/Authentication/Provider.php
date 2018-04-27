@@ -188,7 +188,7 @@ class Provider
 
         $conditions = [
             'id' => $payload->id,
-            'group' => $payload->group
+            // 'group' => $payload->group
         ];
 
         $user = $this->userProvider->findWhere($conditions);
@@ -338,7 +338,7 @@ class Provider
     {
         $payload = [
             'id' => (int) $user->getId(),
-            'group' => (int) $user->getGroupId(),
+            // 'group' => $user->getGroupId(),
             'exp' => $this->getNewExpirationTime()
         ];
 
@@ -357,7 +357,7 @@ class Provider
         $payload = [
             'type' => 'request_token',
             'id' => (int) $user->getId(),
-            'group' => (int) $user->getGroupId(),
+            // 'group' => (int) $user->getGroupId(),
             'exp' => time() + (5 * DateTimeUtils::MINUTE_IN_SECONDS)
         ];
 

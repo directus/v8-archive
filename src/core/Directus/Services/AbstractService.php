@@ -256,9 +256,11 @@ abstract class AbstractService
             $collectionName = $payload->attribute('collection_name');
 
             $this->tagResponseCache('table_'.$collectionName);
-            $this->tagResponseCache('permissions_collection_'.$collectionName.'_group_'.$container->get('acl')->getGroupId());
+            // Note: See other reference to permissions_collection_<>
+            // to proper set a new tag now that group doesn't exists anymore
+            $this->tagResponseCache('permissions_collection_'.$collectionName);
 
-            foreach($payload->getData() as $item) {
+            foreach ($payload->getData() as $item) {
                 $this->tagResponseCache('entity_'.$collectionName.'_'.$item[$pkName]);
             }
 

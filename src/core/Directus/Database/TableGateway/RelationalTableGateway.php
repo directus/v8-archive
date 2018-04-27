@@ -138,11 +138,11 @@ class RelationalTableGateway extends BaseTableGateway
         $tableSchema = SchemaService::getCollection($tableName);
 
         $currentUserId = $this->acl ? $this->acl->getUserId() : null;
-        $currentUserGroupId = $this->acl ? $this->acl->getGroupId() : null;
+        $isAdmin = $this->acl ? $this->acl->isAdmin() : false;
 
         // Do not let non-admins make admins
         // TODO: Move to hooks
-        if ($tableName == 'directus_users' && $currentUserGroupId != 1) {
+        if ($tableName == 'directus_users' && !$isAdmin) {
             if (isset($recordData['group']) && $recordData['group']['id'] == 1) {
                 unset($recordData['group']);
             }

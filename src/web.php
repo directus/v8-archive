@@ -12,12 +12,12 @@ $app->group('/{env}', function () {
     $this->group('/auth', \Directus\Api\Routes\Auth::class);
     $this->group('/fields', \Directus\Api\Routes\Fields::class);
     $this->group('/files', \Directus\Api\Routes\Files::class);
-    $this->group('/groups', \Directus\Api\Routes\Groups::class);
     $this->group('/items', \Directus\Api\Routes\Items::class);
     $this->group('/collection_presets', \Directus\Api\Routes\CollectionPresets::class);
     $this->group('/permissions', \Directus\Api\Routes\Permissions::class);
     $this->group('/relations', \Directus\Api\Routes\Relations::class);
     $this->group('/revisions', \Directus\Api\Routes\Revisions::class);
+    $this->group('/roles', \Directus\Api\Routes\Roles::class);
     $this->group('/settings', \Directus\Api\Routes\Settings::class);
     $this->group('/collections', \Directus\Api\Routes\Collections::class);
     $this->group('/users', \Directus\Api\Routes\Users::class);

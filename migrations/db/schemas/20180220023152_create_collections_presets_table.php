@@ -38,7 +38,7 @@ class CreateCollectionsPresetsTable extends AbstractMigration
             'signed' => false,
             'null' => true
         ]);
-        $table->addColumn('group', 'integer', [
+        $table->addColumn('role', 'integer', [
             'signed' => false,
             'null' => true
         ]);

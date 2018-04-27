@@ -52,11 +52,6 @@ class CreateUsersTable extends AbstractMigration
             'limit' => 1,
             'default' => 1
         ]);
-        $table->addColumn('group', 'integer', [
-            'signed' => false,
-            'null' => true,
-            'default' => null
-        ]);
         $table->addColumn('password', 'string', [
             'limit' => 255,
             'encoding' => 'utf8',

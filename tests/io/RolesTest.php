@@ -4,7 +4,7 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ItemNotFoundException;
 
-class GroupsTest extends \PHPUnit_Framework_TestCase
+class RolesTest extends \PHPUnit_Framework_TestCase
 {
     protected $queryParams = [
         'access_token' => 'token'
@@ -12,7 +12,7 @@ class GroupsTest extends \PHPUnit_Framework_TestCase
 
     public static function resetDatabase()
     {
-        reset_table_id(create_db_connection(), 'directus_groups', 4);
+        reset_table_id(create_db_connection(), 'directus_roles', 4);
     }
 
     public static function setUpBeforeClass()
@@ -31,7 +31,7 @@ class GroupsTest extends \PHPUnit_Framework_TestCase
             'name' => 'Manager'
         ];
 
-        $response = request_post('groups', $data, ['query' => $this->queryParams]);
+        $response = request_post('roles', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, $data);
     }
@@ -43,7 +43,7 @@ class GroupsTest extends \PHPUnit_Framework_TestCase
             'description' => 'All Manager users'
         ];
 
-        $response = request_patch('groups/4', $data, ['query' => $this->queryParams]);
+        $response = request_patch('roles/4', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, array_merge(['id' => 4], $data));
     }
@@ -56,14 +56,14 @@ class GroupsTest extends \PHPUnit_Framework_TestCase
             'description' => 'All Manager users'
         ];
 
-        $response = request_get('groups/4', $this->queryParams);
+        $response = request_get('roles/4', $this->queryParams);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, $data);
     }
 
     public function testList()
     {
-        $response = request_get('groups', $this->queryParams);
+        $response = request_get('roles', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
             'count' => 4
@@ -72,10 +72,10 @@ class GroupsTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $response = request_delete('groups/4', ['query' => $this->queryParams]);
+        $response = request_delete('roles/4', ['query' => $this->queryParams]);
         assert_response_empty($this, $response);
 
-        $response = request_error_get('groups/4', $this->queryParams);
+        $response = request_error_get('roles/4', $this->queryParams);
         assert_response_error($this, $response, [
             'code' => ItemNotFoundException::ERROR_CODE,
             'status' => 404

@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class CreateGroupsTable extends AbstractMigration
+class CreateRolesTable extends AbstractMigration
 {
     /**
      * Change Method.
@@ -27,7 +27,7 @@ class CreateGroupsTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_groups');
+        $table = $this->table('directus_roles');
 
         $table->addColumn('name', 'string', [
             'limit' => 100,
@@ -43,10 +43,6 @@ class CreateGroupsTable extends AbstractMigration
             'default' => null
         ]);
         $table->addColumn('nav_blacklist', 'text', [
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('nav_override', 'text', [
             'null' => true,
             'default' => null
         ]);

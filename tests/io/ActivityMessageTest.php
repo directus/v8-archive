@@ -86,7 +86,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         truncate_table(static::$db, 'directus_permissions');
         truncate_table(static::$db, 'directus_collection_presets');
         truncate_table(static::$db, 'directus_settings');
-        reset_table_id(static::$db, 'directus_groups', 4);
+        reset_table_id(static::$db, 'directus_roles', 4);
         reset_table_id(static::$db, 'directus_users', 4);
         reset_table_id(static::$db, 'directus_files', 2);
         $storagePath = __DIR__ . '/../../public/storage';
@@ -104,7 +104,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->doFields();
         $this->doFiles();
         $this->doFilesFolders();
-        $this->doGroups();
+        $this->doRoles();
         $this->doItems();
         $this->doPermissions();
         $this->doSettings();
@@ -131,8 +131,8 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->setFlagOff('directus_folders');
         $this->doFilesFolders();
 
-        $this->setFlagOff('directus_groups');
-        $this->doGroups();
+        $this->setFlagOff('directus_roles');
+        $this->doRoles();
 
         $this->setFlagOff('test');
         $this->doItems();
@@ -177,9 +177,9 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->doFilesFolders(true);
         $this->doFilesFolders(false, 'message');
 
-        $this->setFlagOn('directus_groups');
-        $this->doGroups(true);
-        $this->doGroups(false, 'message');
+        $this->setFlagOn('directus_roles');
+        $this->doRoles(true);
+        $this->doRoles(false, 'message');
 
         $this->setFlagOn('test');
         $this->doItems(true);
@@ -227,12 +227,12 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->delete('files/folders/1', $error, $message);
     }
 
-    protected function doGroups($error = false, $message = null)
+    protected function doRoles($error = false, $message = null)
     {
-        $data = ['name' => 'new-group'];
-        $this->create('groups', $data, $error, $message);
-        $this->update('groups/4', $data, $error, $message);
-        $this->delete('groups/4', $error, $message);
+        $data = ['name' => 'new-role'];
+        $this->create('roles', $data, $error, $message);
+        $this->update('roles/4', $data, $error, $message);
+        $this->delete('roles/4', $error, $message);
     }
 
     protected function doItems($error = false, $message = null)
@@ -257,7 +257,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
 
     protected function doPermissions($error = false, $message = null)
     {
-        $data = ['collection' => 'something', 'group' => 1];
+        $data = ['collection' => 'something', 'role' => 1];
         $this->create('permissions', $data, $error, $message);
         $this->update('permissions/2', ['create' => 1], $error, $message);
         $this->delete('permissions/2', $error, $message);
@@ -290,7 +290,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     protected function doCollectionPresets($error = false, $message = null)
     {
         $data = [
-            'group' => 1,
+            'role' => 1,
             'collection' => 'test2',
             'search_query' => 'name',
             'view_type' => 'tabular'
@@ -411,7 +411,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     {
         $data = [
             'collection' => $collection,
-            'group' => 1,
+            'role' => 1,
             'status' => $status,
             'explain' => $value ? 1 : 0
         ];

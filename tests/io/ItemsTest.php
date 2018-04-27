@@ -11,7 +11,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         'directus_activity',
         'directus_fields',
         'directus_files',
-        'directus_groups',
+        'directus_roles',
         'directus_collection_presets',
         'directus_permissions',
         'directus_settings',

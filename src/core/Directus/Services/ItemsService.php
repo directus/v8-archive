@@ -186,8 +186,8 @@ class ItemsService extends AbstractService
     public function batchDeleteWithIds($collection, array $ids, array $params = [])
     {
         // TODO: Implement this into a hook
-        if ($collection === SchemaManager::COLLECTION_GROUPS) {
-            $groupService = new GroupsService($this->container);
+        if ($collection === SchemaManager::COLLECTION_ROLES) {
+            $groupService = new RolesService($this->container);
 
             foreach ($ids as $id) {
                 $group = $groupService->find($id);

@@ -4,8 +4,10 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Database\SchemaService;
 use Directus\Permissions\Acl;
+use Directus\Session\Session;
 use Directus\Util\ArrayUtils;
 use Zend\Db\Adapter\AdapterInterface;
+use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Update;
@@ -33,6 +35,43 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
     public function __construct(AdapterInterface $adapter, Acl $acl = null)
     {
         parent::__construct(self::$_tableName, $adapter, $acl);
+    }
+
+    public function getUserPermissions($userId)
+    {
+        $select = new Select(['p' => $this->table]);
+
+        $subSelect = new Select(['ur' => 'directus_user_roles']);
+        $subSelect->where->equalTo('user', $userId);
+        $subSelect->limit(1);
+
+        $select->join(
+            ['ur' => $subSelect],
+            'p.role = ur.role',
+            [
+                'user_role' => 'role'
+            ],
+            $select::JOIN_RIGHT
+        );
+
+        $select->where->equalTo('ur.user', $userId);
+
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+
+        $permissionsByCollection = [];
+        foreach ($result as $permission) {
+            foreach ($permission as $field => &$value) {
+                if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
+                    $value = explode(',', $value);
+                }
+            }
+
+            ArrayUtils::rename($permission, 'user_role', 'role');
+            $permissionsByCollection[$permission['collection']][] = $this->parseRecord($permission);
+        }
+
+        return $permissionsByCollection;
     }
 
     // @TODO: move it to another object.

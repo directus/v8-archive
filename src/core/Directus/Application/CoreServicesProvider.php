@@ -228,7 +228,7 @@ class CoreServicesProvider
                 $dbConnection = $container->get('database');
                 $privileges = new DirectusPermissionsTableGateway($dbConnection, $acl);
                 $record = $privileges->fetchById($data['id']);
-                $cachePool->invalidateTags(['permissions_collection_'.$record['collection'].'_group_'.$record['group']]);
+                $cachePool->invalidateTags(['permissions_collection_'.$record['collection']]);
             });
             // /Cache subscriptions
 
@@ -248,12 +248,12 @@ class CoreServicesProvider
                 }
                 return $payload;
             });
-            $emitter->addAction('collection.insert.directus_groups', function ($data) use ($container) {
+            $emitter->addAction('collection.insert.directus_roles', function ($data) use ($container) {
                 $acl = $container->get('acl');
                 $zendDb = $container->get('database');
                 $privilegesTable = new DirectusPermissionsTableGateway($zendDb, $acl);
                 $privilegesTable->insertPrivilege([
-                    'group' => $data['id'],
+                    'role' => $data['id'],
                     'collection' => 'directus_users',
                     'create' => 0,
                     'read' => 1,
@@ -522,14 +522,13 @@ class CoreServicesProvider
                 $acl = $container->get('acl');
                 $rows = $payload->getData();
                 $userId = $acl->getUserId();
-                $groupId = $acl->getGroupId();
                 foreach ($rows as &$row) {
                     $omit = [
                         'password'
                     ];
                     // Authenticated user can see their private info
                     // Admin can see all users private info
-                    if ($groupId !== 1 && $userId !== $row['id']) {
+                    if (!$acl->isAdmin() && $userId !== $row['id']) {
                         $omit = array_merge($omit, [
                             'token',
                             'email_notifications',
@@ -606,21 +605,15 @@ class CoreServicesProvider
             };
             $emitter->addFilter('collection.update.directus_users:before', function (Payload $payload) use ($container) {
                 $acl = $container->get('acl');
-                $currentUserId = $acl->getUserId();
-                if ($currentUserId != $payload->get('id')) {
+
+                if ($acl->getUserId() != $payload->get('id')) {
                     return $payload;
                 }
-                // ----------------------------------------------------------------------------
-                // TODO: Add enforce method to ACL
-                $adapter = $container->get('database');
-                $userTable = new BaseTableGateway('directus_users', $adapter);
-                $groupTable = new BaseTableGateway('directus_groups', $adapter);
-                $user = $userTable->find($payload->get('id'));
-                $group = $groupTable->find($user['group']);
-                if (!$group || !$acl->canUpdate('directus_users')) {
+
+                if (!$acl->isAdmin() || !$acl->canUpdate('directus_users')) {
                     throw new ForbiddenException('you are not allowed to update your user information');
                 }
-                // ----------------------------------------------------------------------------
+
                 return $payload;
             });
             $emitter->addFilter('collection.insert.directus_users:before', $hashUserPassword);
@@ -630,41 +623,37 @@ class CoreServicesProvider
             $emitter->addFilter('collection.update:before', $onInsertOrUpdate);
             $preventUsePublicGroup = function (Payload $payload) use ($container) {
                 $data = $payload->getData();
-                if (!ArrayUtils::has($data, 'group')) {
+                if (!ArrayUtils::has($data, 'role')) {
                     return $payload;
                 }
-                $groupId = ArrayUtils::get($data, 'group');
-                if (is_array($groupId)) {
-                    $groupId = ArrayUtils::get($groupId, 'id');
+
+                $roleId = ArrayUtils::get($data, 'role');
+                if (is_array($roleId)) {
+                    $roleId = ArrayUtils::get($roleId, 'id');
                 }
-                if (!$groupId) {
+
+                if (!$roleId) {
                     return $payload;
                 }
+
                 $zendDb = $container->get('database');
                 $acl = $container->get('acl');
-                $tableGateway = new BaseTableGateway('directus_groups', $zendDb, $acl);
-                $row = $tableGateway->select(['id' => $groupId])->current();
-                if (strtolower($row->name) == 'public') {
+                $tableGateway = new BaseTableGateway(SchemaManager::COLLECTION_ROLES, $zendDb, $acl);
+                $row = $tableGateway->select(['id' => $roleId])->current();
+                if (strtolower($row->name) === 'public') {
                     throw new ForbiddenException('Users cannot be added into the public group');
                 }
+
                 return $payload;
             };
-            $emitter->addFilter('collection.insert.directus_users:before', $preventUsePublicGroup);
-            $emitter->addFilter('collection.update.directus_users:before', $preventUsePublicGroup);
+            $emitter->addFilter('collection.insert.directus_user_roles:before', $preventUsePublicGroup);
+            $emitter->addFilter('collection.update.directus_user_roles:before', $preventUsePublicGroup);
             $beforeSavingFiles = function ($payload) use ($container) {
                 $acl = $container->get('acl');
-                $currentUserId = $acl->getUserId();
-                // ----------------------------------------------------------------------------
-                // TODO: Add enforce method to ACL
-                $adapter = $container->get('database');
-                $userTable = new BaseTableGateway('directus_users', $adapter);
-                $groupTable = new BaseTableGateway('directus_groups', $adapter);
-                $user = $userTable->find($currentUserId);
-                $group = $groupTable->find($user['group']);
-                if (!$group || !$acl->canUpdate('directus_files')) {
-                    throw new ForbiddenException('you are not allowed to upload, edit or delete files');
+                if (!$acl->canUpdate('directus_files')) {
+                    throw new ForbiddenException('You are not allowed to upload, edit or delete files');
                 }
-                // ----------------------------------------------------------------------------
+
                 return $payload;
             };
             $emitter->addAction('files.saving', $beforeSavingFiles);

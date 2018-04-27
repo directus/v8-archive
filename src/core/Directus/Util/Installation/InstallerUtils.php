@@ -177,7 +177,7 @@ class InstallerUtils
             'last_name' => 'User',
             'email' => $data['directus_email'],
             'password' => $hash,
-            'group' => 1,
+            'roles' => [['role' => 1]],
             'token' => $data['directus_token'],
             'locale' => ArrayUtils::get($data, 'app.default_locale', 'en-US')
         ]);

@@ -175,31 +175,30 @@ CREATE TABLE `directus_folders` (
 
 
 
-# Dump of table directus_groups
+# Dump of table directus_roles
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `directus_groups`;
+DROP TABLE IF EXISTS `directus_roles`;
 
-CREATE TABLE `directus_groups` (
+CREATE TABLE `directus_roles` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` varchar(500) DEFAULT NULL,
   `ip_whitelist` text,
   `nav_blacklist` text,
-  `nav_override` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `directus_users_name_unique` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-LOCK TABLES `directus_groups` WRITE;
-/*!40000 ALTER TABLE `directus_groups` DISABLE KEYS */;
+LOCK TABLES `directus_roles` WRITE;
+/*!40000 ALTER TABLE `directus_roles` DISABLE KEYS */;
 
-INSERT INTO `directus_groups` (`id`, `name`, `description`, `ip_whitelist`, `nav_blacklist`, `nav_override`)
+INSERT INTO `directus_roles` (`id`, `name`, `description`, `ip_whitelist`, `nav_blacklist`)
 VALUES
-	(1,'Administrator','Admins have access to all managed data within the system by default',NULL,NULL,NULL),
-	(2,'Public','This sets the data that is publicly available through the API without a token',NULL,NULL,NULL);
+	(1,'Administrator','Admins have access to all managed data within the system by default',NULL,NULL),
+	(2,'Public','This sets the data that is publicly available through the API without a token',NULL,NULL);
 
-/*!40000 ALTER TABLE `directus_groups` ENABLE KEYS */;
+/*!40000 ALTER TABLE `directus_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
 

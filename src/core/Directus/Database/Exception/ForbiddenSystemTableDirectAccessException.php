@@ -10,6 +10,6 @@ class ForbiddenSystemTableDirectAccessException extends UnauthorizedException
 
     public function __construct($table)
     {
-        parent::__construct('direct_access_to_system_able_not_allowed', static::ERROR_CODE);
+        parent::__construct('Direct Access to System collections are not allowed');
     }
 }

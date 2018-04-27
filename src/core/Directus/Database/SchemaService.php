@@ -50,23 +50,6 @@ class SchemaService
     protected static $_primaryKeys = [];
 
     /**
-     * TRANSITIONAL MAPPER. PENDING BUGFIX FOR MANY TO ONE UIS.
-     * key: column_name
-     * value: related_table
-     * @see  https://github.com/RNGR/directus6/issues/188
-     * @var array
-     */
-    public static $many_to_one_column_name_to_related_table = [
-        'group_id' => 'directus_groups',
-        'group' => 'directus_groups',
-
-        // These confound me. They'll be ignored and write silent warnings to the API log:
-        // 'position'           => '',
-        // 'many_to_one'        => '',
-        // 'many_to_one_radios => ''
-    ];
-
-    /**
      * Get the schema manager instance
      *
      * @return SchemaManager

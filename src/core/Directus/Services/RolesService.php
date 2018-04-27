@@ -5,13 +5,11 @@ namespace Directus\Services;
 use Directus\Application\Container;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\DirectusGroupsTableGateway;
-use Directus\Exception\ErrorException;
+use Directus\Database\TableGateway\DirectusRolesTableGateway;
 use Directus\Exception\UnauthorizedException;
-use Directus\Filesystem\Exception\ForbiddenException;
 use Directus\Util\ArrayUtils;
 
-class GroupsService extends AbstractService
+class RolesService extends AbstractService
 {
     /**
      * @var BaseRowGateway
@@ -19,7 +17,7 @@ class GroupsService extends AbstractService
     protected $lastGroup = null;
 
     /**
-     * @var DirectusGroupsTableGateway
+     * @var DirectusRolesTableGateway
      */
     protected $tableGateway = null;
 
@@ -31,7 +29,7 @@ class GroupsService extends AbstractService
     public function __construct(Container $container)
     {
         parent::__construct($container);
-        $this->collection = SchemaManager::COLLECTION_GROUPS;
+        $this->collection = SchemaManager::COLLECTION_ROLES;
     }
 
     public function create(array $data, array $params = [])
@@ -133,7 +131,7 @@ class GroupsService extends AbstractService
     }
 
     /**
-     * @return DirectusGroupsTableGateway
+     * @return DirectusRolesTableGateway
      */
     public function getTableGateway()
     {
@@ -141,7 +139,7 @@ class GroupsService extends AbstractService
             $acl = $this->container->get('acl');
             $dbConnection = $this->container->get('database');
 
-            $this->tableGateway = new DirectusGroupsTableGateway($dbConnection, $acl);
+            $this->tableGateway = new DirectusRolesTableGateway($dbConnection, $acl);
         }
 
         return $this->tableGateway;

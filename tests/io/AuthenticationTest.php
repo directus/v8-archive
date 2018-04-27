@@ -40,7 +40,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         $payload = JWTUtils::getPayload($token);
         $this->assertInternalType('int', $payload->exp);
         $this->assertInternalType('int', $payload->id);
-        $this->assertInternalType('int', $payload->group);
+        // $this->assertInternalType('int', $payload->group);
 
         // Query String
         $path = 'collections';

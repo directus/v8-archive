@@ -15,7 +15,7 @@ use Directus\Authentication\Sso\Social;
 use Directus\Authentication\Sso\TwoSocialProvider;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
-use Directus\Database\TableGateway\DirectusGroupsTableGateway;
+use Directus\Database\TableGateway\DirectusRolesTableGateway;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Util\ArrayUtils;
@@ -46,14 +46,6 @@ class AuthService extends AbstractService
             'email' => $email,
             'password' => $password
         ]);
-
-        // ------------------------------
-        // Check if group needs whitelist
-        /** @var DirectusGroupsTableGateway $groupTableGateway */
-        $groupTableGateway = $this->createTableGateway('directus_groups', false);
-        if (!$groupTableGateway->acceptIP($user->getGroupId(), get_request_ip())) {
-            throw new UnauthorizedException('Request not allowed from IP address');
-        }
 
         $hookEmitter = $this->container->get('hook_emitter');
         $hookEmitter->run('directus.authenticated', [$user]);

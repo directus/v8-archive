@@ -37,12 +37,15 @@ if (!function_exists('get_item_owner')) {
             $select->where([
                 'c.' . $collectionObject->getPrimaryKeyName() => $id
             ]);
+
+            $subSelect = new \Zend\Db\Sql\Select('directus_user_roles');
+
             $select->join(
-                ['u' => 'directus_users'],
-                sprintf('c.%s = u.id', $fieldName),
+                ['ur' => $subSelect],
+                sprintf('c.%s = ur.user', $fieldName),
                 [
-                    'id' => 'id',
-                    'group' => 'group'
+                    'id' => 'user',
+                    'role'
                 ],
                 $select::JOIN_LEFT
             );
@@ -56,15 +59,16 @@ if (!function_exists('get_item_owner')) {
 }
 
 if (!function_exists('get_user_ids_in_group')) {
-    function get_user_ids_in_group($id)
+    function get_user_ids_in_group(array $roleIds)
     {
+        $id = array_shift($roleIds);
         $app = \Directus\Application\Application::getInstance();
         $dbConnection = $app->getContainer()->get('database');
-        $tableGateway = new \Zend\Db\TableGateway\TableGateway('directus_users', $dbConnection);
+        $tableGateway = new \Zend\Db\TableGateway\TableGateway('directus_user_roles', $dbConnection);
 
         $select = new \Zend\Db\Sql\Select($tableGateway->table);
-        $select->columns(['id']);
-        $select->where(['group' => $id]);
+        $select->columns(['id' => 'user']);
+        $select->where(['role' => $id]);
 
         $result = $tableGateway->selectWith($select);
 

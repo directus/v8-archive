@@ -1084,7 +1084,7 @@ class BaseTableGateway extends TableGateway
             return;
         }
 
-        $groupUsersId = get_user_ids_in_group($this->acl->getGroupId());
+        $groupUsersId = get_user_ids_in_group($this->acl->getRolesId());
         $authenticatedUserId = $this->acl->getUserId();
         $statuses = $this->acl->getCollectionStatuses($this->table);
 
@@ -1147,7 +1147,6 @@ class BaseTableGateway extends TableGateway
 
         $collectionObject = $this->getTableSchema();
         $currentUserId = $this->acl->getUserId();
-        $currentGroupId = $this->acl->getGroupId();
         $updateState = $update->getRawState();
         $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
         $select = $this->sql->select();
@@ -1184,12 +1183,12 @@ class BaseTableGateway extends TableGateway
         }
 
         $userItem = $currentUserId === $owner['id'];
-        $groupItem = $currentGroupId === $owner['group'];
-        if (!$userItem && !$groupItem && !$this->acl->canUpdateAll($updateTable, $statusId)) {
+        $hasRole = $this->acl->hasRole($owner['role']);
+        if (!$userItem && !$hasRole && !$this->acl->canUpdateAll($updateTable, $statusId)) {
             throw new ForbiddenCollectionUpdateException($updateTable);
         }
 
-        if (!$userItem && $groupItem) {
+        if (!$userItem && $hasRole) {
             $this->acl->enforceUpdateFromGroup($updateTable, $statusId);
         } else if ($userItem) {
             $this->acl->enforceUpdate($updateTable, $statusId);
@@ -1207,7 +1206,6 @@ class BaseTableGateway extends TableGateway
     {
         $collectionObject = $this->getTableSchema();
         $currentUserId = $this->acl->getUserId();
-        $currentGroupId = $this->acl->getGroupId();
         $deleteState = $delete->getRawState();
         $deleteTable = $this->getRawTableNameFromQueryStateTable($deleteState['table']);
         // $cmsOwnerColumn = $this->acl->getCmsOwnerColumnByTable($deleteTable);
@@ -1246,12 +1244,12 @@ class BaseTableGateway extends TableGateway
         }
 
         $userItem = $currentUserId === $owner['id'];
-        $groupItem = $currentGroupId === $owner['group'];
-        if (!$userItem && !$groupItem && !$this->acl->canDeleteAll($deleteTable, $statusId)) {
+        $hasRole = $this->acl->hasRole($owner['role']);
+        if (!$userItem && !$hasRole && !$this->acl->canDeleteAll($deleteTable, $statusId)) {
             throw new ForbiddenCollectionDeleteException($deleteTable);
         }
 
-        if (!$userItem && $groupItem) {
+        if (!$userItem && $hasRole) {
             $this->acl->enforceDeleteFromGroup($deleteTable, $statusId);
         } else if ($userItem) {
             $this->acl->enforceDelete($deleteTable, $statusId);
@@ -1276,7 +1274,7 @@ class BaseTableGateway extends TableGateway
         //     list($predicateResultQty, $predicateOwnerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $deleteState['where']);
         //     if (!in_array($currentUserId, $predicateOwnerIds)) {
         //         //   $exceptionMessage = "Table harddelete access forbidden on $predicateResultQty `$deleteTable` table records owned by the authenticated CMS user (#$currentUserId).";
-        //         $groupsTableGateway = $this->makeTable('directus_groups');
+        //         $groupsTableGateway = $this->makeTable('directus_roles');
         //         $group = $groupsTableGateway->find($this->acl->getGroupId());
         //         $exceptionMessage = '[' . $group['name'] . '] permissions only allow you to [delete] your own items.';
         //         //   $aclErrorPrefix = $this->acl->getErrorMessagePrefix();

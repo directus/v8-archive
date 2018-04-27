@@ -33,7 +33,7 @@ class CreatePermissionsTable extends AbstractMigration
             'limit' => 64,
             'null' => false,
         ]);
-        $table->addColumn('group', 'integer', [
+        $table->addColumn('role', 'integer', [
             'signed' => false,
             'null' => false
         ]);

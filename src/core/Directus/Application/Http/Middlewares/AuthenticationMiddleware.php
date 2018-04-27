@@ -5,16 +5,16 @@ namespace Directus\Application\Http\Middlewares;
 use Directus\Application\Container;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
-use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\User\User;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\BaseTableGateway;
-use Directus\Database\TableGateway\DirectusGroupsTableGateway;
 use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGatewayFactory;
+use Directus\Exception\UnauthorizedException;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
+use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
 
 class AuthenticationMiddleware extends AbstractMiddleware
@@ -26,7 +26,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
      *
      * @return Response
      *
-     * @throws InvalidUserCredentialsException
+     * @throws UnauthorizedException
      * @throws UserNotAuthenticatedException
      */
     public function __invoke(Request $request, Response $response, callable $next)
@@ -59,9 +59,9 @@ class AuthenticationMiddleware extends AbstractMiddleware
             return $next($request, $response);
         }
 
-        $authenticated = $this->authenticate($request);
-        $publicGroupId = $this->getPublicGroupId();
-        if (!$authenticated && !$publicGroupId) {
+        $user = $this->authenticate($request);
+        $publicRoleId = $this->getPublicRoleId();
+        if (!$user && !$publicRoleId) {
             throw new UserNotAuthenticatedException();
         }
 
@@ -70,15 +70,12 @@ class AuthenticationMiddleware extends AbstractMiddleware
         // =============================================================================
         $hookEmitter = $this->container->get('hook_emitter');
 
-        if (!$authenticated && $publicGroupId) {
+        if (!$user && $publicRoleId) {
             // NOTE: 0 will not represent a "guest" or the "public" user
             // To prevent the issue where user column on activity table can't be null
             $user = new User([
-                'id' => 0,
-                'group' => $publicGroupId
+                'id' => 0
             ]);
-        } else {
-            $user = $this->container->get('auth')->getUser();
         }
 
         // TODO: Set if the authentication was a public or not? options array
@@ -91,24 +88,24 @@ class AuthenticationMiddleware extends AbstractMiddleware
         // When logged through API we need to reload all their permissions
         $dbConnection = $this->container->get('database');
         $permissionsTable = new DirectusPermissionsTableGateway($dbConnection, null);
-        $permissionsByCollection = $permissionsTable->getGroupPrivileges($user->getGroupId());
+        $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());
+        $rolesIpWhitelist = $this->getRolesIPWhitelist();
 
         /** @var Acl $acl */
         $acl = $this->container->get('acl');
         $acl->setPermissions($permissionsByCollection);
+        $acl->setRolesIpWhitelist($rolesIpWhitelist);
         // TODO: Adding an user should auto set its ID and GROUP
         // TODO: User data should be casted to its data type
         // TODO: Make sure that the group is not empty
-        $acl->setUserId($user->id);
-        $acl->setGroupId($user->group);
-        if (!$authenticated && $publicGroupId) {
-            $acl->setPublic($publicGroupId);
+        $acl->setUserId($user->getId());
+        if (!$user && $publicRoleId) {
+            $acl->setPublic($publicRoleId);
         }
 
-        // Set full permission to Admin
-        // if ($acl->isAdmin()) {
-        //     $acl->setTablePrivileges('*', $acl::PERMISSION_FULL);
-        // }
+        if (!$acl->isIpAllowed(get_request_ip())) {
+            throw new UnauthorizedException('Request not allowed from IP address');
+        }
 
         return $next($request, $response);
     }
@@ -122,17 +119,17 @@ class AuthenticationMiddleware extends AbstractMiddleware
      */
     protected function authenticate(Request $request)
     {
-        $authenticate = false;
+        $user = null;
         $authToken = $this->getAuthToken($request);
 
         if ($authToken) {
             /** @var AuthService $authService */
             $authService = $this->container->get('services')->get('auth');
 
-            $authenticate = $authService->authenticateWithToken($authToken);
+            $user = $authService->authenticateWithToken($authToken);
         }
 
-        return $authenticate;
+        return $user;
     }
 
     /**
@@ -180,21 +177,44 @@ class AuthenticationMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Gets the public group id if exists
+     * Gets the public role id if exists
      *
      * @return int|null
      */
-    protected function getPublicGroupId()
+    protected function getPublicRoleId()
     {
         $dbConnection = $this->container->get('database');
-        $directusGroupsTableGateway = new TableGateway('directus_groups', $dbConnection);
-        $publicGroup = $directusGroupsTableGateway->select(['name' => 'public'])->current();
+        $directusGroupsTableGateway = new TableGateway('directus_roles', $dbConnection);
+        $publicRole = $directusGroupsTableGateway->select(['name' => 'public'])->current();
 
-        $groupId = null;
-        if ($publicGroup) {
-            $groupId = $publicGroup['id'];
+        $roleId = null;
+        if ($publicRole) {
+            $roleId = $publicRole['id'];
         }
 
-        return $groupId;
+        return $roleId;
+    }
+
+    /**
+     * Gets IP whitelist
+     *
+     * @return array
+     */
+    protected function getRolesIpWhitelist()
+    {
+        $dbConnection = $this->container->get('database');
+        $directusGroupsTableGateway = new TableGateway('directus_roles', $dbConnection);
+        $select = new Select($directusGroupsTableGateway->table);
+        $select->columns(['id', 'ip_whitelist']);
+        $select->limit(1);
+
+        $result = $directusGroupsTableGateway->selectWith($select);
+
+        $list = [];
+        foreach ($result as $row) {
+            $list[$row['id']] = array_filter(preg_split('/,\s*/', $row['ip_whitelist']));
+        }
+
+        return $list;
     }
 }

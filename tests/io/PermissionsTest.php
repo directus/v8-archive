@@ -59,7 +59,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response_error($this, $response);
 
         $data = [
-            'group' => 3,
+            'role' => 3,
             'collection' => 'products',
             'read' => 3
         ];
@@ -133,7 +133,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
     {
         $params = array_merge([
             'filter' => [
-                'group' => 3
+                'role' => 3
             ]
         ], $this->queryParams);
 
@@ -912,7 +912,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
     protected function addPermissionTo($group, $collection, array $data)
     {
         $data = array_merge($data, [
-            'group' => $group,
+            'role' => $group,
             'collection' => $collection
         ]);
 

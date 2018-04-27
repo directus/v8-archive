@@ -6,6 +6,7 @@ use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Sources\SchemaInterface;
+use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 
 class SchemaManager
@@ -16,11 +17,12 @@ class SchemaManager
     const COLLECTION_COLLECTION_PRESETS  = 'directus_collection_presets';
     const COLLECTION_FIELDS              = 'directus_fields';
     const COLLECTION_FILES               = 'directus_files';
-    const COLLECTION_GROUPS              = 'directus_groups';
+    const COLLECTION_ROLES               = 'directus_roles';
     const COLLECTION_PERMISSIONS         = 'directus_permissions';
     const COLLECTION_RELATIONS           = 'directus_relations';
     const COLLECTION_REVISIONS           = 'directus_revisions';
     const COLLECTION_SETTINGS            = 'directus_settings';
+    const COLLECTION_USER_ROLES          = 'directus_user_roles';
     const COLLECTION_USERS               = 'directus_users';
 
     /**
@@ -50,19 +52,21 @@ class SchemaManager
      * @var array
      */
     protected $directusTables = [
+        // FIXME: Use constant value instead (one place)
         'activity',
         'activity_read',
-        'collections',
         'collection_presets',
+        'collections',
         'fields',
         'files',
         'folders',
-        'groups',
         'migrations',
         'permissions',
         'relations',
         'revisions',
+        'roles',
         'settings',
+        'user_roles',
         'users'
     ];
 

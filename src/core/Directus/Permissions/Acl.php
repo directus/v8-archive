@@ -2,13 +2,9 @@
 
 namespace Directus\Permissions;
 
-use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Permissions\Exception\ForbiddenFieldReadException;
 use Directus\Permissions\Exception\ForbiddenFieldWriteException;
 use Directus\Util\ArrayUtils;
-use Zend\Db\RowGateway\RowGateway;
-use Zend\Db\Sql\Predicate\PredicateSet;
-use Zend\Db\Sql\Select;
 
 class Acl
 {
@@ -82,11 +78,18 @@ class Acl
     protected $userId = null;
 
     /**
-     * Authenticated user group  id
+     * List of roles id the user beings to
      *
-     * @var int|null
+     * @var array
      */
-    protected $groupId = null;
+    protected $roleIds = [];
+
+    /**
+     * List of allowed IPs by role
+     *
+     * @var array
+     */
+    protected $rolesIpWhitelist = [];
 
     /**
      * Flag to determine whether the user is public or not
@@ -111,16 +114,6 @@ class Acl
     }
 
     /**
-     * Sets the authenticated group id
-     *
-     * @param $groupId
-     */
-    public function setGroupId($groupId)
-    {
-        $this->groupId = (int)$groupId;
-    }
-
-    /**
      * Sets whether the authenticated user is public
      *
      * @param $public
@@ -141,16 +134,6 @@ class Acl
     }
 
     /**
-     * Gets the authenticated group id
-     *
-     * @return int|null
-     */
-    public function getGroupId()
-    {
-        return $this->groupId;
-    }
-
-    /**
      * Gets whether the authenticated user is public
      *
      * @return bool
@@ -167,7 +150,75 @@ class Acl
      */
     public function isAdmin()
     {
-        return $this->getGroupId() === 1;
+        return $this->hasAdminRole();
+    }
+
+    /**
+     * Checks whether or not the user has admin role
+     *
+     * @return bool
+     */
+    public function hasAdminRole()
+    {
+        return $this->hasRole(1);
+    }
+
+    /**
+     * Checks whether or not the user has the given role id
+     *
+     * @param int $roleId
+     *
+     * @return bool
+     */
+    public function hasRole($roleId)
+    {
+        return in_array($roleId, $this->getRolesId());
+    }
+
+    /**
+     * Get all role IDs
+     *
+     * @return array
+     */
+    public function getRolesId()
+    {
+        return $this->roleIds;
+    }
+
+    /**
+     * Sets the user roles ip whitelist
+     *
+     * @param array $rolesIpWhitelist
+     */
+    public function setRolesIpWhitelist(array $rolesIpWhitelist)
+    {
+        foreach ($rolesIpWhitelist as $role => $ipList) {
+            if (!is_array($ipList)) {
+                $ipList = explode(',', $ipList);
+            }
+
+            $this->rolesIpWhitelist[$role] = $ipList;
+        }
+    }
+
+    /**
+     * Checks whether or not the given ip is allowed in one of the roles
+     *
+     * @param $ip
+     *
+     * @return bool
+     */
+    public function isIpAllowed($ip)
+    {
+        $allowed = true;
+        foreach ($this->rolesIpWhitelist as $list) {
+            if (!empty($list) && !in_array($ip, $list)) {
+                $allowed = false;
+                break;
+            }
+        }
+
+        return $allowed;
     }
 
     /**
@@ -180,6 +231,14 @@ class Acl
     public function setPermissions(array $permissions)
     {
         foreach ($permissions as $collection => $collectionPermissions) {
+            foreach ($collectionPermissions as $permission) {
+                $roleId = ArrayUtils::get($permission, 'role');
+
+                if (!in_array($roleId, $this->roleIds)) {
+                    $this->roleIds[] = $roleId;
+                }
+            }
+
             $this->setCollectionPermissions($collection, $collectionPermissions);
         }
 

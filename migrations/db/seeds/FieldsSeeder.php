@@ -231,6 +231,12 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_users',
+                'field' => 'roles',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_M2M,
+                'interface' => 'm2m'
+            ],
+            [
+                'collection' => 'directus_users',
                 'field' => 'email_notifications',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle'

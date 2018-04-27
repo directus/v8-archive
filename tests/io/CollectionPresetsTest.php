@@ -86,7 +86,7 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
             'id',
             'title',
             'user',
-            'group',
+            'role',
             'collection',
             'search_query',
             'filters',

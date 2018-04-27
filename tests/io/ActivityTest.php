@@ -122,7 +122,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
         assert_response_meta($this, $response, [
-            'table' => 'directus_activity',
+            'collection' => 'directus_activity',
             'type' => 'collection'
         ]);
     }
@@ -141,7 +141,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
         assert_response_meta($this, $response, [
-            'table' => 'directus_activity',
+            'collection' => 'directus_activity',
             'type' => 'collection',
             'result_count' => 10
         ]);
@@ -158,7 +158,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
 
         assert_response($this, $response);
         assert_response_meta($this, $response, [
-            'table' => 'directus_activity',
+            'collection' => 'directus_activity',
             'type' => 'item'
         ]);
     }

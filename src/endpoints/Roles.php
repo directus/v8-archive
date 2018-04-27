@@ -6,11 +6,10 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\TableGateway\DirectusGroupsTableGateway;
-use Directus\Services\GroupsService;
+use Directus\Services\RolesService;
 use Directus\Util\ArrayUtils;
 
-class Groups extends Route
+class Roles extends Route
 {
     /**
      * @param Application $app
@@ -32,7 +31,7 @@ class Groups extends Route
      */
     public function create(Request $request, Response $response)
     {
-        $service = new GroupsService($this->container);
+        $service = new RolesService($this->container);
         $responseData = $service->create(
             $request->getParsedBody(),
             $request->getQueryParams()
@@ -49,7 +48,7 @@ class Groups extends Route
      */
     public function read(Request $request, Response $response)
     {
-        $service = new GroupsService($this->container);
+        $service = new RolesService($this->container);
         $responseData = $service->find(
             $request->getAttribute('id'),
             ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta'])
@@ -66,7 +65,7 @@ class Groups extends Route
      */
     public function update(Request $request, Response $response)
     {
-        $service = new GroupsService($this->container);
+        $service = new RolesService($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),
             $request->getParsedBody(),
@@ -84,7 +83,7 @@ class Groups extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $service = new GroupsService($this->container);
+        $service = new RolesService($this->container);
         $responseData = $service->findAll($request->getQueryParams());
 
         return $this->responseWithData($request, $response, $responseData);
@@ -98,7 +97,7 @@ class Groups extends Route
      */
     public function delete(Request $request, Response $response)
     {
-        $service = new GroupsService($this->container);
+        $service = new RolesService($this->container);
         $service->delete(
             $request->getAttribute('id'),
             $request->getQueryParams()

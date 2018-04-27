@@ -2,7 +2,7 @@
 
 use Phinx\Seed\AbstractSeed;
 
-class GroupSeeder extends AbstractSeed
+class RolesSeeder extends AbstractSeed
 {
     /**
      * Run Method.
@@ -27,7 +27,7 @@ class GroupSeeder extends AbstractSeed
             ]
         ];
 
-        $groups = $this->table('directus_groups');
+        $groups = $this->table('directus_roles');
         $groups->insert($data)->save();
     }
 }
