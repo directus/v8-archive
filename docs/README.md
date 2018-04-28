@@ -860,7 +860,7 @@ or
 Set the time and last Directus App page accessed by the user. Last Access is used to determine if the user is still logged into the Directus app, and Last Page is used to avoid editing conflicts between multiple users.
 
 ```http
-POST /users/tracking/page
+PATCH /users/[pk]/tracking/page
 ```
 
 #### Body
