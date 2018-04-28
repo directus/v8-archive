@@ -1,0 +1,42 @@
+# Ignore configuration files
+config/*
+!config/migrations.php
+!config/api_sample.php
+
+public/core/
+
+documents
+
+assets/css/*.map
+
+Icon
+.DS_Store
+dist/*
+
+# Don't track composer phar/vendors
+composer.phar
+composer.lock
+/vendor
+
+# Ignore log files, but track the log README
+*.log
+
+!customs/endpoints/_example.php
+customs/extensions/*
+!customs/extensions/.gitignore
+!customs/extensions/_example/
+customs/interfaces/*
+!customs/interfaces/.gitignore
+!customs/interfaces/_example
+/customs/listviews/*
+!customs/listviews/.gitignore
+!storage/uploads/.gitignore
+!storage/uploads/thumbs/.gitignore
+
+thumbnail/**/
+
+# Ignore dev files
+.idea
+.sass-cache
+.gulp-scss-cache
+node_modules

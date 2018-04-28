@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+
+// Composer Autoloader
+$loader = require realpath(__DIR__ . '/../') . '/vendor/autoload.php';
+
+$cli = new \Directus\Console\Cli();
+$cli->run();
+
+?>
