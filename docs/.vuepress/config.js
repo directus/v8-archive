@@ -1,4 +1,5 @@
 module.exports = {
+  base: '/api/',
   // NOTE: Most of this config must be the same as the one in the app repo to make sure
   //   it's consistent when navigating between the two.
   title: 'Directus',
