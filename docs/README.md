@@ -551,6 +551,33 @@ Batch Update can quickly overwrite large amounts of data. Please be careful when
 | 404 Not Found            | `message`: Collection doesn’t exist                                  |
 | 422 Unprocessable Entity | `message`: Column doesn’t exist in collection                        |
 
+### Revert Item
+
+Reverts a single item to a previous revision state
+
+```http
+PATCH /items/[collection-name]/[item-pk]/revert/[revision-pk]
+```
+
+#### Body
+
+There is no body for this request
+
+#### Common Responses
+
+| Code                     | Description                                                          |
+| ------------------------ | -------------------------------------------------------------------- |
+| 200 OK                   | `data`: The updated item, including default fields added by Directus |
+| 404 Not Found            | `message`: Collection doesn’t exist                                  |
+| 422 Unprocessable Entity | `message`: Item doesn’t exist in collection                          |
+
+#### Examples
+
+*   Revert the project item (ID:`1`) to its previous state in revision (ID:`2`)
+    ```bash
+    curl https://api.directus.io/_/items/projects/1/revert/2
+    ```
+
 ### Delete Item
 
 Deletes one or more items from a specific collection. This endpoint also accepts CSV of primary key values, and would then return an array of items
@@ -927,6 +954,12 @@ GET /utils/random/
 | --------------- | ---------------------------------------- |
 | 200 OK          | `data`: The random string                |
 | 400 Bad Request | `message`: Syntax error in provided JSON |
+
+## SCIM
+
+Directus fully supports System for Cross-domain Identity Management, or SCIM. This open standard allows for users to be created, managed, and disabled outside of Directus so that enterprise clients have the ability to use a single, centralize system for user provisioning.
+
+
 
 ## Extensions
 
