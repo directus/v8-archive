@@ -606,6 +606,10 @@ All system tables (`directus_*`) are blocked from being used through the regular
 
 These system endpoints still follow the same spec as a “regular” `/items/[collection-name]` endpoint but require the additional processing outlined below:
 
+### Activity
+
+`POST /activity/message` @TODO
+
 ### Columns
 
 `/columns` is used for creating, updating, or deleting columns through the API requires the API to modify the database schema directly.
