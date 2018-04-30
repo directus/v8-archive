@@ -130,7 +130,7 @@ class RevisionsService extends AbstractService
         );
     }
 
-    public function rollback($collectionName, $item, $revision, array $params = [])
+    public function revert($collectionName, $item, $revision, array $params = [])
     {
         $revisionTableGateway = new TableGateway(SchemaManager::COLLECTION_REVISIONS, $this->getConnection());
         $select = $revisionTableGateway->getSql()->select();

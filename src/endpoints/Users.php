@@ -31,7 +31,7 @@ class Users extends Route
         // Revisions
         $app->get('/{id}/revisions', [$this, 'userRevisions']);
         $app->get('/{id}/revisions/{offset}', [$this, 'oneUserRevision']);
-        $app->patch('/{id}/rollback/{revision}', [$this, 'userRollback']);
+        $app->patch('/{id}/revert/{revision}', [$this, 'userRevert']);
 
         // Tracking
         $app->patch('/{id}/tracking/page', [$this, 'trackPage']);
@@ -188,10 +188,10 @@ class Users extends Route
      *
      * @return Response
      */
-    public function userRollback(Request $request, Response $response)
+    public function userRevert(Request $request, Response $response)
     {
         $service = new RevisionsService($this->container);
-        $responseData = $service->rollback(
+        $responseData = $service->revert(
             SchemaManager::COLLECTION_USERS,
             $request->getAttribute('id'),
             $request->getAttribute('revision'),
