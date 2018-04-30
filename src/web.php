@@ -7,6 +7,8 @@ $app->add(new \Directus\Application\Http\Middlewares\AuthenticationMiddleware($a
     ->add(new \Directus\Application\Http\Middlewares\CorsMiddleware($app->getContainer()))
     ->add(new RKA\Middleware\IpAddress());
 
+$app->get('/', \Directus\Api\Routes\Home::class);
+
 $app->group('/{env}', function () {
     $this->group('/activity', \Directus\Api\Routes\Activity::class);
     $this->group('/auth', \Directus\Api\Routes\Auth::class);
