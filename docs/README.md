@@ -614,6 +614,10 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 
 `/files` is used for creating or updating a file requires the API to accept a special field allowing for the base64 file data. Beyond that, it accepts POST requests with the multipart-formdata enctype, to allow for easier uploading of file(s).
 
+### Folders
+
+`/folders` is used for creating, updating, or deleting a virtual folder.
+
 ### Permissions
 
 `/permissions` does not have any additional processing, it is simply an alias for the blocked `/items/directus_permissions`
