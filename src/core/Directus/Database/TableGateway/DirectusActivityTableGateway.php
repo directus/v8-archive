@@ -29,6 +29,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
     const ACTION_DELETE = 'DELETE';
     const ACTION_LOGIN  = 'LOGIN';
     const ACTION_SOFT_DELETE = 'SOFT_DELETE';
+    const ACTION_REVERT = 'REVERT';
 
     public static $_tableName = 'directus_activity';
 

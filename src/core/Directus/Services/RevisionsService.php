@@ -153,7 +153,7 @@ class RevisionsService extends AbstractService
         $tableGateway = $this->createTableGateway($collectionName);
 
         $data[$collection->getPrimaryKeyName()] = $item;
-        $tableGateway->updateRecord($data);
+        $tableGateway->revertRecord($data);
 
         return $this->getDataAndSetResponseCacheTags(
             [$tableGateway, 'getItems'],

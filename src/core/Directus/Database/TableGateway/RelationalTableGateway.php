@@ -116,6 +116,17 @@ class RelationalTableGateway extends BaseTableGateway
     }
 
     /**
+     * @param $data
+     * @param array $params
+     *
+     * @return BaseRowGateway
+     */
+    public function revertRecord($data, array $params = [])
+    {
+        return $this->updateRecord($data, array_merge($params, ['revert' => true]));
+    }
+
+    /**
      * @param string $tableName
      * @param array $recordData
      * @param array $params
@@ -248,6 +259,8 @@ class RelationalTableGateway extends BaseTableGateway
         $statusField = $tableSchema->getStatusField();
         if ($recordIsNew) {
             $logEntryAction = DirectusActivityTableGateway::ACTION_ADD;
+        } else if (ArrayUtils::get($params, 'revert') === true) {
+            $logEntryAction = DirectusActivityTableGateway::ACTION_REVERT;
         } else {
             $logEntryAction = DirectusActivityTableGateway::ACTION_UPDATE;
 
