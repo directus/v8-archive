@@ -844,6 +844,7 @@ class RelationalTableGateway extends BaseTableGateway
      *
      * @return array
      *
+     * @throws Exception\InvalidFieldException
      * @throws Exception\ItemNotFoundException
      */
     public function loadItems(array $params = [], \Closure $queryCallback = null)
@@ -852,6 +853,8 @@ class RelationalTableGateway extends BaseTableGateway
 
         $params = $this->applyDefaultEntriesSelectParams($params);
         $fields = ArrayUtils::get($params, 'fields');
+
+        $this->validateFields($fields);
 
         // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
@@ -1141,12 +1144,17 @@ class RelationalTableGateway extends BaseTableGateway
 
     protected function doFilter(Builder $query, $column, $condition, $table)
     {
+        $fieldName = $this->getColumnFromIdentifier($column);
         $field = $this->getField(
+            $fieldName,
             // $table will be the default value to get
             // if the column has not identifier format
-            $this->getColumnFromIdentifier($column),
             $this->getTableFromIdentifier($column, $table)
         );
+
+        if (!$field) {
+            throw new Exception\InvalidFieldException($fieldName);
+        }
 
         $condition = $this->parseCondition($condition);
         $operator = ArrayUtils::get($condition, 'operator');
@@ -1389,7 +1397,7 @@ class RelationalTableGateway extends BaseTableGateway
      * @param Builder $query
      * @param array $columns
      *
-     * @throws Exception\FieldNotFoundException
+     * @throws Exception\InvalidFieldException
      */
     protected function processSort(Builder $query, array $columns)
     {
@@ -1399,7 +1407,7 @@ class RelationalTableGateway extends BaseTableGateway
             $orderDirection = current($compact);
 
             if (!SchemaService::hasCollectionField($this->table, $orderBy, $this->acl === null)) {
-                throw new Exception\FieldNotFoundException($column);
+                throw new Exception\InvalidFieldException($column);
             }
 
             $query->orderBy($orderBy, $orderDirection);
@@ -2048,6 +2056,24 @@ class RelationalTableGateway extends BaseTableGateway
         })));
 
         return array_values(array_flip(ArrayUtils::omit(array_flip($pickedNames), $omittedNames)));
+    }
+
+    /**
+     * Throws an exception if any of the given field doesn't exists
+     *
+     * @param array $fields
+     *
+     * @throws Exception\InvalidFieldException
+     */
+    public function validateFields(array $fields)
+    {
+        $collection = $this->getTableSchema();
+        $selectedFields = $this->getSelectedFields($fields);
+        foreach ($selectedFields as $field) {
+            if (!$collection->hasField($field)) {
+                throw new Exception\InvalidFieldException($field);
+            }
+        }
     }
 
     /**
