@@ -1065,7 +1065,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $query = new Builder($this->getAdapter());
             $mainTableObject = $this->getTableSchema($table);
-            $query->columns([$mainTableObject->getPrimaryColumn()]);
+            $query->columns([$mainTableObject->getPrimaryField()->getName()]);
             $query->from($table);
 
             $this->doFilter($query, $column, $condition, $table);
@@ -1076,20 +1076,20 @@ class RelationalTableGateway extends BaseTableGateway
 
                 $oldQuery = $query;
                 $query = new Builder($this->getAdapter());
-                $tableObject = $this->getTableSchema($columnsTable[$key]);
-                $columnObject = $tableObject->getColumn($column);
+                $collection = $this->getTableSchema($columnsTable[$key]);
+                $field = $collection->getField($column);
 
-                $selectColumn = $tableObject->getPrimaryColumn();
+                $selectColumn = $collection->getPrimaryField()->getName();
                 $table = $columnsTable[$key];
 
-                if ($columnObject->isAlias()) {
-                    $column = $tableObject->getPrimaryColumn();
+                if ($field->isAlias()) {
+                    $column = $collection->getPrimaryField()->getName();
                 }
 
-                if ($columnObject->isManyToMany()) {
-                    $selectColumn = $columnObject->getRelationship()->getJunctionKeyLeft();
-                    $column = $columnObject->getRelationship()->getJunctionKeyRight();
-                    $table = $columnObject->getRelationship()->getJunctionTable();
+                if ($field->isManyToMany()) {
+                    $selectColumn = $field->getRelationship()->getJunctionKeyA();
+                    $column = $field->getRelationship()->getJunctionKeyB();
+                    $table = $field->getRelationship()->getJunctionCollection();
                 }
 
                 $query->columns([$selectColumn]);
@@ -1097,26 +1097,25 @@ class RelationalTableGateway extends BaseTableGateway
                 $query->whereIn($column, $oldQuery);
             }
 
-            $tableObject = $this->getTableSchema($mainTable);
-            $columnObject = $tableObject->getColumn($mainColumn);
-            $relationship = $columnObject->getRelationship();
+            $collection = $this->getTableSchema($mainTable);
+            $field = $collection->getField($mainColumn);
+            $relationship = $field->getRelationship();
 
             // TODO: Make all this whereIn duplication into a function
             // TODO: Can we make the O2M simpler getting the parent id from itself
             //       right now is creating one unnecessary select
-            if ($columnObject->isManyToMany() || $columnObject->isOneToMany()) {
-                $mainColumn = $tableObject->getPrimaryColumn();
+            if ($field->isManyToMany() || $field->isOneToMany()) {
+                $mainColumn = $collection->getPrimaryField()->getName();
                 $oldQuery = $query;
                 $query = new Builder($this->getAdapter());
 
-                if ($columnObject->isManyToMany()) {
-                    $selectColumn = $relationship->getJunctionKeyLeft();
-                    $table = $relationship->getJunctionTable();
-                    $column = $relationship->getJunctionKeyRight();
+                if ($field->isManyToMany()) {
+                    $selectColumn = $relationship->getJunctionKeyB();
+                    $table = $relationship->getJunctionCollection();
+                    $column = $relationship->getJunctionKeyA();
                 } else {
-                    $selectColumn = $relationship->getJunctionKeyRight();
-                    $table = $relationship->getRelatedTable();
-                    $column = $relationship->getJunctionKeyRight();
+                    $selectColumn = $column = $relationship->getJunctionKeyA();
+                    $table = $relationship->getCollectionB();
                 }
 
                 $query->columns([$selectColumn]);
@@ -1142,7 +1141,7 @@ class RelationalTableGateway extends BaseTableGateway
 
     protected function doFilter(Builder $query, $column, $condition, $table)
     {
-        $columnObject = $this->getField(
+        $field = $this->getField(
             // $table will be the default value to get
             // if the column has not identifier format
             $this->getColumnFromIdentifier($column),
@@ -1156,7 +1155,7 @@ class RelationalTableGateway extends BaseTableGateway
         $logical = ArrayUtils::get($condition, 'logical');
 
         // TODO: if there's more, please add a better way to handle all this
-        if ($columnObject->isToMany()) {
+        if ($field->isToMany()) {
             // translate some non-x2m relationship filter to x2m equivalent (if exists)
             switch ($operator) {
                 case 'empty':
@@ -1195,7 +1194,7 @@ class RelationalTableGateway extends BaseTableGateway
             $arguments[] = $logical;
         }
 
-        if (in_array($operator, ['all', 'has']) && $columnObject->isToMany()) {
+        if (in_array($operator, ['all', 'has']) && $field->isToMany()) {
             if ($operator == 'all' && is_string($value)) {
                 $value = array_map(function ($item) {
                     return trim($item);
@@ -1204,33 +1203,33 @@ class RelationalTableGateway extends BaseTableGateway
                 $value = (int) $value;
             }
 
-            $primaryKey = $this->getTableSchema($table)->getPrimaryColumn();
-            $relationship = $columnObject->getRelationship();
+            $primaryKey = $this->getTableSchema($table)->getPrimaryField()->getName();
+            $relationship = $field->getRelationship();
             if ($relationship->getType() == 'ONETOMANY') {
                 $arguments = [
                     $primaryKey,
-                    $relationship->getRelatedTable(),
+                    $relationship->getCollectionB(),
                     null,
-                    $relationship->getJunctionKeyRight(),
+                    $relationship->getJunctionKeyB(),
                     $value
                 ];
             } else {
                 $arguments = [
                     $primaryKey,
-                    $relationship->getJunctionTable(),
-                    $relationship->getJunctionKeyLeft(),
-                    $relationship->getJunctionKeyRight(),
+                    $relationship->getJunctionCollection(),
+                    $relationship->getJunctionKeyA(),
+                    $relationship->getJunctionKeyB(),
                     $value
                 ];
             }
         }
 
         // TODO: Move this into QueryBuilder if possible
-        if (in_array($operator, ['like']) && $columnObject->isManyToOne()) {
-            $relatedTable = $columnObject->getRelationship()->getRelatedTable();
+        if (in_array($operator, ['like']) && $field->isManyToOne()) {
+            $relatedTable = $field->getRelationship()->getCollectionB();
             $tableSchema = SchemaService::getCollection($relatedTable);
-            $relatedTableColumns = $tableSchema->getColumns();
-            $relatedPrimaryColumnName = $tableSchema->getPrimaryColumn();
+            $relatedTableColumns = $tableSchema->getFields();
+            $relatedPrimaryColumnName = $tableSchema->getPrimaryField()->getName();
             $query->orWhereRelational($this->getColumnFromIdentifier($column), $relatedTable, $relatedPrimaryColumnName, function (Builder $query) use ($column, $relatedTable, $relatedTableColumns, $value) {
                 $query->nestOrWhere(function (Builder $query) use ($relatedTableColumns, $relatedTable, $value) {
                     foreach ($relatedTableColumns as $column) {
