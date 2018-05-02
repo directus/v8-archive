@@ -3,6 +3,7 @@
 namespace Directus\Database\Schema\Object;
 
 use Directus\Config\StatusMapping;
+use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\SystemInterface;
 use Directus\Util\ArrayUtils;
 
@@ -294,7 +295,7 @@ class Collection extends AbstractObject
      */
     public function hasJsonField()
     {
-        return $this->hasType('json') || $this->hasType('longjson') || $this->hasType('tinyjson') || $this->hasType('mediumjson');
+        return $this->hasType(DataTypes::TYPE_JSON) || $this->hasType(DataTypes::TYPE_LONG_JSON) || $this->hasType(DataTypes::TYPE_TINY_JSON) || $this->hasType(DataTypes::TYPE_MEDIUM_JSON);
     }
 
     /**
@@ -304,7 +305,7 @@ class Collection extends AbstractObject
      */
     public function hasArrayField()
     {
-        return $this->hasType('array');
+        return $this->hasType(DataTypes::TYPE_ARRAY);
     }
 
     /**
@@ -314,7 +315,7 @@ class Collection extends AbstractObject
      */
     public function hasBooleanField()
     {
-        return $this->hasType('bool') || $this->hasType('boolean');
+        return $this->hasType(DataTypes::TYPE_BOOLEAN) || $this->hasType(DataTypes::TYPE_BOOL);
     }
 
     /**
