@@ -16,7 +16,7 @@ class Utils extends Route
     public function __invoke(Application $app)
     {
         $app->post('/hash', [$this, 'hash']);
-        $app->post('/random_string', [$this, 'randomString']);
+        $app->post('/random/string', [$this, 'randomString']);
     }
 
     /**

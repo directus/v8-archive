@@ -66,7 +66,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
     public function testRandomString()
     {
-        $path = 'utils/random_string';
+        $path = 'utils/random/string';
         $queryParams = ['access_token' => 'token'];
 
         // default length
