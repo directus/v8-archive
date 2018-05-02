@@ -15,48 +15,297 @@ class FieldsSeeder extends AbstractSeed
     public function run()
     {
         $data = [
+            // Activity
+            [
+                'collection' => 'directus_activity',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'type',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'action',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'user',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'user'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'datetime',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'ip',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'user_agent',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'item',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'message',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
+                'interface' => 'markdown'
+            ],
+            // Activity Read
+            [
+                'collection' => 'directus_activity_read',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_activity_read',
+                'field' => 'activity',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_activity_read',
+                'field' => 'user',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'user'
+            ],
+            [
+                'collection' => 'directus_activity_read',
+                'field' => 'read',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_activity_read',
+                'field' => 'archived',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
             // Collections
+            [
+                'collection' => 'directus_collections',
+                'field' => 'collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_collections',
+                'field' => 'item_name_template',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_collections',
+                'field' => 'preview_url',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_collections',
+                'field' => 'hidden',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_collections',
+                'field' => 'single',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
             [
                 'collection' => 'directus_collections',
                 'field' => 'translation',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'JSON'
             ],
+            [
+                'collection' => 'directus_collections',
+                'field' => 'comment',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
             // Collection Presets
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'title',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'user',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'user'
+            ],
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'role',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'search_query',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'filters',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'JSON'
-            ],
-            [
-                'collection' => 'directus_collection_presets',
-                'field' => 'view_query',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'JSON'
+                'interface' => 'json'
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'view_options',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'JSON'
+                'interface' => 'json'
+            ],
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'view_type',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'view_query',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'json'
             ],
             // Fields
             [
-                'collection' => 'directus_collection_presets',
+                'collection' => 'directus_fields',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'field',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'type',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'interface',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'options',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'json'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'locked',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_fields',
                 'field' => 'translation',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'JSON'
             ],
             [
-                'collection' => 'directus_collection_presets',
+                'collection' => 'directus_fields',
+                'field' => 'readonly',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_fields',
                 'field' => 'required',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN
             ],
             [
-                'collection' => 'directus_collection_presets',
-                'field' => 'options',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON
+                'collection' => 'directus_fields',
+                'field' => 'sort',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'sort'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'comment',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'hidden_input',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'hidden_list',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'view_width',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'numeric'
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'group',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'many-to-one'
             ],
             // Files
             [
@@ -81,7 +330,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_files',
                 'field' => 'description',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
-                'interface' => 'wysiwyg'
+                'interface' => 'textarea'
             ],
             [
                 'collection' => 'directus_files',
@@ -92,7 +341,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'tags',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_CSV,
                 'interface' => 'tags'
             ],
             [
@@ -111,7 +360,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_files',
                 'field' => 'filesize',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
-                'interface' => 'file-size'
+                'interface' => 'filesize'
             ],
             [
                 'collection' => 'directus_files',
@@ -122,7 +371,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'metadata',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'JSON'
             ],
             [
@@ -185,17 +434,74 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
                 'interface' => 'file-upload'
             ],
-            // Settings
+            // Folders
             [
-                'collection' => 'directus_settings',
-                'field' => 'auto_sign_out',
+                'collection' => 'directus_folders',
+                'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
-                'interface' => 'numeric'
+                'interface' => 'primary-key'
             ],
             [
-                'collection' => 'directus_settings',
-                'field' => 'youtube_api_key',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR
+                'collection' => 'directus_folders',
+                'field' => 'name',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_folders',
+                'field' => 'parent_folder',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'many-to-one'
+            ],
+            // Roles
+            [
+                'collection' => 'directus_roles',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_roles',
+                'field' => 'name',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_roles',
+                'field' => 'description',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'textarea'
+            ],
+            [
+                'collection' => 'directus_roles',
+                'field' => 'ip_whitelist',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
+                'interface' => 'textarea'
+            ],
+            [
+                'collection' => 'directus_roles',
+                'field' => 'nav_blacklist',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
+                'interface' => 'textarea'
+            ],
+            // User Roles
+            [
+                'collection' => 'directus_user_roles',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_user_roles',
+                'field' => 'user',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'user'
+            ],
+            [
+                'collection' => 'directus_user_roles',
+                'field' => 'role',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'many-to-one'
             ],
             // Users
             [
@@ -297,11 +603,181 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_users',
+                'field' => 'last_access',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime'
+            ],
+            [
+                'collection' => 'directus_users',
                 'field' => 'last_page',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
+            [
+                'collection' => 'directus_users',
+                'field' => 'token',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_users',
+                'field' => 'invite_token',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_users',
+                'field' => 'invite_accepted',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            // Permissions
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'role',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'status',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'create',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'read',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'update',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'delete',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'navigate',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'explain',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'allow_statuses',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_CSV,
+                'interface' => 'tags'
+            ],
+            [
+                'collection' => 'directus_permissions',
+                'field' => 'read_field_blacklist',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'textarea'
+            ],
+            // Relations
+            [
+                'collection' => 'directus_relations',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_relations',
+                'field' => 'collection_a',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_relations',
+                'field' => 'field_a',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_relations',
+                'field' => 'junction_key_a',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_relations',
+                'field' => 'junction_mixed_collections',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_relations',
+                'field' => 'junction_key_b',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_relations',
+                'field' => 'collection_b',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_relations',
+                'field' => 'field_b',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
             // Revisions
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'primary-key'
+            ],
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'activity',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'item',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'data',
@@ -313,6 +789,36 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'delta',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_LONG_JSON,
                 'interface' => 'json'
+            ],
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'parent_item',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'parent_collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'many-to-one'
+            ],
+            [
+                'collection' => 'directus_revisions',
+                'field' => 'parent_changed',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            // Settings
+            [
+                'collection' => 'directus_settings',
+                'field' => 'auto_sign_out',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'interface' => 'numeric'
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'youtube_api_key',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR
             ],
         ];
 
