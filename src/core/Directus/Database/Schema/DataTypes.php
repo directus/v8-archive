@@ -312,6 +312,6 @@ final class DataTypes
      */
     public static function isFilesType($type)
     {
-        return in_array($type, static::getFilesType());
+        return in_array(strtolower($type), static::getFilesType());
     }
 }
