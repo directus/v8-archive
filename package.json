@@ -1,0 +1,25 @@
+{
+  "name": "@directus/api",
+  "private": true,
+  "version": "1.0.0",
+  "description": "This API is currently under development for the next major [Directus](https://github.com/directus/directus) version.",
+  "main": "index.js",
+  "repository": "directus/api",
+  "keywords": [
+    "directus",
+    "api"
+  ],
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "author": "Welling Guzman <welling@rngr.org>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/directus/api/issues"
+  },
+  "homepage": "https://github.com/directus/api#readme",
+  "devDependencies": {
+    "vuepress": "^0.7.1"
+  }
+}
