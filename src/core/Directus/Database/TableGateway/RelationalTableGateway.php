@@ -523,7 +523,6 @@ class RelationalTableGateway extends BaseTableGateway
                          * $parentRecord['collectionName1'][0-9]['id']; // for updating a pre-existing junction row
                          * $parentRecord['collectionName1'][0-9]['active']; // for disassociating a junction via the '0' value
                          */
-                        $noDuplicates = isset($field['options']['no_duplicates']) ? $field['options']['no_duplicates'] : 0;
 
                         $this->enforceColumnHasNonNullValues($relationship->toArray(), ['junction_collection', 'junction_key_a'], $this->table);
                         $junctionTableName = $relationship->getJunctionCollection();//$column['relationship']['junction_table'];
@@ -1622,11 +1621,7 @@ class RelationalTableGateway extends BaseTableGateway
                 // within directus as directus needs the related and the primary keys to work properly
                 $rows = ArrayUtils::get($relatedEntries, $parentRow[$primaryKey], []);
                 $rows = $this->applyHook('load.relational.onetomany', $rows, ['column' => $alias]);
-                $parentRow[$relationalColumnName] = $tableGateway->wrapData(
-                    $rows,
-                    false,
-                    ArrayUtils::get($params, 'meta', 0)
-                );
+                $parentRow[$relationalColumnName] = $rows;
             }
         }
 
@@ -1646,6 +1641,7 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $columnsTree = get_unflat_columns($columns);
         $visibleFields = $this->getTableSchema()->getFields(array_keys($columnsTree));
+
         foreach ($visibleFields as $alias) {
             if (!$alias->isAlias() || !$alias->isManyToMany()) {
                 continue;
@@ -1666,170 +1662,42 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
-            $junctionKeyRightColumn = $alias->getRelationship()->getJunctionKeyB();
             $junctionKeyLeftColumn = $alias->getRelationship()->getJunctionKeyA();
             $junctionTableName = $alias->getRelationship()->getJunctionCollection();
-
-            $relatedTableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
+            $junctionTableGateway = new RelationalTableGateway($junctionTableName, $this->getAdapter(), $this->acl);
             $relatedTablePrimaryKey = SchemaService::getCollectionPrimaryKey($relatedTableName);
+            $junctionTableColumns = get_array_flat_columns($columnsTree[$alias->getName()]);
 
-            $on = $this->getColumnIdentifier($junctionKeyRightColumn, $junctionTableName) . ' = ' . $this->getColumnIdentifier($relatedTablePrimaryKey, $relatedTableName);
-            $junctionColumns = SchemaService::getAllNonAliasCollectionFieldNames($junctionTableName);
-            if (in_array('sort', $junctionColumns)) {
-                $joinColumns[] = 'sort';
-            }
-
-            $joinColumns = [];
-            $joinColumnsPrefix = StringUtils::randomString() . '_';
-            foreach($junctionColumns as $junctionColumn) {
-                $joinColumns[$joinColumnsPrefix . $junctionColumn] = $junctionColumn;
-            }
-
-            // Only select the fields not on the currently authenticated user group's read field blacklist
-            $relatedTableColumns = array_keys(ArrayUtils::get($columnsTree, $alias->getName(), ['*']) ?: ['*']);
-
-            $queryCallBack = function(Builder $query) use ($junctionTableName, $on, $joinColumns, $ids, $joinColumnsPrefix) {
-                $query->join($junctionTableName, $on, $joinColumns);
-
-                if (SchemaService::hasCollectionSortField($junctionTableName)) {
-                    $sortColumnName = SchemaService::getCollectionSortField($junctionTableName);
-                    $query->orderBy($this->getColumnIdentifier($sortColumnName, $junctionTableName), 'ASC');
-                }
-
-                return $query;
-            };
-
-            $results = $relatedTableGateway->loadEntries(array_merge([
+            $results = $junctionTableGateway->loadEntries(array_merge([
                 // Fetch all related data
                 'limit' => -1,
                 // Add the aliases of the join columns to prevent being removed from array
                 // because there aren't part of the "visible" columns list
                 'fields' => array_merge(
                     [$relatedTablePrimaryKey],
-                    $relatedTableColumns
+                    $junctionTableColumns
                 ),
                 'filter' => [
                     new In(
-                        $relatedTableGateway->getColumnIdentifier($junctionKeyLeftColumn, $junctionTableName),
+                        $junctionKeyLeftColumn,
                         $ids
                     )
                 ],
-            ], $params), $queryCallBack);
+            ], $params));
 
             $relationalColumnName = $alias->getName();
             $relatedEntries = [];
             foreach ($results as $row) {
-                $relatedEntries[$row[$joinColumnsPrefix . $junctionKeyLeftColumn]][] = $row;
-            }
-
-            $uiOptions = $alias->getOptions() ?: [];
-            $noDuplicates = (bool) ArrayUtils::get($uiOptions, 'no_duplicates', false);
-            if ($noDuplicates) {
-                foreach($relatedEntries as $key => $rows) {
-                    $uniquesID = [];
-                    foreach ($rows as $index => $row) {
-                        if (!in_array($row[$relatedTablePrimaryKey], $uniquesID)) {
-                            array_push($uniquesID, $row[$relatedTablePrimaryKey]);
-                        } else {
-                            unset($relatedEntries[$key][$index]);
-                        }
-                    }
-
-                    unset($uniquesID);
-                    // =========================================================
-                    // Reset keys
-                    // ---------------------------------------------------------
-                    // This prevent json output using numeric ids as key
-                    // Ex:
-                    // {
-                    //      rows: {
-                    //          "1": {
-                    //              data: {id: 1}
-                    //          },
-                    //          "3" {
-                    //              data: {id: 2}
-                    //          }
-                    //      }
-                    // }
-                    // Instead of:
-                    // {
-                    //      rows: [
-                    //          {
-                    //              data: {id: 1}
-                    //          },
-                    //          {
-                    //              data: {id: 2}
-                    //          }
-                    //      ]
-                    // }
-                    // =========================================================
-                    $relatedEntries[$key] = array_values($relatedEntries[$key]);
-                }
+                $relatedEntries[$row[$junctionKeyLeftColumn]][] = $row;
             }
 
             // Replace foreign keys with foreign rows
             foreach ($entries as &$parentRow) {
-                $data = ArrayUtils::get($relatedEntries, $parentRow[$primaryKey], []);
-                $row = array_map(function($row) use ($joinColumns) {
-                    return ArrayUtils::omit($row, array_keys($joinColumns));
-                }, $data);
-
-                $junctionData = array_map(function($row) use ($joinColumns, $joinColumnsPrefix) {
-                    $row = ArrayUtils::pick($row, array_keys($joinColumns));
-                    $newRow = [];
-                    foreach($row as $column => $value) {
-                        $newRow[substr($column, strlen($joinColumnsPrefix))] = $value;
-                    }
-
-                    return $newRow;
-                }, $data);
-
-                $junctionTableGateway = new RelationalTableGateway($junctionTableName, $this->getAdapter(), $this->acl);
-                $junctionData = $this->getSchemaManager()->castRecordValues($junctionData, SchemaService::getCollection($junctionTableName)->getFields());
-
-                // Sorting junction data by its sorting column or ID column
-                // NOTE: All the junction table are fetched all together from all the rows IDs
-                // After all junction IDs are attached to an specific parent row, it must sort.
-                $junctionTableSchema = $junctionTableGateway->getTableSchema();
-                $sortColumnName = $junctionTableSchema->getPrimaryField()->getName();
-                if ($junctionTableSchema->hasSortingField()) {
-                    $sortColumnName = $junctionTableSchema->getSortingField()->getName();
-                }
-
-                // NOTE: usort doesn't maintain the array key
-                usort($junctionData, sorting_by_key($sortColumnName, 'ASC'));
-
-                // NOTE: Sort the related data by its junction sorting order
-                $tempRow = $row;
-                $_byId = [];
-                foreach ($tempRow as $item) {
-                    $rowId = $item[$relatedTablePrimaryKey];
-
-                    if (!in_array('*', $relatedTableColumns)) {
-                        $item = ArrayUtils::pick($item, $relatedTableColumns);
-                    }
-
-                    $_byId[$rowId] = $item;
-                }
-
-                $row = [];
-                foreach ($junctionData as $item) {
-                    $row[] = $_byId[$item[$junctionKeyRightColumn]];
-                }
-
-                $junctionData = $junctionTableGateway->wrapData(
-                    $junctionData,
-                    false,
-                    ArrayUtils::get($params, 'meta', 0)
+                $parentRow[$relationalColumnName] = ArrayUtils::get(
+                    $relatedEntries,
+                    $parentRow[$primaryKey],
+                    []
                 );
-
-                $row = $relatedTableGateway->wrapData(
-                    $row,
-                    false,
-                    ArrayUtils::get($params, 'meta', 0)
-                );
-                $row['junction'] = $junctionData;
-                $parentRow[$relationalColumnName] = $row;
             }
         }
 
@@ -1868,9 +1736,7 @@ class RelationalTableGateway extends BaseTableGateway
 
                 foreach ($entries as $i => $entry) {
                     $entries[$i][$column->getName()] = [
-                        'data' => [
-                            $primaryKeyName => $entry[$column->getName()]
-                        ]
+                        $primaryKeyName => $entry[$column->getName()]
                     ];
                 }
 
