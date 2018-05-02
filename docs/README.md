@@ -17,7 +17,7 @@ A special character ( `_` ) can be used to target the default database, whicheve
 
 A few examples of api requests:
 
-*   `/api/_/collections/` (uses default config file `config.php`)
+*   `/api/_/collections` (uses default config file `config.php`)
 *   `/api/prod/items/projects` (uses prod config file `config.prod.php`)
 
 ::: tip
@@ -149,7 +149,7 @@ The API will send an email to the requested user’s email containing a link wit
 **@TODO**: Is this correct? The reset token could also use the JWT spec to keep it consistent. The payload should contain the email address and expiration date.
 
 ```http
-POST /auth/password/request/
+POST /auth/password/request
 ```
 
 #### Body
@@ -301,7 +301,7 @@ Items are essentially individual database records which each contain one or more
 Creates one or more items in a given collection
 
 ```http
-POST /items/[collection-name]/
+POST /items/[collection-name]
 ```
 
 #### Body
@@ -386,7 +386,7 @@ GET /items/[collection-name]/[pk],[pk],[pk]
 Get an array of items from a given collection
 
 ```http
-GET /items/[collection-name]/
+GET /items/[collection-name]
 ```
 
 #### Query Parameters
@@ -896,7 +896,7 @@ The path to the last page the user was on in the Directus App
 Hashes the submitted string using the chosen algorithm
 
 ```http
-POST /utils/hash/
+POST /utils/hash
 ```
 
 #### Body
@@ -949,7 +949,7 @@ The hashing algorithm to use and the string to hash
 Gets a random alphanumeric string from the API
 
 ```http
-GET /utils/random/
+GET /utils/random
 ```
 
 | Name   | Default | Description                |
