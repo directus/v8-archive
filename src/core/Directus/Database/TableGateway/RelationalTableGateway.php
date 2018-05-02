@@ -854,7 +854,9 @@ class RelationalTableGateway extends BaseTableGateway
         $params = $this->applyDefaultEntriesSelectParams($params);
         $fields = ArrayUtils::get($params, 'fields');
 
-        $this->validateFields($fields);
+        if (is_array($fields)) {
+            $this->validateFields($fields);
+        }
 
         // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
@@ -1692,8 +1694,7 @@ class RelationalTableGateway extends BaseTableGateway
                 // because there aren't part of the "visible" columns list
                 'fields' => array_merge(
                     [$relatedTablePrimaryKey],
-                    $relatedTableColumns,
-                    array_keys($joinColumns)
+                    $relatedTableColumns
                 ),
                 'filter' => [
                     new In(
