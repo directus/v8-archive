@@ -149,7 +149,7 @@ The API will send an email to the requested user’s email containing a link wit
 **@TODO**: Is this correct? The reset token could also use the JWT spec to keep it consistent. The payload should contain the email address and expiration date.
 
 ```http
-POST /auth/reset-request/
+POST /auth/password/request/
 ```
 
 #### Body
@@ -174,7 +174,7 @@ The user's email address and the app URL from which the reset is requested
 The API checks the validity of the reset token, that it hasn't expired, and matches the encrypted email address contained in the code to the one provided. It must be a GET request, since we can’t do POST requests from email clients. This endpoint generates a random temporary password for the user and sends it to their email address.
 
 ```http
-GET /auth/reset/[reset-token]
+GET /auth/password/reset/[reset-token]
 ```
 
 #### Common Responses
