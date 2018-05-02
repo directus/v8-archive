@@ -459,14 +459,35 @@ class CoreServicesProvider
 
                 return $payload;
             });
-            $emitter->addFilter('collection.select', function (Payload $payload) use ($parseJson, $parseArray, $parseBoolean) {
+            $emitter->addFilter('collection.select', function (Payload $payload) use ($container, $parseJson, $parseArray, $parseBoolean) {
                 $rows = $payload->getData();
                 $collectionName = $payload->attribute('collection_name');
+                /** @var SchemaManager $schemaManager */
+                $schemaManager = $container->get('schema_manager');
+                $collection = $schemaManager->getCollection($collectionName);
+
+                $hasJsonField = $collection->hasJsonField();
+                $hasBooleanField = $collection->hasBooleanField();
+                $hasArrayField = $collection->hasArrayField();
+
+                if (!$hasArrayField && !$hasBooleanField && !$hasJsonField) {
+                    return $payload;
+                }
 
                 foreach ($rows as $key => $row) {
-                    $row = $parseJson($collectionName, $row);
-                    $row = $parseBoolean($collectionName, $row);
-                    $rows[$key] = $parseArray($collectionName, $row);
+                    if ($hasJsonField) {
+                        $row = $parseJson($collectionName, $row);
+                    }
+
+                    if ($hasJsonField) {
+                        $row = $parseBoolean($collectionName, $row);
+                    }
+
+                    if ($hasArrayField) {
+                        $row = $parseArray($collectionName, $row);
+                    }
+
+                    $rows[$key] = $row;
                 }
 
                 $payload->replace($rows);

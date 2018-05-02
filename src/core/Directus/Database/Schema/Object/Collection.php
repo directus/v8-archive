@@ -270,6 +270,54 @@ class Collection extends AbstractObject
     }
 
     /**
+     * Checks whether or not the collection has the given data type field
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function hasType($type)
+    {
+        foreach ($this->fields as $field) {
+            if (strtolower($type) ===  strtolower($field->getType())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks whether or not the collection has a JSON data type field
+     *
+     * @return bool
+     */
+    public function hasJsonField()
+    {
+        return $this->hasType('json') || $this->hasType('longjson') || $this->hasType('tinyjson') || $this->hasType('mediumjson');
+    }
+
+    /**
+     * Checks whether or not the collection has a Array data type field
+     *
+     * @return bool
+     */
+    public function hasArrayField()
+    {
+        return $this->hasType('array');
+    }
+
+    /**
+     * Checks whether or not the collection has a Boolean data type field
+     *
+     * @return bool
+     */
+    public function hasBooleanField()
+    {
+        return $this->hasType('bool') || $this->hasType('boolean');
+    }
+
+    /**
      * Gets the schema/database this collection belongs to
      *
      * @return null|string
