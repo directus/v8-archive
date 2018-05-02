@@ -949,7 +949,7 @@ The hashing algorithm to use and the string to hash
 Gets a random alphanumeric string from the API
 
 ```http
-GET /utils/random
+GET /utils/random/string
 ```
 
 | Name   | Default | Description                |
