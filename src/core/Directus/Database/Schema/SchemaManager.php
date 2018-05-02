@@ -287,7 +287,15 @@ class SchemaManager
             foreach ($columnsResult as $column) {
                 $field = $this->createFieldFromArray($column);
 
-                if (array_key_exists($field->getName(), $relationsA)) {
+                // Set all FILE data type related to directus files (M2O)
+                if (DataTypes::isFilesType($field->getType())) {
+                    $field->setRelationship([
+                        'collection_a' => $field->getCollectionName(),
+                        'field_a' => $field->getName(),
+                        'collection_b' => static::COLLECTION_FILES,
+                        'field_b' => 'id'
+                    ]);
+                } else if (array_key_exists($field->getName(), $relationsA)) {
                     $field->setRelationship($relationsA[$field->getName()]);
                 } else if (array_key_exists($field->getName(), $relationsB)) {
                     $field->setRelationship($relationsB[$field->getName()]);
