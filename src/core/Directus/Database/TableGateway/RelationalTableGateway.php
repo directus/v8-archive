@@ -413,6 +413,18 @@ class RelationalTableGateway extends BaseTableGateway
             $foreignRow = $foreignDataSet;
             $foreignTableName = $field->getRelationship()->getCollectionB();
             $foreignTableSchema = $this->getTableSchema($foreignTableName);
+            $primaryKey = $foreignTableSchema->getPrimaryKeyName();
+            $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
+
+            if ($primaryKey && ArrayUtils::get($foreignRow, $this->deleteFlag) === true) {
+                $Where = new Where();
+                $Where->equalTo($primaryKey, $foreignRow[$primaryKey]);
+                $ForeignTable->delete($Where);
+
+                $parentRow[$fieldName] = $field->isNullable() ? null : 0;
+
+                continue;
+            }
 
             // Update/Add foreign record
             if ($this->recordDataContainsNonPrimaryKeyData($foreignRow, $foreignTableSchema->getPrimaryKeyName())) {
@@ -420,7 +432,7 @@ class RelationalTableGateway extends BaseTableGateway
                 $foreignRow = $this->manageRecordUpdate($foreignTableName, $foreignRow);
             }
 
-            $parentRow[$fieldName] = $foreignRow[$foreignTableSchema->getPrimaryKeyName()];
+            $parentRow[$fieldName] = $foreignRow[$primaryKey];
         }
 
         return $parentRow;

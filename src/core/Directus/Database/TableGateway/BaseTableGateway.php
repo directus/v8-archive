@@ -94,7 +94,7 @@ class BaseTableGateway extends TableGateway
      *
      * @var string
      */
-    protected $deleteFlag = '.delete';
+    protected $deleteFlag = '$delete';
 
     /**
      * Constructor
