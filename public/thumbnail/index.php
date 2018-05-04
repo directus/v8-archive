@@ -1,8 +1,6 @@
 <?php
 
 require __DIR__ . '/../../vendor/autoload.php';
-// /** @var \Directus\Application\Application $app */
-// $app = require __DIR__ . '/../../src/bootstrap/application.php';
 
 use Directus\Util\ArrayUtils;
 use Directus\Filesystem\Thumbnailer;
