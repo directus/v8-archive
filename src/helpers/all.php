@@ -1474,6 +1474,10 @@ if (!function_exists('get_array_flat_columns')) {
     function get_array_flat_columns($columns)
     {
         // TODO: make sure array is passed???
+        if (empty($columns)) {
+            return [];
+        }
+
         return explode(',', get_csv_flat_columns($columns ?: []));
     }
 }
