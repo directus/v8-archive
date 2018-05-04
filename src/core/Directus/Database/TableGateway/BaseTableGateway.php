@@ -369,7 +369,7 @@ class BaseTableGateway extends TableGateway
         }
 
         $afterAction = function ($collectionName, $recordData, $replace = false) use ($TableGateway) {
-            if ($collectionName == SchemaManager::COLLECTION_FILES && isset($recordData['data']) && static::$container) {
+            if ($collectionName == SchemaManager::COLLECTION_FILES && static::$container) {
                 $Files = static::$container->get('files');
                 $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
 
