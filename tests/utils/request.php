@@ -10,7 +10,7 @@
 function request($method, $path, array $options = [])
 {
     $http = new GuzzleHttp\Client([
-        'base_uri' => 'http://localhost/api/'
+        'base_uri' => 'http://directus-api:8888'
     ]);
 
     // if json is set to true, it means we want the body to be a JSON

@@ -9,17 +9,6 @@ class FunctionsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expected, uc_convert($text));
     }
 
-    public function testSSL()
-    {
-        $this->assertFalse(is_ssl());
-
-        $_SERVER['HTTPS'] = 'off';
-        $this->assertFalse(is_ssl());
-
-        $_SERVER['HTTPS'] = 'on';
-        $this->assertTrue(is_ssl());
-    }
-
     public function testGetURL()
     {
         $url = get_url();

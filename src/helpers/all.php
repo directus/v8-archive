@@ -1,15 +1,16 @@
 <?php
 
 require __DIR__ . '/constants.php';
-require __DIR__ . '/helpers/arrays.php';
-require __DIR__ . '/helpers/cors.php';
-require __DIR__ . '/helpers/extensions.php';
-require __DIR__ . '/helpers/file.php';
-require __DIR__ . '/helpers/items.php';
-require __DIR__ . '/helpers/mail.php';
-require __DIR__ . '/helpers/settings.php';
-require __DIR__ . '/helpers/sorting.php';
-require __DIR__ . '/helpers/url.php';
+require __DIR__ . '/app.php';
+require __DIR__ . '/arrays.php';
+require __DIR__ . '/cors.php';
+require __DIR__ . '/extensions.php';
+require __DIR__ . '/file.php';
+require __DIR__ . '/items.php';
+require __DIR__ . '/mail.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/sorting.php';
+require __DIR__ . '/url.php';
 
 if (!function_exists('uc_convert')) {
     /**
@@ -62,104 +63,6 @@ if (!function_exists('uc_convert')) {
         }
 
         return preg_replace($searchPattern, $replaceValues, $phrase);
-    }
-}
-
-if (!function_exists('ping_route')) {
-    /**
-     * Rreturns a ping route
-     *
-     * @param \Directus\Application\Application $app
-     *
-     * @return Closure
-     */
-    function ping_route(\Directus\Application\Application $app)
-    {
-        return function (\Directus\Application\Http\Request $request, \Directus\Application\Http\Response $response) {
-            /** @var \Directus\Container\Container $container */
-            $container = $this;
-            $settings = $container->has('settings') ? $container->get('settings') : new \Directus\Collection\Collection();
-
-            if ($settings->get('env', 'development') === 'production') {
-                $response = $response->withStatus(404);
-            } else {
-                $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-                $body->write('pong');
-                $response = $response->withBody($body);
-            }
-
-            return $response;
-        };
-    }
-}
-
-if (!function_exists('create_ping_route')) {
-    /**
-     * Create a new ping the server route
-     *
-     * @param $app
-     *
-     * @return \Directus\Application\Application
-     */
-    function create_ping_route(\Directus\Application\Application $app)
-    {
-        /**
-         * Ping the server
-         */
-        $app->get('/ping', ping_route($app))->setName('ping_server');
-
-        return $app;
-    }
-}
-
-if (!function_exists('create_ping_server')) {
-    /**
-     * Creates a simple app
-     *
-     * @param array $config
-     *
-     * @return \Directus\Application\Application
-     */
-    function create_ping_server(array $config = [])
-    {
-        $app = new \Directus\Application\Application(realpath(__DIR__ . '/../../'), array_merge([
-            'settings' => [
-                'debug' => false,
-                'env' => 'production'
-            ]
-        ], $config));
-
-        create_ping_route($app);
-
-        return $app;
-    }
-}
-
-if (!function_exists('ping_server')) {
-    /**
-     * Ping the API Server
-     *
-     * @return bool
-     */
-    function ping_server()
-    {
-        // @TODO: Fix error when the route exists but there's an error
-        // It will not return "pong" back
-        $response = @file_get_contents(get_url('/api/ping'));
-
-        return $response === 'pong';
-    }
-}
-
-if (!function_exists('is_ssl')) {
-    /**
-     * Check if ssl is being used
-     *
-     * @return bool
-     */
-    function is_ssl()
-    {
-        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
     }
 }
 
@@ -315,13 +218,13 @@ if (!function_exists('get_virtual_path')) {
     }
 }
 
-if (!function_exists('get_api_env')) {
+if (!function_exists('get_api_env_from_request')) {
     /**
      * Gets the env from the request uri
      *
      * @return string
      */
-    function get_api_env()
+    function get_api_env_from_request()
     {
         $path = trim(get_virtual_path(), '/');
         $parts = explode('/', $path);
@@ -602,7 +505,7 @@ if (!function_exists('base_path')) {
     {
         $app = \Directus\Application\Application::getInstance();
 
-        $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__ . '/../../');
+        $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__ . '/../api/');
 
         if (!is_string($suffix)) {
             throw new \Directus\Exception\Exception('suffix must be a string');

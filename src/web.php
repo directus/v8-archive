@@ -1,7 +1,78 @@
 <?php
 
-/** @var \Directus\Application\Application $app */
-$app = require __DIR__ . '/bootstrap.php';
+$basePath =  realpath(__DIR__ . '/../');
+$configPath = $basePath . '/config';
+$configFilePath = $configPath . '/api.php';
+
+require $basePath . '/vendor/autoload.php';
+
+// Creates a simple endpoint to test the server rewriting
+// If the server responds "pong" it means the rewriting works
+if (!file_exists($configFilePath)) {
+    return create_ping_server($basePath);
+}
+
+// Get Environment name
+$env = get_api_env_from_request();
+$requestUri = trim(get_virtual_path(), '/');
+
+$reservedNames = ['server', 'interfaces', 'pages', 'listings', 'types'];
+if ($requestUri && !empty($env) && $env !== '_' && !in_array($env, $reservedNames)) {
+    $configFilePath = sprintf('%s/api.%s.php', $configPath, $env);
+    if (!file_exists($configFilePath)) {
+        http_response_code(404);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'error' => [
+                'error' => 8,
+                'message' => 'API Environment Configuration Not Found: ' . $env
+            ]
+        ]);
+        exit;
+    }
+}
+
+$app = create_app($basePath, require $configFilePath);
+
+// ----------------------------------------------------------------------------
+//
+
+// =============================================================================
+// Error reporting
+// -----------------------------------------------------------------------------
+// Possible values:
+//
+//  'production' => error suppression
+//  'development' => no error suppression
+//  'staging' => no error suppression
+//
+// =============================================================================
+
+$errorReporting = E_ALL;
+$displayErrors = 1;
+if ($app->getConfig()->get('env', 'development') === 'production') {
+    $displayErrors = $errorReporting = 0;
+}
+
+error_reporting($errorReporting);
+ini_set('display_errors', $displayErrors);
+
+// =============================================================================
+// Timezone
+// =============================================================================
+date_default_timezone_set($app->getConfig()->get('timezone', 'America/New_York'));
+
+$container = $app->getContainer();
+
+register_global_hooks($app);
+register_extensions_hooks($app);
+
+$app->getContainer()->get('hook_emitter')->run('application.boot', $app);
+
+// TODO: Implement old Slim 2 hooks into middlewares
+
+//
+// ----------------------------------------------------------------------------
 
 $app->add(new \Directus\Application\Http\Middlewares\AuthenticationMiddleware($app->getContainer()))
     ->add(new \Directus\Application\Http\Middlewares\CorsMiddleware($app->getContainer()))

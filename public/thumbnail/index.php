@@ -1,32 +1,47 @@
 <?php
 
 require __DIR__ . '/../../vendor/autoload.php';
-/** @var \Directus\Application\Application $app */
-$app = require __DIR__ . '/../../src/bootstrap/application.php';
+// /** @var \Directus\Application\Application $app */
+// $app = require __DIR__ . '/../../src/bootstrap/application.php';
 
 use Directus\Util\ArrayUtils;
-use Directus\Filesystem\Thumbnailer as ThumbnailerService;
+use Directus\Filesystem\Thumbnailer;
+
+$basePath = realpath(__DIR__ . '/../../');
+// Get Environment name
+$env = get_api_env_from_request();
+
+try {
+    create_app_with_env($basePath, $env);
+} catch (\Exception $e) {
+    http_response_code(404);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => [
+            'error' => 8,
+            'message' => 'API Environment Configuration Not Found: ' . $env
+        ]
+    ]);
+    exit;
+}
 
 try {
     // if the thumb already exists, return it
-    $thumbnailer = new ThumbnailerService(
+    $thumbnailer = new Thumbnailer(
         $app->getContainer()->get('files'),
-        $app->getConfig()->get('thumbnailer'),
+        $app->getConfig()->get('thumbnailer', []),
         get_virtual_path()
     );
 
     $image = $thumbnailer->get();
 
-    if (! $image) {
-
+    if (!$image) {
         // now we can create the thumb
         switch ($thumbnailer->action) {
-
             // http://image.intervention.io/api/resize
             case 'contain':
                 $image = $thumbnailer->contain();
                 break;
-
             // http://image.intervention.io/api/fit
             case 'crop':
             default:

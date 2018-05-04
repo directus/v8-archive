@@ -336,7 +336,14 @@ class Thumbnailer {
      */
     public function getSupportedThumbnailDimensions()
     {
-        return ArrayUtils::get($this->getConfig(), 'supportedThumbnailDimensions');
+        $default = '200x200';
+        $dimensions = ArrayUtils::get($this->getConfig(), 'supportedThumbnailDimensions');
+
+        if (!in_array($default, $dimensions)) {
+            array_unshift($dimensions, $default);
+        }
+
+        return $dimensions;
     }
 
     /**

@@ -4,13 +4,25 @@ if (!function_exists('get_directus_settings')) {
     /**
      * Returns an array of directus settings
      *
+     * @param string $scope
+     *
      * @return array
      */
-    function get_directus_settings()
+    function get_directus_settings($scope = null)
     {
         $app = \Directus\Application\Application::getInstance();
 
-        return $settings = $app->getContainer()->get('app_settings');
+        $settings = $app->getContainer()->get('app_settings');
+
+        if ($scope !== null) {
+            foreach ($settings as $index => $setting) {
+                if ($setting['scope'] !== $scope) {
+                    unset($settings[$index]);
+                }
+            }
+        }
+
+        return $settings;
     }
 }
 

@@ -40,7 +40,7 @@
       "Directus\\Custom\\Hasher\\": "public/extensions/custom/hashers/"
     },
     "files": [
-      "src/core/functions.php"
+      "src/helpers/all.php"
     ]
   },
   "repositories": [
