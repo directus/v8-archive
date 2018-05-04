@@ -1665,18 +1665,21 @@ class RelationalTableGateway extends BaseTableGateway
             $junctionKeyLeftColumn = $alias->getRelationship()->getJunctionKeyA();
             $junctionTableName = $alias->getRelationship()->getJunctionCollection();
             $junctionTableGateway = new RelationalTableGateway($junctionTableName, $this->getAdapter(), $this->acl);
-            $relatedTablePrimaryKey = SchemaService::getCollectionPrimaryKey($relatedTableName);
-            $junctionTableColumns = get_array_flat_columns($columnsTree[$alias->getName()]);
+            $junctionPrimaryKey = SchemaService::getCollectionPrimaryKey($junctionTableName);
+
+            $selectedFields = null;
+            $fields = $columnsTree[$alias->getName()];
+            if ($fields) {
+                $selectedFields = get_array_flat_columns($fields);
+                array_unshift($selectedFields, $junctionPrimaryKey);
+            }
 
             $results = $junctionTableGateway->loadEntries(array_merge([
                 // Fetch all related data
                 'limit' => -1,
                 // Add the aliases of the join columns to prevent being removed from array
                 // because there aren't part of the "visible" columns list
-                'fields' => array_merge(
-                    [$relatedTablePrimaryKey],
-                    $junctionTableColumns
-                ),
+                'fields' => $selectedFields,
                 'filter' => [
                     new In(
                         $junctionKeyLeftColumn,
@@ -1948,6 +1951,7 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $collection = $this->getTableSchema();
         $selectedFields = $this->getSelectedFields($fields);
+
         foreach ($selectedFields as $field) {
             if (!$collection->hasField($field)) {
                 throw new Exception\InvalidFieldException($field);
