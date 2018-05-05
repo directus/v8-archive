@@ -643,10 +643,8 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             $this->assertSame($value, $responseDataArray[$key]);
         }
 
-        $this->assertInternalType('object', $products);
-        $this->assertObjectHasAttribute('data', $products);
-        $this->assertInternalType('array', $products->data);
-        $this->assertSame($products->data[0]->name, $productsRelated[0]['name']);
+        $this->assertInternalType('array', $products);
+        $this->assertSame($products[0]->name, $productsRelated[0]['name']);
 
         // =============================================================================
         // TEST M2M
@@ -670,7 +668,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
         assert_response($this, $response);
 
-        $response = request_get('items/products/8', ['access_token' => 'token', 'fields' => '*, images.*']);
+        $response = request_get('items/products/8', ['access_token' => 'token', 'fields' => '*, images.*.*']);
         $responseDataObject = response_get_data($response);
         $this->assertInternalType('object', $responseDataObject);
         $responseDataArray = (array) $responseDataObject;
@@ -683,10 +681,8 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             $this->assertSame($value, $responseDataArray[$key]);
         }
 
-        $this->assertInternalType('object', $images);
-        $this->assertObjectHasAttribute('data', $images);
-        $this->assertInternalType('array', $images->data);
-        $this->assertSame($images->data[0]->title, $imagesRelated[0]['file_id']['title']);
+        $this->assertInternalType('array', $images);
+        $this->assertSame($images[0]->file_id->title, $imagesRelated[0]['file_id']['title']);
     }
 
     public function testList()
