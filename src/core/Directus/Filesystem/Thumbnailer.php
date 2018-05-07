@@ -382,7 +382,7 @@ class Thumbnailer {
      */
     public function getSupportedActions()
     {
-        return $this->getDefaultActions();
+        return $this->getActions();
     }
 
     /**
@@ -413,7 +413,7 @@ class Thumbnailer {
 
         $qualityTags =  ArrayUtils::get($this->getConfig(), 'quality_tags') ?: [];
         if (is_string($qualityTags)) {
-            $qualityTags = json_decode($qualityTags);
+            $qualityTags = json_decode($qualityTags, true);
         }
 
         return array_merge($defaultQualityTags, $qualityTags);
@@ -428,7 +428,22 @@ class Thumbnailer {
      */
     public function getSupportedActionOptions($action)
     {
-        return ArrayUtils::get($this->getDefaultActions(), $action) ?: [];
+        return ArrayUtils::get($this->getActions(), $action) ?: [];
+    }
+
+    /**
+     * Returns a list of supported actions
+     *
+     * @return array
+     */
+    public function getActions()
+    {
+        $actions =  ArrayUtils::get($this->getConfig(), 'actions');
+        if (is_string($actions) && !empty($actions)) {
+            $actions = json_decode($actions, true);
+        }
+
+        return array_merge($this->getDefaultActions(), (array)$actions);
     }
 
     /**
