@@ -594,11 +594,11 @@ class RelationalTableGateway extends BaseTableGateway
         // NOTE: Performance spot
         // TODO: Split this, into default and process params
         $defaultParams = $this->defaultEntriesSelectParams;
-        $rowsPerPage = $this->getSettings('global.rows_per_page');
+        $defaultLimit = $this->getSettings('global', 'default_limit');
 
         // Set default rows limit from db settings
-        if ($rowsPerPage) {
-            $defaultParams['limit'] = $rowsPerPage;
+        if ($defaultLimit) {
+            $defaultParams['limit'] = (int)$defaultLimit;
         }
 
         $id = ArrayUtils::get($params, 'id');

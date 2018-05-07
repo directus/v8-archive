@@ -317,16 +317,13 @@ LOCK TABLES `directus_settings` WRITE;
 
 INSERT INTO `directus_settings` (`id`, `scope`, `group`, `key`, `value`)
 VALUES
-	(1,'global',NULL,'cms_user_auto_sign_out','60'),
+	(1,'global',NULL,'auto_sign_out','60'),
 	(2,'global',NULL,'project_name','Directus'),
 	(3,'global',NULL,'project_url','http://localhost/'),
-	(4,'global',NULL,'rows_per_page','200'),
-	(5,'files',NULL,'thumbnail_quality','100'),
-	(6,'files',NULL,'thumbnail_size','200'),
-	(7,'global',NULL,'cms_thumbnail_url',''),
-	(8,'files',NULL,'file_naming','file_id'),
-	(9,'files',NULL,'thumbnail_crop_enabled','1'),
-	(10,'files',NULL,'youtube_api_key','');
+	(4,'global',NULL,'default_limit','200'),
+	(5,'global',NULL,'logo',''),
+	(6,'files',NULL,'file_naming','file_id'),
+	(7,'files',NULL,'youtube_api_key','');
 
 /*!40000 ALTER TABLE `directus_settings` ENABLE KEYS */;
 UNLOCK TABLES;

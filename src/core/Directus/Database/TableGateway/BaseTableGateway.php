@@ -1476,19 +1476,26 @@ class BaseTableGateway extends TableGateway
     /**
      * Gets Directus settings (from DB)
      *
-     * @param null $key
+     * @param null|string $scope
+     * @param null|string $key
      *
      * @return mixed
      */
-    public function getSettings($key = null)
+    public function getSettings($scope, $key = null)
     {
         $settings = [];
 
-        if (static::$container) {
-            $settings = static::$container->get('app.settings');
+        if (!static::$container) {
+            return $settings;
         }
 
-        return $key !== null ? ArrayUtils::get($settings, $key) : $settings;
+        if ($key !== null) {
+            $settings = get_directus_setting($scope, $key);
+        } else {
+            $settings = get_kv_directus_settings($scope);
+        }
+
+        return $settings;
     }
 
     /**

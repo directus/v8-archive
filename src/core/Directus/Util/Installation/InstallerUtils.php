@@ -318,7 +318,7 @@ class InstallerUtils
         return [
             [
                 'scope' => 'global',
-                'key' => 'cms_user_auto_sign_out',
+                'key' => 'auto_sign_out',
                 'value' => '60'
             ],
             [
@@ -333,33 +333,18 @@ class InstallerUtils
             ],
             [
                 'scope' => 'global',
-                'key' => 'rows_per_page',
-                'value' => '200'
-            ],
-            [
-                'scope' => 'files',
-                'key' => 'thumbnail_quality',
-                'value' => '100'
-            ],
-            [
-                'scope' => 'files',
-                'key' => 'thumbnail_size',
+                'key' => 'default_limit',
                 'value' => '200'
             ],
             [
                 'scope' => 'global',
-                'key' => 'cms_thumbnail_url',
+                'key' => 'logo',
                 'value' => ''
             ],
             [
                 'scope' => 'files',
                 'key' => 'file_naming',
                 'value' => 'file_id'
-            ],
-            [
-                'scope' => 'files',
-                'key' => 'thumbnail_crop_enabled',
-                'value' => '1'
             ],
             [
                 'scope' => 'files',
