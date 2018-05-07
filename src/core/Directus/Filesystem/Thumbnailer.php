@@ -3,6 +3,7 @@
 namespace Directus\Filesystem;
 
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 use Intervention\Image\ImageManagerStatic as Image;
 use Exception;
 
@@ -79,9 +80,7 @@ class Thumbnailer {
 
             // relative to configuration['filesystem']['root_thumb']
             $this->thumbnailDir = $pathPrefix . '/' . $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '');
-        }
-
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -224,7 +223,7 @@ class Thumbnailer {
 
             $urlSegments = explode('/', $thumbnailUrlPath);
 
-            // throw the env
+            // pull the env out of the segments
             array_shift($urlSegments);
 
             if (! $urlSegments) {
@@ -249,22 +248,22 @@ class Thumbnailer {
 
                 if (! $segment) continue;
 
+                $hasWidth = ArrayUtils::get($thumbnailParams, 'width');
+                $hasHeight = ArrayUtils::get($thumbnailParams, 'height');
                 // extract width and height
-                if (is_numeric($segment)) {
-
-                    if (! ArrayUtils::get($thumbnailParams, 'width')) {
+                if ((!$hasWidth || !$hasHeight) && is_numeric($segment)) {
+                    if (!$hasWidth) {
                         ArrayUtils::set($thumbnailParams, 'width', $segment);
-                    } else if (! ArrayUtils::get($thumbnailParams, 'height')) {
+                    } else if (!$hasHeight) {
                         ArrayUtils::set($thumbnailParams, 'height', $segment);
                     }
                 }
 
                 // extract action and quality
                 else {
-
-                    if (! ArrayUtils::get($thumbnailParams, 'action')) {
+                    if (!ArrayUtils::get($thumbnailParams, 'action')) {
                         ArrayUtils::set($thumbnailParams, 'action', $segment);
-                    } else if (! ArrayUtils::get($thumbnailParams, 'quality')) {
+                    } else if (!ArrayUtils::get($thumbnailParams, 'quality')) {
                         ArrayUtils::set($thumbnailParams, 'quality', $segment);
                     }
                 }
@@ -304,7 +303,12 @@ class Thumbnailer {
      */
     public function translateQuality($qualityText)
     {
-        return ArrayUtils::get($this->getSupportedQualityTags(), $qualityText, 50);
+        $quality = 60;
+        if (!is_numeric($qualityText)) {
+            $quality = ArrayUtils::get($this->getSupportedQualityTags(), $qualityText, $quality);
+        }
+
+        return $quality;
     }
 
     /**
@@ -347,11 +351,14 @@ class Thumbnailer {
      */
     public function getSupportedThumbnailDimensions()
     {
-        $default = '200x200';
-        $dimensions = ArrayUtils::get($this->getConfig(), 'supportedThumbnailDimensions');
+        $defaultDimension = '200x200';
 
-        if (!in_array($default, $dimensions)) {
-            array_unshift($dimensions, $default);
+        $dimensions =  $this->parseCSV(
+            ArrayUtils::get($this->getConfig(), 'dimensions')
+        );
+
+        if (!in_array($defaultDimension, $dimensions)) {
+            array_unshift($dimensions, $defaultDimension);
         }
 
         return $dimensions;
@@ -375,14 +382,15 @@ class Thumbnailer {
      */
     public function getSupportedActions()
     {
-        return ArrayUtils::get($this->getConfig(), 'supportedActions');
+        return $this->getDefaultActions();
     }
 
     /**
      * Check if given quality is supported
      *
-     * @param int $action
-     * @return boolean
+     * @param $qualityTag
+     *
+     * @return bool
      */
     public function isSupportedQualityTag($qualityTag)
     {
@@ -396,17 +404,55 @@ class Thumbnailer {
      */
     public function getSupportedQualityTags()
     {
-        return ArrayUtils::get($this->getConfig(), 'supportedQualityTags');
+        $defaultQualityTags = [
+            'poor' => 25,
+            'good' => 50,
+            'better' => 75,
+            'best' => 100,
+        ];
+
+        $qualityTags =  ArrayUtils::get($this->getConfig(), 'quality_tags') ?: [];
+        if (is_string($qualityTags)) {
+            $qualityTags = json_decode($qualityTags);
+        }
+
+        return array_merge($defaultQualityTags, $qualityTags);
     }
 
     /**
      * Return supported action options as set in config
      *
      * @param string $action
+     *
+     * @return array
      */
     public function getSupportedActionOptions($action)
     {
-        return ArrayUtils::get($this->getConfig(), 'supportedActions.' . $action . '.options', []) ?: [];
+        return ArrayUtils::get($this->getDefaultActions(), $action) ?: [];
+    }
+
+    /**
+     * Return a list of the default supported actions
+     *
+     * @return array
+     */
+    public function getDefaultActions()
+    {
+        return [
+            'contain' => [
+                'options' => [
+                    'resizeCanvas' => false, // http://image.intervention.io/api/resizeCanvas
+                    'position' => 'center',
+                    'resizeRelative' => false,
+                    'canvasBackground' => 'ccc', // http://image.intervention.io/getting_started/formats
+                ]
+            ],
+            'crop' => [
+                'options' => [
+                    'position' => 'center', // http://image.intervention.io/api/fit
+                ]
+            ]
+        ];
     }
 
     /**
@@ -418,5 +464,25 @@ class Thumbnailer {
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * Parse csv string to an array
+     *
+     * @param string $value
+     *
+     * @return array
+     */
+    protected function parseCSV($value)
+    {
+        if (is_string($value)) {
+            $value = StringUtils::csv(
+                $value
+            );
+        } else {
+            $value = (array)$value;
+        }
+
+        return $value;
     }
 }

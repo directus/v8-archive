@@ -23,13 +23,14 @@ try {
     exit;
 }
 
+$settings = get_kv_directus_settings('thumbnail');
 try {
     // if the thumb already exists, return it
     $thumbnailer = new Thumbnailer(
         $env,
         $app->getContainer()->get('filesystem'),
         $app->getContainer()->get('filesystem_thumb'),
-        $app->getConfig()->get('thumbnailer', []),
+        $settings,
         get_virtual_path()
     );
 
@@ -60,12 +61,16 @@ try {
 }
 
 catch (Exception $e) {
-    $filePath = ArrayUtils::get($app->getConfig()->get('thumbnailer'), '404imageLocation', './img-not-found.png');
+    $filePath = ArrayUtils::get($settings, 'not_found_location');
+    if (is_string($filePath) && !empty($filePath) && $filePath[0] !== '/') {
+        $filePath = $basePath . '/' . $filePath;
+    }
 
     // TODO: Throw message if the error is a invalid configuration
-    if (!$filePath) {
+    if (file_exists($filePath)) {
         $mime = image_type_to_mime_type(exif_imagetype($filePath));
 
+        // TODO: Do we need to cache non-existing files?
         header('Content-type: ' . $mime);
         header("Pragma: cache");
         header('Cache-Control: max-age=86400');

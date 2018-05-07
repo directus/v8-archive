@@ -142,35 +142,4 @@ return [
             // ]
         ]
     ],
-
-    'thumbnailer' => [
-        '404imageLocation' => __DIR__ . '/../thumbnail/img-not-found.png',
-        'supportedThumbnailDimensions' => [
-            // width x height
-            // '100x100',
-            // '300x200',
-            // '100x200',
-        ],
-        'supportedQualityTags' => [
-            'poor' => 25,
-            'good' => 50,
-            'better' => 75,
-            'best' => 100,
-        ],
-        'supportedActions' => [
-            'contain' => [
-                'options' => [
-                    'resizeCanvas' => false, // http://image.intervention.io/api/resizeCanvas
-                    'position' => 'center',
-                    'resizeRelative' => false,
-                    'canvasBackground' => 'ccc', // http://image.intervention.io/getting_started/formats
-                ]
-            ],
-            'crop' => [
-                'options' => [
-                    'position' => 'center', // http://image.intervention.io/api/fit
-                ]
-            ],
-        ]
-    ],
 ];
