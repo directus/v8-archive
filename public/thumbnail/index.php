@@ -10,7 +10,7 @@ $basePath = realpath(__DIR__ . '/../../');
 $env = get_api_env_from_request();
 
 try {
-    create_app_with_env($basePath, $env);
+    $app = create_app_with_env($basePath, $env);
 } catch (\Exception $e) {
     http_response_code(404);
     header('Content-Type: application/json');
@@ -26,7 +26,9 @@ try {
 try {
     // if the thumb already exists, return it
     $thumbnailer = new Thumbnailer(
-        $app->getContainer()->get('files'),
+        $env,
+        $app->getContainer()->get('filesystem'),
+        $app->getContainer()->get('filesystem_thumb'),
         $app->getConfig()->get('thumbnailer', []),
         get_virtual_path()
     );

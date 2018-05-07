@@ -16,11 +16,18 @@ class Thumbnailer {
     private $thumbnailParams = [];
 
     /**
-     * Files instance
+     * Main Filesystem
      *
-     * @var Files
+     * @var Filesystem
      */
-    private $files;
+    private $filesystem;
+
+    /**
+     * Main Filesystem
+     *
+     * @var Filesystem
+     */
+    private $filesystemThumb;
 
     /**
      * Thumbnailer config
@@ -32,22 +39,26 @@ class Thumbnailer {
     /**
      * Constructor
      *
-     * @param Files $files
+     * @param string $pathPrefix
+     * @param Filesystem $main
+     * @param Filesystem $thumb
      * @param array $config
      * @param string $path in the form '_/100/100/crop/good/some-image.jpg'
      *
      * @throws Exception
      */
-    public function __construct(Files $files, array $config, $path = '')
+    public function __construct($pathPrefix, Filesystem $main, Filesystem $thumb, array $config, $path = '')
     {
         try {
-            $this->files = $files;
+            // $this->files = $files;
+            $this->filesystem = $main;
+            $this->filesystemThumb = $thumb;
             $this->config = $config;
 
             $this->thumbnailParams = $this->extractThumbnailParams($path);
 
             // check if the original file exists in storage
-            if (! $this->files->exists($this->fileName)) {
+            if (! $this->filesystem->exists($this->fileName)) {
                 throw new Exception($this->fileName . ' does not exist.'); // original file doesn't exist
             }
 
@@ -66,8 +77,8 @@ class Thumbnailer {
                 throw new Exception('Invalid quality.');
             }
 
-            // relative to configuration['filesystem']['root']
-            $this->thumbnailDir = 'thumbs/' . $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '');
+            // relative to configuration['filesystem']['root_thumb']
+            $this->thumbnailDir = $pathPrefix . '/' . $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '');
         }
 
         catch (Exception $e) {
@@ -95,8 +106,8 @@ class Thumbnailer {
     public function get()
     {
         try {
-            if( $this->files->exists($this->thumbnailDir . '/' . $this->fileName) ) {
-                $img = $this->files->read($this->thumbnailDir . '/' . $this->fileName);
+            if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->fileName) ) {
+                $img = $this->filesystemThumb->read($this->thumbnailDir . '/' . $this->fileName);
             }
 
             return isset($img) && $img ? $img : null;
@@ -116,8 +127,8 @@ class Thumbnailer {
     public function getThumbnailMimeType()
     {
         try {
-            if( $this->files->exists($this->thumbnailDir . '/' . $this->fileName) ) {
-                $img = Image::make($this->files->read($this->thumbnailDir . '/' . $this->fileName));
+            if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->fileName) ) {
+                $img = Image::make($this->filesystemThumb->read($this->thumbnailDir . '/' . $this->fileName));
                 return $img->mime();
             }
 
@@ -144,7 +155,7 @@ class Thumbnailer {
             $options = $this->getSupportedActionOptions($this->action);
 
             // open file image resource
-            $img = Image::make($this->files->read($this->fileName));
+            $img = Image::make($this->filesystem->read($this->fileName));
 
             // crop image
             $img->resize($this->width, $this->height, function ($constraint) {
@@ -156,7 +167,7 @@ class Thumbnailer {
             }
 
             $encodedImg = (string) $img->encode(ArrayUtils::get($this->thumbnailParams, 'fileExt'), ($this->quality ? $this->translateQuality($this->quality) : null));
-            $this->files->write($this->thumbnailDir . '/' . $this->fileName, $encodedImg);
+            $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->fileName, $encodedImg);
 
             return $encodedImg;
         }
@@ -181,13 +192,13 @@ class Thumbnailer {
             $options = $this->getSupportedActionOptions($this->action);
 
             // open file image resource
-            $img = Image::make($this->files->read($this->fileName));
+            $img = Image::make($this->filesystem->read($this->fileName));
 
             // resize/crop image
             $img->fit($this->width, $this->height, function($constraint){}, ArrayUtils::get($options, 'position', 'center'));
 
             $encodedImg = (string) $img->encode(ArrayUtils::get($this->thumbnailParams, 'fileExt'), ($this->quality ? $this->translateQuality($this->quality) : null));
-            $this->files->write($this->thumbnailDir . '/' . $this->fileName, $encodedImg);
+            $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->fileName, $encodedImg);
 
             return $encodedImg;
         }
@@ -395,7 +406,7 @@ class Thumbnailer {
      */
     public function getSupportedActionOptions($action)
     {
-        return ArrayUtils::get($this->getConfig(), 'supportedActions.' . $action . '.options');
+        return ArrayUtils::get($this->getConfig(), 'supportedActions.' . $action . '.options', []) ?: [];
     }
 
     /**

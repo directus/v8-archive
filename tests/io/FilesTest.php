@@ -63,7 +63,6 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, ['filename' => $name]);
 
         $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
-        $this->assertTrue(file_exists(static::$thumbsPath . '/2.jpg'));
     }
 
     public function testCreateWithMultipart()
@@ -96,7 +95,6 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
-        $this->assertTrue(file_exists(static::$thumbsPath . '/3.jpg'));
     }
 
     public function testUpdate()
@@ -146,7 +144,6 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, ['filename' => $name]);
 
         $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
-        $this->assertTrue(file_exists(static::$thumbsPath . '/4.jpg'));
     }
 
     public function testUpdateFolder()

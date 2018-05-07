@@ -72,6 +72,7 @@ class CoreServicesProvider
         $container['hash_manager']      = $this->getHashManager();
         $container['embed_manager']     = $this->getEmbedManager();
         $container['filesystem']        = $this->getFileSystem();
+        $container['filesystem_thumb']  = $this->getThumbFilesystem();
         $container['files']             = $this->getFiles();
         $container['mailer_transport']  = $this->getMailerTransportManager();
         $container['mailer']            = $this->getMailer();
@@ -1006,7 +1007,23 @@ class CoreServicesProvider
         return function (Container $container) {
             $config = $container->get('config');
 
-            return new Filesystem(FilesystemFactory::createAdapter($config->get('filesystem')));
+            return new Filesystem(
+                FilesystemFactory::createAdapter($config->get('filesystem'), 'root')
+            );
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getThumbFilesystem()
+    {
+        return function (Container $container) {
+            $config = $container->get('config');
+
+            return new Filesystem(
+                FilesystemFactory::createAdapter($config->get('filesystem'), 'root_thumb')
+            );
         };
     }
 
@@ -1111,30 +1128,27 @@ class CoreServicesProvider
     protected function getFiles()
     {
         return function (Container $container) {
-            $container['settings.files'] = function () use ($container) {
-                $dbConnection = $container->get('database');
-                $settingsTable = new TableGateway('directus_settings', $dbConnection);
+            $settings = $container->get('app_settings');
 
-                $result = $settingsTable->select([
-                    'scope' => 'files'
-                ])->toArray();
-
-                // Convert result into a key-value array
-                $settings = [];
-                foreach ($result as $setting) {
-                    $settings[$setting['key']] = $setting['value'];
+            // Convert result into a key-value array
+            $filesSettings = [];
+            foreach ($settings as $setting) {
+                if ($setting['scope'] === 'files') {
+                    $filesSettings[$setting['key']] = $setting['value'];
                 }
-
-                return $settings;
-            };
+            }
 
             $filesystem = $container->get('filesystem');
             $config = $container->get('config');
             $config = $config->get('filesystem', []);
-            $settings = $container->get('settings.files');
             $emitter = $container->get('hook_emitter');
 
-            return new Files($filesystem, $config, $settings, $emitter);
+            return new Files(
+                $filesystem,
+                $config,
+                $filesSettings,
+                $emitter
+            );
         };
     }
 

@@ -2,7 +2,7 @@
 
 namespace Directus\Filesystem;
 
-use League\Flysystem\Filesystem as Flysystem;
+use Directus\Filesystem\Exception\ForbiddenException;
 use League\Flysystem\FilesystemInterface as FlysystemInterface;
 
 class Filesystem
@@ -27,6 +27,46 @@ class Filesystem
     public function exists($path)
     {
         return $this->adapter->has($path);
+    }
+
+    /**
+     * Reads and returns data from the given location
+     *
+     * @param $location
+     *
+     * @return bool|false|string
+     *
+     * @throws \Exception
+     */
+    public function read($location)
+    {
+        return $this->adapter->read($location);
+    }
+
+    /**
+     * Writes data to th given location
+     *
+     * @param string $location
+     * @param $data
+     * @param bool $replace
+     */
+    public function write($location, $data, $replace = false)
+    {
+        $throwException = function () use ($location) {
+            throw new ForbiddenException(sprintf('No permission to write: %s', $location));
+        };
+
+        if ($replace === true && $this->exists($location)) {
+            $this->getAdapter()->delete($location);
+        }
+
+        try {
+            if (!$this->getAdapter()->write($location, $data)) {
+                $throwException();
+            }
+        } catch (\Exception $e) {
+            $throwException();
+        }
     }
 
     /**

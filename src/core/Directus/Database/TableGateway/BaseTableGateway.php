@@ -371,21 +371,10 @@ class BaseTableGateway extends TableGateway
         $afterAction = function ($collectionName, $recordData, $replace = false) use ($TableGateway) {
             if ($collectionName == SchemaManager::COLLECTION_FILES && static::$container) {
                 $Files = static::$container->get('files');
-                $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
-
-                // hotfix: pdf thumbnails are being saved to its original extension
-                // file.pdf results into a thumbs/thumb.pdf instead of thumbs/thumb.jpeg
-                if (Thumbnail::isNonImageFormatSupported($thumbnailExt)) {
-                    $thumbnailExt = Thumbnail::defaultFormat();
-                }
-
-                $thumbnailPath = 'thumbs/THUMB_' . $recordData['filename'];
-                if ($Files->exists($thumbnailPath)) {
-                    $Files->rename($thumbnailPath, 'thumbs/' . $recordData[$this->primaryKeyFieldName] . '.' . $thumbnailExt, $replace);
-                }
 
                 $updateArray = [];
                 if ($Files->getSettings('file_naming') == 'file_id') {
+                    $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
                     $Files->rename($recordData['filename'], str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext, $replace);
                     $updateArray['filename'] = str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
                     $recordData['filename'] = $updateArray['filename'];

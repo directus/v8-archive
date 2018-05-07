@@ -10,35 +10,36 @@ use League\Flysystem\Filesystem as Flysystem;
 
 class FilesystemFactory
 {
-    public static function createAdapter(Array $config)
+    public static function createAdapter(Array $config, $rootKey = 'root')
     {
         // @TODO: This need to be more dynamic
         // As the app get more organized this will too
         switch ($config['adapter']) {
             case 's3':
-                return self::createS3Adapter($config);
+                return self::createS3Adapter($config, $rootKey);
                 break;
             case 'local':
             default:
-                return self::createLocalAdapter($config);
+                return self::createLocalAdapter($config, $rootKey);
         }
     }
 
-    public static function createLocalAdapter(Array $config)
+    public static function createLocalAdapter(Array $config, $rootKey = 'root')
     {
+        $root = array_get($config, $rootKey, '');
         // hotfix: set the full path if it's a relative path
         // also root must be required, not checked here
-        if (strpos($config['root'], '/') !== 0) {
+        if (strpos($root, '/') !== 0) {
             $app = Application::getInstance();
-            $config['root'] = $app->getContainer()->get('path_base') . '/' . $config['root'];
+            $root = $app->getContainer()->get('path_base') . '/' . $root;
         }
 
-        $root = $config['root'] ?: '/';
+        $root = $root ?: '/';
 
         return new Flysystem(new LocalAdapter($root));
     }
 
-    public static function createS3Adapter(Array $config)
+    public static function createS3Adapter(Array $config, $rootKey = 'root')
     {
         $client = S3Client::factory([
             'credentials' => [
@@ -49,6 +50,6 @@ class FilesystemFactory
             'version' => ($config['version'] ?: 'latest'),
         ]);
 
-        return new Flysystem(new S3Adapter($client, $config['bucket'], $config['root'] ?: null));
+        return new Flysystem(new S3Adapter($client, $config['bucket'], array_get($config, $rootKey)));
     }
 }

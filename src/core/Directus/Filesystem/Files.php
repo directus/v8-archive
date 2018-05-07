@@ -3,7 +3,6 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
-use Directus\Filesystem\Exception\ForbiddenException;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
 
@@ -18,10 +17,6 @@ class Files
      * @var array
      */
     private $filesSettings = [];
-
-    protected $defaultFilesSettings = [
-        'thumbnail_size' => 100, 'thumbnail_quality' => 80, 'thumbnail_crop_enabled' => true
-    ];
 
     /**
      * @var Filesystem
@@ -44,12 +39,12 @@ class Files
      */
     protected $emitter;
 
-    public function __construct($filesystem, $config, $settings, $emitter)
+    public function __construct($filesystem, $config, array $settings, $emitter)
     {
         $this->filesystem = $filesystem;
         $this->config = $config;
         $this->emitter = $emitter;
-        $this->filesSettings = array_merge($this->defaultFilesSettings, $settings);
+        $this->filesSettings = $settings;
     }
 
     // @TODO: remove exists() and rename() method
@@ -75,16 +70,6 @@ class Files
             $this->filesystem->getAdapter()->delete($file['filename']);
             $this->emitter->run('files.deleting:after', [$file]);
         }
-
-        $ext = pathinfo($file['filename'], PATHINFO_EXTENSION);
-        if ($ext && isset($file['id'])) {
-            $thumbPath = 'thumbs/' . $file['id'] . '.' . $ext;
-            if ($this->exists($thumbPath)) {
-                $this->emitter->run('files.thumbnail.deleting', [$file]);
-                $this->filesystem->getAdapter()->delete($thumbPath);
-                $this->emitter->run('files.thumbnail.deleting:after', [$file]);
-            }
-        }
     }
 
     /**
@@ -100,7 +85,6 @@ class Files
         $fileName = $file['name'];
 
         $fileData = array_merge($this->defaults, $this->processUpload($filePath, $fileName));
-        $this->createThumbnails($fileData['name']);
 
         return [
             'type' => $fileData['type'],
@@ -267,7 +251,6 @@ class Files
         $this->emitter->run('files.saving:after', ['name' => $fileName, 'size' => strlen($fileData)]);
 
         unset($fileData);
-        $this->createThumbnails($fileName, $replace);
 
         $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
@@ -438,35 +421,6 @@ class Files
     }
 
     /**
-     * Create a thumbnail
-     *
-     * TODO: it should return thumbnail info.
-     * @param string $imageName - the name of the image. it must exists on files.
-     * @param bool $replace
-     *
-     * @return void
-     */
-    private function createThumbnails($imageName, $replace = false)
-    {
-        $targetFileName = $this->filesystem->getPath($imageName);
-        $info = pathinfo($targetFileName);
-
-        // @TODO: Add method to check whether a file can generate a thumbnail
-        if (in_array(strtolower($info['extension']), ['jpg', 'jpeg', 'png', 'gif', 'tif', 'tiff', 'psd', 'pdf'])) {
-            $targetContent = $this->filesystem->getAdapter()->read($imageName);
-            $img = Thumbnail::generateThumbnail($targetContent, $info['extension'], $this->getSettings('thumbnail_size'), $this->getSettings('thumbnail_crop_enabled'));
-
-            if ($img) {
-                $thumbnailTempName = 'thumbs/THUMB_' . $imageName;
-                $thumbImg = Thumbnail::writeImage($info['extension'], $thumbnailTempName, $img, $this->getSettings('thumbnail_quality'));
-                $this->emitter->run('files.thumbnail.saving', ['name' => $imageName, 'size' => strlen($thumbImg)]);
-                $this->write($thumbnailTempName, $thumbImg, $replace);
-                $this->emitter->run('files.thumbnail.saving:after', ['name' => $imageName, 'size' => strlen($thumbImg)]);
-            }
-        }
-    }
-
-    /**
      * Writes the given data in the given location
      *
      * @param $location
@@ -477,21 +431,7 @@ class Files
      */
     public function write($location, $data, $replace = false)
     {
-        $throwException = function () use ($location) {
-            throw new ForbiddenException(sprintf('No permission to write: %s', $location));
-        };
-
-        if ($replace === true && $this->filesystem->exists($location)) {
-            $this->filesystem->getAdapter()->delete($location);
-        }
-
-        try {
-            if (!$this->filesystem->getAdapter()->write($location, $data)) {
-                $throwException();
-            }
-        } catch (\Exception $e) {
-            $throwException();
-        }
+        $this->filesystem->write($location, $data, $replace);
     }
 
     /**
