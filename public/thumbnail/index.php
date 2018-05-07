@@ -61,13 +61,20 @@ try {
 
 catch (Exception $e) {
     $filePath = ArrayUtils::get($app->getConfig()->get('thumbnailer'), '404imageLocation', './img-not-found.png');
-    $mime = image_type_to_mime_type(exif_imagetype($filePath));
 
-    header('Content-type: ' . $mime);
-    header("Pragma: cache");
-    header('Cache-Control: max-age=86400');
-    header('Last-Modified: '. gmdate('D, d M Y H:i:s \G\M\T', time()));
-    header('Expires: '. gmdate('D, d M Y H:i:s \G\M\T', time() + 86400));
-    echo file_get_contents($filePath);
+    // TODO: Throw message if the error is a invalid configuration
+    if (!$filePath) {
+        $mime = image_type_to_mime_type(exif_imagetype($filePath));
+
+        header('Content-type: ' . $mime);
+        header("Pragma: cache");
+        header('Cache-Control: max-age=86400');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', time()));
+        header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + 86400));
+        echo file_get_contents($filePath);
+    } else {
+        http_response_code(404);
+    }
+
     exit(0);
 }
