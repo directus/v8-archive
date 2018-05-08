@@ -11,7 +11,6 @@ use Directus\Util\Installation\InstallerUtils;
 
 class InstallModule extends ModuleBase
 {
-
     protected $__module_name = 'install';
     protected $__module_description = 'commands to install and configure Directus';
 
@@ -19,8 +18,10 @@ class InstallModule extends ModuleBase
 
     protected $help;
 
-    public function __construct()
+    public function __construct($basePath)
     {
+        parent::__construct($basePath);
+
         $this->help = [
             'config' => ''
                 . PHP_EOL . "\t\t-h " . 'Hostname or IP address of the MySQL DB to be used. Default: localhost'
@@ -38,7 +39,7 @@ class InstallModule extends ModuleBase
                 . PHP_EOL . "\t\t-p " . 'Initial administrator password. Default: directus'
                 . PHP_EOL . "\t\t-t " . 'Name for this Directus installation. Default: Directus'
                 . PHP_EOL . "\t\t-T " . 'Administrator secret token. Default: Random'
-                . PHP_EOL . "\t\t-d " . 'Installation path of Directus. Default: ' . base_path()
+                . PHP_EOL . "\t\t-d " . 'Installation path of Directus. Default: ' . $this->getBasePath()
         ];
 
         $this->commands_help = [
@@ -62,7 +63,7 @@ class InstallModule extends ModuleBase
         $data['db_user'] = '';
         $data['db_password'] = '';
 
-        $directusPath = base_path();
+        $directusPath = $this->getBasePath();
 
         foreach ($args as $key => $value) {
             switch ($key) {
@@ -106,7 +107,7 @@ class InstallModule extends ModuleBase
 
     public function cmdDatabase($args, $extra)
     {
-        $directus_path = base_path() . DIRECTORY_SEPARATOR;
+        $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
         foreach ($args as $key => $value) {
             switch ($key) {
                 case 'd':
@@ -120,14 +121,14 @@ class InstallModule extends ModuleBase
 
     public function cmdMigrate($args, $extra)
     {
-        $directus_path = base_path() . DIRECTORY_SEPARATOR;
+        $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
 
         InstallerUtils::runMigration($directus_path);
     }
 
     public function cmdSeeder($args, $extra)
     {
-        $directus_path = base_path() . DIRECTORY_SEPARATOR;
+        $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
 
         InstallerUtils::runSeeder($directus_path);
     }
@@ -140,7 +141,7 @@ class InstallModule extends ModuleBase
         $data['directus_password'] = 'password';
         $data['directus_name'] = 'Directus';
 
-        $directus_path = base_path() . DIRECTORY_SEPARATOR;
+        $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
 
         foreach ($args as $key => $value) {
             switch ($key) {

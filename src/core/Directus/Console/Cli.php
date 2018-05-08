@@ -42,7 +42,7 @@ class Cli
         foreach (glob(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Modules' . DIRECTORY_SEPARATOR . '*Module.php') as $moduleFile) {
             $moduleName = 'Directus\Console\Modules\\' . basename($moduleFile, '.php');
             require($moduleFile);
-            $moduleInstance = new $moduleName();
+            $moduleInstance = new $moduleName($this->directusPath);
             $this->cmd_modules[$moduleInstance->getModuleName()] = $moduleInstance;
         }
     }

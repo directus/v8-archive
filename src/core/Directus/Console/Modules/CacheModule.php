@@ -14,8 +14,10 @@ class CacheModule extends ModuleBase
 
     protected $pool;
 
-    public function __construct()
+    public function __construct($basePath)
     {
+        parent::__construct($basePath);
+
         $this->commands_help = [
             'clear' => 'Clear the whole cache',
             'delete' => 'Delete cache item',

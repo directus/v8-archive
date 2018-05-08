@@ -15,8 +15,10 @@ class DatabaseModule extends ModuleBase
     protected $commands_help;
     protected $help;
 
-    public function __construct()
+    public function __construct($basePath)
     {
+        parent::__construct($basePath);
+
         $commands = [
             'install' => 'Install the database schema',
             'upgrade' => 'Upgrade the database schema'
@@ -43,7 +45,7 @@ class DatabaseModule extends ModuleBase
 
     protected function runMigration($name)
     {
-        $directusPath = base_path();
+        $directusPath = $this->getBasePath();
 
         $configPath = $directusPath . '/config';
         $apiConfig = require $configPath . '/api.php';

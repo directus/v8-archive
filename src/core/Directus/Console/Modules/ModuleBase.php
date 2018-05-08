@@ -12,6 +12,20 @@ class ModuleBase implements ModuleInterface
 
     protected $commands_help;
     protected $help;
+    protected $basePath = '';
+
+    public function __construct($basePath)
+    {
+        $this->basePath = $basePath;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
 
     public function getModuleName()
     {
