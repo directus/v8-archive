@@ -315,15 +315,14 @@ CREATE TABLE `directus_settings` (
 LOCK TABLES `directus_settings` WRITE;
 /*!40000 ALTER TABLE `directus_settings` DISABLE KEYS */;
 
-INSERT INTO `directus_settings` (`id`, `scope`, `group`, `key`, `value`)
+INSERT INTO `directus_settings` (`scope`, `group`, `key`, `value`)
 VALUES
-	(1,'global',NULL,'auto_sign_out','60'),
-	(2,'global',NULL,'project_name','Directus'),
-	(3,'global',NULL,'project_url','http://localhost/'),
-	(4,'global',NULL,'default_limit','200'),
-	(5,'global',NULL,'logo',''),
-	(6,'files',NULL,'file_naming','file_id'),
-	(7,'files',NULL,'youtube_api_key','');
+	('global',NULL,'auto_sign_out','60'),
+	('global',NULL,'project_name','Directus'),
+	('global',NULL,'default_limit','200'),
+	('global',NULL,'logo',''),
+	('files',NULL,'file_naming','file_id'),
+	('files',NULL,'youtube_api_key','');
 
 /*!40000 ALTER TABLE `directus_settings` ENABLE KEYS */;
 UNLOCK TABLES;

@@ -328,11 +328,6 @@ class InstallerUtils
             ],
             [
                 'scope' => 'global',
-                'key' => 'project_url',
-                'value' => get_url()
-            ],
-            [
-                'scope' => 'global',
                 'key' => 'default_limit',
                 'value' => '200'
             ],
