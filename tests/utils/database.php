@@ -18,9 +18,9 @@ function create_db_connection()
         'driver' => 'Pdo_mysql',
         'host' => 'localhost',
         'port' => 3306,
-        'database' => 'directus_test',
+        'database' => 'production_db',
         'username' => 'root',
-        'password' => null,
+        'password' => 'root',
         'charset' => $charset,
         \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
         \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)

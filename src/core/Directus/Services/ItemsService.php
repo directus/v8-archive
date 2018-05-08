@@ -4,10 +4,7 @@ namespace Directus\Services;
 
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Exception\BadRequestException;
-use Directus\Exception\ErrorException;
 use Directus\Exception\ForbiddenException;
-use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 
@@ -68,6 +65,23 @@ class ItemsService extends AbstractService
         return $this->getItemsAndSetResponseCacheTags($tableGateway, array_merge($params, [
             'id' => $id,
             'status' => null
+        ]));
+    }
+
+    /**
+     * Gets a single item in the given collection that matches the conditions
+     *
+     * @param string $collection
+     * @param array $params
+     *
+     * @return array
+     */
+    public function findOne($collection, array $params = [])
+    {
+        $tableGateway = $this->createTableGateway($collection);
+
+        return $this->getItemsAndSetResponseCacheTags($tableGateway, array_merge($params, [
+            'single' => true
         ]));
     }
 

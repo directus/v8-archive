@@ -537,4 +537,24 @@ class ArrayUtils
 
         return $depth;
     }
+
+    /**
+     * Creates an array from CSV value
+     *
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public static function createFromCSV($value)
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return StringUtils::csv($value);
+        }
+
+        return [];
+    }
 }
