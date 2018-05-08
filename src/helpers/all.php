@@ -505,7 +505,7 @@ if (!function_exists('base_path')) {
     {
         $app = \Directus\Application\Application::getInstance();
 
-        $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__ . '/../api/');
+        $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__ . '/../../');
 
         if (!is_string($suffix)) {
             throw new \Directus\Exception\Exception('suffix must be a string');
