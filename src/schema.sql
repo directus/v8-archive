@@ -6,8 +6,8 @@
 # https://github.com/sequelpro/sequelpro
 #
 # Host: localhost (MySQL 5.6.38)
-# Database: directus7
-# Generation Time: 2018-05-08 22:45:08 +0000
+# Database: directus
+# Generation Time: 2018-05-08 22:56:35 +0000
 # ************************************************************
 
 
@@ -26,7 +26,7 @@
 DROP TABLE IF EXISTS `directus_activity`;
 
 CREATE TABLE `directus_activity` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(45) NOT NULL,
   `action` varchar(45) NOT NULL,
   `user` int(11) unsigned NOT NULL DEFAULT '0',
@@ -47,7 +47,7 @@ CREATE TABLE `directus_activity` (
 DROP TABLE IF EXISTS `directus_activity_read`;
 
 CREATE TABLE `directus_activity_read` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `activity` int(11) unsigned NOT NULL,
   `user` int(11) unsigned NOT NULL DEFAULT '0',
   `read` tinyint(1) unsigned NOT NULL DEFAULT '0',
@@ -63,7 +63,7 @@ CREATE TABLE `directus_activity_read` (
 DROP TABLE IF EXISTS `directus_collection_presets`;
 
 CREATE TABLE `directus_collection_presets` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) DEFAULT NULL,
   `user` int(11) unsigned DEFAULT NULL,
   `role` int(11) unsigned DEFAULT NULL,
@@ -103,7 +103,7 @@ CREATE TABLE `directus_collections` (
 DROP TABLE IF EXISTS `directus_fields`;
 
 CREATE TABLE `directus_fields` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `collection` varchar(64) NOT NULL,
   `field` varchar(64) NOT NULL,
   `type` varchar(64) NOT NULL,
@@ -272,7 +272,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `directus_files`;
 
 CREATE TABLE `directus_files` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `filename` varchar(255) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
   `description` text,
@@ -298,7 +298,7 @@ LOCK TABLES `directus_files` WRITE;
 
 INSERT INTO `directus_files` (`id`, `filename`, `title`, `description`, `location`, `tags`, `width`, `height`, `filesize`, `duration`, `metadata`, `type`, `charset`, `embed`, `folder`, `upload_user`, `upload_date`, `storage_adapter`)
 VALUES
-	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-05-08 22:44:23','local');
+	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-05-08 22:55:49','local');
 
 /*!40000 ALTER TABLE `directus_files` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -310,7 +310,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `directus_folders`;
 
 CREATE TABLE `directus_folders` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(191) CHARACTER SET utf8mb4 NOT NULL,
   `parent_folder` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -338,20 +338,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023144,'CreateActivityReadTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023157,'CreateCollectionsTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023202,'CreateFieldsTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023208,'CreateFilesTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023213,'CreateFoldersTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023217,'CreateRolesTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023226,'CreatePermissionsTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023232,'CreateRelationsTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023238,'CreateRevisionsTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023243,'CreateSettingsTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180220023248,'CreateUsersTable','2018-05-09 00:44:23','2018-05-09 00:44:23',0),
-	(20180426173310,'CreateUserRoles','2018-05-09 00:44:23','2018-05-09 00:44:23',0);
+	(20180220023138,'CreateActivityTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023144,'CreateActivityReadTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023157,'CreateCollectionsTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023202,'CreateFieldsTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023208,'CreateFilesTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023213,'CreateFoldersTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023217,'CreateRolesTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023226,'CreatePermissionsTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023232,'CreateRelationsTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023238,'CreateRevisionsTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023243,'CreateSettingsTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180220023248,'CreateUsersTable','2018-05-09 00:55:49','2018-05-09 00:55:49',0),
+	(20180426173310,'CreateUserRoles','2018-05-09 00:55:49','2018-05-09 00:55:49',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -363,7 +363,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `directus_permissions`;
 
 CREATE TABLE `directus_permissions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `collection` varchar(64) NOT NULL,
   `role` int(11) unsigned NOT NULL,
   `status` varchar(64) DEFAULT NULL,
@@ -386,7 +386,7 @@ CREATE TABLE `directus_permissions` (
 DROP TABLE IF EXISTS `directus_relations`;
 
 CREATE TABLE `directus_relations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `collection_a` varchar(64) NOT NULL,
   `field_a` varchar(45) NOT NULL,
   `junction_key_a` varchar(64) DEFAULT NULL,
@@ -426,7 +426,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `directus_revisions`;
 
 CREATE TABLE `directus_revisions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `activity` int(11) unsigned NOT NULL,
   `collection` varchar(64) NOT NULL,
   `item` varchar(255) NOT NULL,
@@ -446,7 +446,7 @@ CREATE TABLE `directus_revisions` (
 DROP TABLE IF EXISTS `directus_roles`;
 
 CREATE TABLE `directus_roles` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` varchar(500) DEFAULT NULL,
   `ip_whitelist` text,
@@ -473,7 +473,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `directus_settings`;
 
 CREATE TABLE `directus_settings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `scope` varchar(64) NOT NULL,
   `key` varchar(64) NOT NULL,
   `value` varchar(255) NOT NULL,
@@ -503,7 +503,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `directus_user_roles`;
 
 CREATE TABLE `directus_user_roles` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user` int(11) unsigned DEFAULT NULL,
   `role` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -527,7 +527,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `directus_users`;
 
 CREATE TABLE `directus_users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `status` int(1) unsigned NOT NULL DEFAULT '2',
   `first_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL,
@@ -558,7 +558,7 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_ip`, `last_login`, `last_access`, `last_page`, `token`, `invite_token`, `invite_accepted`)
 VALUES
-	(1,1,'Admin','User','admin@getdirectus.com',1,'$2y$12$9py07kEZ5mnABNpYsidhU.KICXphF738EwzGWApZ0JVGBw3jnzehG',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,NULL,NULL,'2yTSE3lQve0yw5fjtSZ74e1uonSVRNC1','',0);
+	(1,1,'Admin','User','admin@getdirectus.com',1,'$2y$12$AVW0nAQn9VM555FA34XNte69Dz0cvQgT7GaX3nbVJwQn4Y6G4kbvG',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,NULL,NULL,'QxCc6f0mbj0IjmsW9KkrdXihvaSEgtLG','',0);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;
