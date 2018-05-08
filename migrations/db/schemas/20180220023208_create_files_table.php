@@ -27,7 +27,7 @@ class CreateFilesTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_files');
+        $table = $this->table('directus_files', ['signed' => false]);
 
         $table->addColumn('filename', 'string', [
             'limit' => 255,

@@ -27,7 +27,7 @@ class CreateCollectionsPresetsTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_collection_presets');
+        $table = $this->table('directus_collection_presets', ['signed' => false]);
 
         $table->addColumn('title', 'string', [
             'limit' => 255,

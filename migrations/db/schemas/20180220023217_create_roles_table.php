@@ -27,7 +27,7 @@ class CreateRolesTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_roles');
+        $table = $this->table('directus_roles', ['signed' => false]);
 
         $table->addColumn('name', 'string', [
             'limit' => 100,

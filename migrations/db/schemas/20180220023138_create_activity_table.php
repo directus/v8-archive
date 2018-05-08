@@ -27,7 +27,7 @@ class CreateActivityTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_activity');
+        $table = $this->table('directus_activity', ['signed' => false]);
 
         $table->addColumn('type', 'string', [
             'limit' => 45,

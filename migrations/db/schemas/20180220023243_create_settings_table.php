@@ -27,7 +27,7 @@ class CreateSettingsTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_settings');
+        $table = $this->table('directus_settings', ['signed' => false]);
 
         $table->addColumn('scope', 'string', [
             'limit' => 64,

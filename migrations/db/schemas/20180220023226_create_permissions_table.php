@@ -27,7 +27,7 @@ class CreatePermissionsTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_permissions');
+        $table = $this->table('directus_permissions', ['signed' => false]);
 
         $table->addColumn('collection', 'string', [
             'limit' => 64,

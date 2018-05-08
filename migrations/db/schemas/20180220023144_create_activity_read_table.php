@@ -27,7 +27,7 @@ class CreateActivityReadTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_activity_read');
+        $table = $this->table('directus_activity_read', ['signed' => false]);
 
         $table->addColumn('activity', 'integer', [
             'null' => false,

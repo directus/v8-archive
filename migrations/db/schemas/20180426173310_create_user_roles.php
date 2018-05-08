@@ -28,7 +28,7 @@ class CreateUserRoles extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_user_roles');
+        $table = $this->table('directus_user_roles', ['signed' => false]);
 
         $table->addColumn('user', 'integer', [
             'signed' => false,

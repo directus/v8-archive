@@ -27,7 +27,7 @@ class CreateRelationsTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_relations');
+        $table = $this->table('directus_relations', ['signed' => false]);
 
         $table->addColumn('collection_a', 'string', [
             'limit' => 64,

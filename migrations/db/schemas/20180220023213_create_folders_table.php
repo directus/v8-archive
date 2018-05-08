@@ -27,7 +27,7 @@ class CreateFoldersTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_folders');
+        $table = $this->table('directus_folders', ['signed' => false]);
 
         $table->addColumn('name', 'string', [
             'limit' => 191,

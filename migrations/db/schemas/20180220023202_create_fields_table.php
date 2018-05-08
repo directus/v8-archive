@@ -27,7 +27,7 @@ class CreateFieldsTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_fields');
+        $table = $this->table('directus_fields', ['signed' => false]);
 
         $table->addColumn('collection', 'string', [
             'limit' => 64,

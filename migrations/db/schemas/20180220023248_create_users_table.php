@@ -27,7 +27,7 @@ class CreateUsersTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_users');
+        $table = $this->table('directus_users', ['signed' => false]);
 
         $table->addColumn('status', 'integer', [
             'signed' => false,

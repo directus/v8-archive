@@ -27,7 +27,7 @@ class CreateRevisionsTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_revisions');
+        $table = $this->table('directus_revisions', ['signed' => false]);
 
         $table->addColumn('activity', 'integer', [
             'null' => false,
