@@ -62,7 +62,7 @@ class ScimTwo extends Route
         return $this->responseScimWithData(
             $request,
             $response,
-            $this->parseUserData(ArrayUtils::get($responseData, 'data', []))
+            $responseData
         );
     }
 

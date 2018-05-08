@@ -81,6 +81,14 @@ class UsersService extends AbstractService
         );
     }
 
+    public function findOne(array $params = [])
+    {
+        return $this->itemsService->findOne(
+            $this->collection,
+            $params
+        );
+    }
+
     public function delete($id, array $params = [])
     {
         return $this->itemsService->delete(
@@ -121,6 +129,20 @@ class UsersService extends AbstractService
                 'email' => ['in' => $emails]
             ]
         ]);
+    }
+
+    /**
+     * Gets the user table gateway
+     *
+     * @return RelationalTableGateway
+     */
+    public function getTableGateway()
+    {
+        if (!$this->tableGateway) {
+            $this->tableGateway = $this->createTableGateway($this->collection);
+        }
+
+        return $this->tableGateway;
     }
 
     /**
@@ -173,19 +195,5 @@ class UsersService extends AbstractService
         }
 
         return $id;
-    }
-
-    /**
-     * Gets the user table gateway
-     *
-     * @return RelationalTableGateway
-     */
-    protected function getTableGateway()
-    {
-        if (!$this->tableGateway) {
-            $this->tableGateway = $this->createTableGateway($this->collection);
-        }
-
-        return $this->tableGateway;
     }
 }
