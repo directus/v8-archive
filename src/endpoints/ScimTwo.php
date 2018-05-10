@@ -29,8 +29,10 @@ class ScimTwo extends Route
         $app->get('/Users', [$this, 'listUsers'])->setName('scim_v2_list_users');
 
         // Groups
+        $app->post('/Groups', [$this, 'createGroup'])->setName('scim_v2_create_group');
         $app->get('/Groups', [$this, 'listGroups'])->setName('scim_v2_list_groups');
         $app->get('/Groups/{id}', [$this, 'oneGroup'])->setName('scim_v2_read_group');
+        $app->map(['PUT', 'PATCH'], '/Groups/{id}', [$this, 'updateGroup'])->setName('scim_v2_update_group');
         $app->delete('/Groups/{id}', [$this, 'deleteGroup'])->setName('scim_v2_delete_group');
     }
 
@@ -59,11 +61,48 @@ class ScimTwo extends Route
      *
      * @return Response
      */
+    public function createGroup(Request $request, Response $response)
+    {
+        $service = $this->getService();
+
+        $responseData = $service->createGroup(
+            $request->getParsedBody()
+        );
+
+        $response = $response->withStatus(201);
+
+        return $this->responseScimWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
     public function updateUser(Request $request, Response $response)
     {
         $service = $this->getService();
 
         $responseData = $service->updateUser(
+            $request->getAttribute('id'),
+            $request->getParsedBody()
+        );
+
+        return $this->responseScimWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function updateGroup(Request $request, Response $response)
+    {
+        $service = $this->getService();
+
+        $responseData = $service->updateGroup(
             $request->getAttribute('id'),
             $request->getParsedBody()
         );
