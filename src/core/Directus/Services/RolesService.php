@@ -26,10 +26,16 @@ class RolesService extends AbstractService
      */
     protected $collection;
 
+    /**
+     * @var ItemsService
+     */
+    protected $itemsService;
+
     public function __construct(Container $container)
     {
         parent::__construct($container);
         $this->collection = SchemaManager::COLLECTION_ROLES;
+        $this->itemsService = new ItemsService($this->container);
     }
 
     public function create(array $data, array $params = [])
@@ -63,6 +69,18 @@ class RolesService extends AbstractService
         $params['id'] = $id;
 
         return $this->getItemsAndSetResponseCacheTags($tableGateway, $params);
+    }
+
+    /**
+     * Gets a single item that matches the conditions
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    public function findOne(array $params = [])
+    {
+        return $this->itemsService->findOne($this->collection, $params);
     }
 
     public function update($id, array $data, array $params = [])
