@@ -511,9 +511,11 @@ class ScimService extends AbstractService
             'userName' => $email,
             // 'phoneNumbers' => [],
             'emails' => [
-                'value' => $email,
-                'type' => 'work',
-                'primary' => true
+                [
+                    'value' => $email,
+                    'type' => 'work',
+                    'primary' => true
+                ]
             ],
             'locale' => ArrayUtils::get($data, 'locale'),
             'timezone' => ArrayUtils::get($data, 'timezone'),
