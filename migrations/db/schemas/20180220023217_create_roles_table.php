@@ -29,6 +29,12 @@ class CreateRolesTable extends AbstractMigration
     {
         $table = $this->table('directus_roles');
 
+        $table->addColumn('external_id', 'string', [
+            'limit' => 255,
+            'null' => true,
+            'default' => null
+        ]);
+
         $table->addColumn('name', 'string', [
             'limit' => 100,
             'null' => false
@@ -50,6 +56,11 @@ class CreateRolesTable extends AbstractMigration
         $table->addIndex('name', [
             'unique' => true,
             'name' => 'idx_group_name'
+        ]);
+
+        $table->addIndex('external_id', [
+            'unique' => true,
+            'name' => 'idx_users_external_id'
         ]);
 
         $table->create();
