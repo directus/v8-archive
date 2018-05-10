@@ -12,10 +12,12 @@ use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
+use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
+use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
@@ -30,6 +32,11 @@ class TablesService extends AbstractService
      * @var string
      */
     protected $collection;
+
+    /**
+     * @var RelationalTableGateway
+     */
+    protected $fieldsTableGateway;
 
     public function __construct(Container $container)
     {
@@ -55,13 +62,29 @@ class TablesService extends AbstractService
 
         $this->validate(['collection' => $collectionName], ['collection' => 'required|string']);
 
-        $tableGateway = $this->createTableGateway('directus_fields');
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+        $collection = $schemaManager->getCollection($collectionName);
+        if (!$collection) {
+            throw new CollectionNotFoundException($collectionName);
+        }
 
-        return $tableGateway->getItems(array_merge($params, [
+        $tableGateway = $this->getFieldsTableGateway();
+        $result = $tableGateway->getItems(array_merge($params, [
             'filter' => [
                 'collection' => $collectionName
             ]
         ]));
+
+        // ----------------------------------------------------------------------------
+        //  GET NOT MANAGED FIELDS
+        // ----------------------------------------------------------------------------
+        $fieldsData = ArrayUtils::get($result, 'data');
+        $fieldsData = $this->parseSchemaFields($collection, $fieldsData);
+        $result['data'] = array_merge($result['data'], $fieldsData);
+        // ----------------------------------------------------------------------------
+
+        return $result;
     }
 
     public function find($name, array $params = [])
@@ -101,16 +124,23 @@ class TablesService extends AbstractService
             throw new FieldNotFoundException($field);
         }
 
-        $tableGateway = $this->createTableGateway('directus_fields');
+        $tableGateway = $this->getFieldsTableGateway();
 
-        $params = ArrayUtils::pick($params, ['meta', 'fields']);
-        $params['single'] = true;
-        $params['filter'] = [
-            'collection' => $collection,
-            'field' => $field
-        ];
+        if ($columnObject->isManaged()) {
+            $params = ArrayUtils::pick($params, ['meta', 'fields']);
+            $params['single'] = true;
+            $params['filter'] = [
+                'collection' => $collection,
+                'field' => $field
+            ];
 
-        return $tableGateway->getItems($params);
+            $result = $tableGateway->getItems($params);
+        } else {
+            //  Get not managed fields
+            $result = ['data' => $this->parseSchemaField($columnObject)];
+        }
+
+        return $result;
     }
 
     public function deleteField($collection, $field, array $params = [])
@@ -368,7 +398,7 @@ class TablesService extends AbstractService
 
         $field = $this->addFieldInfo($collectionName, $columnName, $columnData);
 
-        return $this->createTableGateway('directus_fields')->wrapData(
+        return $this->getFieldsTableGateway()->wrapData(
             $field->toArray(),
             true,
             ArrayUtils::get($params, 'meta', 0)
@@ -439,7 +469,7 @@ class TablesService extends AbstractService
         $field = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
         // ----------------------------------------------------------------------------
 
-        return $this->createTableGateway('directus_fields')->wrapData(
+        return $this->getFieldsTableGateway()->wrapData(
             $field->toArray(),
             true,
             ArrayUtils::get($params, 'meta', 0)
@@ -502,7 +532,7 @@ class TablesService extends AbstractService
      */
     protected function addOrUpdateFieldInfo($collection, $field, array $data)
     {
-        $fieldsTableGateway = $this->createTableGateway('directus_fields');
+        $fieldsTableGateway = $this->getFieldsTableGateway();
         $row = $fieldsTableGateway->findOneByArray([
             'collection' => $collection,
             'field' => $field
@@ -543,7 +573,7 @@ class TablesService extends AbstractService
 
         $collectionObject = $this->getSchemaManager()->getCollection('directus_fields');
 
-        return $this->createTableGateway('directus_fields')->updateRecord(
+        return $this->getFieldsTableGateway()->updateRecord(
             ArrayUtils::pick($data, $collectionObject->getFieldsName())
         );
     }
@@ -559,7 +589,7 @@ class TablesService extends AbstractService
 
         $collectionObject = $this->getSchemaManager()->getCollection('directus_fields');
 
-        return $this->createTableGateway('directus_fields')->updateRecord(
+        return $this->getFieldsTableGateway()->updateRecord(
             ArrayUtils::pick($data, $collectionObject->getFieldsName())
         );
     }
@@ -592,7 +622,7 @@ class TablesService extends AbstractService
      */
     public function removeColumnInfo($collectionName, $fieldName)
     {
-        $fieldsTableGateway = $this->createTableGateway('directus_fields');
+        $fieldsTableGateway = $this->getFieldsTableGateway();
 
         return $fieldsTableGateway->delete([
             'collection' => $collectionName,
@@ -859,5 +889,59 @@ class TablesService extends AbstractService
 
             $result[$column['field']] = ArrayUtils::omit($column, 'field');
         }
+    }
+
+    /**
+     * Parses a list of Schema Attributes into Directus Attributes
+     *
+     * @param Collection $collection
+     * @param array $fields
+     *
+     * @return array
+     */
+    protected function parseSchemaFields(Collection $collection, array $fields)
+    {
+        $result = [];
+
+        $fields = $collection->getFieldsNotIn(
+            ArrayUtils::pluck($fields, 'field')
+        );
+
+        foreach ($fields as $field) {
+            $result[] = $this->parseSchemaField($field);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Parses Schema Attributes into Directus Attributes
+     *
+     * @param Field $field
+     *
+     * @return array|mixed
+     */
+    protected function parseSchemaField(Field $field)
+    {
+        $tableGateway = $this->getFieldsTableGateway();
+        $fieldsName = $tableGateway->getTableSchema()->getFieldsName();
+
+        $data = ArrayUtils::pick($field->toArray(), array_merge($fieldsName, ['managed']));
+        // it must be not managed
+        $data['managed'] = false;
+
+        return $tableGateway->parseRecord($data);
+    }
+
+    /**
+     * @return RelationalTableGateway
+     */
+    protected function getFieldsTableGateway()
+    {
+        if (!$this->fieldsTableGateway) {
+            $this->fieldsTableGateway = $this->createTableGateway('directus_fields');
+        }
+
+        return $this->fieldsTableGateway;
     }
 }

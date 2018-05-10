@@ -92,6 +92,26 @@ class Collection extends AbstractObject
     }
 
     /**
+     * Returns a list of Fields not in the given list name
+     *
+     * @param array $names
+     *
+     * @return Field[]
+     */
+    public function getFieldsNotIn(array $names)
+    {
+        $fields = $this->fields;
+
+        if ($names) {
+            $fields = array_filter($fields, function(Field $field) use ($names) {
+                return !in_array($field->getName(), $names);
+            });
+        }
+
+        return $fields;
+    }
+
+    /**
      * Gets a field with the given name
      *
      * @param string $name
@@ -126,6 +146,20 @@ class Collection extends AbstractObject
         return array_map(function(Field $field) {
             return $field->toArray();
         }, $this->getFields());
+    }
+
+    /**
+     * Returns an array representation a list of Fields not in the given list name
+     *
+     * @param array $names
+     *
+     * @return array
+     */
+    public function getFieldsNotInArray(array $names)
+    {
+        return array_map(function (Field $field) {
+            return $field->toArray();
+        }, $this->getFieldsNotIn($names));
     }
 
     /**

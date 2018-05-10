@@ -537,4 +537,19 @@ class ArrayUtils
 
         return $depth;
     }
+
+    /**
+     * Extract the key from a list of array
+     *
+     * @param array $array
+     * @param string $key
+     *
+     * @return array
+     */
+    public static function pluck(array $array, $key)
+    {
+        return array_map(function ($value) use ($key) {
+            return is_array($value) ? static::get($value, $key) : null;
+        }, $array);
+    }
 }
