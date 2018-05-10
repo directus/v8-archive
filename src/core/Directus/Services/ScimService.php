@@ -33,6 +33,7 @@ class ScimService extends AbstractService
 
     public function createUser(array $data, array $params = [])
     {
+        // TODO: Validate the payload schema
         $user = $this->usersService->create($this->parseScimUserData($data), $params);
 
         if ($user) {
@@ -44,6 +45,7 @@ class ScimService extends AbstractService
 
     public function createGroup(array $data, array $params = [])
     {
+        // TODO: Validate the payload schema
         $user = $this->rolesService->create($this->parseScimGroupData($data), $params);
 
         if ($user) {
