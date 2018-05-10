@@ -571,11 +571,6 @@ class SchemaManager
         // PRIMARY KEY must be required
         if ($column['key'] === 'PRI') {
             $column['required'] = true;
-            $column['interface'] = SystemInterface::INTERFACE_PRIMARY_KEY;
-        }
-
-        if (!isset($column['interface'])) {
-            $column['interface'] = $this->getFieldDefaultInterface($column['type']);
         }
 
         $options = json_decode(isset($column['options']) ? $column['options'] : '', true);
