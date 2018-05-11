@@ -359,7 +359,8 @@ class Provider
             'id' => (int) $user->getId(),
             // 'group' => (int) $user->getGroupId(),
             'exp' => time() + (5 * DateTimeUtils::MINUTE_IN_SECONDS),
-            'url' => get_url()
+            'url' => get_url(),
+            'env' => get_api_env_from_request()
         ];
 
         return $this->generateToken($payload);
