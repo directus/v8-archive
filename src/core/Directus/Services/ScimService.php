@@ -601,16 +601,19 @@ class ScimService extends AbstractService
             'schemas' => [static::SCHEMA_LIST]
         ];
 
-        $result['totalResults'] = ArrayUtils::get($meta, 'total_count');
-
-        $result['itemsPerPage'] = count($items);
-
-        $startIndex = 0;
         if (ArrayUtils::has($parameters, 'offset')) {
-            $startIndex = $parameters['offset'];
+            $startIndex = ArrayUtils::get($parameters, 'offset');
+            $result['startIndex'] = $startIndex + 1;
         }
 
-        $result['startIndex'] = $startIndex + 1;
+        if (ArrayUtils::has($parameters, 'limit')) {
+            $totalResults = ArrayUtils::get($meta, 'total_count');
+            $result['itemsPerPage'] = count($items);
+        } else {
+            $totalResults = count($items);
+        }
+
+        $result['totalResults'] = $totalResults;
 
         $result['Resources'] = $items;
 

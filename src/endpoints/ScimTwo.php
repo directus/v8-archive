@@ -45,6 +45,7 @@ class ScimTwo extends Route
     public function createUser(Request $request, Response $response)
     {
         $service = $this->getService();
+        $response->setHeader('Content-Type', 'application/scim+json');
 
         $responseData = $service->createUser(
             $request->getParsedBody()
@@ -64,6 +65,7 @@ class ScimTwo extends Route
     public function createGroup(Request $request, Response $response)
     {
         $service = $this->getService();
+        $response->setHeader('Content-Type', 'application/scim+json');
 
         $responseData = $service->createGroup(
             $request->getParsedBody()
@@ -83,6 +85,7 @@ class ScimTwo extends Route
     public function updateUser(Request $request, Response $response)
     {
         $service = $this->getService();
+        $response->setHeader('Content-Type', 'application/scim+json');
 
         $responseData = $service->updateUser(
             $request->getAttribute('id'),
@@ -101,6 +104,7 @@ class ScimTwo extends Route
     public function updateGroup(Request $request, Response $response)
     {
         $service = $this->getService();
+        $response->setHeader('Content-Type', 'application/scim+json');
 
         $responseData = $service->updateGroup(
             $request->getAttribute('id'),
@@ -119,6 +123,7 @@ class ScimTwo extends Route
     public function oneUser(Request $request, Response $response)
     {
         $service = $this->getService();
+        $response->setHeader('Content-Type', 'application/scim+json');
 
         $responseData = $service->findUser(
             $request->getAttribute('id')
@@ -140,6 +145,7 @@ class ScimTwo extends Route
     public function oneGroup(Request $request, Response $response)
     {
         $service = $this->getService();
+        $response->setHeader('Content-Type', 'application/scim+json');
 
         $responseData = $service->findGroup(
             $request->getAttribute('id')
@@ -160,6 +166,7 @@ class ScimTwo extends Route
      */
     public function listUsers(Request $request, Response $response)
     {
+        $response->setHeader('Content-Type', 'application/scim+json');
         $responseData = $this->getService()->findAllUsers($request->getQueryParams());
 
         return $this->responseScimWithData(
@@ -177,6 +184,7 @@ class ScimTwo extends Route
      */
     public function listGroups(Request $request, Response $response)
     {
+        $response->setHeader('Content-Type', 'application/scim+json');
         $responseData = $this->getService()->findAllGroups($request->getQueryParams());
 
         return $this->responseScimWithData(
@@ -194,6 +202,7 @@ class ScimTwo extends Route
      */
     public function deleteGroup(Request $request, Response $response)
     {
+        $response->setHeader('Content-Type', 'application/scim+json');
         $this->getService()->deleteGroup($request->getAttribute('id'));
 
         $response = $response->withStatus(204);

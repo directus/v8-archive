@@ -14,8 +14,10 @@ use Directus\Exception\NotFoundExceptionInterface;
 use Directus\Exception\UnauthorizedExceptionInterface;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
+use Psr\Http\Message\MessageInterface;
+use Slim\Handlers\AbstractHandler;
 
-class ErrorHandler
+class ErrorHandler extends AbstractHandler
 {
     /**
      * Hook Emitter Instance
@@ -63,6 +65,15 @@ class ErrorHandler
     public function __invoke(Request $request, Response $response, $exception)
     {
         $data = $this->processException($exception);
+
+        if ($this->isMessageSCIM($response)) {
+            return $response
+                ->withStatus($data['http_status_code'])
+                ->withJson([
+                    'status' => $data['http_status_code'],
+                    'detail' => $data['error']['message']
+                ]);
+        }
 
         return $response
             ->withStatus($data['http_status_code'])
@@ -165,5 +176,21 @@ class ErrorHandler
         if ($this->emitter) {
             $this->emitter->run('application.error', $e);
         }
+    }
+
+    /**
+     * @param MessageInterface $message
+     *
+     * @return mixed|string
+     */
+    protected function isMessageSCIM(MessageInterface $message)
+    {
+        $contentType = $message->getHeaderLine('Content-Type');
+
+        if (preg_match('/scim\+json/', $contentType, $matches)) {
+            return true;
+        }
+
+        return false;
     }
 }
