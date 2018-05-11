@@ -10,6 +10,11 @@ use Firebase\JWT\JWT;
 
 class JWTUtils
 {
+    const TYPE_AUTH                 = 'auth';
+    const TYPE_SSO_REQUEST_TOKEN    = 'request_token';
+    const TYPE_INVITATION           = 'invitation';
+    const TYPE_RESET_PASSWORD       = 'reset_password';
+
     /**
      * @param string $jwt
      * @param string $key
@@ -76,6 +81,23 @@ class JWTUtils
         }
 
         return $header->typ === 'JWT';
+    }
+
+    /**
+     * Checks whether ot not the payload has the given type
+     *
+     * @param object $payload
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function hasPayloadType($type, $payload)
+    {
+        if (is_object($payload) && property_exists($payload, 'type') === $type) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

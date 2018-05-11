@@ -255,7 +255,7 @@ class Auth extends Route
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
 
-        $responseData = $authService->authenticateWithRequestToken(
+        $responseData = $authService->authenticateWithSsoRequestToken(
             $request->getParsedBodyParam('request_token')
         );
 

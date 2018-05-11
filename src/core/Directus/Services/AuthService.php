@@ -243,7 +243,7 @@ class AuthService extends AbstractService
     }
 
     /**
-     * Gets the access token from a request token
+     * Gets the access token from a sso request token
      *
      * @param string $token
      *
@@ -252,7 +252,7 @@ class AuthService extends AbstractService
      * @throws ExpiredRequestTokenException
      * @throws InvalidRequestTokenException
      */
-    public function authenticateWithRequestToken($token)
+    public function authenticateWithSsoRequestToken($token)
     {
         if (!JWTUtils::isJWT($token)) {
             throw new InvalidRequestTokenException();
@@ -263,6 +263,11 @@ class AuthService extends AbstractService
         }
 
         $payload = JWTUtils::getPayload($token);
+
+        if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_SSO_REQUEST_TOKEN, $payload)) {
+            throw new InvalidRequestTokenException();
+        }
+
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
         $user = $auth->getUserProvider()->findWhere([
@@ -335,6 +340,10 @@ class AuthService extends AbstractService
         }
 
         $payload = JWTUtils::getPayload($token);
+
+        if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_RESET_PASSWORD, $payload)) {
+            throw new InvalidResetPasswordTokenException($token);
+        }
 
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
