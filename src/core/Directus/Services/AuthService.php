@@ -266,8 +266,7 @@ class AuthService extends AbstractService
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
         $user = $auth->getUserProvider()->findWhere([
-            'id' => $payload->id,
-            'group' => $payload->group
+            'id' => $payload->id
         ]);
 
         return [
