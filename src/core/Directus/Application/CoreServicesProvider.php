@@ -640,6 +640,12 @@ class CoreServicesProvider
             });
             $emitter->addFilter('collection.insert.directus_users:before', $hashUserPassword);
             $emitter->addFilter('collection.update.directus_users:before', $hashUserPassword);
+            $emitter->addFilter('collection.insert.directus_users:before', function (Payload $payload) {
+                // Temporary solution
+                // generate an external id if none is passed
+                $payload->set('external_id', microtime());
+                return $payload;
+            });
             // Hash value to any non system table password interface column
             $emitter->addFilter('collection.insert:before', $onInsertOrUpdate);
             $emitter->addFilter('collection.update:before', $onInsertOrUpdate);
