@@ -13,6 +13,7 @@ use Directus\Exception\ForbiddenException;
 use Directus\Exception\NotFoundExceptionInterface;
 use Directus\Exception\UnauthorizedExceptionInterface;
 use Directus\Hook\Emitter;
+use Directus\Services\ScimService;
 use Directus\Util\ArrayUtils;
 use Psr\Http\Message\MessageInterface;
 use Slim\Handlers\AbstractHandler;
@@ -70,6 +71,7 @@ class ErrorHandler extends AbstractHandler
             return $response
                 ->withStatus($data['http_status_code'])
                 ->withJson([
+                    'schemas' => [ScimService::SCHEMA_ERROR],
                     'status' => $data['http_status_code'],
                     'detail' => $data['error']['message']
                 ]);

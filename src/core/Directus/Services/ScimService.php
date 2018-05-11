@@ -12,6 +12,7 @@ class ScimService extends AbstractService
     const SCHEMA_LIST  = 'urn:ietf:params:scim:api:messages:2.0:ListResponse';
     const SCHEMA_GROUP = 'urn:ietf:params:scim:schemas:core:2.0:Group';
     const SCHEMA_USER  = 'urn:ietf:params:scim:schemas:core:2.0:User';
+    const SCHEMA_ERROR = 'urn:ietf:params:scim:api:messages:2.0:Error';
 
     /**
      * @var UsersService
