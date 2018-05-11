@@ -37,9 +37,41 @@ abstract class Route
      */
     public function responseWithData(Request $request, Response $response, array $data, array $options = [])
     {
-        $data = $this->triggerResponseFilter($request, $data, (array) $options);
+        $data = $this->getResponseData($request, $response, $data, $options);
 
-        // TODO: Response will support xml
+        return $response->withJson($data);
+    }
+
+    /**
+     * Convert array data into an API output format
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param array $data
+     * @param array $options
+     *
+     * @return Response
+     */
+    public function responseScimWithData(Request $request, Response $response, array $data, array $options = [])
+    {
+        $data = $this->getResponseData($request, $response, $data, $options);
+
+        return $response->withScimJson($data);
+    }
+
+    /**
+     * Pass the data through response hook filters
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param array $data
+     * @param array $options
+     *
+     * @return array|mixed|\stdClass
+     */
+    protected function getResponseData(Request $request, Response $response, array $data, array $options = [])
+    {
+        $data = $this->triggerResponseFilter($request, $data, (array) $options);
 
         // NOTE: when data is a empty array, the output will be an array
         // this create problem/confusion as we always return an object
@@ -47,7 +79,7 @@ abstract class Route
             $data = new \stdClass();
         }
 
-        return $response->withJson($data);
+        return $data;
     }
 
     /**

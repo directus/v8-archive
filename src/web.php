@@ -94,6 +94,9 @@ $app->group('/{env}', function () {
     $this->group('/settings', \Directus\Api\Routes\Settings::class);
     $this->group('/collections', \Directus\Api\Routes\Collections::class);
     $this->group('/users', \Directus\Api\Routes\Users::class);
+    $this->group('/scim', function () {
+        $this->group('/v2', \Directus\Api\Routes\ScimTwo::class);
+    });
     $this->group('/utils', \Directus\Api\Routes\Utils::class);
 
     $this->group('/custom', function () {

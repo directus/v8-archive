@@ -552,4 +552,24 @@ class ArrayUtils
             return is_array($value) ? static::get($value, $key) : null;
         }, $array);
     }
+
+    /*
+     * Creates an array from CSV value
+     *
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public static function createFromCSV($value)
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return StringUtils::csv($value);
+        }
+
+        return [];
+    }
 }

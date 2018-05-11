@@ -16,7 +16,7 @@ class Response extends \Slim\Http\Response
      */
     public function withHeaders(array $headers)
     {
-        foreach($headers as $name => $value) {
+        foreach ($headers as $name => $value) {
             $this->headers->set($name, $value);
         }
 
@@ -34,5 +34,26 @@ class Response extends \Slim\Http\Response
     public function setHeader($name, $value)
     {
         return $this->withHeaders([$name => $value]);
+    }
+
+    /**
+     * Json.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * This method prepares the response object to return an HTTP Json
+     * response to the client.
+     *
+     * @param  mixed  $data   The data
+     * @param  int    $status The HTTP status code.
+     * @param  int    $encodingOptions Json encoding options
+     * @throws \RuntimeException
+     * @return static
+     */
+    public function withScimJson($data, $status = null, $encodingOptions = 0)
+    {
+        $response = $this->withJson($data, $status, $encodingOptions);
+
+        return $response->withHeader('Content-Type', 'application/scim+json;charset=utf-8');
     }
 }

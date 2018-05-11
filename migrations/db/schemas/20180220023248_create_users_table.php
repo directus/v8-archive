@@ -124,6 +124,11 @@ class CreateUsersTable extends AbstractMigration
             'signed' => false,
             'default' => false
         ]);
+        $table->addColumn('external_id', 'string', [
+            'limit' => 255,
+            'null' => true,
+            'default' => null
+        ]);
 
         $table->addIndex('email', [
             'unique' => true,
@@ -133,6 +138,11 @@ class CreateUsersTable extends AbstractMigration
         $table->addIndex('token', [
             'unique' => true,
             'name' => 'idx_users_token'
+        ]);
+
+        $table->addIndex('external_id', [
+            'unique' => true,
+            'name' => 'idx_users_external_id'
         ]);
 
         $table->create();
