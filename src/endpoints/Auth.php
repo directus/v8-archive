@@ -225,7 +225,7 @@ class Auth extends Route
                 $urlParams['attributes'] = $e->getAttributes();
             }
 
-            $urlParams['errorCode'] = $e->getErrorCode();
+            $urlParams['code'] = $e->getErrorCode();
             $urlParams['error'] = true;
         }
 
