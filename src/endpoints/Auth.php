@@ -6,6 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
 use Directus\Session\Session;
@@ -220,7 +221,12 @@ class Auth extends Route
                 throw $e;
             }
 
-            $urlParams['error'] = $e->getMessage();
+            if ($e instanceof UserWithEmailNotFoundException) {
+                $urlParams['attributes'] = $e->getAttributes();
+            }
+
+            $urlParams['errorCode'] = $e->getErrorCode();
+            $urlParams['error'] = true;
         }
 
         if ($redirectUrl) {

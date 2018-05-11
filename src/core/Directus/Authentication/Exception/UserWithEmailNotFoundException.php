@@ -10,6 +10,7 @@ class UserWithEmailNotFoundException extends NotFoundException
 
     public function __construct($email)
     {
+        $this->attributes['email'] = $email;
         $message = sprintf('User with email "%s" not found', $email);
 
         parent::__construct($message, static::ERROR_CODE);
