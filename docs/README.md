@@ -610,9 +610,9 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 
 `POST /activity/message` @TODO
 
-### Columns
+### Fields
 
-`/columns` is used for creating, updating, or deleting columns through the API requires the API to modify the database schema directly.
+`/fields/<collection>` is used for creating, updating, or deleting columns through the API requires the API to modify the database schema directly.
 
 ### Files
 
