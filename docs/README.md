@@ -965,9 +965,463 @@ GET /utils/random/string
 
 ## SCIM
 
-Directus fully supports System for Cross-domain Identity Management, or SCIM. This open standard allows for users to be created, managed, and disabled outside of Directus so that enterprise clients have the ability to use a single, centralize system for user provisioning.
+Directus partly supports Version 2 of System for Cross-domain Identity Management, or SCIM. This open standard allows for users to be created, managed, and disabled outside of Directus so that enterprise clients have the ability to use a single, centralize system for user provisioning.
+
+### Supported endpoints
+
+| Endpoint     | Methods                 |
+| ------------ | ----------------------- |
+| /Users       | GET, POST               |
+| /Users/{id}  | GET, PUT, PATCH         |
+| /Groups      | GET, POST               |
+| /Groups/{id} | GET, PUT, PATCH, DELETE |
+
+Read more in the "SCIM Endpoints and HTTP Methods" section of  [RFC7644](https://tools.ietf.org/html/rfc7644#section-3.2).
+
+### Get a list of users
+
+```
+GET /scim/v2/Users
+```
+
+#### Parameters
+| Name       | Type        | Description 
+| ---------- | ------------| ------------
+| startIndex | `Integer`   | The 1-based index of the first result in the current set of list results.
+| count      | `Integer`   | Specifies the desired maximum number of query results per page.
+| filter     | `String`    | Only `eq` is supported
+
+```
+GET /scim/v2/Users?filter=userName eq user@example.com
+```
+
+#### Response
+
+```
+{
+  "schemas": [
+    "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+  ],
+  "totalResults": 3,
+  "Resources": [
+    {
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+      ],
+      "id": "789",
+      "externalId": 1,
+      "meta": {
+          "resourceType": "User",
+          "location": "http://example.com/_/scim/v2/Users/789",
+          "version": "W/\"fb2c131da3a58d1f32800c3179cdfe50\""
+      },
+      "name": {
+          "familyName": "User",
+          "givenName": "Admin"
+      },
+      "userName": "admin@example.com",
+      "emails": [
+          {
+              "value": "admin@example.com",
+              "type": "work",
+              "primary": true
+          }
+      ],
+      "locale": "en-US",
+      "timezone": "Europe/Berlin",
+      "active": true
+    },
+    {
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+      ],
+      "id": "345",
+      "externalId": 2,
+      "meta": {
+        "resourceType": "User",
+        "location": "http://example.com/_/scim/v2/Users/345",
+        "version": "W/\"68c210ea2la8isj2ba11d8b3b2982d\""
+      },
+      "name": {
+        "familyName": "User",
+        "givenName": "Intern"
+      },
+      "userName": "intern@example.com",
+      "emails": [
+        {
+          "value": "intern@example.com",
+          "type": "work",
+          "primary": true
+        }
+      ],
+      "locale": "en-US",
+      "timezone": "America/New_York",
+      "active": true
+    },
+    {
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+      ],
+      "id": "123",
+      "externalId": 3,
+      "meta": {
+        "resourceType": "User",
+        "location": "http://example.com/_/scim/v2/Users/123",
+        "version": "W/\"20e4fasdf0jkdf9aa497f55598c8c883\""
+      },
+      "name": {
+        "familyName": "User",
+        "givenName": "Disabled"
+      },
+      "userName": "disabled@example.com",
+      "emails": [
+        {
+          "value": "disabled@example.com",
+          "type": "work",
+          "primary": true
+        }
+      ],
+      "locale": "en-US",
+      "timezone": "America/New_York",
+      "active": false
+    }
+  ]
+}
+```
+
+### Get details for a single user
+
+```
+GET /scim/v2/Users/:id
+```
+
+#### Response:
+```
+{
+  "schemas": [
+    "urn:ietf:params:scim:schemas:core:2.0:User"
+  ],
+  "id": "789",
+  "externalId": 1,
+  "meta": {
+    "resourceType": "User",
+    "location": "http://example.com/_/scim/v2/Users/789",
+    "version": "W/\"fb2c131da3a58d1f32800c3179cdfe50\""
+  },
+  "name": {
+    "familyName": "User",
+    "givenName": "Admin"
+  },
+  "userName": "admin@example.com",
+  "emails": [
+    {
+      "value": "admin@example.com",
+      "type": "work",
+      "primary": true
+    }
+  ],
+  "locale": "en-US",
+  "timezone": "Europe/Berlin",
+  "active": true
+}
+```
+
+### Creating an user
+
+```
+POST /scim/v2/Users
+```
+
+#### Body
+```json
+{
+     "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
+     "userName":"johndoe@example.com",
+     "externalId":"johndoe-id",
+     "name":{
+       "familyName":"Doe",
+       "givenName":"John"
+     }
+   }
+```
+
+#### Response
+
+```json
+{
+  "schemas": [
+    "urn:ietf:params:scim:schemas:core:2.0:User"
+  ],
+  "id": "johndoe-id",
+  "externalId": 4,
+  "meta": {
+    "resourceType": "User",
+    "location": "http://example.com/_/scim/v2/Users/johndoe-id",
+    "version": "W/\"fb2c131ad3a58d1f32800c1379cdfe50\""
+  },
+  "name": {
+    "familyName": "Doe",
+    "givenName": "John"
+  },
+  "userName": "johndoe@example.com",
+  "emails": [
+    {
+      "value": "johndoe@example.com",
+      "type": "work",
+      "primary": true
+    }
+  ],
+  "locale": "en-US",
+  "timezone": "America/New_York",
+  "active": false
+}
+```
+
+### Update an user attributes
+
+```
+PATCH /scim/v2/Users/:id
+```
+
+#### Body
+```json
+{
+     "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
+     "name":{
+       "familyName":"Doe",
+       "givenName":"Johnathan"
+     }
+   }
+```
+
+#### Response
+
+```json
+{
+  "schemas": [
+    "urn:ietf:params:scim:schemas:core:2.0:User"
+  ],
+  "id": "johndoe-id",
+  "externalId": 4,
+  "meta": {
+    "resourceType": "User",
+    "location": "http://example.com/_/scim/v2/Users/johndoe-id",
+    "version": "W/\"fb2c131ad3a66d1f32800c1379cdfe50\""
+  },
+  "name": {
+    "familyName": "Doe",
+    "givenName": "Johnathan"
+  },
+  "userName": "johndoe@example.com",
+  "emails": [
+    {
+      "value": "johndoe@example.com",
+      "type": "work",
+      "primary": true
+    }
+  ],
+  "locale": "en-US",
+  "timezone": "America/New_York",
+  "active": false
+}
+```
 
 
+### Get a list of groups
+
+```
+GET /scim/v2/Groups
+```
+
+#### Parameters
+| Name       | Type        | Description 
+| ---------- | ------------| ------------
+| startIndex | `Integer`   | The 1-based index of the first result in the current set of list results.
+| count      | `Integer`   | Specifies the desired maximum number of query results per page.
+| filter     | `String`    | Only `eq` is supported
+
+```
+GET /scim/v2/Groups
+```
+
+#### Response
+
+```
+{
+  "schemas": [
+    "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+  ],
+  "totalResults": 3,
+  "Resources": [
+    {
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Group"
+      ],
+      "id": "one",
+      "externalId": 1,
+      "meta": {
+        "resourceType": "Group",
+        "location": "http://example.com/_/scim/v2/Groups/one",
+        "version": "W/\"7b7bc2512ee1fedcd76bdc68926d4f7b\""
+      },
+      "displayName": "Administrator",
+      "members": [
+        {
+          "value": "admin@example.com",
+          "$ref": "http://example.com/_/scim/v2/Users/789",
+          "display": "Admin User"
+        }
+      ]
+    },
+    {
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Group"
+      ],
+      "id": "two",
+      "externalId": 2,
+      "meta": {
+        "resourceType": "Group",
+        "location": "http://example.com/_/scim/v2/Groups/two",
+        "version": "W/\"3d067bedfe2f4677470dd6ccf64d05ed\""
+      },
+      "displayName": "Public",
+      "members": []
+    },
+    {
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Group"
+      ],
+      "id": "three",
+      "externalId": 3,
+      "meta": {
+        "resourceType": "Group",
+        "location": "http://example.com/_/scim/v2/Groups/three",
+        "version": "W/\"17ac93e56edd16cafa7b57979b959292\""
+      },
+      "displayName": "Intern",
+      "members": [
+        {
+            "value": "intern@example.com",
+            "$ref": "http://example.com/_/scim/v2/Users/345",
+            "display": "Intern User"
+        },
+        {
+            "value": "disabled@example.com",
+            "$ref": "http://example.com/_/scim/v2/Users/123",
+            "display": "Disabled User"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Get details for a single user
+
+```
+GET /scim/v2/Groups/:id
+```
+
+#### Response:
+```
+{
+  "schemas": [
+    "urn:ietf:params:scim:schemas:core:2.0:Group"
+  ],
+  "id": "one",
+  "externalId": 1,
+  "meta": {
+    "resourceType": "Group",
+    "location": "http://example.com/_/scim/v2/Groups/one",
+    "version": "W/\"7b7bc2512ee1fedcd76bdc68926d4f7b\""
+  },
+  "displayName": "Administrator",
+  "members": [
+    {
+      "value": "admin@example.com",
+      "$ref": "http://example.com/_/scim/v2/Users/1",
+      "display": "Admin User"
+    }
+  ]
+}
+```
+
+### Creating an group
+
+```
+POST /scim/v2/Users
+```
+
+#### Body
+```json
+{
+  "schemas":["urn:ietf:params:scim:schemas:core:2.0:Group"],
+  "displayName":"Editors",
+  "externalId":"editors-id"
+}
+```
+
+#### Response
+
+```json
+{
+  "schemas": [
+    "urn:ietf:params:scim:schemas:core:2.0:Group"
+  ],
+  "id": "editors-id",
+  "externalId": 4,
+  "meta": {
+    "resourceType": "Group",
+    "location": "http://example.com/_/scim/v2/Groups/editors-id",
+    "version": "W/\"7b7bc2512ee1fedcd76bdc68926d4f7b\""
+  },
+  "displayName": "Editors",
+  "members": []
+}
+```
+
+### Update an group attributes
+
+```
+PATCH /scim/v2/Groups/:id
+```
+
+#### Body
+```json
+{
+  "schemas":["urn:ietf:params:scim:schemas:core:2.0:Group"],
+  "displayName":"Writers"
+}
+```
+
+#### Response
+
+```json
+{
+  "schemas": [
+    "urn:ietf:params:scim:schemas:core:2.0:Group"
+  ],
+  "id": "editors-id",
+  "externalId": 4,
+  "meta": {
+    "resourceType": "Group",
+    "location": "http://example.com/_/scim/v2/Groups/editors-id",
+    "version": "W/\"7b7bc2512ee1fedcd76bdc68926d4f7b\""
+  },
+  "displayName": "Writers",
+  "members": []
+}
+```
+
+### Delete a group
+
+```
+DELETE /scim/v2/Groups/:id
+```
+
+#### Response
+
+Empty response when successful.
 
 ## Extensions
 
