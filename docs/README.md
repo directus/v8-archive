@@ -997,7 +997,7 @@ GET /scim/v2/Users?filter=userName eq user@example.com
 
 #### Response
 
-```
+```json
 {
   "schemas": [
     "urn:ietf:params:scim:api:messages:2.0:ListResponse"
@@ -1096,7 +1096,8 @@ GET /scim/v2/Users/:id
 ```
 
 #### Response:
-```
+
+```json
 {
   "schemas": [
     "urn:ietf:params:scim:schemas:core:2.0:User"
@@ -1133,6 +1134,7 @@ POST /scim/v2/Users
 ```
 
 #### Body
+
 ```json
 {
      "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
@@ -1246,7 +1248,7 @@ GET /scim/v2/Groups
 
 #### Response
 
-```
+```json
 {
   "schemas": [
     "urn:ietf:params:scim:api:messages:2.0:ListResponse"
@@ -1323,7 +1325,8 @@ GET /scim/v2/Groups/:id
 ```
 
 #### Response:
-```
+
+```json
 {
   "schemas": [
     "urn:ietf:params:scim:schemas:core:2.0:Group"
@@ -1353,6 +1356,7 @@ POST /scim/v2/Users
 ```
 
 #### Body
+
 ```json
 {
   "schemas":["urn:ietf:params:scim:schemas:core:2.0:Group"],
