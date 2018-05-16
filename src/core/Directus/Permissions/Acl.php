@@ -13,10 +13,10 @@ class Acl
     const ACTION_UPDATE = 'update';
     const ACTION_DELETE = 'delete';
 
-    const LEVEL_NONE  = 0;
-    const LEVEL_USER  = 1;
-    const LEVEL_GROUP = 2;
-    const LEVEL_FULL  = 3;
+    const LEVEL_NONE  = 'none';
+    const LEVEL_USER  = 'user';
+    const LEVEL_GROUP = 'group';
+    const LEVEL_FULL  = 'full';
 
     const FIELD_READ_BLACKLIST = 'read_field_blacklist';
     const FIELD_WRITE_BLACKLIST = 'write_field_blacklist';
@@ -54,6 +54,13 @@ class Acl
         self::ACTION_READ   => self::LEVEL_FULL,
         self::ACTION_UPDATE => self::LEVEL_FULL,
         self::ACTION_DELETE => 0
+    ];
+
+    protected $permissionLevelsMapping = [
+        'none'  => 0,
+        'user'  => 1,
+        'group' => 2,
+        'full'  => 3
     ];
 
     /**
@@ -983,9 +990,9 @@ class Acl
         }
 
         $permission = $this->getPermission($collection, $status);
-        $permissionLevel = ArrayUtils::get($permission, $action, 0);
+        $permissionLevel = ArrayUtils::get($permission, $action);
 
-        return (int)$level <= $permissionLevel;
+        return $this->can($permissionLevel, $level);
     }
 
     public function allowToOnce($action, $collection)
@@ -1003,9 +1010,9 @@ class Acl
 
         $allowed = false;
         foreach ($permissions as $permission) {
-            $permissionLevel = ArrayUtils::get($permission, $action, 0);
+            $permissionLevel = ArrayUtils::get($permission, $action);
 
-            if ($permissionLevel > 0) {
+            if ($this->can($permissionLevel, static::LEVEL_USER)) {
                 $allowed = true;
                 break;
             }
@@ -1033,18 +1040,45 @@ class Acl
             $statuses = [];
 
             foreach ($this->statusPermissions[$collection] as $status => $permission) {
-                if (ArrayUtils::get($permission, static::ACTION_READ, 0) > 0) {
+                $permissionLevel = ArrayUtils::get($permission, static::ACTION_READ);
+
+                if ($this->can($permissionLevel, static::LEVEL_USER)) {
                     $statuses[] = $status;
                 }
             }
         } else if (array_key_exists($collection, $this->globalPermissions)) {
             $permission = $this->globalPermissions[$collection];
+            $permissionLevel = ArrayUtils::get($permission, static::ACTION_READ);
 
-            if (ArrayUtils::get($permission, static::ACTION_READ, 0) > 0) {
+            if ($this->can($permissionLevel, static::LEVEL_USER)) {
                 $statuses = null;
             }
         }
 
         return $statuses;
+    }
+
+    /**
+     * Checks whether or not a permission level has equal or higher level
+     *
+     * @param string $permissionLevel
+     * @param string $level
+     *
+     * @return bool
+     */
+    protected function can($permissionLevel, $level)
+    {
+        if (!$permissionLevel) {
+            return false;
+        }
+
+        $levelValue = ArrayUtils::get($this->permissionLevelsMapping, $level);
+        $permissionLevelValue = ArrayUtils::get($this->permissionLevelsMapping, $permissionLevel);
+
+        if ($levelValue && $permissionLevelValue) {
+            return $levelValue <= $permissionLevelValue;
+        }
+
+        return false;
     }
 }
