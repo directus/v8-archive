@@ -641,9 +641,15 @@ class CoreServicesProvider
             $emitter->addFilter('collection.insert.directus_users:before', $hashUserPassword);
             $emitter->addFilter('collection.update.directus_users:before', $hashUserPassword);
             $emitter->addFilter('collection.insert.directus_users:before', function (Payload $payload) {
-                // Temporary solution
                 // generate an external id if none is passed
-                $payload->set('external_id', microtime());
+                $payload->set('external_id', uniqid($payload->get('email') . '-'));
+
+                return $payload;
+            });
+            $emitter->addFilter('collection.insert.directus_roles:before', function (Payload $payload) {
+                // generate an external id if none is passed
+                $payload->set('external_id', uniqid($payload->get('name') . '-'));
+
                 return $payload;
             });
             // Hash value to any non system table password interface column
