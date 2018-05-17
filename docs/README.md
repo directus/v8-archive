@@ -1589,7 +1589,7 @@ GET /scim/v2/Users
 | ---------- | ------------| ------------
 | startIndex | `Integer`   | The 1-based index of the first result in the current set of list results.
 | count      | `Integer`   | Specifies the desired maximum number of query results per page.
-| filter     | `String`    | Only `eq` is supported
+| filter     | `String`    | `id`, `userName`, `emails.value` and `externalId` attribute Supported. Only operator `eq` is supported.
 
 ```
 GET /scim/v2/Users?filter=userName eq user@example.com
@@ -1840,7 +1840,7 @@ GET /scim/v2/Groups
 | ---------- | ------------| ------------
 | startIndex | `Integer`   | The 1-based index of the first result in the current set of list results.
 | count      | `Integer`   | Specifies the desired maximum number of query results per page.
-| filter     | `String`    | Only `eq` is supported
+| filter     | `String`    | `displayName` attribute Supported. Only operator `eq` is supported.
 
 ```
 GET /scim/v2/Groups
