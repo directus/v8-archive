@@ -18,6 +18,7 @@ class Items extends Route
     {
         $app->get('/{collection}', [$this, 'all']);
         $app->post('/{collection}', [$this, 'create']);
+        $app->patch('/{collection}', [$this, 'update']);
         $app->get('/{collection}/{id}', [$this, 'read']);
         $app->patch('/{collection}/{id}', [$this, 'update']);
         $app->delete('/{collection}/{id}', [$this, 'delete']);
@@ -115,13 +116,17 @@ class Items extends Route
 
         $this->throwErrorIfSystemTable($collection);
 
+        $payload = $request->getParsedBody();
+        if (isset($payload[0]) && is_array($payload[0])) {
+            return $this->batch($request, $response);
+        }
+
         $id = $request->getAttribute('id');
 
         if (strpos($id, ',') !== false) {
             return $this->batch($request, $response);
         }
 
-        $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
 
         $itemsService = new ItemsService($this->container);
@@ -240,8 +245,12 @@ class Items extends Route
         if ($request->isPost()) {
             $responseData = $itemsService->batchCreate($collection, $payload, $params);
         } else if ($request->isPatch()) {
-            $ids = explode(',', $request->getAttribute('id'));
-            $responseData = $itemsService->batchUpdateWithIds($collection, $ids, $payload, $params);
+            if ($request->getAttribute('id')) {
+                $ids = explode(',', $request->getAttribute('id'));
+                $responseData = $itemsService->batchUpdateWithIds($collection, $ids, $payload, $params);
+            } else {
+                $responseData = $itemsService->batchUpdate($collection, $payload, $params);
+            }
         } else if ($request->isDelete()) {
             $ids = explode(',', $request->getAttribute('id'));
             $itemsService->batchDeleteWithIds($collection, $ids, $params);

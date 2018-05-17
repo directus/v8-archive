@@ -324,6 +324,24 @@ abstract class AbstractService
     }
 
     /**
+     * Verify that the payload has its primary key otherwise an exception will be thrown
+     *
+     * @param $collectionName
+     * @param array $payload
+     *
+     * @throws BadRequestException
+     */
+    protected function validatePayloadHasPrimaryKey($collectionName, array $payload)
+    {
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+        $primaryKey = $collection->getPrimaryKeyName();
+
+        if (!ArrayUtils::has($payload, $primaryKey) || !$payload[$primaryKey]) {
+            throw new BadRequestException('Payload must include the primary key');
+        }
+    }
+
+    /**
      * @param string $collection
      * @param array $payload
      * @param array $params

@@ -165,6 +165,44 @@ class ItemsService extends AbstractService
 
     /**
      * @param $collection
+     * @param array $items
+     * @param array $params
+     *
+     * @return array
+     *
+     * @throws InvalidRequestException
+     */
+    public function batchUpdate($collection, array $items, array $params = [])
+    {
+        if (!isset($items[0]) || !is_array($items[0])) {
+            throw new InvalidRequestException('batch create expect an array of items');
+        }
+
+        foreach ($items as $data) {
+            $this->validatePayload($collection, array_keys($data), $data, $params);
+            $this->validatePayloadHasPrimaryKey($collection, $data);
+        }
+
+        $collectionObject = $this->getSchemaManager()->getCollection($collection);
+        $allItems = [];
+        foreach ($items as $data) {
+            $id = $data[$collectionObject->getPrimaryKeyName()];
+            $item = $this->update($collection, $id, $data, $params);
+
+            if (!is_null($item)) {
+                $allItems[] = $item['data'];
+            }
+        }
+
+        if (!empty($allItems)) {
+            $allItems = ['data' => $allItems];
+        }
+
+        return $allItems;
+    }
+
+    /**
+     * @param $collection
      * @param array $ids
      * @param array $payload
      * @param array $params
