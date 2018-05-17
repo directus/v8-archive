@@ -12,16 +12,16 @@ The Directus API uses SemVer for version labeling within the repo and for files 
 
 ### Environments
 
-All endpoints are prefixed with the database name (as defined in the config file). The API will read all config files in order to connect to the right database for the current request.
-A special character ( `_` ) can be used to target the default database, whichever that is.
+All endpoints are prefixed with the an environment name (based on a configuration file name). The API will try to find a configuration file that matches a given environment name and use it as the request configuration.
+The underscore (`_`) is reserved as the default environment name.
 
-A few examples of api requests:
+A few examples of api requests when your api is located at `/api` sub-directory:
 
 *   `/api/_/collections` (uses default config file `config.php`)
 *   `/api/prod/items/projects` (uses prod config file `config.prod.php`)
 
 ::: tip
-The name in the API URL is not the name of the database itself.
+The naming format of the configuration file is `config.<environment-name>.php`
 :::
 
 ### Response Format
@@ -56,11 +56,13 @@ The API uses HTTP status codes in addition to the message value. Everything in t
 | 422  | Unprocessable Entity  |
 | 500  | Internal Server Error |
 
+The `error` property is only present when an error has occurred.
+
 ### Validation
 
 The API performs two types of validation on submitted data:
 
-*   **Data Type** – The API checks the submitted value's type against against the database's field type. For example, a String submitted for an INT field will result in an error.
+*   **Data Type** – The API checks the submitted value's type against the directus or database's field type. For example, a String submitted for an INT field will result in an error.
 *   **RegEx** – The API checks the submitted value against its column's `directus_fields.validation` RegEx. If the value doesn't match then an error will be returned.
 
 ## Authentication
@@ -69,7 +71,9 @@ Most endpoints are checked against the permissions settings. If a user is not au
 
 ### Tokens
 
-To gain access to protected data, you must include an access token with every request. These tokens follow the [JWT spec](https://jwt.io) and contain the user id, group id, email address, auth method, and expiration date in a payload that is encrypted with a secret key. There are several ways to include this access token:
+To gain access to protected data, you must include an access token with every request. These tokens follow the [JWT spec](https://jwt.io) and contain the user id, type of token (`auth`), and an expiration date in the payload, which is encrypted with a secret key.
+
+There are several ways to include this access token:
 
 #### 1. Bearer Token in Authorization Header
 
@@ -79,16 +83,18 @@ To gain access to protected data, you must include an access token with every re
 
 `curl -u Py8Ru.muLD7HE.5juFrOR5: https://example.com/api/`
 
+Notice that the token is `Py8Ru.muLD7HE.5juFrOR5` and has a colon `:` at the end. Using the Basic auth, the auth user is the token and the auth password should be either blank or the same token.
+
 #### 3. Query `access_token` Parameter
 
 `curl https://example.com/api/?access_token=Py8RumuLD.7HE5j.uFrOR5`
 
-### Get Token
+### Get Authentication Token
 
 Gets a token from a Directus user's credentials
 
 ```http
-POST /auth/authenticate
+POST /[env]/auth/authenticate
 ```
 
 #### Body
@@ -110,15 +116,44 @@ The users credentials
 | 400 Bad Request | `message: wrong email or password` |
 
 ::: warning
-The access token that is returned through this endpoint must be used with any subsequent requests except for endpoints that don’t require auth. @TODO LIST ENDPOINTS THAT DON'T REQUIRE AUTH
+The access token that is returned through this endpoint must be used with any subsequent requests except for endpoints that don’t require auth.
 :::
 
-### Refresh Token
 
-Gets a token from a Directus user's credentials
+#### Protected endpoints
+
+| Endpoint                   | Protected
+| -------------------------- | -----------------------
+| /[env]/activity            | Yes
+| /[env]/auth                | No
+| /[env]/collections         | Yes
+| /[env]/collection_presets  | Yes
+| /[env]/custom              | No
+| /[env]/fields              | Yes
+| /[env]/files               | Yes
+| /[env]/items               | Yes
+| /[env]/interfaces          | No
+| /[env]/pages               | No
+| /[env]/permissions         | Yes
+| /[env]/relations           | Yes
+| /[env]/revisions           | Yes
+| /[env]/roles               | Yes
+| /[env]/scim/v2             | Yes
+| /[env]/settings            | Yes
+| /[env]/users               | Yes
+| /[env]/utils               | No
+| /interfaces                | No
+| /listings                  | No
+| /pages                     | No
+| /server                    | No
+| /types                     | Yes
+
+### Refresh Authentication Token
+
+Gets a new fresh token using a valid auth token
 
 ```http
-POST /auth/refresh
+POST /[env]/auth/refresh
 ```
 
 #### Body
@@ -144,12 +179,12 @@ The access token that is returned through this endpoint must be used with any su
 
 ### Password Reset Request
 
-The API will send an email to the requested user’s email containing a link with a short-lived one-time-use reset token. This reset token can be used to finish the password reset flow.
+The API will send an email to the requested user’s email containing a link with a short-lived reset token. This reset token can be used to finish the password reset flow.
 
-**@TODO**: Is this correct? The reset token could also use the JWT spec to keep it consistent. The payload should contain the email address and expiration date.
+The reset token is a JWT token that include the user id, email and expiration time.
 
 ```http
-POST /auth/password/request
+POST /[env]/auth/password/request
 ```
 
 #### Body
@@ -174,14 +209,77 @@ The user's email address and the app URL from which the reset is requested
 The API checks the validity of the reset token, that it hasn't expired, and matches the encrypted email address contained in the code to the one provided. It must be a GET request, since we can’t do POST requests from email clients. This endpoint generates a random temporary password for the user and sends it to their email address.
 
 ```http
-GET /auth/password/reset/[reset-token]
+GET /[env]/auth/password/reset/[reset-token]
 ```
 
 #### Common Responses
 
 | Code   | Description                                                                |
 | ------ | -------------------------------------------------------------------------- |
-| 200 OK | Always returns success to avoid malicious checks for valid email addresses |
+| 401    | Invalid/Expired token |
+
+### Get a list of Single Sign-On services
+
+```http
+GET /[env]/auth/sso
+```
+
+A list of Third-party authentication services, such as Google and Facebook.
+
+### Redirect to the authorization page
+
+```http
+GET /auth/sso/[provider]
+```
+
+Automatically redirects to the authorization url if the origin host is allowed by the API otherwise it will return the authorization url.
+
+### Authenticate using the OAuth token/code
+
+::: warning
+This endpoint is only useful when the callback is not handled by the API. See: /[env]/auth/sso/[provider]/callback.
+:::
+
+When the server authorized the user after authenticated it returns a `oauth_token` and `oauth_verifier` (version 1.0) or `code` (version 2.0).
+
+```http
+POST /[env]/auth/sso/[provider]
+```
+
+#### Body
+
+The user's email address and the app URL from which the reset is requested
+
+##### OAuth 1.0
+```json
+{
+    "oauth_token": "[oauth-token]",
+    "oauth_verifier": "[oauth-verifier]"
+}
+```
+
+##### OAuth 2.0
+```json
+{
+    "code": "[verification-code]"
+}
+```
+
+### Single Sign-On Authorization callback
+
+```http
+GET /[env]/auth/sso/[provider]/callback
+```
+
+Set this url as the callback for the OAuth service and it will return a "request token" that the client can use to request the access token.
+
+### Get Access Token using the Request Token
+
+```http
+GET /[env]/auth/access_token
+```
+
+Using the request token that was returned by the `/[env]/auth/sso/[provider]/callback` endpoint to get the access token.
 
 ## Parameters
 
@@ -242,7 +340,7 @@ Used to fetch specific items from a collection based on one or more filters. Fil
 By default, all chained filters are treated as ANDs. To create an OR combination, you can add the `logical` operator like follows:
 
 ```
-GET /items/projects?filter[category][eq]=development&filter[logical][or]&filter[category][eq]=design
+GET /items/projects?filter[category][eq]=development&filter[title][logical]=or&filter[title][like]=design
 ```
 
 ::: tip
@@ -278,19 +376,34 @@ GET /items/projects?filter[category][in]=development,design
 
 #### Searched Datatypes
 
-*   `VARCHAR`
-*   `TEXT`
-    @TODO LIST ALL DATATYPES HERE
-
-### Skip Activity Log
-
-`skip_activity` is a parameter used if you need to perform an action through the API but do not want the event stored within `directus_activity`.
-
-::: warning
-
-Many features of Directus use the activity table, and it is important for accountability – so please use this parameter judiciously.
-
-:::
+* `CHAR`
+* `VARCHAR`
+* `TINYTEXT`
+* `TEXT`
+* `MEDIUMTEXT`
+* `LONGTEXT`
+* `TINYJSON`
+* `JSON`
+* `MEDIUMJSON`
+* `LONGJSON`
+* `ARRAY`
+* `CSV`
+* `UUID`
+* `TINYINT`
+* `SMALLINT`
+* `INTEGER`
+* `INT`
+* `MEDIUMINT`
+* `BIGINT`
+* `SERIAL`
+* `FLOAT`
+* `DOUBLE`
+* `DECIMAL`
+* `REAL`
+* `NUMERIC`
+* `BIT`
+* `BOOL`
+* `BOOLEAN`
 
 ## Items
 
@@ -339,10 +452,11 @@ A single item or an array of multiple items to be created. Field keys must match
 | 201 Created              | `data`: The created item(s), including default fields added by Directus |
 | 400 Bad Request          | `message`: Syntax error in provided JSON                                |
 | 404 Not Found            | `message`: Collection doesn’t exist                                     |
+| 400 Bad Request          | `message`: Invalid request body                                         |
 | 422 Unprocessable Entity | `message`: Field doesn’t exist in collection                            |
 
 ::: tip
-The API may not return any data for successful requests if the user doesn't have adequate read permission @TODO DOES THAT MEAN A 403 IS RETURNED?
+The API may not return any data for successful requests if the user doesn't have adequate read permission. `204 NO CONTENT` is returned instead.
 :::
 
 ### Get Item
@@ -374,11 +488,11 @@ GET /items/[collection-name]/[pk],[pk],[pk]
 
 *   Return the project item with an ID of `1`
     ```bash
-    curl https://api.directus.io/_/items/projects/1
+    curl -u <token>: https://api.directus.io/_/items/projects/1
     ```
     *   Return project items with IDs of `1`, `3`, `11`
     ```bash
-    curl https://api.directus.io/_/items/projects/1,3,11
+    curl -u <token>: https://api.directus.io/_/items/projects/1,3,11
     ```
 
 ### Get Items
@@ -393,15 +507,17 @@ GET /items/[collection-name]
 
 | Name          | Default   | Description                                                |
 | ------------- | --------- | ---------------------------------------------------------- |
-| limit         | 200       | The number of items to request                             |
+| limit         | 20        | The number of items to request                             |
 | offset        | 0         | How many items to skip before fetching results             |
-| sort          | id        | CSV of fields to sort by [Learn More](#sorting)            |
+| sort          | [pk]      | CSV of fields to sort by [Learn More](#sorting)            |
 | fields        | \*        | CSV of fields to include in response [Learn More](#fields) |
 | filter[field] |           | Filter items using operators [Learn More](#filtering)      |
 | meta          |           | CSV of metadata fields to include [Learn More](#metadata)  |
 | status        | Published | CSV of statuses [Learn More](#status)                      |
 | lang          | \*        | Include translation(s) [Learn More](#language)             |
 | q             |           | Search string [Learn More](#search-query)                  |
+| joins         |           | Join two or more tables @TODO examples                     |
+| group         |           | Group items by a field value @TODO examples                |
 
 #### Common Responses
 
@@ -414,7 +530,7 @@ GET /items/[collection-name]
 
 *   Search for all projects in the `design` category
     ```bash
-    curl -g https://api.directus.io/_/items/projects?filter[category][eq]=design
+    curl -u [token]: -g https://api.directus.io/_/items/projects?filter[category][eq]=design
     ```
 
 ### Get Item Revision
@@ -445,11 +561,11 @@ GET /items/[collection-name]/[pk]/revisions/[offset]
 
 *   Return the 2nd revision (from creation) for the project item with a primary key of 1
     ```bash
-    curl https://api.directus.io/_/items/projects/1/revisions/2
+    curl -u <token>: https://api.directus.io/_/items/projects/1/revisions/2
     ```
 *   Return the 2nd from current revision for the project item with a primary key of 1
     ```bash
-    curl https://api.directus.io/_/items/projects/1/revisions/-2
+    curl -u <token>: https://api.directus.io/_/items/projects/1/revisions/-2
     ```
 
 ### Get Item Revisions
@@ -492,13 +608,11 @@ Update or replace a single item from a given collection
 
 ```http
 PATCH /items/[collection-name]/[pk]
-PUT /items/[collection-name]/[pk],[pk],[pk]
 ```
 
-::: warning PATCH VS PUT
+::: warning
 
 *   **PATCH** partially updates the item with the provided data, any missing data is ignored
-*   **PUT** overwrites the item and any missing data will fallback to its default value
 
 :::
 
@@ -519,7 +633,7 @@ A single item to be updated. Field keys must match the collection's column names
 
 *   Return the project item with an ID of `1`
     ```bash
-    curl https://api.directus.io/_/items/projects/1
+    curl -u <token>: https://api.directus.io/_/items/projects/1
     ```
 
 ### Update Items
@@ -528,13 +642,11 @@ Update multiple items in a given collection
 
 ```http
 PATCH /items/[collection-name]
-PUT /items/[collection-name]
 ```
 
-::: warning PATCH VS PUT
+::: warning PATCH
 
 *   **PATCH** partially updates the item with the provided data, any missing data is ignored
-*   **PUT** fully updates the item and any missing data will fallback to its default value
 
 :::
 
@@ -575,7 +687,7 @@ There is no body for this request
 
 *   Revert the project item (ID:`1`) to its previous state in revision (ID:`2`)
     ```bash
-    curl https://api.directus.io/_/items/projects/1/revert/2
+    curl -u <token>: https://api.directus.io/_/items/projects/1/revert/2
     ```
 
 ### Delete Item
@@ -608,34 +720,499 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 
 ### Activity
 
-`POST /activity/message` @TODO
+#### Get activities
+
+Get an array of activities
+
+```http
+GET /activity
+```
+
+##### Query Parameters
+
+| Name          | Default   | Description                                                |
+| ------------- | --------- | ---------------------------------------------------------- |
+| limit         | 20        | The number of items to request                             |
+| offset        | 0         | How many items to skip before fetching results             |
+| sort          | id        | CSV of fields to sort by [Learn More](#sorting)            |
+| fields        | \*        | CSV of fields to include in response [Learn More](#fields) |
+| filter[field] |           | Filter items using operators [Learn More](#filtering)      |
+| meta          |           | CSV of metadata fields to include [Learn More](#metadata)  |
+| q             |           | Search string [Learn More](#search-query)                  |
+| joins         |           | Join two or more tables @TODO examples                     |
+| group         |           | Group items by a field value @TODO examples                |
+
+
+#### Get Item
+
+Get one or more single items from a given collection
+
+```http
+GET /activity/[pk]
+```
+
+##### Query Parameters
+
+| Name   | Default   | Description                                                |
+| ------ | --------- | ---------------------------------------------------------- |
+| fields | \*        | CSV of fields to include in response [Learn More](#fields) |
+| meta   |           | CSV of metadata fields to include [Learn More](#metadata)  |
+| status | Published | CSV of statuses [Learn More](#status)                      |
+| lang   | \*        | Include translation(s) [Learn More](#language)             |
+
+##### Common Responses
+
+| Code          | Description                                                                  |
+| ------------- | ---------------------------------------------------------------------------- |
+| 200 OK        | `data`: Retrieved item<br>`meta`: Depends on requested metadata              |
+| 404 Not Found | `message`: Collection doesn’t exist, or item doesn't exist within collection |
+
+
+#### Create a new message
+
+Create a new message, needs to be related to an a collection.
+
+```http
+POST /activity/message
+```
+
+##### Body
+
+A single object representing the new message.
+
+```json
+{
+    "title": "Project One",
+    "category": "Design"
+}
+```
 
 ### Fields
 
-`/fields/<collection>` is used for creating, updating, or deleting columns through the API requires the API to modify the database schema directly.
+These endpoints are used for creating, updating, or deleting fields through the API requires the API to modify the database schema directly.
+
+#### List of fields
+
+```http
+GET /[env]/fields/[collection]
+```
+
+Returns the list of fields in a given collection.
+
+#### Single field
+
+```http
+GET /[env]/fields/[collection]/[field]
+```
+
+Returns the details of a single field.
+
+#### Create a new field
+
+```http
+POST /[env]/fields/[collection]
+```
+
+Creates a new field in a given collection.
+
+#### Update field
+
+```http
+PATCH /[env]/fields/[collection]/[field]
+```
+
+Updates the details of a given field.
+
+#### Delete field
+
+```http
+DELETE /[env]/fields/[collection]
+```
+
+Permanently deletes a field and its content.
 
 ### Files
 
-`/files` is used for creating or updating a file requires the API to accept a special field allowing for the base64 file data. Beyond that, it accepts POST requests with the multipart-formdata enctype, to allow for easier uploading of file(s).
+These endpoints are used for creating or updating a files requires the API to accept a special field allowing for the base64 file data. Beyond that, it accepts POST requests with the multipart-formdata enctype, to allow for easier uploading of file(s).
+
+#### List of files
+
+```http
+GET /[env]/files
+```
+
+Returns the list of your files.
+
+#### Single file
+
+```http
+GET /[env]/files/[pk]
+```
+
+Returns the details of a single file.
+
+#### Upload a new file
+
+```http
+POST /[env]/files
+```
+
+Uploads a new file.
+
+#### Update file
+
+```http
+PATCH /[env]/files/[pk]
+```
+
+Updates the details of a given field.
+
+#### Delete file
+
+```http
+DELETE /[env]/files/[pk]
+```
+
+Permanently deletes a file.
+
+#### List of Revisions
+
+```http
+GET /[env]/files/[pk]/revisions
+```
+
+Returns a list of a single file revisions
+
+#### Single revision
+
+```http
+GET /[env]/files/[pk]/revisions/[offset]
+```
+
+Returns the revision of a single item using a 0-index based offset.
+
+#### Revert detail
+
+```http
+GET /[env]/files/[pk]/revert/[revision-pk]
+```
+
+Reverts the details of a file to a given revision.
 
 ### Folders
 
-`/folders` is used for creating, updating, or deleting a virtual folder.
+These endpoints are used for creating, updating, or deleting a virtual folder.
+
+#### List of folders
+
+```http
+GET /[env]/files/folders
+```
+
+Returns the list of your virtual folders.
+
+#### Single folder
+
+```http
+GET /[env]/files/folders/[pk]
+```
+
+Returns the details of a single virtual folder.
+
+#### Create a new folder
+
+```http
+POST /[env]/files/folders
+```
+
+Creates a new virtual folder.
+
+#### Update file
+
+```http
+PATCH /[env]/files/folders/[pk]
+```
+
+Updates the details of a given folder.
+
+#### Delete file
+
+```http
+DELETE /[env]/files/[pk]
+```
+
+Permanently deletes a virtual folder. Leaving its sub folder and files orphan.
+
+### Collections Presets
+
+These endpoints are used for creating, updating, or deleting collection presets through the API requires the API to modify the database schema directly.
+
+#### List of collection presets
+
+```http
+GET /[env]/collection_presets
+```
+
+Returns the list of collection presets
+
+#### Single collection preset
+
+```http
+GET /[env]/collection_presets/[pk]
+```
+
+Returns the details of a single collection preset.
+
+#### Create a new collection preset
+
+```http
+POST /[env]/collection_presets
+```
+
+Creates a new collection preset
+
+#### Update a collection preset
+
+```http
+PATCH /[env]/collection_presets/[pk]
+```
+
+Updates the details of a given collection preset.
+
+#### Delete collection preset
+
+```http
+DELETE /[env]/collection_presets/[pk]
+```
+
+Permanently deletes a collection_presets
 
 ### Permissions
 
-`/permissions` does not have any additional processing, it is simply an alias for the blocked `/items/directus_permissions`
+These endpoints are used for creating, updating, or deleting permissions through the API requires the API to modify the database schema directly.
+
+#### List of permissions
+
+```http
+GET /[env]/permissions
+```
+
+Returns the list of permissions.
+
+#### Single permission
+
+```http
+GET /[env]/permissions/[pk]
+```
+
+Returns the details of a single permission.
+
+#### Create a new permission
+
+```http
+POST /[env]/permissions
+```
+
+Creates a new permission.
+
+#### Update a permission
+
+```http
+PATCH /[env]/permissions/[pk]
+```
+
+Updates the details of a given permission.
+
+#### Delete a permission
+
+```http
+DELETE /[env]/permissions/[pk]
+```
+
+Permanently deletes a permission.
+
+### Relations
+
+These endpoints are used for creating, updating, or deleting relations.
+
+#### List of relations
+
+```http
+GET /[env]/relations
+```
+
+Returns the list of relations.
+
+#### Single relation
+
+```http
+GET /[env]/relations/[pk]
+```
+
+Returns the details of a single relation.
+
+#### Create a new relation
+
+```http
+POST /[env]/relations
+```
+
+Creates a new relation.
+
+#### Update a relation
+
+```http
+PATCH /[env]/relations/[pk]
+```
+
+Updates the details of a given relation.
+
+#### Delete a relation
+
+```http
+DELETE /[env]/relations/[pk]
+```
+
+Permanently deletes a relation.
+
+### Roles
+
+These endpoints are used for creating, updating, or deleting roles.
+
+#### List of roles
+
+```http
+GET /[env]/roles
+```
+
+Returns the list of roles.
+
+#### Single role
+
+```http
+GET /[env]/roles/[pk]
+```
+
+Returns the details of a single role.
+
+#### Create a new role
+
+```http
+POST /[env]/roles
+```
+
+Creates a new role.
+
+#### Update a role
+
+```http
+PATCH /[env]/roles/[pk]
+```
+
+Updates the details of a given role.
+
+#### Delete a role
+
+```http
+DELETE /[env]/roles/[pk]
+```
+
+Permanently deletes a role.
+
+### Settings
+
+These endpoints are used for creating, updating, or deleting settings.
+
+#### List of settings
+
+```http
+GET /[env]/settings
+```
+
+Returns the list of settings.
+
+#### Single setting
+
+```http
+GET /[env]/settings/[pk]
+```
+
+Returns the details of a single setting.
+
+#### Create a new setting
+
+```http
+POST /[env]/settings
+```
+
+Creates a new setting.
+
+#### Update a setting
+
+```http
+PATCH /[env]/settings/[pk]
+```
+
+Updates the details of a given setting.
+
+#### Delete a setting
+
+```http
+DELETE /[env]/setting/[pk]
+```
+
+Permanently deletes a setting.
 
 ### Collections
 
-`/collections` is similar to columns, this endpoint alters the database schema directly.
+These endpoints are used for creating, updating, or deleting settings. Similar to `/fields`, it alters the database schema directly.
+
+#### List of collctions
+
+```http
+GET /[env]/collections
+```
+
+Returns the list of collections.
+
+#### Single collection
+
+```http
+GET /[env]/collections/[pk]
+```
+
+Returns the details of a single collection.
+
+#### Create a new collection
+
+```http
+POST /[env]/collections
+```
+
+Creates a new collection.
+
+#### Update a collection
+
+```http
+PATCH /[env]/collections/[pk]
+```
+
+Updates the details of a given collection.
+
+#### Delete a collection
+
+```http
+DELETE /[env]/collection/[pk]
+```
+
+Permanently deletes a collection information, the table and all its contents.
 
 ### Get Revision
 
 Get a specific revision
 
 ```http
-GET /revisions/[pk]
+GET /[env]/revisions/[pk]
 ```
 
 #### Query Parameters
@@ -788,13 +1365,11 @@ Update a user within this instance
 
 ```http
 PATCH /users/[pk]
-PUT /users/[pk]
 ```
 
 @TODO DO WE WANT TO SUPPORT CSV OF PKs HERE TOO?
 
 *   **PATCH** will partially update the item with the provided data, any missing fields will be ignored
-*   **PUT** will update the item and any missing data will fallback to its default value
 
 #### Body
 
@@ -888,6 +1463,31 @@ The path to the last page the user was on in the Directus App
 | 200 OK                   | User successfully tracked                |
 | 400 Bad Request          | `message`: Syntax error in provided JSON |
 | 422 Unprocessable Entity | `message`: Field is invalid              |
+
+
+#### List of Revisions
+
+```http
+GET /[env]/users/[pk]/revisions
+```
+
+Returns a list of revisions for a single user.
+
+#### Single revision
+
+```http
+GET /[env]/users/[pk]/revisions/[offset]
+```
+
+Returns the revision of a single user using a 0-index based offset.
+
+#### Revert detail
+
+```http
+GET /[env]/users/[pk]/revert/[revision-pk]
+```
+
+Reverts the details of a user to a given revision.
 
 ## Utilities
 
@@ -1427,6 +2027,34 @@ DELETE /scim/v2/Groups/:id
 
 Empty response when successful.
 
+## Extend API endpoints
+
+### Interfaces
+
+All endpoints defined in a interface will be located under the `interfaces` group.
+
+```http
+/[env]/interfaces/[interface-id]
+```
+
+### Pages
+
+All endpoints defined in a page will be located under the `pages` group.
+
+```http
+/[env]/pages/[interface-id]
+```
+
+### Custom endpoints 
+
+All endpoints created by the user, that it's not related to any extension will be located under the `custom` group endpoints.
+
+```http
+`/[env]/custom/[endpoint-id]`
+```
+
+These endpoints are used for creating, updating, or deleting settings. Similar to `/fields`, it alters the database schema directly.
+
 ## Extensions
 
 Directus can easily be extended through the addition of several types of extensions. Extensions are important pieces of the Directus App that live in the decoupled Directus API. These include Interfaces, Listing Views, and Pages. These three different types of extensions live in their own directory and may have their own endpoints.
@@ -1437,7 +2065,7 @@ These endpoints read the API's file system for directory names and return an arr
 
 ```http
 GET /interfaces
-GET /listviews
+GET /listings
 GET /pages
 ```
 
@@ -1464,3 +2092,27 @@ This is a danger Note
 This is danger note with a custom title
 :::
 -->
+
+## API Information endpoints 
+
+### Server
+
+Returns information about the server and api.
+
+```http
+GET /
+```
+
+### Ping the server
+
+```http
+GET /server/ping
+```
+
+### Data Types
+
+Returns the list of Directus data types.
+
+```http
+GET /types
+```
