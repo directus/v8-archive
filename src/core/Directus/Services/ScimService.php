@@ -14,6 +14,9 @@ class ScimService extends AbstractService
     const SCHEMA_USER  = 'urn:ietf:params:scim:schemas:core:2.0:User';
     const SCHEMA_ERROR = 'urn:ietf:params:scim:api:messages:2.0:Error';
 
+    const RESOURCE_GROUP = 'Group';
+    const RESOURCE_USER  = 'User';
+
     /**
      * @var UsersService
      */
@@ -163,7 +166,7 @@ class ScimService extends AbstractService
      */
     public function findAllUsers(array $scimParams = [])
     {
-        $parameters = $this->parseListParameters($scimParams);
+        $parameters = $this->parseListParameters(static::RESOURCE_USER, $scimParams);
         $items = $this->usersService->findAll($parameters);
 
         return $this->parseUsersData(
@@ -182,7 +185,7 @@ class ScimService extends AbstractService
      */
     public function findAllGroups(array $scimParams = [])
     {
-        $parameters = $this->parseListParameters($scimParams);
+        $parameters = $this->parseListParameters(static::RESOURCE_GROUP, $scimParams);
         $items = $this->rolesService->findAll(array_merge($parameters, [
             'fields' => [
                 '*',
@@ -219,13 +222,14 @@ class ScimService extends AbstractService
     /**
      * Parse Scim parameters into Directus parameters
      *
+     * @param string $resourceType
      * @param array $scimParams
      *
      * @return array
      */
-    protected function parseListParameters(array $scimParams)
+    protected function parseListParameters($resourceType, array $scimParams)
     {
-        $filter = $this->getFilter(ArrayUtils::get($scimParams, 'filter'));
+        $filter = $this->getFilter($resourceType, ArrayUtils::get($scimParams, 'filter'));
 
         $parameters = [
             'filter' => $filter
@@ -248,10 +252,14 @@ class ScimService extends AbstractService
 
     /**
      * @param string $filter
+     *
+     * @param string $resourceType
+     *
      * @return array
+     *
      * @throws BadRequestException
      */
-    protected function getFilter($filter)
+    protected function getFilter($resourceType, $filter)
     {
         if (empty($filter)) {
             return [];
@@ -277,22 +285,24 @@ class ScimService extends AbstractService
         }
 
         return [
-            $this->convertFilterAttribute($attribute) => [$operator => $value]
+            $this->convertFilterAttribute($resourceType, $attribute) => [$operator => $value]
         ];
     }
 
     /**
      * Converts scim user attribute to directus's user attribute
      *
+     * @param string $resourceType
      * @param string $attribute
      *
      * @return string
      *
      * @throws BadRequestException
      */
-    public function convertFilterAttribute($attribute)
+    public function convertFilterAttribute($resourceType, $attribute)
     {
-        $mapping = $this->getFilterAttributesMapping();
+        $resourcesMapping = $this->getFilterAttributesMapping();
+        $mapping = ArrayUtils::get($resourcesMapping, $resourceType, []);
 
         if (!array_key_exists($attribute, $mapping)) {
             throw new BadRequestException(
@@ -400,15 +410,15 @@ class ScimService extends AbstractService
     public function getFilterAttributesMapping()
     {
         return [
-            // Groups
-            'displayName' => 'name',
+            static::RESOURCE_GROUP => [
+                'displayName' => 'name',
+            ],
 
-            // Users
-            'userName' => 'email',
-            'externalId' => 'external_id',
-            'name' => [
-                'familyName' => 'last_name',
-                'givenName' => 'first_name'
+            static::RESOURCE_USER => [
+                'userName' => 'email',
+                'externalId' => 'external_id',
+                'id' => 'id',
+                'emails.value' => 'email'
             ]
         ];
     }
