@@ -400,6 +400,10 @@ class ScimService extends AbstractService
     public function getFilterAttributesMapping()
     {
         return [
+            // Groups
+            'displayName' => 'name',
+
+            // Users
             'userName' => 'email',
             'externalId' => 'external_id',
             'name' => [
