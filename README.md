@@ -85,6 +85,14 @@ Create the directus default settings and user
 $ bin/directus install:install -e <admin-email> -p <admin-password> -t <project-title>
 ```
 
+The default `access_token` is `admin_token`.
+
+Make you first request to see all the users:
+
+```
+GET /_/users?access_token=admin_token
+```
+
 ## Copyright, License, and Trademarks
 * Directus Core codebase released under the [GPLv3](http://www.gnu.org/copyleft/gpl.html) license.
 * Example Code, Design Previews, Demonstration Apps, Custom Extensions, Custom interfaces, and Documentation copyright 2017 [RANGER Studio LLC](http://rngr.org/).
