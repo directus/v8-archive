@@ -51,7 +51,7 @@ class InstallerUtils
 
         $data = ArrayUtils::defaults([
             'directus_path' => '/',
-            'directus_email' => 'root@localhost',
+            'directus_email' => 'admin@example.com',
             'default_language' => 'en',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
             'feedback_login' => true,
@@ -165,6 +165,12 @@ class InstallerUtils
         $db = $app->getContainer()->get('database');
         $tableGateway = new TableGateway('directus_users', $db);
 
+        $data = ArrayUtils::defaults([
+            'directus_email' => 'admin@example.com',
+            'directus_password' => 'password',
+            'directus_token' => 'admin_token'
+        ], $data);
+
         $hash = password_hash($data['directus_password'], PASSWORD_DEFAULT, ['cost' => 12]);
 
         if (!isset($data['directus_token'])) {
@@ -178,7 +184,7 @@ class InstallerUtils
             'email' => $data['directus_email'],
             'password' => $hash,
             'token' => $data['directus_token'],
-            'locale' => ArrayUtils::get($data, 'app.default_locale', 'en-US')
+            'locale' => 'en-US'
         ]);
 
         $userRolesTableGateway = new TableGateway('directus_user_roles', $db);
@@ -324,7 +330,7 @@ class InstallerUtils
             [
                 'scope' => 'global',
                 'key' => 'project_name',
-                'value' => $data['directus_name']
+                'value' => isset($data['directus_name']) ? $data['directus_name'] : 'Directus'
             ],
             [
                 'scope' => 'global',

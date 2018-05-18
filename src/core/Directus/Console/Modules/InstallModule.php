@@ -137,10 +137,6 @@ class InstallModule extends ModuleBase
     {
         $data = [];
 
-        $data['directus_email'] = 'admin@getdirectus.com';
-        $data['directus_password'] = 'password';
-        $data['directus_name'] = 'Directus';
-
         $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
 
         foreach ($args as $key => $value) {
