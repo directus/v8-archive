@@ -32,6 +32,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
     {
         static::$db = create_db_connection();
 
+        truncate_table(static::$db, 'products_images');
         truncate_table(static::$db, 'products');
         truncate_table(static::$db, 'categories');
         fill_table(static::$db, 'categories', [
