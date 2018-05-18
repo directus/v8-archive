@@ -44,26 +44,26 @@ class CreatePermissionsTable extends AbstractMigration
         ]);
         $table->addColumn('create', 'string', [
             'signed' => false,
-            'null' => false,
-            'default' => false,
+            'null' => true,
+            'default' => null,
             'length' => 16,
         ]);
         $table->addColumn('read', 'string', [
             'signed' => false,
-            'null' => false,
-            'default' => false,
+            'null' => true,
+            'default' => null,
             'length' => 16,
         ]);
         $table->addColumn('update', 'string', [
             'signed' => false,
-            'null' => false,
-            'default' => false,
+            'null' => true,
+            'default' => null,
             'length' => 16,
         ]);
         $table->addColumn('delete', 'string', [
             'signed' => false,
-            'null' => false,
-            'default' => false,
+            'null' => true,
+            'default' => null,
             'length' => 16,
         ]);
         $table->addColumn('navigate', 'boolean', [
