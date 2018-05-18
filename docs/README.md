@@ -310,7 +310,7 @@ There are many common query parameters used throughout the API. Those are descri
 
 ### Filtering
 
-Used to fetch specific items from a collection based on one or more filters. Filters follow the syntax `filter[<field-name>][<operator>]=<value>`.
+Used to fetch specific items from a collection based on one or more filters. Filters follow the syntax `filter[<field-name>][<operator>]=<value>`. The field-name supports dot notation to filter on nested relational fields.
 
 #### Filter Operators
 
