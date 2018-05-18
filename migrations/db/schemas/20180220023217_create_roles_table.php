@@ -35,12 +35,6 @@ class CreateRolesTable extends AbstractMigration
             'default' => null
         ]);
 
-        $table->addColumn('external_id', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
-
         $table->addColumn('name', 'string', [
             'limit' => 100,
             'null' => false
