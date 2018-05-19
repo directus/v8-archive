@@ -1,0 +1,5 @@
+[2018-05-18 17:54:29] app.ERROR: Only Admin can see this information [] []
+[2018-05-18 20:15:45] app.ERROR: $record must an array or a subclass of AbstractRowGateway [] []
+[2018-05-18 20:16:04] app.ERROR: Creating item to "directus_activity" collection was denied [] []
+[2018-05-18 20:16:22] app.ERROR: Failed generating the SQL query. [] []
+[2018-05-18 20:19:12] app.ERROR: Failed generating the SQL query. [] []
