@@ -254,7 +254,14 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         $fullRecordData = (array) $fullRecordData;
-        $deltaRecordData = $recordIsNew ? $parentRecordWithoutAlias : array_intersect_key((array)$parentRecordWithoutAlias, $fullRecordData);
+        if ($recordIsNew) {
+            $deltaRecordData = $parentRecordWithoutAlias;
+        } else {
+            $deltaRecordData = array_intersect_key(
+                ArrayUtils::omit((array)$parentRecordWithoutAlias, $this->primaryKeyFieldName),
+                $fullRecordData
+            );
+        }
 
         $statusField = $tableSchema->getStatusField();
         if ($recordIsNew) {
