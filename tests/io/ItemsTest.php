@@ -3,6 +3,7 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
+use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Util\ArrayUtils;
 
 class ItemsTest extends \PHPUnit_Framework_TestCase
@@ -815,5 +816,49 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $path = 'items/categories/3';
         $response = request_delete($path, ['query' => ['access_token' => 'token']]);
         assert_response_empty($this, $response);
+    }
+
+    public function testSoftDeleteNonAdmins()
+    {
+        $path = 'items/products';
+        $data = ['name' => 'deleted product', 'status' => 0, 'price' => 0];
+        $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
+        assert_response($this, $response);
+
+        // Admin
+        $response = request_get($path, ['access_token' => 'token']);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 6
+        ]);
+
+        $response = request_get($path, ['access_token' => 'token', 'status' => '*']);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 7
+        ]);
+
+        $response = request_get($path . '/9', ['access_token' => 'token', 'status' => '*']);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, ArrayUtils::omit($data, 'price'));
+
+        // Non-Admin
+        $response = request_get($path, ['access_token' => 'intern_token']);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 6
+        ]);
+
+        $response = request_get($path, ['access_token' => 'intern_token', 'status' => '*']);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 6
+        ]);
+
+        $response = request_error_get($path . '/9', ['access_token' => 'intern_token', 'status' => '*']);
+        assert_response_error($this, $response, [
+            'status' => 404,
+            'code' => ItemNotFoundException::ERROR_CODE
+        ]);
     }
 }
