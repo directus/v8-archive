@@ -633,12 +633,28 @@ class RelationalTableGateway extends BaseTableGateway
             unset($defaultParams['sort']);
         }
 
-        if (!$this->getTableSchema()->hasStatusField() || ArrayUtils::get($params, 'status') === '*') {
+        $allStatus = ArrayUtils::get($params, 'status') === '*';
+        $isAdmin = $this->acl->isAdmin();
+        if (!$this->getTableSchema()->hasStatusField() || ($allStatus && $isAdmin)) {
             ArrayUtils::remove($params, 'status');
+        } else if ($allStatus && !$this->acl->isAdmin()) {
+            $params['status'] = $this->getNonSoftDeleteStatuses();
         } else if (!ArrayUtils::has($params, 'id') && !ArrayUtils::has($params, 'status')) {
             $defaultParams['status'] = $this->getPublishedStatuses();
         } else if (ArrayUtils::has($params, 'status') && is_string(ArrayUtils::get($params, 'status'))) {
             $params['status'] = StringUtils::csv($params['status']);
+        }
+
+        // Remove soft-delete from status list for non-admins users
+        if (!$isAdmin) {
+            if ($params['status']) {
+                $params['status'] = ArrayUtils::intersection(
+                    $params['status'],
+                    $this->getNonSoftDeleteStatuses()
+                );
+            } else if (ArrayUtils::has($params, 'id')) {
+                $params['status'] = $this->getNonSoftDeleteStatuses();
+            }
         }
 
         $params = array_merge($defaultParams, $params);

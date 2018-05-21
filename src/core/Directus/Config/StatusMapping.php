@@ -57,6 +57,16 @@ class StatusMapping extends Collection
     }
 
     /**
+     * Returns a list of non-soft-delete status values
+     *
+     * @return array
+     */
+    public function getNonSoftDeleteStatusesValue()
+    {
+        return $this->getStatusesValue('soft_delete', false);
+    }
+
+    /**
      * Get all statuses value
      *
      * @return array
