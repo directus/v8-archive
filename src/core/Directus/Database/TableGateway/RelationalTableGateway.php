@@ -280,49 +280,11 @@ class RelationalTableGateway extends BaseTableGateway
             }
         }
 
-        switch ($activityEntryMode) {
-            // Activity logging is enabled, and I am a nested action
-            case self::ACTIVITY_ENTRY_MODE_CHILD:
-                $childLogEntries[] = [
-                    'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
-                    'action' => $logEntryAction,
-                    'user' => $currentUserId,
-                    'datetime' => DateTimeUtils::nowInUTC()->toString(),
-                    'ip' => get_request_ip(),
-                    'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
-                    'collection' => $tableName,
-                    'parent_item' => isset($parentData['item']) ? $parentData['item'] : null,
-                    'parent_collection' => isset($parentData['collection']) ? $parentData['collection'] : null,
-                    'data' => json_encode($fullRecordData),
-                    'delta' => !empty($deltaRecordData) ? json_encode($deltaRecordData) : null,
-                    'parent_changed' => boolval($parentRecordChanged),
-                    'item' => $rowId,
-                    'comment' => null
-                ];
-                if ($recordIsNew) {
-                    /**
-                     * This is a nested call, creating a new record w/in a foreign collection.
-                     * Indicate by reference that the top-level record's relationships have changed.
-                     */
-                    $parentCollectionRelationshipsChanged = true;
-                }
-                break;
-
-            case self::ACTIVITY_ENTRY_MODE_PARENT:
-                // Does this act deserve a log?
-                $parentRecordNeedsLog = $nestedCollectionRelationshipsChanged || $parentRecordChanged;
-                /**
-                 * NESTED QUESTIONS!
-                 * @todo  what do we do if the foreign record OF a foreign record changes?
-                 * is that activity entry also directed towards this parent activity entry?
-                 * @todo  how should nested activity entries relate to the revision histories of foreign items?
-                 * @todo  one day: treat children as parents if this top-level record was not modified.
-                 */
-                // Produce log if something changed.
-                if ($parentRecordChanged || $nestedCollectionRelationshipsChanged) {
-                    // Save parent log entry
-                    $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
-                    $logData = [
+        if ($this->getTable() != SchemaManager::COLLECTION_ACTIVITY) {
+            switch ($activityEntryMode) {
+                // Activity logging is enabled, and I am a nested action
+                case self::ACTIVITY_ENTRY_MODE_CHILD:
+                    $childLogEntries[] = [
                         'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
                         'action' => $logEntryAction,
                         'user' => $currentUserId,
@@ -330,49 +292,89 @@ class RelationalTableGateway extends BaseTableGateway
                         'ip' => get_request_ip(),
                         'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                         'collection' => $tableName,
-                        'item' => $rowId,
-                        'comment' => ArrayUtils::get($params, 'activity_comment')
-                    ];
-                    $parentLogEntry->populate($logData, false);
-                    $parentLogEntry->save();
-
-                    // Add Revisions
-                    $revisionTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_REVISIONS, $this->adapter);
-                    $revisionTableGateway->insert([
-                        'activity' => $parentLogEntry->getId(),
-                        'collection' => $tableName,
-                        'item' => $rowId,
+                        'parent_item' => isset($parentData['item']) ? $parentData['item'] : null,
+                        'parent_collection' => isset($parentData['collection']) ? $parentData['collection'] : null,
                         'data' => json_encode($fullRecordData),
                         'delta' => !empty($deltaRecordData) ? json_encode($deltaRecordData) : null,
-                        'parent_item' => null,
-                        'parent_collection' => null,
-                        'parent_changed' => null,//boolval($parentRecordChanged)
-                    ]);
-
-                    // Update & insert nested activity entries
-                    $ActivityGateway = new DirectusActivityTableGateway($this->adapter);
-                    foreach ($nestedLogEntries as $entry) {
-                        // TODO: ought to insert these in one batch
-                        $ActivityGateway->insert(ArrayUtils::omit($entry, [
-                            'parent_item',
-                            'parent_collection',
-                            'data',
-                            'delta',
-                            'parent_changed',
-                        ]));
-                        $revisionTableGateway->insert([
-                            'activity' => $ActivityGateway->lastInsertValue,
-                            'collection' => ArrayUtils::get($entry, 'collection'),
-                            'item' => ArrayUtils::get($entry, 'item'),
-                            'data' => ArrayUtils::get($entry, 'data'),
-                            'delta' => ArrayUtils::get($entry, 'delta'),
-                            'parent_item' => ArrayUtils::get($entry, 'parent_item'),
-                            'parent_collection' => ArrayUtils::get($entry, 'parent_collection'),
-                            'parent_changed' => ArrayUtils::get($entry, 'parent_changed')
-                        ]);
+                        'parent_changed' => boolval($parentRecordChanged),
+                        'item' => $rowId,
+                        'comment' => null
+                    ];
+                    if ($recordIsNew) {
+                        /**
+                         * This is a nested call, creating a new record w/in a foreign collection.
+                         * Indicate by reference that the top-level record's relationships have changed.
+                         */
+                        $parentCollectionRelationshipsChanged = true;
                     }
-                }
-                break;
+                    break;
+
+                case self::ACTIVITY_ENTRY_MODE_PARENT:
+                    // Does this act deserve a log?
+                    $parentRecordNeedsLog = $nestedCollectionRelationshipsChanged || $parentRecordChanged;
+                    /**
+                     * NESTED QUESTIONS!
+                     * @todo  what do we do if the foreign record OF a foreign record changes?
+                     * is that activity entry also directed towards this parent activity entry?
+                     * @todo  how should nested activity entries relate to the revision histories of foreign items?
+                     * @todo  one day: treat children as parents if this top-level record was not modified.
+                     */
+                    // Produce log if something changed.
+                    if ($parentRecordChanged || $nestedCollectionRelationshipsChanged) {
+                        // Save parent log entry
+                        $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
+                        $logData = [
+                            'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
+                            'action' => $logEntryAction,
+                            'user' => $currentUserId,
+                            'datetime' => DateTimeUtils::nowInUTC()->toString(),
+                            'ip' => get_request_ip(),
+                            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+                            'collection' => $tableName,
+                            'item' => $rowId,
+                            'comment' => ArrayUtils::get($params, 'activity_comment')
+                        ];
+                        $parentLogEntry->populate($logData, false);
+                        $parentLogEntry->save();
+
+                        // Add Revisions
+                        $revisionTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_REVISIONS, $this->adapter);
+                        $revisionTableGateway->insert([
+                            'activity' => $parentLogEntry->getId(),
+                            'collection' => $tableName,
+                            'item' => $rowId,
+                            'data' => json_encode($fullRecordData),
+                            'delta' => !empty($deltaRecordData) ? json_encode($deltaRecordData) : null,
+                            'parent_item' => null,
+                            'parent_collection' => null,
+                            'parent_changed' => null,//boolval($parentRecordChanged)
+                        ]);
+
+                        // Update & insert nested activity entries
+                        $ActivityGateway = new DirectusActivityTableGateway($this->adapter);
+                        foreach ($nestedLogEntries as $entry) {
+                            // TODO: ought to insert these in one batch
+                            $ActivityGateway->insert(ArrayUtils::omit($entry, [
+                                'parent_item',
+                                'parent_collection',
+                                'data',
+                                'delta',
+                                'parent_changed',
+                            ]));
+                            $revisionTableGateway->insert([
+                                'activity' => $ActivityGateway->lastInsertValue,
+                                'collection' => ArrayUtils::get($entry, 'collection'),
+                                'item' => ArrayUtils::get($entry, 'item'),
+                                'data' => ArrayUtils::get($entry, 'data'),
+                                'delta' => ArrayUtils::get($entry, 'delta'),
+                                'parent_item' => ArrayUtils::get($entry, 'parent_item'),
+                                'parent_collection' => ArrayUtils::get($entry, 'parent_collection'),
+                                'parent_changed' => ArrayUtils::get($entry, 'parent_changed')
+                            ]);
+                        }
+                    }
+                    break;
+            }
         }
 
         // Yield record object
