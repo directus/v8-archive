@@ -276,7 +276,7 @@ Set this url as the callback for the OAuth service and it will return a "request
 ### Get Access Token using the Request Token
 
 ```http
-GET /[env]/auth/access_token
+GET /[env]/auth/sso/access_token
 ```
 
 Using the request token that was returned by the `/[env]/auth/sso/[provider]/callback` endpoint to get the access token.

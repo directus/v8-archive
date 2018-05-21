@@ -28,7 +28,7 @@ class Auth extends Route
         $app->get('/sso/{service}', [$this, 'ssoService']);
         $app->post('/sso/{service}', [$this, 'ssoAuthenticate']);
         $app->get('/sso/{service}/callback', [$this, 'ssoServiceCallback']);
-        $app->post('/access_token', [$this, 'ssoAccessToken']);
+        $app->post('/sso/access_token', [$this, 'ssoAccessToken']);
     }
 
     /**
