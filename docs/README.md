@@ -773,7 +773,7 @@ GET /activity/[pk]
 Create a new message, needs to be related to an a collection.
 
 ```http
-POST /activity/message
+POST /activity/comment
 ```
 
 ##### Body

@@ -97,7 +97,7 @@ class RelationalTableGateway extends BaseTableGateway
                 'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                 'collection' => $this->table,
                 'item' => $id,
-                'message' => ArrayUtils::get($params, 'activity_message')
+                'comment' => ArrayUtils::get($params, 'activity_comment')
             ];
             $parentLogEntry->populate($logData, false);
             $parentLogEntry->save();
@@ -297,7 +297,7 @@ class RelationalTableGateway extends BaseTableGateway
                     'delta' => !empty($deltaRecordData) ? json_encode($deltaRecordData) : null,
                     'parent_changed' => boolval($parentRecordChanged),
                     'item' => $rowId,
-                    'message' => null
+                    'comment' => null
                 ];
                 if ($recordIsNew) {
                     /**
@@ -331,7 +331,7 @@ class RelationalTableGateway extends BaseTableGateway
                         'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                         'collection' => $tableName,
                         'item' => $rowId,
-                        'message' => ArrayUtils::get($params, 'activity_message')
+                        'comment' => ArrayUtils::get($params, 'activity_comment')
                     ];
                     $parentLogEntry->populate($logData, false);
                     $parentLogEntry->save();

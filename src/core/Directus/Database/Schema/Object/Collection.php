@@ -621,7 +621,7 @@ class Collection extends AbstractObject
      *
      * @return string
      */
-    public function getComment()
+    public function getNote()
     {
         return $this->attributes->get('comment');
     }

@@ -644,14 +644,32 @@ class Acl
      *
      * @return bool
      */
-    public function requireExplain($collection, $status = null)
+    public function requireComment($collection, $status = null)
     {
         $permission = $this->getPermission($collection, $status);
-        if (!array_key_exists('explain', $permission)) {
+        if (!array_key_exists('comment', $permission)) {
             return false;
         }
 
-        return $permission['explain'] === 1;
+        return $permission['comment'] === 'explain';
+    }
+
+    /**
+     * Checks whether a given collection allows to add comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @return bool
+     */
+    public function canComment($collection, $status = null)
+    {
+        $permission = $this->getPermission($collection, $status);
+        if (!array_key_exists('comment', $permission)) {
+            return false;
+        }
+
+        return in_array(strtolower($permission['comment']), ['explain', 'comment']);
     }
 
     /**

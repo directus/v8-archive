@@ -71,10 +71,10 @@ class CreatePermissionsTable extends AbstractMigration
             'null' => false,
             'default' => false,
         ]);
-        $table->addColumn('explain', 'boolean', [
-            'signed' => false,
-            'null' => false,
-            'default' => false
+        $table->addColumn('comment', 'string', [
+            'limit' => 8,
+            'null' => true,
+            'default' => null
         ]);
         $table->addColumn('read_field_blacklist', 'string', [
             'limit' => 1000,

@@ -226,7 +226,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
     public function testCreateMessage()
     {
         $response = request_post('activity/message', [
-            'message' => 'comment'
+            'comment' => 'a comment'
         ], ['query' => ['access_token' => 'token']]);
 
         assert_response($this, $response, [
@@ -235,7 +235,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
 
         assert_response_data_contains($this, $response, [
             'type' => DirectusActivityTableGateway::TYPE_MESSAGE,
-            'message' => 'comment'
+            'comment' => 'a comment'
         ]);
     }
 

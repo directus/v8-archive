@@ -66,7 +66,7 @@ class MySQLSchema extends AbstractSchema
             ['DT' => 'directus_collections'],
             'DT.collection = ST.TABLE_NAME',
             [
-                'comment',
+                'comment' => 'message',
                 'hidden' => new Expression('IFNULL(`DT`.`hidden`, 0)'),
                 'single' => new Expression('IFNULL(`DT`.`single`, 0)'),
                 'item_name_template',
@@ -158,7 +158,7 @@ class MySQLSchema extends AbstractSchema
             'scale' => 'NUMERIC_SCALE',
             'nullable' => new Expression('IF(SF.IS_NULLABLE="YES",1,0)'),
             'default_value' => 'COLUMN_DEFAULT',
-            'comment' => new Expression('IFNULL(DF.comment, SF.COLUMN_COMMENT)'),
+            'comment' => new Expression('IFNULL(DF.message, SF.COLUMN_COMMENT)'),
             'column_type' => 'COLUMN_TYPE',
         ]);
 
@@ -201,7 +201,7 @@ class MySQLSchema extends AbstractSchema
             'scale' => new Expression('NULL'),
             'is_nullable' => new Expression('"NO"'),
             'default_value' => new Expression('NULL'),
-            'comment',
+            'comment' => 'message',
             'column_type' => new Expression('NULL'),
             'type' => new Expression('UCASE(type)'),
             'managed' =>  new Expression('IF(ISNULL(DF2.id),0,1)'),

@@ -17,7 +17,7 @@ class Activity extends Route
     {
         $app->get('', [$this, 'all']);
         $app->get('/{id}', [$this, 'read']);
-        $app->post('/message', [$this, 'createMessage']);
+        $app->post('/comment', [$this, 'createComment']);
     }
 
     /**
@@ -75,7 +75,7 @@ class Activity extends Route
      *
      * @return Response
      */
-    public function createMessage(Request $request, Response $response)
+    public function createComment(Request $request, Response $response)
     {
         $payload = $request->getParsedBody();
         $dbConnection = $this->container->get('database');

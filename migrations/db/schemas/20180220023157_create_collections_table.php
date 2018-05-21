@@ -60,7 +60,7 @@ class CreateCollectionsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('comment', 'string', [
+        $table->addColumn('note', 'string', [
             'limit' => 255,
             'null' => true,
             'default' => null

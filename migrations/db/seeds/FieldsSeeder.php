@@ -72,7 +72,7 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_activity',
-                'field' => 'message',
+                'field' => 'comment',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
                 'interface' => 'markdown'
             ],
@@ -146,7 +146,7 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_collections',
-                'field' => 'comment',
+                'field' => 'note',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
@@ -279,7 +279,7 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_fields',
-                'field' => 'comment',
+                'field' => 'note',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],

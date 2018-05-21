@@ -21,7 +21,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
     const TYPE_FILES    = 'FILES';
     const TYPE_SETTINGS = 'SETTINGS';
     const TYPE_LOGIN    = 'LOGIN';
-    const TYPE_MESSAGE  = 'MESSAGE';
+    const TYPE_COMMENT  = 'COMMENT';
 
     // Populates directus_activity.action
     const ACTION_ADD    = 'ADD';
@@ -150,7 +150,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
     public function recordMessage($data)
     {
         $logData = array_merge($data, [
-            'type' => self::TYPE_MESSAGE,
+            'type' => self::TYPE_COMMENT,
             'action' => static::ACTION_ADD,
             'datetime' => DateTimeUtils::nowInUTC()->toString(),
             'ip' => get_request_ip(),

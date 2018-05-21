@@ -559,7 +559,7 @@ class TablesService extends AbstractService
             'interface' => null,
             'required' => false,
             'sort' => 0,
-            'comment' => null,
+            'note' => null,
             'hidden_input' => 0,
             'hidden_list' => 0,
             'options' => null

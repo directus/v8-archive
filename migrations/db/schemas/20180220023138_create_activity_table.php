@@ -67,7 +67,7 @@ class CreateActivityTable extends AbstractMigration
             'limit' => 255
         ]);
 
-        $table->addColumn('message', 'text', [
+        $table->addColumn('comment', 'text', [
             'null' => true
         ]);
 

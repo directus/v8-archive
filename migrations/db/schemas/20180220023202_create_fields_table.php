@@ -78,7 +78,7 @@ class CreateFieldsTable extends AbstractMigration
             'null' => false,
             'default' => 4
         ]);
-        $table->addColumn('comment', 'string', [
+        $table->addColumn('note', 'string', [
             'limit' => 1024,
             'null' => true,
             'default' => null

@@ -286,7 +286,7 @@ abstract class AbstractService
 
         return [
             'activity_mode' => $activityMode,
-            'activity_message' => ArrayUtils::get($params, 'message')
+            'activity_comment' => ArrayUtils::get($params, 'comment')
         ];
     }
 
@@ -358,9 +358,12 @@ abstract class AbstractService
         }
 
         $acl = $this->getAcl();
-        $requiredExplain = $acl->requireExplain($collection, $status);
-        if ($requiredExplain && empty($params['message'])) {
-            throw new ForbiddenException('Activity message required for collection: ' . $collection);
+        if ($acl->requireComment($collection, $status) && empty($params['comment'])) {
+            throw new ForbiddenException('Activity comment required for collection: ' . $collection);
+        }
+
+        if ($acl->canComment($collection, $status) && !empty($params['comment'])) {
+            throw new ForbiddenException('You are not allowed add comment for collection: ' . $collection);
         }
 
         // Enforce write field blacklist
