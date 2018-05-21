@@ -778,12 +778,11 @@ POST /activity/comment
 
 ##### Body
 
-A single object representing the new message.
+A single object representing the new comment.
 
 ```json
 {
-    "title": "Project One",
-    "category": "Design"
+    "comment": "A new comment"
 }
 ```
 
