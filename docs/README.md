@@ -39,7 +39,7 @@ All output will adhere to the same general JSON structure:
 }
 ```
 
-### Error Codes
+### HTTP Status Codes
 
 The API uses HTTP status codes in addition to the message value. Everything in the 200 range is a valid response. The API does not serve translated error messages based on locale.
 
@@ -57,6 +57,75 @@ The API uses HTTP status codes in addition to the message value. Everything in t
 | 500  | Internal Server Error |
 
 The `error` property is only present when an error has occurred.
+
+### Error codes
+
+#### Authentication error codes
+
+- **0100** - Invalid Credentials (404)
+- **0101** - Invalid Token (401)
+- **0102** - Expired Token (401)
+- **0103** - Inactive User (401)
+- **0104** - Invalid Reset Password Token (401)
+- **0105** - Expired Reset Password Token (401)
+- **0106** - User Not Found (404)
+- **0107** - User with a given email Not Found (404)
+- **0108** - User not authenticated (401)
+
+#### Filesystem error codes
+
+- **0300** - Unknown Error (500)
+- **0301** - The uploaded file exceeds max upload size that was specified on the server (500)
+- **0302** - The uploaded file exceeds the max upload size that was specified in the client (500)
+- **0303** - The uploaded file was only partially uploaded (500)
+- **0304** - No file was uploaded (500)
+- **0305** - _Not defined yet_
+- **0306** - Missing temporary upload folder (500)
+- **0307** - Failed to write file to disk (500)
+- **0308** - A PHP extension stopped the file upload (500)
+
+#### General error codes
+
+- **0000** - Internal Error (500)
+- **0001** - Not Found (404)
+- **0002** - Bad Request (400)
+- **0003** - Unauthorized (401)
+- **0004** - Invalid Request (400) (_Validation_)
+- **0005** - Endpoint Not Found (404)
+- **0006** - Method Not Allowed (405)
+- **0007** - Too Many Requests (429)
+- **0008** - API Environment Configuration Not Found (404)
+- **0009** - Failed generating a SQL Query (500)
+- **0010** - Forbidden (403)
+- **0011** - Failed to connect to the database (500)
+
+#### Items error codes
+
+- **0200** - Collection Not Found (404)
+- **0201** - Not Allow Direct Access To System Table (401)
+- **0202** - Field Not Found (404)
+- **0203** - Item Not Found (404)
+- **0204** - Duplicate Item (409)
+- **0205** - Collection not being managed by Directus
+- **0206** - Field not being managed by Directus
+- **0207** - Revision Not Found (404)
+- **0208** - Revision has an invalid delta
+- **0209** - Field Invalid (400) - Trying to use a field that doesn't exists for actions such as filtering and sorting
+
+#### Mail error codes
+
+- **0500** - Mailer Transport not found (500)
+- **0501** - Invalid Transport option (500)
+- **0502** - Invalid Transport instance (500)
+
+#### Schema error codes
+
+- **0400** - Unknown Error (500)
+- **0401** - Unknown data type (400)
+
+#### Utils error codes
+
+- **1000** - Hasher not found (400)
 
 ### Validation
 
