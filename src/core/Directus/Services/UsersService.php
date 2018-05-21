@@ -64,12 +64,11 @@ class UsersService extends AbstractService
             'last_access' => DateTimeUtils::nowInUTC()->toString()
         ];
 
-        return $this->itemsService->update(
-            $this->collection,
-            $this->getUserId($id),
-            $data,
-            $params
-        );
+        $this->getTableGateway()->update($data, [
+            'id' => $this->getUserId($id)
+        ]);
+
+        return $this->find($this->getUserId($id), $params);
     }
 
     public function find($id, array $params = [])
