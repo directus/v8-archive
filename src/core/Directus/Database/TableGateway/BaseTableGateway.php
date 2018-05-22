@@ -1130,7 +1130,7 @@ class BaseTableGateway extends TableGateway
      */
     public function enforceUpdatePermission(Update $update)
     {
-        if ($this->acl->canUpdateAll($this->table)) {
+        if ($this->acl->canUpdateAll($this->table) && $this->acl->isAdmin()) {
             return;
         }
 
@@ -1156,6 +1156,12 @@ class BaseTableGateway extends TableGateway
         if ($collectionObject->hasStatusField()) {
             $statusField = $this->getTableSchema()->getStatusField();
             $statusId = $item[$statusField->getName()];
+
+            // non-admins cannot update soft-deleted items
+            $status = $this->getStatusMapping()->getByValue($statusId);
+            if ($status && $status->isSoftDelete()) {
+                throw new ForbiddenCollectionUpdateException($updateTable);
+            }
         }
 
         // User Created Interface not found, item cannot be updated

@@ -37,6 +37,22 @@ class StatusMapping extends Collection
     }
 
     /**
+     * Get status by value
+     *
+     * @param mixed $value
+     *
+     * @return StatusItem
+     */
+    public function getByValue($value)
+    {
+        foreach ($this->items as $item) {
+            if ($item->getValue() == $value) {
+                return $item;
+            }
+        }
+    }
+
+    /**
      * Get a list of published statuses
      *
      * @return array

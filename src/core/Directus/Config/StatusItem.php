@@ -76,7 +76,7 @@ class StatusItem
      */
     public function isSoftDelete()
     {
-        return $this->getAttribute('soft_delete') === true;
+        return $this->getAttribute('soft_delete') == true;
     }
 
     /**
