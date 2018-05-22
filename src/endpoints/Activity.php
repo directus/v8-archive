@@ -6,7 +6,8 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use Directus\Services\ActivityService;
+use Directus\Util\ArrayUtils;
 
 class Activity extends Route
 {
@@ -28,23 +29,8 @@ class Activity extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $params = $request->getQueryParams();
-
-        $activityTableGateway = new DirectusActivityTableGateway($dbConnection, $acl);
-
-        // a way to get records last updated from activity
-        // if (ArrayUtils::get($params, 'last_updated')) {
-        //     $table = key($params['last_updated']);
-        //     $ids = ArrayUtils::get($params, 'last_updated.' . $table);
-        //     $arrayOfIds = $ids ? explode(',', $ids) : [];
-        //     $responseData = $activityTableGateway->getLastUpdated($table, $arrayOfIds);
-        // } else {
-        //
-        // }
-
-        $responseData = $activityTableGateway->getItems($params);
+        $service = new ActivityService($this->container);
+        $responseData = $service->findAll($request->getQueryParams());
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -57,14 +43,11 @@ class Activity extends Route
      */
     public function read(Request $request, Response $response)
     {
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $params = array_merge($request->getQueryParams(), [
-            'id' => $request->getAttribute('id')
-        ]);
-
-        $activityTableGateway = new DirectusActivityTableGateway($dbConnection, $acl);
-        $responseData = $activityTableGateway->getItems($params);
+        $service = new ActivityService($this->container);
+        $responseData = $service->find(
+            $request->getAttribute('id'),
+            ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta'])
+        );
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -77,19 +60,12 @@ class Activity extends Route
      */
     public function createComment(Request $request, Response $response)
     {
-        $payload = $request->getParsedBody();
-        $dbConnection = $this->container->get('database');
-        $acl = $this->container->get('acl');
-        $activityTableGateway = new DirectusActivityTableGateway($dbConnection, $acl);
-        $payload = array_merge($payload, [
-            'user' => $acl->getUserId()
-        ]);
+        $service = new ActivityService($this->container);
+        $responseData = $service->createComment(
+            $request->getParsedBody() ?: [],
+            $request->getQueryParams()
+        );
 
-        $record = $activityTableGateway->recordMessage($payload);
-
-        return $this->responseWithData($request, $response, $activityTableGateway->wrapData(
-            $record->toArray(),
-            true
-        ));
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

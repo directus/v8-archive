@@ -141,26 +141,6 @@ class DirectusActivityTableGateway extends RelationalTableGateway
     }
 
     /**
-     * Records a message activity
-     *
-     * @param $data
-     *
-     * @return \Directus\Database\RowGateway\BaseRowGateway
-     */
-    public function recordMessage($data)
-    {
-        $logData = array_merge($data, [
-            'type' => self::TYPE_COMMENT,
-            'action' => static::ACTION_ADD,
-            'datetime' => DateTimeUtils::nowInUTC()->toString(),
-            'ip' => get_request_ip(),
-            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
-        ]);
-
-        return $this->updateRecord($logData);
-    }
-
-    /**
      * Get the last update date from a list of row ids in the given table
      *
      * @param string $table
