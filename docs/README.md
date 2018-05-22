@@ -789,7 +789,7 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 
 ### Activity
 
-#### Activities Actions
+#### Activities Type
 | Name          | Description                                                   |
 | ------------- | ------------------------------------------------------------- |
 | ENTRY         | Activities to any items besides files and settings collection |
@@ -798,7 +798,7 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 | LOGIN         | Activities on authentication                                  |
 | COMMENT       | Activities related to a comment in a collections's item       |
 
-#### Activities Types
+#### Activities Actions
 | Name          | Description                                                |
 | ------------- | ---------------------------------------------------------- |
 | ADD           | Item created                                               |
