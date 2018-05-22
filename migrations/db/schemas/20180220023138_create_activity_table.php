@@ -67,8 +67,18 @@ class CreateActivityTable extends AbstractMigration
             'limit' => 255
         ]);
 
+        $table->addColumn('datetime_edited', 'datetime', [
+            'default' => null
+        ]);
+
         $table->addColumn('comment', 'text', [
             'null' => true
+        ]);
+
+        $table->addColumn('deleted_comment', 'boolean', [
+            'signed' => false,
+            'null' => true,
+            'default' => false
         ]);
 
         $table->create();

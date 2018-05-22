@@ -19,6 +19,8 @@ class Activity extends Route
         $app->get('', [$this, 'all']);
         $app->get('/{id}', [$this, 'read']);
         $app->post('/comment', [$this, 'createComment']);
+        $app->patch('/comment/{id}', [$this, 'updateComment']);
+        $app->delete('/comment/{id}', [$this, 'deleteComment']);
     }
 
     /**
@@ -67,5 +69,41 @@ class Activity extends Route
         );
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function updateComment(Request $request, Response $response)
+    {
+        $service = new ActivityService($this->container);
+        $responseData = $service->updateComment(
+            $request->getAttribute('id'),
+            $request->getParsedBodyParam('comment'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function deleteComment(Request $request, Response $response)
+    {
+        $service = new ActivityService($this->container);
+        $service->deleteComment(
+            $request->getAttribute('id')
+        );
+
+        $response = $response->withStatus(204);
+
+        return $this->responseWithData($request, $response, []);
     }
 }
