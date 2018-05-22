@@ -252,7 +252,7 @@ class SchemaFactory
                 break;
             case DataTypes::TYPE_TINY_JSON:
             case DataTypes::TYPE_TINY_TEXT:
-                $column = new LongText($name);
+                $column = new TinyText($name);
                 break;
             case DataTypes::TYPE_JSON:
             case DataTypes::TYPE_TEXT:
