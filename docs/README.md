@@ -789,6 +789,25 @@ These system endpoints still follow the same spec as a “regular” `/items/[co
 
 ### Activity
 
+#### Activities Actions
+| Name          | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| ENTRY         | Activities to any items besides files and settings collection |
+| FILES         | Activities on the Directus files collection                   |
+| SETTINGS      | Activities on the Directus settings collection                |
+| LOGIN         | Activities on authentication                                  |
+| COMMENT       | Activities related to a comment in a collections's item       |
+
+#### Activities Types
+| Name          | Description                                                |
+| ------------- | ---------------------------------------------------------- |
+| ADD           | Item created                                               |
+| UPDATE        | Item updated                                               |
+| DELETE        | Item deleted                                               |
+| SOFT_DELETE   | Item soft-deleted. Update to a soft delete status          |
+| LOGIN         | User authenticate using credentials                        |
+| REVERT        | Item updated using a revision data                         |
+
 #### Get activities
 
 Get an array of activities
