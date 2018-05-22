@@ -5,7 +5,6 @@ namespace Directus\Database\Schema;
 use Directus\Database\Ddl\Column\Bit;
 use Directus\Database\Ddl\Column\Boolean;
 use Directus\Database\Ddl\Column\CollectionLength;
-use Directus\Database\Ddl\Column\Custom;
 use Directus\Database\Ddl\Column\Double;
 use Directus\Database\Ddl\Column\Enum;
 use Directus\Database\Ddl\Column\File;
@@ -23,6 +22,7 @@ use Directus\Database\Ddl\Column\TinyBlob;
 use Directus\Database\Ddl\Column\TinyInteger;
 use Directus\Database\Ddl\Column\TinyText;
 use Directus\Database\Ddl\Column\Uuid;
+use Directus\Database\Exception\FieldAlreadyHasUniqueKeyException;
 use Directus\Database\Exception\UnknownDataTypeException;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
@@ -36,7 +36,6 @@ use Zend\Db\Sql\Ddl\Column\Binary;
 use Zend\Db\Sql\Ddl\Column\Blob;
 use Zend\Db\Sql\Ddl\Column\Char;
 use Zend\Db\Sql\Ddl\Column\Column;
-use Zend\Db\Sql\Ddl\Column\ColumnInterface;
 use Zend\Db\Sql\Ddl\Column\Date;
 use Zend\Db\Sql\Ddl\Column\Datetime;
 use Zend\Db\Sql\Ddl\Column\Decimal;
@@ -48,6 +47,7 @@ use Zend\Db\Sql\Ddl\Column\Timestamp;
 use Zend\Db\Sql\Ddl\Column\Varbinary;
 use Zend\Db\Sql\Ddl\Column\Varchar;
 use Zend\Db\Sql\Ddl\Constraint\PrimaryKey;
+use Zend\Db\Sql\Ddl\Constraint\UniqueKey;
 use Zend\Db\Sql\Ddl\CreateTable;
 use Zend\Db\Sql\Sql;
 
@@ -87,7 +87,8 @@ class SchemaFactory
         foreach ($columnsData as $column) {
             if (SystemInterface::INTERFACE_PRIMARY_KEY === $column['interface']) {
                 $table->addConstraint(new PrimaryKey($column['field']));
-                break;
+            } else if (ArrayUtils::get($column, 'unique') == true) {
+                $table->addConstraint(new UniqueKey($column['field']));
             }
         }
 
@@ -105,21 +106,40 @@ class SchemaFactory
      * @param array $data
      *
      * @return AlterTable
+     *
+     * @throws FieldAlreadyHasUniqueKeyException
      */
     public function alterTable($name, array $data)
     {
         $table = new AlterTable($name);
 
+        $collection = $this->schemaManager->getCollection($name);
+
         $toAddColumnsData = ArrayUtils::get($data, 'add', []);
         $toAddColumns = $this->createColumns($toAddColumnsData);
         foreach ($toAddColumns as $column) {
             $table->addColumn($column);
+
+            $options = $column->getOptions();
+            if (is_array($options) && ArrayUtils::get($options, 'unique') == true) {
+                $table->addConstraint(new UniqueKey($column->getName()));
+            }
         }
 
         $toChangeColumnsData = ArrayUtils::get($data, 'change', []);
         $toChangeColumns = $this->createColumns($toChangeColumnsData);
         foreach ($toChangeColumns as $column) {
             $table->changeColumn($column->getName(), $column);
+
+            $field = $collection->getField($column->getName());
+            if ($field->hasUniqueKey()) {
+                throw new FieldAlreadyHasUniqueKeyException($column->getName());
+            }
+
+            $options = $column->getOptions();
+            if (is_array($options) && ArrayUtils::get($options, 'unique') == true) {
+                $table->addConstraint(new UniqueKey($column->getName()));
+            }
         }
 
         $toDropColumnsName = ArrayUtils::get($data, 'drop', []);
@@ -159,6 +179,7 @@ class SchemaFactory
         $type = $this->schemaManager->getDataType(ArrayUtils::get($data, 'type'));
         $interface = ArrayUtils::get($data, 'interface');
         $autoincrement = ArrayUtils::get($data, 'auto_increment', false);
+        $unique = ArrayUtils::get($data, 'unique', false);
         $length = ArrayUtils::get($data, 'length', $this->schemaManager->getFieldDefaultLength($type));
         $nullable = ArrayUtils::get($data, 'nullable', true);
         $default = ArrayUtils::get($data, 'default_value', null);
@@ -170,6 +191,10 @@ class SchemaFactory
         $column = $this->createColumnFromType($name, $type);
         $column->setNullable($nullable);
         $column->setDefault($default);
+
+        if (!$autoincrement && $unique === true) {
+            $column->setOption('unique', true);
+        }
 
         // CollectionLength are SET or ENUM data type
         if ($column instanceof AbstractLengthColumn || $column instanceof CollectionLength) {

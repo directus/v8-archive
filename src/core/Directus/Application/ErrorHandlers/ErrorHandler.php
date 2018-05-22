@@ -12,6 +12,7 @@ use Directus\Exception\Exception;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\NotFoundExceptionInterface;
 use Directus\Exception\UnauthorizedExceptionInterface;
+use Directus\Exception\UnprocessableEntityExceptionInterface;
 use Directus\Hook\Emitter;
 use Directus\Services\ScimService;
 use Directus\Util\ArrayUtils;
@@ -122,6 +123,8 @@ class ErrorHandler extends AbstractHandler
             $httpStatusCode = 403;
         } else if ($exception instanceof ConflictExceptionInterface) {
             $httpStatusCode = 409;
+        } else if ($exception instanceof UnprocessableEntityExceptionInterface) {
+            $httpStatusCode = 422;
         }
 
         $data = [
