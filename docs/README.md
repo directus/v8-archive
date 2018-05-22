@@ -2184,3 +2184,45 @@ Returns the list of Directus data types.
 ```http
 GET /types
 ```
+
+## Webhooks
+
+Webhooks allows you to send a HTTP request when an event happens.
+
+Creating a webhook on Directus is done by creating a custom hook that makes a HTTP request.
+
+Below there's an example that sends a `POST` request to `http://example.com/alert` every time an article is created, using the following payload:
+
+```json
+{
+  "type": "article",
+  "data": {
+    "title": "new article",
+    "body": "this is a new article"
+  }
+}
+```
+
+```php
+<?php
+
+return [
+    'actions' => [
+        // Send an alert when a post is created
+        'collection.insert.articles' => function (array $data) {
+            $client = new \GuzzleHttp\Client([
+                'base_uri' => 'http://example.com'
+            ]);
+
+            $data = [
+                'type' => 'article',
+                'data' => $data
+            ];
+
+            $response = $client->request('POST', 'alert', [
+                'json' => $data
+            ]);
+        }
+    ]
+];
+```
