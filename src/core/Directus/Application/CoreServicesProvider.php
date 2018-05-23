@@ -144,7 +144,10 @@ class CoreServicesProvider
          */
         $errorHandler = function (Container $container) {
             $hookEmitter = $container['hook_emitter'];
-            return new ErrorHandler($hookEmitter);
+
+            return new ErrorHandler($hookEmitter, [
+                'env' => $container->get('config')->get('app.env', 'development')
+            ]);
         };
 
         return $errorHandler;
