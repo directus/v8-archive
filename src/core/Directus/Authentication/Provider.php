@@ -185,6 +185,9 @@ class Provider
     public function authenticateWithToken($token)
     {
         $payload = JWTUtils::decode($token, $this->getSecretKey(), ['HS256']);
+        if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_AUTH, $payload)) {
+            throw new InvalidTokenException();
+        }
 
         $conditions = [
             'id' => $payload->id,
@@ -342,7 +345,7 @@ class Provider
             'exp' => $this->getNewExpirationTime()
         ];
 
-        return $this->generateToken($payload);
+        return $this->generateToken(JWTUtils::TYPE_AUTH, $payload);
     }
 
     /**
@@ -363,7 +366,7 @@ class Provider
             'env' => get_api_env_from_request()
         ];
 
-        return $this->generateToken($payload);
+        return $this->generateToken(JWTUtils::TYPE_SSO_REQUEST_TOKEN, $payload);
     }
 
     /**
@@ -381,7 +384,7 @@ class Provider
             'exp' => $this->getNewExpirationTime()
         ];
 
-        return $this->generateToken($payload);
+        return $this->generateToken(JWTUtils::TYPE_RESET_PASSWORD, $payload);
     }
 
     /**
@@ -393,18 +396,21 @@ class Provider
      */
     public function generateInvitationToken(array $payload)
     {
-        return $this->generateToken($payload);
+        return $this->generateToken(JWTUtils::TYPE_INVITATION, $payload);
     }
 
     /**
      * Generates a new JWT token
      *
-     * @param $payload
+     * @param string $type
+     * @param array $payload
      *
      * @return string
      */
-    public function generateToken($payload)
+    public function generateToken($type, array $payload)
     {
+        $payload['type'] = (string)$type;
+
         return JWTUtils::encode($payload, $this->getSecretKey(), 'HS256');
     }
 
@@ -422,6 +428,9 @@ class Provider
     {
         $algo = 'HS256';
         $payload = JWTUtils::decode($token, $this->getSecretKey(), [$algo]);
+        if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_AUTH, $payload)) {
+            throw new InvalidTokenException();
+        }
 
         if (!is_object($payload)) {
             // Empty payload, log this as debug?
