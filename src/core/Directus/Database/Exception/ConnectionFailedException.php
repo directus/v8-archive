@@ -13,10 +13,6 @@ class ConnectionFailedException extends ErrorException
     {
         $message = 'Failed to connect to the database';
 
-        if ($previous) {
-            $message .= ': ' . $previous->getMessage();
-        }
-
         parent::__construct($message, static::ERROR_CODE, $previous);
     }
 }
