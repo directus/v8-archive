@@ -7,7 +7,6 @@ use Directus\Application\Http\Response;
 use Directus\Database\Exception\InvalidQueryException;
 use Directus\Exception\BadRequestExceptionInterface;
 use Directus\Exception\ConflictExceptionInterface;
-use Directus\Exception\ErrorException;
 use Directus\Exception\Exception;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\NotFoundExceptionInterface;
@@ -167,8 +166,7 @@ class ErrorHandler extends AbstractHandler
     protected function isError($exception)
     {
         return $exception instanceof \Error
-            || $exception instanceof \ErrorException
-            || $exception instanceof ErrorException;
+            || $exception instanceof \ErrorException;
     }
 
     /**
