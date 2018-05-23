@@ -380,6 +380,7 @@ class Provider
     {
         $payload = [
             'id' => (int) $user->getId(),
+            'email' => $user->getEmail(),
             // TODO: Separate time expiration for reset password token
             'exp' => $this->getNewExpirationTime()
         ];

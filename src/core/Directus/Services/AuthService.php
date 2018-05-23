@@ -354,6 +354,11 @@ class AuthService extends AbstractService
             throw new UserNotFoundException();
         }
 
+        // Throw invalid token if the payload email is not the same as the current user email
+        if (!property_exists($payload, 'email') || $payload->email !== $user->getEmail()) {
+            throw new InvalidResetPasswordTokenException($token);
+        }
+
         $newPassword = StringUtils::randomString(16);
         $userProvider->update($user, [
             'password' => $auth->hashPassword($newPassword)
