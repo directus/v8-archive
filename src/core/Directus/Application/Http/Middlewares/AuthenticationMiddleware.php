@@ -157,7 +157,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
                 $authPassword = array_shift($authPassword);
             }
 
-            if ($authUser && empty($authPassword)) {
+            if ($authUser && (empty($authPassword) || $authUser === $authPassword)) {
                 $authToken = $authUser;
             }
         } elseif ($request->hasHeader('Authorization')) {
