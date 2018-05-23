@@ -704,7 +704,13 @@ class Builder
     {
         $order = [];
         foreach($this->getOrder() as $orderBy => $orderDirection) {
-            $order[] = sprintf('%s %s', $this->getIdentifier($orderBy), $orderDirection);
+            if ($orderBy === '?') {
+                $expression = new Expression('RAND()');
+            } else {
+                $expression = sprintf('%s %s', $this->getIdentifier($orderBy), $orderDirection);
+            }
+
+            $order[] = $expression;
         }
 
         return $order;

@@ -1444,7 +1444,7 @@ class RelationalTableGateway extends BaseTableGateway
             $orderBy = key($compact);
             $orderDirection = current($compact);
 
-            if (!SchemaService::hasCollectionField($this->table, $orderBy, $this->acl === null)) {
+            if ($orderBy !== '?' && !SchemaService::hasCollectionField($this->table, $orderBy, $this->acl === null)) {
                 throw new Exception\InvalidFieldException($column);
             }
 
