@@ -4,8 +4,6 @@ namespace Directus\Database\Schema\Object;
 
 use Directus\Config\StatusMapping;
 use Directus\Database\Schema\DataTypes;
-use Directus\Database\Schema\SystemInterface;
-use Directus\Util\ArrayUtils;
 
 class Collection extends AbstractObject
 {
@@ -18,6 +16,41 @@ class Collection extends AbstractObject
      * @var array
      */
     protected $systemFields = [];
+
+    /**
+     * @var Field
+     */
+    protected $primaryField;
+
+    /**
+     * @var Field
+     */
+    protected $statusField;
+
+    /**
+     * @var Field
+     */
+    protected $sortingField;
+
+    /**
+     * @var Field
+     */
+    protected $userCreatedField;
+
+    /**
+     * @var Field
+     */
+    protected $userModifiedField;
+
+    /**
+     * @var Field
+     */
+    protected $dateCreatedField;
+
+    /**
+     * @var Field
+     */
+    protected $dateModifiedField;
 
     /**
      * Gets the collection's name
@@ -50,19 +83,19 @@ class Collection extends AbstractObject
             // @NOTE: This is a temporary solution
             // to always set the primary field to the first primary key field
             if (!$this->getPrimaryField() && $field->hasPrimaryKey()) {
-                $this->setPrimaryField($field);
-            } else if (!$this->getSortingField() && $field->getInterface() === SystemInterface::INTERFACE_SORTING) {
-                $this->setSortingField($field);
-            } else if (!$this->getStatusField() && $field->getInterface() === SystemInterface::INTERFACE_STATUS) {
-                $this->setStatusField($field);
-            } else if (!$this->getDateCreateField() && $field->getInterface() === SystemInterface::INTERFACE_DATE_CREATED) {
-                $this->setDateCreateField($field);
-            } else if (!$this->getUserCreateField() && $field->getInterface() === SystemInterface::INTERFACE_USER_CREATED) {
-                $this->setUserCreateField($field);
-            } else if (!$this->getDateUpdateField() && $field->getInterface() === SystemInterface::INTERFACE_DATE_MODIFIED) {
-                $this->setDateUpdateField($field);
-            } else if (!$this->getUserUpdateField() && $field->getInterface() === SystemInterface::INTERFACE_USER_MODIFIED) {
-                $this->setUserUpdateField($field);
+                $this->primaryField = $field;
+            } else if (!$this->getSortingField() && $field->isSortingType()) {
+                $this->sortingField = $field;
+            } else if (!$this->getStatusField() && $field->isStatusType()) {
+                $this->statusField = $field;
+            } else if (!$this->getDateCreatedField() && $field->isDateCreatedType()) {
+                $this->dateCreatedField = $field;
+            } else if (!$this->getUserCreatedField() && $field->isUserCreatedType()) {
+                $this->userCreatedField = $field;;
+            } else if (!$this->getDateModifiedField() && $field->isDateModifiedType()) {
+                $this->dateModifiedField = $field;
+            } else if (!$this->getUserModifiedField() && $field->isUserModifiedType()) {
+                $this->userModifiedField = $field;
             }
 
             $this->fields[$field->getName()] = $field;
@@ -417,33 +450,13 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Sets the primary key interface field
-     *
-     * Do not confuse it with primary key
-     *
-     * @param Field $field
-     *
-     * @return Collection
-     */
-    public function setPrimaryField(Field $field)
-    {
-        return $this->setSystemField(SystemInterface::INTERFACE_PRIMARY_KEY, $field);
-    }
-
-    /**
      * Gets primary key interface field
      *
      * @return Field
      */
     public function getPrimaryField()
     {
-        $field = $this->getSystemField(SystemInterface::INTERFACE_PRIMARY_KEY);
-
-        if (!$field) {
-            $field = $this->getPrimaryKey();
-        }
-
-        return $field;
+        return $this->primaryField;
     }
 
     /**
@@ -483,39 +496,13 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Sets status interface field
+     * Gets status field
      *
-     * @param Field $field
-     *
-     * @return Collection
-     */
-    public function setStatusField(Field $field)
-    {
-        return $this->setSystemField(SystemInterface::INTERFACE_STATUS, $field);
-    }
-
-    /**
-     * Gets status interface field
-     *
-     * @return Field|bool
+     * @return Field|null
      */
     public function getStatusField()
     {
-        return $this->getSystemField(SystemInterface::INTERFACE_STATUS);
-    }
-
-    /**
-     * Sets the sort interface field
-     *
-     * @param Field $field
-     *
-     * @return Collection
-     */
-    public function setSortingField(Field $field)
-    {
-        $this->setSystemField(SystemInterface::INTERFACE_SORTING, $field);
-
-        return $this;
+        return $this->statusField;
     }
 
     /**
@@ -525,19 +512,7 @@ class Collection extends AbstractObject
      */
     public function getSortingField()
     {
-        return $this->getSystemField(SystemInterface::INTERFACE_SORTING);
-    }
-
-    /**
-     * Sets the field storing the record's user owner
-     *
-     * @param Field $field
-     *
-     * @return Collection
-     */
-    public function setUserCreateField(Field $field)
-    {
-        return $this->setSystemField(SystemInterface::INTERFACE_USER_CREATED, $field);
+        return $this->sortingField;
     }
 
     /**
@@ -545,21 +520,9 @@ class Collection extends AbstractObject
      *
      * @return Field|bool
      */
-    public function getUserCreateField()
+    public function getUserCreatedField()
     {
-        return $this->getSystemField(SystemInterface::INTERFACE_USER_CREATED);
-    }
-
-    /**
-     * Sets the field storing the user updating the record
-     *
-     * @param Field $field
-     *
-     * @return Collection
-     */
-    public function setUserUpdateField(Field $field)
-    {
-        return $this->setSystemField(SystemInterface::INTERFACE_USER_MODIFIED, $field);
+        return $this->userCreatedField;
     }
 
     /**
@@ -567,21 +530,9 @@ class Collection extends AbstractObject
      *
      * @return Field|null
      */
-    public function getUserUpdateField()
+    public function getUserModifiedField()
     {
-        return $this->getSystemField(SystemInterface::INTERFACE_USER_MODIFIED);
-    }
-
-    /**
-     * Sets the field storing the record created time
-     *
-     * @param Field $field
-     *
-     * @return Collection
-     */
-    public function setDateCreateField(Field $field)
-    {
-        return $this->setSystemField(SystemInterface::INTERFACE_DATE_CREATED, $field);
+        return $this->userModifiedField;
     }
 
     /**
@@ -589,21 +540,9 @@ class Collection extends AbstractObject
      *
      * @return Field|null
      */
-    public function getDateCreateField()
+    public function getDateCreatedField()
     {
-        return $this->getSystemField(SystemInterface::INTERFACE_DATE_CREATED);
-    }
-
-    /**
-     * Sets the field storing the record updated time
-     *
-     * @param Field $field
-     *
-     * @return Collection
-     */
-    public function setDateUpdateField(Field $field)
-    {
-        return $this->setSystemField(SystemInterface::INTERFACE_DATE_MODIFIED, $field);
+        return $this->dateCreatedField;
     }
 
     /**
@@ -611,9 +550,9 @@ class Collection extends AbstractObject
      *
      * @return Field|null
      */
-    public function getDateUpdateField()
+    public function getDateModifiedField()
     {
-        return $this->getSystemField(SystemInterface::INTERFACE_DATE_MODIFIED);
+        return $this->dateModifiedField;
     }
 
     /**
@@ -646,51 +585,6 @@ class Collection extends AbstractObject
     public function getItemNameTemplate()
     {
         return $this->attributes->get('item_name_template');
-    }
-
-    /**
-     * @param string $interface
-     *
-     * @return Field|bool
-     */
-    protected function getSystemField($interface)
-    {
-        $systemField = ArrayUtils::get($this->systemFields, $interface, null);
-
-        if ($systemField === null) {
-            $systemField = false;
-
-            foreach ($this->fields as $field) {
-                if ($field->getInterface() === $interface) {
-                    $systemField = $field;
-                }
-            }
-
-            if ($systemField) {
-                $this->setSystemField($interface, $systemField);
-            } else {
-                $this->systemFields[$interface] = $systemField;
-            }
-        }
-
-        return $systemField;
-    }
-
-    /**
-     * Sets the system interface field
-     *
-     * @param string $interface
-     * @param Field $field
-     *
-     * @return $this
-     */
-    protected function setSystemField($interface, Field $field)
-    {
-        if ($field->getInterface() === $interface) {
-            $this->systemFields[$interface] = $field;
-        }
-
-        return $this;
     }
 
     /**

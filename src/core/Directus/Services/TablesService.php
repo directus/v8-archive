@@ -846,26 +846,26 @@ class TablesService extends AbstractService
         $found = [];
 
         foreach ($columns as $column) {
-            $interface = ArrayUtils::get($column, 'interface');
-            if ($this->getSchemaManager()->isSystemField($interface)) {
-                if (!isset($found[$interface])) {
-                    $found[$interface] = 0;
+            $type = ArrayUtils::get($column, 'type');
+            if ($this->getSchemaManager()->isUniqueFieldType($type)) {
+                if (!isset($found[$type])) {
+                    $found[$type] = 0;
                 }
 
-                $found[$interface]++;
+                $found[$type]++;
             }
         }
 
-        $interfaces = [];
-        foreach ($found as $interface => $count) {
+        $types = [];
+        foreach ($found as $type=> $count) {
             if ($count > 1) {
-                $interfaces[] = $interface;
+                $types[] = $type;
             }
         }
 
-        if (!empty($interfaces)) {
+        if (!empty($types)) {
             throw new InvalidRequestException(
-                'Only one system interface permitted per table: ' . implode(', ', $interfaces)
+                'Only one system field permitted per table: ' . implode(', ', $types)
             );
         }
     }

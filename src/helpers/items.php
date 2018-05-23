@@ -24,7 +24,7 @@ if (!function_exists('get_item_owner')) {
         $schemaManager = $app->getContainer()->get('schema_manager');
 
         $collectionObject = $schemaManager->getCollection($collection);
-        $userCreatedField = $collectionObject->getUserCreateField();
+        $userCreatedField = $collectionObject->getUserCreatedField();
 
         $owner = null;
         if ($userCreatedField) {

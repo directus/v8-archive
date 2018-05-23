@@ -928,7 +928,7 @@ class BaseTableGateway extends TableGateway
                 $canConvert = in_array(strtolower($column->getType()), ['timestamp', 'datetime']);
                 // Directus convert all dates to ISO to all datetime columns in the core tables
                 // and any columns using system date interfaces (date_created or date_modified)
-                if ($isCustomTable && !$column->isSystemDate()) {
+                if ($isCustomTable && !$column->isSystemDateType()) {
                     $canConvert = false;
                 }
 
@@ -1059,7 +1059,7 @@ class BaseTableGateway extends TableGateway
         // ----------------------------------------------------------------------------
         $this->acl->enforceReadOnce($this->table);
         $collectionObject = $this->getTableSchema();
-        $userCreatedField = $collectionObject->getUserCreateField();
+        $userCreatedField = $collectionObject->getUserCreatedField();
         $statusField = $collectionObject->getStatusField();
 
         // If there's not user created interface, user must have full read permission
@@ -1165,7 +1165,7 @@ class BaseTableGateway extends TableGateway
         }
 
         // User Created Interface not found, item cannot be updated
-        $itemOwnerField = $this->getTableSchema()->getUserCreateField();
+        $itemOwnerField = $this->getTableSchema()->getUserCreatedField();
         if (!$itemOwnerField) {
             $this->acl->enforceUpdateAll($updateTable, $statusId);
             return;
@@ -1226,7 +1226,7 @@ class BaseTableGateway extends TableGateway
         }
 
         // User Created Interface not found, item cannot be updated
-        $itemOwnerField = $this->getTableSchema()->getUserCreateField();
+        $itemOwnerField = $this->getTableSchema()->getUserCreatedField();
         if (!$itemOwnerField) {
             $this->acl->enforceDeleteAll($deleteTable, $statusId);
             return;

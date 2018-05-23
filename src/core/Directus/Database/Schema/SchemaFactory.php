@@ -80,12 +80,10 @@ class SchemaFactory
     public function createTable($name, array $columnsData = [])
     {
         $table = new CreateTable($name);
-
-        // $columnsData = $this->mergeDefaultColumnsData($columnsData);
         $columns = $this->createColumns($columnsData);
 
         foreach ($columnsData as $column) {
-            if (SystemInterface::INTERFACE_PRIMARY_KEY === $column['interface']) {
+            if (ArrayUtils::get($column, 'primary_key', false)) {
                 $table->addConstraint(new PrimaryKey($column['field']));
             } else if (ArrayUtils::get($column, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column['field']));
@@ -177,9 +175,9 @@ class SchemaFactory
     {
         $this->validate($data);
         $type = $this->schemaManager->getDataType(ArrayUtils::get($data, 'type'));
-        $interface = ArrayUtils::get($data, 'interface');
         $autoincrement = ArrayUtils::get($data, 'auto_increment', false);
         $unique = ArrayUtils::get($data, 'unique', false);
+        $primaryKey = ArrayUtils::get($data, 'primary_key', false);
         $length = ArrayUtils::get($data, 'length', $this->schemaManager->getFieldDefaultLength($type));
         $nullable = ArrayUtils::get($data, 'nullable', true);
         $default = ArrayUtils::get($data, 'default_value', null);
@@ -193,7 +191,11 @@ class SchemaFactory
         $column->setDefault($default);
 
         if (!$autoincrement && $unique === true) {
-            $column->setOption('unique', true);
+            $column->setOption('unique', $unique);
+        }
+
+        if ($primaryKey === true) {
+            $column->setOption('primary_key', $primaryKey);
         }
 
         // CollectionLength are SET or ENUM data type
@@ -366,45 +368,6 @@ class SchemaFactory
         }
 
         return $column;
-    }
-
-    /**
-     * @param array $columns
-     *
-     * @return array
-     */
-    protected function mergeDefaultColumnsData(array $columns)
-    {
-        if (!$this->hasPrimaryKey($columns)) {
-            array_unshift($columns, [
-                'field' => 'id',
-                'type' => 'INTEGER',
-                'interface' => 'primary_key'
-            ]);
-        }
-
-        return $columns;
-    }
-
-    /**
-     * Whether the columns data array has a primary key
-     *
-     * @param array $columns
-     *
-     * @return bool
-     */
-    protected function hasPrimaryKey(array $columns)
-    {
-        $has = false;
-        foreach ($columns as $column) {
-            $interface = ArrayUtils::get($column, 'interface');
-            if ($this->schemaManager->isPrimaryKeyInterface($interface)) {
-                $has = true;
-                break;
-            }
-        }
-
-        return $has;
     }
 
     /**

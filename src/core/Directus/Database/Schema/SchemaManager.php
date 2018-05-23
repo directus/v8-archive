@@ -373,7 +373,7 @@ class SchemaManager
     {
         $tableObject = $this->getCollection($tableName);
 
-        return $tableObject->getDateCreateField() || $tableObject->getDateUpdateField();
+        return $tableObject->getDateCreatedField() || $tableObject->getDateModifiedField();
     }
 
     public function castRecordValues($records, $columns)
@@ -591,27 +591,15 @@ class SchemaManager
     }
 
     /**
-     * Checks whether the interface is a system interface
+     * Checks whether the given type is a unique type
      *
-     * @param $interface
-     *
-     * @return bool
-     */
-    public function isSystemField($interface)
-    {
-        return SystemInterface::isSystem($interface);
-    }
-
-    /**
-     * Checks whether the interface is primary key interface
-     *
-     * @param $interface
+     * @param $type
      *
      * @return bool
      */
-    public function isPrimaryKeyInterface($interface)
+    public function isUniqueFieldType($type)
     {
-        return $interface === SystemInterface::INTERFACE_PRIMARY_KEY;
+        return DataTypes::isUniqueType($type);
     }
 
     protected function addCollection($name, $schema)

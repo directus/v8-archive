@@ -3,7 +3,6 @@
 namespace Directus\Database\Schema\Object;
 
 use Directus\Database\Schema\DataTypes;
-use Directus\Database\Schema\SystemInterface;
 use Directus\Util\ArrayUtils;
 
 class Field extends AbstractObject
@@ -364,23 +363,85 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not is a system field
-     *
-     * @return bool
-     */
-    public function isSystem()
-    {
-        return SystemInterface::isSystem($this->getInterface());
-    }
-
-    /**
      * Checks whether this column is date system interface
      *
      * @return bool
      */
-    public function isSystemDate()
+    public function isSystemDateType()
     {
-        return SystemInterface::isSystemDate($this->getInterface());
+        return DataTypes::isSystemDateType($this->getType());
+    }
+
+    /**
+     * Checks whether or not the field is a status type
+     *
+     * @return bool
+     */
+    public function isStatusType()
+    {
+        return $this->isType(DataTypes::TYPE_STATUS);
+    }
+
+    /**
+     * Checks whether or not the field is a sort type
+     *
+     * @return bool
+     */
+    public function isSortingType()
+    {
+        return $this->isType(DataTypes::TYPE_SORT);
+    }
+
+    /**
+     * Checks whether or not the field is a date created type
+     *
+     * @return bool
+     */
+    public function isDateCreatedType()
+    {
+        return $this->isType(DataTypes::TYPE_DATE_CREATED);
+    }
+
+    /**
+     * Checks whether or not the field is an user created type
+     *
+     * @return bool
+     */
+    public function isUserCreatedType()
+    {
+        return $this->isType(DataTypes::TYPE_USER_CREATED);
+    }
+
+    /**
+     * Checks whether or not the field is a date modified type
+     *
+     * @return bool
+     */
+    public function isDateModifiedType()
+    {
+        return $this->isType(DataTypes::TYPE_DATE_MODIFIED);
+    }
+
+    /**
+     * Checks whether or not the field is an user modified type
+     *
+     * @return bool
+     */
+    public function isUserModifiedType()
+    {
+        return $this->isType(DataTypes::TYPE_USER_MODIFIED);
+    }
+
+    /**
+     * Checks whether or not the field is the given type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function isType($type)
+    {
+        return $type === strtolower($this->getType());
     }
 
     /**

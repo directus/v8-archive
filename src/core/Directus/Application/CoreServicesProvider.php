@@ -274,11 +274,11 @@ class CoreServicesProvider
                 $acl = $container->get('acl');
 
 
-                if ($dateCreated = $collection->getDateCreateField()) {
+                if ($dateCreated = $collection->getDateCreatedField()) {
                     $payload[$dateCreated] = DateTimeUtils::nowInUTC()->toString();
                 }
 
-                if ($dateCreated = $collection->getDateUpdateField()) {
+                if ($dateCreated = $collection->getDateModifiedField()) {
                     $payload[$dateCreated] = DateTimeUtils::nowInUTC()->toString();
                 }
 
@@ -288,8 +288,8 @@ class CoreServicesProvider
                     return $payload;
                 }
 
-                $userCreated = $collection->getUserCreateField();
-                $userModified = $collection->getUserUpdateField();
+                $userCreated = $collection->getUserCreatedField();
+                $userModified = $collection->getUserModifiedField();
 
                 if ($userCreated) {
                     $payload[$userCreated->getName()] = $acl->getUserId();
@@ -345,11 +345,11 @@ class CoreServicesProvider
 
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
-                if ($dateModified = $collection->getDateUpdateField()) {
+                if ($dateModified = $collection->getDateModifiedField()) {
                     $payload[$dateModified] = DateTimeUtils::nowInUTC()->toString();
                 }
 
-                if ($userModified = $collection->getUserUpdateField()) {
+                if ($userModified = $collection->getUserModifiedField()) {
                     $payload[$userModified] = $acl->getUserId();
                 }
 

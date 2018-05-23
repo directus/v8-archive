@@ -56,6 +56,14 @@ final class DataTypes
     const TYPE_GROUP        = 'group';
 
     const TYPE_FILE         = 'file';
+    const TYPE_TRANSLATION   = 'translation';
+
+    const TYPE_STATUS        = 'status';
+    const TYPE_SORT          = 'sort';
+    const TYPE_DATE_CREATED  = 'date_created';
+    const TYPE_DATE_MODIFIED = 'date_modified';
+    const TYPE_USER_CREATED  = 'user_created';
+    const TYPE_USER_MODIFIED = 'user_modified';
 
     /**
      * Returns a list all data types
@@ -64,15 +72,18 @@ final class DataTypes
      */
     public static function getAllTypes()
     {
-        return array_merge(
+        return array_unique(array_merge(
             static::getStringTypes(),
             static::getJSONTypes(),
             static::getNumericTypes(),
             static::getDateTimeTypes(),
             static::getBooleanTypes(),
             static::getListTypes(),
-            static::getBinaryTypes()
-        );
+            static::getBinaryTypes(),
+            static::getUniqueTypes(),
+            static::getFilesType(),
+            static::getAliasTypes()
+        ));
     }
 
     /**
@@ -275,7 +286,8 @@ final class DataTypes
             static::TYPE_ALIAS,
             static::TYPE_M2M,
             static::TYPE_O2M,
-            static::TYPE_GROUP
+            static::TYPE_GROUP,
+            static::TYPE_TRANSLATION
         ];
     }
 
@@ -313,5 +325,57 @@ final class DataTypes
     public static function isFilesType($type)
     {
         return in_array(strtolower($type), static::getFilesType());
+    }
+
+    /**
+     * Returns all the date types
+     *
+     * @return array
+     */
+    public static function getSystemDateTypes()
+    {
+        return [
+            static::TYPE_DATE_CREATED,
+            static::TYPE_DATE_MODIFIED
+        ];
+    }
+
+    /**
+     * Checks whether or not the given type is system date type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isSystemDateType($type)
+    {
+        return in_array(strtolower($type), static::getSystemDateTypes());
+    }
+
+    /**
+     * Returns all the unique data types
+     *
+     * Only one of these status can exists per collection
+     *
+     * @return array
+     */
+    public static function getUniqueTypes()
+    {
+        return array_merge([
+            static::TYPE_USER_CREATED,
+            static::TYPE_USER_MODIFIED,
+            static::TYPE_STATUS,
+            static::TYPE_SORT
+        ], static::getSystemDateTypes());
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isUniqueType($type)
+    {
+        return in_array(strtolower($type), static::getUniqueTypes());
     }
 }

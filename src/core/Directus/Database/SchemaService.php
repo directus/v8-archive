@@ -150,7 +150,7 @@ class SchemaService
     {
         $collectionObject = static::getCollection($collection);
 
-        return $collectionObject->getUserCreateField();
+        return $collectionObject->getUserCreatedField();
     }
 
     public static function getCollectionOwnerFieldName($collection)
@@ -355,19 +355,6 @@ class SchemaService
         $columnObject = $tableObject->getField($columnName);
 
         return $columnObject->getRelationship()->getCollectionB();
-    }
-
-    // @NOTE: This was copy-paste to Column Object
-    /**
-     * Whether or not the column name is the name of a system column.
-     *
-     * @param $interfaceName
-     *
-     * @return bool
-     */
-    public static function isSystemColumn($interfaceName)
-    {
-        return static::getSchemaManagerInstance()->isSystemField($interfaceName);
     }
 
     /**
