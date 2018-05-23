@@ -929,6 +929,7 @@ class TablesService extends AbstractService
         $data = ArrayUtils::pick($field->toArray(), array_merge($fieldsName, ['managed']));
         // it must be not managed
         $data['managed'] = false;
+        $data['primary_key'] = $field->hasPrimaryKey();
 
         return $tableGateway->parseRecord($data);
     }
