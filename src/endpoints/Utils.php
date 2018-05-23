@@ -16,6 +16,7 @@ class Utils extends Route
     public function __invoke(Application $app)
     {
         $app->post('/hash', [$this, 'hash']);
+        $app->post('/hash/match', [$this, 'matchHash']);
         $app->post('/random/string', [$this, 'randomString']);
     }
 
@@ -36,6 +37,31 @@ class Utils extends Route
 
         $responseData = $service->hashString(
             $request->getParam('string'),
+            $request->getParam('hasher', 'core'),
+            $options
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function matchHash(Request $request, Response $response)
+    {
+        $service = new UtilsService($this->container);
+
+        $options = $request->getParam('options', []);
+        if (!is_array($options)) {
+            $options = [$options];
+        }
+
+        $responseData = $service->verifyHashString(
+            $request->getParam('string'),
+            $request->getParam('hash'),
             $request->getParam('hasher', 'core'),
             $options
         );

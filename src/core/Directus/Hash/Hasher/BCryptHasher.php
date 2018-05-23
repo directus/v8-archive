@@ -19,4 +19,12 @@ class BCryptHasher implements HasherInterface
     {
         return password_hash($string, PASSWORD_BCRYPT, $options);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function verify($string, $hash, array $options = [])
+    {
+        return password_verify($string, $hash);
+    }
 }

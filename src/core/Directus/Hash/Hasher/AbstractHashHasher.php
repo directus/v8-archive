@@ -11,4 +11,12 @@ abstract class AbstractHashHasher implements HasherInterface
     {
         return hash($this->getName(), $string);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function verify($string, $hash, array $options = [])
+    {
+        return hash($this->getName(), $string) === $hash;
+    }
 }

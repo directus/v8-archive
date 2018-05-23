@@ -21,19 +21,67 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
     public function testHash()
     {
-        $data = [
-            'string' => 'secret'
-        ];
+        $string = 'secret';
 
-        $this->tryHashWith($data);
+        $this->tryHashWith($string);
 
         foreach ($this->availableHashers as $hasher) {
-            $data['hasher'] = $hasher;
-            $this->tryHashWith($data);
+            $this->tryHashWith($string, $hasher);
         }
+
+        $data = [
+            'string' => $string
+        ];
 
         $path = 'utils/hash';
         $data['hasher'] = 'none';
+        $response = request_error_post($path, $data, ['query' => [
+            'access_token' => 'token'
+        ]]);
+
+        assert_response_error($this, $response, [
+            'code' => HasherNotFoundException::ERROR_CODE,
+            'status' => 400
+        ]);
+
+        // Empty string passed
+        $response = request_error_post($path, ['string' => ''], ['query' => [
+            'access_token' => 'token'
+        ]]);
+
+        assert_response_error($this, $response, [
+            'code' => InvalidRequestException::ERROR_CODE,
+            'status' => 400
+        ]);
+
+        // Not string passed
+        $response = request_error_post($path, [], ['query' => [
+            'access_token' => 'token'
+        ]]);
+
+        assert_response_error($this, $response, [
+            'code' => InvalidRequestException::ERROR_CODE,
+            'status' => 400
+        ]);
+    }
+
+    public function testHashMatch()
+    {
+        $string = 'secret';
+
+        $this->tryHashMatchWith($string);
+
+        foreach ($this->availableHashers as $hasher) {
+            $this->tryHashMatchWith($string, $hasher);
+        }
+
+        $data = [
+            'string' => $string
+        ];
+
+        $path = 'utils/hash/match';
+        $data['hasher'] = 'none';
+        $data['hash'] = 'invalid-hash';
         $response = request_error_post($path, $data, ['query' => [
             'access_token' => 'token'
         ]]);
@@ -93,10 +141,11 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    protected function tryHashWith(array $data)
+    protected function tryHashWith($string, $hasher = null)
     {
         $path = 'utils/hash';
         $queryParams = ['access_token' => 'token'];
+        $data = ['string' => $string, 'hasher' => $hasher];
 
         $response = request_post($path, $data, ['query' => $queryParams]);
         assert_response($this, $response);
@@ -105,5 +154,22 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
         $data = $result->data;
         $this->assertInternalType('string', $data->hash);
+
+        return $data->hash;
+    }
+
+    protected function tryHashMatchWith($string, $hasher = null)
+    {
+        $hash = $this->tryHashWith($string, $hasher);
+
+        $path = 'utils/hash/match';
+        $queryParams = ['access_token' => 'token'];
+
+        $data = ['string' => $string, 'hasher' => $hasher, 'hash' => $hash];
+        $response = request_post($path, $data, ['query' => $queryParams]);
+        assert_response($this, $response);
+
+        $result = response_to_object($response);
+        $this->assertTrue($result->data->valid);
     }
 }
