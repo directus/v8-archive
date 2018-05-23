@@ -7,16 +7,6 @@ use Zend\Db\ResultSet\ResultSet;
 
 interface SchemaInterface
 {
-    const INTERFACE_ALIAS       = 'alias';
-    const INTERFACE_BLOB        = 'blob';
-    const INTERFACE_DATE        = 'date';
-    const INTERFACE_DATETIME    = 'datetime';
-    const INTERFACE_NUMERIC     = 'numeric';
-    const INTERFACE_TEXT_AREA   = 'textarea';
-    const INTERFACE_TEXT_INPUT  = 'text_input';
-    const INTERFACE_TIME        = 'time';
-    const INTERFACE_TOGGLE      = 'toggle';
-
     /**
      * @return Connection
      */
@@ -182,22 +172,6 @@ interface SchemaInterface
      * @return mixed
      */
     public function castValue($data, $type = null, $length = null);
-
-    /**
-     * Gets the default interface name per type
-     *
-     * @return array
-     */
-    public function getDefaultInterfaces();
-
-    /**
-     * Gets the column type default interface name
-     *
-     * @param $type - Column type
-     *
-     * @return string
-     */
-    public function getColumnDefaultInterface($type);
 
     /**
      * Gets the default length value per type

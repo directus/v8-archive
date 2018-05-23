@@ -618,28 +618,6 @@ class SchemaManager
     }
 
     /**
-     * Gets the data types default interfaces
-     *
-     * @return array
-     */
-    public function getDefaultInterfaces()
-    {
-        return $this->source->getDefaultInterfaces();
-    }
-
-    /**
-     * Gets the given data type default interface
-     *
-     * @param $type
-     *
-     * @return string
-     */
-    public function getFieldDefaultInterface($type)
-    {
-        return $this->source->getColumnDefaultInterface($type);
-    }
-
-    /**
      *
      *
      * @param $type
