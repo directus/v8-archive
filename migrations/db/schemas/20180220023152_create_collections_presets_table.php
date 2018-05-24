@@ -67,6 +67,10 @@ class CreateCollectionsPresetsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $table->addColumn('translation', 'text', [
+            'null' => true,
+            'default' => null
+        ]);
         $table->addIndex(['user', 'collection', 'title'], [
             'unique' => true,
             'name' => 'idx_user_collection_title'

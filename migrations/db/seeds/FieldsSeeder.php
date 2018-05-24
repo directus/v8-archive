@@ -211,6 +211,12 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'json'
             ],
+            [
+                'collection' => 'directus_collection_presets',
+                'field' => 'translation',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'JSON'
+            ],
             // Fields
             [
                 'collection' => 'directus_fields',
