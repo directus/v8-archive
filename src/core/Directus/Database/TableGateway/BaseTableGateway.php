@@ -4,7 +4,7 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Config\StatusMapping;
 use Directus\Container\Container;
-use Directus\Database\Exception\CollectionHasNotStatusInterface;
+use Directus\Database\Exception\CollectionHasNotStatusInterfaceException;
 use Directus\Database\Exception\DuplicateItemException;
 use Directus\Database\Exception\InvalidQueryException;
 use Directus\Database\Exception\ItemNotFoundException;
@@ -1571,13 +1571,13 @@ class BaseTableGateway extends TableGateway
      *
      * @return StatusMapping|null
      *
-     * @throws CollectionHasNotStatusInterface
+     * @throws CollectionHasNotStatusInterfaceException
      * @throws Exception
      */
     protected function getStatusMapping()
     {
         if (!$this->getTableSchema()->hasStatusField()) {
-            throw new CollectionHasNotStatusInterface($this->table);
+            throw new CollectionHasNotStatusInterfaceException($this->table);
         }
 
         $collectionStatusMapping = $this->getTableSchema()->getStatusMapping();
@@ -1599,7 +1599,7 @@ class BaseTableGateway extends TableGateway
      *
      * @param StatusMapping $statusMapping
      *
-     * @throws CollectionHasNotStatusInterface
+     * @throws CollectionHasNotStatusInterfaceException
      * @throws StatusMappingEmptyException
      * @throws StatusMappingWrongValueTypeException
      */
@@ -1611,7 +1611,7 @@ class BaseTableGateway extends TableGateway
 
         $statusField = $this->getTableSchema()->getStatusField();
         if (!$statusField) {
-            throw new CollectionHasNotStatusInterface($this->table);
+            throw new CollectionHasNotStatusInterfaceException($this->table);
         }
 
         $type = 'string';
