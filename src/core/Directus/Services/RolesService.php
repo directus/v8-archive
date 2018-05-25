@@ -72,6 +72,21 @@ class RolesService extends AbstractService
     }
 
     /**
+     * Finds one or more roles by the given IDs
+     *
+     * @param int $id
+     * @param array $params
+     *
+     * @return array
+     */
+    public function findByIds($id, array $params = [])
+    {
+        $tableGateway = $this->getTableGateway();
+
+        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $id, $params);
+    }
+
+    /**
      * Gets a single item that matches the conditions
      *
      * @param array $params

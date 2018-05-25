@@ -72,9 +72,14 @@ class Fields extends Route
     {
         $collectionName = $request->getAttribute('collection');
         $fieldName = $request->getAttribute('field');
+        $fieldsName = StringUtils::csv((string) $fieldName);
 
         $service = new TablesService($this->container);
-        $responseData = $service->findField($collectionName, $fieldName, $request->getQueryParams());
+        if (count($fieldsName) > 1) {
+            $responseData = $service->findFields($collectionName, $fieldsName, $request->getQueryParams());
+        } else {
+            $responseData = $service->findField($collectionName, $fieldName, $request->getQueryParams());
+        }
 
         return $this->responseWithData($request, $response, $responseData);
     }

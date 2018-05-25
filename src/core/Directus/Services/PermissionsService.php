@@ -48,6 +48,11 @@ class PermissionsService extends AbstractService
         return $this->getItemsAndSetResponseCacheTags($this->getTableGateway(), $params);
     }
 
+    public function findByIds($id, array $params = [])
+    {
+        return $this->getItemsByIdsAndSetResponseCacheTags($this->getTableGateway(), $id, $params);
+    }
+
     public function update($id, array $data, array $params = [])
     {
         $this->enforcePermissions($this->collection, $data, $params);

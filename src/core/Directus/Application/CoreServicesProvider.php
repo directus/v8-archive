@@ -523,7 +523,7 @@ class CoreServicesProvider
                         $ZendDb = $container->get('database');
                         $acl = $container->get('acl');
                         $table = new RelationalTableGateway('directus_files', $ZendDb, $acl);
-                        $filesEntries = $table->loadItems([
+                        $filesEntries = $table->fetchItems([
                             'in' => ['id' => $filesIds]
                         ]);
                         $entries = [];
@@ -1178,7 +1178,7 @@ class CoreServicesProvider
             // Fetch files settings
             $settingsTableGateway = new DirectusSettingsTableGateway($adapter, $acl);
             try {
-                $settings = $settingsTableGateway->loadItems([
+                $settings = $settingsTableGateway->fetchItems([
                     'filter' => ['scope' => 'files']
                 ]);
             } catch (\Exception $e) {

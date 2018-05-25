@@ -79,7 +79,7 @@ class Users extends Route
     public function read(Request $request, Response $response)
     {
         $service = new UsersService($this->container);
-        $responseData = $service->find(
+        $responseData = $service->findByIds(
             $request->getAttribute('id'),
             $request->getQueryParams()
         );

@@ -80,6 +80,15 @@ class UsersService extends AbstractService
         );
     }
 
+    public function findByIds($id, array $params = [])
+    {
+        return $this->itemsService->findByIds(
+            $this->collection,
+            $this->getUserId($id),
+            $params
+        );
+    }
+
     public function findOne(array $params = [])
     {
         return $this->itemsService->findOne(

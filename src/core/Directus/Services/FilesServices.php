@@ -47,6 +47,13 @@ class FilesServices extends AbstractService
         return $this->getItemsAndSetResponseCacheTags($tableGateway , $params);
     }
 
+    public function findByIds($id, array $params = [])
+    {
+        $tableGateway = $this->createTableGateway($this->collection);
+
+        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway , $id, $params);
+    }
+
     public function update($id, array $data, array $params = [])
     {
         $this->enforcePermissions($this->collection, $data, $params);
@@ -67,7 +74,7 @@ class FilesServices extends AbstractService
     {
         $this->enforcePermissions($this->collection, [], $params);
         $tableGateway = $this->createTableGateway($this->collection);
-        $file = $tableGateway->loadItems(['id' => $id]);
+        $file = $tableGateway->getOneData($id);
 
         // Force delete files
         // TODO: Make the hook listen to deletes and catch ALL ids (from conditions)
@@ -110,6 +117,13 @@ class FilesServices extends AbstractService
         $params['id'] = $id;
 
         return $this->getItemsAndSetResponseCacheTags($foldersTableGateway, $params);
+    }
+
+    public function findFolderByIds($id, array $params = [])
+    {
+        $foldersTableGateway = $this->createTableGateway('directus_folders');
+
+        return $this->getItemsByIdsAndSetResponseCacheTags($foldersTableGateway, $id, $params);
     }
 
     public function updateFolder($id, array $data, array $params = [])

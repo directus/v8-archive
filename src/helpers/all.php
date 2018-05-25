@@ -1311,8 +1311,8 @@ if (!function_exists('get_project_info')) {
             $filesTable = \Directus\Database\TableGatewayFactory::create('directus_files', [
                 'acl' => null
             ]);
-            $data = $filesTable->loadEntries([
-                'id' => $projectLogoURL
+            $data = $filesTable->fetchItems([
+                'filter' => ['id' => $projectLogoURL]
             ]);
 
             $projectLogoURL = \Directus\Util\ArrayUtils::get($data, 'url', $defaultProjectLogo);

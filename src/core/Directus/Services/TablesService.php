@@ -23,6 +23,7 @@ use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 
 // TODO: Create activity for collection and fields
@@ -79,9 +80,10 @@ class TablesService extends AbstractService
         // ----------------------------------------------------------------------------
         //  GET NOT MANAGED FIELDS
         // ----------------------------------------------------------------------------
-        $fieldsData = ArrayUtils::get($result, 'data');
-        $fieldsData = $this->parseSchemaFields($collection, $fieldsData);
-        $result['data'] = array_merge($result['data'], $fieldsData);
+        if (!empty($result['data'])) {
+            $result['data'] = $this->parseSchemaFieldsMissing($collection, ArrayUtils::get($result, 'data'));
+            // $result['data'] = array_merge($result['data'], $fieldsData);
+        }
         // ----------------------------------------------------------------------------
 
         return $result;
@@ -96,6 +98,15 @@ class TablesService extends AbstractService
         return $tableGateway->getItems(array_merge($params, [
             'id' => $name
         ]));
+    }
+
+    public function findByIds($name, array $params = [])
+    {
+        $this->validate(['collection' => $name], ['collection' => 'required|string']);
+
+        $tableGateway = $this->createTableGateway($this->collection);
+
+        return $tableGateway->getItemsByIds($name, $params);
     }
 
     public function findField($collection, $field, array $params = [])
@@ -139,6 +150,43 @@ class TablesService extends AbstractService
             //  Get not managed fields
             $result = ['data' => $this->parseSchemaField($columnObject)];
         }
+
+        return $result;
+    }
+
+    public function findFields($collectionName, array $fieldsName, array $params = [])
+    {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        // $this->tagResponseCache('tableColumnsSchema_'.$tableName);
+        $this->validate(['fields' => $fieldsName], ['fields' => 'required|array']);
+
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+        $collection = $schemaManager->getCollection($collectionName);
+        if (!$collection) {
+            throw new CollectionNotFoundException($collectionName);
+        }
+
+        $tableGateway = $this->getFieldsTableGateway();
+        $result = $tableGateway->getItems(array_merge($params, [
+            'filter' => [
+                'collection' => $collectionName,
+                'field' => ['in' => $fieldsName]
+            ]
+        ]));
+
+        // ----------------------------------------------------------------------------
+        //  GET NOT MANAGED FIELDS
+        // ----------------------------------------------------------------------------
+        if (empty($result['data'])) {
+            $result['data'] = $this->parseSchemaFields($collection, ArrayUtils::get($result, 'data'), $fieldsName);
+        // } else {
+
+        }
+        // ----------------------------------------------------------------------------
 
         return $result;
     }
@@ -288,7 +336,7 @@ class TablesService extends AbstractService
 
         // TODO: Create a check if exists method (quicker) + not found exception
         $tableGateway = $this->createTableGateway($this->collection);
-        $tableGateway->loadItems(['id' => $name]);
+        $tableGateway->getOneData($name);
         // ----------------------------------------------------------------------------
 
         if (!$this->getSchemaManager()->tableExists($name)) {
@@ -895,23 +943,55 @@ class TablesService extends AbstractService
      * Parses a list of Schema Attributes into Directus Attributes
      *
      * @param Collection $collection
-     * @param array $fields
+     * @param array $fieldsData
+     * @param array $fieldsName
      *
      * @return array
      */
-    protected function parseSchemaFields(Collection $collection, array $fields)
+    protected function parseSchemaFields(Collection $collection, array $fieldsData, array $fieldsName = [])
     {
         $result = [];
 
-        $fields = $collection->getFieldsNotIn(
-            ArrayUtils::pluck($fields, 'field')
+        if (empty($fieldsName)) {
+            $fieldsName = ArrayUtils::pluck($fieldsData, 'field');
+        }
+
+        if (empty($fieldsName)) {
+            return $fieldsData;
+        }
+
+        $fields = $collection->getFields(
+            $fieldsName
         );
 
         foreach ($fields as $field) {
             $result[] = $this->parseSchemaField($field);
         }
 
-        return $result;
+        return array_merge($fieldsData, $result);
+    }
+
+    /**
+     * Parses a list of missing Schema Attributes into Directus Attributes
+     *
+     * @param Collection $collection
+     * @param array $fieldsData
+     *
+     * @return array
+     */
+    protected function parseSchemaFieldsMissing(Collection $collection, array $fieldsData)
+    {
+        $result = [];
+
+        $fields = $collection->getFieldsNotIn(
+            ArrayUtils::pluck($fieldsData, 'field')
+        );
+
+        foreach ($fields as $field) {
+            $result[] = $this->parseSchemaField($field);
+        }
+
+        return array_merge($fieldsData, $result);
     }
 
     /**

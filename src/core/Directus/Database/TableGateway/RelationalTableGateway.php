@@ -610,11 +610,6 @@ class RelationalTableGateway extends BaseTableGateway
             $defaultParams['limit'] = (int)$defaultLimit;
         }
 
-        $id = ArrayUtils::get($params, 'id');
-        if ($id && count(StringUtils::csv((string) $id)) == 1) {
-            $params['single'] = true;
-        }
-
         // Fetch only one if single param is set
         if (ArrayUtils::get($params, 'single')) {
             $params['limit'] = 1;
@@ -731,23 +726,6 @@ class RelationalTableGateway extends BaseTableGateway
     }
 
     /**
-     * Relational Getter
-     * NOTE: equivalent to old DB#get_entries
-     *
-     * @param  array $params
-     *
-     * @return array
-     */
-    public function getEntries($params = [])
-    {
-        if (!is_array($params)) {
-            $params = [];
-        }
-
-        return $this->getItems($params);
-    }
-
-    /**
      * Get table items
      *
      * @param array $params
@@ -756,12 +734,52 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function getItems(array $params = [])
     {
-        $entries = $this->loadItems($params);
+        ArrayUtils::remove($params, 'id');
 
-        $single = ArrayUtils::has($params, 'id') || ArrayUtils::has($params, 'single');
-        $meta = ArrayUtils::get($params, 'meta', 0);
+        return $this->fetchData($params);
+    }
 
-        return $this->wrapData($entries, $single, $meta);
+    /**
+     * Gets multiple item with the given ids
+     *
+     * @param string|int|array $ids
+     * @param array $params
+     *
+     * @return array
+     */
+    public function getItemsByIds($ids, array $params = [])
+    {
+        if (!is_array($ids)) {
+            $ids = StringUtils::csv((string)$ids, false);
+        }
+
+        return $this->fetchData(array_merge($params, [
+            'id' => $ids
+        ]));
+    }
+
+    /**
+     * Gets one item with the given id
+     *
+     * @param int|string $id
+     * @param array $params
+     *
+     * @return array
+     */
+    public function getOne($id, array $params = [])
+    {
+        return $this->fetchData(array_merge($params, [
+            'single' => true,
+            'id' => $id
+        ]));
+    }
+
+    public function getOneData($id, array $params = [])
+    {
+        return $this->fetchItems(array_merge($params, [
+            'single' => true,
+            'id' => $id
+        ]));
     }
 
     /**
@@ -790,11 +808,6 @@ class RelationalTableGateway extends BaseTableGateway
         $result['data'] = $data;
 
         return $result;
-    }
-
-    public function loadMetadata($data, $single = false)
-    {
-        return $this->wrapData($data, $single);
     }
 
     public function createMetadata($entriesData, $single, $list = [])
@@ -883,7 +896,7 @@ class RelationalTableGateway extends BaseTableGateway
      * @throws Exception\InvalidFieldException
      * @throws Exception\ItemNotFoundException
      */
-    public function loadItems(array $params = [], \Closure $queryCallback = null)
+    public function fetchItems(array $params = [], \Closure $queryCallback = null)
     {
         $collectionObject = $this->getTableSchema();
 
@@ -995,18 +1008,24 @@ class RelationalTableGateway extends BaseTableGateway
     }
 
     /**
-     * Load Table entries
-     *
-     * Alias of loadItems
+     * Fetches items without being wrap into a data attribute
      *
      * @param array $params
-     * @param \Closure|null $queryCallback
      *
-     * @return mixed
+     * @return array
      */
-    public function loadEntries(array $params = [], \Closure $queryCallback = null)
+    protected function fetchData(array $params = [])
     {
-        return $this->loadItems($params, $queryCallback);
+        $meta = ArrayUtils::get($params, 'meta', false);
+        $id = ArrayUtils::get($params, 'id');
+        $single = ArrayUtils::get($params, 'single');
+        if (!$single && $id && count($id) == 1) {
+            $single = $params['single'] = true;
+        }
+
+        $items = $this->fetchItems($params);
+
+        return $this->wrapData($items, $single, $meta);
     }
 
     /**
@@ -1507,19 +1526,12 @@ class RelationalTableGateway extends BaseTableGateway
 
         if (ArrayUtils::has($params, 'id')) {
             $entriesIds = $params['id'];
-            if (is_string($entriesIds)) {
-                $entriesIds = StringUtils::csv($entriesIds, false);
-            }
 
             if (!is_array($entriesIds)) {
                 $entriesIds = [$entriesIds];
             }
 
-            $idsCount = count($entriesIds);
-            if ($idsCount > 0) {
-                $query->whereIn($this->primaryKeyFieldName, $entriesIds);
-                $query->limit($idsCount);
-            }
+            $query->whereIn($this->primaryKeyFieldName, $entriesIds);
         }
 
         if (!ArrayUtils::has($params, 'q')) {
@@ -1604,7 +1616,7 @@ class RelationalTableGateway extends BaseTableGateway
                 $filters[$alias->getOptions('left_column_name')] = ['in' => $langIds];
             }
 
-            $results = $tableGateway->loadEntries(array_merge([
+            $results = $tableGateway->fetchItems(array_merge([
                 'fields' => array_merge([$relationalColumnName], $filterFields),
                 // Fetch all related data
                 'limit' => -1,
@@ -1699,7 +1711,7 @@ class RelationalTableGateway extends BaseTableGateway
                 array_unshift($selectedFields, $junctionPrimaryKey);
             }
 
-            $results = $junctionTableGateway->loadEntries(array_merge([
+            $results = $junctionTableGateway->fetchItems(array_merge([
                 // Fetch all related data
                 'limit' => -1,
                 // Add the aliases of the join columns to prevent being removed from array
@@ -1808,7 +1820,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $filterColumns = get_array_flat_columns($columnsTree[$column->getName()]);
             // Fetch the foreign data
-            $results = $tableGateway->loadEntries(array_merge([
+            $results = $tableGateway->fetchItems(array_merge([
                 // Fetch all related data
                 'limit' => -1,
                 // Make sure to include the primary key

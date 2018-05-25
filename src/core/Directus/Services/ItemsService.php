@@ -69,6 +69,27 @@ class ItemsService extends AbstractService
     }
 
     /**
+     * Gets a single item in the given collection and id
+     *
+     * @param string $collection
+     * @param mixed $ids
+     * @param array $params
+     *
+     * @return array
+     */
+    public function findByIds($collection, $ids, array $params = [])
+    {
+        $statusValue = $this->getStatusValue($collection, $ids);
+        $tableGateway = $this->createTableGateway($collection);
+
+        $this->getAcl()->enforceRead($collection, $statusValue);
+
+        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $ids, array_merge($params, [
+            'status' => null
+        ]));
+    }
+
+    /**
      * Gets a single item in the given collection that matches the conditions
      *
      * @param string $collection

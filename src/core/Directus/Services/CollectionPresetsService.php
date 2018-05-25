@@ -41,6 +41,11 @@ class CollectionPresetsService extends AbstractService
         return $this->itemsService->find($this->collection, $id, $params);
     }
 
+    public function findByIds($id, array $params = [])
+    {
+        return $this->itemsService->find($this->collection, $id, $params);
+    }
+
     public function update($id, array $payload, array $params = [])
     {
         return $this->itemsService->update($this->collection, $id, $payload, $params);

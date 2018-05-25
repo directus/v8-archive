@@ -236,6 +236,18 @@ abstract class AbstractService
     }
 
     /**
+     * @param RelationalTableGateway $gateway
+     * @param string|int|array
+     * @param array $params
+     *
+     * @return array|mixed
+     */
+    protected function getItemsByIdsAndSetResponseCacheTags(RelationalTableGateway $gateway, $ids, array $params)
+    {
+        return $this->getDataAndSetResponseCacheTags([$gateway, 'getItemsByIds'], [$ids, $params]);
+    }
+
+    /**
      * @param callable $callable
      * @param array $callableParams
      * @param null $pkName

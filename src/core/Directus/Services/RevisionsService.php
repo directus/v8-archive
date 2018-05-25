@@ -81,6 +81,21 @@ class RevisionsService extends AbstractService
     }
 
     /**
+     * Returns one or more revision with the given ids
+     *
+     * @param int $id
+     * @param array $params
+     *
+     * @return array
+     */
+    public function findByIds($id, array $params = [])
+    {
+        $tableGateway = $this->getTableGateway();
+
+        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $id, $params);
+    }
+
+    /**
      * Returns all revision from a given item
      *
      * @param string $collection

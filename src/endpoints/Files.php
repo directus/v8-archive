@@ -94,7 +94,7 @@ class Files extends Route
     public function read(Request $request, Response $response)
     {
         $service = new FilesServices($this->container);
-        $responseData = $service->find(
+        $responseData = $service->findByIds(
             $request->getAttribute('id'),
             ArrayUtils::pick($request->getParams(), ['fields', 'meta'])
         );
@@ -173,7 +173,7 @@ class Files extends Route
     public function readFolder(Request $request, Response $response)
     {
         $service = new FilesServices($this->container);
-        $responseData = $service->findFolder(
+        $responseData = $service->findFolderByIds(
             $request->getAttribute('id'),
             ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta'])
         );

@@ -124,9 +124,8 @@ class ActivityService extends AbstractService
     public function find($id, array $params = [])
     {
         $tableGateway = $this->getTableGateway();
-        $params['id'] = $id;
 
-        return $this->getItemsAndSetResponseCacheTags($tableGateway, $params);
+        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $id, $params);
     }
 
     public function findAll(array $params = [])

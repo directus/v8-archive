@@ -74,7 +74,7 @@ class Relations extends Route
     public function read(Request $request, Response $response)
     {
         $relationsService = new RelationsService($this->container);
-        $responseData = $relationsService->find(
+        $responseData = $relationsService->findByIds(
             $request->getAttribute('id'),
             $request->getQueryParams()
         );

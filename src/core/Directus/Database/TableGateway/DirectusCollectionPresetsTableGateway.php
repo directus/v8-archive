@@ -205,7 +205,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             $params['fields'] = array_merge(['table_name'], $fields);
         }
 
-        $result = $this->loadItems(array_merge($params, [
+        $result = $this->fetchItems(array_merge($params, [
             'single' => true,
             'filters' => [
                 'user' => $user_id,

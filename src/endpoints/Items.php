@@ -93,7 +93,7 @@ class Items extends Route
         $this->throwErrorIfSystemTable($collection);
 
         $itemsService = new ItemsService($this->container);
-        $responseData = $itemsService->find(
+        $responseData = $itemsService->findByIds(
             $collection,
             $request->getAttribute('id'),
             $request->getQueryParams()

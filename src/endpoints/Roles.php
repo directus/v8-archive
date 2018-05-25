@@ -49,7 +49,7 @@ class Roles extends Route
     public function read(Request $request, Response $response)
     {
         $service = new RolesService($this->container);
-        $responseData = $service->find(
+        $responseData = $service->findByIds(
             $request->getAttribute('id'),
             ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta'])
         );

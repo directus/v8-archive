@@ -44,7 +44,7 @@ class Revisions extends Route
     public function read(Request $request, Response $response)
     {
         $service = new RevisionsService($this->container);
-        $responseData = $service->findOne(
+        $responseData = $service->findByIds(
             $request->getAttribute('id'),
             $request->getQueryParams()
         );

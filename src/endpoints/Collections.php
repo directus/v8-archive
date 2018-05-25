@@ -68,7 +68,7 @@ class Collections extends Route
     public function read(Request $request, Response $response)
     {
         $service = new TablesService($this->container);
-        $responseData = $service->find(
+        $responseData = $service->findByIds(
             $request->getAttribute('name'),
             $request->getQueryParams()
         );
