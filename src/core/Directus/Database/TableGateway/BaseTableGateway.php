@@ -927,7 +927,7 @@ class BaseTableGateway extends TableGateway
             foreach ($tableSchema->getFields() as $column) {
                 $canConvert = in_array(strtolower($column->getType()), ['timestamp', 'datetime']);
                 // Directus convert all dates to ISO to all datetime columns in the core tables
-                // and any columns using system date interfaces (date_created or date_modified)
+                // and any columns using system date interfaces (datetime_created or datetime_modified)
                 if ($isCustomTable && !$column->isSystemDateType()) {
                     $canConvert = false;
                 }

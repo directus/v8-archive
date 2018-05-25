@@ -60,8 +60,8 @@ final class DataTypes
 
     const TYPE_STATUS        = 'status';
     const TYPE_SORT          = 'sort';
-    const TYPE_DATE_CREATED  = 'date_created';
-    const TYPE_DATE_MODIFIED = 'date_modified';
+    const TYPE_DATETIME_CREATED  = 'datetime_created';
+    const TYPE_DATETIME_MODIFIED = 'datetime_modified';
     const TYPE_USER_CREATED  = 'user_created';
     const TYPE_USER_MODIFIED = 'user_modified';
 
@@ -335,8 +335,8 @@ final class DataTypes
     public static function getSystemDateTypes()
     {
         return [
-            static::TYPE_DATE_CREATED,
-            static::TYPE_DATE_MODIFIED
+            static::TYPE_DATETIME_CREATED,
+            static::TYPE_DATETIME_MODIFIED
         ];
     }
 

@@ -399,7 +399,7 @@ class Field extends AbstractObject
      */
     public function isDateCreatedType()
     {
-        return $this->isType(DataTypes::TYPE_DATE_CREATED);
+        return $this->isType(DataTypes::TYPE_DATETIME_CREATED);
     }
 
     /**
@@ -419,7 +419,7 @@ class Field extends AbstractObject
      */
     public function isDateModifiedType()
     {
-        return $this->isType(DataTypes::TYPE_DATE_MODIFIED);
+        return $this->isType(DataTypes::TYPE_DATETIME_MODIFIED);
     }
 
     /**
