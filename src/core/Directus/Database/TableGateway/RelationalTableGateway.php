@@ -749,7 +749,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function getItemsByIds($ids, array $params = [])
     {
-        if (!is_array($ids)) {
+        if (is_string($ids) && StringUtils::has($ids, ',')) {
             $ids = StringUtils::csv((string)$ids, false);
         }
 
