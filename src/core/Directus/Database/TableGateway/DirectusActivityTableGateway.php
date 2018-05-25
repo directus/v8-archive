@@ -99,27 +99,6 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         return $this->wrapData($this->parseRecord($rowset), false, ArrayUtils::get($params, 'meta', 0));
     }
 
-    public function fetchRevisions($row_id, $table_name)
-    {
-        $columns = ['id', 'action', 'user', 'datetime'];
-
-        $sql = new Sql($this->adapter);
-        $select = $sql->select()
-            ->from($this->table)
-            ->columns($columns)
-            ->order('id DESC');
-        $select
-            ->where
-            ->equalTo('row_id', $row_id)
-            ->AND
-            ->equalTo('table_name', $table_name);
-
-        $result = $this->selectWith($select);
-        $result = $result->toArray();
-
-        return $this->loadMetadata($this->parseRecord($result));
-    }
-
     public function recordLogin($userId)
     {
         $logData = [
