@@ -5,6 +5,7 @@ namespace Directus\Services;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\ForbiddenException;
+use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 
@@ -62,8 +63,7 @@ class ItemsService extends AbstractService
 
         $this->getAcl()->enforceRead($collection, $statusValue);
 
-        return $this->getItemsAndSetResponseCacheTags($tableGateway, array_merge($params, [
-            'id' => $id,
+        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $id, array_merge($params, [
             'status' => null
         ]));
     }
