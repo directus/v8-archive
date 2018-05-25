@@ -77,14 +77,10 @@ class TablesService extends AbstractService
             ]
         ]));
 
-        // ----------------------------------------------------------------------------
         //  GET NOT MANAGED FIELDS
-        // ----------------------------------------------------------------------------
         if (!empty($result['data'])) {
             $result['data'] = $this->parseSchemaFieldsMissing($collection, ArrayUtils::get($result, 'data'));
-            // $result['data'] = array_merge($result['data'], $fieldsData);
         }
-        // ----------------------------------------------------------------------------
 
         return $result;
     }
@@ -178,15 +174,10 @@ class TablesService extends AbstractService
             ]
         ]));
 
-        // ----------------------------------------------------------------------------
         //  GET NOT MANAGED FIELDS
-        // ----------------------------------------------------------------------------
         if (empty($result['data'])) {
             $result['data'] = $this->parseSchemaFields($collection, ArrayUtils::get($result, 'data'), $fieldsName);
-        // } else {
-
         }
-        // ----------------------------------------------------------------------------
 
         return $result;
     }
