@@ -421,6 +421,33 @@ GET /items/projects?filter[category][in]=development,design
 
 :::
 
+#### Filtering by Date/DateTime
+
+```
+# Equal to
+GET /items/comments?filter[datetime]=2018-05-21 15:48:03
+
+# Greater than
+GET /items/comments?filter[datetime][gt]=2018-05-21 15:48:03
+
+# Greater than or equal to
+GET /items/comments?filter[datetime][gte]=2018-05-21 15:48:03
+
+# Less than
+GET /items/comments?filter[datetime][lt]=2018-05-21 15:48:03
+
+# Less than or equal to
+GET /items/comments?filter[datetime][lte]=2018-05-21 15:48:03
+
+# Between two date
+GET /items/comments?filter[datetime][lte]=2018-05-21 15:48:03,2018-05-21 15:49:03
+```
+
+::: warning
+Date should follow the `YYYY-MM-DD` format. Ex: 2018-01-01
+Time should follow the `HH:mm:ss` format. Ex: 15:01:01
+:::
+
 ### Metadata
 
 `meta` is a CSV of metadata fields to include. This parameter supports the wildcard (`*`) to return all metadata fields.
