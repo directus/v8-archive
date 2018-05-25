@@ -937,7 +937,6 @@ class BaseTableGateway extends TableGateway
 
                     if (isset($row[$columnName])) {
                         $datetime = DateTimeUtils::createFromDefaultFormat($row[$columnName], 'UTC');
-                        $datetime->switchToTimeZone(get_user_timezone());
                         $records[$index][$columnName] = $datetime->toISO8601Format();
                     }
                 }
