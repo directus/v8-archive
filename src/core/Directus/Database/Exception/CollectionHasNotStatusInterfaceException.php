@@ -4,7 +4,7 @@ namespace Directus\Database\Exception;
 
 use Directus\Exception\Exception;
 
-class CollectionHasNotStatusInterface extends Exception
+class CollectionHasNotStatusInterfaceException extends Exception
 {
     public function __construct($collection)
     {
