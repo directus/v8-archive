@@ -93,7 +93,7 @@ class JWTUtils
      */
     public static function hasPayloadType($type, $payload)
     {
-        if (is_object($payload) && property_exists($payload, 'type') === $type) {
+        if (is_object($payload) && property_exists($payload, 'type') && $payload->type === $type) {
             return true;
         }
 
