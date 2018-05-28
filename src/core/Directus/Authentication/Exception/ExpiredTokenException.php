@@ -10,6 +10,6 @@ class ExpiredTokenException extends UnauthorizedException
 
     public function __construct()
     {
-        parent::__construct('auth_expired_token', static::ERROR_CODE);
+        parent::__construct('Expired token');
     }
 }
