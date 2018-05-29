@@ -2,15 +2,12 @@
 
 namespace Directus\Application\Http\Middlewares;
 
-use Directus\Application\Container;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\User\User;
 use Directus\Authentication\User\UserInterface;
-use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
-use Directus\Database\TableGatewayFactory;
 use Directus\Exception\UnauthorizedException;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
@@ -31,34 +28,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
      */
     public function __invoke(Request $request, Response $response, callable $next)
     {
-        // TODO: Improve this, move back from api.php to make the table gateway work with its dependency
-        $container = $this->container;
-        \Directus\Database\SchemaService::setAclInstance($container->get('acl'));
-        \Directus\Database\SchemaService::setConnectionInstance($container->get('database'));
-        \Directus\Database\SchemaService::setConfig($container->get('config'));
-        BaseTableGateway::setHookEmitter($container->get('hook_emitter'));
-        BaseTableGateway::setContainer($container);
-        TableGatewayFactory::setContainer($container);
-
-        $container['app.settings'] = function (Container $container) {
-            $dbConnection = $container->get('database');
-            $DirectusSettingsTableGateway = new \Zend\Db\TableGateway\TableGateway('directus_settings', $dbConnection);
-            $rowSet = $DirectusSettingsTableGateway->select();
-
-            $settings = [];
-            foreach ($rowSet as $setting) {
-                $settings[$setting['scope']][$setting['key']] = $setting['value'];
-            }
-
-            return $settings;
-        };
-
-        // TODO: Move this to middleware
-        $whitelisted = ['auth/authenticate'];
-        if (in_array($request->getUri()->getPath(), $whitelisted)) {
-            return $next($request, $response);
-        }
-
         $user = $this->authenticate($request);
         $publicRoleId = $this->getPublicRoleId();
         if (!$user && !$publicRoleId) {
