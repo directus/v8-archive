@@ -21,7 +21,6 @@ use Directus\Database\TableGatewayFactory;
 use Directus\Database\SchemaService;
 use Directus\Exception\Exception;
 use Directus\Filesystem\Files;
-use Directus\Filesystem\Thumbnail;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
@@ -375,7 +374,13 @@ class BaseTableGateway extends TableGateway
                 $updateArray = [];
                 if ($Files->getSettings('file_naming') == 'file_id') {
                     $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
-                    $Files->rename($recordData['filename'], str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext, $replace);
+                    $storage = ArrayUtils::get($recordData, 'storage_adapter');
+                    $Files->rename(
+                        $recordData['filename'],
+                        str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext,
+                        $replace,
+                        $storage
+                    );
                     $updateArray['filename'] = str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
                     $recordData['filename'] = $updateArray['filename'];
                 }

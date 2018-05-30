@@ -3,6 +3,7 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
+use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
 
@@ -11,7 +12,7 @@ class Files
     /**
      * @var array
      */
-    private $config = [];
+    private $configs = [];
 
     /**
      * @var array
@@ -19,9 +20,9 @@ class Files
     private $filesSettings = [];
 
     /**
-     * @var Filesystem
+     * @var FilesystemManager
      */
-    private $filesystem = null;
+    private $filesystemManager = null;
 
     /**
      * @var array
@@ -39,35 +40,39 @@ class Files
      */
     protected $emitter;
 
-    public function __construct($filesystem, $config, array $settings, $emitter)
+    public function __construct($filesystemManager, $configs, array $settings, $emitter)
     {
-        $this->filesystem = $filesystem;
-        $this->config = $config;
+        $this->filesystemManager = $filesystemManager;
+        $this->configs = $configs;
         $this->emitter = $emitter;
         $this->filesSettings = $settings;
     }
 
     // @TODO: remove exists() and rename() method
     // and move it to Directus\Filesystem Wrapper
-    public function exists($path)
+    public function exists($path, $storage = null)
     {
-        return $this->filesystem->getAdapter()->has($path);
+        $filesystem = $this->getFilesystem($storage);
+
+        return $filesystem->getAdapter()->has($path);
     }
 
-    public function rename($path, $newPath, $replace = false)
+    public function rename($path, $newPath, $replace = false, $storage = null)
     {
-        if ($replace === true && $this->filesystem->exists($newPath)) {
-            $this->filesystem->getAdapter()->delete($newPath);
+        $filesystem = $this->getFilesystem($storage);
+        if ($replace === true && $filesystem->exists($newPath)) {
+            $filesystem->getAdapter()->delete($newPath);
         }
 
-        return $this->filesystem->getAdapter()->rename($path, $newPath);
+        return $filesystem->getAdapter()->rename($path, $newPath);
     }
 
-    public function delete($file)
+    public function delete($file, $storage = null)
     {
-        if ($this->exists($file['filename'])) {
+        if ($this->exists($file['filename'], $storage)) {
+            $filesystem = $this->getFilesystem($storage);
             $this->emitter->run('files.deleting', [$file]);
-            $this->filesystem->getAdapter()->delete($file['filename']);
+            $filesystem->getAdapter()->delete($file['filename']);
             $this->emitter->run('files.deleting:after', [$file]);
         }
     }
@@ -76,15 +81,16 @@ class Files
      * Copy $_FILES data into directus media
      *
      * @param array $file $_FILES data
+     * @param string|null $storage
      *
      * @return array directus file info data
      */
-    public function upload(array $file)
+    public function upload(array $file, $storage = null)
     {
         $filePath = $file['tmp_name'];
         $fileName = $file['name'];
 
-        $fileData = array_merge($this->defaults, $this->processUpload($filePath, $fileName));
+        $fileData = array_merge($this->defaults, $this->processUpload($filePath, $fileName, $storage));
 
         return [
             'type' => $fileData['type'],
@@ -234,29 +240,30 @@ class Files
      * @param string $fileData - base64 data
      * @param string $fileName - name of the file
      * @param bool $replace
+     * @param string|null $storage
      *
      * @return array
      */
-    public function saveData($fileData, $fileName, $replace = false)
+    public function saveData($fileData, $fileName, $replace = false, $storage = null)
     {
         $fileData = base64_decode($this->getDataInfo($fileData)['data']);
 
         // @TODO: merge with upload()
-        $fileName = $this->getFileName($fileName, $replace !== true);
+        $fileName = $this->getFileName($fileName, $replace !== true, $storage);
 
-        $filePath = $this->getConfig('root') . '/' . $fileName;
+        $filePath = $this->getConfig('root', $storage) . '/' . $fileName;
 
         $this->emitter->run('files.saving', ['name' => $fileName, 'size' => strlen($fileData)]);
-        $this->write($fileName, $fileData, $replace);
+        $this->write($fileName, $fileData, $replace, $storage);
         $this->emitter->run('files.saving:after', ['name' => $fileName, 'size' => strlen($fileData)]);
 
         unset($fileData);
 
-        $fileData = $this->getFileInfo($fileName);
+        $fileData = $this->getFileInfo($fileName, false, $storage);
         $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
         $fileData['filename'] = basename($filePath);
         $fileData['upload_date'] = DateTimeUtils::nowInUTC()->toString();
-        $fileData['storage_adapter'] = $this->config['adapter'];
+        $fileData['storage_adapter'] = $storage;
 
         $fileData = array_merge($this->defaults, $fileData);
 
@@ -279,17 +286,19 @@ class Files
      * Save embed url into Directus Media
      *
      * @param array $fileInfo - File Data/Info
+     * @param bool $replace
+     * @param string|null $storage
      *
      * @return array - file info
      */
-    public function saveEmbedData(array $fileInfo)
+    public function saveEmbedData(array $fileInfo, $replace = false, $storage = null)
     {
         if (!array_key_exists('type', $fileInfo) || strpos($fileInfo['type'], 'embed/') !== 0) {
             return [];
         }
 
         $fileName = isset($fileInfo['filename']) ? $fileInfo['filename'] : md5(time()) . '.jpg';
-        $imageData = $this->saveData($fileInfo['data'], $fileName);
+        $imageData = $this->saveData($fileInfo['data'], $fileName, $replace, $storage);
 
         return array_merge($imageData, $fileInfo, [
             'filename' => $fileName
@@ -301,17 +310,18 @@ class Files
      *
      * @param string $path - file path
      * @param bool $outside - if the $path is outside of the adapter root path.
+     * @param string $storage
      *
      * @throws \RuntimeException
      *
      * @return array file information
      */
-    public function getFileInfo($path, $outside = false)
+    public function getFileInfo($path, $outside = false, $storage = null)
     {
         if ($outside === true) {
             $buffer = file_get_contents($path);
         } else {
-            $buffer = $this->filesystem->getAdapter()->read($path);
+            $buffer = $this->getFilesystem($storage)->getAdapter()->read($path);
         }
 
         return $this->getFileInfoFromData($buffer);
@@ -406,15 +416,22 @@ class Files
      * Get filesystem config
      *
      * @param string $key - Optional config key name
+     * @param string|null $storage
      *
      * @return mixed
      */
-    public function getConfig($key = '')
+    public function getConfig($key = '', $storage = null)
     {
+        if ($storage) {
+            $config = ArrayUtils::get($this->configs, $storage);
+        } else {
+            $config = reset($this->configs);
+        }
+
         if (!$key) {
-            return $this->config;
-        } else if (array_key_exists($key, $this->config)) {
-            return $this->config[$key];
+            return $config;
+        } else if (array_key_exists($key, $config)) {
+            return $config[$key];
         }
 
         return false;
@@ -426,27 +443,29 @@ class Files
      * @param $location
      * @param $data
      * @param bool $replace
+     * @param string|null $storage
      *
      * @throws \RuntimeException
      */
-    public function write($location, $data, $replace = false)
+    public function write($location, $data, $replace = false, $storage = null)
     {
-        $this->filesystem->write($location, $data, $replace);
+        $this->getFilesystem($storage)->write($location, $data, $replace);
     }
 
     /**
      * Reads and returns data from the given location
      *
      * @param $location
+     * @param string|null $storage
      *
      * @return bool|false|string
      *
      * @throws \Exception
      */
-    public function read($location)
+    public function read($location, $storage = null)
     {
         try {
-            return $this->filesystem->getAdapter()->read($location);
+            return $this->getFilesystem($storage)->getAdapter()->read($location);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -457,19 +476,20 @@ class Files
      *
      * @param string $filePath
      * @param string $targetName
+     * @param string|null $storage
      *
      * @return array file info
      */
-    private function processUpload($filePath, $targetName)
+    private function processUpload($filePath, $targetName, $storage = null)
     {
         // set true as $filePath it's outside adapter path
         // $filePath is on a temporary php directory
         $fileData = $this->getFileInfo($filePath, true);
-        $mediaPath = $this->filesystem->getPath();
+        $mediaPath = $this->getFilesystem($storage)->getPath();
 
         $fileData['title'] = Formatting::fileNameToFileTitle($targetName);
 
-        $targetName = $this->getFileName($targetName);
+        $targetName = $this->getFileName($targetName, true, $storage);
         $finalPath = rtrim($mediaPath, '/') . '/' . $targetName;
         $data = file_get_contents($filePath);
 
@@ -479,7 +499,7 @@ class Files
 
         $fileData['name'] = basename($finalPath);
         $fileData['date_uploaded'] = DateTimeUtils::nowInUTC()->toString();
-        $fileData['storage_adapter'] = $this->config['adapter'];
+        $fileData['storage_adapter'] = $storage;
 
         return $fileData;
     }
@@ -506,10 +526,11 @@ class Files
      * @param string $fileName
      * @param string $targetPath
      * @param int $attempt - Optional
+     * @param string|null $storage
      *
      * @return bool
      */
-    private function uniqueName($fileName, $targetPath, $attempt = 0)
+    private function uniqueName($fileName, $targetPath, $attempt = 0, $storage = null)
     {
         $info = pathinfo($fileName);
         // @TODO: this will fail when the filename doesn't have extension
@@ -519,9 +540,10 @@ class Files
         $name = $this->sanitizeName($name);
 
         $fileName = "$name.$ext";
-        if ($this->filesystem->exists($fileName)) {
+        if ($this->getFilesystem($storage)->exists($fileName)) {
             $matches = [];
             $trailingDigit = '/\-(\d)\.(' . $ext . ')$/';
+
             if (preg_match($trailingDigit, $fileName, $matches)) {
                 // Convert "fname-1.jpg" to "fname-2.jpg"
                 $attempt = 1 + (int)$matches[1];
@@ -535,7 +557,8 @@ class Files
                 $attempt++;
                 $fileName = $name . '-' . $attempt . '.' . $ext;
             }
-            return $this->uniqueName($fileName, $targetPath, $attempt);
+
+            return $this->uniqueName($fileName, $targetPath, $attempt, $storage);
         }
 
         return $fileName;
@@ -546,10 +569,11 @@ class Files
      *
      * @param string $fileName
      * @param bool $unique
+     * @param string|null $storage
      *
      * @return string
      */
-    private function getFileName($fileName, $unique = true)
+    private function getFileName($fileName, $unique = true, $storage = null)
     {
         switch ($this->getSettings('file_naming')) {
             case 'file_hash':
@@ -558,7 +582,7 @@ class Files
         }
 
         if ($unique) {
-            $fileName = $this->uniqueName($fileName, $this->filesystem->getPath());
+            $fileName = $this->uniqueName($fileName, $this->getFilesystem($storage)->getPath(), 0, $storage);
         }
 
         return $fileName;
@@ -634,5 +658,23 @@ class Files
         ]);
 
         return $fileData;
+    }
+
+    /**
+     * Returns the given storage or default filesystem
+     *
+     * @param $storage
+     *
+     * @return Filesystem
+     */
+    protected function getFilesystem($storage)
+    {
+        if ($storage) {
+            $filesystem = $this->filesystemManager->get($storage);
+        } else {
+            $filesystem = $this->filesystemManager->getDefault();
+        }
+
+        return $filesystem;
     }
 }

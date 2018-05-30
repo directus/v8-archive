@@ -33,6 +33,7 @@ use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
+use Directus\Filesystem\FilesystemManager;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -327,9 +328,9 @@ class CoreServicesProvider
                 $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
 
                 if (strpos($type, 'embed/') === 0) {
-                    $recordData = $files->saveEmbedData($dataInfo);
+                    $recordData = $files->saveEmbedData($dataInfo, $replace, $payload['storage_adapter']);
                 } else {
-                    $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
+                    $recordData = $files->saveData($payload['data'], $payload['filename'], $replace, $payload['storage_adapter']);
                 }
 
                 $payload->replace(array_merge($recordData, ArrayUtils::omit($data, 'filename')));
@@ -374,8 +375,14 @@ class CoreServicesProvider
                 $columns = $payload->get('columns');
                 if (!in_array('filename', $columns)) {
                     $columns[] = 'filename';
-                    $payload->set('columns', $columns);
                 }
+
+                if (!in_array('storage_adapter', $columns)) {
+                    $columns[] = 'storage_adapter';
+                }
+
+                $payload->set('columns', $columns);
+
                 return $payload;
             });
 
@@ -1021,10 +1028,13 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $config = $container->get('config');
+            $filesystems = [];
 
-            return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('filesystem'), 'root')
-            );
+            foreach ($config->get('filesystems', []) as $key => $config) {
+                $filesystems[$key] = new Filesystem(FilesystemFactory::createAdapter($config, 'root'));
+            }
+
+            return new FilesystemManager($filesystems);
         };
     }
 
@@ -1035,10 +1045,13 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $config = $container->get('config');
+            $filesystems = [];
 
-            return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('filesystem'), 'root_thumb')
-            );
+            foreach ($config->get('filesystems', []) as $key => $config) {
+                $filesystems[] = FilesystemFactory::createAdapter($config, 'root_thumb');
+            }
+
+            return new FilesystemManager($filesystems);
         };
     }
 
@@ -1153,14 +1166,14 @@ class CoreServicesProvider
                 }
             }
 
-            $filesystem = $container->get('filesystem');
+            $filesystemManager = $container->get('filesystem');
             $config = $container->get('config');
-            $config = $config->get('filesystem', []);
+            $configs = $config->get('filesystems', []);
             $emitter = $container->get('hook_emitter');
 
             return new Files(
-                $filesystem,
-                $config,
+                $filesystemManager,
+                $configs,
                 $filesSettings,
                 $emitter
             );

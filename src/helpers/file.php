@@ -83,9 +83,6 @@ if (!function_exists('append_storage_information'))
         array_unshift($thumbnailDimensions, '200x200');
 
         $config = $container->get('config');
-        $fileRootUrl = $config->get('filesystem.root_url');
-        $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
-        $isLocalStorageAdapter = $config->get('filesystem.adapter') == 'local';
         $list = isset($rows[0]);
 
         if (!$list) {
@@ -94,6 +91,12 @@ if (!function_exists('append_storage_information'))
 
         foreach ($rows as &$row) {
             $storage = [];
+
+            $storageAdapter = array_get($row, 'storage_adapter');
+            $fileRootUrl = $config->get('filesystems.' . $storageAdapter . '.root_url');
+            $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
+            $isLocalStorageAdapter = $config->get('filesystems.' . $storageAdapter . '.adapter') == 'local';
+
             $thumbnailFilenameParts = explode('.', $row['filename']);
             $thumbnailExtension = array_pop($thumbnailFilenameParts);
             $storage['url'] = $storage['full_url'] = $fileRootUrl . '/' . $row['filename'];

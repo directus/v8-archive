@@ -4,13 +4,16 @@ namespace Directus\Filesystem;
 
 use Aws\S3\S3Client;
 use Directus\Application\Application;
+use Directus\Util\ArrayUtils;
+use Google\Cloud\Storage\StorageClient;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 use League\Flysystem\AwsS3v3\AwsS3Adapter as S3Adapter;
 use League\Flysystem\Filesystem as Flysystem;
+use Superbalist\Flysystem\GoogleStorage\GoogleStorageAdapter;
 
 class FilesystemFactory
 {
-    public static function createAdapter(Array $config, $rootKey = 'root')
+    public static function createAdapter(array $config, $rootKey = 'root')
     {
         // @TODO: This need to be more dynamic
         // As the app get more organized this will too
@@ -18,6 +21,8 @@ class FilesystemFactory
             case 's3':
                 return self::createS3Adapter($config, $rootKey);
                 break;
+            case 'google':
+                return self::createGoogleAdapter($config, $rootKey);
             case 'local':
             default:
                 return self::createLocalAdapter($config, $rootKey);
@@ -39,7 +44,7 @@ class FilesystemFactory
         return new Flysystem(new LocalAdapter($root));
     }
 
-    public static function createS3Adapter(Array $config, $rootKey = 'root')
+    public static function createS3Adapter(array $config, $rootKey = 'root')
     {
         $client = S3Client::factory([
             'credentials' => [
@@ -51,5 +56,24 @@ class FilesystemFactory
         ]);
 
         return new Flysystem(new S3Adapter($client, $config['bucket'], array_get($config, $rootKey)));
+    }
+
+    public static function createGoogleAdapter(array $config, $rootKey = 'root')
+    {
+        $storageConfig = [
+            'projectId' => ArrayUtils::get($config, 'project_id')
+        ];
+
+        if (ArrayUtils::has($config, 'key_file_path')) {
+            $storageConfig['keyFilePath'] = $config['key_file_path'];
+        }
+
+        $storage = new StorageClient($storageConfig);
+        $bucket = $storage->bucket(ArrayUtils::get($config, 'bucket'));
+        $adapter = new GoogleStorageAdapter($storage, $bucket);
+
+        $adapter->setPathPrefix(array_get($config, $rootKey));
+
+        return new Flysystem($adapter);
     }
 }
