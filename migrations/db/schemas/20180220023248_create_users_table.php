@@ -118,10 +118,12 @@ class CreateUsersTable extends AbstractMigration
         ]);
         $table->addColumn('invite_token', 'string', [
             'limit' => 255,
+            'null' => true,
             'default' => null
         ]);
         $table->addColumn('invite_accepted', 'boolean', [
             'signed' => false,
+            'null' => true,
             'default' => false
         ]);
         $table->addColumn('external_id', 'string', [
