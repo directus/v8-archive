@@ -275,7 +275,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_fields',
                 'field' => 'required',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
             ],
             [
                 'collection' => 'directus_fields',
@@ -432,7 +433,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'url',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_files',
@@ -824,7 +826,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_settings',
                 'field' => 'youtube_api_key',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
             ],
         ];
 
