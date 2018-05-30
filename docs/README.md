@@ -60,30 +60,6 @@ The `error` property is only present when an error has occurred.
 
 ### Error codes
 
-#### Authentication error codes
-
-- **0100** - Invalid Credentials (404)
-- **0101** - Invalid Token (401)
-- **0102** - Expired Token (401)
-- **0103** - Inactive User (401)
-- **0104** - Invalid Reset Password Token (401)
-- **0105** - Expired Reset Password Token (401)
-- **0106** - User Not Found (404)
-- **0107** - User with a given email Not Found (404)
-- **0108** - User not authenticated (401)
-
-#### Filesystem error codes
-
-- **0300** - Unknown Error (500)
-- **0301** - The uploaded file exceeds max upload size that was specified on the server (500)
-- **0302** - The uploaded file exceeds the max upload size that was specified in the client (500)
-- **0303** - The uploaded file was only partially uploaded (500)
-- **0304** - No file was uploaded (500)
-- **0305** - _Not defined yet_
-- **0306** - Missing temporary upload folder (500)
-- **0307** - Failed to write file to disk (500)
-- **0308** - A PHP extension stopped the file upload (500)
-
 #### General error codes
 
 - **0000** - Internal Error (500)
@@ -99,6 +75,18 @@ The `error` property is only present when an error has occurred.
 - **0010** - Forbidden (403)
 - **0011** - Failed to connect to the database (500)
 
+#### Authentication error codes
+
+- **0100** - Invalid Credentials (404)
+- **0101** - Invalid Token (401)
+- **0102** - Expired Token (401)
+- **0103** - Inactive User (401)
+- **0104** - Invalid Reset Password Token (401)
+- **0105** - Expired Reset Password Token (401)
+- **0106** - User Not Found (404)
+- **0107** - User with a given email Not Found (404)
+- **0108** - User not authenticated (401)
+
 #### Items error codes
 
 - **0200** - Collection Not Found (404)
@@ -112,16 +100,38 @@ The `error` property is only present when an error has occurred.
 - **0208** - Revision has an invalid delta
 - **0209** - Field Invalid (400) - Trying to use a field that doesn't exists for actions such as filtering and sorting
 
+#### Collections error codes
+
+- **0300** - Reading items denied (403)
+- **0301** - Creating items denied (403)
+- **0302** - Updating items denied (403)
+- **0303** - Deleting items denied (403)
+- **0304** - Reading field denied (403)
+- **0305** - Writing to field denied (403)
+- **0306** - Altering collection was denied (403)
+
+#### Schema error codes
+
+- **0400** - Unknown Error (500)
+- **0401** - Unknown data type (400)
+
 #### Mail error codes
 
 - **0500** - Mailer Transport not found (500)
 - **0501** - Invalid Transport option (500)
 - **0502** - Invalid Transport instance (500)
 
-#### Schema error codes
+#### Filesystem error codes
 
-- **0400** - Unknown Error (500)
-- **0401** - Unknown data type (400)
+- **0600** - Unknown Error (500)
+- **0601** - The uploaded file exceeds max upload size that was specified on the server (500)
+- **0602** - The uploaded file exceeds the max upload size that was specified in the client (500)
+- **0603** - The uploaded file was only partially uploaded (500)
+- **0604** - No file was uploaded (500)
+- **0605** - _Not defined yet_
+- **0606** - Missing temporary upload folder (500)
+- **0607** - Failed to write file to disk (500)
+- **0608** - A PHP extension stopped the file upload (500)
 
 #### Utils error codes
 
