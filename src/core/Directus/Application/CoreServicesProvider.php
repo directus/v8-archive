@@ -831,22 +831,7 @@ class CoreServicesProvider
     protected function getAcl()
     {
         return function (Container $container) {
-            $acl = new Acl();
-            /** @var Provider $auth */
-            $auth = $container->get('auth');
-            $dbConnection = $container->get('database');
-
-            // TODO: Move this to a method
-            if ($auth->check()) {
-                $privilegesTable = new DirectusPermissionsTableGateway($dbConnection, $acl);
-                $acl->setPermissions(
-                    $privilegesTable->getGroupPrivileges(
-                        $auth->getUserAttributes('group')
-                    )
-                );
-            }
-
-            return $acl;
+            return new Acl();
         };
     }
 
