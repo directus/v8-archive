@@ -40,25 +40,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
         BaseTableGateway::setContainer($container);
         TableGatewayFactory::setContainer($container);
 
-        $container['app.settings'] = function (Container $container) {
-            $dbConnection = $container->get('database');
-            $DirectusSettingsTableGateway = new \Zend\Db\TableGateway\TableGateway('directus_settings', $dbConnection);
-            $rowSet = $DirectusSettingsTableGateway->select();
-
-            $settings = [];
-            foreach ($rowSet as $setting) {
-                $settings[$setting['scope']][$setting['key']] = $setting['value'];
-            }
-
-            return $settings;
-        };
-
-        // TODO: Move this to middleware
-        $whitelisted = ['auth/authenticate'];
-        if (in_array($request->getUri()->getPath(), $whitelisted)) {
-            return $next($request, $response);
-        }
-
         $user = $this->authenticate($request);
         $publicRoleId = $this->getPublicRoleId();
         if (!$user && !$publicRoleId) {
