@@ -500,47 +500,11 @@ class CoreServicesProvider
             });
             // -------------------------------------------------------------------------------------------
             // Add file url and thumb url
-            $emitter->addFilter('collection.select', function (Payload $payload) use ($addFilesUrl, $container) {
-                $selectState = $payload->attribute('selectState');
-                $rows = $payload->getData();
-                if ($selectState['table'] == 'directus_files') {
-                    $rows = $addFilesUrl($rows);
-                } else if ($selectState['table'] === 'directus_messages') {
-                    $filesIds = [];
-                    foreach ($rows as &$row) {
-                        if (!ArrayUtils::has($row, 'attachment')) {
-                            continue;
-                        }
-                        $ids = array_filter(StringUtils::csv((string) $row['attachment'], true));
-                        $row['attachment'] = ['data' => []];
-                        foreach ($ids as  $id) {
-                            $row['attachment']['data'][$id] = [];
-                            $filesIds[] = $id;
-                        }
-                    }
-                    $filesIds = array_filter($filesIds);
-                    if ($filesIds) {
-                        $ZendDb = $container->get('database');
-                        $acl = $container->get('acl');
-                        $table = new RelationalTableGateway('directus_files', $ZendDb, $acl);
-                        $filesEntries = $table->fetchItems([
-                            'in' => ['id' => $filesIds]
-                        ]);
-                        $entries = [];
-                        foreach($filesEntries as $id => $entry) {
-                            $entries[$entry['id']] = $entry;
-                        }
-                        foreach ($rows as &$row) {
-                            if (ArrayUtils::has($row, 'attachment') && $row['attachment']) {
-                                foreach ($row['attachment']['data'] as $id => $attachment) {
-                                    $row['attachment']['data'][$id] = $entries[$id];
-                                }
-                                $row['attachment']['data'] = array_values($row['attachment']['data']);
-                            }
-                        }
-                    }
-                }
+            $emitter->addFilter('collection.select.directus_files', function (Payload $payload) use ($addFilesUrl, $container) {
+                $rows = $addFilesUrl($payload->getData());
+
                 $payload->replace($rows);
+
                 return $payload;
             });
             $emitter->addFilter('collection.select.directus_users', function (Payload $payload) use ($container) {
