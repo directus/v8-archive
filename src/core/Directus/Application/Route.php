@@ -5,6 +5,7 @@ namespace Directus\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Hook\Emitter;
+use Directus\Hook\Payload;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Validator;
 
@@ -107,7 +108,8 @@ abstract class Route
         /** @var Emitter $emitter */
         $emitter = $this->container->get('hook_emitter');
 
-        $payload = $emitter->apply('response', $data, $attributes);
+        $payload = new Payload($data);
+        $payload = $emitter->apply('response', $payload, $attributes);
         $payload = $emitter->apply('response.' . $method, $payload);
 
         if (isset($meta['table'])) {
@@ -118,7 +120,7 @@ abstract class Route
             ), $payload);
         }
 
-        return $payload;
+        return $payload->toArray();
     }
 
     /**
