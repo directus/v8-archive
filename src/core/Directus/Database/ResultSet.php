@@ -2,20 +2,39 @@
 
 namespace Directus\Database;
 
-use Zend\Db\Adapter\Driver\Pdo\Result;
+use Directus\Exception\Exception;
+use Symfony\Component\Validator\Tests\Fixtures\Countable;
+use Zend\Db\ResultSet\ResultSetInterface;
 use Zend\Db\Adapter\Driver\ResultInterface;
 
-class ResultSet implements \Iterator, ResultInterface
+class ResultSet implements \Iterator, ResultSetInterface
 {
     /**
-     * @var Result
+     * @var \ArrayIterator|ResultSetInterface
      */
     protected $dataSource;
 
     /**
-     * @var int|null
+     * @var array
+     */
+    protected $buffer = [];
+
+    /**
+     * @var null|int
+     */
+    protected $count = null;
+
+    /**
+     * @var null|int
      */
     protected $fieldCount = null;
+
+    /**
+     * @var int
+     */
+    protected $position = 0;
+
+    protected $fetched = 0;
 
     public function __construct($dataSource = null)
     {
@@ -29,13 +48,17 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function initialize($dataSource)
     {
-        if (is_array($dataSource)) {
+        if ($dataSource instanceof ResultInterface) {
+            $this->dataSource = $dataSource;
+        } else if (is_array($dataSource)) {
             $first = current($dataSource);
             reset($dataSource);
             $this->fieldCount = count($first);
             $this->dataSource = new \ArrayIterator($dataSource);
         } else {
-            $this->dataSource = $dataSource;
+            throw new Exception(
+                sprintf('Data Source must be an array or an instance of ResultInterface. "%s" given', gettype($dataSource))
+            );
         }
 
         return $this;
@@ -46,7 +69,11 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function getFieldCount()
     {
-        return $this->dataSource->getFieldCount();
+        if ($this->fieldCount === null) {
+            $this->fieldCount = $this->dataSource->getFieldCount();
+        }
+
+        return $this->fieldCount;
     }
 
     /**
@@ -54,7 +81,13 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function count()
     {
-        return $this->dataSource->count();
+        if ($this->count === null) {
+            if ($this->dataSource instanceof Countable) {
+                $this->count = count($this->dataSource);
+            }
+        }
+
+        return $this->count;
     }
 
     /**
@@ -62,7 +95,12 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function current()
     {
-        return new ResultItem($this->dataSource->current());
+        if (!isset($this->buffer[$this->position])) {
+            $this->fetched++;
+            $this->buffer[$this->position] = new ResultItem($this->dataSource->current());
+        }
+
+        return $this->buffer[$this->position];
     }
 
     /**
@@ -70,7 +108,8 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function next()
     {
-        return $this->dataSource->next();
+        $this->position++;
+        $this->dataSource->next();
     }
 
     /**
@@ -78,7 +117,7 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function key()
     {
-        return $this->dataSource->key();
+        return $this->position;
     }
 
     /**
@@ -86,6 +125,10 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function valid()
     {
+        if (isset($this->buffer[$this->position])) {
+            return true;
+        }
+
         return $this->dataSource->valid();
     }
 
@@ -94,7 +137,8 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function rewind()
     {
-        $this->dataSource->rewind();
+        $this->position = 0;
+        reset($this->buffer);
     }
 
     /**
@@ -102,54 +146,16 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function toArray()
     {
+        if ($this->fetched > 0) {
+            $items = [];
+            /** @var ResultItem $item */
+            foreach ($this->buffer as $item) {
+                $items[] = $item->toArray();
+            }
+
+            return $items;
+        }
+
         return iterator_to_array($this->dataSource);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function buffer()
-    {
-        return $this->dataSource->buffer();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isBuffered()
-    {
-        return $this->dataSource->isBuffered();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isQueryResult()
-    {
-        return $this->dataSource->isQueryResult();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAffectedRows()
-    {
-        return $this->dataSource->getAffectedRows();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getGeneratedValue()
-    {
-        return $this->dataSource->getGeneratedValue();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getResource()
-    {
-        return $this->dataSource->getResource();
     }
 }

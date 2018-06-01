@@ -22,6 +22,7 @@ use Directus\Database\SchemaService;
 use Directus\Exception\Exception;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Thumbnail;
+use Directus\Hook\Payload;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
@@ -137,9 +138,9 @@ class BaseTableGateway extends TableGateway
             $features = new Feature\FeatureSet($features);
         }
 
-        $rowGatewayPrototype = new BaseRowGateway($this->primaryKeyFieldName, $table, $adapter, $this->acl);
-        $rowGatewayFeature = new RowGatewayFeature($rowGatewayPrototype);
-        $features->addFeature($rowGatewayFeature);
+        if (!$resultSetPrototype) {
+            $resultSetPrototype = new \Directus\Database\ResultSet();
+        }
 
         parent::__construct($table, $adapter, $features, $resultSetPrototype, $sql);
 
@@ -1429,11 +1430,11 @@ class BaseTableGateway extends TableGateway
                 $data = $resultSet->toArray();
             }
 
-            $data = static::$emitter->apply($name, $data, $attributes);
+            $payload = new Payload($data, $attributes);
+            $data = static::$emitter->apply($name, $payload);
 
             if ($isResultSet && $resultSet) {
-                $data = new \ArrayObject($data);
-                $resultSet->initialize($data->getIterator());
+                $resultSet->initialize($payload->getData());
                 $data = $resultSet;
             }
         }

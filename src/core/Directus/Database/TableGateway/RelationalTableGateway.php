@@ -5,6 +5,7 @@ namespace Directus\Database\TableGateway;
 use Directus\Database\Exception;
 use Directus\Database\Filters\Filter;
 use Directus\Database\Filters\In;
+use Directus\Database\ResultItem;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Query\Builder;
@@ -937,9 +938,9 @@ class RelationalTableGateway extends BaseTableGateway
 
         // Run the builder Select with this tablegateway
         // to run all the hooks against the result
-        $results = $this->selectWith($builder->buildSelect())->toArray();
+        $results = $this->selectWith($builder->buildSelect());
 
-        if (!$results && ArrayUtils::has($params, 'single')) {
+        if ($results->count() === 0 && ArrayUtils::has($params, 'single')) {
             if (ArrayUtils::has($params, 'id')) {
                 $message = sprintf('Item with id "%s" not found', $params['id']);
             } else {
@@ -1001,10 +1002,12 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         if (ArrayUtils::has($params, 'single')) {
-            $results = reset($results);
+            $items = $results->current();
+        } else {
+            $items = $results->toArray();
         }
 
-        return $results ? $results : [];
+        return $items ? $items : [];
     }
 
     /**
@@ -1802,8 +1805,8 @@ class RelationalTableGateway extends BaseTableGateway
 
             // Aggregate all foreign keys for this relationship (for each row, yield the specified foreign id)
             $relationalColumnName = $column->getName();
-            $yield = function ($row) use ($relationalColumnName, $entries, $primaryKeyName) {
-                if (array_key_exists($relationalColumnName, $row)) {
+            $yield = function (ResultItem $row) use ($relationalColumnName, $entries, $primaryKeyName) {
+                if ($row->offsetExists($relationalColumnName)) {
                     $value = $row[$relationalColumnName];
                     if (is_array($value)) {
                         $value = isset($value[$primaryKeyName]) ? $value[$primaryKeyName] : 0;
@@ -1813,7 +1816,13 @@ class RelationalTableGateway extends BaseTableGateway
                 }
             };
 
-            $ids = array_unique(array_filter(array_map($yield, $entries)));
+            $ids = [];
+            while ($entries->valid()) {
+                $ids[] = $yield($entries->current());
+                $entries->next();
+            }
+
+            $ids = array_unique(array_filter($ids));
             if (empty($ids)) {
                 continue;
             }
@@ -1841,23 +1850,15 @@ class RelationalTableGateway extends BaseTableGateway
                 }
 
                 $relatedEntries[$rowId] = $row;
-
-                $tableGateway->wrapData(
-                    $relatedEntries[$rowId],
-                    true,
-                    ArrayUtils::get($params, 'meta', 0)
-                );
             }
 
-            // Replace foreign keys with foreign rows
-            foreach ($entries as &$parentRow) {
-                if (array_key_exists($relationalColumnName, $parentRow)) {
-                    // @NOTE: Not always will be a integer
-                    $foreign_id = (int)$parentRow[$relationalColumnName];
-                    $parentRow[$relationalColumnName] = null;
-                    // "Did we retrieve the foreign row with this foreign ID in our recent query of the foreign table"?
+            $entries->rewind();
+            foreach ($entries as $key => $entry) {
+                if ($entry->offsetExists($relationalColumnName)) {
+                    $foreign_id = $entry[$relationalColumnName];
+                    $entry[$relationalColumnName] = null;
                     if (array_key_exists($foreign_id, $relatedEntries)) {
-                        $parentRow[$relationalColumnName] = $relatedEntries[$foreign_id];
+                        $entry[$relationalColumnName] = $relatedEntries[$foreign_id];
                     }
                 }
             }

@@ -141,17 +141,15 @@ class Emitter
      *
      * @return mixed
      */
-    public function apply($name, array $data = [], array $attributes = [])
+    public function apply($name, $data = [], array $attributes = [])
     {
         $listeners = $this->getFilterListeners($name);
 
-        $payload = new Payload($data, $attributes);
-
         if ($listeners) {
-            $payload = $this->executeListeners($listeners, $payload, self::TYPE_FILTER);
+            $data = $this->executeListeners($listeners, $data, self::TYPE_FILTER);
         }
 
-        return $payload->getData();
+        return $data;
     }
 
     /**
