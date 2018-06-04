@@ -174,8 +174,42 @@ GET http://localhost/_/users?access_token=admin_token
 
 ## Extensions
 
+The API has been designed to be extensible, allowing you to add more third party auth providers, endpoints, hashers, hooks, mail templates, and database migrations and seeders.
+
+### Auth Providers
+
 TODO
 
-## Auth Providers
+### Endpoints
+
+TODO
+
+### Hashers
+
+TODO
+
+### Hooks
+
+Directus provide a list of events that are called hooks that will be trigger when certain actions occours, such as before or after a item is inserted.
+
+There is two type of hooks, `actions` and `filters`.
+
+- Actions executed a piece of code without altering the data being passed.
+
+- Filters do the same thing as actions with the only different that it can change the data that goes through all the filters hooks.
+
+In a real world example an Action can be sending an email to user when an new article is created, and a Filters will be set a uuid for a new article before is inserted.
+
+TODO
+
+### Web Hooks
+
+TODO
+
+### Mail template
+
+TODO
+
+### Migrations
 
 TODO
