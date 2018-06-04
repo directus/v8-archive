@@ -68,6 +68,7 @@ class CreateActivityTable extends AbstractMigration
         ]);
 
         $table->addColumn('datetime_edited', 'datetime', [
+            'null' => true,
             'default' => null
         ]);
 
