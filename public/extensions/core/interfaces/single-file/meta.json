@@ -1,0 +1,13 @@
+{
+  "name": "$t:single-file",
+  "version": "1.0.0",
+  "dataTypes": {
+    "INT": null
+  },
+  "options": {},
+  "translation": {
+    "en-US": {
+      "single-file": "Single File"
+    }
+  }
+}
