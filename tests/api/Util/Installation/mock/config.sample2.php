@@ -2,19 +2,12 @@
 
 return [
     'app' => [
-        'path' => '/directus/',
         'env' => 'development',
-        'debug' => true,
-        'default_language' => 'en',
         'timezone' => 'America/New_York',
     ],
 
     'settings' => [
-        'debug' => true,
-        'displayErrorDetails' => true,
         'logger' => [
-            'name' => 'directus-api',
-            'level' => Monolog\Logger::DEBUG,
             'path' => __DIR__ . '/logs/app.log',
         ],
     ],
@@ -26,7 +19,6 @@ return [
         'name' => 'directus',
         'username' => 'root',
         'password' => 'password',
-        'prefix' => '', // not used
         'engine' => 'InnoDB',
         'charset' => 'utf8mb4'
     ],
@@ -70,28 +62,18 @@ return [
         // here all assets will be (yourdomain)/storage/uploads
         // same with thumbnails (yourdomain)/storage/uploads/thumbs
         'root_url' => '/storage/uploads',
-        'root_thumb_url' => '/storage/uploads/thumbs',
         //   'key'    => 's3-key',
-        //   'secret' => 's3-key',
+        //   'secret' => 's3-secret',
         //   'region' => 's3-region',
         //   'version' => 's3-version',
         //   'bucket' => 's3-bucket'
-    ],
-
-    // HTTP Settings
-    'http' => [
-        'emulate_enabled' => false,
-        // can be null, or an array list of method to be emulated
-        // Ex: ['PATH', 'DELETE', 'PUT']
-        // 'emulate_methods' => null,
-        'force_https' => false
     ],
 
     'mail' => [
         'default' => [
             'adapter' => 'swift_mailer',
             'transport' => 'mail',
-            'from' => 'root@localhost'
+            'from' => 'admin@example.com'
         ],
     ],
 

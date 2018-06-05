@@ -105,8 +105,7 @@ if (!function_exists('create_ping_server')) {
     function create_ping_server($basePath, array $config = [])
     {
         $app = create_app($basePath, array_merge([
-            'settings' => [
-                'debug' => false,
+            'app' => [
                 'env' => 'production'
             ]
         ], $config));

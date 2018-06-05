@@ -45,14 +45,8 @@ class InstallerUtils
      */
     protected static function createConfigFile(array $data, $path)
     {
-        if (!isset($data['default_language'])) {
-            $data['default_language'] = 'en';
-        }
-
         $data = ArrayUtils::defaults([
-            'directus_path' => '/',
             'directus_email' => 'admin@example.com',
-            'default_language' => 'en',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
             'feedback_login' => true,
             'cors_enabled' => false
