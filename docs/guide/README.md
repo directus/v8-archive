@@ -161,15 +161,39 @@ If you followed the steps above you have successfully installed the Directus API
 
 ### `app`
 
-TODO
+These are the api application settings.
+
+| name          | Description   |
+| ------------- | ------------- |
+| `env`         | This option will let you hide or show directus detailed errors, or php errors, warning or notices. Options: `development` and `production`. Default: `development` |
+| `timezone`    | The PHP default timezone.  |
 
 ### `settings`
 
-TODO
+These are the Slim Application settings. Slim the framework Directus is based on.
+
+| name          | Description   |
+| ------------- | ------------- |
+| `logger`      | The Directus [Monolog]() logger configuration. Settings: `path` - where the log should be stored |
+
+Note: The logger as the moment only works on the server filesystem.
+
 
 ### `database`
 
-TODO
+These are the settings for the database connection.
+
+| name          | Description   |
+| ------------- | ------------- |
+| `type`        | database type. Only `mysql` is support. This includes all drop-in replacement such as MariaDB and Percona. |
+| `host`        | database server host |
+| `port`        | database server port number |
+| `name`        | database name |
+| `username`    | database user username |
+| `password`    | database user password |
+| `engine`      | database storage engine |
+| `charset`     | Database connection charset |
+| `socket`      | @TODO: Add an option to add a socket connection |
 
 ### `cache`
 
@@ -177,39 +201,143 @@ TODO
 
 ### `filesystem`
 
-TODO
+Directus allows you to pick where you want you files to be upload to. Unfourtunatelly at the moment we only support local and Amazon S3.
 
-### `http`
-
-TODO
+| name          | Description   |
+| ------------- | ------------- |
+| `adapter`     | `local` for local filesystem or `s3` for amazon S3
+| `root`        | The root path where the files are going to be uploaded
+| `root_url`    | The public url that has access to `root` files.
+| `key`         | S3 Bucket Key
+| `secret`      | S3 Bucket Secret
+| `region`      | S3 Bucket Region
+| `version`     | S3 API version
+| `bucket`      | S3 Bucket name
 
 ### `mail`
 
-TODO
+A list of key-value (array) of mail configurations, only `default` key is supported at the moment.
+
+Each value must have at least the following information:
+
+| name          | Description   |
+| ------------- | ------------- |
+| `adapter`     | Only `swift_mailer` is supported at the moment.
+| `transport`   | `smtp`, `sendmail`, `simple_file` (dummy example) or your own class name resolution string
+| `from`        | The global from email
+
+You can extend `Directus\Mail\Transports\AbstractTransport` class to create your own Swift Mailer transport.
+
+All options that exists in your mailer config will be passed to your transport.
 
 ### `cors`
 
-TODO
+Cross-origin resource sharing (CORS) is a mechanism that allows you to restricted access of Directus API from another domain.
+
+| name          | Description   |
+| ------------- | ------------- |
+| `enabled`     | Tells whether the CORS is enabled or not.
+| `origin`      | List of host origin allowed to have access to the API.
+| `headers`     | A list of headers to be appended to the preflight request.
 
 ### `hooks`
 
-TODO
+Hooks allow you to execute custom code when a Directus Event happens.
+
+You can register functions or classes to a hook name and when that event happens it will execute that code.
+
+Ex:
+
+```php
+'hooks' => [
+    'collection.insert.articles' => function ($data, $collectionName) {
+        $content = 'New article was created with the title: ' . $data['title'];
+        // pesudo function
+        notify('admin@example.com', 'New Article', $content);
+    }
+]
+```
+
+The example above will execute the `notify` function after a item was inserted into the `articles` table.
+
+A class that implements `__invoke` method or inherits from `\Directus\Hook\HookInterface` can be used too, and instead of passing a function you must pass the fully qualified class name resolution. Ex: `\MyApplication\Events\NotifyNewArticles::class`.
 
 ### `filters`
 
-TODO
+Filters work the same way as the hooks, the only different is that you can manipulate the data is being pass.
+
+This is a nice way to add, remove or change the data before is sent to the database.
+
+An example can be generating a new UUID every time an article is created.
+
+```php
+'filters' => [
+    'collection.insert.articles:before' => function (\Directus\Hook\Payload $payload) {
+        $payload->set('uuid', generate_uuid4());
+        
+        return $payload;
+    }
+]
+```
+
+Notice that filters always pass a `\Directus\Hook\Payload` object as first parameter and it must return a payload object.
 
 ### `feedback`
 
-TODO
+It doesn't do anything on version 2.0, but it was created to ping our server to understand approximately how many instances of Directus exists.
 
 ### `tableBlacklist`
 
-TODO
+It doesn't do anything, but it was meant to blacklist tables from being used by Directus.
 
 ### `auth`
 
-TODO
+| name          | Description   |
+| ------------- | ------------- |
+| `secret_key`  | This key is used by the JWT encode function to encode the tokens |
+| `social_providers` | List of available third party authentication providers
+
+
+Directus comes ready with `Okta`, `GitHub`, `Facebook`, `Twitter` and `Google`, but Directus allows you to create your own providers.
+
+
+#### Okta
+
+| name            | Description   |
+| --------------- | ------------- |
+| `client_id`     | Your Okta client id key |
+| `client_secret` | Your Okta client secret key |
+| `base_url`      | Your okta application base url |
+
+#### GitHub
+
+| name            | Description   |
+| --------------- | ------------- |
+| `client_id`     | Your application client id |
+| `client_secret` | Your application client secret key |
+
+#### Facebook
+
+| name                | Description   |
+| ------------------- | ------------- |
+| `client_id`         | Your application client id |
+| `client_secret`     | Your application client secret key |
+| `graph_api_version` | Facebook graph api version |
+
+#### Google
+
+| name                | Description   |
+| ------------------- | ------------- |
+| `client_id`         | Your application client id |
+| `client_secret`     | Your application client secret key |
+| `hosted_domain`     | Your application allowed hosted_domain |
+
+#### Twitter
+
+| name                | Description   |
+| ------------------- | ------------- |
+| `identifier`        | Your application identifier key |
+| `secret`            | Your application secret key |
 
 ## Extensions
 
