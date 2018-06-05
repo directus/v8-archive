@@ -159,7 +159,55 @@ If you followed the steps above you have successfully installed the Directus API
 
 ## Configuration Options
 
-### Cache
+### `app`
+
+TODO
+
+### `settings`
+
+TODO
+
+### `database`
+
+TODO
+
+### `cache`
+
+TODO
+
+### `filesystem`
+
+TODO
+
+### `http`
+
+TODO
+
+### `mail`
+
+TODO
+
+### `cors`
+
+TODO
+
+### `hooks`
+
+TODO
+
+### `filters`
+
+TODO
+
+### `feedback`
+
+TODO
+
+### `tableBlacklist`
+
+TODO
+
+### `auth`
 
 TODO
 
