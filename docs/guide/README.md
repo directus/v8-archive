@@ -21,17 +21,16 @@ For local development environments you can install WAMP, XAMP or MAMP using your
 
 Another alternative is to use the [Directus Docker Image](https://github.com/directus/directus-docker) which contains everything you need to get up and running quickly.
 
-### Get Directus
+### Install Using Git: Source Version
 
-Find the [latest release](https://github.com/directus/api/releases) or [Download the latest build](https://github.com/directus/api/archive/build.zip) from GitHub.
+If you want to install Directus from source or want to install the latest development version you need to clone the Directus API repository from `https://github.com/directus/api`.
 
-#### From Source
+#### Additional Requirements
 
-If you want to install directus from source OR want to install the latest development version you need to clone the Directus API repository from `https://github.com/directus/api`.
+* **[Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)** to fetch the source code from GitHub
+* **[Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx)** to install dependencies
 
-**Requirements**
-* [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) to fetch the source code from GitHub
-* [Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx) to install dependencies
+Once you have `git` and `composer` you are ready to clone the repo and install the dependencies:
 
 ```
 # Get the source code
@@ -42,64 +41,45 @@ $ cd api
 $ composer install 
 ```
 
-## Installing on Specific HTTP Web Servers
+_You can also manually download the [latest release](https://github.com/directus/api/releases) from GitHub, upload it to your server, install dependencies using `composer install`, and continue with the steps below._
+
+### Install Using FTP: Build Version
+
+If you're on a shared host or don't have access to the command line, then you can use our build version. This version is much larger, but includes all neccesary dependencies. Simply download the [latest build](https://github.com/directus/api/archive/build.zip) from GitHub, upload it to your server, and continue with the steps below.
+
+### Installing on Specific HTTP Web Servers
 
 Directus has been tested on Apache 2, NGINX, and Caddy. While in theory it should work on any HTTP Server, each has a unique process for configuration. If you'd like to try installing on a different server type, you can start by looking at our current [server configurations here](https://github.com/directus/server-configs). Also, we'd love any pull-requests outlining steps for new server-types – just add them to [our list](https://github.com/directus/server-configs).
 
-[Configuring Directus on Different HTTP Servers](https://github.com/directus/server-configs)
-
 The root directory for Directus API should be `/path/to/directus/public`.
 
-### Apache 2
+[Configuring Directus on Different HTTP Servers](https://github.com/directus/server-configs)
 
-[Apache 2 Configuration](https://github.com/directus/server-configs-apache).
+* [Apache 2 Configuration](https://github.com/directus/server-configs-apache)
+* [NGINX Configuration](https://github.com/directus/server-configs-nginx)
+* [Caddy Configuration](https://github.com/directus/server-configs-caddy)
 
-### NGINX
-
-[NGINX Configuration](https://github.com/directus/server-configs-nginx).
-
-### Caddy
-
-[Caddy Configuration](https://github.com/directus/server-configs-caddy).
-
-## Database
-
-Currently Directus only support MySQL and any drop-in alternatives, such as MariaDB or Percona.
-
-The Directus API has been tested on MariaDB 10.x and MySQL 5.6+.
-
-If you are not using a pre-packaged development environment (eg: MAMP), MySQL installation will differ depending on your Operating System. You can read more at the [MySQL Installation page](https://dev.mysql.com/doc/refman/8.0/en/installing.html).
-
-## PHP
+### PHP
 
 The API requires version 5.6 or newer. The PDO, mysql, cUrl, GD, FileInfo, and Multibyte String extensions are also required.
 
-### PDO + MySQL
-PHP uses PDO (PHP Data Objects) to connect and interact with a MySQL database using more secure _parameterized_ queries.
+* **PDO + MySQL** – PHP uses PDO (PHP Data Objects) to connect and interact with a MySQL database using more secure _parameterized_ queries.
+* **cURL** – cURL is used to fetch YouTube and Vimeo metadata (eg: title, description, and thumbnail) when adding new embeds.
+* **GD** – GD is used by the [Thumbnailer](https://github.com/directus/directus-thumbnailer) to generate requested thumbnails of images. If you want to generate thumbnails from SVG, PDF, PSD or TIF/TIFF you must also install and enable PHP's `ImageMagick` extension.
+* **FileInfo** – This extension is used to get information and metadata (eg: charset and file-type) when uploading files. It also fetches additional information (eg: width, height, location, title, caption, and tags) when the file is an image based on any included [IPTC Metadata](https://iptc.org/standards/photo-metadata/).
+* **MultiByte String** – The multibyte string functions are used by the `StringUtil` class to get a string's length or check if a string is contained within another.
 
-### cURL
+### Database
 
-cURL is used to fetch YouTube and Vimeo metadata (eg: title, description, and thumbnail) when adding new embeds.
+Currently Directus only support MySQL and any drop-in alternatives, such as MariaDB or Percona. We've tested on MySQL 5.6+ and MariaDB 10.x. 
 
-### GD
+::: tip
+MySQL installation will differ depending on your Operating System. You can read more at the [MySQL Installation page](https://dev.mysql.com/doc/refman/8.0/en/installing.html).
+:::
 
-GD is used by the [Thumbnailer](https://github.com/directus/directus-thumbnailer) to generate requested thumbnails of images.
+Next, you need to create a database and a config file with credentials used for connecting with the database.
 
-If you want to generate thumbnails from SVG, PDF, PSD or TIF/TIFF you must also install and enable PHP's `ImageMagick` extension.
-
-### FileInfo
-
-This extension is used to get information and metadata (eg: charset and file-type) when uploading files. It also fetches additional information (eg: width, height, location, title, caption, and tags) when the file is an image based on any included [IPTC Metadata](https://iptc.org/standards/photo-metadata/).
-
-### MultiByte String
-
-The multibyte string functions are used by the `StringUtil` class to get a string's length or check if a string is contained within another.
-
-## Configuration & Whitelisting
-
-After you `composer install` all dependencies, you need to create a database and a config file with credentials used for connecting with the database.
-
-### Create database
+#### Create Database
 
 Connect to MySQL:
 
@@ -121,9 +101,13 @@ mysql> CREATE DATABASE directus_test;
 Query OK, 1 row affected (0.00 sec)
 ```
 
-### Manual Installation
+### Config File
 
-Now that we have a database, we need to create a config file by copying `config/api_sample.php` to `config/api.php` and setting the `database` credentials (the rest can stay the same for now).
+This file holds many different configuration options for Directus, most noteably the database credentials. Below are two different ways to generate the config file and complete the installation process.
+
+#### Configure Manually
+
+Create a copy of `config/api_sample.php` and change the name to `config/api.php`. Next, update the `database` values with your own:
 
 ```php
 'database' => [
@@ -138,9 +122,12 @@ Now that we have a database, we need to create a config file by copying `config/
 ]
 ```
 
-Finally we must import the Directus system tables and Data Primer into the database by importing the database dump in `/src/schema.sql`.
+Finally, we must import the Directus system tables and data primer into the database by importing this SQL file: `/src/schema.sql`. With this method, your initial Admin user credentials will be:
 
-### Using Script
+* **User:** `admin@example.com`
+* **Password:** `password`
+
+#### Configure with Script
 
 Create the config file:
 
@@ -165,6 +152,16 @@ Test by requesting to view all users (the default `access_token` is `admin_token
 ```
 GET http://localhost/_/users?access_token=admin_token
 ```
+
+### Installation Complete
+
+If you followed the steps above you have successfully installed the Directus API and can now access secure endpoints with your initial Admin credentials. To learn more about the many Directus API Endpoints you can browse our [API Reference](https://directus.github.io/api/).
+
+## Configuration Options
+
+### Cache
+
+TODO
 
 ## Extensions
 
