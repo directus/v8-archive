@@ -34,7 +34,7 @@ return [
         // ],
         // 'pool' => [
         //    'adapter' => 'filesystem',
-        //    'path' => '../cache/', // relative to the api directory
+        //    'path' => 'cache', // relative to the api directory
         // ],
         // 'pool' => [
         //    'adapter'   => 'memcached',

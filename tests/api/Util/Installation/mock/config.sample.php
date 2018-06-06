@@ -32,10 +32,10 @@ return [
         // 'pool' => [
         //    'adapter' => 'apcu'
         // ],
-        'pool' => [
-           'adapter' => 'filesystem',
-           'path' => 'cache/', // relative to the api directory
-        ],
+        // 'pool' => [
+        //    'adapter' => 'filesystem',
+        //    'path' => 'cache', // relative to the api directory
+        // ],
         // 'pool' => [
         //    'adapter'   => 'memcached',
         //    'host'      => 'localhost',
