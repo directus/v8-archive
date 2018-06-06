@@ -254,6 +254,10 @@ class TablesService extends AbstractService
             throw new CollectionAlreadyExistsException($name);
         }
 
+        if(!$this->hasPrimaryField($data['fields'])){
+            throw new BadRequestException("Collection does not have a primary key.");
+        }
+
         if ($collection && !$collection->isManaged()) {
             $success = $this->updateTableSchema($collection, $data);
         } else {
@@ -734,6 +738,19 @@ class TablesService extends AbstractService
     {
         return SchemaService::getCollection($tableName);
     }
+
+    public function hasPrimaryField($fields){
+        $result = false;
+
+        foreach($fields as $field){
+            if($field[primary_key] == true){
+                $result = true;
+                break;
+            }
+        }
+        return $result;
+    }
+
 
     /**
      * @param string $name
