@@ -26,8 +26,6 @@ return [
     'cache' => [
         'enabled' => false,
         'response_ttl' => 3600, // seconds
-        'adapter' => 'filesystem',
-        'path' => 'storage/cache',
         // 'pool' => [
         //    'adapter' => 'apc'
         // ],
