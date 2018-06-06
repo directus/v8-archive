@@ -197,7 +197,49 @@ These are the settings for the database connection.
 
 ### `cache`
 
-TODO
+Using this option you can enable caching the whole response making the request faster.
+
+| name          | Description   |
+| ------------- | ------------- |
+| `enabled`     | Whether or not the cache is enabled. Default: `false`
+| `response_ttl`| How long the cache will exists in seconds.
+| `pool`        | Where the cache will be stored. `filesystem`, `redis`, `apc`, `apcu` or `memcached`
+
+
+#### APC
+
+| name          | Description   |
+| ------------- | ------------- |
+| `adapter`     |  the name of the adapter. Must be `apc`
+
+#### APCU
+
+| name          | Description   |
+| ------------- | ------------- |
+| `adapter`     |  the name of the adapter. Must be `apcu`
+
+#### Filesystem
+
+| name          | Description   |
+| ------------- | ------------- |
+| `adapter`     |  the name of the adapter. Must be `filesystem`
+| `path`        |  Where on the local filesystem the cache will be stored. Starting the path without `/` will be relative to the api root path.
+
+#### Memcached
+
+| name          | Description   |
+| ------------- | ------------- |
+| `adapter`     |  the name of the adapter. Must be `memcached`
+| `host`        |  Memchached host
+| `port`        |  Memcached server port number
+
+#### Redis
+
+| name          | Description   |
+| ------------- | ------------- |
+| `adapter`     |  the name of the adapter. Must be `redis`
+| `host`        |  Redis server host
+| `port`        |  Redis server port number
 
 ### `filesystem`
 
