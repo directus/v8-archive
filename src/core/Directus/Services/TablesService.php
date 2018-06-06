@@ -217,6 +217,7 @@ class TablesService extends AbstractService
      * @throws InvalidRequestException
      * @throws CollectionAlreadyExistsException
      * @throws UnauthorizedException
+     * @throws BadRequestException
      */
     public function createTable($name, array $data = [], array $params = [])
     {
