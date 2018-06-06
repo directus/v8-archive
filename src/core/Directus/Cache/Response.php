@@ -18,9 +18,11 @@ class Response extends Cache
         $this->ttl = $time;
     }
 
-    public function process($key = null, $value = null)
+    public function process($key, $bodyContent, $headers = [])
     {
-        if($key && !empty($this->tags)) {
+        if ($key && !empty($this->tags)) {
+            $value = ['body' => $bodyContent, 'headers' => $headers];
+
             return $this->set($key, $value, $this->tags, $this->defaultTtl);
         }
 

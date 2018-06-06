@@ -836,11 +836,17 @@ class CoreServicesProvider
                 }
 
                 if ($adapter == 'filesystem') {
-                    if (empty($poolConfig['path'])) {
-                        throw new \Exception("'cache.pool.path' parameter is required for 'filesystem' adapter");
+                    if (empty($poolConfig['path']) || !is_string($poolConfig['path'])) {
+                        throw new \Exception('"cache.pool.path parameter is required for "filesystem" adapter and must be a string');
                     }
 
-                    $filesystemAdapter = new Local(__DIR__ . '/../../' . $poolConfig['path']);
+                    $cachePath = $poolConfig['path'];
+                    if ($cachePath[0] !== '/') {
+                        $basePath = $container->get('path_base');
+                        $cachePath = rtrim($basePath, '/') . '/' . $cachePath;
+                    }
+
+                    $filesystemAdapter = new Local($cachePath);
                     $filesystem = new \League\Flysystem\Filesystem($filesystemAdapter);
 
                     $pool = new FilesystemCachePool($filesystem);

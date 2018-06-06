@@ -131,8 +131,8 @@ $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add(new \Directus\Application\Http\Middlewares\AuthenticatedMiddleware($app->getContainer()));
 
+$app->add(new \Directus\Application\Http\Middlewares\ResponseCacheMiddleware($app->getContainer()));
 // $app->add(new \Directus\Slim\HttpCacheMiddleware());
-// $app->add(new \Directus\Slim\ResponseCacheMiddleware());
 //
 // $app->hookEmitter->run('application.boot', $app);
 // // $app->hook('slim.before.dispatch', function () use ($app, $authRouteWhitelist, $ZendDb, $acl, $authentication) {

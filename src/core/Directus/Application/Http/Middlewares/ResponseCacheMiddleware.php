@@ -1,43 +1,59 @@
 <?php
 
-namespace Directus\Slim;
+namespace Directus\Application\Http\Middlewares;
 
-use Directus\Bootstrap;
-use Directus\Cache\Response;
-use Slim\Middleware;
+use Directus\Cache\Response as CacheResponse;
+use Directus\Application\Http\Request;
+use Directus\Application\Http\Response;
 
-class ResponseCacheMiddleware extends Middleware
+class ResponseCacheMiddleware extends AbstractMiddleware
 {
-    public function call()
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param callable $next
+     *
+     * @return $this|Response
+     */
+    public function __invoke(Request $request, Response $response, callable $next)
     {
-        $container = $this->app->container;
+        $container = $this->container;
         $forceRefresh = false;
 
-        /** @var Response $cache */
-        $cache = $this->app->container->get('responseCache');
+        /** @var CacheResponse $cache */
+        $cache = $this->container->get('response_cache');
 
-        if($this->app->request->isGet()) {
-            $parameters = $this->app->request()->get();
+        if ($request->isGet()) {
+            $parameters = $request->getQueryParams();
             ksort($parameters);
 
             $forceRefresh = (empty($parameters['refresh_cache'])) ? false : true;
             unset($parameters['refresh_cache']);
 
-            $key = md5($container->get('acl')->getUserId().'@'.$this->app->request->getResourceUri().'?'.http_build_query($parameters));
+            $requestPath = $request->getUri()->getPath();
+
+            $key = md5($container->get('acl')->getUserId().'@'.$requestPath.'?'.http_build_query($parameters));
         } else {
             $key = null;
         }
 
         $config = $container->get('config');
-        if($config->get('cache.enabled') && $key && !$forceRefresh && $cachedResponse = $cache->get($key)) {
-            $response = $this->app->response();
-            $response->setBody($cachedResponse->getBody());
-            $response->headers = $cachedResponse->headers;
+        if ($config->get('cache.enabled') && $key && !$forceRefresh && $cachedResponse = $cache->get($key)) {
+            $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+            $body->write($cachedResponse['body']);
+            $response = $response->withBody($body)->withHeaders($cachedResponse['headers']);
         } else {
-            $this->next->call();
+            /** @var Response $response */
+            $response = $next($request, $response);
 
-            $response = $this->app->response();
-            $cache->process($key, $response);
+            $body = $response->getBody();
+            $body->rewind();
+            $bodyContent = $body->getContents();
+            $headers = $response->getHeaders();
+
+            $cache->process($key, $bodyContent, $headers);
         }
+
+        return $response;
     }
 }
