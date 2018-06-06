@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Application\Http\Middlewares;
+namespace Directus\Application\Http\Middleware;
 
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;

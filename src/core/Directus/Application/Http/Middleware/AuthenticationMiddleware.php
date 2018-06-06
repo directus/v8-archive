@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Application\Http\Middlewares;
+namespace Directus\Application\Http\Middleware;
 
 use Directus\Application\Container;
 use Directus\Application\Http\Request;

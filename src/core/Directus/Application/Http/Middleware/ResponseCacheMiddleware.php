@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Application\Http\Middlewares;
+namespace Directus\Application\Http\Middleware;
 
 use Directus\Cache\Response as CacheResponse;
 use Directus\Application\Http\Request;

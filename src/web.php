@@ -69,13 +69,13 @@ register_extensions_hooks($app);
 
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
-// TODO: Implement old Slim 2 hooks into middlewares
+// TODO: Implement old Slim 2 hooks into middleware
 
 //
 // ----------------------------------------------------------------------------
 
-$app->add(new \Directus\Application\Http\Middlewares\AuthenticationMiddleware($app->getContainer()))
-    ->add(new \Directus\Application\Http\Middlewares\CorsMiddleware($app->getContainer()))
+$app->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()))
+    ->add(new \Directus\Application\Http\Middleware\CorsMiddleware($app->getContainer()))
     ->add(new RKA\Middleware\IpAddress());
 
 $app->get('/', \Directus\Api\Routes\Home::class);
@@ -129,9 +129,9 @@ $app->group('/listings', \Directus\Api\Routes\Listings::class);
 $app->group('/pages', \Directus\Api\Routes\Pages::class);
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
-    ->add(new \Directus\Application\Http\Middlewares\AuthenticatedMiddleware($app->getContainer()));
+    ->add(new \Directus\Application\Http\Middleware\AuthenticatedMiddleware($app->getContainer()));
 
-$app->add(new \Directus\Application\Http\Middlewares\ResponseCacheMiddleware($app->getContainer()));
+$app->add(new \Directus\Application\Http\Middleware\ResponseCacheMiddleware($app->getContainer()));
 // $app->add(new \Directus\Slim\HttpCacheMiddleware());
 //
 // $app->hookEmitter->run('application.boot', $app);
