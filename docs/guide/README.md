@@ -230,7 +230,7 @@ Using this option you can enable caching the whole response making the request f
 | name          | Description   |
 | ------------- | ------------- |
 | `adapter`     |  the name of the adapter. Must be `memcached`
-| `host`        |  Memchached host
+| `host`        |  Memcached host
 | `port`        |  Memcached server port number
 
 #### Redis
