@@ -258,6 +258,9 @@ class TablesService extends AbstractService
         if(!$this->hasPrimaryField($data['fields'])){
             throw new BadRequestException("Collection does not have a primary key.");
         }
+        if(!$this->hasUniquePrimaryKey($data['fields'])){
+            throw new BadRequestException("Collection must only have 1 primary key.");
+        }
 
         if ($collection && !$collection->isManaged()) {
             $success = $this->updateTableSchema($collection, $data);
@@ -744,12 +747,22 @@ class TablesService extends AbstractService
         $result = false;
 
         foreach($fields as $field){
-            if($field[primary_key] == true){
+            if($field['primary_key'] === true){
                 $result = true;
                 break;
             }
         }
         return $result;
+    }
+
+    public function hasUniquePrimaryKey($fields){
+        $primaryKeyCount = 0;
+        foreach($fields as $field){
+            if($field['primary_key'] === true){
+                $primaryKeyCount++;
+            }
+        }
+        return $primaryKeyCount <= 1;
     }
 
 
