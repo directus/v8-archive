@@ -161,91 +161,92 @@ If you followed the steps above you have successfully installed the Directus API
 
 ### `app`
 
-These are the api application settings.
+The API application settings
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `env`         | This option will let you hide or show directus detailed errors, or php errors, warning or notices. Options: `development` and `production`. Default: `development` |
-| `timezone`    | The PHP default timezone.  |
+| `env`         | Defines the detail of PHP error reporting (errors, warning, and notices). Options: `development` (default) or `production` |
+| `timezone`    | PHP default timezone  |
 
 ### `settings`
 
-These are the Slim Application settings. Slim the framework Directus is based on.
+The settings for [Slim](https://www.slimframework.com/), the micro-framework used by Directus
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
 | `logger`      | The Directus [Monolog]() logger configuration. Settings: `path` - where the log should be stored |
 
-Note: The logger as the moment only works on the server filesystem.
-
+::: tip
+Currently the logger only works on the server's filesystem
+:::
 
 ### `database`
 
-These are the settings for the database connection.
+Settings for the database connection
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `type`        | database type. Only `mysql` is support. This includes all drop-in replacement such as MariaDB and Percona. |
-| `host`        | database server host |
-| `port`        | database server port number |
-| `name`        | database name |
-| `username`    | database user username |
-| `password`    | database user password |
-| `engine`      | database storage engine |
+| `type`        | Database type. `mysql` and any drop-in replacements (MariaDB, Percona) are supported |
+| `host`        | Database server host |
+| `port`        | Database server port number |
+| `name`        | Database name |
+| `username`    | Database user username |
+| `password`    | Database user password |
+| `engine`      | Database storage engine |
 | `charset`     | Database connection charset |
 | `socket`      | @TODO: Add an option to add a socket connection |
 
 ### `cache`
 
-Using this option you can enable caching the whole response making the request faster.
+Enables caching to speed-up API responses
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
 | `enabled`     | Whether or not the cache is enabled. Default: `false`
-| `response_ttl`| How long the cache will exists in seconds.
-| `pool`        | Where the cache will be stored. `filesystem`, `redis`, `apc`, `apcu` or `memcached`
+| `response_ttl`| How long the cache will exists in seconds
+| `pool`        | Where the cache will be stored: `filesystem`, `redis`, `apc`, `apcu` or `memcached`
 
 
 #### APC
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `adapter`     |  the name of the adapter. Must be `apc`
+| `adapter`     |  Name of the adapter. Must be `apc`
 
 #### APCU
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `adapter`     |  the name of the adapter. Must be `apcu`
+| `adapter`     |  Name of the adapter. Must be `apcu`
 
 #### Filesystem
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `adapter`     |  the name of the adapter. Must be `filesystem`
-| `path`        |  Where on the local filesystem the cache will be stored. Starting the path without `/` will be relative to the api root path.
+| `adapter`     |  Name of the adapter. Must be `filesystem`
+| `path`        |  Where on the cache will be stored relative to the API root path. Prepend with `/` for absolute
 
 #### Memcached
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `adapter`     |  the name of the adapter. Must be `memcached`
+| `adapter`     |  Name of the adapter. Must be `memcached`
 | `host`        |  Memcached host
 | `port`        |  Memcached server port number
 
 #### Redis
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `adapter`     |  the name of the adapter. Must be `redis`
+| `adapter`     |  Name of the adapter. Must be `redis`
 | `host`        |  Redis server host
 | `port`        |  Redis server port number
 
 ### `filesystem`
 
-Directus allows you to choose where files can be uploaded. Currently we support local and Amazon-S3
+Choose where files can be uploaded. Currently we support local and Amazon-S3
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
 | `adapter`     | `local` for local filesystem or `s3` for Amazon-S3
 | `root`        | Root path where files are uploaded
@@ -258,35 +259,31 @@ Directus allows you to choose where files can be uploaded. Currently we support 
 
 ### `mail`
 
-A list of key-value-pairs (array) of mail configurations, Currently only `default` key is supported. Each value must have at least the following information:
+A list of key-value-pairs (array) mail configurations. Currently only the `default` key is supported. Each value must have at least the following information:
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `adapter`     | Only `swift_mailer` is supported at the moment.
+| `adapter`     | Only `swift_mailer` is supported at the moment
 | `transport`   | `smtp`, `sendmail`, `simple_file` (dummy example) or your own class name resolution string
-| `from`        | The global from email
+| `from`        | The global "from" email address
 
-You can extend `Directus\Mail\Transports\AbstractTransport` class to create your own Swift Mailer transport.
-
-All options that exists in your mailer config will be passed to your transport.
+::: tip
+You can extend `Directus\Mail\Transports\AbstractTransport` class to create your own Swift Mailer transport. All options that exists in your mailer config will be passed to your transport.
+:::
 
 ### `cors`
 
-Cross-origin resource sharing (CORS) is a mechanism that allows you to restricted access of Directus API from another domain.
+Cross-Origin Resource Sharing (CORS) is a mechanism that allows you to restricted access of Directus API from other domains
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `enabled`     | Tells whether the CORS is enabled or not.
-| `origin`      | List of host origin allowed to have access to the API.
-| `headers`     | A list of headers to be appended to the preflight request.
+| `enabled`     | Whether or not CORS is enabled
+| `origin`      | List of host origins that are allowed access to the API
+| `headers`     | List of headers to be appended to the preflight request
 
 ### `hooks`
 
-Hooks allow you to execute custom code when a Directus Event happens.
-
-You can register functions or classes to a hook name and when that event happens it will execute that code.
-
-Ex:
+Hooks allow you to execute custom code when a Directus Event happens. You can register functions or classes to a hook name and when the event happens it will execute that code. FOr example:
 
 ```php
 'hooks' => [
@@ -298,17 +295,13 @@ Ex:
 ]
 ```
 
-The example above will execute the `notify` function after a item was inserted into the `articles` table.
+The example above will execute the `notify` function after an item has been inserted into the `articles` table.
 
-A class that implements `__invoke` method or inherits from `\Directus\Hook\HookInterface` can be used too, and instead of passing a function you must pass the fully qualified class name resolution. Ex: `\MyApplication\Events\NotifyNewArticles::class`.
+A class that implements the `__invoke` method or inherits from `\Directus\Hook\HookInterface` can also be used, and instead of passing a function you must pass the fully qualified class name resolution. For example: `\MyApplication\Events\NotifyNewArticles::class`.
 
 ### `filters`
 
-Filters work the same way as the hooks, the only different is that you can manipulate the data is being pass.
-
-This is a nice way to add, remove or change the data before is sent to the database.
-
-An example can be generating a new UUID every time an article is created.
+Filters work the same as hooks except that you can manipulate the data being passed. This is a nice way to add, remove, or manipulate the data before it is sent to the database. Filters always pass a `\Directus\Hook\Payload` object as the first parameter and it must return a payload object. An example would be generating a new UUID every time an article is created:
 
 ```php
 'filters' => [
@@ -320,8 +313,6 @@ An example can be generating a new UUID every time an article is created.
 ]
 ```
 
-Notice that filters always pass a `\Directus\Hook\Payload` object as first parameter and it must return a payload object.
-
 ### `feedback`
 
 It doesn't do anything on version 2.0, but it was created to ping our server to understand approximately how many instances of Directus exists.
@@ -332,22 +323,21 @@ It doesn't do anything, but it was meant to blacklist tables from being used by 
 
 ### `auth`
 
-| name          | Description   |
+| Name          | Description   |
 | ------------- | ------------- |
-| `secret_key`  | This key is used by the JWT encode function to encode the tokens |
-| `social_providers` | List of available third party authentication providers
+| `secret_key`  | This key is used by the JWT encode function to encode tokens |
+| `social_providers` | List of available third-party authentication providers |
 
 
-Directus comes ready with `Okta`, `GitHub`, `Facebook`, `Twitter` and `Google`, but Directus allows you to create your own providers.
-
+Out-of-the-box Directus supports `Okta`, `GitHub`, `Facebook`, `Twitter` and `Google` Single-Sign-On (SSO), but also allows you to create your own providers.
 
 #### Okta
 
-| name            | Description   |
+| Name            | Description   |
 | --------------- | ------------- |
 | `client_id`     | Your Okta client id key |
 | `client_secret` | Your Okta client secret key |
-| `base_url`      | Your okta application base url |
+| `base_url`      | Your okta application base URL |
 
 #### GitHub
 
@@ -358,23 +348,23 @@ Directus comes ready with `Okta`, `GitHub`, `Facebook`, `Twitter` and `Google`, 
 
 #### Facebook
 
-| name                | Description   |
+| Name                | Description   |
 | ------------------- | ------------- |
 | `client_id`         | Your application client id |
 | `client_secret`     | Your application client secret key |
-| `graph_api_version` | Facebook graph api version |
+| `graph_api_version` | Facebook graph API version |
 
 #### Google
 
-| name                | Description   |
+| Name                | Description   |
 | ------------------- | ------------- |
 | `client_id`         | Your application client id |
 | `client_secret`     | Your application client secret key |
-| `hosted_domain`     | Your application allowed hosted_domain |
+| `hosted_domain`     | Your application allowed hosted domain |
 
 #### Twitter
 
-| name                | Description   |
+| Name                | Description   |
 | ------------------- | ------------- |
 | `identifier`        | Your application identifier key |
 | `secret`            | Your application secret key |
