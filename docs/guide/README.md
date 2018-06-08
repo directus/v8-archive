@@ -243,13 +243,13 @@ Using this option you can enable caching the whole response making the request f
 
 ### `filesystem`
 
-Directus allows you to pick where you want you files to be upload to. Unfourtunatelly at the moment we only support local and Amazon S3.
+Directus allows you to choose where files can be uploaded. Currently we support local and Amazon-S3
 
 | name          | Description   |
 | ------------- | ------------- |
-| `adapter`     | `local` for local filesystem or `s3` for amazon S3
-| `root`        | The root path where the files are going to be uploaded
-| `root_url`    | The public url that has access to `root` files.
+| `adapter`     | `local` for local filesystem or `s3` for Amazon-S3
+| `root`        | Root path where files are uploaded
+| `root_url`    | Public URL with access to `root` files
 | `key`         | S3 Bucket Key
 | `secret`      | S3 Bucket Secret
 | `region`      | S3 Bucket Region
@@ -258,9 +258,7 @@ Directus allows you to pick where you want you files to be upload to. Unfourtuna
 
 ### `mail`
 
-A list of key-value (array) of mail configurations, only `default` key is supported at the moment.
-
-Each value must have at least the following information:
+A list of key-value-pairs (array) of mail configurations, Currently only `default` key is supported. Each value must have at least the following information:
 
 | name          | Description   |
 | ------------- | ------------- |
