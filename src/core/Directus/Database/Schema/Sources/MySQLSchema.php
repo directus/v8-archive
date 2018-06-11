@@ -158,7 +158,7 @@ class MySQLSchema extends AbstractSchema
             'scale' => 'NUMERIC_SCALE',
             'nullable' => new Expression('IF(SF.IS_NULLABLE="YES",1,0)'),
             'default_value' => 'COLUMN_DEFAULT',
-            'comment' => new Expression('IFNULL(DF.note, SF.COLUMN_COMMENT)'),
+            'note' => new Expression('IFNULL(DF.note, SF.COLUMN_COMMENT)'),
             'column_type' => 'COLUMN_TYPE',
         ]);
 
@@ -167,12 +167,16 @@ class MySQLSchema extends AbstractSchema
             ['DF' => 'directus_fields'],
             'SF.COLUMN_NAME = DF.field AND SF.TABLE_NAME = DF.collection',
             [
+                'id' => new Expression('IF(ISNULL(DF.id), NULL, DF.id)'),
                 'type' => new Expression('UCASE(IFNULL(DF.type, SF.DATA_TYPE))'),
                 'managed' =>  new Expression('IF(ISNULL(DF.id),0,1)'),
                 'interface',
                 'hidden_input' => new Expression('IF(DF.hidden_input=1,1,0)'),
+                'hidden_list' => new Expression('IF(DF.hidden_list=1,1,0)'),
                 'required' => new Expression('IF(DF.required=1,1,0)'),
-                'options'
+                'options',
+                'locked',
+                'translation',
             ],
             $selectOne::JOIN_LEFT
         );
@@ -190,6 +194,7 @@ class MySQLSchema extends AbstractSchema
 
         $selectTwo = new Select();
         $selectTwo->columns([
+            'id',
             'collection',
             'field',
             'sort',
@@ -201,14 +206,17 @@ class MySQLSchema extends AbstractSchema
             'scale' => new Expression('NULL'),
             'is_nullable' => new Expression('"NO"'),
             'default_value' => new Expression('NULL'),
-            'comment' => 'note',
+            'note',
             'column_type' => new Expression('NULL'),
             'type' => new Expression('UCASE(type)'),
             'managed' =>  new Expression('IF(ISNULL(DF2.id),0,1)'),
             'interface',
             'hidden_input',
+            'hidden_list',
             'required',
             'options',
+            'locked',
+            'translation',
         ]);
         $selectTwo->from(['DF2' => 'directus_fields']);
 
