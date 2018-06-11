@@ -139,7 +139,10 @@ class TablesService extends AbstractService
             ];
 
             $result = $tableGateway->getItems($params);
-            $result['data'] = $this->parseMissingSchemaField($collectionObject, $columnObject, $result['data']);
+            $fieldData = $this->parseMissingSchemaField($collectionObject, $result['data']);
+            if ($fieldData) {
+                $result['data'] = $fieldData;
+            }
         } else {
             //  Get not managed fields
             $result = ['data' => $this->parseSchemaField($collectionObject, $columnObject)];
@@ -937,19 +940,25 @@ class TablesService extends AbstractService
     protected function parseMissingSchemaFields(Collection $collection, array $fieldsData, array $onlyFields = null)
     {
         $missingFieldsData = [];
+        $missingFields = [];
+        $lookForMissingFields = true;
+        $fieldsName = ArrayUtils::pluck($fieldsData, 'field');
 
         if (!empty($onlyFields)) {
-            $fieldsName = $onlyFields;
-        } else {
-            $fieldsName = ArrayUtils::pluck($fieldsData, 'field');
+            $fieldsName = array_diff($onlyFields, $fieldsName);
+            if (empty($fieldsName)) {
+                $lookForMissingFields = false;
+            }
         }
 
-        $missingFields = $collection->getFieldsNotIn(
-            $fieldsName
-        );
+        if ($lookForMissingFields) {
+            $missingFields = $collection->getFieldsNotIn(
+                $fieldsName
+            );
+        }
 
         foreach ($fieldsData as $key => $fieldData) {
-            $result = $this->parseMissingSchemaField($collection, $field, $fieldData);
+            $result = $this->parseMissingSchemaField($collection, $fieldData);
 
             if ($result) {
                 $fieldsData[$key] = $result;
@@ -967,12 +976,11 @@ class TablesService extends AbstractService
      * Merges a Field data with an Field object
      *
      * @param Collection $collection
-     * @param Field $field
      * @param array $fieldData
-     * 
-     * @return void
+     *
+     * @return array
      */
-    protected function parseMissingSchemaField(Collection $collection, Field $field, array $fieldData)
+    protected function parseMissingSchemaField(Collection $collection, array $fieldData)
     {
         $field = $collection->getField(ArrayUtils::get($fieldData, 'field'));
 
