@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-06-11 13:04:55 +0000
+# Generation Time: 2018-06-11 15:01:55 +0000
 # ************************************************************
 
 
@@ -487,6 +487,20 @@ CREATE TABLE `directus_settings` (
   UNIQUE KEY `idx_scope_name` (`scope`,`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `directus_settings` WRITE;
+/*!40000 ALTER TABLE `directus_settings` DISABLE KEYS */;
+
+INSERT INTO `directus_settings` (`id`, `scope`, `key`, `value`)
+VALUES
+	(1,'global','auto_sign_out','60'),
+	(2,'global','project_name','Directus'),
+	(3,'global','default_limit','200'),
+	(4,'global','logo',''),
+	(5,'files','file_naming','file_id'),
+	(6,'files','youtube_api_key','');
+
+/*!40000 ALTER TABLE `directus_settings` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table directus_user_roles
@@ -502,6 +516,15 @@ CREATE TABLE `directus_user_roles` (
   UNIQUE KEY `idx_user_role` (`user`,`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `directus_user_roles` WRITE;
+/*!40000 ALTER TABLE `directus_user_roles` DISABLE KEYS */;
+
+INSERT INTO `directus_user_roles` (`id`, `user`, `role`)
+VALUES
+	(1,1,1);
+
+/*!40000 ALTER TABLE `directus_user_roles` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table directus_users
@@ -538,6 +561,15 @@ CREATE TABLE `directus_users` (
   UNIQUE KEY `idx_users_external_id` (`external_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `directus_users` WRITE;
+/*!40000 ALTER TABLE `directus_users` DISABLE KEYS */;
+
+INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_ip`, `last_login`, `last_access`, `last_page`, `token`, `invite_token`, `invite_accepted`, `external_id`)
+VALUES
+	(1,1,'Admin','User','admin@example.com',1,'$2y$12$MLltm.JyJ9ozdzDLjwJygeBypXvtwsTjXVIX/VbQS/9QE6Hx0dbdm',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,NULL,NULL,'admin_token',NULL,0,NULL);
+
+/*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 
