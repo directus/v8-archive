@@ -77,10 +77,7 @@ class TablesService extends AbstractService
             ]
         ]));
 
-        //  GET NOT MANAGED FIELDS
-        if (!empty($result['data'])) {
-            $result['data'] = $this->parseSchemaFieldsMissing($collection, ArrayUtils::get($result, 'data'));
-        }
+        $result['data'] = $this->parseMissingSchemaFields($collection, $result['data']);
 
         return $result;
     }
@@ -142,9 +139,10 @@ class TablesService extends AbstractService
             ];
 
             $result = $tableGateway->getItems($params);
+            $result['data'] = $this->parseMissingSchemaField($collectionObject, $columnObject, $result['data']);
         } else {
             //  Get not managed fields
-            $result = ['data' => $this->parseSchemaField($columnObject)];
+            $result = ['data' => $this->parseSchemaField($collectionObject, $columnObject)];
         }
 
         return $result;
@@ -174,10 +172,7 @@ class TablesService extends AbstractService
             ]
         ]));
 
-        //  GET NOT MANAGED FIELDS
-        if (empty($result['data'])) {
-            $result['data'] = $this->parseSchemaFields($collection, ArrayUtils::get($result, 'data'), $fieldsName);
-        }
+        $result['data'] = $this->parseMissingSchemaFields($collection, ArrayUtils::get($result, 'data'), $fieldsName);
 
         return $result;
     }
@@ -931,78 +926,89 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Parses a list of Schema Attributes into Directus Attributes
-     *
-     * @param Collection $collection
-     * @param array $fieldsData
-     * @param array $fieldsName
-     *
-     * @return array
-     */
-    protected function parseSchemaFields(Collection $collection, array $fieldsData, array $fieldsName = [])
-    {
-        $result = [];
-
-        if (empty($fieldsName)) {
-            $fieldsName = ArrayUtils::pluck($fieldsData, 'field');
-        }
-
-        if (empty($fieldsName)) {
-            return $fieldsData;
-        }
-
-        $fields = $collection->getFields(
-            $fieldsName
-        );
-
-        foreach ($fields as $field) {
-            $result[] = $this->parseSchemaField($field);
-        }
-
-        return array_merge($fieldsData, $result);
-    }
-
-    /**
      * Parses a list of missing Schema Attributes into Directus Attributes
      *
      * @param Collection $collection
      * @param array $fieldsData
+     * @param array $onlyFields
      *
      * @return array
      */
-    protected function parseSchemaFieldsMissing(Collection $collection, array $fieldsData)
+    protected function parseMissingSchemaFields(Collection $collection, array $fieldsData, array $onlyFields = null)
     {
-        $result = [];
+        $missingFieldsData = [];
 
-        $fields = $collection->getFieldsNotIn(
-            ArrayUtils::pluck($fieldsData, 'field')
-        );
-
-        foreach ($fields as $field) {
-            $result[] = $this->parseSchemaField($field);
+        if (!empty($onlyFields)) {
+            $fieldsName = $onlyFields;
+        } else {
+            $fieldsName = ArrayUtils::pluck($fieldsData, 'field');
         }
 
-        return array_merge($fieldsData, $result);
+        $missingFields = $collection->getFieldsNotIn(
+            $fieldsName
+        );
+
+        foreach ($fieldsData as $key => $fieldData) {
+            $result = $this->parseMissingSchemaField($collection, $field, $fieldData);
+
+            if ($result) {
+                $fieldsData[$key] = $result;
+            }
+        }
+
+        foreach ($missingFields as $missingField) {
+            $missingFieldsData[] = $this->parseSchemaField($collection, $missingField);
+        }
+
+        return array_merge($fieldsData, $missingFieldsData);
+    }
+
+    /**
+     * Merges a Field data with an Field object
+     *
+     * @param Collection $collection
+     * @param Field $field
+     * @param array $fieldData
+     * 
+     * @return void
+     */
+    protected function parseMissingSchemaField(Collection $collection, Field $field, array $fieldData)
+    {
+        $field = $collection->getField(ArrayUtils::get($fieldData, 'field'));
+
+        // if for some reason the field key doesn't exists
+        // continue with everything as if nothing has happened
+        if (!$field) {
+            return null;
+        }
+
+        return array_merge(
+            $this->parseSchemaField($collection, $field),
+            $fieldData
+        );
     }
 
     /**
      * Parses Schema Attributes into Directus Attributes
      *
+     * @param Collection $collection
      * @param Field $field
      *
-     * @return array|mixed
+     * @return array
      */
-    protected function parseSchemaField(Field $field)
+    protected function parseSchemaField(Collection $collection, Field $field)
     {
         $tableGateway = $this->getFieldsTableGateway();
-        $fieldsName = $tableGateway->getTableSchema()->getFieldsName();
+        $fieldsCollectionFieldsName = $tableGateway->getTableSchema()->getFieldsName();
 
-        $data = ArrayUtils::pick($field->toArray(), array_merge($fieldsName, ['managed']));
+        $data = ArrayUtils::pick($field->toArray(), array_merge($fieldsCollectionFieldsName, ['managed']));
         // it must be not managed
-        $data['managed'] = false;
+        $data['managed'] = boolval(ArrayUtils::get($data, 'managed'));
         $data['primary_key'] = $field->hasPrimaryKey();
 
-        return $tableGateway->parseRecord($data);
+        $result = $tableGateway->parseRecord($data);
+
+        return $result;
     }
 
     /**
