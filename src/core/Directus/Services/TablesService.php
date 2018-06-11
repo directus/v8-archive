@@ -77,7 +77,7 @@ class TablesService extends AbstractService
             ]
         ]));
 
-        $result['data'] = $this->parseMissingSchemaFields($collection, $result['data']);
+        $result['data'] = $this->mergeMissingSchemaFields($collection, $result['data']);
 
         return $result;
     }
@@ -139,13 +139,13 @@ class TablesService extends AbstractService
             ];
 
             $result = $tableGateway->getItems($params);
-            $fieldData = $this->parseMissingSchemaField($collectionObject, $result['data']);
+            $fieldData = $this->mergeMissingSchemaField($collectionObject, $result['data']);
             if ($fieldData) {
                 $result['data'] = $fieldData;
             }
         } else {
             //  Get not managed fields
-            $result = ['data' => $this->parseSchemaField($collectionObject, $columnObject)];
+            $result = ['data' => $this->mergeSchemaField($collectionObject, $columnObject)];
         }
 
         return $result;
@@ -175,7 +175,7 @@ class TablesService extends AbstractService
             ]
         ]));
 
-        $result['data'] = $this->parseMissingSchemaFields($collection, ArrayUtils::get($result, 'data'), $fieldsName);
+        $result['data'] = $this->mergeMissingSchemaFields($collection, ArrayUtils::get($result, 'data'), $fieldsName);
 
         return $result;
     }
@@ -929,7 +929,7 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Parses a list of missing Schema Attributes into Directus Attributes
+     * Merges a list of missing Schema Attributes into Directus Attributes
      *
      * @param Collection $collection
      * @param array $fieldsData
@@ -937,7 +937,7 @@ class TablesService extends AbstractService
      *
      * @return array
      */
-    protected function parseMissingSchemaFields(Collection $collection, array $fieldsData, array $onlyFields = null)
+    protected function mergeMissingSchemaFields(Collection $collection, array $fieldsData, array $onlyFields = null)
     {
         $missingFieldsData = [];
         $missingFields = [];
@@ -958,7 +958,7 @@ class TablesService extends AbstractService
         }
 
         foreach ($fieldsData as $key => $fieldData) {
-            $result = $this->parseMissingSchemaField($collection, $fieldData);
+            $result = $this->mergeMissingSchemaField($collection, $fieldData);
 
             if ($result) {
                 $fieldsData[$key] = $result;
@@ -966,7 +966,7 @@ class TablesService extends AbstractService
         }
 
         foreach ($missingFields as $missingField) {
-            $missingFieldsData[] = $this->parseSchemaField($collection, $missingField);
+            $missingFieldsData[] = $this->mergeSchemaField($collection, $missingField);
         }
 
         return array_merge($fieldsData, $missingFieldsData);
@@ -980,7 +980,7 @@ class TablesService extends AbstractService
      *
      * @return array
      */
-    protected function parseMissingSchemaField(Collection $collection, array $fieldData)
+    protected function mergeMissingSchemaField(Collection $collection, array $fieldData)
     {
         $field = $collection->getField(ArrayUtils::get($fieldData, 'field'));
 
@@ -991,7 +991,7 @@ class TablesService extends AbstractService
         }
 
         return array_merge(
-            $this->parseSchemaField($collection, $field),
+            $this->mergeSchemaField($collection, $field),
             $fieldData
         );
     }
@@ -1004,7 +1004,7 @@ class TablesService extends AbstractService
      *
      * @return array
      */
-    protected function parseSchemaField(Collection $collection, Field $field)
+    protected function mergeSchemaField(Collection $collection, Field $field)
     {
         $tableGateway = $this->getFieldsTableGateway();
         $fieldsCollectionFieldsName = $tableGateway->getTableSchema()->getFieldsName();
