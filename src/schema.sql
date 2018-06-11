@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-05-18 17:10:37 +0000
+# Generation Time: 2018-06-11 13:04:55 +0000
 # ************************************************************
 
 
@@ -35,7 +35,9 @@ CREATE TABLE `directus_activity` (
   `user_agent` varchar(255) NOT NULL,
   `collection` varchar(64) NOT NULL,
   `item` varchar(255) NOT NULL,
-  `message` text,
+  `datetime_edited` datetime DEFAULT NULL,
+  `comment` text,
+  `deleted_comment` tinyint(1) unsigned DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -73,6 +75,7 @@ CREATE TABLE `directus_collection_presets` (
   `view_type` varchar(100) NOT NULL,
   `view_query` text,
   `view_options` text,
+  `translation` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_user_collection_title` (`user`,`collection`,`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -91,7 +94,7 @@ CREATE TABLE `directus_collections` (
   `hidden` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `single` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `translation` text,
-  `comment` varchar(255) DEFAULT NULL,
+  `note` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`collection`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -115,7 +118,7 @@ CREATE TABLE `directus_fields` (
   `required` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `sort` int(11) unsigned DEFAULT NULL,
   `view_width` int(11) unsigned NOT NULL DEFAULT '4',
-  `comment` varchar(1024) DEFAULT NULL,
+  `note` varchar(1024) DEFAULT NULL,
   `hidden_input` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `validation` varchar(255) DEFAULT NULL,
   `hidden_list` tinyint(1) unsigned NOT NULL DEFAULT '0',
@@ -127,7 +130,7 @@ CREATE TABLE `directus_fields` (
 LOCK TABLES `directus_fields` WRITE;
 /*!40000 ALTER TABLE `directus_fields` DISABLE KEYS */;
 
-INSERT INTO `directus_fields` (`id`, `collection`, `field`, `type`, `interface`, `options`, `locked`, `translation`, `readonly`, `required`, `sort`, `view_width`, `comment`, `hidden_input`, `validation`, `hidden_list`, `group`)
+INSERT INTO `directus_fields` (`id`, `collection`, `field`, `type`, `interface`, `options`, `locked`, `translation`, `readonly`, `required`, `sort`, `view_width`, `note`, `hidden_input`, `validation`, `hidden_list`, `group`)
 VALUES
 	(1,'directus_activity','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(2,'directus_activity','type','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
@@ -138,7 +141,7 @@ VALUES
 	(7,'directus_activity','user_agent','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(8,'directus_activity','collection','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(9,'directus_activity','item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(10,'directus_activity','message','text','markdown',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(10,'directus_activity','comment','text','markdown',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(11,'directus_activity_read','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(12,'directus_activity_read','activity','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(13,'directus_activity_read','user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
@@ -150,7 +153,7 @@ VALUES
 	(19,'directus_collections','hidden','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(20,'directus_collections','single','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(21,'directus_collections','translation','json','JSON',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(22,'directus_collections','comment','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(22,'directus_collections','note','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(23,'directus_collection_presets','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(24,'directus_collection_presets','title','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(25,'directus_collection_presets','user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
@@ -161,106 +164,107 @@ VALUES
 	(30,'directus_collection_presets','view_options','json','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(31,'directus_collection_presets','view_type','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(32,'directus_collection_presets','view_query','json','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(33,'directus_fields','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(34,'directus_fields','collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(35,'directus_fields','field','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(36,'directus_fields','type','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(37,'directus_fields','interface','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(38,'directus_fields','options','json','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(39,'directus_fields','locked','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(40,'directus_fields','translation','json','JSON',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(41,'directus_fields','readonly','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(42,'directus_fields','required','boolean','',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(43,'directus_fields','sort','int','sort',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(44,'directus_fields','comment','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(45,'directus_fields','hidden_input','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(46,'directus_fields','hidden_list','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(47,'directus_fields','view_width','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(48,'directus_fields','group','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(49,'directus_files','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(50,'directus_files','filename','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(51,'directus_files','title','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(52,'directus_files','description','text','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(53,'directus_files','location','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(54,'directus_files','tags','csv','tags',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(55,'directus_files','width','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(56,'directus_files','height','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(57,'directus_files','filesize','int','filesize',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(58,'directus_files','duration','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(59,'directus_files','metadata','json','JSON',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(60,'directus_files','type','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(61,'directus_files','charset','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(62,'directus_files','embed','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(63,'directus_files','folder','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(64,'directus_files','upload_user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(65,'directus_files','upload_date','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(66,'directus_files','storage_adapter','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(67,'directus_files','data','blob','blob','{ \"nameField\": \"filename\", \"sizeField\": \"filesize\", \"typeField\": \"type\" }',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(68,'directus_files','url','varchar','',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(69,'directus_files','storage','alias','file-upload',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(70,'directus_folders','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(71,'directus_folders','name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(72,'directus_folders','parent_folder','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(73,'directus_roles','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(74,'directus_roles','name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(75,'directus_roles','description','varchar','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(76,'directus_roles','ip_whitelist','text','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(77,'directus_roles','nav_blacklist','text','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(78,'directus_user_roles','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(79,'directus_user_roles','user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(80,'directus_user_roles','role','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(81,'directus_users','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(82,'directus_users','status','int','status','{\"status_mapping\":[{\"name\": \"draft\"},{\"name\": \"active\"},{\"name\": \"delete\"}]}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(83,'directus_users','first_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(84,'directus_users','last_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(85,'directus_users','email','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(86,'directus_users','roles','m2m','m2m',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(87,'directus_users','email_notifications','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(88,'directus_users','password','varchar','password',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(89,'directus_users','avatar','file','single-file',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(90,'directus_users','company','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(91,'directus_users','title','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(92,'directus_users','locale','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(93,'directus_users','locale_options','json','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(94,'directus_users','timezone','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(95,'directus_users','last_ip','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(96,'directus_users','last_login','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(97,'directus_users','last_access','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(98,'directus_users','last_page','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(99,'directus_users','token','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(100,'directus_users','invite_token','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(101,'directus_users','invite_accepted','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(102,'directus_permissions','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(103,'directus_permissions','collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(104,'directus_permissions','role','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(105,'directus_permissions','status','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(106,'directus_permissions','create','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(107,'directus_permissions','read','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(108,'directus_permissions','update','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(109,'directus_permissions','delete','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(110,'directus_permissions','navigate','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(111,'directus_permissions','explain','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(112,'directus_permissions','allow_statuses','csv','tags',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(113,'directus_permissions','read_field_blacklist','varchar','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(114,'directus_relations','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(115,'directus_relations','collection_a','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(116,'directus_relations','field_a','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(117,'directus_relations','junction_key_a','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(118,'directus_relations','junction_mixed_collections','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(119,'directus_relations','junction_key_b','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(120,'directus_relations','collection_b','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(121,'directus_relations','field_b','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(122,'directus_revisions','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(123,'directus_revisions','activity','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(124,'directus_revisions','collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(125,'directus_revisions','item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(126,'directus_revisions','data','longjson','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(127,'directus_revisions','delta','longjson','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(128,'directus_revisions','parent_item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(129,'directus_revisions','parent_collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(130,'directus_revisions','parent_changed','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(131,'directus_settings','auto_sign_out','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(132,'directus_settings','youtube_api_key','varchar','',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL);
+	(33,'directus_collection_presets','translation','json','JSON',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(34,'directus_fields','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(35,'directus_fields','collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(36,'directus_fields','field','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(37,'directus_fields','type','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(38,'directus_fields','interface','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(39,'directus_fields','options','json','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(40,'directus_fields','locked','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(41,'directus_fields','translation','json','JSON',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(42,'directus_fields','readonly','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(43,'directus_fields','required','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(44,'directus_fields','sort','int','sort',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(45,'directus_fields','note','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(46,'directus_fields','hidden_input','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(47,'directus_fields','hidden_list','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(48,'directus_fields','view_width','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(49,'directus_fields','group','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(50,'directus_files','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(51,'directus_files','filename','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(52,'directus_files','title','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(53,'directus_files','description','text','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(54,'directus_files','location','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(55,'directus_files','tags','csv','tags',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(56,'directus_files','width','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(57,'directus_files','height','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(58,'directus_files','filesize','int','filesize',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(59,'directus_files','duration','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(60,'directus_files','metadata','json','JSON',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(61,'directus_files','type','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(62,'directus_files','charset','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(63,'directus_files','embed','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(64,'directus_files','folder','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(65,'directus_files','upload_user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(66,'directus_files','upload_date','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(67,'directus_files','storage_adapter','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(68,'directus_files','data','blob','blob','{ \"nameField\": \"filename\", \"sizeField\": \"filesize\", \"typeField\": \"type\" }',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(69,'directus_files','url','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(70,'directus_files','storage','alias','file-upload',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(71,'directus_folders','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(72,'directus_folders','name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(73,'directus_folders','parent_folder','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(74,'directus_roles','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(75,'directus_roles','name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(76,'directus_roles','description','varchar','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(77,'directus_roles','ip_whitelist','text','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(78,'directus_roles','nav_blacklist','text','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(79,'directus_user_roles','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(80,'directus_user_roles','user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(81,'directus_user_roles','role','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(82,'directus_users','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(83,'directus_users','status','int','status','{\"status_mapping\":[{\"name\": \"draft\"},{\"name\": \"active\"},{\"name\": \"delete\"}]}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(84,'directus_users','first_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(85,'directus_users','last_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(86,'directus_users','email','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(87,'directus_users','roles','m2m','m2m',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(88,'directus_users','email_notifications','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(89,'directus_users','password','varchar','password',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(90,'directus_users','avatar','file','single-file',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(91,'directus_users','company','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(92,'directus_users','title','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(93,'directus_users','locale','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(94,'directus_users','locale_options','json','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(95,'directus_users','timezone','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(96,'directus_users','last_ip','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(97,'directus_users','last_login','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(98,'directus_users','last_access','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(99,'directus_users','last_page','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(100,'directus_users','token','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(101,'directus_users','invite_token','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(102,'directus_users','invite_accepted','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(103,'directus_permissions','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(104,'directus_permissions','collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(105,'directus_permissions','role','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(106,'directus_permissions','status','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(107,'directus_permissions','create','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(108,'directus_permissions','read','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(109,'directus_permissions','update','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(110,'directus_permissions','delete','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(111,'directus_permissions','navigate','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(112,'directus_permissions','explain','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(113,'directus_permissions','allow_statuses','csv','tags',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(114,'directus_permissions','read_field_blacklist','varchar','textarea',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(115,'directus_relations','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(116,'directus_relations','collection_a','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(117,'directus_relations','field_a','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(118,'directus_relations','junction_key_a','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(119,'directus_relations','junction_mixed_collections','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(120,'directus_relations','junction_key_b','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(121,'directus_relations','collection_b','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(122,'directus_relations','field_b','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(123,'directus_revisions','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(124,'directus_revisions','activity','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(125,'directus_revisions','collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(126,'directus_revisions','item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(127,'directus_revisions','data','longjson','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(128,'directus_revisions','delta','longjson','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(129,'directus_revisions','parent_item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(130,'directus_revisions','parent_collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(131,'directus_revisions','parent_changed','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(132,'directus_settings','auto_sign_out','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(133,'directus_settings','youtube_api_key','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL);
 
 /*!40000 ALTER TABLE `directus_fields` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -298,7 +302,7 @@ LOCK TABLES `directus_files` WRITE;
 
 INSERT INTO `directus_files` (`id`, `filename`, `title`, `description`, `location`, `tags`, `width`, `height`, `filesize`, `duration`, `metadata`, `type`, `charset`, `embed`, `folder`, `upload_user`, `upload_date`, `storage_adapter`)
 VALUES
-	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-05-18 17:10:25','local');
+	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-06-11 13:04:38','local');
 
 /*!40000 ALTER TABLE `directus_files` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -338,20 +342,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023144,'CreateActivityReadTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023157,'CreateCollectionsTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023202,'CreateFieldsTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023208,'CreateFilesTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023213,'CreateFoldersTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023217,'CreateRolesTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023226,'CreatePermissionsTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023232,'CreateRelationsTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023238,'CreateRevisionsTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023243,'CreateSettingsTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180220023248,'CreateUsersTable','2018-05-18 19:10:25','2018-05-18 19:10:25',0),
-	(20180426173310,'CreateUserRoles','2018-05-18 19:10:25','2018-05-18 19:10:25',0);
+	(20180220023138,'CreateActivityTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023144,'CreateActivityReadTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023157,'CreateCollectionsTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023202,'CreateFieldsTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023208,'CreateFilesTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023213,'CreateFoldersTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023217,'CreateRolesTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023226,'CreatePermissionsTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023232,'CreateRelationsTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023238,'CreateRevisionsTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023243,'CreateSettingsTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180220023248,'CreateUsersTable','2018-06-11 15:04:38','2018-06-11 15:04:38',0),
+	(20180426173310,'CreateUserRoles','2018-06-11 15:04:38','2018-06-11 15:04:38',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -372,7 +376,7 @@ CREATE TABLE `directus_permissions` (
   `update` varchar(16) DEFAULT NULL,
   `delete` varchar(16) DEFAULT NULL,
   `navigate` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `explain` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `comment` varchar(8) DEFAULT NULL,
   `read_field_blacklist` varchar(1000) DEFAULT NULL,
   `write_field_blacklist` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -483,20 +487,6 @@ CREATE TABLE `directus_settings` (
   UNIQUE KEY `idx_scope_name` (`scope`,`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-LOCK TABLES `directus_settings` WRITE;
-/*!40000 ALTER TABLE `directus_settings` DISABLE KEYS */;
-
-INSERT INTO `directus_settings` (`id`, `scope`, `key`, `value`)
-VALUES
-	(1,'global','auto_sign_out','60'),
-	(2,'global','project_name','Directus'),
-	(3,'global','default_limit','200'),
-	(4,'global','logo',''),
-	(5,'files','file_naming','file_id'),
-	(6,'files','youtube_api_key','');
-
-/*!40000 ALTER TABLE `directus_settings` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # Dump of table directus_user_roles
@@ -512,15 +502,6 @@ CREATE TABLE `directus_user_roles` (
   UNIQUE KEY `idx_user_role` (`user`,`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-LOCK TABLES `directus_user_roles` WRITE;
-/*!40000 ALTER TABLE `directus_user_roles` DISABLE KEYS */;
-
-INSERT INTO `directus_user_roles` (`id`, `user`, `role`)
-VALUES
-	(1,1,1);
-
-/*!40000 ALTER TABLE `directus_user_roles` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # Dump of table directus_users
@@ -548,8 +529,8 @@ CREATE TABLE `directus_users` (
   `last_access` datetime DEFAULT NULL,
   `last_page` varchar(45) DEFAULT NULL,
   `token` varchar(255) DEFAULT NULL,
-  `invite_token` varchar(255) NOT NULL,
-  `invite_accepted` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `invite_token` varchar(255) DEFAULT NULL,
+  `invite_accepted` tinyint(1) unsigned DEFAULT '0',
   `external_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_users_email` (`email`),
@@ -557,15 +538,6 @@ CREATE TABLE `directus_users` (
   UNIQUE KEY `idx_users_external_id` (`external_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-LOCK TABLES `directus_users` WRITE;
-/*!40000 ALTER TABLE `directus_users` DISABLE KEYS */;
-
-INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_ip`, `last_login`, `last_access`, `last_page`, `token`, `invite_token`, `invite_accepted`, `external_id`)
-VALUES
-	(1,1,'Admin','User','admin@example.com',1,'$2y$12$DFnPSD/gyZIKyXfs7fabj.ejVhRiLaMDE1eFq9rJmL8GSV0bfq2f6',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,NULL,NULL,'admin_token','',0,NULL);
-
-/*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 
