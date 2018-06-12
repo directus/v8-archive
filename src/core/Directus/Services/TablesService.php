@@ -944,13 +944,6 @@ class TablesService extends AbstractService
         $lookForMissingFields = true;
         $fieldsName = ArrayUtils::pluck($fieldsData, 'field');
 
-        if (!empty($onlyFields)) {
-            $fieldsName = array_diff($onlyFields, $fieldsName);
-            if (empty($fieldsName)) {
-                $lookForMissingFields = false;
-            }
-        }
-
         if ($lookForMissingFields) {
             $missingFields = $collection->getFieldsNotIn(
                 $fieldsName
@@ -966,7 +959,9 @@ class TablesService extends AbstractService
         }
 
         foreach ($missingFields as $missingField) {
-            $missingFieldsData[] = $this->mergeSchemaField($collection, $missingField);
+            if (!is_array($onlyFields) || in_array($missingField->getName(), $onlyFields)) {
+                $missingFieldsData[] = $this->mergeSchemaField($collection, $missingField);
+            }
         }
 
         return array_merge($fieldsData, $missingFieldsData);
