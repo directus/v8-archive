@@ -237,12 +237,10 @@ class CoreServicesProvider
             // /Cache subscriptions
 
             $emitter->addAction('application.error', function ($e) use($container) {
-                /** @var \Throwable|\Exception $exception */
-                $exception = $e;
                 /** @var Logger $logger */
                 $logger = $container->get('logger');
 
-                $logger->error($exception->getMessage());
+                $logger->error($e);
             });
             $emitter->addFilter('response', function (Payload $payload) use ($container) {
                 /** @var Acl $acl */
