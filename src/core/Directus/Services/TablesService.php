@@ -255,11 +255,12 @@ class TablesService extends AbstractService
             throw new CollectionAlreadyExistsException($name);
         }
 
-        if(!$this->hasPrimaryField($data['fields'])){
-            throw new BadRequestException("Collection does not have a primary key.");
+        if (!$this->hasPrimaryField($data['fields'])) {
+            throw new BadRequestException('Collection does not have a primary key.');
         }
-        if(!$this->hasUniquePrimaryKey($data['fields'])){
-            throw new BadRequestException("Collection must only have 1 primary key.");
+
+        if (!$this->hasUniquePrimaryKey($data['fields'])) {
+            throw new BadRequestException('Collection must only have 1 primary key.');
         }
 
         if ($collection && !$collection->isManaged()) {
@@ -744,37 +745,44 @@ class TablesService extends AbstractService
     }
 
     /**
-     * @param $fields
-     * @return bool
-     *
      * Checks that at least one of the fields has primary_key set to true.
+     *
+     * @param array $fields
+     *
+     * @return bool
      */
-    public function hasPrimaryField(array $fields){
+    public function hasPrimaryField(array $fields)
+    {
         $result = false;
 
-        foreach($fields as $field){
-            if($field['primary_key'] === true){
+        foreach ($fields as $field) {
+            if (ArrayUtils::get($field, 'primary_key') === true){
                 $result = true;
                 break;
             }
         }
+
         return $result;
     }
 
     /**
-     * @param $fields
-     * @return bool
-     *
      * Checks that a maximum of 1 field has the primary_key field set to true. This will succeed if there are 0
      * or 1 fields set as the primary key.
+     *
+     * @param array $fields
+     *
+     * @return bool
      */
-    public function hasUniquePrimaryKey(array $fields){
+    public function hasUniquePrimaryKey(array $fields)
+    {
         $primaryKeyCount = 0;
-        foreach($fields as $field){
-            if($field['primary_key'] === true){
+
+        foreach ($fields as $field) {
+            if (ArrayUtils::get($field, 'primary_key') === true) {
                 $primaryKeyCount++;
             }
         }
+
         return $primaryKeyCount <= 1;
     }
 
