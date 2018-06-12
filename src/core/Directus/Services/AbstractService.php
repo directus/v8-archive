@@ -280,9 +280,9 @@ abstract class AbstractService
         /** @var Emitter $hookEmitter */
         $hookEmitter = $container->get('hook_emitter');
 
-        $listenerId = $hookEmitter->addFilter('collection.select', $setIdTags, Emitter::P_LOW);
+        // $listenerId = $hookEmitter->addFilter('collection.select', $setIdTags, Emitter::P_LOW);
         $result = call_user_func_array($callable, $callableParams);
-        $hookEmitter->removeListenerWithIndex($listenerId);
+        // $hookEmitter->removeListenerWithIndex($listenerId);
 
         return $result;
     }
