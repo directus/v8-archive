@@ -743,7 +743,13 @@ class TablesService extends AbstractService
         return SchemaService::getCollection($tableName);
     }
 
-    public function hasPrimaryField($fields){
+    /**
+     * @param $fields
+     * @return bool
+     *
+     * Checks that at least one of the fields has primary_key set to true.
+     */
+    public function hasPrimaryField(array $fields){
         $result = false;
 
         foreach($fields as $field){
@@ -755,7 +761,14 @@ class TablesService extends AbstractService
         return $result;
     }
 
-    public function hasUniquePrimaryKey($fields){
+    /**
+     * @param $fields
+     * @return bool
+     *
+     * Checks that a maximum of 1 field has the primary_key field set to true. This will succeed if there are 0
+     * or 1 fields set as the primary key.
+     */
+    public function hasUniquePrimaryKey(array $fields){
         $primaryKeyCount = 0;
         foreach($fields as $field){
             if($field['primary_key'] === true){
