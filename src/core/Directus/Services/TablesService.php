@@ -254,11 +254,15 @@ class TablesService extends AbstractService
         }
 
         if (!$this->hasPrimaryField($data['fields'])) {
-            throw new BadRequestException('Collection does not have a primary key.');
+            throw new BadRequestException('Collection does not have a primary key field.');
         }
 
-        if (!$this->hasUniquePrimaryKey($data['fields'])) {
-            throw new BadRequestException('Collection must only have 1 primary key.');
+        if (!$this->hasUniquePrimaryField($data['fields'])) {
+            throw new BadRequestException('Collection must only have one primary key field.');
+        }
+
+        if (!$this->hasUniqueAutoIncrementField($data['fields'])) {
+            throw new BadRequestException('Collection must only have one auto increment field.');
         }
 
         if ($collection && !$collection->isManaged()) {
@@ -751,16 +755,7 @@ class TablesService extends AbstractService
      */
     public function hasPrimaryField(array $fields)
     {
-        $result = false;
-
-        foreach ($fields as $field) {
-            if (ArrayUtils::get($field, 'primary_key') === true){
-                $result = true;
-                break;
-            }
-        }
-
-        return $result;
+        return $this->hasFieldAttributeWith($fields, 'primary_key', true, null, 1);
     }
 
     /**
@@ -771,17 +766,59 @@ class TablesService extends AbstractService
      *
      * @return bool
      */
-    public function hasUniquePrimaryKey(array $fields)
+    public function hasUniquePrimaryField(array $fields)
     {
-        $primaryKeyCount = 0;
+        return $this->hasFieldAttributeWith($fields, 'primary_key', true);
+    }
+
+    /**
+     * Checks that at most one of the fields has auto_increment set to true
+     *
+     * @param array $fields
+     *
+     * @return bool
+     */
+    public function hasUniqueAutoIncrementField(array $fields)
+    {
+        return $this->hasFieldAttributeWith($fields, 'auto_increment', true);
+    }
+
+    /**
+     * Checks that a set of fields has at least $min and at most $max attribute with the value of $value
+     *
+     * @param array $fields
+     * @param string  $attribute
+     * @param mixed $value
+     * @param int $max
+     * @param int $min
+     *
+     * @return bool
+     */
+    protected function hasFieldAttributeWith(array $fields, $attribute, $value, $max = 1, $min = 0)
+    {
+        $count = 0;
+        $result = false;
 
         foreach ($fields as $field) {
-            if (ArrayUtils::get($field, 'primary_key') === true) {
-                $primaryKeyCount++;
+            if (ArrayUtils::get($field, $attribute) === $value) {
+                $count++;
             }
         }
 
-        return $primaryKeyCount <= 1;
+        $ignoreMax = is_null($max);
+        $ignoreMin = is_null($min);
+
+        if ($ignoreMax && $ignoreMin) {
+            $result = $count >= 1;
+        } else if ($ignoreMax) {
+            $result = $count >= $min;
+        } else if ($ignoreMin) {
+            $result = $count <= $max;
+        } else {
+            $result = $count >= $min && $count <= $max;
+        }
+
+        return $result;
     }
 
 
