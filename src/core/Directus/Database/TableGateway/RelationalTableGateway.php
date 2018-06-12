@@ -1600,11 +1600,18 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $primaryKey = $this->primaryKeyFieldName;
-            $callback = function($row) use ($primaryKey) {
-                return ArrayUtils::get($row, $primaryKey, null);
+            $yield = function(\Directus\Database\ResultItem $row) use ($primaryKey) {
+                return $row->get($primaryKey, null);
             };
 
-            $ids = array_unique(array_filter(array_map($callback, $entries)));
+            $ids = [];
+            $entries->rewind();
+            while ($entries->valid()) {
+                $ids[] = $yield($entries->current());
+                $entries->next();
+            }
+
+            $ids = array_unique(array_filter($ids));
             if (empty($ids)) {
                 continue;
             }
@@ -1654,7 +1661,8 @@ class RelationalTableGateway extends BaseTableGateway
 
             // Replace foreign keys with foreign rows
             $relationalColumnName = $alias->getName();
-            foreach ($entries as &$parentRow) {
+            $entries->rewind();
+            foreach ($entries as $parentRow) {
                 // TODO: Remove all columns not from the original selection
                 // meaning remove the related column and primary key that were selected
                 // but weren't requested at first but were forced to be selected
@@ -1693,11 +1701,18 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $primaryKey = $this->primaryKeyFieldName;
-            $callback = function($row) use ($primaryKey) {
-                return ArrayUtils::get($row, $primaryKey, null);
+            $yield = function(\Directus\Database\ResultItem $row) use ($primaryKey) {
+                return $row->get($primaryKey, null);
             };
 
-            $ids = array_unique(array_filter(array_map($callback, $entries)));
+            $ids = [];
+            $entries->rewind();
+            while ($entries->valid()) {
+                $ids[] = $yield($entries->current());
+                $entries->next();
+            }
+
+            $ids = array_unique(array_filter($ids));
             if (empty($ids)) {
                 continue;
             }
@@ -1731,11 +1746,17 @@ class RelationalTableGateway extends BaseTableGateway
             $relationalColumnName = $alias->getName();
             $relatedEntries = [];
             foreach ($results as $row) {
-                $relatedEntries[$row[$junctionKeyLeftColumn]][] = $row;
+                $id = $row[$junctionKeyLeftColumn];
+                if (is_array($id)) {
+                    $id = $id[$primaryKey];
+                }
+
+                $relatedEntries[$id][] = $row;
             }
 
             // Replace foreign keys with foreign rows
-            foreach ($entries as &$parentRow) {
+            $entries->rewind();
+            foreach ($entries as $parentRow) {
                 $parentRow[$relationalColumnName] = ArrayUtils::get(
                     $relatedEntries,
                     $parentRow[$primaryKey],
@@ -1853,14 +1874,18 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $entries->rewind();
-            foreach ($entries as $key => $entry) {
-                if ($entry->offsetExists($relationalColumnName)) {
-                    $foreign_id = $entry[$relationalColumnName];
+            while ($entries->valid()) {
+                $entry = $entries->current();
+
+                if ($entry->has($relationalColumnName)) {
+                    $foreignId = $entry[$relationalColumnName];
                     $entry[$relationalColumnName] = null;
-                    if (array_key_exists($foreign_id, $relatedEntries)) {
-                        $entry[$relationalColumnName] = $relatedEntries[$foreign_id];
+                    if (array_key_exists($foreignId, $relatedEntries)) {
+                        $entry[$relationalColumnName] = $relatedEntries[$foreignId];
                     }
                 }
+
+                $entries->next();
             }
         }
 
