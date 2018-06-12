@@ -65,9 +65,13 @@ class Auth extends Route
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
 
-        $authService->sendResetPasswordToken(
-            $request->getParsedBodyParam('email')
-        );
+        try {
+            $authService->sendResetPasswordToken(
+                $request->getParsedBodyParam('email')
+            );
+        } catch (\Exception $e) {
+            $this->container->get('logger')->error($exception);
+        }
 
         $responseData = [];
         $response = $response->withStatus(204);
