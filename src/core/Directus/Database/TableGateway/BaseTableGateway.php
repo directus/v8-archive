@@ -966,6 +966,17 @@ class BaseTableGateway extends TableGateway
         return $this->schemaManager->castRecordValues($records, $columns);
     }
 
+    protected function castResultSetItemsByType(\Directus\Database\ResultSet $result, $collectionName = null)
+    {
+        if (is_null($collectionName)) {
+            $collectionName = $this->table;
+        }
+
+        $fields = SchemaService::getSchemaManagerInstance()->getFields($collectionName);
+
+        return $this->schemaManager->castResultSetItems($result, $fields);
+    }
+
     /**
      * Parse Records values (including format date by ISO 8601) by its column type
      *
@@ -982,9 +993,23 @@ class BaseTableGateway extends TableGateway
             $records = $this->parseRecordValuesByType($records, $tableName);
             $tableSchema = $this->getTableSchema($tableName);
             $records = $this->convertDates($records, $tableSchema, $tableName);
+        } else if ($records instanceof ResultSet) {
+            $records = $this->castResultSet($records, $tableName);
         }
 
         return $records;
+    }
+
+    public function castResultSet(\Directus\Database\ResultSet $result, $collectionName = null)
+    {
+        $result->rewind();
+        if (is_null($collectionName)) {
+            $collectionName = $this->table;
+        }
+
+        $result = $this->castResultSetItemsByType($result, $collectionName);
+
+        return $result;
     }
 
     /**
@@ -1436,6 +1461,8 @@ class BaseTableGateway extends TableGateway
             if ($isResultSet && $resultSet) {
                 $resultSet->initialize($payload->getData());
                 $data = $resultSet;
+            } else {
+                $data = $payload->getData();
             }
         }
 

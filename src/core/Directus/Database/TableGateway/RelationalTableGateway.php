@@ -954,7 +954,7 @@ class RelationalTableGateway extends BaseTableGateway
         // Perform data casting based on the column types in our schema array
         // and Convert dates into ISO 8601 Format
         // ==========================================================================
-        $results = $this->parseRecord($results);
+        $results = $this->castResultSet($results);
 
         $columnsDepth = ArrayUtils::deepLevel(get_unflat_columns($fields));
         if ($columnsDepth > 0) {

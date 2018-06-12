@@ -8,6 +8,7 @@ use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Sources\SchemaInterface;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
+use Directus\Util\DateTimeUtils;
 
 class SchemaManager
 {
@@ -379,6 +380,40 @@ class SchemaManager
     public function castRecordValues($records, $columns)
     {
         return $this->source->castRecordValues($records, $columns);
+    }
+
+    public function castResultSetItems(\Directus\Database\ResultSet $result, $fields)
+    {
+        $result->rewind();
+        $datetimeTypes = [DataTypes::TYPE_TIMESTAMP, DataTypes::TYPE_DATETIME];
+
+        while ($result->valid()) {
+            $item = $result->current();
+
+            foreach ($fields as $field) {
+                $fieldName = $field->getName();
+                if (!$item->has($fieldName)) {
+                    continue;
+                }
+
+                if (in_array(strtolower($field->getType()), $datetimeTypes)) {
+                    $dateTimeValue = $item[$fieldName];
+                    if ($dateTimeValue && DateTimeUtils::isValidFormat(DateTimeUtils::DEFAULT_DATETIME_FORMAT, $dateTimeValue)) {
+                        $dateTime = DateTimeUtils::createFromDefaultFormat($dateTimeValue, 'UTC');
+                        $item[$fieldName] = $dateTime->toISO8601Format();
+                    }
+                } else {
+                    $item[$field->getName()] = $this->source->castValue(
+                        $item[$field->getName()],
+                        $field->getType()
+                    );
+                }
+            }
+
+            $result->next();
+        }
+
+        return $result;
     }
 
     /**

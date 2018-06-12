@@ -160,6 +160,21 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
+     * Checks whether or not the date string has the given format
+     *
+     * @param string $format
+     * @param string $value
+     * 
+     * @return boolean
+     */
+    public static function isValidFormat($format, $value)
+    {
+        $dateTime = parent::createFromFormat($format, $value);
+
+        return $dateTime && $dateTime->format($format) === $value;
+    }
+
+    /**
      * Switch date time to a different timezone
      *
      * @param $timezone
