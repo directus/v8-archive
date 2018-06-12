@@ -265,6 +265,10 @@ class TablesService extends AbstractService
             throw new BadRequestException('Collection must only have one auto increment field.');
         }
 
+        if (!$this->hasUniqueFieldsName($data['fields'])) {
+            throw new BadRequestException('Collection fields name must be unique.');
+        }
+
         if ($collection && !$collection->isManaged()) {
             $success = $this->updateTableSchema($collection, $data);
         } else {
@@ -781,6 +785,31 @@ class TablesService extends AbstractService
     public function hasUniqueAutoIncrementField(array $fields)
     {
         return $this->hasFieldAttributeWith($fields, 'auto_increment', true);
+    }
+
+    /**
+     * Checks that all fields name are unique
+     *
+     * @param array $fields
+     *
+     * @return bool
+     */
+    public function hasUniqueFieldsName(array $fields)
+    {
+        $fieldsName = [];
+        $unique = true;
+
+        foreach ($fields as $field) {
+            $fieldName = ArrayUtils::get($field, 'field');
+            if (in_array($fieldName, $fieldsName)) {
+                $unique = false;
+                break;
+            }
+
+            $fieldsName[] = $fieldName;
+        }
+
+        return $unique;
     }
 
     /**
