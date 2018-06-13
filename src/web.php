@@ -78,7 +78,8 @@ $app->add(new \Directus\Application\Http\Middleware\TableGatewayMiddleware($app-
     ->add(new RKA\Middleware\IpAddress())
     ->add(new \Directus\Application\Http\Middleware\CorsMiddleware($app->getContainer()));
 
-$app->get('/', \Directus\Api\Routes\Home::class);
+$app->get('/', \Directus\Api\Routes\Home::class)
+    ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()));
 
 $app->group('/{env}', function () {
     $this->group('/activity', \Directus\Api\Routes\Activity::class)
