@@ -303,18 +303,18 @@ abstract class AbstractService
     /**
      * Validates the payload against a collection fields
      *
-     * @param string $collection
+     * @param string $collectionName
      * @param array|null $fields
      * @param array $payload
      * @param array $params
      *
      * @throws BadRequestException
      */
-    protected function validatePayload($collection, $fields, array $payload, array $params)
+    protected function validatePayload($collectionName, $fields, array $payload, array $params)
     {
-        $collectionObject = $this->getSchemaManager()->getCollection($collection);
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
         $payloadCount = count($payload);
-        $hasPrimaryKeyData = ArrayUtils::has($payload, $collectionObject->getPrimaryKeyName());
+        $hasPrimaryKeyData = ArrayUtils::has($payload, $collection->getPrimaryKeyName());
 
         if ($payloadCount === 0 || ($hasPrimaryKeyData && count($payload) === 1)) {
             throw new BadRequestException('Payload cannot be empty');
@@ -330,7 +330,9 @@ abstract class AbstractService
             $columnsToValidate = $fields;
         }
 
-        $this->validate($payload, $this->createConstraintFor($collection, $columnsToValidate));
+        $this->validatePayloadFields($collectionName, $payload);
+
+        $this->validate($payload, $this->createConstraintFor($collectionName, $columnsToValidate));
     }
 
     /**
@@ -348,6 +350,32 @@ abstract class AbstractService
 
         if (!ArrayUtils::has($payload, $primaryKey) || !$payload[$primaryKey]) {
             throw new BadRequestException('Payload must include the primary key');
+        }
+    }
+
+    /**
+     * Throws an exception when the payload has one or more unknown fields
+     *
+     * @param string $collectionName
+     * @param array $payload
+     *
+     * @throws BadRequestException
+     */
+    protected function validatePayloadFields($collectionName, array $payload)
+    {
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+        $unknownFields = [];
+
+        foreach (array_keys($payload) as $fieldName) {
+            if (!$collection->hasField($fieldName)) {
+                $unknownFields[] = $fieldName;
+            }
+        }
+
+        if (!empty($unknownFields)) {
+            throw new BadRequestException(
+                sprintf('Payload fields: "%s" does not exists in "%s" collection.', implode(', ', $unknownFields), $collectionName)
+            );
         }
     }
 
