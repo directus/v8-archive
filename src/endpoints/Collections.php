@@ -6,7 +6,6 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Services\TablesService;
 use Directus\Util\ArrayUtils;
@@ -68,16 +67,11 @@ class Collections extends Route
      */
     public function read(Request $request, Response $response)
     {
-        $name = $request->getAttribute('name');
         $service = new TablesService($this->container);
         $responseData = $service->findByIds(
-            $name,
+            $request->getAttribute('name'),
             $request->getQueryParams()
         );
-
-        if(count($responseData['data']) === 0){
-            throw new CollectionNotFoundException($request->getAttribute($name));
-        }
 
         return $this->responseWithData($request, $response, $responseData);
     }
