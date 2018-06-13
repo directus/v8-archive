@@ -102,7 +102,12 @@ class TablesService extends AbstractService
 
         $tableGateway = $this->createTableGateway($this->collection);
 
-        return $tableGateway->getItemsByIds($name, $params);
+        $collection = $tableGateway->getItemsByIds($name, $params);
+        if(count($collection['data']) === 0){
+            throw new CollectionNotFoundException($name);
+        }
+
+        return $collection;
     }
 
     public function findField($collection, $field, array $params = [])

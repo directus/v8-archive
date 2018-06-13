@@ -1019,7 +1019,7 @@ class RelationalTableGateway extends BaseTableGateway
         $meta = ArrayUtils::get($params, 'meta', false);
         $id = ArrayUtils::get($params, 'id');
         $single = ArrayUtils::get($params, 'single');
-        if (!$single && $id && count($id) == 1) {
+        if (!$single && $id && is_array($id) && count($id) == 1) {
             $single = $params['single'] = true;
         }
 

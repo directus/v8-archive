@@ -6,7 +6,7 @@ use Directus\Exception\NotFoundException;
 
 class CollectionNotFoundException extends NotFoundException
 {
-    const ERROR_CODE = 200;
+    const ERROR_CODE = 404;
 
     public function __construct($name)
     {
