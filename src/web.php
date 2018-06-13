@@ -150,29 +150,5 @@ $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()));
 
 $app->add(new \Directus\Application\Http\Middleware\ResponseCacheMiddleware($app->getContainer()));
-// $app->add(new \Directus\Slim\HttpCacheMiddleware());
-//
-// $app->hookEmitter->run('application.boot', $app);
-// // $app->hook('slim.before.dispatch', function () use ($app, $authRouteWhitelist, $ZendDb, $acl, $authentication) {
-// //     // API/Server is about to initialize
-// //     $app->hookEmitter->run('application.init', $app);
-// //     {
-// //         // User is authenticated
-// //         // And Directus is about to start
-// //         $app->hookEmitter->run('directus.start', $app);
-// //     }
-// // });
-//
-// $app->hook('slim.after', function () use ($app) {
-//     // API/Server is about to shutdown
-//     $app->hookEmitter->run('application.shutdown', $app);
-// });
-//
-// $app->notFound(function () use ($app, $acl) {
-//     $projectInfo = get_project_info();
-//
-//     $app->response()->header('Content-Type', 'text/html; charset=utf-8');
-//     $app->render('errors/404.twig', $projectInfo);
-// });
 
 return $app;
