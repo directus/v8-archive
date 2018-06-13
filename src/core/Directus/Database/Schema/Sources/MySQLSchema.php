@@ -428,22 +428,30 @@ class MySQLSchema extends AbstractSchema
         $type = strtolower($type);
 
         switch ($type) {
+            case 'bool':
+            case 'boolean':
+                $data = boolval($data);
+                break;
             case 'blob':
             case 'mediumblob':
                 // NOTE: Do we really need to encode the blob?
                 $data = base64_encode($data);
                 break;
             case 'year':
-            case 'bigint':
+            case 'tinyint':
             case 'smallint':
             case 'mediumint':
             case 'int':
             case 'integer':
-            case 'long':
-            case 'tinyint':
+            case 'bigint':
+            case 'serial':
                 $data = ($data === null) ? null : (int)$data;
                 break;
+            case 'numeric':
             case 'float':
+            case 'real':
+            case 'decimal':
+            case 'double':
                 $data = (float)$data;
                 break;
             case 'date':
