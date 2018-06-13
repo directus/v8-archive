@@ -3,11 +3,13 @@
 require __DIR__ . '/constants.php';
 require __DIR__ . '/app.php';
 require __DIR__ . '/arrays.php';
+require __DIR__ . '/bytes.php';
 require __DIR__ . '/cors.php';
 require __DIR__ . '/extensions.php';
 require __DIR__ . '/file.php';
 require __DIR__ . '/items.php';
 require __DIR__ . '/mail.php';
+require __DIR__ . '/server.php';
 require __DIR__ . '/settings.php';
 require __DIR__ . '/sorting.php';
 require __DIR__ . '/url.php';
@@ -1000,46 +1002,6 @@ if (!function_exists('get_country_list')) {
             'ZW' => 'Zimbabwe',
             'AX' => 'Åland Islands',
         ];
-    }
-}
-
-if (!function_exists('convert_shorthand_size_to_bytes')) {
-    /**
-     * Convert shorthand size into bytes
-     *
-     * @param $size - shorthand size
-     *
-     * @return int
-     */
-    function convert_shorthand_size_to_bytes($size)
-    {
-        $size = strtolower($size);
-        $bytes = (int)$size;
-
-        if (strpos($size, 'k') !== false) {
-            $bytes = intval($size) * KB_IN_BYTES;
-        } elseif (strpos($size, 'm') !== false) {
-            $bytes = intval($size) * MB_IN_BYTES;
-        } elseif (strpos($size, 'g') !== false) {
-            $bytes = intval($size) * GB_IN_BYTES;
-        }
-
-        return $bytes;
-    }
-}
-
-if (!function_exists('get_max_upload_size')) {
-    /**
-     * Get the maximum upload size in bytes
-     *
-     * @return int
-     */
-    function get_max_upload_size()
-    {
-        $maxUploadSize = convert_shorthand_size_to_bytes(ini_get('upload_max_filesize'));
-        $maxPostSize = convert_shorthand_size_to_bytes(ini_get('post_max_size'));
-
-        return min($maxUploadSize, $maxPostSize);
     }
 }
 
