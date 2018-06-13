@@ -40,7 +40,6 @@ class Files extends Route
         // Revisions
         $app->get('/{id}/revisions', [$this, 'fileRevisions']);
         $app->get('/{id}/revisions/{offset}', [$this, 'oneFileRevision']);
-        $app->patch('/{id}/revert/{revision}', [$this, 'fileRevert']);
     }
 
     /**

@@ -147,6 +147,7 @@ class RevisionsService extends AbstractService
 
     public function revert($collectionName, $item, $revision, array $params = [])
     {
+        $this->throwErrorIfSystemTable($collectionName);
         $revisionTableGateway = new TableGateway(SchemaManager::COLLECTION_REVISIONS, $this->getConnection());
         $select = $revisionTableGateway->getSql()->select();
         $select->columns(['delta']);

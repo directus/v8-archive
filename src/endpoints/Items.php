@@ -37,12 +37,12 @@ class Items extends Route
      */
     public function all(Request $request, Response $response)
     {
-        $collection = $request->getAttribute('collection');
-        $params = $request->getQueryParams();
-
-        $this->throwErrorIfSystemTable($collection);
-
         $itemsService = new ItemsService($this->container);
+
+        $collection = $request->getAttribute('collection');
+        $itemsService->throwErrorIfSystemTable($collection);
+
+        $params = $request->getQueryParams();
         $responseData = $itemsService->findAll($collection, $params);
 
         return $this->responseWithData($request, $response, $responseData);
@@ -61,10 +61,10 @@ class Items extends Route
             return $this->batch($request, $response);
         }
 
-        $collection = $request->getAttribute('collection');
-        $this->throwErrorIfSystemTable($collection);
-
         $itemsService = new ItemsService($this->container);
+        $collection = $request->getAttribute('collection');
+        $itemsService->throwErrorIfSystemTable($collection);
+
         $responseData = $itemsService->createItem(
             $collection,
             $payload,
@@ -89,10 +89,10 @@ class Items extends Route
      */
     public function read(Request $request, Response $response)
     {
-        $collection = $request->getAttribute('collection');
-        $this->throwErrorIfSystemTable($collection);
-
         $itemsService = new ItemsService($this->container);
+        $collection = $request->getAttribute('collection');
+        $itemsService->throwErrorIfSystemTable($collection);
+
         $responseData = $itemsService->findByIds(
             $collection,
             $request->getAttribute('id'),
@@ -112,9 +112,9 @@ class Items extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $itemsService = new ItemsService($this->container);
         $collection = $request->getAttribute('collection');
-
-        $this->throwErrorIfSystemTable($collection);
+        $itemsService->throwErrorIfSystemTable($collection);
 
         $payload = $request->getParsedBody();
         if (isset($payload[0]) && is_array($payload[0])) {
@@ -128,8 +128,6 @@ class Items extends Route
         }
 
         $params = $request->getQueryParams();
-
-        $itemsService = new ItemsService($this->container);
         $responseData = $itemsService->update($collection, $id, $payload, $params);
 
         if (is_null($responseData)) {
@@ -150,15 +148,15 @@ class Items extends Route
      */
     public function delete(Request $request, Response $response)
     {
+        $itemsService = new ItemsService($this->container);
         $collection = $request->getAttribute('collection');
-        $this->throwErrorIfSystemTable($collection);
+        $itemsService->throwErrorIfSystemTable($collection);
 
         $id = $request->getAttribute('id');
         if (strpos($id, ',') !== false) {
             return $this->batch($request, $response);
         }
 
-        $itemsService = new ItemsService($this->container);
         $itemsService->delete($collection, $request->getAttribute('id'), $request->getQueryParams());
 
         $responseData = [];
@@ -233,15 +231,15 @@ class Items extends Route
      */
     protected function batch(Request $request, Response $response)
     {
-        $collection = $request->getAttribute('collection');
+        $itemsService = new ItemsService($this->container);
 
-        $this->throwErrorIfSystemTable($collection);
+        $collection = $request->getAttribute('collection');
+        $itemsService->throwErrorIfSystemTable($collection);
 
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
 
         $responseData = null;
-        $itemsService = new ItemsService($this->container);
         if ($request->isPost()) {
             $responseData = $itemsService->batchCreate($collection, $payload, $params);
         } else if ($request->isPatch()) {
@@ -262,14 +260,5 @@ class Items extends Route
         }
 
         return $this->responseWithData($request, $response, $responseData);
-    }
-
-    protected function throwErrorIfSystemTable($name)
-    {
-        /** @var SchemaManager $schemaManager */
-        $schemaManager = $this->container->get('schema_manager');
-        if (in_array($name, $schemaManager->getSystemCollections())) {
-            throw new ForbiddenSystemTableDirectAccessException($name);
-        }
     }
 }

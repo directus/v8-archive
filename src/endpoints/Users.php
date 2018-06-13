@@ -31,7 +31,6 @@ class Users extends Route
         // Revisions
         $app->get('/{id}/revisions', [$this, 'userRevisions']);
         $app->get('/{id}/revisions/{offset}', [$this, 'oneUserRevision']);
-        $app->patch('/{id}/revert/{revision}', [$this, 'userRevert']);
 
         // Tracking
         $app->patch('/{id}/tracking/page', [$this, 'trackPage']);
@@ -176,25 +175,6 @@ class Users extends Route
             SchemaManager::COLLECTION_USERS,
             $request->getAttribute('id'),
             $request->getAttribute('offset'),
-            $request->getQueryParams()
-        );
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function userRevert(Request $request, Response $response)
-    {
-        $service = new RevisionsService($this->container);
-        $responseData = $service->revert(
-            SchemaManager::COLLECTION_USERS,
-            $request->getAttribute('id'),
-            $request->getAttribute('revision'),
             $request->getQueryParams()
         );
 

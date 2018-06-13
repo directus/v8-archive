@@ -3,6 +3,7 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
@@ -101,6 +102,22 @@ abstract class AbstractService
         $constraintViolations = $this->getViolations($data, $constraints);
 
         $this->throwErrorIfAny($constraintViolations);
+    }
+
+    /**
+     *
+     *
+     * @param string $name
+     *
+     * @throws ForbiddenSystemTableDirectAccessException
+     */
+    public function throwErrorIfSystemTable($name)
+    {
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+        if (in_array($name, $schemaManager->getSystemCollections())) {
+            throw new ForbiddenSystemTableDirectAccessException($name);
+        }
     }
 
     /**
