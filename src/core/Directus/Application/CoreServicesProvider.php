@@ -535,35 +535,6 @@ class CoreServicesProvider
                 }
                 return $payload;
             };
-            $slugifyString = function ($insert, Payload $payload) {
-                $collection = SchemaService::getCollection($payload->attribute('collection_name'));
-                $data = $payload->getData();
-                foreach ($collection->getFields() as $column) {
-                    if ($column->getInterface() !== 'slug') {
-                        continue;
-                    }
-
-                    $parentColumnName = $column->getOptions('mirrored_field');
-                    if (!ArrayUtils::has($data, $parentColumnName)) {
-                        continue;
-                    }
-
-                    $onCreationOnly = boolval($column->getOptions('only_on_creation'));
-                    if (!$insert && $onCreationOnly) {
-                        continue;
-                    }
-
-                    $payload->set($column->getName(), slugify(ArrayUtils::get($data, $parentColumnName, '')));
-                }
-
-                return $payload;
-            };
-            $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($slugifyString) {
-                return $slugifyString(true, $payload);
-            });
-            $emitter->addFilter('collection.update:before', function (Payload $payload) use ($slugifyString) {
-                return $slugifyString(false, $payload);
-            });
             // TODO: Merge with hash user password
             $onInsertOrUpdate = function (Payload $payload) use ($container) {
                 /** @var Provider $auth */
