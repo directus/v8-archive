@@ -299,6 +299,16 @@ class Field extends AbstractObject
     }
 
     /**
+     * Gets the field regex pattern validation string
+     *
+     * @return string|null
+     */
+    public function getValidation()
+    {
+        return $this->attributes->get('validation');
+    }
+
+    /**
      * Gets the collection's name the field belongs to
      *
      * @return string

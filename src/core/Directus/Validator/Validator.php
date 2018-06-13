@@ -35,6 +35,14 @@ class Validator
     }
 
     /**
+     * @return \Symfony\Component\Validator\Validator\ValidatorInterface
+     */
+    public function getProvider()
+    {
+        return $this->provider;
+    }
+
+    /**
      * Creates constraints object from name
      *
      * @param array $constraints

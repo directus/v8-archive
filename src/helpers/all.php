@@ -1584,3 +1584,23 @@ if (!function_exists('slugify')) {
         return mb_strtolower(preg_replace($patterns, $replacements, $string));
     }
 }
+
+if (!function_exists('is_valid_regex_pattern')) {
+    /**
+     * Checks whether the given pattern is a valid regex
+     *
+     * @param string $pattern
+     *
+     * @return bool
+     */
+    function is_valid_regex_pattern($pattern)
+    {
+        $valid = false;
+
+        if (is_string($pattern) && @preg_match($pattern, null) !== false) {
+            $valid = true;
+        }
+
+        return $valid;
+    }
+}

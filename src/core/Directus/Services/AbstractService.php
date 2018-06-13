@@ -9,12 +9,14 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\RuntimeException;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 abstract class AbstractService
@@ -348,6 +350,9 @@ abstract class AbstractService
         }
 
         $this->validatePayloadFields($collectionName, $payload);
+        // TODO: Ideally this should be part of the validator constraints
+        // we need to accept options for the constraint builder
+        $this->validatePayloadWithFieldsValidation($collectionName, $payload);
 
         $this->validate($payload, $this->createConstraintFor($collectionName, $columnsToValidate));
     }
@@ -394,6 +399,41 @@ abstract class AbstractService
                 sprintf('Payload fields: "%s" does not exists in "%s" collection.', implode(', ', $unknownFields), $collectionName)
             );
         }
+    }
+
+    /**
+     * Throws an exception when one or more fields in the payload fails its field validation
+     *
+     * @param string $collectionName
+     * @param array $payload
+     *
+     * @throws BadRequestException
+     */
+    protected function validatePayloadWithFieldsValidation($collectionName, array $payload)
+    {
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+        $violations = [];
+
+        foreach ($payload as $fieldName => $value) {
+            $field = $collection->getField($fieldName);
+            if (!$field) {
+                continue;
+            }
+
+            if ($validation = $field->getValidation()) {
+                if (!is_valid_regex_pattern($validation)) {
+                    throw new RuntimeException(
+                        sprintf('Field "%s": "%s" is an invalid regular expression', $fieldName, $validation)
+                    );
+                }
+
+                $violations[$fieldName] = $this->validator->getProvider()->validate($value, [
+                    new Regex($validation)
+                ]);
+            }
+        }
+
+        $this->throwErrorIfAny($violations);
     }
 
     /**
