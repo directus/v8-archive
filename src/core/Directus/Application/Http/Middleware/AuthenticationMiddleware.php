@@ -34,11 +34,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
             throw new UserNotAuthenticatedException();
         }
 
-        // =============================================================================
-        // Set authenticated user permissions
-        // =============================================================================
-        $hookEmitter = $this->container->get('hook_emitter');
-
         if (!$user && $publicRoleId) {
             // NOTE: 0 will not represent a "guest" or the "public" user
             // To prevent the issue where user column on activity table can't be null
@@ -47,14 +42,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
             ]);
         }
 
-        // TODO: Set if the authentication was a public or not? options array
-        $hookEmitter->run('directus.authenticated', [$user]);
-        $hookEmitter->run('directus.authenticated.token', [$user]);
-
-        // Reload all user permissions
-        // At this point ACL has run and loaded all permissions
-        // This behavior works as expected when you are logged to the CMS/Management
-        // When logged through API we need to reload all their permissions
         $dbConnection = $this->container->get('database');
         $permissionsTable = new DirectusPermissionsTableGateway($dbConnection, null);
         $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());
@@ -75,6 +62,9 @@ class AuthenticationMiddleware extends AbstractMiddleware
         if (!$acl->isIpAllowed(get_request_ip())) {
             throw new UnauthorizedException('Request not allowed from IP address');
         }
+
+        $hookEmitter = $this->container->get('hook_emitter');
+        $hookEmitter->run('directus.authenticated', [$user]);
 
         return $next($request, $response);
     }
