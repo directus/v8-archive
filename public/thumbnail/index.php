@@ -24,6 +24,7 @@ try {
 }
 
 $settings = get_kv_directus_settings('thumbnail');
+$timeToLive = array_get($settings, 'cache_ttl', 86400);
 try {
     // if the thumb already exists, return it
     $thumbnailer = new Thumbnailer(
@@ -53,9 +54,9 @@ try {
     header('HTTP/1.1 200 OK');
     header('Content-type: ' . $thumbnailer->getThumbnailMimeType());
     header("Pragma: cache");
-    header('Cache-Control: max-age=86400');
+    header('Cache-Control: max-age=' . $timeToLive);
     header('Last-Modified: '. gmdate('D, d M Y H:i:s \G\M\T', time()));
-    header('Expires: '. gmdate('D, d M Y H:i:s \G\M\T', time() + 86400));
+    header('Expires: '. gmdate('D, d M Y H:i:s \G\M\T', time() + $timeToLive));
     echo $image;
     exit(0);
 }
@@ -73,9 +74,9 @@ catch (Exception $e) {
         // TODO: Do we need to cache non-existing files?
         header('Content-type: ' . $mime);
         header("Pragma: cache");
-        header('Cache-Control: max-age=86400');
+        header('Cache-Control: max-age=' . $timeToLive);
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', time()));
-        header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + 86400));
+        header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $timeToLive));
         echo file_get_contents($filePath);
     } else {
         http_response_code(404);
