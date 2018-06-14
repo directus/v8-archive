@@ -379,7 +379,7 @@ class CoreServicesProvider
 
             // -- Data types -----------------------------------------------------------------------------
             // TODO: improve Parse boolean/json/array almost similar code
-            $parseArray = function ($collection, $data) use ($container) {
+            $parseArray = function ($decode, $collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
                 $collectionObject = $schemaManager->getCollection($collection);
@@ -394,10 +394,10 @@ class CoreServicesProvider
 
                     // NOTE: If the array has value with comma it will be treat as a separate value
                     // should we encode the commas to "hide" the comma when splitting the values?
-                    if (is_array($value)) {
-                        $value = implode(',', $value);
+                    if ($decode) {
+                        $value = !is_array($value) ? explode(',', $value) :  $value;
                     } else {
-                        $value = explode(',', $value);
+                        $value = is_array($value) ? implode(',', $value) : $value;
                     }
 
                     $data[$key] = $value;
@@ -422,7 +422,7 @@ class CoreServicesProvider
 
                 return $data;
             };
-            $parseJson = function ($collection, $data) use ($container) {
+            $parseJson = function ($decode, $collection, $data) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
                 $collectionObject = $schemaManager->getCollection($collection);
@@ -435,12 +435,10 @@ class CoreServicesProvider
                     $key = $field->getName();
                     $value = $data[$key];
 
-                    // NOTE: If the array has value with comma it will be treat as a separate value
-                    // should we encode the commas to "hide" the comma when splitting the values?
-                    if (is_string($value)) {
-                        $value = json_decode($value);
-                    } else if ($value) {
-                        $value = json_encode($value);
+                    if ($decode === true) {
+                        $value = is_string($value) ? json_decode($value) : $value;
+                    } else {
+                        $value = !is_string($value) ? json_encode($value) : $value;
                     }
 
                     $data[$key] = $value;
@@ -450,14 +448,33 @@ class CoreServicesProvider
             };
 
             $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($parseJson, $parseArray) {
-                $payload->replace($parseJson($payload->attribute('collection_name'), $payload->getData()));
-                $payload->replace($parseArray($payload->attribute('collection_name'), $payload->getData()));
+                $payload->replace(
+                    $parseJson(
+                        false,
+                        $payload->attribute('collection_name'),
+                        $payload->getData()
+                    )
+                );
+
+                $payload->replace($parseArray(false, $payload->attribute('collection_name'), $payload->getData()));
 
                 return $payload;
             });
             $emitter->addFilter('collection.update:before', function (Payload $payload) use ($parseJson, $parseArray) {
-                $payload->replace($parseJson($payload->attribute('collection_name'), $payload->getData()));
-                $payload->replace($parseArray($payload->attribute('collection_name'), $payload->getData()));
+                $payload->replace(
+                    $parseJson(
+                        false,
+                        $payload->attribute('collection_name'),
+                        $payload->getData()
+                    )
+                );
+                $payload->replace(
+                    $parseArray(
+                        false,
+                        $payload->attribute('collection_name'),
+                        $payload->getData()
+                    )
+                );
 
                 return $payload;
             });
@@ -478,15 +495,15 @@ class CoreServicesProvider
 
                 foreach ($rows as $key => $row) {
                     if ($hasJsonField) {
-                        $row = $parseJson($collectionName, $row);
+                        $row = $parseJson(true, $collectionName, $row);
                     }
 
-                    if ($hasJsonField) {
+                    if ($hasBooleanField) {
                         $row = $parseBoolean($collectionName, $row);
                     }
 
                     if ($hasArrayField) {
-                        $row = $parseArray($collectionName, $row);
+                        $row = $parseArray(true, $collectionName, $row);
                     }
 
                     $rows[$key] = $row;
