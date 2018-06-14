@@ -66,7 +66,7 @@ class MySQLSchema extends AbstractSchema
             ['DT' => 'directus_collections'],
             'DT.collection = ST.TABLE_NAME',
             [
-                'comment' => 'note',
+                'note',
                 'hidden' => new Expression('IFNULL(`DT`.`hidden`, 0)'),
                 'single' => new Expression('IFNULL(`DT`.`single`, 0)'),
                 'item_name_template',
