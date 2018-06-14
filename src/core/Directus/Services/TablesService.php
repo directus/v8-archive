@@ -9,6 +9,7 @@ use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\FieldNotManagedException;
 use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
+use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
@@ -50,7 +51,11 @@ class TablesService extends AbstractService
     {
         $tableGateway = $this->createTableGateway($this->collection);
 
-        return $tableGateway->getItems($params);
+        $result = $tableGateway->getItems($params);
+
+        $result['data'] = $this->mergeSchemaCollections($result['data']);
+
+        return $result;
     }
 
     public function findAllFields($collectionName, array $params = [])
@@ -99,7 +104,11 @@ class TablesService extends AbstractService
 
         $tableGateway = $this->createTableGateway($this->collection);
 
-        return $tableGateway->getItemsByIds($name, $params);
+        $result = $tableGateway->getItemsByIds($name, $params);
+        $collectionNames = StringUtils::csv((string) $name);
+        $result['data'] = $this->mergeMissingSchemaCollections($collectionNames, $result['data']);
+
+        return $result;
     }
 
     public function findField($collection, $field, array $params = [])
@@ -1049,6 +1058,47 @@ class TablesService extends AbstractService
     /**
      * Merges a list of missing Schema Attributes into Directus Attributes
      *
+     * @param array $collectionNames
+     * @param array $collectionsData
+     *
+     * @return array
+     */
+    protected function mergeMissingSchemaCollections(array $collectionNames, array $collectionsData)
+    {
+        if (!ArrayUtils::isNumericKeys($collectionsData)) {
+            return $this->mergeSchemaCollection($collectionNames[0], $collectionsData);
+        }
+
+        $collectionsDataNames = ArrayUtils::pluck($collectionsData, 'collection');
+        $missingCollectionNames = ArrayUtils::missing($collectionsDataNames, $collectionNames);
+
+        $collectionsData = $this->mergeSchemaCollections($collectionsData);
+
+        foreach ($missingCollectionNames as $name) {
+            try {
+                $collectionsData[] = $this->mergeSchemaCollection($name, []);
+            } catch (CollectionNotFoundException $e) {
+                // if the collection doesn't exists don't bother with the exception
+                // as this is a "filtering" result
+                //  which means getting empty result is okay and expected
+            }
+        }
+
+        return $collectionsData;
+    }
+
+    protected function mergeSchemaCollections(array $collectionsData)
+    {
+        foreach ($collectionsData as &$collectionData) {
+            $collectionData = $this->mergeSchemaCollection($collectionData['collection'], $collectionData);
+        }
+
+        return $collectionsData;
+    }
+
+    /**
+     * Merges a list of missing Schema Attributes into Directus Attributes
+     *
      * @param Collection $collection
      * @param array $fieldsData
      * @param array $onlyFields
@@ -1133,12 +1183,50 @@ class TablesService extends AbstractService
     }
 
     /**
-     * @return RelationalTableGateway
+     * Parses Collection Schema Attributes into Directus Attributes
+     *
+     * @param string $collectionName
+     * @param array $collectionData
+     *
+     * @return array
      */
+    protected function mergeSchemaCollection($collectionName, array $collectionData)
+    {
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+        $collection = $schemaManager->getCollection($collectionName);
+        $tableGateway = $this->getCollectionsTableGateway();
+        $attributesName = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed']);
+
+        $collectionData = array_merge(
+            ArrayUtils::pick($collection->toArray(), $attributesName),
+            $collectionData
+        );
+
+        $collectionData['managed'] = boolval($collectionData['managed']);
+
+        return $tableGateway->parseRecord($collectionData);
+    }
+
+    /**
+ * @return RelationalTableGateway
+ */
     protected function getFieldsTableGateway()
     {
         if (!$this->fieldsTableGateway) {
             $this->fieldsTableGateway = $this->createTableGateway('directus_fields');
+        }
+
+        return $this->fieldsTableGateway;
+    }
+
+    /**
+     * @return RelationalTableGateway
+     */
+    protected function getCollectionsTableGateway()
+    {
+        if (!$this->fieldsTableGateway) {
+            $this->fieldsTableGateway = $this->createTableGateway('directus_collections');
         }
 
         return $this->fieldsTableGateway;
