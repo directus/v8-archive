@@ -160,7 +160,11 @@ class TablesService extends AbstractService
             }
         } else {
             //  Get not managed fields
-            $result = ['data' => $this->mergeSchemaField($collectionObject, $columnObject)];
+            $result = $tableGateway->wrapData(
+                $this->mergeSchemaField($columnObject),
+                true,
+                ArrayUtils::pick($params, 'meta')
+            );
         }
 
         return $result;
@@ -1134,7 +1138,7 @@ class TablesService extends AbstractService
 
         foreach ($missingFields as $missingField) {
             if (!is_array($onlyFields) || in_array($missingField->getName(), $onlyFields)) {
-                $missingFieldsData[] = $this->mergeSchemaField($collection, $missingField);
+                $missingFieldsData[] = $this->mergeSchemaField($missingField);
             }
         }
 
@@ -1159,26 +1163,27 @@ class TablesService extends AbstractService
             return null;
         }
 
-        return array_merge(
-            $this->mergeSchemaField($collection, $field),
-            $fieldData
-        );
+        return $this->mergeSchemaField($field, $fieldData);
     }
 
     /**
      * Parses Schema Attributes into Directus Attributes
      *
-     * @param Collection $collection
      * @param Field $field
+     * @param array $fieldData
      *
      * @return array
      */
-    protected function mergeSchemaField(Collection $collection, Field $field)
+    protected function mergeSchemaField(Field $field, array $fieldData = [])
     {
         $tableGateway = $this->getFieldsTableGateway();
-        $fieldsCollectionFieldsName = $tableGateway->getTableSchema()->getFieldsName();
+        $fieldsAttributes = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed']);
 
-        $data = ArrayUtils::pick($field->toArray(), array_merge($fieldsCollectionFieldsName, ['managed']));
+        $data = ArrayUtils::pick(
+            array_merge($field->toArray(), $fieldData),
+            $fieldsAttributes
+        );
+
         // it must be not managed
         $data['managed'] = boolval(ArrayUtils::get($data, 'managed'));
         $data['primary_key'] = $field->hasPrimaryKey();
