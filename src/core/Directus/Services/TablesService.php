@@ -1162,15 +1162,11 @@ class TablesService extends AbstractService
     protected function mergeMissingSchemaFields(Collection $collection, array $fieldsData, array $onlyFields = null)
     {
         $missingFieldsData = [];
-        $missingFields = [];
-        $lookForMissingFields = true;
         $fieldsName = ArrayUtils::pluck($fieldsData, 'field');
 
-        if ($lookForMissingFields) {
-            $missingFields = $collection->getFieldsNotIn(
-                $fieldsName
-            );
-        }
+        $missingFields = $collection->getFieldsNotIn(
+            $fieldsName
+        );
 
         foreach ($fieldsData as $key => $fieldData) {
             $result = $this->mergeMissingSchemaField($collection, $fieldData);
