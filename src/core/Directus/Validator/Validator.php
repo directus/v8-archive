@@ -2,10 +2,10 @@
 
 namespace Directus\Validator;
 
+use Directus\Validator\Constraints\Required;
 use Directus\Validator\Exception\UnknownConstraintException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validation;
 
@@ -74,7 +74,7 @@ class Validator
 
         switch ($name) {
             case 'required':
-                $constraint = new NotBlank();
+                $constraint = new Required();
                 break;
             case 'email':
                 $constraint = new Email();

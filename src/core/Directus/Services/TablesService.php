@@ -514,6 +514,8 @@ class TablesService extends AbstractService
             'payload' => 'required|array'
         ]);
 
+        $this->validatePayload('directus_fields', array_keys($data), $data, $params);
+
         // Remove field from data
         ArrayUtils::pull($data, 'field');
 
