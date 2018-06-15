@@ -707,8 +707,7 @@ class TablesService extends AbstractService
 
         $data = array_merge($defaults, $data, [
             'collection' => $collection,
-            'field' => $field,
-            'options' => $options
+            'field' => $field
         ]);
 
         $collectionObject = $this->getSchemaManager()->getCollection('directus_fields');
