@@ -446,7 +446,11 @@ class MySQLSchema extends AbstractSchema
             case 'json':
             case 'mediumjson':
             case 'longjson':
-                $data = is_string($data) ? json_decode($data) : $data;
+                if ($data) {
+                    $data = is_string($data) ? json_decode($data) : $data;
+                } else {
+                    $data = null;
+                }
                 break;
             case 'blob':
             case 'mediumblob':
