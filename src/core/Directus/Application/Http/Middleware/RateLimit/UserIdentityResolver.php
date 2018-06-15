@@ -20,6 +20,6 @@ final class UserIdentityResolver extends AbstractIdentityResolver
      */
     public function getIdentity(RequestInterface $request)
     {
-        $this->acl->getUserId();
+        return $this->acl->getUserId();
     }
 }
