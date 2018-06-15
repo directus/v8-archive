@@ -85,6 +85,16 @@ return [
         ]
     ],
 
+    'rate_limit' => [
+        'enabled' => false,
+        'limit' => 100, // number of request
+        'interval' => 60, // seconds
+        'adapter' => 'redis',
+        'host' => '127.0.0.1',
+        'port' => 6379,
+        'timeout' => 10
+    ],
+
     'hooks' => [],
 
     'filters' => [],
