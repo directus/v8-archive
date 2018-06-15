@@ -199,7 +199,6 @@ class MySQLSchema extends AbstractSchema
 
         $selectTwo = new Select();
         $selectTwo->columns([
-            'id',
             'collection',
             'field',
             'sort',
@@ -213,6 +212,7 @@ class MySQLSchema extends AbstractSchema
             'default_value' => new Expression('NULL'),
             'note',
             'column_type' => new Expression('NULL'),
+            'id',
             'type' => new Expression('UCASE(type)'),
             'managed' =>  new Expression('IF(ISNULL(DF2.id),0,1)'),
             'interface',
