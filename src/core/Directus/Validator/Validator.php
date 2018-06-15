@@ -80,7 +80,7 @@ class Validator
                 $constraint = new Email();
                 break;
             case 'json':
-                $constraint = new Type(['type' => 'array']);
+                $constraint = new Type(['type' => 'array', 'message' => 'This value should be of type json.']);
                 break;
             case 'array':
             case 'numeric':
