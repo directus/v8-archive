@@ -30,6 +30,7 @@ class Fields extends Route
         $app->post('/{collection}', [$this, 'create']);
         $app->get('/{collection}/{field}', [$this, 'read']);
         $app->patch('/{collection}/{field}', [$this, 'update']);
+        $app->patch('/{collection}', [$this, 'update']);
         $app->delete('/{collection}/{field}', [$this, 'delete']);
         $app->get('/{collection}', [$this, 'all']);
     }
@@ -95,6 +96,15 @@ class Fields extends Route
     public function update(Request $request, Response $response)
     {
         $service = new TablesService($this->container);
+        $field = $request->getAttribute('field');
+        $payload = $request->getParsedBody();
+
+        if (
+            (isset($payload[0]) && is_array($payload[0]))
+            || strpos($field, ',') > 0
+        ) {
+            return $this->batch($request, $response);
+        }
 
         $responseData = $service->changeColumn(
             $request->getAttribute('collection'),
@@ -152,5 +162,38 @@ class Fields extends Route
         $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    protected function batch(Request $request, Response $response)
+    {
+        $tablesService = new TablesService($this->container);
+
+        $collection = $request->getAttribute('collection');
+        $tablesService->throwErrorIfSystemTable($collection);
+
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+
+        if ($fields = $request->getAttribute('field')) {
+            $ids = explode(',', $fields);
+            $responseData = $tablesService->batchUpdateFieldWithIds($collection, $ids, $payload, $params);
+        } else {
+            $responseData = $tablesService->batchUpdateField($collection, $payload, $params);
+        }
+
+        if (empty($responseData)) {
+            $response = $response->withStatus(204);
+            $responseData = [];
+        }
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

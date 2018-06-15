@@ -21,6 +21,7 @@ use Directus\Database\SchemaService;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
+use Directus\Exception\ForbiddenException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
@@ -547,6 +548,75 @@ class TablesService extends AbstractService
             true,
             ArrayUtils::get($params, 'meta', 0)
         );
+    }
+
+    /**
+     * Updates a list of fields with different data each
+     *
+     * @param string $collectionName
+     * @param array $payload
+     * @param array $params
+     *
+     * @return array
+     *
+     * @throws InvalidRequestException
+     */
+    public function batchUpdateField($collectionName, array $payload, array $params = [])
+    {
+        if (!isset($payload[0]) || !is_array($payload[0])) {
+            throw new InvalidRequestException('batch update expect an array of items');
+        }
+
+        foreach ($payload as $data) {
+            $this->validatePayload(SchemaManager::COLLECTION_FIELDS, array_keys($data), $data, $params);
+            $this->validate($data, ['field' => 'required']);
+        }
+
+        $allItems = [];
+        foreach ($payload as $data) {
+            $fieldName = ArrayUtils::get($data, 'field');
+            $item = $this->changeColumn($collectionName, $fieldName, $data, $params);
+
+            if (!is_null($item)) {
+                $allItems[] = $item['data'];
+            }
+        }
+
+        if (!empty($allItems)) {
+            $allItems = $this->getFieldsTableGateway()->wrapData($allItems, false, ArrayUtils::get($params, 'meta'));
+        }
+
+        return $allItems;
+    }
+
+    /**
+     * Updates a list of fields with the same data
+     *
+     * @param $collectionName
+     * @param array $fieldNames
+     * @param array $payload
+     * @param array $params
+     *
+     * @return array
+     */
+    public function batchUpdateFieldWithIds($collectionName, array $fieldNames, array $payload, array $params = [])
+    {
+        $this->validatePayload(SchemaManager::COLLECTION_FIELDS, array_keys($payload), $payload, $params);
+        $this->validate(['fields' => $fieldNames], ['fields' => 'required']);
+
+        $allItems = [];
+        foreach ($fieldNames as $fieldName) {
+            $item = $this->changeColumn($collectionName, $fieldName, $payload, $params);
+            if (!empty($item)) {
+                $allItems[] = $item['data'];
+            }
+        }
+
+        if (!empty($allItems)) {
+            $allItems = $this->getFieldsTableGateway()->wrapData($allItems, false, ArrayUtils::get($params, 'meta'));
+        }
+
+        return $allItems;
     }
 
     public function dropColumn($collectionName, $fieldName)
