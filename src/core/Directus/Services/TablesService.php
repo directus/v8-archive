@@ -641,8 +641,8 @@ class TablesService extends AbstractService
             }
         }
 
-        if (!$this->removeColumnInfo($collectionName, $fieldName)) {
-            throw new ErrorException('Error deleting the field information');
+        if ($columnObject->isManaged()) {
+            $this->removeColumnInfo($collectionName, $fieldName);
         }
     }
 
