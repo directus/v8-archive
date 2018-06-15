@@ -622,9 +622,6 @@ class TablesService extends AbstractService
 
     protected function addFieldInfo($collection, $field, array $data)
     {
-        // TODO: Let's make this info a string ALL the time at this level
-        $options = $this->parseOptions(ArrayUtils::get($data, 'options'));
-
         $defaults = [
             'collection' => $collection,
             'field' => $field,
@@ -656,35 +653,11 @@ class TablesService extends AbstractService
         ArrayUtils::remove($data, ['collection', 'field']);
         $data['id'] = $id;
 
-        if (ArrayUtils::has($data, 'options')) {
-            $data['options'] = $this->parseOptions($data['options']);
-        }
-
         $collectionObject = $this->getSchemaManager()->getCollection('directus_fields');
 
         return $this->getFieldsTableGateway()->updateRecord(
             ArrayUtils::pick($data, $collectionObject->getFieldsName())
         );
-    }
-
-    /**
-     * Parse Fields options column
-     *
-     * NOTE: This is temporary until system fields has the interfaces set
-     *
-     * @param $options
-     *
-     * @return null|string
-     */
-    protected function parseOptions($options)
-    {
-        if (is_array($options) && !empty($options)) {
-            $options = json_encode($options);
-        } else {
-            $options = null;
-        }
-
-        return $options;
     }
 
     /**
