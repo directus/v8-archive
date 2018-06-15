@@ -951,13 +951,13 @@ class TablesService extends AbstractService
                 $data['collection_a'] = $collectionName;
                 $data['collection_b'] = $collectionBName;
                 $data['store_key_a'] = $column['field'];
-                $data['store_key_b'] = $collectionBObject->getPrimaryColumn();
+                $data['store_key_b'] = $collectionBObject->getPrimaryKeyName();
                 break;
             case FieldRelationship::ONE_TO_MANY:
                 $data['relationship_type'] = FieldRelationship::ONE_TO_MANY;
                 $data['collection_a'] = $collectionName;
                 $data['collection_b'] = $collectionBName;
-                $data['store_key_a'] = $collectionBObject->getPrimaryColumn();
+                $data['store_key_a'] = $collectionBObject->getPrimaryKeyName();
                 $data['store_key_b'] = $column['field'];
                 break;
             case FieldRelationship::MANY_TO_MANY:
