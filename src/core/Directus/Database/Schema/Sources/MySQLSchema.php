@@ -442,6 +442,12 @@ class MySQLSchema extends AbstractSchema
             case 'boolean':
                 $data = boolval($data);
                 break;
+            case 'tinyjson':
+            case 'json':
+            case 'mediumjson':
+            case 'longjson':
+                $data = is_string($data) ? json_decode($data) : $data;
+                break;
             case 'blob':
             case 'mediumblob':
                 // NOTE: Do we really need to encode the blob?
