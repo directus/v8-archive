@@ -16,7 +16,7 @@ abstract class AbstractExtensionsController extends AbstractService
 
         $directusBasePath = $this->container->get('path_base');
 
-        $filePaths = find_directories($basePath);
+        $filePaths = \Directus\find_directories($basePath);
         foreach ($filePaths as $path) {
             $path .= '/meta.json';
 
