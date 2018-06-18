@@ -24,7 +24,7 @@ class ServerService extends AbstractService
                         'php_version' => phpversion(),
                         'php_api' => php_sapi_name()
                     ],
-                    'max_upload_size' => get_max_upload_size()
+                    'max_upload_size' => \Directus\get_max_upload_size()
                 ]
             ]
         ];

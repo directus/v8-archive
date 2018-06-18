@@ -6,6 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use function Directus\array_get;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
@@ -163,7 +164,7 @@ class Auth extends Route
             $request->getAttribute('service')
         );
 
-        if (cors_is_origin_allowed($allowedOrigins, $origin)) {
+        if (\Directus\cors_is_origin_allowed($allowedOrigins, $origin)) {
             if (is_array($origin)) {
                 $origin = array_shift($origin);
             }

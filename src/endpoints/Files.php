@@ -59,7 +59,7 @@ class Files extends Route
         if (!empty($uploadedFiles)) {
             /** @var UploadedFile $uploadedFile */
             $uploadedFile = array_shift($uploadedFiles);
-            if (!is_uploaded_file_okay($uploadedFile->getError())) {
+            if (!\Directus\is_uploaded_file_okay($uploadedFile->getError())) {
                 throw new FailedUploadException($uploadedFile->getError());
             }
 

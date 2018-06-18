@@ -74,7 +74,7 @@ class CorsMiddleware extends AbstractMiddleware
         $requestOrigin = $request->getOrigin();
         $allowedOrigins = ArrayUtils::get($corsOptions, 'origin', '*');
 
-        return cors_get_allowed_origin($allowedOrigins, $requestOrigin);
+        return \Directus\cors_get_allowed_origin($allowedOrigins, $requestOrigin);
     }
 
     /**

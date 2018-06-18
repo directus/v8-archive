@@ -1072,7 +1072,7 @@ class BaseTableGateway extends TableGateway
             return;
         }
 
-        $groupUsersId = get_user_ids_in_group($this->acl->getRolesId());
+        $groupUsersId = \Directus\get_user_ids_in_group($this->acl->getRolesId());
         $authenticatedUserId = $this->acl->getUserId();
         $statuses = $this->acl->getCollectionStatuses($this->table);
 
@@ -1171,7 +1171,7 @@ class BaseTableGateway extends TableGateway
         }
 
         // Owner not found, item cannot be updated
-        $owner = get_item_owner($updateTable, $item[$collectionObject->getPrimaryKeyName()]);
+        $owner = \Directus\get_item_owner($updateTable, $item[$collectionObject->getPrimaryKeyName()]);
         if (!is_array($owner)) {
             throw new ForbiddenCollectionUpdateException($updateTable);
         }
@@ -1232,7 +1232,7 @@ class BaseTableGateway extends TableGateway
         }
 
         // Owner not found, item cannot be updated
-        $owner = get_item_owner($deleteTable, $item[$collectionObject->getPrimaryKeyName()]);
+        $owner = \Directus\get_item_owner($deleteTable, $item[$collectionObject->getPrimaryKeyName()]);
         if (!is_array($owner)) {
             throw new ForbiddenCollectionDeleteException($deleteTable);
         }
@@ -1495,9 +1495,9 @@ class BaseTableGateway extends TableGateway
         }
 
         if ($key !== null) {
-            $settings = get_directus_setting($scope, $key);
+            $settings = \Directus\get_directus_setting($scope, $key);
         } else {
-            $settings = get_kv_directus_settings($scope);
+            $settings = \Directus\get_kv_directus_settings($scope);
         }
 
         return $settings;

@@ -108,7 +108,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
             'user' => $userId,
             'item' => $userId,
             'datetime' => DateTimeUtils::nowInUTC()->toString(),
-            'ip' => get_request_ip(),
+            'ip' => \Directus\get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
         ];
 

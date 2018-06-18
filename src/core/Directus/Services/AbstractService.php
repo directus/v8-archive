@@ -421,7 +421,7 @@ abstract class AbstractService
             }
 
             if ($validation = $field->getValidation()) {
-                if (!is_valid_regex_pattern($validation)) {
+                if (!\Directus\is_valid_regex_pattern($validation)) {
                     throw new RuntimeException(
                         sprintf('Field "%s": "%s" is an invalid regular expression', $fieldName, $validation)
                     );

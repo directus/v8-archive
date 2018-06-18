@@ -528,7 +528,7 @@ class SchemaManager
         // @TODO: SchemaManager shouldn't be a class with static methods anymore
         // the UI templates list will be provided by a container or bootstrap.
         $path = implode(DIRECTORY_SEPARATOR, [
-            base_path(),
+            \Directus\base_path(),
             'api',
             'migrations',
             'templates',
@@ -541,7 +541,7 @@ class SchemaManager
             $key = basename($dir);
             $templatesData[$key] = [
                 'id' => $key,
-                'name' => uc_convert($key)
+                'name' => \Directus\uc_convert($key)
             ];
         }
 

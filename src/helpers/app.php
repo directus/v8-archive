@@ -1,5 +1,14 @@
 <?php
 
+namespace Directus;
+
+use Directus\Application\Application;
+use Directus\Application\Http\Request;
+use Directus\Application\Http\Response;
+use Directus\Collection\Collection;
+use Directus\Exception\Exception;
+use Slim\Http\Body;
+
 if (!function_exists('create_app'))  {
     /**
      * Creates an api application
@@ -11,7 +20,7 @@ if (!function_exists('create_app'))  {
      */
     function create_app($basePath, array $config)
     {
-        return new \Directus\Application\Application(
+        return new Application(
             $basePath,
             $config
         );
@@ -27,7 +36,7 @@ if (!function_exists('create_app_with_env')) {
      *
      * @return \Directus\Application\Application
      *
-     * @throws \Directus\Exception\Exception
+     * @throws Exception
      */
     function create_app_with_env($basePath, $env)
     {
@@ -39,7 +48,7 @@ if (!function_exists('create_app_with_env')) {
         }
 
         if (!file_exists($configFilePath)) {
-            throw new \Directus\Exception\Exception('Unknown environment: ' . $env);
+            throw new Exception('Unknown environment: ' . $env);
         }
 
         return create_app($basePath, require $configFilePath);
@@ -52,19 +61,19 @@ if (!function_exists('ping_route')) {
      *
      * @param \Directus\Application\Application $app
      *
-     * @return Closure
+     * @return \Closure
      */
-    function ping_route(\Directus\Application\Application $app)
+    function ping_route(Application $app)
     {
-        return function (\Directus\Application\Http\Request $request, \Directus\Application\Http\Response $response) {
+        return function (Request $request, Response $response) {
             /** @var \Directus\Container\Container $container */
             $container = $this;
-            $settings = $container->has('settings') ? $container->get('settings') : new \Directus\Collection\Collection();
+            $settings = $container->has('settings') ? $container->get('settings') : new Collection();
 
             if ($settings->get('env', 'development') === 'production') {
                 $response = $response->withStatus(404);
             } else {
-                $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+                $body = new Body(fopen('php://temp', 'r+'));
                 $body->write('pong');
                 $response = $response->withBody($body);
             }
@@ -78,11 +87,11 @@ if (!function_exists('create_ping_route')) {
     /**
      * Create a new ping the server route
      *
-     * @param $app
+     * @param Application $app
      *
-     * @return \Directus\Application\Application
+     * @return Application
      */
-    function create_ping_route(\Directus\Application\Application $app)
+    function create_ping_route(Application $app)
     {
         /**
          * Ping the server
@@ -100,7 +109,7 @@ if (!function_exists('create_ping_server')) {
      * @param string $basePath
      * @param array $config
      *
-     * @return \Directus\Application\Application
+     * @return Application
      */
     function create_ping_server($basePath, array $config = [])
     {

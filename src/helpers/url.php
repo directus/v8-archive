@@ -1,5 +1,7 @@
 <?php
 
+namespace Directus;
+
 if (!function_exists('unparse_url')) {
     /**
      * Unparse URL

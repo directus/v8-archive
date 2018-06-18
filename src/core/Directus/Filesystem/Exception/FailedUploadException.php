@@ -9,7 +9,7 @@ class FailedUploadException extends FilesystemException
     public function __construct($errorCode)
     {
         $this->uploadedError = $errorCode;
-        parent::__construct(get_uploaded_file_error($errorCode));
+        parent::__construct(\Directus\get_uploaded_file_error($errorCode));
     }
 
     public function getErrorCode()

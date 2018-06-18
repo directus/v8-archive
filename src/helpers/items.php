@@ -1,5 +1,12 @@
 <?php
 
+namespace Directus;
+
+use Directus\Application\Application;
+use Directus\Database\TableGatewayFactory;
+use Zend\Db\Sql\Select;
+use Zend\Db\TableGateway\TableGateway;
+
 if (!function_exists('get_item_owner')) {
     /**
      * Gets the item's owner ID
@@ -11,11 +18,11 @@ if (!function_exists('get_item_owner')) {
      */
     function get_item_owner($collection, $id)
     {
-        $app = \Directus\Application\Application::getInstance();
+        $app = Application::getInstance();
         $dbConnection = $app->getContainer()->get('database');
-        $tableGateway = new \Zend\Db\TableGateway\TableGateway($collection, $dbConnection);
+        $tableGateway = new TableGateway($collection, $dbConnection);
         /** @var \Directus\Database\TableGateway\RelationalTableGateway $tableGateway */
-        $usersTableGateway = \Directus\Database\TableGatewayFactory::create($collection, [
+        $usersTableGateway = TableGatewayFactory::create($collection, [
             'connection' => $dbConnection,
             'acl' => false
         ]);
@@ -29,7 +36,7 @@ if (!function_exists('get_item_owner')) {
         $owner = null;
         if ($userCreatedField) {
             $fieldName = $userCreatedField->getName();
-            $select = new \Zend\Db\Sql\Select(
+            $select = new Select(
                 ['c' => $tableGateway->table]
             );
             $select->limit(1);
@@ -38,7 +45,7 @@ if (!function_exists('get_item_owner')) {
                 'c.' . $collectionObject->getPrimaryKeyName() => $id
             ]);
 
-            $subSelect = new \Zend\Db\Sql\Select('directus_user_roles');
+            $subSelect = new Select('directus_user_roles');
 
             $select->join(
                 ['ur' => $subSelect],
@@ -62,11 +69,11 @@ if (!function_exists('get_user_ids_in_group')) {
     function get_user_ids_in_group(array $roleIds)
     {
         $id = array_shift($roleIds);
-        $app = \Directus\Application\Application::getInstance();
+        $app = Application::getInstance();
         $dbConnection = $app->getContainer()->get('database');
-        $tableGateway = new \Zend\Db\TableGateway\TableGateway('directus_user_roles', $dbConnection);
+        $tableGateway = new TableGateway('directus_user_roles', $dbConnection);
 
-        $select = new \Zend\Db\Sql\Select($tableGateway->table);
+        $select = new Select($tableGateway->table);
         $select->columns(['id' => 'user']);
         $select->where(['role' => $id]);
 

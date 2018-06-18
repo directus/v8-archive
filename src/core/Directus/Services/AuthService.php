@@ -93,7 +93,7 @@ class AuthService extends AbstractService
         $type = $service->getConfig()->get('custom') === true ? 'custom' : 'core';
         $iconPath = sprintf('/extensions/%s/auth/%s/icon.svg', $type, $name);
         if (file_exists($basePath . '/public' . $iconPath)) {
-            $iconUrl = get_url($iconPath);
+            $iconUrl = \Directus\get_url($iconPath);
         }
 
         return [
@@ -326,7 +326,7 @@ class AuthService extends AbstractService
 
         $resetToken = $auth->generateResetPasswordToken($user);
 
-        send_forgot_password_email($user->toArray(), $resetToken);
+        \Directus\send_forgot_password_email($user->toArray(), $resetToken);
     }
 
     public function resetPasswordWithToken($token)
@@ -364,7 +364,7 @@ class AuthService extends AbstractService
             'password' => $auth->hashPassword($newPassword)
         ]);
 
-        send_reset_password_email($user->toArray(), $newPassword);
+        \Directus\send_reset_password_email($user->toArray(), $newPassword);
     }
 
     public function refreshToken($token)

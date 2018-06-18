@@ -216,7 +216,7 @@ class Application extends App
     {
         $errors = $this->checkRequirementsFunction
             ? call_user_func($this->checkRequirementsFunction)
-            : get_missing_requirements();
+            : \Directus\get_missing_requirements();
 
         if ($errors) {
             $callback($errors);

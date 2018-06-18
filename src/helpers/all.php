@@ -1,5 +1,14 @@
 <?php
 
+namespace Directus;
+
+use Directus\Application\Application;
+use Directus\Database\TableGatewayFactory;
+use Directus\Exception\Exception;
+use Directus\Hook\Emitter;
+use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
+
 require __DIR__ . '/constants.php';
 require __DIR__ . '/app.php';
 require __DIR__ . '/arrays.php';
@@ -124,9 +133,7 @@ if (!function_exists('get_url')) {
     }
 }
 
-
-if (!function_exists('create_uri_from_global'))
-{
+if (!function_exists('create_uri_from_global')) {
     /**
      * Creates a uri object based on $_SERVER
      *
@@ -244,7 +251,7 @@ if (!function_exists('get_file_info')) {
      */
     function get_file_info($file)
     {
-        $finfo = new finfo(FILEINFO_MIME);
+        $finfo = new \finfo(FILEINFO_MIME);
         $type = explode('; charset=', $finfo->file($file));
         $info = ['type' => $type[0], 'charset' => $type[1]];
 
@@ -320,7 +327,7 @@ if (!function_exists('is_numeric_array')) {
 if (!function_exists('is_numeric_keys_array')) {
     function is_numeric_keys_array($array)
     {
-        return \Directus\Util\ArrayUtils::isNumericKeys($array);
+        return ArrayUtils::isNumericKeys($array);
     }
 }
 
@@ -340,9 +347,9 @@ if (!function_exists('register_global_hooks')) {
     /**
      * Register all the hooks from the configuration file
      *
-     * @param \Directus\Application\Application $app
+     * @param Application $app
      */
-    function register_global_hooks(\Directus\Application\Application $app)
+    function register_global_hooks(Application $app)
     {
         $config = $app->getConfig();
         register_hooks_list($app, [$config->get('hooks')]);
@@ -353,9 +360,9 @@ if (!function_exists('register_extensions_hooks')) {
     /**
      * Register all extensions hooks
      *
-     * @param \Directus\Application\Application $app
+     * @param Application $app
      */
-    function register_extensions_hooks(\Directus\Application\Application $app)
+    function register_extensions_hooks(Application $app)
     {
         register_hooks_list(
             $app,
@@ -378,10 +385,10 @@ if (!function_exists('register_hooks_list')) {
     /**
      * Register an array of hooks (containing a list of actions and filters)
      *
-     * @param \Directus\Application\Application $app
+     * @param Application $app
      * @param array $hooksList
      */
-    function register_hooks_list(\Directus\Application\Application $app, array $hooksList)
+    function register_hooks_list(Application $app, array $hooksList)
     {
         foreach ($hooksList as $hooks) {
             register_hooks($app, array_get($hooks, 'actions', []), false);
@@ -394,11 +401,11 @@ if (!function_exists('register_hooks')) {
     /**
      * Load one or multiple listeners
      *
-     * @param \Directus\Application\Application $app
-     * @param array|Closure $listeners
+     * @param Application $app
+     * @param array|\Closure $listeners
      * @param bool $areFilters
      */
-    function register_hooks(\Directus\Application\Application $app, $listeners, $areFilters = false)
+    function register_hooks(Application $app, $listeners, $areFilters = false)
     {
         $hookEmitter = $app->getContainer()->get('hook_emitter');
 
@@ -422,13 +429,13 @@ if (!function_exists('register_hook')) {
     /**
      * Register a hook listeners
      *
-     * @param \Directus\Hook\Emitter $emitter
+     * @param Emitter $emitter
      * @param string $name
      * @param callable $listener
      * @param int|null $priority
      * @param bool $areFilters
      */
-    function register_hook(\Directus\Hook\Emitter $emitter, $name, $listener, $priority = null, $areFilters = false)
+    function register_hook(Emitter $emitter, $name, $listener, $priority = null, $areFilters = false)
     {
         if (!$areFilters) {
             register_action_hook($emitter, $name, $listener, $priority);
@@ -442,12 +449,12 @@ if (!function_exists('register_action_hook')) {
     /**
      * Register a hook action
      *
-     * @param \Directus\Hook\Emitter $emitter
+     * @param Emitter $emitter
      * @param string $name
      * @param callable $listener
      * @param int|null $priority
      */
-    function register_action_hook(\Directus\Hook\Emitter $emitter, $name, $listener, $priority = null)
+    function register_action_hook(Emitter $emitter, $name, $listener, $priority = null)
     {
         $emitter->addAction($name, $listener, $priority);
     }
@@ -484,7 +491,7 @@ if (!function_exists('get_user_timezone')) {
 if (!function_exists('get_auth_info')) {
     function get_auth_info($attribute)
     {
-        $app = \Directus\Application\Application::getInstance();
+        $app = Application::getInstance();
         try {
             /** @var \Directus\Authentication\Provider $authentication */
             $authentication = $app->getContainer()->get('auth');
@@ -506,12 +513,12 @@ if (!function_exists('get_auth_timezone')) {
 if (!function_exists('base_path')) {
     function base_path($suffix = '')
     {
-        $app = \Directus\Application\Application::getInstance();
+        $app = Application::getInstance();
 
         $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__ . '/../../');
 
         if (!is_string($suffix)) {
-            throw new \Directus\Exception\Exception('suffix must be a string');
+            throw new Exception('suffix must be a string');
         }
 
         if ($suffix) {
@@ -1261,7 +1268,7 @@ if (!function_exists('get_project_info')) {
     function get_project_info()
     {
         /** @var \Directus\Database\TableGateway\DirectusSettingsTableGateway $settingsTable */
-        $settingsTable = \Directus\Database\TableGatewayFactory::create('directus_settings', [
+        $settingsTable = TableGatewayFactory::create('directus_settings', [
             'acl' => null
         ]);
         $settings = $settingsTable->fetchCollection('global');
@@ -1270,14 +1277,14 @@ if (!function_exists('get_project_info')) {
         $defaultProjectLogo = get_directus_path('/assets/imgs/directus-logo-flat.svg');
         if (isset($settings['cms_thumbnail_url']) && $settings['cms_thumbnail_url']) {
             $projectLogoURL = $settings['cms_thumbnail_url'];
-            $filesTable = \Directus\Database\TableGatewayFactory::create('directus_files', [
+            $filesTable = TableGatewayFactory::create('directus_files', [
                 'acl' => null
             ]);
             $data = $filesTable->fetchItems([
                 'filter' => ['id' => $projectLogoURL]
             ]);
 
-            $projectLogoURL = \Directus\Util\ArrayUtils::get($data, 'url', $defaultProjectLogo);
+            $projectLogoURL = ArrayUtils::get($data, 'url', $defaultProjectLogo);
         } else {
             $projectLogoURL = $defaultProjectLogo;
         }
@@ -1307,7 +1314,7 @@ if (!function_exists('get_missing_requirements')) {
             $errors[] = 'Your host needs to have PDO enabled to run this version of Directus!';
         }
 
-        if (defined('PDO::ATTR_DRIVER_NAME') && !in_array('mysql', PDO::getAvailableDrivers())) {
+        if (defined('PDO::ATTR_DRIVER_NAME') && !in_array('mysql', \PDO::getAvailableDrivers())) {
             $errors[] = 'Your host needs to have PDO MySQL Driver enabled to run this version of Directus!';
         }
 
@@ -1444,6 +1451,7 @@ if (!function_exists('get_array_flat_columns')) {
         return explode(',', get_csv_flat_columns($columns ?: []));
     }
 }
+
 if (!function_exists('get_unflat_columns')) {
     /**
      * Gets the unflat version of flat (dot-notated) column list
@@ -1520,7 +1528,7 @@ if (!function_exists('compact_sort_to_array')) {
     function compact_sort_to_array($field)
     {
         if (!is_string($field)) {
-            throw new \Directus\Exception\Exception(sprintf('field is expected to be string, %s given.', gettype($field)));
+            throw new Exception(sprintf('field is expected to be string, %s given.', gettype($field)));
         }
 
         $order = 'ASC';
@@ -1544,7 +1552,7 @@ if (!function_exists('convert_param_columns')) {
 
         if (is_string($columns)) {
             // remove all 'falsy' columns name
-            $columns = array_filter(\Directus\Util\StringUtils::csv($columns, true));
+            $columns = array_filter(StringUtils::csv($columns, true));
         } else {
             $columns = [];
         }

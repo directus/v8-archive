@@ -1,5 +1,7 @@
 <?php
 
+namespace Directus;
+
 if (!function_exists('get_max_upload_size')) {
     /**
      * Get the maximum upload size in bytes

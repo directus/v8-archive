@@ -4,6 +4,7 @@ namespace Directus\Filesystem;
 
 use Aws\S3\S3Client;
 use Directus\Application\Application;
+use function Directus\array_get;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 use League\Flysystem\AwsS3v3\AwsS3Adapter as S3Adapter;
 use League\Flysystem\Filesystem as Flysystem;

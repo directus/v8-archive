@@ -1,5 +1,7 @@
 <?php
 
+namespace Directus;
+
 if (!function_exists('sorting_by_key')) {
     /**
      * Sorting callable helper
@@ -7,7 +9,7 @@ if (!function_exists('sorting_by_key')) {
      * @param string $key
      * @param string $order
      *
-     * @return Closure
+     * @return \Closure
      */
     function sorting_by_key($key, $order = 'ASC')
     {

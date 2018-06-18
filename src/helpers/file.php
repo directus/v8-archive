@@ -1,5 +1,10 @@
 <?php
 
+namespace Directus;
+
+use Directus\Application\Application;
+use Directus\Filesystem\Thumbnail;
+
 if (!function_exists('is_uploaded_file_okay')) {
     /**
      * Checks whether upload file has not error.
@@ -74,7 +79,7 @@ if (!function_exists('append_storage_information'))
             return $rows;
         }
 
-        $container = \Directus\Application\Application::getInstance()->getContainer();
+        $container = Application::getInstance()->getContainer();
         $thumbnailDimensions = array_filter(
             explode(',', get_directus_setting('thumbnailer', 'dimensions'))
         );
@@ -105,8 +110,8 @@ if (!function_exists('append_storage_information'))
 
             // Add Thumbnails
             foreach (array_unique($thumbnailDimensions) as $dimension) {
-                if (\Directus\Filesystem\Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
-                    $thumbnailExtension = \Directus\Filesystem\Thumbnail::defaultFormat();
+                if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
+                    $thumbnailExtension = Thumbnail::defaultFormat();
                 }
 
                 if (!is_string($dimension)) {
@@ -115,7 +120,7 @@ if (!function_exists('append_storage_information'))
 
                 $size = explode('x', $dimension);
                 if (count($size) == 2) {
-                    $thumbnailUrl = get_thumbnail_url($row['filename'], $size[0], $size[1]);
+                    $thumbnailUrl = \Directus\get_thumbnail_url($row['filename'], $size[0], $size[1]);
                     $storage['thumbnails'][] = [
                         'full_url' => $thumbnailUrl,
                         'url' => $thumbnailUrl,

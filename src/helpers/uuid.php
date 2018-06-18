@@ -1,5 +1,9 @@
 <?php
 
+namespace Directus;
+
+use Ramsey\Uuid\Uuid;
+
 if (!function_exists('generate_uuid1')) {
     /**
      * Generates a UUID v1 string
@@ -8,7 +12,7 @@ if (!function_exists('generate_uuid1')) {
      */
     function generate_uui1()
     {
-        return \Ramsey\Uuid\Uuid::uuid1()->toString();
+        return Uuid::uuid1()->toString();
     }
 }
 
@@ -23,7 +27,7 @@ if (!function_exists('generate_uuid3')) {
      */
     function generate_uui3($namespace, $name)
     {
-        return \Ramsey\Uuid\Uuid::uuid3(
+        return Uuid::uuid3(
             $namespace,
             $name
         )->toString();
@@ -38,6 +42,6 @@ if (!function_exists('generate_uuid4')) {
      */
     function generate_uui4()
     {
-        return \Ramsey\Uuid\Uuid::uuid4()->toString();
+        return Uuid::uuid4()->toString();
     }
 }

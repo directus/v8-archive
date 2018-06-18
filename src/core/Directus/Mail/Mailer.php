@@ -48,7 +48,7 @@ class Mailer
             $message->setCc($config->get('cc'));
         }
 
-        $content = parse_twig($view, array_merge(
+        $content = \Directus\parse_twig($view, array_merge(
             $data,
             ['api' => ['env' => get_api_env()]]
         ));

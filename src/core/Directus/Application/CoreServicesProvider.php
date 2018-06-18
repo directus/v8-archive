@@ -11,6 +11,7 @@ use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
 use Cache\Adapter\Void\VoidCachePool;
 use Directus\Application\ErrorHandlers\ErrorHandler;
+use function Directus\array_get;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Sso\Social;
 use Directus\Authentication\User\Provider\UserTableGatewayProvider;
@@ -366,7 +367,7 @@ class CoreServicesProvider
                 return $payload;
             });
             $addFilesUrl = function ($rows) {
-                return append_storage_information($rows);
+                return \Directus\append_storage_information($rows);
             };
             $emitter->addFilter('collection.select.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
@@ -720,8 +721,8 @@ class CoreServicesProvider
 
             $socialAuth = new Social();
 
-            $coreSso = get_custom_x('auth', 'public/extensions/core/auth', true);
-            $customSso = get_custom_x('auth', 'public/extensions/custom/auth', true);
+            $coreSso = \Directus\get_custom_x('auth', 'public/extensions/core/auth', true);
+            $customSso = \Directus\get_custom_x('auth', 'public/extensions/custom/auth', true);
 
             // Flag the customs providers in order to choose the correct path for the icons
             $customSso = array_map(function ($config) {
@@ -751,7 +752,7 @@ class CoreServicesProvider
 
                     $socialAuth->register($providerName, new $class($container, array_merge([
                         'custom' => $custom,
-                        'callback_url' => get_url('/_/auth/sso/' . $providerName . '/callback')
+                        'callback_url' => \Directus\get_url('/_/auth/sso/' . $providerName . '/callback')
                     ], $providerConfig)));
                 }
             }

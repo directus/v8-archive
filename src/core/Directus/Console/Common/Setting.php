@@ -15,7 +15,7 @@ class Setting
     public function __construct($base_path)
     {
         if ($base_path == null) {
-            $base_path = base_path();
+            $base_path = \Directus\base_path();
         }
 
         $this->directus_path = $base_path;

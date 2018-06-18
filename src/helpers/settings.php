@@ -1,5 +1,9 @@
 <?php
 
+namespace Directus;
+
+use Directus\Application\Application;
+
 if (!function_exists('get_directus_settings')) {
     /**
      * Returns an array of directus settings
@@ -10,7 +14,7 @@ if (!function_exists('get_directus_settings')) {
      */
     function get_directus_settings($scope = null)
     {
-        $app = \Directus\Application\Application::getInstance();
+        $app = Application::getInstance();
 
         $settings = $app->getContainer()->get('app_settings');
 

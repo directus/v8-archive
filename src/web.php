@@ -9,12 +9,12 @@ require $basePath . '/vendor/autoload.php';
 // Creates a simple endpoint to test the server rewriting
 // If the server responds "pong" it means the rewriting works
 if (!file_exists($configFilePath)) {
-    return create_ping_server($basePath);
+    return \Directus\create_ping_server($basePath);
 }
 
 // Get Environment name
-$env = get_api_env_from_request();
-$requestUri = trim(get_virtual_path(), '/');
+$env = \Directus\get_api_env_from_request();
+$requestUri = trim(\Directus\get_virtual_path(), '/');
 
 $reservedNames = ['server', 'interfaces', 'pages', 'listings', 'types'];
 if ($requestUri && !empty($env) && $env !== '_' && !in_array($env, $reservedNames)) {
@@ -32,7 +32,7 @@ if ($requestUri && !empty($env) && $env !== '_' && !in_array($env, $reservedName
     }
 }
 
-$app = create_app($basePath, require $configFilePath);
+$app = \Directus\create_app($basePath, require $configFilePath);
 
 // ----------------------------------------------------------------------------
 //
@@ -64,8 +64,8 @@ date_default_timezone_set($app->getConfig()->get('timezone', 'America/New_York')
 
 $container = $app->getContainer();
 
-register_global_hooks($app);
-register_extensions_hooks($app);
+\Directus\register_global_hooks($app);
+\Directus\register_extensions_hooks($app);
 
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
@@ -129,28 +129,28 @@ $app->group('/{env}', function () {
         ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($this->getContainer()));
 
     $this->group('/custom', function () {
-        $endpointsList = get_custom_endpoints('/public/custom/endpoints');
+        $endpointsList = \Directus\get_custom_endpoints('/public/custom/endpoints');
 
         foreach ($endpointsList as $name => $endpoints) {
-            create_group_route_from_array($this, $name, $endpoints);
+            \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
     });
 
     $this->group('/pages', function () {
-        $endpointsList = get_custom_endpoints('public/extensions/core/pages', true);
+        $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/pages', true);
 
         foreach ($endpointsList as $name => $endpoints) {
-            create_group_route_from_array($this, $name, $endpoints);
+            \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
     })
       ->add(new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($this->getContainer()))
       ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($this->getContainer()));
 
     $this->group('/interfaces', function () {
-        $endpointsList = get_custom_endpoints('public/extensions/core/interfaces', true);
+        $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/interfaces', true);
 
         foreach ($endpointsList as $name => $endpoints) {
-            create_group_route_from_array($this, $name, $endpoints);
+            \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
     })
       ->add(new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($this->getContainer()))

@@ -59,7 +59,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
             $acl->setPublic($publicRoleId);
         }
 
-        if (!$acl->isIpAllowed(get_request_ip())) {
+        if (!$acl->isIpAllowed(\Directus\get_request_ip())) {
             throw new UnauthorizedException('Request not allowed from IP address');
         }
 

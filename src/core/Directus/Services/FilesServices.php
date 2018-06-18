@@ -33,7 +33,7 @@ class FilesServices extends AbstractService
         $newFile = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
-            append_storage_information($newFile->toArray()),
+            \Directus\append_storage_information($newFile->toArray()),
             true,
             ArrayUtils::get($params, 'meta')
         );
@@ -64,7 +64,7 @@ class FilesServices extends AbstractService
         $newFile = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
-            append_storage_information($newFile->toArray()),
+            \Directus\append_storage_information($newFile->toArray()),
             true,
             ArrayUtils::get($params, 'meta')
         );

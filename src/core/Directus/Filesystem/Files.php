@@ -188,7 +188,7 @@ class Files
             return $info;
         }
 
-        $urlInfo = parse_url_file($url);
+        $urlInfo = \Directus\parse_url_file($url);
         $content = file_get_contents($url);
         if (!$content) {
             return $info;

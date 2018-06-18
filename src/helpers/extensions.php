@@ -1,5 +1,11 @@
 <?php
 
+namespace Directus;
+
+use Directus\Application\Application;
+use Directus\Exception\Exception;
+use Directus\Util\ArrayUtils;
+
 if (!function_exists('get_custom_x')) {
     /**
      * @param string $type
@@ -8,7 +14,7 @@ if (!function_exists('get_custom_x')) {
      *
      * @return array
      *
-     * @throws \Directus\Exception\Exception
+     * @throws Exception
      */
     function get_custom_x($type, $path, $onlyDirectories = false)
     {
@@ -48,7 +54,7 @@ if (!function_exists('get_custom_x')) {
 
             $extensionInfo = require $file;
             if (!is_array($extensionInfo)) {
-                throw new \Directus\Exception\Exception(
+                throw new Exception(
                     sprintf(
                         'information for "%s" must be an array. "%s" was given instead in %s',
                         $type,
@@ -61,7 +67,7 @@ if (!function_exists('get_custom_x')) {
             // When a directory and file has the same name inside the path
             // /example/endpoints.php and example.php
             if (isset($extensions[$extensionName])) {
-                throw new \Directus\Exception\Exception(
+                throw new Exception(
                     sprintf('There is an endpoint already named "%s"', $extensionName)
                 );
             }
@@ -122,22 +128,22 @@ if (!function_exists('create_route_from_array')) {
     /**
      * Add a route to the given application
      *
-     * @param \Directus\Application\Application $app
+     * @param Application $app
      * @param string $routePath
      * @param array $options
      *
-     * @throws \Directus\Exception\Exception
+     * @throws Exception
      */
-    function create_route_from_array(\Directus\Application\Application $app, $routePath, array $options)
+    function create_route_from_array(Application $app, $routePath, array $options)
     {
-        $methods = \Directus\Util\ArrayUtils::get($options, 'method', ['GET']);
+        $methods = ArrayUtils::get($options, 'method', ['GET']);
         if (!is_array($methods)) {
             $methods = [$methods];
         }
 
-        $handler = \Directus\Util\ArrayUtils::get($options, 'handler');
+        $handler = ArrayUtils::get($options, 'handler');
         if (!is_callable($handler) && !class_exists($handler)) {
-            throw new \Directus\Exception\Exception(
+            throw new Exception(
                 sprintf('Endpoints handler must be a callable, but %s was given', gettype($handler))
             );
         }

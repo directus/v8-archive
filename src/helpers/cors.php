@@ -1,5 +1,9 @@
 <?php
 
+namespace Directus;
+
+use Directus\Util\StringUtils;
+
 if (!function_exists('cors_get_allowed_origin')) {
     /**
      * Returns the allowed origin based on the allowed origins list
@@ -21,7 +25,7 @@ if (!function_exists('cors_get_allowed_origin')) {
 
         if (!is_array($allowedOrigins)) {
             if (is_string($allowedOrigins)) {
-                $allowedOrigins = \Directus\Util\StringUtils::csv($allowedOrigins);
+                $allowedOrigins = StringUtils::csv($allowedOrigins);
             } else {
                 $allowedOrigins = [$allowedOrigins];
             }

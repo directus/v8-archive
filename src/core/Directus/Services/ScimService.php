@@ -502,8 +502,8 @@ class ScimService extends AbstractService
         $email = ArrayUtils::get($data, 'email');
         $firstName = ArrayUtils::get($data, 'first_name');
         $lastName = ArrayUtils::get($data, 'last_name');
-        $location = get_url($this->container->get('router')->pathFor('scim_v2_read_user', [
-            'env' => get_api_env_from_request(),
+        $location = \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_user', [
+            'env' => \Directus\get_api_env_from_request(),
             'id' => $externalId
         ]));
 
@@ -555,8 +555,8 @@ class ScimService extends AbstractService
         // $email = ArrayUtils::get($data, 'email');
         // $firstName = ArrayUtils::get($data, 'first_name');
         // $lastName = ArrayUtils::get($data, 'last_name');
-        $location = get_url($this->container->get('router')->pathFor('scim_v2_read_group', [
-            'env' => get_api_env_from_request(),
+        $location = \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_group', [
+            'env' => \Directus\get_api_env_from_request(),
             'id' => $externalId
         ]));
 
@@ -574,8 +574,8 @@ class ScimService extends AbstractService
             $user = $junction['user'];
             return [
                 'value' => ArrayUtils::get($user, 'email'),
-                '$ref' => get_url($this->container->get('router')->pathFor('scim_v2_read_user', [
-                    'env' => get_api_env_from_request(),
+                '$ref' => \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_user', [
+                    'env' => \Directus\get_api_env_from_request(),
                     'id' => ArrayUtils::get($user, 'id')
                 ])),
                 'display' => sprintf(

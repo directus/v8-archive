@@ -93,7 +93,7 @@ class RelationalTableGateway extends BaseTableGateway
                 'action' => DirectusActivityTableGateway::ACTION_DELETE,
                 'user' => $this->acl->getUserId(),
                 'datetime' => DateTimeUtils::nowInUTC()->toString(),
-                'ip' => get_request_ip(),
+                'ip' => \Directus\get_request_ip(),
                 'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                 'collection' => $this->table,
                 'item' => $id,
@@ -296,7 +296,7 @@ class RelationalTableGateway extends BaseTableGateway
                         'action' => $logEntryAction,
                         'user' => $currentUserId,
                         'datetime' => DateTimeUtils::nowInUTC()->toString(),
-                        'ip' => get_request_ip(),
+                        'ip' => \Directus\get_request_ip(),
                         'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                         'collection' => $tableName,
                         'parent_item' => isset($parentData['item']) ? $parentData['item'] : null,
@@ -335,7 +335,7 @@ class RelationalTableGateway extends BaseTableGateway
                             'action' => $logEntryAction,
                             'user' => $currentUserId,
                             'datetime' => DateTimeUtils::nowInUTC()->toString(),
-                            'ip' => get_request_ip(),
+                            'ip' => \Directus\get_request_ip(),
                             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                             'collection' => $tableName,
                             'item' => $rowId,
@@ -668,7 +668,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         // convert csv columns into array
-        $columns = convert_param_columns(ArrayUtils::get($params, 'fields', []));
+        $columns = \Directus\convert_param_columns(ArrayUtils::get($params, 'fields', []));
 
         // Add columns to params if it's not empty.
         // otherwise remove from params
@@ -955,7 +955,7 @@ class RelationalTableGateway extends BaseTableGateway
         // ==========================================================================
         $results = $this->parseRecord($results);
 
-        $columnsDepth = ArrayUtils::deepLevel(get_unflat_columns($fields));
+        $columnsDepth = ArrayUtils::deepLevel(\Directus\get_unflat_columns($fields));
         if ($columnsDepth > 0) {
             $relatedFields = $this->getSelectedRelatedFields($fields);
 
@@ -966,7 +966,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $results = $this->loadRelationalData(
                 $results,
-                get_array_flat_columns($relatedFields),
+                \Directus\get_array_flat_columns($relatedFields),
                 $relationalParams
             );
         }
@@ -974,7 +974,7 @@ class RelationalTableGateway extends BaseTableGateway
         // When the params column list doesn't include the primary key
         // it should be included because each row gateway expects the primary key
         // after all the row gateway are created and initiated it only returns the chosen columns
-        if ($fields && !array_key_exists('*', get_unflat_columns($fields))) {
+        if ($fields && !array_key_exists('*', \Directus\get_unflat_columns($fields))) {
             $visibleColumns = $this->getSelectedFields($fields);
             $results = array_map(function ($entry) use ($visibleColumns) {
                 foreach ($entry as $key => $value) {
@@ -1114,7 +1114,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             // Reverse all the columns from comments.author.id to id.author.comments
             // To filter from the most deep relationship to their parents
-            $columns = explode('.', column_identifier_reverse($column));
+            $columns = explode('.', \Directus\column_identifier_reverse($column));
             $columnsTable = array_reverse($columnsTable, true);
 
             $mainColumn = array_pop($columns);
@@ -1461,7 +1461,7 @@ class RelationalTableGateway extends BaseTableGateway
     protected function processSort(Builder $query, array $columns)
     {
         foreach ($columns as $column) {
-            $compact = compact_sort_to_array($column);
+            $compact = \Directus\compact_sort_to_array($column);
             $orderBy = key($compact);
             $orderDirection = current($compact);
 
@@ -1586,7 +1586,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function loadOneToManyRelationships($entries, $columns, array $params = [])
     {
-        $columnsTree = get_unflat_columns($columns);
+        $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleColumns = $this->getTableSchema()->getFields(array_keys($columnsTree));
         foreach ($visibleColumns as $alias) {
             if (!$alias->isAlias() || !$alias->isOneToMany()) {
@@ -1611,7 +1611,7 @@ class RelationalTableGateway extends BaseTableGateway
             // Only select the fields not on the currently authenticated user group's read field blacklist
             $relationalColumnName = $alias->getRelationship()->getFieldB();
             $tableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
-            $filterFields = get_array_flat_columns($columnsTree[$alias->getName()]);
+            $filterFields = \Directus\get_array_flat_columns($columnsTree[$alias->getName()]);
             $filters = [];
             if (ArrayUtils::get($params, 'lang')) {
                 $langIds = StringUtils::csv(ArrayUtils::get($params, 'lang'));
@@ -1678,7 +1678,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function loadManyToManyRelationships($entries, $columns, array $params = [])
     {
-        $columnsTree = get_unflat_columns($columns);
+        $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleFields = $this->getTableSchema()->getFields(array_keys($columnsTree));
 
         foreach ($visibleFields as $alias) {
@@ -1709,7 +1709,7 @@ class RelationalTableGateway extends BaseTableGateway
             $selectedFields = null;
             $fields = $columnsTree[$alias->getName()];
             if ($fields) {
-                $selectedFields = get_array_flat_columns($fields);
+                $selectedFields = \Directus\get_array_flat_columns($fields);
                 array_unshift($selectedFields, $junctionPrimaryKey);
             }
 
@@ -1761,7 +1761,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function loadManyToOneRelationships($entries, $columns, array $params = [])
     {
-        $columnsTree = get_unflat_columns($columns);
+        $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleColumns = $this->getTableSchema()->getFields(array_keys($columnsTree));
         foreach ($visibleColumns as $column) {
             if (!$column->isManyToOne()) {
@@ -1820,7 +1820,7 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
-            $filterColumns = get_array_flat_columns($columnsTree[$column->getName()]);
+            $filterColumns = \Directus\get_array_flat_columns($columnsTree[$column->getName()]);
             // Fetch the foreign data
             $results = $tableGateway->fetchItems(array_merge([
                 // Fetch all related data
@@ -1918,7 +1918,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function getSelectedRelatedFields(array $fields)
     {
-        $fieldsLevel = get_unflat_columns($fields);
+        $fieldsLevel = \Directus\get_unflat_columns($fields);
 
         foreach ($fieldsLevel as $parent => $children) {
             if ($parent === '*') {
@@ -1957,7 +1957,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     protected function replaceWildcardFieldWith(array $fields, array $replacementFields)
     {
-        $selectedNames = get_columns_flat_at($fields, 0);
+        $selectedNames = \Directus\get_columns_flat_at($fields, 0);
         // remove duplicate field name
         $selectedNames = array_unique($selectedNames);
 
