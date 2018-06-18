@@ -4,7 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
-use Directus\Exception\BadRequestException;
+use Directus\Exception\UnprocessableEntity;
 use Directus\Util\ArrayUtils;
 
 class ScimService extends AbstractService
@@ -110,12 +110,12 @@ class ScimService extends AbstractService
      * @param array $params
      * @return array
      *
-     * @throws BadRequestException
+     * @throws UnprocessableEntity
      */
     public function findUser($id, array $params = [])
     {
         if (empty($id)) {
-            throw new BadRequestException('id cannot be empty');
+            throw new UnprocessableEntity('id cannot be empty');
         }
 
         $userData = $this->usersService->findOne(
@@ -135,12 +135,12 @@ class ScimService extends AbstractService
      * @param array $params
      * @return array
      *
-     * @throws BadRequestException
+     * @throws UnprocessableEntity
      */
     public function findGroup($id, array $params = [])
     {
         if (empty($id)) {
-            throw new BadRequestException('id cannot be empty');
+            throw new UnprocessableEntity('id cannot be empty');
         }
 
         $roleData = $this->rolesService->findOne(
@@ -257,7 +257,7 @@ class ScimService extends AbstractService
      *
      * @return array
      *
-     * @throws BadRequestException
+     * @throws UnprocessableEntity
      */
     protected function getFilter($resourceType, $filter)
     {
@@ -266,20 +266,20 @@ class ScimService extends AbstractService
         }
 
         if (!is_string($filter)) {
-            throw new BadRequestException('Filter must be a string');
+            throw new UnprocessableEntity('Filter must be a string');
         }
 
         $filterParts = preg_split('/\s+/', $filter);
 
         if (count($filterParts) !== 3) {
-            throw new BadRequestException('Filter must be: <attribute> <operator> <value>');
+            throw new UnprocessableEntity('Filter must be: <attribute> <operator> <value>');
         }
 
         $attribute = $filterParts[0];
         $operator = $filterParts[1];
         $value = trim($filterParts[2], '"');
         if (!$this->isOperatorSupported($operator)) {
-            throw new BadRequestException(
+            throw new UnprocessableEntity(
                 sprintf('Unsupported operator "%s"', $operator)
             );
         }
@@ -297,7 +297,7 @@ class ScimService extends AbstractService
      *
      * @return string
      *
-     * @throws BadRequestException
+     * @throws UnprocessableEntity
      */
     public function convertFilterAttribute($resourceType, $attribute)
     {
@@ -305,7 +305,7 @@ class ScimService extends AbstractService
         $mapping = ArrayUtils::get($resourcesMapping, $resourceType, []);
 
         if (!array_key_exists($attribute, $mapping)) {
-            throw new BadRequestException(
+            throw new UnprocessableEntity(
                 sprintf('Unknown attribute "%s"', $attribute)
             );
         }

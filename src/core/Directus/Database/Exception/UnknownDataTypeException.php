@@ -2,10 +2,9 @@
 
 namespace Directus\Database\Exception;
 
-use Directus\Exception\BadRequestExceptionInterface;
-use Directus\Exception\Exception;
+use Directus\Exception\UnprocessableEntity;
 
-class UnknownDataTypeException extends Exception implements BadRequestExceptionInterface
+class UnknownDataTypeException extends UnprocessableEntity
 {
     const ERROR_CODE = 401;
 

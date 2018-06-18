@@ -111,6 +111,8 @@ The `error` property is only present when an error has occurred.
 - **0304** - Reading field denied (403)
 - **0305** - Writing to field denied (403)
 - **0306** - Altering collection was denied (403)
+- **0307** - Collection already exists (422)
+- **0308** - Field already exists (422)
 
 #### Schema error codes
 

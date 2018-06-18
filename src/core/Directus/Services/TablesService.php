@@ -19,10 +19,9 @@ use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Database\TableGateway\RelationalTableGateway;
-use Directus\Exception\BadRequestException;
 use Directus\Exception\ErrorException;
-use Directus\Exception\ForbiddenException;
 use Directus\Exception\UnauthorizedException;
+use Directus\Exception\UnprocessableEntity;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
@@ -235,7 +234,7 @@ class TablesService extends AbstractService
      * @throws InvalidRequestException
      * @throws CollectionAlreadyExistsException
      * @throws UnauthorizedException
-     * @throws BadRequestException
+     * @throws UnprocessableEntity
      */
     public function createTable($name, array $data = [], array $params = [])
     {
@@ -274,19 +273,19 @@ class TablesService extends AbstractService
         }
 
         if (!$this->hasPrimaryField($data['fields'])) {
-            throw new BadRequestException('Collection does not have a primary key field.');
+            throw new UnprocessableEntity('Collection does not have a primary key field.');
         }
 
         if (!$this->hasUniquePrimaryField($data['fields'])) {
-            throw new BadRequestException('Collection must only have one primary key field.');
+            throw new UnprocessableEntity('Collection must only have one primary key field.');
         }
 
         if (!$this->hasUniqueAutoIncrementField($data['fields'])) {
-            throw new BadRequestException('Collection must only have one auto increment field.');
+            throw new UnprocessableEntity('Collection must only have one auto increment field.');
         }
 
         if (!$this->hasUniqueFieldsName($data['fields'])) {
-            throw new BadRequestException('Collection fields name must be unique.');
+            throw new UnprocessableEntity('Collection fields name must be unique.');
         }
 
         if ($collection && !$collection->isManaged()) {
@@ -634,7 +633,7 @@ class TablesService extends AbstractService
         }
 
         if (count($tableObject->getFields()) === 1) {
-            throw new BadRequestException('Cannot delete the last field');
+            throw new UnprocessableEntity('Cannot delete the last field');
         }
 
         if (!$columnObject->isAlias()) {

@@ -6,7 +6,6 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Exception\Http\BadRequestException;
 use Directus\Services\RelationsService;
 
 class Relations extends Route
@@ -69,8 +68,6 @@ class Relations extends Route
      * @param Response $response
      *
      * @return Response
-     *
-     * @throws BadRequestException
      */
     public function read(Request $request, Response $response)
     {
@@ -88,8 +85,6 @@ class Relations extends Route
      * @param Response $response
      *
      * @return Response
-     *
-     * @throws BadRequestException
      */
     public function update(Request $request, Response $response)
     {
@@ -119,8 +114,6 @@ class Relations extends Route
      * @param Response $response
      *
      * @return Response
-     *
-     * @throws BadRequestException
      */
     public function delete(Request $request, Response $response)
     {
@@ -143,8 +136,6 @@ class Relations extends Route
      * @param Response $response
      *
      * @return Response
-     *
-     * @throws \Exception
      */
     protected function batch(Request $request, Response $response)
     {
