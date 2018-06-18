@@ -109,23 +109,17 @@ class CoreServicesProvider
                 $path = $config->get('settings.logger.path');
             }
 
-            $handler = new StreamHandler(
-                $path . '/debug.' . date('Y-m') . '.log',
-                Logger::DEBUG,
-                false
-            );
+            $filenameFormat = '%s.%s.log';
+            foreach (Logger::getLevels() as $level => $name) {
+                $handler = new StreamHandler(
+                    $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d')),
+                    $level,
+                    false
+                );
 
-            $handler->setFormatter($formatter);
-            $logger->pushHandler($handler);
-
-            $handler = new StreamHandler(
-                $path . '/error.' . date('Y-m') . '.log',
-                Logger::CRITICAL,
-                false
-            );
-
-            $handler->setFormatter($formatter);
-            $logger->pushHandler($handler);
+                $handler->setFormatter($formatter);
+                $logger->pushHandler($handler);
+            }
 
             return $logger;
         };

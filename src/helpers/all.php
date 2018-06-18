@@ -1109,6 +1109,21 @@ if (!function_exists('find_json_files')) {
     }
 }
 
+if (!function_exists('find_log_files')) {
+    /**
+     * Find .log files in the given path
+     *
+     * @param string $paths
+     * @param bool|int $includeSubDirectories
+     *
+     * @return array
+     */
+    function find_log_files($paths, $includeSubDirectories = false)
+    {
+        return find_files($paths, 0, '*.log', $includeSubDirectories);
+    }
+}
+
 if (!function_exists('find_php_files')) {
     /**
      * Find PHP files in the given path
