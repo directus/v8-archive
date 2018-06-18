@@ -34,6 +34,7 @@ use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
+use function Directus\get_api_env_from_request;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -110,7 +111,7 @@ class CoreServicesProvider
             }
 
             $filenameFormat = '%s.%s.log';
-            foreach (Logger::getLevels() as $level => $name) {
+            foreach (Logger::getLevels() as $name => $level) {
                 $handler = new StreamHandler(
                     $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d')),
                     $level,
