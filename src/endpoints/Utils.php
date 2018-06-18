@@ -30,14 +30,14 @@ class Utils extends Route
     {
         $service = new UtilsService($this->container);
 
-        $options = $request->getParam('options', []);
+        $options = $request->getParsedBodyParam('options', []);
         if (!is_array($options)) {
             $options = [$options];
         }
 
         $responseData = $service->hashString(
-            $request->getParam('string'),
-            $request->getParam('hasher', 'core'),
+            $request->getParsedBodyParam('string'),
+            $request->getParsedBodyParam('hasher', 'core'),
             $options
         );
 
@@ -54,15 +54,15 @@ class Utils extends Route
     {
         $service = new UtilsService($this->container);
 
-        $options = $request->getParam('options', []);
+        $options = $request->getParsedBodyParam('options', []);
         if (!is_array($options)) {
             $options = [$options];
         }
 
         $responseData = $service->verifyHashString(
-            $request->getParam('string'),
-            $request->getParam('hash'),
-            $request->getParam('hasher', 'core'),
+            $request->getParsedBodyParam('string'),
+            $request->getParsedBodyParam('hash'),
+            $request->getParsedBodyParam('hasher', 'core'),
             $options
         );
 
