@@ -74,6 +74,7 @@ The `error` property is only present when an error has occurred.
 - **0009** - Failed generating a SQL Query (500)
 - **0010** - Forbidden (403)
 - **0011** - Failed to connect to the database (500)
+- **0012** - Unprocessable Entity (422)
 
 #### Authentication error codes
 
