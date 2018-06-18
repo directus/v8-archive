@@ -62,6 +62,7 @@ class Activity extends Route
      */
     public function createComment(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new ActivityService($this->container);
         $responseData = $service->createComment(
             $request->getParsedBody() ?: [],
@@ -79,6 +80,7 @@ class Activity extends Route
      */
     public function updateComment(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new ActivityService($this->container);
         $responseData = $service->updateComment(
             $request->getAttribute('id'),

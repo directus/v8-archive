@@ -44,6 +44,7 @@ class ScimTwo extends Route
      */
     public function createUser(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = $this->getService();
         $response->setHeader('Content-Type', 'application/scim+json');
 
@@ -64,6 +65,7 @@ class ScimTwo extends Route
      */
     public function createGroup(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = $this->getService();
         $response->setHeader('Content-Type', 'application/scim+json');
 
@@ -84,6 +86,7 @@ class ScimTwo extends Route
      */
     public function updateUser(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = $this->getService();
         $response->setHeader('Content-Type', 'application/scim+json');
 
@@ -103,6 +106,7 @@ class ScimTwo extends Route
      */
     public function updateGroup(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = $this->getService();
         $response->setHeader('Content-Type', 'application/scim+json');
 

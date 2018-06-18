@@ -60,6 +60,7 @@ class Users extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new UsersService($this->container);
         $responseData = $service->create(
             $request->getParsedBody(),
@@ -94,6 +95,7 @@ class Users extends Route
      */
     public function invite(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new UsersService($this->container);
 
         $email = $request->getParsedBodyParam('email');
@@ -115,6 +117,7 @@ class Users extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new UsersService($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),
@@ -189,6 +192,7 @@ class Users extends Route
      */
     public function trackPage(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new UsersService($this->container);
         $responseData = $service->updateLastPage(
             $request->getAttribute('id'),

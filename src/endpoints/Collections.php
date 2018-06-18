@@ -34,6 +34,7 @@ class Collections extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $tableService = new TablesService($this->container);
         $payload = $request->getParsedBody();
         $params = $request->getQueryParams();
@@ -86,6 +87,7 @@ class Collections extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new TablesService($this->container);
         $responseData = $service->updateTable(
             $request->getAttribute('name'),

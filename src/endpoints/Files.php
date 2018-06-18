@@ -52,6 +52,7 @@ class Files extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new FilesServices($this->container);
         $uploadedFiles = $request->getUploadedFiles();
         $payload = $request->getParsedBody();
@@ -109,6 +110,7 @@ class Files extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new FilesServices($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),
@@ -154,6 +156,7 @@ class Files extends Route
      */
     public function createFolder(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new FilesServices($this->container);
         $responseData = $service->createFolder(
             $request->getParsedBody(),
@@ -188,6 +191,7 @@ class Files extends Route
      */
     public function updateFolder(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new FilesServices($this->container);
         $responseData = $service->updateFolder(
             $request->getAttribute('id'),

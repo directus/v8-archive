@@ -75,6 +75,7 @@ The `error` property is only present when an error has occurred.
 - **0010** - Forbidden (403)
 - **0011** - Failed to connect to the database (500)
 - **0012** - Unprocessable Entity (422)
+- **0013** - Invalid or Empty Payload (400)
 
 #### Authentication error codes
 

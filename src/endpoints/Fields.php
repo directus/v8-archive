@@ -45,6 +45,7 @@ class Fields extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new TablesService($this->container);
         $payload = $request->getParsedBody();
         $field = ArrayUtils::pull($payload, 'field');
@@ -95,6 +96,7 @@ class Fields extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new TablesService($this->container);
         $field = $request->getAttribute('field');
         $payload = $request->getParsedBody();

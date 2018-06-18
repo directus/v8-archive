@@ -69,6 +69,7 @@ class CollectionPresets extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new CollectionPresetsService($this->container);
         $responseData = $service->createItem(
             $request->getParsedBody(),
@@ -86,6 +87,7 @@ class CollectionPresets extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new CollectionPresetsService($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),

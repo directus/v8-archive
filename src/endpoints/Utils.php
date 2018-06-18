@@ -28,6 +28,7 @@ class Utils extends Route
      */
     public function hash(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new UtilsService($this->container);
 
         $options = $request->getParsedBodyParam('options', []);
@@ -52,6 +53,7 @@ class Utils extends Route
      */
     public function matchHash(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new UtilsService($this->container);
 
         $options = $request->getParsedBodyParam('options', []);
@@ -77,6 +79,7 @@ class Utils extends Route
      */
     public function randomString(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new UtilsService($this->container);
         $responseData = $service->randomString(
             $request->getParsedBodyParam('length', 32),

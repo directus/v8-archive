@@ -4,6 +4,8 @@ namespace Directus\Application;
 
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
+use Directus\Exception\BadRequestException;
+use Directus\Exception\InvalidPayloadException;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Validator;
@@ -136,5 +138,20 @@ abstract class Route
         // This event can guess/change the output from json to xml
 
         return $response->withJson($data);
+    }
+
+    /**
+     * Throws exception when request payload is invalid
+     *
+     * @param Request $request
+     *
+     * @throws BadRequestException
+     */
+    public function validateRequestPayload(Request $request)
+    {
+        $payload = $request->getParsedBody();
+        if ($payload === null) {
+            throw new InvalidPayloadException();
+        }
     }
 }

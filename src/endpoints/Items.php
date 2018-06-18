@@ -56,6 +56,7 @@ class Items extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $payload = $request->getParsedBody();
         if (isset($payload[0]) && is_array($payload[0])) {
             return $this->batch($request, $response);
@@ -112,6 +113,7 @@ class Items extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $itemsService = new ItemsService($this->container);
         $collection = $request->getAttribute('collection');
         $itemsService->throwErrorIfSystemTable($collection);

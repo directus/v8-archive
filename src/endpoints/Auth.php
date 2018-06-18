@@ -42,6 +42,7 @@ class Auth extends Route
      */
     public function authenticate(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
 
@@ -63,6 +64,7 @@ class Auth extends Route
      */
     public function forgotPassword(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
 

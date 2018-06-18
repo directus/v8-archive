@@ -28,6 +28,7 @@ class Permissions extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new PermissionsService($this->container);
         $responseData = $service->create(
             $request->getParsedBody(),
@@ -62,6 +63,7 @@ class Permissions extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new PermissionsService($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),

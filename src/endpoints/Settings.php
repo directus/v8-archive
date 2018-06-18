@@ -33,6 +33,7 @@ class Settings extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new SettingsService($this->container);
         $responseData = $service->create(
             $request->getParsedBody(),
@@ -83,6 +84,7 @@ class Settings extends Route
      */
     public function update(Request $request, Response $response)
     {
+        $this->validateRequestPayload($request);
         $service = new SettingsService($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),
