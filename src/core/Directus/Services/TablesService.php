@@ -93,9 +93,18 @@ class TablesService extends AbstractService
 
         $tableGateway = $this->createTableGateway($this->collection);
 
-        return $tableGateway->getItems(array_merge($params, [
+        $result = $tableGateway->getItems(array_merge($params, [
             'id' => $name
         ]));
+
+        $newData = $this->mergeSchemaCollection($name, $result['data']);
+        if (!$newData) {
+            throw new CollectionNotFoundException($name);
+        }
+
+        $result['data'] = $newData;
+
+        return $result;
     }
 
     public function findByIds($name, array $params = [])
@@ -112,6 +121,10 @@ class TablesService extends AbstractService
             $data = $this->mergeSchemaCollection($name, []);
 
             $result = $tableGateway->wrapData($data, true, ArrayUtils::get($params, 'meta'));
+        }
+
+        if ($result['data'] === null) {
+            throw new CollectionNotFoundException($name);
         }
 
         return $result;
@@ -1142,11 +1155,17 @@ class TablesService extends AbstractService
 
     protected function mergeSchemaCollections(array $collectionsData)
     {
-        foreach ($collectionsData as &$collectionData) {
-            $collectionData = $this->mergeSchemaCollection($collectionData['collection'], $collectionData);
+        $newCollectionsData = [];
+        foreach ($collectionsData as $collectionData) {
+            $newData = $this->mergeSchemaCollection($collectionData['collection'], $collectionData);
+
+            // if null the actual table doesn't exists
+            if ($newData) {
+                $newCollectionsData[] = $newData;
+            }
         }
 
-        return $collectionsData;
+        return $newCollectionsData;
     }
 
     /**
@@ -1242,9 +1261,16 @@ class TablesService extends AbstractService
      */
     protected function mergeSchemaCollection($collectionName, array $collectionData)
     {
-        /** @var SchemaManager $schemaManager */
-        $schemaManager = $this->container->get('schema_manager');
-        $collection = $schemaManager->getCollection($collectionName);
+        try {
+            /** @var SchemaManager $schemaManager */
+            $schemaManager = $this->container->get('schema_manager');
+            $collection = $schemaManager->getCollection($collectionName);
+        } catch (CollectionNotFoundException $e) {
+            $this->container->get('logger')->warning($e);
+
+            return null;
+        }
+
         $tableGateway = $this->getCollectionsTableGateway();
         $attributesName = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed']);
 
