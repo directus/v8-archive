@@ -3,6 +3,7 @@
 namespace Directus;
 
 use Directus\Application\Application;
+use Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Collection\Collection;
@@ -15,14 +16,16 @@ if (!function_exists('create_app'))  {
      *
      * @param string $basePath
      * @param array $config
+     * @param array $values
      *
      * @return \Directus\Application\Application
      */
-    function create_app($basePath, array $config)
+    function create_app($basePath, array $config, array $values = [])
     {
         return new Application(
             $basePath,
-            $config
+            $config,
+            $values
         );
     }
 }
@@ -33,12 +36,13 @@ if (!function_exists('create_app_with_env')) {
      *
      * @param $basePath
      * @param $env
+     * @param array $values
      *
      * @return \Directus\Application\Application
      *
      * @throws Exception
      */
-    function create_app_with_env($basePath, $env)
+    function create_app_with_env($basePath, $env, array $values = [])
     {
         $configPath = $basePath . '/config';
         $configFilePath = $configPath . '/api.php';
@@ -108,16 +112,44 @@ if (!function_exists('create_ping_server')) {
      *
      * @param string $basePath
      * @param array $config
+     * @param array $values
      *
      * @return Application
      */
-    function create_ping_server($basePath, array $config = [])
+    function create_ping_server($basePath, array $config = [], array $values = [])
     {
         $app = create_app($basePath, array_merge([
             'app' => [
                 'env' => 'production'
             ]
-        ], $config));
+        ], $config), $values);
+
+        create_ping_route($app);
+
+        return $app;
+    }
+}
+
+if (!function_exists('create_default_app')) {
+    /**
+     * Creates a simple app
+     *
+     * @param string $basePath
+     * @param array $config
+     *
+     * @return Application
+     */
+    function create_default_app($basePath, array $config = [])
+    {
+        $values['notFoundHandler'] = function () {
+            return new NotInstalledNotFoundHandler();
+        };
+
+        $app = create_app($basePath, array_merge([
+            'app' => [
+                'env' => 'production'
+            ]
+        ], $config), $values);
 
         create_ping_route($app);
 

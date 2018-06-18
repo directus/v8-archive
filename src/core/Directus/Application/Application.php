@@ -48,10 +48,17 @@ class Application extends App
      *
      * @param string $basePath
      * @param array $config
+     * @param array $values
      */
-    public function __construct($basePath, array $config = [])
+    public function __construct($basePath, array $config = [], array $values = [])
     {
         $container = $this->createConfig($config);
+
+        // Set container dependencies before adding the defaults
+        foreach ($values as $key => $value) {
+            $container[$key] = $value;
+        }
+
         $container = new Container($container);
 
         static::$instance = $this;

@@ -9,7 +9,7 @@ require $basePath . '/vendor/autoload.php';
 // Creates a simple endpoint to test the server rewriting
 // If the server responds "pong" it means the rewriting works
 if (!file_exists($configFilePath)) {
-    return \Directus\create_ping_server($basePath);
+    return \Directus\create_default_app($basePath);
 }
 
 // Get Environment name
