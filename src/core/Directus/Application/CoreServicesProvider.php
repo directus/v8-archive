@@ -99,7 +99,7 @@ class CoreServicesProvider
          * @return Logger
          */
         $logger = function ($container) {
-            $logger = new Logger('app');
+            $logger = new Logger(sprintf('api[%s]', get_api_env_from_request()));
             $formatter = new LineFormatter();
             $formatter->allowInlineLineBreaks();
             $formatter->includeStacktraces();
