@@ -6,9 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Services\ScimService;
-use Directus\Util\ArrayUtils;
 
 class ScimTwo extends Route
 {

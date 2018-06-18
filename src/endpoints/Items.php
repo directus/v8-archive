@@ -6,8 +6,6 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
-use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\Http\BadRequestException;
 use Directus\Services\ItemsService;
 use Directus\Services\RevisionsService;

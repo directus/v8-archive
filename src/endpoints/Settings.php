@@ -6,10 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\TableGateway\DirectusSettingsTableGateway;
-use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Services\SettingsService;
-use Directus\Util\ArrayUtils;
 
 class Settings extends Route
 {

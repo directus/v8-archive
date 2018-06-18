@@ -10,7 +10,6 @@ use function Directus\array_get;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
-use Directus\Session\Session;
 use Directus\Util\ArrayUtils;
 
 class Auth extends Route

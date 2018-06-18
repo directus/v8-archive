@@ -2,18 +2,12 @@
 
 namespace Directus\Api\Routes;
 
-use Directus\Api\Services\PreferencesService;
 use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\RowGateway\BaseRowGateway;
-use Directus\Database\TableGateway\DirectusCollectionPresetsTableGateway;
-use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Services\CollectionPresetsService;
 use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
-use Zend\Db\RowGateway\RowGateway;
 
 class CollectionPresets extends Route
 {
