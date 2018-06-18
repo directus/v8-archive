@@ -128,6 +128,19 @@ class ActivityService extends AbstractService
         return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $id, $params);
     }
 
+    /**
+     * Gets a single or multiple activity
+     *
+     * @param mixed $ids
+     * @param array $params
+     *
+     * @return array
+     */
+    public function findByIds($ids, array $params = [])
+    {
+        return $this->itemsService->findByIds($this->collection, $ids, $params);
+    }
+
     public function findAll(array $params = [])
     {
         $tableGateway = $this->getTableGateway();
