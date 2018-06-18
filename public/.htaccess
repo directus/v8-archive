@@ -1,0 +1,36 @@
+# Comment this line if you are getting: "Option SymLinksIfOwnerMatch not allowed here" error
+# in Apache
+Options +SymLinksIfOwnerMatch
+
+<ifModule mod_rewrite.c>
+    RewriteEngine On
+    # Uncomment this if you are getting routing errors:
+    # RewriteBase /api
+
+    RewriteRule .* - [env=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Yield static media
+    RewriteCond %{REQUEST_FILENAME} !-f
+
+    # Map extension requests to their front controller
+    # RewriteRule ^extensions/([^/]+) index.php?run_extension=$1&%{QUERY_STRING} [L]
+
+    # Map all other requests to the main front controller, invoking the API router
+    RewriteRule ^ index.php?%{QUERY_STRING} [L]
+</ifModule>
+
+<IfModule mod_headers.c>
+    # Set CORS header for static files
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+<ifModule mod_php5.c>
+    # Fix $HTTP_RAW_POST_DATA deprecated warning
+    php_value always_populate_raw_post_data -1
+</ifModule>
+
+# Prevent PageSpeed module from rewriting the templates files
+# Avoiding it from breaking the template
+# <IfModule pagespeed_module>
+#     ModPagespeedDisallow "*/app/**/*.twig"
+# </IfModule>
