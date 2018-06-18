@@ -2,6 +2,8 @@
 
 namespace Directus\Mail;
 
+use function Directus\get_api_env_from_request;
+
 class Mailer
 {
     /**
@@ -50,7 +52,7 @@ class Mailer
 
         $content = \Directus\parse_twig($view, array_merge(
             $data,
-            ['api' => ['env' => get_api_env()]]
+            ['api' => ['env' => get_api_env_from_request()]]
         ));
 
         $message->setBody($content, 'text/html');
