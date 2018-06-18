@@ -72,7 +72,7 @@ class Auth extends Route
                 $request->getParsedBodyParam('email')
             );
         } catch (\Exception $e) {
-            $this->container->get('logger')->error($exception);
+            $this->container->get('logger')->error($e);
         }
 
         $responseData = [];
