@@ -65,6 +65,11 @@ class CreateCollectionsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $table->addColumn('icon', 'string', [
+            'limit' => 20,
+            'null' => true,
+            'default' => null
+        ]);
 
         $table->create();
     }
