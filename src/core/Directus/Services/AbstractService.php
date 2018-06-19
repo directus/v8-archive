@@ -393,6 +393,8 @@ abstract class AbstractService
             }
         }
 
+        $unknownFields = array_diff($unknownFields, $this->unknownFieldsAllowed());
+
         if (!empty($unknownFields)) {
             throw new UnprocessableEntityException(
                 sprintf('Payload fields: "%s" does not exists in "%s" collection.', implode(', ', $unknownFields), $collectionName)
@@ -462,5 +464,15 @@ abstract class AbstractService
 
         // Enforce write field blacklist
         $this->getAcl()->enforceWriteField($collection, array_keys($payload), $status);
+    }
+
+    /**
+     * A list of unknown attributes allowed to pass the "unknown field" validation
+     *
+     * @return array
+     */
+    protected function unknownFieldsAllowed()
+    {
+        return [];
     }
 }

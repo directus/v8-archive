@@ -1256,6 +1256,14 @@ class TablesService extends AbstractService
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function unknownFieldsAllowed()
+    {
+        return ['default_value'];
+    }
+
+    /**
      * Parses Collection Schema Attributes into Directus Attributes
      *
      * @param string $collectionName
