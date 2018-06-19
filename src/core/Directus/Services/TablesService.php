@@ -1235,7 +1235,8 @@ class TablesService extends AbstractService
     protected function mergeSchemaField(Field $field, array $fieldData = [])
     {
         $tableGateway = $this->getFieldsTableGateway();
-        $fieldsAttributes = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed']);
+        $attributeWhitelist = ['managed', 'default_value'];
+        $fieldsAttributes = array_merge($tableGateway->getTableSchema()->getFieldsName(), $attributeWhitelist);
 
         $data = ArrayUtils::pick(
             array_merge($field->toArray(), $fieldData),
