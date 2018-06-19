@@ -34,6 +34,7 @@ use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
+use function Directus\generate_uui4;
 use function Directus\get_api_env_from_request;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
@@ -587,20 +588,18 @@ class CoreServicesProvider
 
                 return $payload;
             });
+            $generateExternalId = function (Payload $payload) {
+                // generate an external id if none is passed
+                if (!$payload->get('external_id')) {
+                    $payload->set('external_id', generate_uui4());
+                }
+
+                return $payload;
+            };
             $emitter->addFilter('collection.insert.directus_users:before', $hashUserPassword);
             $emitter->addFilter('collection.update.directus_users:before', $hashUserPassword);
-            $emitter->addFilter('collection.insert.directus_users:before', function (Payload $payload) {
-                // generate an external id if none is passed
-                $payload->set('external_id', uniqid($payload->get('email') . '-'));
-
-                return $payload;
-            });
-            $emitter->addFilter('collection.insert.directus_roles:before', function (Payload $payload) {
-                // generate an external id if none is passed
-                $payload->set('external_id', uniqid($payload->get('name') . '-'));
-
-                return $payload;
-            });
+            $emitter->addFilter('collection.insert.directus_users:before', $generateExternalId);
+            $emitter->addFilter('collection.insert.directus_roles:before', $generateExternalId);
             // Hash value to any non system table password interface column
             $emitter->addFilter('collection.insert:before', $onInsertOrUpdate);
             $emitter->addFilter('collection.update:before', $onInsertOrUpdate);
