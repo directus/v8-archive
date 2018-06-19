@@ -21,7 +21,7 @@ use Directus\Database\TableGatewayFactory;
 use Directus\Database\SchemaService;
 use Directus\Exception\Exception;
 use Directus\Filesystem\Files;
-use Directus\Filesystem\Thumbnail;
+use function Directus\get_directus_setting;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
@@ -1624,5 +1624,15 @@ class BaseTableGateway extends TableGateway
                 throw new StatusMappingWrongValueTypeException($type, $statusField->getName(), $this->table);
             }
         }
+    }
+
+    /**
+     * Checks whether or not null should be sorted last
+     *
+     * @return bool
+     */
+    protected function shouldNullSortedLast()
+    {
+        return (bool) get_directus_setting('global', 'sort_null_last', true);
     }
 }

@@ -1469,7 +1469,7 @@ class RelationalTableGateway extends BaseTableGateway
                 throw new Exception\InvalidFieldException($column);
             }
 
-            $query->orderBy($orderBy, $orderDirection);
+            $query->orderBy($orderBy, $orderDirection, $this->shouldNullSortedLast());
         }
     }
 

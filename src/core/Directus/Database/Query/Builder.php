@@ -424,14 +424,18 @@ class Builder
     /**
      * Order the query by the given table
      *
-     * @param $column
+     * @param string $column
      * @param string $direction
+     * @param bool $nullLast
      *
      * @return Builder
      */
-    public function orderBy($column, $direction = 'ASC')
+    public function orderBy($column, $direction = 'ASC', $nullLast = false)
     {
-        $this->order[(string) $column] = (string) $direction;
+        $this->order[(string) $column] = [
+            (string) $direction,
+            (bool) $nullLast
+        ];
 
         return $this;
     }
@@ -703,7 +707,19 @@ class Builder
     protected function buildOrder()
     {
         $order = [];
-        foreach($this->getOrder() as $orderBy => $orderDirection) {
+        foreach ($this->getOrder() as $orderBy => $options) {
+            if (is_array($options)) {
+                $orderDirection = array_shift($options);
+                $nullLast = array_shift($options);
+            } else {
+                $orderDirection = $options;
+                $nullLast = false;
+            }
+
+            if ($nullLast === true) {
+                $order[] = new IsNull($this->getIdentifier($orderBy));
+            }
+
             if ($orderBy === '?') {
                 $expression = new Expression('RAND()');
             } else {
