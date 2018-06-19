@@ -2,9 +2,9 @@
 
 namespace Directus\Database\Exception;
 
-use Directus\Exception\UnprocessableEntity;
+use Directus\Exception\UnprocessableEntityException;
 
-class InvalidFieldException extends UnprocessableEntity
+class InvalidFieldException extends UnprocessableEntityException
 {
     const ERROR_CODE = 202;
 

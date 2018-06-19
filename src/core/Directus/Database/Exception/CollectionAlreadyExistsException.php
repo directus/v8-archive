@@ -2,9 +2,9 @@
 
 namespace Directus\Database\Exception;
 
-use Directus\Exception\UnprocessableEntity;
+use Directus\Exception\UnprocessableEntityException;
 
-class CollectionAlreadyExistsException extends UnprocessableEntity
+class CollectionAlreadyExistsException extends UnprocessableEntityException
 {
     const ERROR_CODE = 307;
 

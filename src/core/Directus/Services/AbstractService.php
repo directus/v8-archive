@@ -8,7 +8,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Exception\ForbiddenException;
-use Directus\Exception\UnprocessableEntity;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
 use Directus\Permissions\Acl;
@@ -96,7 +96,7 @@ abstract class AbstractService
      * @param array $data
      * @param array $constraints
      *
-     * @throws UnprocessableEntity
+     * @throws UnprocessableEntityException
      */
     public function validate(array $data, array $constraints)
     {
@@ -147,7 +147,7 @@ abstract class AbstractService
      *
      * @param ConstraintViolationList[] $violations
      *
-     * @throws UnprocessableEntity
+     * @throws UnprocessableEntityException
      */
     protected function throwErrorIfAny(array $violations)
     {
@@ -326,7 +326,7 @@ abstract class AbstractService
      * @param array $payload
      * @param array $params
      *
-     * @throws UnprocessableEntity
+     * @throws UnprocessableEntityException
      */
     protected function validatePayload($collectionName, $fields, array $payload, array $params)
     {
@@ -335,7 +335,7 @@ abstract class AbstractService
         $hasPrimaryKeyData = ArrayUtils::has($payload, $collection->getPrimaryKeyName());
 
         if ($payloadCount === 0 || ($hasPrimaryKeyData && count($payload) === 1)) {
-            throw new UnprocessableEntity('Payload cannot be empty');
+            throw new UnprocessableEntityException('Payload cannot be empty');
         }
 
         $columnsToValidate = [];
@@ -362,7 +362,7 @@ abstract class AbstractService
      * @param $collectionName
      * @param array $payload
      *
-     * @throws UnprocessableEntity
+     * @throws UnprocessableEntityException
      */
     protected function validatePayloadHasPrimaryKey($collectionName, array $payload)
     {
@@ -370,7 +370,7 @@ abstract class AbstractService
         $primaryKey = $collection->getPrimaryKeyName();
 
         if (!ArrayUtils::has($payload, $primaryKey) || !$payload[$primaryKey]) {
-            throw new UnprocessableEntity('Payload must include the primary key');
+            throw new UnprocessableEntityException('Payload must include the primary key');
         }
     }
 
@@ -380,7 +380,7 @@ abstract class AbstractService
      * @param string $collectionName
      * @param array $payload
      *
-     * @throws UnprocessableEntity
+     * @throws UnprocessableEntityException
      */
     protected function validatePayloadFields($collectionName, array $payload)
     {
@@ -394,7 +394,7 @@ abstract class AbstractService
         }
 
         if (!empty($unknownFields)) {
-            throw new UnprocessableEntity(
+            throw new UnprocessableEntityException(
                 sprintf('Payload fields: "%s" does not exists in "%s" collection.', implode(', ', $unknownFields), $collectionName)
             );
         }
@@ -406,7 +406,7 @@ abstract class AbstractService
      * @param string $collectionName
      * @param array $payload
      *
-     * @throws UnprocessableEntity
+     * @throws UnprocessableEntityException
      */
     protected function validatePayloadWithFieldsValidation($collectionName, array $payload)
     {
@@ -421,7 +421,7 @@ abstract class AbstractService
 
             if ($validation = $field->getValidation()) {
                 if (!\Directus\is_valid_regex_pattern($validation)) {
-                    throw new UnprocessableEntity(
+                    throw new UnprocessableEntityException(
                         sprintf('Field "%s": "%s" is an invalid regular expression', $fieldName, $validation)
                     );
                 }

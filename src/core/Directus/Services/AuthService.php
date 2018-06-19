@@ -16,7 +16,7 @@ use Directus\Authentication\Sso\TwoSocialProvider;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Exception\UnauthorizedException;
-use Directus\Exception\UnprocessableEntity;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
@@ -394,7 +394,7 @@ class AuthService extends AbstractService
      * @param $email
      * @param $password
      *
-     * @throws UnprocessableEntity
+     * @throws UnprocessableEntityException
      */
     protected function validateCredentials($email, $password)
     {

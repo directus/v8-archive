@@ -2,9 +2,9 @@
 
 namespace Directus\Validator\Exception;
 
-use Directus\Exception\UnprocessableEntity;
+use Directus\Exception\UnprocessableEntityException;
 
-class InvalidRequestException extends UnprocessableEntity
+class InvalidRequestException extends UnprocessableEntityException
 {
     const ERROR_CODE = 4;
 }

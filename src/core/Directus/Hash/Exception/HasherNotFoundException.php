@@ -2,9 +2,9 @@
 
 namespace Directus\Hash\Exception;
 
-use Directus\Exception\UnprocessableEntity;
+use Directus\Exception\UnprocessableEntityException;
 
-class HasherNotFoundException extends UnprocessableEntity
+class HasherNotFoundException extends UnprocessableEntityException
 {
     const ERROR_CODE = 1000;
 

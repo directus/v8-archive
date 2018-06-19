@@ -2,9 +2,9 @@
 
 namespace Directus\Database\Exception;
 
-use Directus\Exception\UnprocessableEntity;
+use Directus\Exception\UnprocessableEntityException;
 
-class FieldAlreadyExistsException extends UnprocessableEntity
+class FieldAlreadyExistsException extends UnprocessableEntityException
 {
     const ERROR_CODE = 308;
 
