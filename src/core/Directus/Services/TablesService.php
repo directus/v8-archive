@@ -554,11 +554,11 @@ class TablesService extends AbstractService
         ]);
 
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
-        $field = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
+        $resultData = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
         // ----------------------------------------------------------------------------
 
         return $this->getFieldsTableGateway()->wrapData(
-            $field->toArray(),
+            $resultData,
             true,
             ArrayUtils::get($params, 'meta', 0)
         );
@@ -681,27 +681,30 @@ class TablesService extends AbstractService
     /**
      * Adds or update a field data
      *
-     * @param string $collection
-     * @param string $field
+     * @param string $collectionName
+     * @param string $fieldName
      * @param array $data
      *
-     * @return BaseRowGateway
+     * @return array
      */
-    protected function addOrUpdateFieldInfo($collection, $field, array $data)
+    protected function addOrUpdateFieldInfo($collectionName, $fieldName, array $data)
     {
         $fieldsTableGateway = $this->getFieldsTableGateway();
         $row = $fieldsTableGateway->findOneByArray([
-            'collection' => $collection,
-            'field' => $field
+            'collection' => $collectionName,
+            'field' => $fieldName
         ]);
 
         if ($row) {
-            $field = $this->updateFieldInfo($row['id'], $data);
+            $result = $this->updateFieldInfo($row['id'], $data);
         } else {
-            $field = $this->addFieldInfo($collection, $field, $data);
+            $result = $this->addFieldInfo($collectionName, $fieldName, $data);
         }
 
-        return $field;
+        $collection = $collection = $this->getSchemaManager()->getCollection($collectionName);
+        $field = $collection->getField($fieldName);
+
+        return $this->mergeSchemaField($field, $result->toArray());
     }
 
     protected function addFieldInfo($collection, $field, array $data)
