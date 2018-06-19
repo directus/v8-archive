@@ -137,7 +137,7 @@ class SchemaManager
         // @TODO: Do not allow to add duplicate column names
         // =============================================================================
         if (empty($collection->getFields())) {
-            $fields = $this->getFields($collectionName);
+            $fields = $this->getFields($collectionName, [], $skipCache);
             $collection->setFields($fields);
         }
 
@@ -260,15 +260,16 @@ class SchemaManager
      *
      * @param $tableName
      * @param array $params
+     * @param bool $skipCache
      *
      * @return \Directus\Database\Schema\Object\Field[]
      */
-    public function getFields($tableName, $params = [])
+    public function getFields($tableName, $params = [], $skipCache = false)
     {
         // TODO: filter black listed fields on services level
 
         $columnsSchema = ArrayUtils::get($this->data, 'columns.' . $tableName, null);
-        if (!$columnsSchema) {
+        if (!$columnsSchema || $skipCache) {
             $columnsResult = $this->source->getFields($tableName, $params);
             $relationsResult = $this->source->getRelations($tableName);
 

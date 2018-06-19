@@ -701,7 +701,7 @@ class TablesService extends AbstractService
             $result = $this->addFieldInfo($collectionName, $fieldName, $data);
         }
 
-        $collection = $collection = $this->getSchemaManager()->getCollection($collectionName);
+        $collection = $collection = $this->getSchemaManager()->getCollection($collectionName, [], true);
         $field = $collection->getField($fieldName);
 
         return $this->mergeSchemaField($field, $result->toArray());
