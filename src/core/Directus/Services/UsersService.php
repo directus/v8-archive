@@ -59,7 +59,6 @@ class UsersService extends AbstractService
     public function updateLastPage($id, $lastPage, array $params = [])
     {
         $data = [
-            'last_ip' => \Directus\get_request_ip(),
             'last_page' => $lastPage,
             'last_access' => DateTimeUtils::nowInUTC()->toString()
         ];

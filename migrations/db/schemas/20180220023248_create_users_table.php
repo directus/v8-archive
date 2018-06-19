@@ -92,15 +92,6 @@ class CreateUsersTable extends AbstractMigration
             'limit' => 32,
             'default' => 'America/New_York'
         ]);
-        $table->addColumn('last_ip', 'string', [
-            'limit' => 50,
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('last_login', 'datetime', [
-            'null' => true,
-            'default' => null
-        ]);
         $table->addColumn('last_access', 'datetime', [
             'null' => true,
             'default' => null
