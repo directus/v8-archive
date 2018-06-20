@@ -1345,7 +1345,7 @@ class TablesService extends AbstractService
     {
         $newParams = [];
         $sort = ArrayUtils::get($params, 'sort');
-        if (!is_array($sort)) {
+        if ($sort && !is_array($sort)) {
             $sort = StringUtils::csv((string) $sort);
         }
 
