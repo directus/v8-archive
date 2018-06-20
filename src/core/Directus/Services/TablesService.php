@@ -1349,11 +1349,14 @@ class TablesService extends AbstractService
             $sort = StringUtils::csv((string) $sort);
         }
 
-        $collection = $this->getSchemaManager()->getCollection(SchemaManager::COLLECTION_FIELDS);
-        foreach ($sort as $field) {
-            $field = (string) $field;
-            if (!$collection->hasField($field)) {
-                throw new InvalidFieldException($field);
+        if ($sort) {
+            $collection = $this->getSchemaManager()->getCollection(SchemaManager::COLLECTION_FIELDS);
+
+            foreach ($sort as $field) {
+                $field = (string)$field;
+                if (!$collection->hasField($field)) {
+                    throw new InvalidFieldException($field);
+                }
             }
         }
 
