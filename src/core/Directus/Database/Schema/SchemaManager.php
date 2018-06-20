@@ -326,11 +326,13 @@ class SchemaManager
     /**
      * Get all the columns
      *
+     * @param array $params
+     *
      * @return Field[]
      */
-    public function getAllFields()
+    public function getAllFields(array $params = [])
     {
-        $allColumns = $this->source->getAllFields();
+        $allColumns = $this->source->getAllFields($params);
 
         $columns = [];
         foreach($allColumns as $column) {

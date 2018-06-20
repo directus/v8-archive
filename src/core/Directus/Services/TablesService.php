@@ -9,6 +9,7 @@ use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\FieldNotManagedException;
 use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
+use Directus\Database\Exception\InvalidFieldException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\DataTypes;
@@ -58,7 +59,7 @@ class TablesService extends AbstractService
         return $result;
     }
 
-    public function findAllFields($collectionName, array $params = [])
+    public function findAllFieldsByCollection($collectionName, array $params = [])
     {
         if (!$this->getAcl()->isAdmin()) {
             throw new UnauthorizedException('Permission denied');
@@ -85,6 +86,26 @@ class TablesService extends AbstractService
         $result['data'] = $this->mergeMissingSchemaFields($collection, $result['data']);
 
         return $result;
+    }
+
+    public function findAllFields(array $params = [])
+    {
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Permission denied');
+        }
+
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $this->container->get('schema_manager');
+
+        // Hotfix: Get supported params and validate them
+        $fields = $schemaManager->getAllFields($this->getAllFieldsParams($params));
+
+        $data = [];
+        foreach ($fields as $field) {
+            $data[] = $this->mergeSchemaField($field);
+        }
+
+        return ['data' => $data];
     }
 
     public function find($name, array $params = [])
@@ -1284,7 +1305,7 @@ class TablesService extends AbstractService
         }
 
         $tableGateway = $this->getCollectionsTableGateway();
-        $attributesName = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed']);
+        $attributesName = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed', 'fields']);
 
         $collectionData = array_merge(
             ArrayUtils::pick($collection->toArray(), $attributesName),
@@ -1318,5 +1339,32 @@ class TablesService extends AbstractService
         }
 
         return $this->fieldsTableGateway;
+    }
+
+    protected function getAllFieldsParams(array $params)
+    {
+        $newParams = [];
+        $sort = ArrayUtils::get($params, 'sort');
+        if (!is_array($sort)) {
+            $sort = StringUtils::csv((string) $sort);
+        }
+
+        $collection = $this->getSchemaManager()->getCollection(SchemaManager::COLLECTION_FIELDS);
+        foreach ($sort as $field) {
+            $field = (string) $field;
+            if (!$collection->hasField($field)) {
+                throw new InvalidFieldException($field);
+            }
+        }
+
+        if ($sort) {
+            $newParams['sort'] = $sort;
+        }
+
+        if (ArrayUtils::has($params, 'limit')) {
+            $newParams['limit'] = (int) ArrayUtils::get($params, 'limit');
+        }
+
+        return $newParams;
     }
 }

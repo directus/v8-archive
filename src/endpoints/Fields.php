@@ -8,6 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\CollectionNotFoundException;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Services\TablesService;
@@ -26,7 +27,8 @@ class Fields extends Route
         $app->patch('/{collection}/{field}', [$this, 'update']);
         $app->patch('/{collection}', [$this, 'update']);
         $app->delete('/{collection}/{field}', [$this, 'delete']);
-        $app->get('/{collection}', [$this, 'all']);
+        $app->get('/{collection}', [$this, 'allByCollection']);
+        $app->get('', [$this, 'all']);
     }
 
     /**
@@ -113,9 +115,29 @@ class Fields extends Route
     }
 
     /**
-     * Get all columns that belong to a given table
+     * Get all fields that belong to a given collection
      *
-     * NOTE: Maybe this should be on /tables instead
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws CollectionNotFoundException
+     * @throws UnauthorizedException
+     */
+    public function allFieldsByCollection(Request $request, Response $response)
+    {
+        $service = new TablesService($this->container);
+        $responseData = $service->findAllFieldsByCollection(
+            $request->getAttribute('collection'),
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * Get all fields across the system
      *
      * @param Request $request
      * @param Response $response
@@ -129,7 +151,6 @@ class Fields extends Route
     {
         $service = new TablesService($this->container);
         $responseData = $service->findAllFields(
-            $request->getAttribute('collection'),
             $request->getQueryParams()
         );
 

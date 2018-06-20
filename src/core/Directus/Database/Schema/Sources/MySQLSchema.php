@@ -2,11 +2,15 @@
 
 namespace Directus\Database\Schema\Sources;
 
+use function Directus\compact_sort_to_array;
 use Directus\Database\Schema\DataTypes;
 use Directus\Exception\Exception;
+use function Directus\get_directus_setting;
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Predicate\In;
+use Zend\Db\Sql\Predicate\IsNull;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\TableIdentifier;
@@ -236,11 +240,32 @@ class MySQLSchema extends AbstractSchema
 
         $selectTwo->where($where);
 
-        $selectOne->combine($selectTwo);//, $selectOne::COMBINE_UNION, 'ALL');
-        $selectOne->order('collection');
+        $selectOne->combine($selectTwo);
+
+        $sorts = ArrayUtils::get($params, 'sort', 'collection');
+        if (is_string($sorts)) {
+            $sorts = StringUtils::csv($sorts);
+        }
 
         $sql = new Sql($this->adapter);
-        $statement = $sql->prepareStatementForSqlObject($selectOne);
+        $selectUnion = new Select();
+        $selectUnion->from(['fields' => $selectOne]);
+
+        $sortNullLast = (bool) get_directus_setting('global', 'sort_null_last', true);
+        foreach ($sorts as $field) {
+            $sort = compact_sort_to_array($field);
+            if ($sortNullLast) {
+                $selectUnion->order(new IsNull(key($sort)));
+            }
+
+            $selectUnion->order($sort);
+        }
+
+        if (ArrayUtils::has($params, 'limit')) {
+            $selectUnion->limit((int) ArrayUtils::get($params, 'limit'));
+        }
+
+        $statement = $sql->prepareStatementForSqlObject($selectUnion);
         $result = $statement->execute();
 
         return $result;
