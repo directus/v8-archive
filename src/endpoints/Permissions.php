@@ -16,6 +16,7 @@ class Permissions extends Route
         $app->post('', [$this, 'create']);
         $app->get('/{id}', [$this, 'read']);
         $app->patch('/{id}', [$this, 'update']);
+        $app->patch('', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
     }
@@ -29,9 +30,15 @@ class Permissions extends Route
     public function create(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
+        $this->validateRequestPayload($request);
+        $payload = $request->getParsedBody();
+        if (isset($payload[0]) && is_array($payload[0])) {
+            return $this->batch($request, $response);
+        }
+
         $service = new PermissionsService($this->container);
         $responseData = $service->create(
-            $request->getParsedBody(),
+            $payload,
             $request->getQueryParams()
         );
 
@@ -64,10 +71,20 @@ class Permissions extends Route
     public function update(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
+        $payload = $request->getParsedBody();
+        if (isset($payload[0]) && is_array($payload[0])) {
+            return $this->batch($request, $response);
+        }
+
+        $id = $request->getAttribute('id');
+        if (strpos($id, ',') !== false) {
+            return $this->batch($request, $response);
+        }
+
         $service = new PermissionsService($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),
-            $request->getParsedBody(),
+            $payload,
             $request->getQueryParams()
         );
 
@@ -104,6 +121,47 @@ class Permissions extends Route
         $responseData = $service->findAll(
             $request->getQueryParams()
         );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    protected function batch(Request $request, Response $response)
+    {
+        $permissionService = new PermissionsService($this->container);
+
+        $collection = $request->getAttribute('collection');
+        $permissionService->throwErrorIfSystemTable($collection);
+
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+
+        $responseData = null;
+        if ($request->isPost()) {
+            $responseData = $permissionService->batchCreate($payload, $params);
+        } else if ($request->isPatch()) {
+            if ($request->getAttribute('id')) {
+                $ids = explode(',', $request->getAttribute('id'));
+                $responseData = $permissionService->batchUpdateWithIds($ids, $payload, $params);
+            } else {
+                $responseData = $permissionService->batchUpdate($payload, $params);
+            }
+        } else if ($request->isDelete()) {
+            $ids = explode(',', $request->getAttribute('id'));
+            $permissionService->batchDeleteWithIds($ids, $params);
+        }
+
+        if (empty($responseData)) {
+            $response = $response->withStatus(204);
+            $responseData = [];
+        }
 
         return $this->responseWithData($request, $response, $responseData);
     }

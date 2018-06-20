@@ -14,10 +14,13 @@ class PermissionsService extends AbstractService
      */
     protected $collection;
 
+    protected $itemsService;
+
     public function __construct(Container $container)
     {
         parent::__construct($container);
         $this->collection = SchemaManager::COLLECTION_PERMISSIONS;
+        $this->itemsService = new ItemsService($container);
     }
 
     /**
@@ -39,6 +42,17 @@ class PermissionsService extends AbstractService
             true,
             ArrayUtils::get($params, 'meta')
         );
+    }
+
+    /**
+     * @param array $data
+     * @param array $params
+     *
+     * @return array
+     */
+    public function batchCreate(array $data, array $params = [])
+    {
+        return $this->itemsService->batchCreate($this->collection, $data, $params);
     }
 
     public function find($id, array $params = [])
@@ -69,6 +83,29 @@ class PermissionsService extends AbstractService
         );
     }
 
+    /**
+     * @param array $items
+     * @param array $params
+     *
+     * @return mixed
+     */
+    public function batchUpdate(array $items, array $params = [])
+    {
+        return $this->itemsService->batchUpdate($this->collection, $items, $params);
+    }
+
+    /**
+     * @param array $ids
+     * @param array $data
+     * @param array $params
+     *
+     * @return array
+     */
+    public function batchUpdateWithIds(array $ids, array $data, array $params = [])
+    {
+        return $this->itemsService->batchUpdateWithIds($this->collection, $ids, $data, $params);
+    }
+
     public function delete($id, array $params = [])
     {
         $this->enforcePermissions($this->collection, [], $params);
@@ -81,6 +118,17 @@ class PermissionsService extends AbstractService
         $tableGateway->deleteRecord($id, $this->getCRUDParams($params));
 
         return true;
+    }
+
+    /**
+     * @param array $ids
+     * @param array $params
+     *
+     * @return void
+     */
+    public function batchDeleteWithIds(array $ids, array $params = [])
+    {
+        $this->itemsService->batchDeleteWithIds($this->collection, $ids, $params);
     }
 
     public function findAll(array $params = [])
