@@ -181,7 +181,6 @@ class MySQLSchema extends AbstractSchema
                 'view_width',
                 'validation',
                 'group',
-                'view_width',
             ],
             $selectOne::JOIN_LEFT
         );
@@ -226,7 +225,6 @@ class MySQLSchema extends AbstractSchema
             'view_width',
             'validation',
             'group',
-            'view_width',
         ]);
         $selectTwo->from(['DF2' => 'directus_fields']);
 
