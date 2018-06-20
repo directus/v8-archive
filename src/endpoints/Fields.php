@@ -125,7 +125,7 @@ class Fields extends Route
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
      */
-    public function allFieldsByCollection(Request $request, Response $response)
+    public function allByCollection(Request $request, Response $response)
     {
         $service = new TablesService($this->container);
         $responseData = $service->findAllFieldsByCollection(
