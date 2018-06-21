@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "postinstall": "npx recursive-install --skip-root",
     "build": "parcel build \"core/**/*.vue\" -d ../public/extensions/core --no-source-maps --global __DirectusExtension__ && cpx \"core/**/meta.json\" ../public/extensions/core -t ./json-minifier.js -v",
     "dev": "concurrently --raw \"cpx core/**/meta.json ../public/extensions/core -w\" \"parcel watch core/**/*.vue -d ../public/extensions/core --no-source-maps --global __DirectusExtension__\""
   },
@@ -17,6 +18,7 @@
     "jsonminify": "^0.4.1",
     "node-sass": "^4.9.0",
     "parcel": "^1.9.2",
+    "recursive-install": "^1.3.0",
     "through2": "^2.0.3",
     "vue-template-compiler": "^2.5.16"
   },
