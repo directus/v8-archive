@@ -111,15 +111,19 @@ class SchemaFactory
     {
         $table = new AlterTable($name);
 
-        $collection = $this->schemaManager->getCollection($name);
-
         $toAddColumnsData = ArrayUtils::get($data, 'add', []);
         $toAddColumns = $this->createColumns($toAddColumnsData);
         foreach ($toAddColumns as $column) {
             $table->addColumn($column);
 
             $options = $column->getOptions();
-            if (is_array($options) && ArrayUtils::get($options, 'unique') == true) {
+            if (!is_array($options)) {
+                continue;
+            }
+
+            if (ArrayUtils::get($options, 'primary_key') == true) {
+                $table->addConstraint(new PrimaryKey($column->getName()));
+            } if (ArrayUtils::get($options, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -129,13 +133,14 @@ class SchemaFactory
         foreach ($toChangeColumns as $column) {
             $table->changeColumn($column->getName(), $column);
 
-            $field = $collection->getField($column->getName());
-            if ($field->hasUniqueKey()) {
-                throw new FieldAlreadyHasUniqueKeyException($column->getName());
+            $options = $column->getOptions();
+            if (!is_array($options)) {
+                continue;
             }
 
-            $options = $column->getOptions();
-            if (is_array($options) && ArrayUtils::get($options, 'unique') == true) {
+            if (ArrayUtils::get($options, 'primary_key') == true) {
+                $table->addConstraint(new PrimaryKey($column->getName()));
+            } if (ArrayUtils::get($options, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -182,13 +187,13 @@ class SchemaFactory
         $nullable = ArrayUtils::get($data, 'nullable', true);
         $default = ArrayUtils::get($data, 'default_value', null);
         $unsigned = ArrayUtils::get($data, 'unsigned', false);
-        // TODO: Make comment work in an abstract level
-        // ZendDB doesn't support charset nor comment
-        // $comment = ArrayUtils::get($data, 'comment');
+        $note = ArrayUtils::get($data, 'note');
+        // ZendDB doesn't support encoding nor collation
 
         $column = $this->createColumnFromType($name, $type);
         $column->setNullable($nullable);
         $column->setDefault($default);
+        $column->setOption('comment', $note);
 
         if (!$autoincrement && $unique === true) {
             $column->setOption('unique', $unique);

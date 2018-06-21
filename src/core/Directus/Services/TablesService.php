@@ -1281,7 +1281,13 @@ class TablesService extends AbstractService
      */
     protected function unknownFieldsAllowed()
     {
-        return ['default_value'];
+        return [
+            'default_value',
+            'auto_increment',
+            'primary_key',
+            'unique',
+            'unsigned'
+        ];
     }
 
     /**

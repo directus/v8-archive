@@ -204,7 +204,7 @@ class Field extends AbstractObject
      */
     public function hasAutoIncrement()
     {
-        return strtolower($this->getExtra() ?: '') === 'auto_increment';
+        return (bool) $this->attributes->get('auto_increment', false);
     }
 
     /**
@@ -214,7 +214,7 @@ class Field extends AbstractObject
      */
     public function hasPrimaryKey()
     {
-        return strtoupper($this->getKey()) === 'PRI';
+        return (bool) $this->attributes->get('primary_key', false);
     }
 
     /**
@@ -224,7 +224,7 @@ class Field extends AbstractObject
      */
     public function hasUniqueKey()
     {
-        return strtoupper($this->getKey()) === 'UNI';
+        return (bool) $this->attributes->get('unique', false);
     }
 
     /**
