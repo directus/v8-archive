@@ -58,9 +58,11 @@ interface SchemaInterface
     /**
      * Gets all columns in the current schema
      *
+     * @param array $params
+     *
      * @return ResultSet
      */
-    public function getAllFields();
+    public function getAllFields(array $params = []);
 
     /**
      * Checks whether the given table name has a given column name
