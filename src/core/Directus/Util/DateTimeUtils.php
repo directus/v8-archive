@@ -208,6 +208,16 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
+     * Gets the datetime in UTC
+     *
+     * @return DateTimeUtils
+     */
+    public function toUTC()
+    {
+        return $this->toTimeZone('UTC');
+    }
+
+    /**
      * Gets the datetime string in GMT
      *
      * @return string
@@ -215,6 +225,16 @@ class DateTimeUtils extends \DateTime
     public function toGMTString()
     {
         return $this->toGMT()->toString();
+    }
+
+    /**
+     * Gets the datetime string in UTC
+     *
+     * @return string
+     */
+    public function toUTCString()
+    {
+        return $this->toUTC()->toString();
     }
 
     /**

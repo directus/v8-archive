@@ -21,7 +21,6 @@ class Auth extends Route
     {
         $app->post('/authenticate', [$this, 'authenticate']);
         $app->post('/password/request', [$this, 'forgotPassword']);
-        // $app->get('/invitation/{token}', [$this, 'acceptInvitation']);
         $app->get('/password/reset/{token}', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
         $app->get('/sso', [$this, 'listSsoAuthServices']);

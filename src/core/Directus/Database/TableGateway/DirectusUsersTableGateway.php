@@ -10,6 +10,7 @@ class DirectusUsersTableGateway extends RelationalTableGateway
     const STATUS_HIDDEN = 0;
     const STATUS_ACTIVE = 1;
     const STATUS_DISABLED = 2;
+    const STATUS_INVITED = 3;
 
     const GRAVATAR_SIZE = 100;
 

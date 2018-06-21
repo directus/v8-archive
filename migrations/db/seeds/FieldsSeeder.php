@@ -627,18 +627,6 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'invite_token',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
-                'interface' => 'text-input'
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'invite_accepted',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
-            ],
             // Permissions
             [
                 'collection' => 'directus_permissions',

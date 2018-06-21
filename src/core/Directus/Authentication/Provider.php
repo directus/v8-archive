@@ -3,7 +3,6 @@
 namespace Directus\Authentication;
 
 use Directus\Authentication\Exception\ExpiredTokenException;
-use Directus\Authentication\Exception\InvalidInvitationCodeException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserInactiveException;
@@ -12,10 +11,12 @@ use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\User\Provider\UserProviderInterface;
 use Directus\Authentication\User\UserInterface;
+use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 class Provider
 {
@@ -232,28 +233,6 @@ class Provider
         ];
 
         $user = $this->userProvider->findWhere($conditions);
-        if ($user) {
-            $this->setUser($user);
-        }
-
-        return $user;
-    }
-
-    /**
-     * Authenticate with an invitation
-     *
-     * NOTE: Would this be managed by the web app?
-     *
-     * @param $invitationCode
-     *
-     * @return UserInterface
-     *
-     * @throws InvalidInvitationCodeException
-     */
-    public function authenticateWithInvitation($invitationCode)
-    {
-        $user = $this->userProvider->findWhere(['invite_token' => $invitationCode]);
-
         if ($user) {
             $this->setUser($user);
         }

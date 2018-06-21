@@ -3,12 +3,17 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Authentication\Exception\ExpiredTokenException;
+use Directus\Authentication\Exception\InvalidTokenException;
+use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Provider;
+use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\ForbiddenException;
 use Directus\Util\DateTimeUtils;
+use Directus\Util\JWTUtils;
 
 class UsersService extends AbstractService
 {
@@ -169,16 +174,17 @@ class UsersService extends AbstractService
         if (!$user) {
             /** @var Provider $auth */
             $auth = $this->container->get('auth');
+            $datetime = DateTimeUtils::nowInUTC();
             $invitationToken = $auth->generateInvitationToken([
-                'date' => DateTimeUtils::nowInUTC()->toString(),
+                'date' => $datetime->toString(),
+                'exp' => $datetime->inDays(30)->toString(),
+                'email' => $email,
                 'sender' => $this->getAcl()->getUserId()
             ]);
 
             $result = $tableGateway->insert([
-                'status' => DirectusUsersTableGateway::STATUS_DISABLED,
-                'email' => $email,
-                'invite_token' => $invitationToken,
-                'invite_accepted' => 0
+                'status' => DirectusUsersTableGateway::STATUS_INVITED,
+                'email' => $email
             ]);
 
             if ($result) {
@@ -186,6 +192,57 @@ class UsersService extends AbstractService
                 \Directus\send_user_invitation_email($email, $invitationToken);
             }
         }
+    }
+
+    /**
+     * Enables a user using a invitation token
+     *
+     * @param string $token
+     * @return array
+     *
+     * @throws ExpiredTokenException
+     * @throws InvalidTokenException
+     * @throws UserNotFoundException
+     */
+    public function enableUserWithInvitation($token)
+    {
+        if (!JWTUtils::isJWT($token)) {
+            throw new InvalidTokenException();
+        }
+
+        if (JWTUtils::hasExpired($token)) {
+            throw new ExpiredTokenException();
+        }
+
+        $payload = JWTUtils::getPayload($token);
+
+        if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_INVITATION, $payload)) {
+            throw new InvalidTokenException();
+        }
+
+        $tableGateway = $this->getTableGateway();
+        try {
+            $result = $this->findOne([
+                'filter' => [
+                    'id' => $payload->id,
+                    'email' => $payload->email,
+                    'status' => DirectusUsersTableGateway::STATUS_INVITED
+                ]
+            ]);
+        } catch (ItemNotFoundException $e) {
+            throw new UserNotFoundException();
+        }
+
+        $user = $result['data'];
+
+        $tableGateway
+            ->update([
+                'status' => DirectusUsersTableGateway::STATUS_ACTIVE
+            ], [
+                'id' => $user['id']
+            ]);
+
+        return $result;
     }
 
     /**

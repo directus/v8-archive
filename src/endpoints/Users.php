@@ -25,6 +25,7 @@ class Users extends Route
         $app->post('', [$this, 'create']);
         $app->get('/{id}', [$this, 'read']);
         $app->post('/invite', [$this, 'invite']);
+        $app->post('/invite/{token}', [$this, 'acceptInvitation']);
         $app->patch('/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
 
@@ -198,6 +199,24 @@ class Users extends Route
             $request->getAttribute('id'),
             $request->getParsedBodyParam('last_page'),
             $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function acceptInvitation(Request $request, Response $response)
+    {
+        $this->validateRequestPayload($request);
+
+        $service = new UsersService($this->container);
+        $responseData = $service->enableUserWithInvitation(
+            $request->getParsedBodyParam('token')
         );
 
         return $this->responseWithData($request, $response, $responseData);
