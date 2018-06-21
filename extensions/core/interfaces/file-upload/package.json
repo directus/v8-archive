@@ -1,0 +1,14 @@
+{
+  "name": "@directus/file-upload",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "Rijk van Zanten <rijkvanzanten@me.com>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "filepond": "^1.4.0",
+    "filepond-plugin-file-encode": "^1.0.4",
+    "filepond-plugin-image-preview": "^1.0.9"
+  }
+}

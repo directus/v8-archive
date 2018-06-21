@@ -1,0 +1,27 @@
+{
+  "name": "@directus/extensions-builder",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "parcel build \"core/**/*.vue\" -d ../public/extensions/core --no-source-maps --global __DirectusExtension__ && cpx \"core/**/meta.json\" ../public/extensions/core -t ./json-minifier.js -v",
+    "dev": "concurrently --raw \"cpx core/**/meta.json ../public/extensions/core -w\" \"parcel watch core/**/*.vue -d ../public/extensions/core --no-source-maps --global __DirectusExtension__\""
+  },
+  "author": "Rijk van Zanten <rijkvanzanten@me.com>",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.0.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "concurrently": "^3.6.0",
+    "cpx": "^1.5.0",
+    "jsonminify": "^0.4.1",
+    "node-sass": "^4.9.0",
+    "parcel": "^1.9.2",
+    "through2": "^2.0.3",
+    "vue-template-compiler": "^2.5.16"
+  },
+  "dependencies": {
+    "vue": "^2.5.16",
+    "vue-hot-reload-api": "^2.3.0"
+  }
+}

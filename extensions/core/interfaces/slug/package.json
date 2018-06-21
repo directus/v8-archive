@@ -1,0 +1,15 @@
+{
+  "name": "@directus/slug",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Rijk van Zanten <rijk@rngr.org>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "slugify": "^1.2.9"
+  }
+}
