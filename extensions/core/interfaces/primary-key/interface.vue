@@ -21,7 +21,7 @@
 
 <script>
 import mixin from '../../../mixins/interface';
-import Readonly from './Readonly.vue';
+import Readonly from './readonly.vue';
 
 export default {
   mixins: [mixin],
