@@ -1261,7 +1261,13 @@ class TablesService extends AbstractService
     protected function mergeSchemaField(Field $field, array $fieldData = [])
     {
         $tableGateway = $this->getFieldsTableGateway();
-        $attributeWhitelist = ['managed', 'default_value'];
+        $isNumericType = DataTypes::isNumericType($field->getType());
+        $attributeWhitelist = ['managed', 'default_value', 'primary_key'];
+
+        if ($isNumericType) {
+            $attributeWhitelist[] = 'signed';
+        }
+
         $fieldsAttributes = array_merge($tableGateway->getTableSchema()->getFieldsName(), $attributeWhitelist);
 
         $data = ArrayUtils::pick(
@@ -1269,9 +1275,9 @@ class TablesService extends AbstractService
             $fieldsAttributes
         );
 
-        // it must be not managed
-        $data['managed'] = boolval(ArrayUtils::get($data, 'managed'));
-        $data['primary_key'] = $field->hasPrimaryKey();
+        $data['managed'] = (bool) ArrayUtils::get($data, 'managed');
+        $data['primary_key'] = (bool) ArrayUtils::get($data, 'primary_key');
+        $data['signed'] = $isNumericType ? (bool) ArrayUtils::get($data, 'signed') : null;
 
         $result = $tableGateway->parseRecord($data);
 

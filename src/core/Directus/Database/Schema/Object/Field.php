@@ -100,9 +100,7 @@ class Field extends AbstractObject
      */
     public function isSigned()
     {
-        $type = $this->getColumnType();
-
-        return strpos($type, 'unsigned') !== false;
+        return (bool) $this->attributes->get('signed');
     }
 
     /**

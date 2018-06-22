@@ -167,6 +167,7 @@ class MySQLSchema extends AbstractSchema
             'default_value' => 'COLUMN_DEFAULT',
             'note' => new Expression('IFNULL(DF.note, SF.COLUMN_COMMENT)'),
             'column_type' => 'COLUMN_TYPE',
+            'signed' => new Expression('IF(LOCATE(" unsigned", SF.COLUMN_TYPE)>0,0,1)'),
         ]);
 
         $selectOne->from(['SF' => new TableIdentifier('COLUMNS', 'INFORMATION_SCHEMA')]);
@@ -221,6 +222,7 @@ class MySQLSchema extends AbstractSchema
             'default_value' => new Expression('NULL'),
             'note',
             'column_type' => new Expression('NULL'),
+            'signed' => new Expression('NULL'),
             'id',
             'type' => new Expression('UCASE(type)'),
             'managed' =>  new Expression('IF(ISNULL(DF2.id),0,1)'),
