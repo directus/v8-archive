@@ -254,10 +254,10 @@ class CoreServicesProvider
                 $privilegesTable->insertPrivilege([
                     'role' => $data['id'],
                     'collection' => 'directus_users',
-                    'create' => 0,
-                    'read' => 1,
-                    'update' => 1,
-                    'delete' => 0,
+                    'create' => Acl::LEVEL_NONE,
+                    'read' => Acl::LEVEL_USER,
+                    'update' => Acl::LEVEL_USER,
+                    'delete' => Acl::LEVEL_NONE,
                     'read_field_blacklist' => 'token',
                     'write_field_blacklist' => 'group,token'
                 ]);
@@ -584,18 +584,9 @@ class CoreServicesProvider
                 }
             };
 
-            $preventOtherUsersFromUpdateAUser = function (array $payload) use ($container) {
-                /** @var Acl $acl */
-                $acl = $container->get('acl');
-
-                if (!$acl->isAdmin() && $acl->getUserId() != ArrayUtils::get($payload, 'id')) {
-                    throw new ForbiddenException('You are not allowed to edit other user information');
-                }
-            };
             $emitter->addAction('collection.insert.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
             $emitter->addAction('collection.update.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
             $emitter->addAction('collection.delete.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
-            $emitter->addAction('collection.update.directus_users:before', $preventOtherUsersFromUpdateAUser);
             $generateExternalId = function (Payload $payload) {
                 // generate an external id if none is passed
                 if (!$payload->get('external_id')) {
