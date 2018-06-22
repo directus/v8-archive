@@ -575,19 +575,18 @@ class CoreServicesProvider
 
                 return $payload;
             };
-            $emitter->addFilter('collection.update.directus_users:before', function (Payload $payload) use ($container) {
+            $preventNonAdminFromUpdateRoles = function (array $payload) use ($container) {
+                /** @var Acl $acl */
                 $acl = $container->get('acl');
 
-                if ($acl->getUserId() != $payload->get('id')) {
-                    return $payload;
+                if (!$acl->isAdmin()) {
+                    throw new ForbiddenException('You are not allowed to create, update or delete roles');
                 }
+            };
 
-                if (!$acl->isAdmin() || !$acl->canUpdate('directus_users')) {
-                    throw new ForbiddenException('you are not allowed to update your user information');
-                }
-
-                return $payload;
-            });
+            $emitter->addAction('collection.insert.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
+            $emitter->addAction('collection.update.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
+            $emitter->addAction('collection.delete.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
             $generateExternalId = function (Payload $payload) {
                 // generate an external id if none is passed
                 if (!$payload->get('external_id')) {
