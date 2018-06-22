@@ -247,21 +247,6 @@ class CoreServicesProvider
                 }
                 return $payload;
             });
-            $emitter->addAction('collection.insert.directus_roles', function ($data) use ($container) {
-                $acl = $container->get('acl');
-                $zendDb = $container->get('database');
-                $privilegesTable = new DirectusPermissionsTableGateway($zendDb, $acl);
-                $privilegesTable->insertPrivilege([
-                    'role' => $data['id'],
-                    'collection' => 'directus_users',
-                    'create' => Acl::LEVEL_NONE,
-                    'read' => Acl::LEVEL_USER,
-                    'update' => Acl::LEVEL_USER,
-                    'delete' => Acl::LEVEL_NONE,
-                    'read_field_blacklist' => 'token',
-                    'write_field_blacklist' => 'group,token'
-                ]);
-            });
             $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($container) {
                 $collectionName = $payload->attribute('collection_name');
                 $collection = SchemaService::getCollection($collectionName);
