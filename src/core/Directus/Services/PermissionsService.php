@@ -4,7 +4,6 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Exception\ErrorException;
 use Directus\Util\ArrayUtils;
 
 class PermissionsService extends AbstractService
@@ -35,7 +34,7 @@ class PermissionsService extends AbstractService
         $this->validatePayload($this->collection, null, $data, $params);
 
         $tableGateway = $this->getTableGateway();
-        $newGroup = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $newGroup = $tableGateway->createRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
             $newGroup->toArray(),
@@ -71,10 +70,10 @@ class PermissionsService extends AbstractService
     {
         $this->enforcePermissions($this->collection, $data, $params);
         $this->validatePayload($this->collection, array_keys($data), $data, $params);
+        $this->checkItemExists($this->collection, $id);
 
         $tableGateway = $this->getTableGateway();
-        $data['id'] = $id;
-        $newGroup = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $newGroup = $tableGateway->updateRecord($id, $data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
             $newGroup->toArray(),

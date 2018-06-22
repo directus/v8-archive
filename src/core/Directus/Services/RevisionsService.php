@@ -6,8 +6,6 @@ use Directus\Application\Container;
 use Directus\Database\Exception\RevisionInvalidDeltaException;
 use Directus\Database\Exception\RevisionNotFoundException;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\SchemaService;
-use Directus\Exception\Exception;
 use Zend\Db\TableGateway\TableGateway;
 
 class RevisionsService extends AbstractService
@@ -165,11 +163,8 @@ class RevisionsService extends AbstractService
             throw new RevisionInvalidDeltaException($revision);
         }
 
-        $collection = SchemaService::getCollection($collectionName);
         $tableGateway = $this->createTableGateway($collectionName);
-
-        $data[$collection->getPrimaryKeyName()] = $item;
-        $tableGateway->revertRecord($data);
+        $tableGateway->revertRecord($item, $data);
 
         return $this->getDataAndSetResponseCacheTags(
             [$tableGateway, 'getItems'],

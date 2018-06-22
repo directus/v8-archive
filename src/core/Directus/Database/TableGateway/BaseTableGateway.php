@@ -20,6 +20,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGatewayFactory;
 use Directus\Database\SchemaService;
 use Directus\Exception\Exception;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Filesystem\Files;
 use function Directus\get_directus_setting;
 use Directus\Permissions\Acl;
@@ -326,19 +327,7 @@ class BaseTableGateway extends TableGateway
     public function addOrUpdateRecordByArray(array $recordData, $collectionName = null)
     {
         $collectionName = is_null($collectionName) ? $this->table : $collectionName;
-        $collectionObject = $this->getTableSchema($collectionName);
-        foreach ($recordData as $columnName => $columnValue) {
-            $fieldObject = $collectionObject->getField($columnName);
-            // TODO: Should this be validate in here? should we let the database fails?
-            if (($fieldObject && is_array($columnValue) && (!$fieldObject->isJson() && !$fieldObject->isArray()))) {
-                // $table = is_null($tableName) ? $this->table : $tableName;
-                throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $collectionName . '`.`' . $columnName . '.');
-            }
-        }
-
-        // @TODO: Dow we need to parse before insert?
-        // Commented out because date are not saved correctly in GMT
-        // $recordData = $this->parseRecord($recordData);
+        $this->validateRecordArray($recordData);
 
         $TableGateway = $this->makeTable($collectionName);
         $primaryKey = $TableGateway->primaryKeyFieldName;
@@ -359,82 +348,102 @@ class BaseTableGateway extends TableGateway
             if ($rowExists) {
                 $currentItem = $result->current()->toArray();
             }
-
-            if ($collectionName === SchemaManager::COLLECTION_FILES) {
-                $originalFilename = ArrayUtils::get($currentItem, 'filename');
-                $recordData = array_merge([
-                    'filename' => $originalFilename
-                ], $recordData);
-            }
         }
-
-        $afterAction = function ($collectionName, $recordData, $replace = false) use ($TableGateway) {
-            if ($collectionName == SchemaManager::COLLECTION_FILES && static::$container) {
-                $Files = static::$container->get('files');
-
-                $updateArray = [];
-                if ($Files->getSettings('file_naming') == 'file_id') {
-                    $ext = $thumbnailExt = pathinfo($recordData['filename'], PATHINFO_EXTENSION);
-                    $Files->rename($recordData['filename'], str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext, $replace);
-                    $updateArray['filename'] = str_pad($recordData[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
-                    $recordData['filename'] = $updateArray['filename'];
-                }
-
-                if (!empty($updateArray)) {
-                    $Update = new Update($collectionName);
-                    $Update->set($updateArray);
-                    $Update->where([$TableGateway->primaryKeyFieldName => $recordData[$TableGateway->primaryKeyFieldName]]);
-                    $TableGateway->updateWith($Update);
-                }
-            }
-        };
 
         if ($rowExists) {
-            $Update = new Update($collectionName);
-            $Update->set($recordData);
-            $Update->where([
-                $primaryKey => $recordData[$primaryKey]
-            ]);
-            $TableGateway->updateWith($Update);
-
-            if ($collectionName == 'directus_files' && static::$container) {
-                if ($originalFilename && $recordData['filename'] !== $originalFilename) {
-                    /** @var Files $Files */
-                    $Files = static::$container->get('files');
-                    $Files->delete(['filename' => $originalFilename]);
-                }
-            }
-
-            $afterAction($collectionName, $recordData, true);
-
-            $this->runHook('postUpdate', [$TableGateway, $recordData, $this->adapter, null]);
+            $result = $TableGateway->updateRecordByArray($recordData);
         } else {
-            $recordData = $this->applyHook('collection.insert:before', $recordData, [
-                'collection_name' => $collectionName
-            ]);
-            $recordData = $this->applyHook('collection.insert.' . $collectionName . ':before', $recordData);
-            $TableGateway->insert($recordData);
-
-            // Only get the last inserted id, if the column has auto increment value
-            $columnObject = $this->getTableSchema()->getField($primaryKey);
-            if ($columnObject->hasAutoIncrement()) {
-                $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
-            }
-
-            $afterAction($collectionName, $recordData);
-
-            $this->runHook('postInsert', [$TableGateway, $recordData, $this->adapter, null]);
+            $result = $TableGateway->addRecordByArray($recordData);
         }
 
-        $columns = SchemaService::getAllNonAliasCollectionFieldNames($collectionName);
-        $recordData = $TableGateway->fetchAll(function ($select) use ($recordData, $columns, $primaryKey) {
+        return $result;
+    }
+
+    public function addRecordByArray(array $recordData)
+    {
+        $this->validateRecordArray($recordData);
+
+        $TableGateway = $this->makeTable($this->table);
+        $primaryKey = $TableGateway->primaryKeyFieldName;
+        $TableGateway->insert($recordData);
+
+        // Only get the last inserted id, if the column has auto increment value
+        $columnObject = $this->getTableSchema()->getField($primaryKey);
+        if ($columnObject->hasAutoIncrement()) {
+            $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
+        }
+
+        $this->afterAddOrUpdate($recordData);
+
+        $columns = SchemaService::getAllNonAliasCollectionFieldNames($this->table);
+        return $TableGateway->fetchAll(function (Select $select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
                 ->limit(1);
             $select->where->equalTo($primaryKey, $recordData[$primaryKey]);
         })->current();
+    }
 
-        return $recordData;
+    public function updateRecordByArray(array $recordData)
+    {
+        $collectionName = $this->table;
+        $this->validateRecordArray($recordData);
+
+        $TableGateway = $this->makeTable($collectionName);
+        $primaryKey = $TableGateway->primaryKeyFieldName;
+        $hasPrimaryKeyData = isset($recordData[$primaryKey]);
+        $currentItem = null;
+        $originalFilename = null;
+
+        if (!$hasPrimaryKeyData) {
+            throw new UnprocessableEntityException();
+        }
+
+        if ($collectionName === SchemaManager::COLLECTION_FILES) {
+            $select = new Select($collectionName);
+            $select->columns(['filename']);
+            $select->where([
+                $primaryKey => $recordData[$primaryKey]
+            ]);
+            $select->limit(1);
+            $result = $TableGateway->ignoreFilters()->selectWith($select);
+
+            if ($result->count() === 0) {
+                throw new ItemNotFoundException();
+            }
+
+            $currentItem = $result->current()->toArray();
+
+            $originalFilename = ArrayUtils::get($currentItem, 'filename');
+            $recordData = array_merge([
+                'filename' => $originalFilename
+            ], $recordData);
+        }
+
+        $Update = new Update($collectionName);
+        $Update->set($recordData);
+        $Update->where([
+            $primaryKey => $recordData[$primaryKey]
+        ]);
+        $TableGateway->updateWith($Update);
+
+        if ($collectionName === SchemaManager::COLLECTION_FILES && static::$container) {
+            if ($originalFilename && $recordData['filename'] !== $originalFilename) {
+                /** @var Files $Files */
+                $Files = static::$container->get('files');
+                $Files->delete(['filename' => $originalFilename]);
+            }
+        }
+
+        $this->afterAddOrUpdate($recordData, true);
+
+        $columns = SchemaService::getAllNonAliasCollectionFieldNames($collectionName);
+        return $TableGateway->fetchAll(function ($select) use ($recordData, $columns, $primaryKey) {
+            $select
+                ->columns($columns)
+                ->limit(1);
+            $select->where->equalTo($primaryKey, $recordData[$primaryKey]);
+        })->current();
     }
 
     public function drop($tableName = null)
@@ -735,6 +744,20 @@ class BaseTableGateway extends TableGateway
 
         $this->runHook('collection.insert:before', [$insertTable, $insertDataAssoc]);
         $this->runHook('collection.insert.' . $insertTable . ':before', [$insertDataAssoc]);
+
+        $newInsertData = $this->applyHook('collection.insert:before', $insertDataAssoc, [
+            'collection_name' => $insertTable
+        ]);
+        $newInsertData = $this->applyHook('collection.insert.' . $insertTable . ':before', $newInsertData);
+
+        // NOTE: set the primary key to null
+        // to default the value to whatever increment value is next
+        // avoiding the error of inserting nothing
+        if (empty($newInsertData)) {
+            $newInsertData[$this->primaryKeyFieldName] = null;
+        }
+
+        $insert->values($newInsertData);
 
         try {
             $result = parent::executeInsert($insert);
@@ -1622,6 +1645,54 @@ class BaseTableGateway extends TableGateway
         foreach ($statusMapping as $status) {
             if (!call_user_func('is_' . $type, $status->getValue())) {
                 throw new StatusMappingWrongValueTypeException($type, $statusField->getName(), $this->table);
+            }
+        }
+    }
+
+    /**
+     * Validates a record array
+     *
+     * @param array $record
+     *
+     * @throws SuppliedArrayAsColumnValue
+     */
+    protected function validateRecordArray(array $record)
+    {
+        $collectionObject = $this->getTableSchema();
+
+        foreach ($record as $columnName => $columnValue) {
+            $field = $collectionObject->getField($columnName);
+            // TODO: Should this be validate in here? should we let the database fails?
+            if (($field && is_array($columnValue) && (!$field->isJson() && !$field->isArray()))) {
+                // $table = is_null($tableName) ? $this->table : $tableName;
+                throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $this->table . '`.`' . $field->getName() . '.');
+            }
+        }
+    }
+
+    /**
+     * @param array $record
+     * @param bool $replace
+     */
+    protected function afterAddOrUpdate(array $record, $replace = false)
+    {
+        // TODO: Move this to a proper hook
+        if ($this->table == SchemaManager::COLLECTION_FILES && static::$container) {
+            $Files = static::$container->get('files');
+
+            $updateArray = [];
+            if ($Files->getSettings('file_naming') == 'file_id') {
+                $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
+                $Files->rename($record['filename'], str_pad($record[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext, $replace);
+                $updateArray['filename'] = str_pad($record[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
+                $record['filename'] = $updateArray['filename'];
+            }
+
+            if (!empty($updateArray)) {
+                $Update = new Update($this->table);
+                $Update->set($updateArray);
+                $Update->where([$this->primaryKeyFieldName => $record[$this->primaryKeyFieldName]]);
+                $this->updateWith($Update);
             }
         }
     }

@@ -344,7 +344,7 @@ class TablesService extends AbstractService
         $item = ArrayUtils::omit($data, 'fields');
         $item['collection'] = $name;
 
-        $table = $collectionsTableGateway->updateRecord($item);
+        $table = $collectionsTableGateway->manageRecordUpdate('directus_collections', $item);
 
         // ----------------------------------------------------------------------------
 
@@ -426,7 +426,7 @@ class TablesService extends AbstractService
         $item = ArrayUtils::omit($data, 'fields');
         $item['collection'] = $name;
 
-        $collection = $collectionsTableGateway->updateRecord($item);
+        $collection = $collectionsTableGateway->manageRecordUpdate('directus_collections', $item);
 
         // ----------------------------------------------------------------------------
         return $tableGateway->wrapData(
@@ -750,7 +750,8 @@ class TablesService extends AbstractService
 
         $collectionObject = $this->getSchemaManager()->getCollection('directus_fields');
 
-        return $this->getFieldsTableGateway()->updateRecord(
+        return $this->getFieldsTableGateway()->manageRecordUpdate(
+            'directus_fields',
             ArrayUtils::pick($data, $collectionObject->getFieldsName())
         );
     }
@@ -762,7 +763,8 @@ class TablesService extends AbstractService
 
         $collectionObject = $this->getSchemaManager()->getCollection('directus_fields');
 
-        return $this->getFieldsTableGateway()->updateRecord(
+        return $this->getFieldsTableGateway()->manageRecordUpdate(
+            'directus_fields',
             ArrayUtils::pick($data, $collectionObject->getFieldsName())
         );
     }
@@ -1087,7 +1089,7 @@ class TablesService extends AbstractService
             $data['id'] = $row['id'];
         }
 
-        return $relationsTableGateway->updateRecord($data);
+        return $relationsTableGateway->manageRecordUpdate('directus_relations', $data);
     }
 
     /**

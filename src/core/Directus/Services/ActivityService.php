@@ -3,14 +3,12 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
-use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusRolesTableGateway;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
-use Zend\Db\Sql\Select;
 
 class ActivityService extends AbstractService
 {
@@ -59,7 +57,7 @@ class ActivityService extends AbstractService
 
         // make sure to create new one instead of update
         unset($data[$tableGateway->primaryKeyFieldName]);
-        $newComment = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $newComment = $tableGateway->createRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
             $newComment->toArray(),
@@ -80,16 +78,12 @@ class ActivityService extends AbstractService
 
         $this->enforcePermissions($this->collection, $data, $params);
 
-        $tableGateway = $this->getTableGateway();
-        $select = new Select($this->collection);
-        $select->columns(['id']);
-        $select->where(['id' => $id, 'type' => DirectusActivityTableGateway::TYPE_COMMENT]);
-        if (!$tableGateway->selectWith($select)->count()) {
-            throw new ItemNotFoundException();
-        }
+        $this->checkItemExists($this->collection, $id, [
+            'type' => DirectusActivityTableGateway::TYPE_COMMENT
+        ]);
 
-        // make sure to create new one instead of update
-        $newComment = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $tableGateway = $this->getTableGateway();
+        $newComment = $tableGateway->updateRecord($id, $data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
             $newComment->toArray(),
@@ -101,16 +95,10 @@ class ActivityService extends AbstractService
     public function deleteComment($id, array $params = [])
     {
         $this->enforcePermissions($this->collection, [], $params);
+        $this->checkItemExists($this->collection, $id);
 
         $tableGateway = $this->getTableGateway();
-        $select = new Select($this->collection);
-        $select->columns(['id']);
-        $select->where(['id' => $id, 'type' => DirectusActivityTableGateway::TYPE_COMMENT]);
-        if (!$tableGateway->selectWith($select)->count()) {
-            throw new ItemNotFoundException();
-        }
-
-        $tableGateway->updateRecord(['id' => $id, 'deleted_comment' => true]);
+        $tableGateway->updateRecord($id, ['deleted_comment' => true]);
     }
 
     /**

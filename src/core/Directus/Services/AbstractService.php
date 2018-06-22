@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
+use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
@@ -330,14 +331,6 @@ abstract class AbstractService
      */
     protected function validatePayload($collectionName, $fields, array $payload, array $params)
     {
-        $collection = $this->getSchemaManager()->getCollection($collectionName);
-        $payloadCount = count($payload);
-        $hasPrimaryKeyData = ArrayUtils::has($payload, $collection->getPrimaryKeyName());
-
-        if ($payloadCount === 0 || ($hasPrimaryKeyData && count($payload) === 1)) {
-            throw new UnprocessableEntityException('Payload cannot be empty');
-        }
-
         $columnsToValidate = [];
 
         // TODO: Validate empty request
@@ -474,5 +467,43 @@ abstract class AbstractService
     protected function unknownFieldsAllowed()
     {
         return [];
+    }
+
+    /**
+     * Checks whether the given id exists in the given collection
+     *
+     * @param string $collection
+     * @param mixed $id
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    protected function itemExists($collection, $id, array $conditions = [])
+    {
+        $tableGateway = $this->createTableGateway($collection);
+        $conditions = array_merge($conditions, [
+            $tableGateway->primaryKeyFieldName => $id
+        ]);
+
+        $select = $tableGateway->getSql()->select();
+        $select->columns([$tableGateway->primaryKeyFieldName]);
+        $select->where($conditions);
+        $select->limit(1);
+
+        return $tableGateway->selectWith($select)->count() === 1;
+    }
+
+    /**
+     * @param string $collection
+     * @param mixed $id
+     * @param array $conditions
+     *
+     * @throws ItemNotFoundException
+     */
+    protected function checkItemExists($collection, $id, array $conditions = [])
+    {
+        if (!$this->itemExists($collection, $id, $conditions)) {
+            throw new ItemNotFoundException();
+        }
     }
 }

@@ -105,25 +105,15 @@ class RelationalTableGateway extends BaseTableGateway
     }
 
     /**
+     * @param mixed $id
      * @param array $data
      * @param array $params
      *
      * @return BaseRowGateway
      */
-    public function updateRecord($data, array $params = [])
+    public function revertRecord($id, array $data, array $params = [])
     {
-        return $this->manageRecordUpdate($this->getTable(), $data, $params);
-    }
-
-    /**
-     * @param $data
-     * @param array $params
-     *
-     * @return BaseRowGateway
-     */
-    public function revertRecord($data, array $params = [])
-    {
-        return $this->updateRecord($data, array_merge($params, ['revert' => true]));
+        return $this->updateRecord($id, $data, array_merge($params, ['revert' => true]));
     }
 
     /**
@@ -202,17 +192,14 @@ class RelationalTableGateway extends BaseTableGateway
         $newRecordObject = null;
         $parentRecordChanged = $this->recordDataContainsNonPrimaryKeyData($recordData);
 
-        if ($parentRecordChanged) {
+        if ($parentRecordChanged || $recordIsNew) {
             // Update the parent row, w/ any new association fields replaced by their IDs
-            $newRecordObject = $TableGateway
-                ->addOrUpdateRecordByArray($parentRecordWithoutAlias);
+            $newRecordObject = $TableGateway->addOrUpdateRecordByArray($parentRecordWithoutAlias);
             if (!$newRecordObject) {
                 return [];
             }
 
-            if ($newRecordObject) {
-                $newRecordObject = $newRecordObject->toArray();
-            }
+            $newRecordObject = $newRecordObject->toArray();
         }
 
         // Do it this way, because & byref for outcome of ternary operator spells trouble
@@ -247,11 +234,6 @@ class RelationalTableGateway extends BaseTableGateway
             $select->where->equalTo($this->primaryKeyFieldName, $rowId);
             $select->limit(1)->columns($columnNames);
         })->current();
-
-        if (!$fullRecordData) {
-            $recordType = $recordIsNew ? 'new' : 'pre-existing';
-            throw new \RuntimeException('Attempted to load ' . $recordType . ' record post-insert with empty result. Lookup via row id: ' . print_r($rowId, true));
-        }
 
         $fullRecordData = (array) $fullRecordData;
         if ($recordIsNew) {
@@ -387,6 +369,177 @@ class RelationalTableGateway extends BaseTableGateway
         // Yield record object
         $recordGateway = new BaseRowGateway($TableGateway->primaryKeyFieldName, $tableName, $this->adapter, $this->acl);
         $recordGateway->populate($this->parseRecord($fullRecordData), true);
+
+        return $recordGateway;
+    }
+
+    /**
+     * @param array $recordData
+     * @param array $params
+     *
+     * @return BaseRowGateway
+     */
+    public function createRecord($recordData, array $params = [])
+    {
+        $tableGateway = $this;
+        $tableSchema = SchemaService::getCollection($this->getTable());
+
+        // Recursive functions will change this value (by reference) as necessary
+        $nestedCollectionRelationshipsChanged = false;
+        $nestedLogEntries = [];
+
+        // Update and/or Add Many-to-One Associations
+        $recordData = $tableGateway->addOrUpdateManyToOneRelationships($tableSchema, $recordData, $nestedLogEntries, $nestedCollectionRelationshipsChanged);
+
+        $parentRecordWithoutAlias = [];
+        foreach ($recordData as $key => $data) {
+            $column = $tableSchema->getField($key);
+
+            // TODO: To work with files
+            // As `data` is not set as alias for files we are checking for actual aliases
+            if ($column && $column->isAlias()) {
+                continue;
+            }
+
+            $parentRecordWithoutAlias[$key] = $data;
+        }
+
+        $newRecordObject = $tableGateway->addRecordByArray($parentRecordWithoutAlias);
+
+        $newRecordObject = $newRecordObject->toArray();
+
+        // Do it this way, because & byref for outcome of ternary operator spells trouble
+        $draftRecord = $newRecordObject;
+
+        // Restore X2M relationship / alias fields to the record representation & process these relationships.
+        $collectionColumns = $tableSchema->getAliasFields();
+        foreach ($collectionColumns as $collectionColumn) {
+            $colName = $collectionColumn->getName();
+            if (isset($recordData[$colName])) {
+                $draftRecord[$colName] = $recordData[$colName];
+            }
+        }
+
+        $parentData = [
+            'item' => null,
+            'collection' => $this->getTable()
+        ];
+
+        $draftRecord = $tableGateway->addOrUpdateToManyRelationships(
+            $tableSchema,
+            $draftRecord,
+            $nestedLogEntries,
+            $nestedCollectionRelationshipsChanged,
+            $parentData
+        );
+
+        $this->recordActivity(DirectusActivityTableGateway::ACTION_ADD, $newRecordObject, $nestedLogEntries, $params);
+
+        // Yield record object
+        $recordGateway = new BaseRowGateway(
+            $tableGateway->primaryKeyFieldName,
+            $this->getTable(),
+            $this->adapter,
+            $this->acl
+        );
+        $recordGateway->populate($this->parseRecord($draftRecord), true);
+
+        return $recordGateway;
+    }
+
+    /**
+     * @param mixed $id
+     * @param array $recordData
+     * @param array $params
+     *
+     * @return BaseRowGateway
+     */
+    public function updateRecord($id, array $recordData, array $params = [])
+    {
+        $TableGateway = $this;
+        $tableSchema = SchemaService::getCollection($this->table);
+        // Recursive functions will change this value (by reference) as necessary
+        $nestedCollectionRelationshipsChanged = false;
+        // Recursive functions will append to this array by reference
+        $nestedLogEntries = [];
+
+        // Update and/or Add Many-to-One Associations
+        $recordData = $TableGateway->addOrUpdateManyToOneRelationships($tableSchema, $recordData, $nestedLogEntries, $nestedCollectionRelationshipsChanged);
+
+        $parentRecordWithoutAlias = [];
+        foreach ($recordData as $key => $data) {
+            $column = $tableSchema->getField($key);
+
+            // TODO: To work with files
+            // As `data` is not set as alias for files we are checking for actual aliases
+            if ($column && $column->isAlias()) {
+                continue;
+            }
+
+            $parentRecordWithoutAlias[$key] = $data;
+        }
+
+        $parentRecordWithoutAlias[$this->primaryKeyFieldName] = $id;
+
+        // If more than the record ID is present.
+        $newRecordObject = null;
+        $parentRecordChanged = $this->recordDataContainsNonPrimaryKeyData($recordData);
+
+        if ($parentRecordChanged) {
+            // Update the parent row, w/ any new association fields replaced by their IDs
+            $newRecordObject = $TableGateway->updateRecordByArray($parentRecordWithoutAlias)->toArray();
+        }
+
+        // Do it this way, because & byref for outcome of ternary operator spells trouble
+        $draftRecord = &$parentRecordWithoutAlias;
+
+        // Restore X2M relationship / alias fields to the record representation & process these relationships.
+        $collectionColumns = $tableSchema->getAliasFields();
+        foreach ($collectionColumns as $collectionColumn) {
+            $colName = $collectionColumn->getName();
+            if (isset($recordData[$colName])) {
+                $draftRecord[$colName] = $recordData[$colName];
+            }
+        }
+
+        // parent
+        $parentData = [
+            'item' => $id,
+            'collection' => $this->table
+        ];
+
+        $draftRecord = $TableGateway->addOrUpdateToManyRelationships($tableSchema, $draftRecord, $nestedLogEntries, $nestedCollectionRelationshipsChanged, $parentData);
+        $deltaRecordData = array_intersect_key(
+            ArrayUtils::omit((array)$parentRecordWithoutAlias, $this->primaryKeyFieldName),
+            $newRecordObject
+        );
+
+        $statusField = $tableSchema->getStatusField();
+        $logEntryAction = ArrayUtils::get($params, 'revert') === true
+                            ? DirectusActivityTableGateway::ACTION_REVERT
+                            : DirectusActivityTableGateway::ACTION_UPDATE;
+
+        if ($statusField && $logEntryAction === DirectusActivityTableGateway::ACTION_UPDATE) {
+            try {
+                if (
+                    ArrayUtils::has($deltaRecordData, $statusField->getName())
+                    && in_array(
+                        ArrayUtils::get($deltaRecordData, $tableSchema->getStatusField()->getName()),
+                        $this->getStatusMapping()->getSoftDeleteStatusesValue()
+                    )
+                ) {
+                    $logEntryAction = DirectusActivityTableGateway::ACTION_SOFT_DELETE;
+                }
+            } catch (\Exception $e) {
+                // the field doesn't have a status mapping
+            }
+        }
+
+        $this->recordActivity($logEntryAction, $newRecordObject, $nestedLogEntries, $params);
+
+        // Yield record object
+        $recordGateway = new BaseRowGateway($TableGateway->primaryKeyFieldName, $this->table, $this->adapter, $this->acl);
+        $recordGateway->populate($this->parseRecord($newRecordObject), true);
 
         return $recordGateway;
     }
@@ -940,10 +1093,9 @@ class RelationalTableGateway extends BaseTableGateway
         $results = $this->selectWith($builder->buildSelect())->toArray();
 
         if (!$results && ArrayUtils::has($params, 'single')) {
+            $message = null;
             if (ArrayUtils::has($params, 'id')) {
                 $message = sprintf('Item with id "%s" not found', $params['id']);
-            } else {
-                $message = 'Item not found';
             }
 
             throw new Exception\ItemNotFoundException($message);
@@ -2109,5 +2261,67 @@ class RelationalTableGateway extends BaseTableGateway
         $stats['total_entries'] = array_sum($stats);
 
         return $stats;
+    }
+
+    protected function recordActivity($action, $record, $nestedItems, array $params = [])
+    {
+        if ($this->getTable() == SchemaManager::COLLECTION_ACTIVITY) {
+            return;
+        }
+
+        $currentUserId = $this->acl ? $this->acl->getUserId() : null;
+        $rowId = $record[$this->primaryKeyFieldName];
+
+        // Save parent log entry
+        $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
+        $logData = [
+            'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
+            'action' => $action,
+            'user' => $currentUserId,
+            'datetime' => DateTimeUtils::nowInUTC()->toString(),
+            'ip' => \Directus\get_request_ip(),
+            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+            'collection' => $this->getTable(),
+            'item' => ArrayUtils::get($record, $this->primaryKeyFieldName),
+            'comment' => ArrayUtils::get($params, 'activity_comment')
+        ];
+        $parentLogEntry->populate($logData, false);
+        $parentLogEntry->save();
+
+        // Add Revisions
+        $revisionTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_REVISIONS, $this->adapter);
+        $revisionTableGateway->insert([
+            'activity' => $parentLogEntry->getId(),
+            'collection' => $this->getTable(),
+            'item' => $rowId,
+            'data' => json_encode($record),
+            'delta' => json_encode($record),
+            'parent_item' => null,
+            'parent_collection' => null,
+            'parent_changed' => null,
+        ]);
+
+        // Update & insert nested activity entries
+        $ActivityGateway = new DirectusActivityTableGateway($this->adapter);
+        foreach ($nestedItems as $item) {
+            // TODO: ought to insert these in one batch
+            $ActivityGateway->insert(ArrayUtils::omit($item, [
+                'parent_item',
+                'parent_collection',
+                'data',
+                'delta',
+                'parent_changed',
+            ]));
+            $revisionTableGateway->insert([
+                'activity' => $ActivityGateway->lastInsertValue,
+                'collection' => ArrayUtils::get($item, 'collection'),
+                'item' => ArrayUtils::get($item, 'item'),
+                'data' => ArrayUtils::get($item, 'data'),
+                'delta' => ArrayUtils::get($item, 'delta'),
+                'parent_item' => ArrayUtils::get($item, 'parent_item'),
+                'parent_collection' => ArrayUtils::get($item, 'parent_collection'),
+                'parent_changed' => ArrayUtils::get($item, 'parent_changed')
+            ]);
+        }
     }
 }

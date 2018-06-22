@@ -30,7 +30,7 @@ class FilesServices extends AbstractService
 
         $validationConstraints = $this->createConstraintFor($this->collection);
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
-        $newFile = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $newFile = $tableGateway->createRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
             \Directus\append_storage_information($newFile->toArray()),
@@ -58,10 +58,11 @@ class FilesServices extends AbstractService
     {
         $this->enforcePermissions($this->collection, $data, $params);
 
+        $this->checkItemExists($this->collection, $id);
         $this->validatePayload($this->collection, array_keys($data), $data, $params);
+
         $tableGateway = $this->createTableGateway($this->collection);
-        $data[$tableGateway->primaryKeyFieldName] = $id;
-        $newFile = $tableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $newFile = $tableGateway->updateRecord($id, $data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
             \Directus\append_storage_information($newFile->toArray()),
@@ -102,7 +103,7 @@ class FilesServices extends AbstractService
 
         $foldersTableGateway = $this->createTableGateway($collection);
 
-        $newFolder = $foldersTableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $newFolder = $foldersTableGateway->createRecord($data, $this->getCRUDParams($params));
 
         return $foldersTableGateway->wrapData(
             $newFolder->toArray(),
@@ -128,11 +129,12 @@ class FilesServices extends AbstractService
 
     public function updateFolder($id, array $data, array $params = [])
     {
-        $this->enforcePermissions('directus_folders', $data, $params);
-        $foldersTableGateway = $this->createTableGateway('directus_folders');
+        $collectionName = 'directus_folders';
+        $this->enforcePermissions($collectionName, $data, $params);
+        $this->checkItemExists($collectionName, $id);
 
-        $data['id'] = $id;
-        $group = $foldersTableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $foldersTableGateway = $this->createTableGateway('directus_folders');
+        $group = $foldersTableGateway->updateRecord($id, $data, $this->getCRUDParams($params));
 
         return $foldersTableGateway->wrapData(
             $group->toArray(),

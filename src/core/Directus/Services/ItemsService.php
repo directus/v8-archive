@@ -2,10 +2,10 @@
 
 namespace Directus\Services;
 
+use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\ForbiddenException;
-use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 
@@ -17,9 +17,7 @@ class ItemsService extends AbstractService
         $this->validatePayload($collection, null, $payload, $params);
 
         $tableGateway = $this->createTableGateway($collection);
-
-        // TODO: Throw an exception if ID exist in payload
-        $newRecord = $tableGateway->updateRecord($payload, $this->getCRUDParams($params));
+        $newRecord = $tableGateway->createRecord($payload, $this->getCRUDParams($params));
 
         try {
             $item = $this->find($collection, $newRecord->getId());
@@ -115,18 +113,20 @@ class ItemsService extends AbstractService
      * @param array $params
      *
      * @return array
+     *
+     * @throws ItemNotFoundException
      */
     public function update($collection, $id, $payload, array $params = [])
     {
         $this->enforcePermissions($collection, $payload, $params);
         $this->validatePayload($collection, array_keys($payload), $payload, $params);
+        $this->checkItemExists($collection, $id);
 
         $tableGateway = $this->createTableGateway($collection);
 
         // Fetch the entry even if it's not "published"
         $params['status'] = '*';
-        $payload[$tableGateway->primaryKeyFieldName] = $id;
-        $newRecord = $tableGateway->updateRecord($payload, $this->getCRUDParams($params));
+        $newRecord = $tableGateway->updateRecord($id, $payload, $this->getCRUDParams($params));
 
         try {
             $item = $this->find($collection, $newRecord->getId());

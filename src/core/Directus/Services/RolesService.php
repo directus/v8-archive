@@ -44,9 +44,7 @@ class RolesService extends AbstractService
         $this->enforcePermissions($this->collection, $data, $params);
 
         $groupsTableGateway = $this->createTableGateway($this->collection);
-        // make sure to create new one instead of update
-        unset($data[$groupsTableGateway->primaryKeyFieldName]);
-        $newGroup = $groupsTableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $newGroup = $groupsTableGateway->createRecord($data, $this->getCRUDParams($params));
 
         return $groupsTableGateway->wrapData(
             $newGroup->toArray(),
@@ -102,11 +100,10 @@ class RolesService extends AbstractService
     {
         $this->validatePayload($this->collection, array_keys($data), $data, $params);
         $this->enforcePermissions($this->collection, $data, $params);
+        $this->checkItemExists($this->collection, $id);
 
         $groupsTableGateway = $this->getTableGateway();
-
-        $data['id'] = $id;
-        $group = $groupsTableGateway->updateRecord($data, $this->getCRUDParams($params));
+        $group = $groupsTableGateway->updateRecord($id, $data, $this->getCRUDParams($params));
 
         return $groupsTableGateway->wrapData(
             $group->toArray(),
