@@ -3,6 +3,7 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Config\Config;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Schema\SchemaManager;
@@ -298,10 +299,20 @@ abstract class AbstractService
 
         /** @var Emitter $hookEmitter */
         $hookEmitter = $container->get('hook_emitter');
+        /** @var Config $config */
+        $config = $container->get('config');
+        $cacheEnabled = $config->get('cache.enabled') === true;
 
-        $listenerId = $hookEmitter->addFilter('collection.select', $setIdTags, Emitter::P_LOW);
+        $listenerId = null;
+        if ($cacheEnabled) {
+            $listenerId = $hookEmitter->addFilter('collection.select', $setIdTags, Emitter::P_LOW);
+        }
+
         $result = call_user_func_array($callable, $callableParams);
-        $hookEmitter->removeListenerWithIndex($listenerId);
+
+        if ($cacheEnabled & $listenerId) {
+            $hookEmitter->removeListenerWithIndex($listenerId);
+        }
 
         return $result;
     }
