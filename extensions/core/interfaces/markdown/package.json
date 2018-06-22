@@ -1,0 +1,17 @@
+{
+  "name": "@directus/markdown",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "marked": "^0.3.12",
+    "vue": "^2.5.16",
+    "vue-hot-reload-api": "^2.3.0"
+  }
+}
