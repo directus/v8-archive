@@ -803,8 +803,8 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         // Remove soft-delete from status list for non-admins users
-        if (!$isAdmin) {
-            if (ArrayUtils::has($params, 'status') && !empty($params['status'])) {
+        if (!$isAdmin && ArrayUtils::has($params, 'status')) {
+            if (!empty($params['status'])) {
                 $params['status'] = ArrayUtils::intersection(
                     $params['status'],
                     $this->getNonSoftDeleteStatuses()
