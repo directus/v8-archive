@@ -16,7 +16,7 @@
     @sort="sort"
     @widths="setWidths"
     @select="$emit('select', $event)"
-    @scrollEnd="$emit('next-page')" />
+    @scroll-end="$emit('next-page')" />
 </template>
 
 <script>
