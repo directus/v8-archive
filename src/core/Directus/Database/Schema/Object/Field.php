@@ -94,11 +94,11 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the fields only accepts unsigned values
+     * Checks whether the fields only accepts signed values
      *
      * @return bool
      */
-    public function isUnsigned()
+    public function isSigned()
     {
         $type = $this->getColumnType();
 

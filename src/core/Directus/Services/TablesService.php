@@ -1288,7 +1288,7 @@ class TablesService extends AbstractService
             'auto_increment',
             'primary_key',
             'unique',
-            'unsigned'
+            'signed'
         ];
     }
 
