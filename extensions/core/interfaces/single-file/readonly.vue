@@ -1,5 +1,5 @@
 <template>
-  <div class="readonly-single-file"
+  <div class="readonly-single-file no-wrap">
     <img
       v-if="value && value.storage && value.storage.full_url && !error"
       @error="handleImageError"

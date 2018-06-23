@@ -4,6 +4,7 @@
     :since="since"
     :auto-update="60"
     :locale="$i18n.locale"
+    class="no-wrap"
   ></v-timeago>
   <div v-else>{{displayValue}}</div>
 </template>

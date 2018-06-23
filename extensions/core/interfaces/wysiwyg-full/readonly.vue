@@ -1,4 +1,4 @@
-w<template>
+<template>
   <div class="no-wrap">{{ value }}</div>
 </template>
 

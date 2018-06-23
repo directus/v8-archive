@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="options.formatValue"
-    class="swatch"
+    class="swatch no-wrap"
     :style="`background-color: ${displayValue}`"
   ></div>
   <div v-else>{{ displayValue }}</div>

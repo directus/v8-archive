@@ -1,5 +1,5 @@
-w<template>
-  <div>{{displayValue}}</div>
+<template>
+  <div class="no-wrap">{{displayValue}}</div>
 </template>
 
 <script>

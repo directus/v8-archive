@@ -1,5 +1,5 @@
 <template>
-  <div class="readonly-file-upload"
+  <div class="readonly-file-upload">
     <img
       v-if="value && value.url && !error"
       @error="handleImageError"

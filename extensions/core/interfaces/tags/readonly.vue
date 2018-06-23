@@ -1,5 +1,5 @@
 <template>
-  <div class="buttons">
+  <div class="buttons no-wrap">
     <span
       v-for="(value, index) in displayValue"
       >{{value}}</span>

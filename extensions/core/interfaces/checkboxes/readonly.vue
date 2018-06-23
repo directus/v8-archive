@@ -1,5 +1,5 @@
 <template>
-  <div class="readonly-checkboxes">{{displayValue}}</div>
+  <div class="readonly-checkboxes no-wrap">{{displayValue}}</div>
 </template>
 
 <script>
