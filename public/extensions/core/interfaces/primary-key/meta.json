@@ -1,0 +1,1 @@
+{"name":"$t:primary_key","version":"1.0.0","datatypes":{"INT":11,"TINYINT":1,"SMALLINT":5,"MEDIUMINT":7,"BIGINT":18,"VARCHAR":100,"CHAR":10},"options":{},"translation":{"en-US":{"primary_key":"Primary Key"}}}
