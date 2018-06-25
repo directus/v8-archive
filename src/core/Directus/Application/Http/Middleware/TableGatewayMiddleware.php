@@ -23,19 +23,6 @@ class TableGatewayMiddleware extends AbstractMiddleware
         BaseTableGateway::setContainer($container);
         TableGatewayFactory::setContainer($container);
 
-        $container['app.settings'] = function (Container $container) {
-            $dbConnection = $container->get('database');
-            $DirectusSettingsTableGateway = new \Zend\Db\TableGateway\TableGateway('directus_settings', $dbConnection);
-            $rowSet = $DirectusSettingsTableGateway->select();
-
-            $settings = [];
-            foreach ($rowSet as $setting) {
-                $settings[$setting['scope']][$setting['key']] = $setting['value'];
-            }
-
-            return $settings;
-        };
-
         return $next($request, $response);
     }
 }
