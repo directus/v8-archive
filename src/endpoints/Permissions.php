@@ -30,7 +30,6 @@ class Permissions extends Route
     public function create(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
-        $this->validateRequestPayload($request);
         $payload = $request->getParsedBody();
         if (isset($payload[0]) && is_array($payload[0])) {
             return $this->batch($request, $response);
