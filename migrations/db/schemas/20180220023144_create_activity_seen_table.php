@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class CreateActivityReadTable extends AbstractMigration
+class CreateActivitySeenTable extends AbstractMigration
 {
     /**
      * Change Method.
