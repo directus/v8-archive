@@ -1,6 +1,7 @@
 <template>
   <v-timeago
     v-if="options.showRelative"
+    class="no-wrap"
     :since="date"
     :auto-update="options.includeSeconds ? 1 : 60"
     :locale="$i18n.locale" />
