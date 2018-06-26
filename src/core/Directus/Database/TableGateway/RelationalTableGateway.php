@@ -433,7 +433,13 @@ class RelationalTableGateway extends BaseTableGateway
             $parentData
         );
 
-        $this->recordActivity(DirectusActivityTableGateway::ACTION_ADD, $newRecordObject, $nestedLogEntries, $params);
+        $this->recordActivity(
+            DirectusActivityTableGateway::ACTION_ADD,
+            $parentRecordWithoutAlias,
+            $newRecordObject,
+            $nestedLogEntries,
+            $params
+        );
 
         // Yield record object
         $recordGateway = new BaseRowGateway(
@@ -535,7 +541,13 @@ class RelationalTableGateway extends BaseTableGateway
             }
         }
 
-        $this->recordActivity($logEntryAction, $newRecordObject, $nestedLogEntries, $params);
+        $this->recordActivity(
+            $logEntryAction,
+            $parentRecordWithoutAlias,
+            $newRecordObject,
+            $nestedLogEntries,
+            $params
+        );
 
         // Yield record object
         $recordGateway = new BaseRowGateway($TableGateway->primaryKeyFieldName, $this->table, $this->adapter, $this->acl);
@@ -2263,7 +2275,7 @@ class RelationalTableGateway extends BaseTableGateway
         return $stats;
     }
 
-    protected function recordActivity($action, $record, $nestedItems, array $params = [])
+    protected function recordActivity($action, array $payload, array $record, array $nestedItems, array $params = [])
     {
         if ($this->getTable() == SchemaManager::COLLECTION_ACTIVITY) {
             return;
@@ -2271,6 +2283,15 @@ class RelationalTableGateway extends BaseTableGateway
 
         $currentUserId = $this->acl ? $this->acl->getUserId() : null;
         $rowId = $record[$this->primaryKeyFieldName];
+
+        if ($action == DirectusActivityTableGateway::ACTION_UPDATE) {
+            $deltaRecordData = array_intersect_key(
+                ArrayUtils::omit($payload, $this->primaryKeyFieldName),
+                $record
+            );
+        } else {
+            $deltaRecordData = $payload;
+        }
 
         // Save parent log entry
         $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
@@ -2295,7 +2316,7 @@ class RelationalTableGateway extends BaseTableGateway
             'collection' => $this->getTable(),
             'item' => $rowId,
             'data' => json_encode($record),
-            'delta' => json_encode($record),
+            'delta' => json_encode($deltaRecordData),
             'parent_item' => null,
             'parent_collection' => null,
             'parent_changed' => null,
