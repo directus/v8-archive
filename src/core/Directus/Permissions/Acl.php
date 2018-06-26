@@ -2,6 +2,9 @@
 
 namespace Directus\Permissions;
 
+use Directus\Permissions\Exception\ForbiddenCommentCreateException;
+use Directus\Permissions\Exception\ForbiddenCommentDeleteException;
+use Directus\Permissions\Exception\ForbiddenCommentUpdateException;
 use Directus\Permissions\Exception\ForbiddenFieldReadException;
 use Directus\Permissions\Exception\ForbiddenFieldWriteException;
 use Directus\Util\ArrayUtils;
@@ -71,6 +74,13 @@ class Acl
         self::LEVEL_MINE => 1,
         self::LEVEL_ROLE => 2,
         self::LEVEL_FULL => 3
+    ];
+
+    protected $commentLevelsMapping = [
+        self::COMMENT_LEVEL_NONE => 0,
+        self::COMMENT_LEVEL_CREATE => 1,
+        self::COMMENT_LEVEL_UPDATE => 2,
+        self::COMMENT_LEVEL_FULL => 3
     ];
 
     /**
@@ -647,6 +657,146 @@ class Acl
     }
 
     /**
+     * Checks whether or not the user has permission to create comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @return bool
+     */
+    public function canCreateComments($collection, $status = null)
+    {
+        return $this->canComment(static::COMMENT_LEVEL_CREATE, $collection, $status);
+    }
+
+    /**
+     * Throws exception when user cannot create comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @throws ForbiddenCommentCreateException
+     */
+    public function enforceCreateComments($collection, $status = null)
+    {
+        if (!$this->canCreateComments($collection, $status)) {
+            throw new ForbiddenCommentCreateException($collection);
+        }
+    }
+
+    /**
+     * Checks whether or not the user has permission to update their comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @return bool
+     */
+    public function canUpdateMyComments($collection, $status = null)
+    {
+        return $this->canComment(static::COMMENT_LEVEL_UPDATE, $collection, $status);
+    }
+
+    /**
+     * Throws exception when user cannot update their comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @throws ForbiddenCommentUpdateException
+     */
+    public function enforceUpdateMyComments($collection, $status = null)
+    {
+        if (!$this->canUpdateMyComments($collection, $status)) {
+            throw new ForbiddenCommentUpdateException($collection);
+        }
+    }
+
+    /**
+     * Checks whether or not the user can update any comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @return bool
+     */
+    public function canUpdateAnyComments($collection, $status = null)
+    {
+        return $this->canComment(static::COMMENT_LEVEL_FULL, $collection, $status);
+    }
+
+    /**
+     * Throws exception when user cannot update any comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @throws ForbiddenCommentUpdateException
+     */
+    public function enforceUpdateAnyComments($collection, $status = null)
+    {
+        if (!$this->canUpdateAnyComments($collection, $status)) {
+            throw new ForbiddenCommentUpdateException($collection);
+        }
+    }
+
+    /**
+     * Checks whether or not the user can delete their comments
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return bool
+     */
+    public function canDeleteMyComments($collection, $status = null)
+    {
+        return $this->canUpdateMyComments($collection, $status);
+    }
+
+    /**
+     * Throws exception when user cannot delete their comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @throws ForbiddenCommentDeleteException
+     */
+    public function enforceDeleteMyComments($collection, $status = null)
+    {
+        if (!$this->canDeleteMyComments($collection, $status)) {
+            throw new ForbiddenCommentDeleteException($collection);
+        }
+    }
+
+    /**
+     * Checks whether or not the user can delete any comments
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return bool
+     */
+    public function canDeleteAnyComments($collection, $status = null)
+    {
+        return $this->canDeleteAnyComments($collection, $status);
+    }
+
+    /**
+     * Throws exception when user cannot delete any comments
+     *
+     * @param string $collection
+     * @param null $status
+     *
+     * @throws ForbiddenCommentDeleteException
+     */
+    public function enforceDeleteAnyComments($collection, $status = null)
+    {
+        if (!$this->canDeleteAnyComments($collection, $status)) {
+            throw new ForbiddenCommentDeleteException($collection);
+        }
+    }
+
+    /**
      * Checks whether a given collection requires explanation message
      *
      * @param string $collection
@@ -1095,5 +1245,31 @@ class Acl
         }
 
         return false;
+    }
+
+    /**
+     * Check whether the user has permission to a permission level in the given collection
+     *
+     * @param string $level
+     * @param string $collection
+     * @param null $status
+     *
+     * @return bool
+     */
+    protected function canComment($level, $collection, $status = null)
+    {
+        $permission = $this->getPermission($collection, $status);
+        if (!array_key_exists('comment', $permission) || $permission['comment'] === null) {
+            return true;
+        }
+
+        $permissionLevel = ArrayUtils::get($this->commentLevelsMapping, $permission['comment']);
+        $targetLevel = ArrayUtils::get($this->commentLevelsMapping, $level);
+
+        if (!$permissionLevel || !$targetLevel) {
+            return false;
+        }
+
+        return $permissionLevel >= $targetLevel;
     }
 }

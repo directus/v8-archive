@@ -101,6 +101,9 @@ The `error` property is only present when an error has occurred.
 - **0207** - Revision Not Found (404)
 - **0208** - Revision has an invalid delta
 - **0209** - Field Invalid (400) - Trying to use a field that doesn't exists for actions such as filtering and sorting
+- **0210** - Cannot add a comment to an item
+- **0211** - Cannot edit a comment from an item
+- **0212** - Cannot delete a comment from an item
 
 #### Collections error codes
 

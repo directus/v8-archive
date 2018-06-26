@@ -6,6 +6,7 @@ use Directus\Application\Container;
 use Directus\Config\Config;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
@@ -501,6 +502,37 @@ abstract class AbstractService
     }
 
     /**
+     * Fetches a item in the given collection
+     *
+     * @param string $collection
+     * @param mixed $id
+     * @param array $columns
+     * @param array $conditions
+     *
+     * @return BaseRowGateway
+     */
+    protected function fetchItem($collection, $id, array $columns = [], array $conditions = [])
+    {
+        $tableGateway = $this->createTableGateway($collection);
+        $conditions = array_merge($conditions, [
+            $tableGateway->primaryKeyFieldName => $id
+        ]);
+
+        if ($columns === null) {
+            $columns = [$tableGateway->primaryKeyFieldName];
+        } else if (empty($columns)) {
+            $columns = ['*'];
+        }
+
+        $select = $tableGateway->getSql()->select();
+        $select->columns($columns);
+        $select->where($conditions);
+        $select->limit(1);
+
+        return $tableGateway->selectWith($select)->current();
+    }
+
+    /**
      * Checks whether the given id exists in the given collection
      *
      * @param string $collection
@@ -511,17 +543,7 @@ abstract class AbstractService
      */
     protected function itemExists($collection, $id, array $conditions = [])
     {
-        $tableGateway = $this->createTableGateway($collection);
-        $conditions = array_merge($conditions, [
-            $tableGateway->primaryKeyFieldName => $id
-        ]);
-
-        $select = $tableGateway->getSql()->select();
-        $select->columns([$tableGateway->primaryKeyFieldName]);
-        $select->where($conditions);
-        $select->limit(1);
-
-        return $tableGateway->selectWith($select)->count() === 1;
+        return $this->fetchItem($collection, $id, null, $conditions) ? true : false;
     }
 
     /**

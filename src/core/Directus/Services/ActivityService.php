@@ -3,10 +3,13 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusRolesTableGateway;
+use function Directus\get_item_owner;
+use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 
@@ -50,8 +53,21 @@ class ActivityService extends AbstractService
             'user' => $this->getAcl()->getUserId()
         ]);
 
-        $this->validatePayload($this->collection, null, $data, $params);
-        $this->enforcePermissions($this->collection, $data, $params);
+        $this->validateCommentsPayload($data, $params);
+
+        $collectionName = ArrayUtils::get($data, 'collection');
+        $itemId = ArrayUtils::get($data, 'item');
+        $item = $this->fetchItem($this->collection, $itemId);
+
+        if (!$item) {
+            throw new ItemNotFoundException();
+        }
+
+        $this->enforcePermissionsOnCreate(
+            $collectionName,
+            $item->toArray(),
+            $params
+        );
 
         $tableGateway = $this->getTableGateway();
 
@@ -76,11 +92,7 @@ class ActivityService extends AbstractService
             'datetime_edited' => DateTimeUtils::nowInUTC()->toString()
         ];
 
-        $this->enforcePermissions($this->collection, $data, $params);
-
-        $this->checkItemExists($this->collection, $id, [
-            'type' => DirectusActivityTableGateway::TYPE_COMMENT
-        ]);
+        $this->enforcepermissionsOnExisting(Acl::ACTION_UPDATE, $id, $params);
 
         $tableGateway = $this->getTableGateway();
         $newComment = $tableGateway->updateRecord($id, $data, $this->getCRUDParams($params));
@@ -94,8 +106,7 @@ class ActivityService extends AbstractService
 
     public function deleteComment($id, array $params = [])
     {
-        $this->enforcePermissions($this->collection, [], $params);
-        $this->checkItemExists($this->collection, $id);
+        $this->enforcePermissionsOnExisting(Acl::ACTION_DELETE, $id, $params);
 
         $tableGateway = $this->getTableGateway();
         $tableGateway->updateRecord($id, ['deleted_comment' => true]);
@@ -149,5 +160,150 @@ class ActivityService extends AbstractService
         }
 
         return $this->tableGateway;
+    }
+
+    /**
+     * Validates the comment payload
+     *
+     * @param array $payload
+     * @param array $params
+     */
+    protected function validateCommentsPayload(array $payload, array $params = [])
+    {
+        $this->validatePayload($this->collection, null, $payload, $params);
+        $this->validate([
+            'collection' => ArrayUtils::get($payload, 'collection'),
+            'item' => ArrayUtils::get($payload, 'item')
+        ], [
+            'collection' => 'required',
+            'item' => 'required'
+        ]);
+    }
+
+    /**
+     * Gets the data status value, if any.
+     *
+     * @param string $collectionName
+     * @param array $data
+     *
+     * @return mixed|null
+     */
+    protected function getStatusValue($collectionName, array $data)
+    {
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+        $status = null;
+        $statusField = $collection->getStatusField();
+        if ($statusField) {
+            $status = ArrayUtils::get($data, $statusField->getName(), $statusField->getDefaultValue());
+        }
+
+        return $status;
+    }
+
+    /**
+     * Throws exception if failed enforcing a set of permissions on create
+     *
+     * @param string $collectionName
+     * @param array $data
+     * @param array $params
+     */
+    protected function enforcePermissionsOnCreate($collectionName, array $data, array $params = [])
+    {
+        $this->enforcePermissions($this->collection, $data, $params);
+
+        $this->getAcl()->enforceCreateComments(
+            $collectionName,
+            $this->getStatusValue($collectionName, $data)
+        );
+    }
+
+    /**
+     * Throws exception if failed enforcing a set of permissions on update
+     *
+     * @param mixed $id
+     * @param string $collectionName
+     * @param array $data
+     * @param array $params
+     */
+    protected function enforcePermissionsOnUpdate($id, $collectionName, array $data, array $params = [])
+    {
+        $this->enforcePermissions($collectionName, $data, $params);
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+
+        $ownerId = get_item_owner($collectionName, $id);
+        if ($collection->getUserCreatedField() && $ownerId !== $this->getAcl()->getUserId()) {
+            $this->getAcl()->enforceUpdateAnyComments(
+                $collectionName,
+                $this->getStatusValue($collectionName, $data));
+        } else {
+            $this->getAcl()->enforceUpdateMyComments(
+                $collectionName,
+                $this->getStatusValue($collectionName, $data)
+            );
+        }
+    }
+
+    /**
+     * Throws exception if failed enforcing a set of permissions on delete
+     *
+     * @param mixed $id
+     * @param string $collectionName
+     * @param array $data
+     * @param array $params
+     */
+    protected function enforcePermissionsOnDelete($id, $collectionName, array $data, array $params = [])
+    {
+        $this->enforcePermissions($collectionName, $data, $params);
+
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+        $ownerId = get_item_owner($collectionName, $id);
+        if ($collection->getUserCreatedField() && $ownerId !== $this->getAcl()->getUserId()) {
+            $this->getAcl()->enforceDeleteAnyComments(
+                $collectionName,
+                $this->getStatusValue($collectionName, $data)
+            );
+        } else {
+            $this->getAcl()->enforceDeleteMyComments(
+                $collectionName,
+                $this->getStatusValue($collectionName, $data)
+            );
+        }
+    }
+
+    /**
+     * Throws exception if failed enforcing a set of permissions on update or delete
+     *
+     * @param string $action
+     * @param mixed $id
+     * @param array $params
+     *
+     * @throws ItemNotFoundException
+     */
+    protected function enforcePermissionsOnExisting($action, $id, array $params = [])
+    {
+        $commentItem = $this->fetchItem($this->collection, $id, ['collection', 'item'], [
+            'type' => DirectusActivityTableGateway::TYPE_COMMENT
+        ]);
+
+        if (!$commentItem) {
+            throw new ItemNotFoundException(
+                sprintf('Comment "%s" not found', $id)
+            );
+        }
+
+        $item = $this->fetchItem($commentItem['collection'], $commentItem['item']);
+        if (!$item) {
+            throw new ItemNotFoundException();
+        }
+
+        $collectionName = $commentItem['collection'];
+        $itemId = $commentItem['item'];
+        $data = $item->toArray();
+
+        if ($action === Acl::ACTION_DELETE) {
+            $this->enforcePermissionsOnDelete($itemId, $collectionName, $data, $params);
+        } else if ($action == Acl::ACTION_UPDATE) {
+            $this->enforcePermissionsOnUpdate($itemId, $collectionName, $data, $params);
+        }
     }
 }
