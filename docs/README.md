@@ -1338,7 +1338,7 @@ Updates the details of a given collection.
 #### Delete a collection
 
 ```http
-DELETE /[env]/collection/[pk]
+DELETE /[env]/collections/[pk]
 ```
 
 Permanently deletes a collection information, the table and all its contents.
