@@ -13,7 +13,7 @@ class ItemsService extends AbstractService
 {
     public function createItem($collection, $payload, $params = [])
     {
-        $this->enforcePermissions($collection, $payload, $params);
+        $this->enforceCreatePermissions($collection, $payload, $params);
         $this->validatePayload($collection, null, $payload, $params);
 
         $tableGateway = $this->createTableGateway($collection);
@@ -118,7 +118,7 @@ class ItemsService extends AbstractService
      */
     public function update($collection, $id, $payload, array $params = [])
     {
-        $this->enforcePermissions($collection, $payload, $params);
+        $this->enforceUpdatePermissions($collection, $payload, $params);
         $this->validatePayload($collection, array_keys($payload), $payload, $params);
         $this->checkItemExists($collection, $id);
 
@@ -166,6 +166,7 @@ class ItemsService extends AbstractService
         }
 
         foreach ($items as $data) {
+            $this->enforceCreatePermissions($collection, $data, $params);
             $this->validatePayload($collection, null, $data, $params);
         }
 
@@ -200,6 +201,7 @@ class ItemsService extends AbstractService
         }
 
         foreach ($items as $data) {
+            $this->enforceCreatePermissions($collection, $data, $params);
             $this->validatePayload($collection, array_keys($data), $data, $params);
             $this->validatePayloadHasPrimaryKey($collection, $data);
         }
@@ -232,6 +234,7 @@ class ItemsService extends AbstractService
      */
     public function batchUpdateWithIds($collection, array $ids, array $payload, array $params = [])
     {
+        $this->enforceCreatePermissions($collection, $payload, $params);
         $this->validatePayload($collection, array_keys($payload), $payload, $params);
 
         $allItems = [];

@@ -22,7 +22,7 @@ class FilesServices extends AbstractService
 
     public function create(array $data, array $params = [])
     {
-        $this->enforcePermissions($this->collection, $data, $params);
+        $this->enforceCreatePermissions($this->collection, $data, $params);
         $tableGateway = $this->createTableGateway($this->collection);
 
         $data['upload_user'] = $this->getAcl()->getUserId();
@@ -56,7 +56,7 @@ class FilesServices extends AbstractService
 
     public function update($id, array $data, array $params = [])
     {
-        $this->enforcePermissions($this->collection, $data, $params);
+        $this->enforceUpdatePermissions($this->collection, $data, $params);
 
         $this->checkItemExists($this->collection, $id);
         $this->validatePayload($this->collection, array_keys($data), $data, $params);
@@ -98,7 +98,7 @@ class FilesServices extends AbstractService
     public function createFolder(array $data, array $params = [])
     {
         $collection = 'directus_folders';
-        $this->enforcePermissions($collection, $data, $params);
+        $this->enforceCreatePermissions($collection, $data, $params);
         $this->validatePayload($collection, null, $data, $params);
 
         $foldersTableGateway = $this->createTableGateway($collection);
@@ -130,7 +130,7 @@ class FilesServices extends AbstractService
     public function updateFolder($id, array $data, array $params = [])
     {
         $collectionName = 'directus_folders';
-        $this->enforcePermissions($collectionName, $data, $params);
+        $this->enforceUpdatePermissions($collectionName, $data, $params);
         $this->checkItemExists($collectionName, $id);
 
         $foldersTableGateway = $this->createTableGateway('directus_folders');

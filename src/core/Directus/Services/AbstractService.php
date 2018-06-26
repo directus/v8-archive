@@ -458,16 +458,36 @@ abstract class AbstractService
         }
 
         $acl = $this->getAcl();
-        if ($acl->requireComment($collection, $status) && empty($params['comment'])) {
-            throw new ForbiddenException('Activity comment required for collection: ' . $collection);
+        $requireExplanation = $acl->requireExplanation($collection, $status);
+        $action = ArrayUtils::get($params, 'action');
+        if (!$requireExplanation && $action) {
+            $requireExplanation = $acl->requireExplanationAt($action, $collection, $status);
         }
 
-        if ($acl->canComment($collection, $status) && !empty($params['comment'])) {
-            throw new ForbiddenException('You are not allowed add comment for collection: ' . $collection);
+        if ($requireExplanation && empty($params['comment'])) {
+            throw new ForbiddenException('Activity comment required for collection: ' . $collection);
         }
 
         // Enforce write field blacklist
         $this->getAcl()->enforceWriteField($collection, array_keys($payload), $status);
+    }
+
+    protected function enforceCreatePermissions($collection, array $payload, array $params)
+    {
+        $this->enforcePermissions(
+            $collection,
+            $payload,
+            array_merge($params, ['action' => Acl::ACTION_CREATE])
+        );
+    }
+
+    protected function enforceUpdatePermissions($collection, array $payload, array $params)
+    {
+        $this->enforcePermissions(
+            $collection,
+            $payload,
+            array_merge($params, ['action' => Acl::ACTION_UPDATE])
+        );
     }
 
     /**

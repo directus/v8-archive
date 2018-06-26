@@ -1101,7 +1101,7 @@ class BaseTableGateway extends TableGateway
 
         if (empty($statuses)) {
             $ownerIds = [$authenticatedUserId];
-            if ($this->acl->canReadFromGroup($this->table)) {
+            if ($this->acl->canReadFromRole($this->table)) {
                 $ownerIds = array_merge(
                     $ownerIds,
                     $groupUsersId
@@ -1121,8 +1121,7 @@ class BaseTableGateway extends TableGateway
                     }
 
                     $ownerIds = $canReadAll ? null : [$authenticatedUserId];
-                    $canReadFromGroup = $this->acl->canReadFromGroup($collection, $status);
-                    if (!$canReadAll && $canReadFromGroup) {
+                    if (!$canReadAll && $this->acl->canReadFromRole($collection, $status)) {
                         $ownerIds = array_merge(
                             $ownerIds,
                             $groupUsersId
@@ -1206,7 +1205,7 @@ class BaseTableGateway extends TableGateway
         }
 
         if (!$userItem && $hasRole) {
-            $this->acl->enforceUpdateFromGroup($updateTable, $statusId);
+            $this->acl->enforceUpdateFromRole($updateTable, $statusId);
         } else if ($userItem) {
             $this->acl->enforceUpdate($updateTable, $statusId);
         }
@@ -1267,7 +1266,7 @@ class BaseTableGateway extends TableGateway
         }
 
         if (!$userItem && $hasRole) {
-            $this->acl->enforceDeleteFromGroup($deleteTable, $statusId);
+            $this->acl->enforceDeleteFromRole($deleteTable, $statusId);
         } else if ($userItem) {
             $this->acl->enforceDelete($deleteTable, $statusId);
         }

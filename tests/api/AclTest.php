@@ -170,7 +170,7 @@ class AclTest extends PHPUnit_Framework_TestCase
         ]);
 
         $this->assertTrue($acl->canUpdateMine('test'));
-        $this->assertFalse($acl->canUpdateFromGroup('test'));
+        $this->assertFalse($acl->canUpdateFromRole('test'));
         $this->assertFalse($acl->canUpdateAll('test'));
     }
 
@@ -254,30 +254,30 @@ class AclTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->acl->canCreate('test_table'));
 
         $this->assertTrue($this->acl->canReadMine('test_table'));
-        $this->assertFalse($this->acl->canReadFromGroup('test_table'));
+        $this->assertFalse($this->acl->canReadFromRole('test_table'));
         $this->assertFalse($this->acl->canReadAll('test_table'));
 
         $this->assertTrue($this->acl->canUpdateMine('test_table'));
-        $this->assertFalse($this->acl->canUpdateFromGroup('test_table'));
+        $this->assertFalse($this->acl->canUpdateFromRole('test_table'));
         $this->assertFalse($this->acl->canUpdateAll('test_table'));
 
         $this->assertFalse($this->acl->canDeleteMine('test_table'));
-        $this->assertFalse($this->acl->canDeleteFromGroup('test_table'));
+        $this->assertFalse($this->acl->canDeleteFromRole('test_table'));
         $this->assertFalse($this->acl->canDeleteAll('test_table'));
 
         // Test table: status 1
         $this->assertFalse($this->acl->canCreate('products', 1));
 
         $this->assertTrue($this->acl->canReadMine('products', 1));
-        $this->assertTrue($this->acl->canReadFromGroup('products', 1));
+        $this->assertTrue($this->acl->canReadFromRole('products', 1));
         $this->assertFalse($this->acl->canReadAll('products', 1));
 
         $this->assertFalse($this->acl->canUpdateMine('products', 1));
-        $this->assertFalse($this->acl->canUpdateFromGroup('products', 1));
+        $this->assertFalse($this->acl->canUpdateFromRole('products', 1));
         $this->assertFalse($this->acl->canUpdateAll('products', 1));
 
         $this->assertFalse($this->acl->canDeleteMine('products', 1));
-        $this->assertFalse($this->acl->canDeleteFromGroup('products', 1));
+        $this->assertFalse($this->acl->canDeleteFromRole('products', 1));
         $this->assertFalse($this->acl->canDeleteAll('products', 1));
     }
 
@@ -344,7 +344,7 @@ class AclTest extends PHPUnit_Framework_TestCase
     public function testEnforceCanReadPasses()
     {
         $this->acl->enforceReadMine('directus_files');
-        $this->acl->enforceReadFromGroup('directus_files');
+        $this->acl->enforceReadFromRole('directus_files');
         $this->acl->enforceReadAll('directus_files');
         $this->acl->enforceRead('directus_files');
     }
@@ -352,7 +352,7 @@ class AclTest extends PHPUnit_Framework_TestCase
     public function testEnforceCanUpdatePasses()
     {
         $this->acl->enforceUpdateMine('directus_files');
-        $this->acl->enforceUpdateFromGroup('directus_files');
+        $this->acl->enforceUpdateFromRole('directus_files');
         $this->acl->enforceUpdateAll('directus_files');
         $this->acl->enforceUpdate('directus_files');
     }
@@ -360,7 +360,7 @@ class AclTest extends PHPUnit_Framework_TestCase
     public function testEnforceCanDeletePasses()
     {
         $this->acl->enforceDeleteMine('directus_files');
-        $this->acl->enforceDeleteFromGroup('directus_files');
+        $this->acl->enforceDeleteFromRole('directus_files');
         $this->acl->enforceDeleteAll('directus_files');
         $this->acl->enforceDelete('directus_files');
     }
@@ -378,7 +378,7 @@ class AclTest extends PHPUnit_Framework_TestCase
      */
     public function testEnforceCanReadFromGroupFails()
     {
-        $this->acl->enforceReadFromGroup('forbid');
+        $this->acl->enforceReadFromRole('forbid');
     }
 
     /**
@@ -418,7 +418,7 @@ class AclTest extends PHPUnit_Framework_TestCase
      */
     public function testEnforceCanUpdateFromGroupFails()
     {
-        $this->acl->enforceUpdateFromGroup('forbid');
+        $this->acl->enforceUpdateFromRole('forbid');
     }
 
     /**
@@ -450,7 +450,7 @@ class AclTest extends PHPUnit_Framework_TestCase
      */
     public function testEnforceCanDeleteFromGroupFails()
     {
-        $this->acl->enforceDeleteFromGroup('forbid');
+        $this->acl->enforceDeleteFromRole('forbid');
     }
 
     /**
@@ -516,17 +516,17 @@ class AclTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($acl->canCreate('articles', null));
 
         $this->assertTrue($acl->canReadAll('articles', 1));
-        $this->assertTrue($acl->canReadFromGroup('articles', 1));
+        $this->assertTrue($acl->canReadFromRole('articles', 1));
         $this->assertTrue($acl->canReadMine('articles', 1));
         $this->assertTrue($acl->canRead('articles', 1));
 
         $this->assertFalse($acl->canUpdateAll('articles', 1));
-        $this->assertFalse($acl->canUpdateFromGroup('articles', 1));
+        $this->assertFalse($acl->canUpdateFromRole('articles', 1));
         $this->assertFalse($acl->canUpdateMine('articles', 1));
         $this->assertFalse($acl->canUpdate('articles', 1));
 
         $this->assertFalse($acl->canDeleteAll('articles', 1));
-        $this->assertFalse($acl->canDeleteFromGroup('articles', 1));
+        $this->assertFalse($acl->canDeleteFromRole('articles', 1));
         $this->assertFalse($acl->canDeleteMine('articles', 1));
         $this->assertFalse($acl->canDelete('articles', 1));
     }

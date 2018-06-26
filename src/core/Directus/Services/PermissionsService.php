@@ -30,7 +30,7 @@ class PermissionsService extends AbstractService
      */
     public function create(array $data, array $params = [])
     {
-        $this->enforcePermissions($this->collection, $data, $params);
+        $this->enforceCreatePermissions($this->collection, $data, $params);
         $this->validatePayload($this->collection, null, $data, $params);
 
         $tableGateway = $this->getTableGateway();
@@ -68,7 +68,7 @@ class PermissionsService extends AbstractService
 
     public function update($id, array $data, array $params = [])
     {
-        $this->enforcePermissions($this->collection, $data, $params);
+        $this->enforceUpdatePermissions($this->collection, $data, $params);
         $this->validatePayload($this->collection, array_keys($data), $data, $params);
         $this->checkItemExists($this->collection, $id);
 

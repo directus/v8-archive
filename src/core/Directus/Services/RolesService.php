@@ -41,7 +41,7 @@ class RolesService extends AbstractService
     public function create(array $data, array $params = [])
     {
         $this->validatePayload($this->collection, null, $data, $params);
-        $this->enforcePermissions($this->collection, $data, $params);
+        $this->enforceCreatePermissions($this->collection, $data, $params);
 
         $groupsTableGateway = $this->createTableGateway($this->collection);
         $newGroup = $groupsTableGateway->createRecord($data, $this->getCRUDParams($params));
@@ -99,7 +99,7 @@ class RolesService extends AbstractService
     public function update($id, array $data, array $params = [])
     {
         $this->validatePayload($this->collection, array_keys($data), $data, $params);
-        $this->enforcePermissions($this->collection, $data, $params);
+        $this->enforceCreatePermissions($this->collection, $data, $params);
         $this->checkItemExists($this->collection, $id);
 
         $groupsTableGateway = $this->getTableGateway();

@@ -197,7 +197,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Intern CAN create but CANNOT READ
         $this->addPermissionTo($this->internGroup, 'posts', [
-            'create' => Acl::LEVEL_USER
+            'create' => Acl::LEVEL_MINE
         ]);
 
         $data = [
@@ -218,7 +218,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Intern Can read their items
         $this->updatePermission(1, [
-            'read' => Acl::LEVEL_USER
+            'read' => Acl::LEVEL_MINE
         ]);
 
         // Intern can read posts
@@ -310,7 +310,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN delete their own posts BUT CANNOT read any posts
         $this->addPermissionTo($this->internGroup, $collection, [
             'status' => null,
-            'delete' => Acl::LEVEL_USER
+            'delete' => Acl::LEVEL_MINE
         ]);
 
         $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
@@ -332,7 +332,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Intern CAN update their own group posts BUT CANNOT read any posts
         $this->updatePermission(1, [
-            'delete' => Acl::LEVEL_GROUP
+            'delete' => Acl::LEVEL_ROLE
         ]);
 
         $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
@@ -375,7 +375,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update any posts BUT CAN only read their own posts
         $this->updatePermission(1, [
             'delete' => Acl::LEVEL_FULL,
-            'read' => Acl::LEVEL_USER
+            'read' => Acl::LEVEL_MINE
         ]);
 
         $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
@@ -394,7 +394,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update any posts BUT CAN only read their own group posts
         $this->updatePermission(1, [
             'delete' => Acl::LEVEL_FULL,
-            'read' => Acl::LEVEL_GROUP
+            'read' => Acl::LEVEL_ROLE
         ]);
 
         $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
@@ -498,7 +498,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $currentStatus = $statuses[0];
         $this->updatePermission(1, [
             'status' => $currentStatus,
-            'delete' => Acl::LEVEL_USER
+            'delete' => Acl::LEVEL_MINE
         ]);
 
         $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
@@ -527,7 +527,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update their own group posts with status = 0
         $this->updatePermission(1, [
             'status' => $currentStatus,
-            'delete' => Acl::LEVEL_GROUP
+            'delete' => Acl::LEVEL_ROLE
         ]);
 
         $response = request_delete('items/'.$collection.'/1', ['query' => $this->internQueryParams]);
@@ -576,7 +576,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $currentStatus = $statuses[1];
         $this->updatePermission(2, [
             'status' => $currentStatus,
-            'delete' => Acl::LEVEL_USER
+            'delete' => Acl::LEVEL_MINE
         ]);
 
         $response = request_delete('items/'.$collection.'/2', ['query' => $this->internQueryParams]);
@@ -605,7 +605,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update their own group posts with status = 1
         $this->updatePermission(2, [
             'status' => $currentStatus,
-            'delete' => Acl::LEVEL_GROUP
+            'delete' => Acl::LEVEL_ROLE
         ]);
 
         $response = request_delete('items/'.$collection.'/2', ['query' => $this->internQueryParams]);
@@ -648,7 +648,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $currentStatus = $statuses[2];
         $this->updatePermission(3, [
             'status' => $currentStatus,
-            'delete' => Acl::LEVEL_USER
+            'delete' => Acl::LEVEL_MINE
         ]);
 
         $response = request_delete('items/'.$collection.'/3', ['query' => $this->internQueryParams]);
@@ -671,7 +671,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update their own group posts with status = 0
         $this->updatePermission(3, [
             'status' => $currentStatus,
-            'delete' => Acl::LEVEL_GROUP
+            'delete' => Acl::LEVEL_ROLE
         ]);
 
         $response = request_delete('items/'.$collection.'/3', ['query' => $this->internQueryParams]);
@@ -713,8 +713,8 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $this->resetTestPosts();
         truncate_table(static::$db, 'directus_permissions');
         $this->addPermissionTo($this->internGroup, 'posts', [
-            'create' => Acl::LEVEL_USER,
-            'read' => Acl::LEVEL_USER,
+            'create' => Acl::LEVEL_MINE,
+            'read' => Acl::LEVEL_MINE,
             // 'write_field_blacklist' => 'author,status',
             'read_field_blacklist' => 'status,author'
         ]);
@@ -759,28 +759,28 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 0,
-            'read' => Acl::LEVEL_USER,
+            'read' => Acl::LEVEL_MINE,
             'write_field_blacklist' => 'author,status',
             'read_field_blacklist' => 'status,author'
         ]);
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 1,
-            'read' => Acl::LEVEL_USER,
+            'read' => Acl::LEVEL_MINE,
             'write_field_blacklist' => 'author,status',
             'read_field_blacklist' => 'status,author'
         ]);
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 2,
-            'read' => Acl::LEVEL_USER,
+            'read' => Acl::LEVEL_MINE,
             'write_field_blacklist' => 'author,status',
             'read_field_blacklist' => 'status'
         ]);
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 3,
-            'read' => Acl::LEVEL_USER,
+            'read' => Acl::LEVEL_MINE,
             'read_field_blacklist' => 'id,status,title,author'
         ]);
 
@@ -880,7 +880,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => null,
-            'read' => Acl::LEVEL_USER,
+            'read' => Acl::LEVEL_MINE,
             'write_field_blacklist' => 'author,status',
             'read_field_blacklist' => 'status,author'
         ]);
@@ -936,7 +936,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN create draft but CANNOT READ any items
         $this->addPermissionTo($this->internGroup, $collection, [
             'status' => $statusWithPermission,
-            'create' => Acl::LEVEL_USER
+            'create' => Acl::LEVEL_MINE
         ]);
 
         // Intern cannot create draft posts
@@ -961,8 +961,8 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
         // Intern CAN create draft and CAN READ their own posts
         $this->updatePermission(1, [
-            'create' => Acl::LEVEL_USER,
-            'read' => Acl::LEVEL_USER
+            'create' => Acl::LEVEL_MINE,
+            'read' => Acl::LEVEL_MINE
         ]);
 
         $data = [
@@ -983,12 +983,12 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN read draft and published (1) but CANNOT READ deleted (0)
         $this->addPermissionTo($this->internGroup, $collection, [
             'status' => $publishedStatus,
-            'read' => Acl::LEVEL_USER
+            'read' => Acl::LEVEL_MINE
         ]);
 
         $this->addPermissionTo($this->internGroup, $collection, [
             'status' => $draftStatus,
-            'read' => Acl::LEVEL_USER
+            'read' => Acl::LEVEL_MINE
         ]);
 
         $data0 = ['title' => 'Deleted Post', 'status' => $noPermissionStatusOne, 'author' => 2];
@@ -1088,7 +1088,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update their own posts BUT CANNOT read any posts
         $this->addPermissionTo($this->internGroup, $collection, [
             'status' => null,
-            'update' => Acl::LEVEL_USER
+            'update' => Acl::LEVEL_MINE
         ]);
 
         $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
@@ -1109,7 +1109,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Intern CAN update their own group posts BUT CANNOT read any posts
         $this->updatePermission(1, [
-            'update' => Acl::LEVEL_GROUP
+            'update' => Acl::LEVEL_ROLE
         ]);
 
         $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
@@ -1147,7 +1147,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update any posts BUT CAN only read their own posts
         $this->updatePermission(1, [
             'update' => Acl::LEVEL_FULL,
-            'read' => Acl::LEVEL_USER
+            'read' => Acl::LEVEL_MINE
         ]);
 
         $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
@@ -1163,7 +1163,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update any posts BUT CAN only read their own group posts
         $this->updatePermission(1, [
             'update' => Acl::LEVEL_FULL,
-            'read' => Acl::LEVEL_GROUP
+            'read' => Acl::LEVEL_ROLE
         ]);
 
         $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
@@ -1265,7 +1265,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $currentStatus = $statuses[0];
         $this->updatePermission(1, [
             'status' => $currentStatus,
-            'update' => Acl::LEVEL_USER
+            'update' => Acl::LEVEL_MINE
         ]);
 
         $data = [
@@ -1297,7 +1297,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update their own group posts with status = 0
         $this->updatePermission(1, [
             'status' => $currentStatus,
-            'update' => Acl::LEVEL_GROUP
+            'update' => Acl::LEVEL_ROLE
         ]);
 
         $data = [
@@ -1349,7 +1349,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $currentStatus = $statuses[1];
         $this->updatePermission(2, [
             'status' => $currentStatus,
-            'update' => Acl::LEVEL_USER
+            'update' => Acl::LEVEL_MINE
         ]);
 
         $data = [
@@ -1381,7 +1381,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update their own group posts with status = 1
         $this->updatePermission(2, [
             'status' => $currentStatus,
-            'update' => Acl::LEVEL_GROUP
+            'update' => Acl::LEVEL_ROLE
         ]);
 
         $data = [
@@ -1427,7 +1427,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $currentStatus = $statuses[2];
         $this->updatePermission(3, [
             'status' => $currentStatus,
-            'update' => Acl::LEVEL_USER
+            'update' => Acl::LEVEL_MINE
         ]);
 
         $data = [
@@ -1453,7 +1453,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern CAN update their own group posts with status = 2
         $this->updatePermission(3, [
             'status' => $currentStatus,
-            'update' => Acl::LEVEL_GROUP
+            'update' => Acl::LEVEL_ROLE
         ]);
 
         $data = [

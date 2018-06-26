@@ -13,10 +13,20 @@ class Acl
     const ACTION_UPDATE = 'update';
     const ACTION_DELETE = 'delete';
 
-    const LEVEL_NONE  = 'none';
-    const LEVEL_USER  = 'user';
-    const LEVEL_GROUP = 'group';
-    const LEVEL_FULL  = 'full';
+    const LEVEL_NONE = 'none';
+    const LEVEL_MINE = 'mine';
+    const LEVEL_ROLE = 'role';
+    const LEVEL_FULL = 'full';
+
+    const COMMENT_LEVEL_NONE   = 'none';
+    const COMMENT_LEVEL_CREATE = 'create';
+    const COMMENT_LEVEL_UPDATE = 'update';
+    const COMMENT_LEVEL_FULL   = 'full';
+
+    const EXPLAIN_LEVEL_NONE   = 'none';
+    const EXPLAIN_LEVEL_CREATE = 'create';
+    const EXPLAIN_LEVEL_UPDATE = 'update';
+    const EXPLAIN_LEVEL_ALWAYS = 'always';
 
     const FIELD_READ_BLACKLIST = 'read_field_blacklist';
     const FIELD_WRITE_BLACKLIST = 'write_field_blacklist';
@@ -53,14 +63,14 @@ class Acl
         self::ACTION_CREATE => self::LEVEL_FULL,
         self::ACTION_READ   => self::LEVEL_FULL,
         self::ACTION_UPDATE => self::LEVEL_FULL,
-        self::ACTION_DELETE => 0
+        self::ACTION_DELETE => self::LEVEL_NONE
     ];
 
     protected $permissionLevelsMapping = [
-        'none'  => 0,
-        'user'  => 1,
-        'group' => 2,
-        'full'  => 3
+        self::LEVEL_NONE => 0,
+        self::LEVEL_MINE => 1,
+        self::LEVEL_ROLE => 2,
+        self::LEVEL_FULL => 3
     ];
 
     /**
@@ -411,7 +421,7 @@ class Acl
      */
     public function canCreate($collection, $status = null)
     {
-        return $this->allowTo(static::ACTION_CREATE, static::LEVEL_USER, $collection, $status);
+        return $this->allowTo(static::ACTION_CREATE, static::LEVEL_MINE, $collection, $status);
     }
 
     /**
@@ -463,24 +473,24 @@ class Acl
      */
     public function canReadMine($collection, $status = null)
     {
-        return $this->canReadAt(static::LEVEL_USER, $collection, $status);
+        return $this->canReadAt(static::LEVEL_MINE, $collection, $status);
     }
 
     /**
-     * Checks whether the user can read same group users items in the given collection
+     * Checks whether the user can read items owned by a user in the same user role in the given collection
      *
      * @param $collection
      * @param string|int|null $status
      *
      * @return bool
      */
-    public function canReadFromGroup($collection, $status = null)
+    public function canReadFromRole($collection, $status = null)
     {
-        return $this->canReadAt(static::LEVEL_GROUP, $collection, $status);
+        return $this->canReadAt(static::LEVEL_ROLE, $collection, $status);
     }
 
     /**
-     * Checks whether the user can read same group users items in the given collection
+     * Checks whether the user can read any items in the given collection
      *
      * @param $collection
      * @param string|int|null $status
@@ -529,20 +539,20 @@ class Acl
      */
     public function canUpdateMine($collection, $status = null)
     {
-        return $this->canUpdateAt(static::LEVEL_USER, $collection, $status);
+        return $this->canUpdateAt(static::LEVEL_MINE, $collection, $status);
     }
 
     /**
-     * Checks whether the user can update items from the same user groups in the given collection
+     * Checks whether the user can update items owned by a user of the same user role in the given collection
      *
      * @param string $collection
      * @param mixed $status
      *
      * @return bool
      */
-    public function canUpdateFromGroup($collection, $status = null)
+    public function canUpdateFromRole($collection, $status = null)
     {
-        return $this->canUpdateAt(static::LEVEL_GROUP, $collection, $status);
+        return $this->canUpdateAt(static::LEVEL_ROLE, $collection, $status);
     }
 
     /**
@@ -595,20 +605,20 @@ class Acl
      */
     public function canDeleteMine($collection, $status = null)
     {
-        return $this->canDeleteAt(static::LEVEL_USER, $collection, $status);
+        return $this->canDeleteAt(static::LEVEL_MINE, $collection, $status);
     }
 
     /**
-     * Checks whether the user can delete items that belongs to a user in the same group in the given collection
+     * Checks whether the user can delete items that belongs to an user in the same role in the given collection
      *
      * @param string $collection
      * @param string|int|null $status
      *
      * @return bool
      */
-    public function canDeleteFromGroup($collection, $status = null)
+    public function canDeleteFromRole($collection, $status = null)
     {
-        return $this->canDeleteAt(static::LEVEL_GROUP, $collection, $status);
+        return $this->canDeleteAt(static::LEVEL_ROLE, $collection, $status);
     }
 
     /**
@@ -644,32 +654,19 @@ class Acl
      *
      * @return bool
      */
-    public function requireComment($collection, $status = null)
+    public function requireExplanation($collection, $status = null)
     {
-        $permission = $this->getPermission($collection, $status);
-        if (!array_key_exists('comment', $permission)) {
-            return false;
-        }
-
-        return $permission['comment'] === 'explain';
+        return $this->requireExplanationAt(static::EXPLAIN_LEVEL_ALWAYS, $collection, $status);
     }
 
-    /**
-     * Checks whether a given collection allows to add comments
-     *
-     * @param string $collection
-     * @param null $status
-     *
-     * @return bool
-     */
-    public function canComment($collection, $status = null)
+    public function requireExplanationAt($action, $collection, $status = null)
     {
         $permission = $this->getPermission($collection, $status);
-        if (!array_key_exists('comment', $permission)) {
+        if (!array_key_exists('explain', $permission)) {
             return false;
         }
 
-        return in_array(strtolower($permission['comment']), ['explain', 'comment']);
+        return $permission['explain'] === $action;
     }
 
     /**
@@ -690,16 +687,16 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot read the same group items in the given collection
+     * Throws an exception if the user cannot read items that belongs to an user in the same role in the given collection
      *
      * @param string $collection
      * @param mixed $status
      *
      * @throws Exception\ForbiddenCollectionReadException
      */
-    public function enforceReadFromGroup($collection, $status = null)
+    public function enforceReadFromRole($collection, $status = null)
     {
-        if (!$this->canReadFromGroup($collection, $status)) {
+        if (!$this->canReadFromRole($collection, $status)) {
             throw new Exception\ForbiddenCollectionReadException(
                 $collection
             );
@@ -803,16 +800,16 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot update items from the same group in the given collection
+     * Throws an exception if the user cannot update items that longs to an user in the same role in the given collection
      *
      * @param string $collection
      * @param mixed $status
      *
      * @throws Exception\ForbiddenCollectionUpdateException
      */
-    public function enforceUpdateFromGroup($collection, $status = null)
+    public function enforceUpdateFromRole($collection, $status = null)
     {
-        if (!$this->canUpdateFromGroup($collection, $status)) {
+        if (!$this->canUpdateFromRole($collection, $status)) {
             throw new Exception\ForbiddenCollectionUpdateException(
                 $collection
             );
@@ -867,16 +864,16 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot delete items from the same group in the given collection
+     * Throws an exception if the user cannot delete items that belongs to an user in the same role in the given collection
      *
      * @param string $collection
      * @param mixed $status
      *
      * @throws Exception\ForbiddenCollectionDeleteException
      */
-    public function enforceDeleteFromGroup($collection, $status = null)
+    public function enforceDeleteFromRole($collection, $status = null)
     {
-        if (!$this->canDeleteFromGroup($collection, $status)) {
+        if (!$this->canDeleteFromRole($collection, $status)) {
             throw new Exception\ForbiddenCollectionDeleteException(
                 $collection
             );
@@ -1030,7 +1027,7 @@ class Acl
         foreach ($permissions as $permission) {
             $permissionLevel = ArrayUtils::get($permission, $action);
 
-            if ($this->can($permissionLevel, static::LEVEL_USER)) {
+            if ($this->can($permissionLevel, static::LEVEL_MINE)) {
                 $allowed = true;
                 break;
             }
@@ -1060,7 +1057,7 @@ class Acl
             foreach ($this->statusPermissions[$collection] as $status => $permission) {
                 $permissionLevel = ArrayUtils::get($permission, static::ACTION_READ);
 
-                if ($this->can($permissionLevel, static::LEVEL_USER)) {
+                if ($this->can($permissionLevel, static::LEVEL_MINE)) {
                     $statuses[] = $status;
                 }
             }
@@ -1068,7 +1065,7 @@ class Acl
             $permission = $this->globalPermissions[$collection];
             $permissionLevel = ArrayUtils::get($permission, static::ACTION_READ);
 
-            if ($this->can($permissionLevel, static::LEVEL_USER)) {
+            if ($this->can($permissionLevel, static::LEVEL_MINE)) {
                 $statuses = null;
             }
         }
