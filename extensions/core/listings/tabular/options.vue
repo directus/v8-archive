@@ -53,12 +53,7 @@ export default {
     }
   },
   created() {
-    this.sortList = [
-      ...this.fieldsInUse.map(fieldID => this.fields[fieldID]),
-      ...Object.values(this.fields).filter(
-        fieldInfo => !this.fieldsInUse.includes(fieldInfo.field)
-      )
-    ];
+    this.initSortList();
   },
   methods: {
     setSpacing(value) {
@@ -92,6 +87,19 @@ export default {
           .filter(fieldID => this.fieldsInUse.includes(fieldID))
           .join()
       });
+    },
+    initSortList() {
+      this.sortList = [
+        ...this.fieldsInUse.map(fieldID => this.fields[fieldID]),
+        ...Object.values(this.fields).filter(
+          fieldInfo => !this.fieldsInUse.includes(fieldInfo.field)
+        )
+      ];
+    }
+  },
+  watch: {
+    fields() {
+      this.initSortList();
     }
   }
 };
