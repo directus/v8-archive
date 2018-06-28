@@ -40,23 +40,5 @@ class InstallService extends AbstractService
         InstallerUtils::createTables($basePath, $env, $force);
         InstallerUtils::addDefaultSettings($basePath, $data, $env);
         InstallerUtils::addDefaultUser($basePath, $data, $env);
-
-        // config
-        // db_host
-        // db_name*
-        // db_user*
-        // db_password
-        // -----------
-        // mail_from
-        // cors_enabled
-
-        // database
-        // none
-
-        // default user/settings
-        // project_name => directus_name
-        // user_email => directus_email
-        // user_password => directus_password
-        // user_token => directus_token
     }
 }
