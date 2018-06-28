@@ -2,7 +2,7 @@
 
 namespace Directus;
 
-use Directus\Api\Routes\Install;
+use Directus\Api\Routes\Instances;
 use Directus\Application\Application;
 use Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler;
 use Directus\Application\Http\Request;
@@ -117,7 +117,7 @@ if (!function_exists('create_install_route')) {
      */
     function create_install_route(Application $app)
     {
-        $app->group('/install', Install::class);
+        $app->group('/install', Instances::class);
 
         return $app;
     }

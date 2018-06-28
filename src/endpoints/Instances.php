@@ -6,22 +6,20 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Services\InstallService;
+use Directus\Services\InstanceService;
 
-class Install extends Route
+class Instances extends Route
 {
     public function __invoke(Application $app)
     {
-        $app->post('', [$this, 'install']);
+        $app->post('', [$this, 'create']);
     }
 
-    public function install(Request $request, Response $response)
+    public function create(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
-        $installService = new InstallService($this->container);
-
-        $payload = $request->getParsedBody();
-        $installService->install($payload);
+        $installService = new InstanceService($this->container);
+        $installService->create($request->getParsedBody());
 
         return $this->responseWithData($request, $response, []);
     }

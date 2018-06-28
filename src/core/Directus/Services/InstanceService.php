@@ -5,9 +5,9 @@ namespace Directus\Services;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
 
-class InstallService extends AbstractService
+class InstanceService extends AbstractService
 {
-    public function install(array $data)
+    public function create(array $data)
     {
         $this->validate($data, [
             'env' => 'string',
@@ -36,7 +36,6 @@ class InstallService extends AbstractService
         InstallerUtils::ensureCanCreateTables($basePath, $data, $force);
 
         InstallerUtils::createConfig($basePath, $data, $force);
-
         InstallerUtils::createTables($basePath, $env, $force);
         InstallerUtils::addDefaultSettings($basePath, $data, $env);
         InstallerUtils::addDefaultUser($basePath, $data, $env);
