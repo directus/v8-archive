@@ -228,11 +228,51 @@ The access token that is returned through this endpoint must be used with any su
 | /[env]/settings            | Yes
 | /[env]/users               | Yes
 | /[env]/utils               | No
+| /instances                 | No
 | /interfaces                | No
 | /listings                  | No
 | /pages                     | No
 | /server                    | No
 | /types                     | Yes
+
+### Create new instance
+
+Create a new instance connection
+
+```http
+POST /instances
+```
+
+#### Body
+
+| Attribute       | Description                            | Required
+| --------------- | -------------------------------------- | ---------
+| `db_host`       | Database host. Default: `localhost`    | No
+| `db_port`       | Database port. Default: `3306`         | No
+| `db_name`       | Database name.                         | Yes
+| `db_user`       | Database username.                     | Yes
+| `db_password`   | Database user password. Default: `None`| No
+| `user_email`    | Admin email                            | Yes
+| `user_password` | Admin password                         | Yes
+| `user_token`    | Admin token. Default: `admin_token`    | No
+| `mail_from`     | Default mailer `from` email            | No
+| `project_name`  | The Directus name. Default: `Directus` | No
+| `env`           | The environment name.                  | No
+| `force`         | Force the installation                 | No
+
+::: warning
+When `env` is not specified it will create the default configuration
+:::
+
+```json
+{
+    "db_name": "directus",
+    "db_user": "root",
+    "db_password": "pass",
+    "user_email": "admin@admin.com",
+    "user_password": "admin"
+}
+```
 
 ### Refresh Authentication Token
 
