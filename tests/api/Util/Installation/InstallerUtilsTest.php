@@ -7,7 +7,7 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
     public function testCreateFileException()
     {
         $this->setExpectedException('InvalidArgumentException');
-        InstallerUtils::createConfig([], __DIR__ . '/');
+        InstallerUtils::createConfig(__DIR__ . '/', []);
     }
 
     public function testVariableReplacement()
@@ -35,47 +35,45 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
 
     public function testCreateFiles()
     {
-        InstallerUtils::createConfig([
+        InstallerUtils::createConfig(__DIR__ . '/', [
             'db_type' => 'mysql',
             'db_port' => 3306,
             'db_host' => 'localhost',
             'db_name' => 'directus',
             'db_user' => 'root',
             'db_password' => 'password',
-            'directus_path' => '/directus/',
-            'directus_email' => 'admin@directus.local',
+            'mail_from' => 'admin@directus.local',
             'feedback_token' => 'token',
             'feedback_login' => true,
             'cors_enabled' => true
-        ], __DIR__ . '/');
+        ]);
 
-        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample.php'), sha1_file(__DIR__ . '/api.php'));
+        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample.php'), sha1_file(__DIR__ . '/config/api.php'));
     }
 
     public function testCreateFiles2()
     {
         $this->tearDown();
 
-        InstallerUtils::createConfig([
+        InstallerUtils::createConfig(__DIR__ . '/', [
             'db_type' => 'mysql',
             'db_port' => 3306,
             'db_host' => 'localhost',
             'db_name' => 'directus',
             'db_user' => 'root',
             'db_password' => 'password',
-            'directus_path' => '/directus/',
             'feedback_token' => 'token',
             'feedback_login' => true,
             'cors_enabled' => true
-        ], __DIR__ . '/');
+        ]);
 
-        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample2.php'), sha1_file(__DIR__ . '/api.php'));
+        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample2.php'), sha1_file(__DIR__ . '/config/api.php'));
     }
 
     public function tearDown()
     {
-        if (file_exists(__DIR__ . '/api.php')) {
-            unlink(__DIR__ . '/api.php');
+        if (file_exists(__DIR__ . '/config/api.php')) {
+            unlink(__DIR__ . '/config/api.php');
         }
     }
 }

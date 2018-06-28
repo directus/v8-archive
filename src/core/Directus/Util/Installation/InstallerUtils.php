@@ -630,7 +630,7 @@ class InstallerUtils
             'db_host' => 'localhost',
             'db_port' => 3306,
             'db_password' => null,
-            'email_from' => 'admin@example.com',
+            'mail_from' => 'admin@example.com',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
             'feedback_login' => true,
             'cors_enabled' => false
