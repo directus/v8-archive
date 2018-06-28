@@ -4,6 +4,7 @@ namespace Directus\Console\Common;
 
 use Directus\Application\Application;
 use Directus\Console\Common\Exception\SettingUpdateException;
+use Directus\Util\Installation\InstallerUtils;
 use Zend\Db\TableGateway\TableGateway;
 
 class Setting
@@ -12,14 +13,15 @@ class Setting
     private $db;
     private $settingsTableGateway;
 
-    public function __construct($base_path)
+    public function __construct($base_path, $env = null)
     {
         if ($base_path == null) {
             $base_path = \Directus\base_path();
         }
 
         $this->directus_path = $base_path;
-        $app = new Application($base_path, require $this->directus_path . '/config/api.php');
+        $configPath = InstallerUtils::createConfigPath($this->directus_path, $env);
+        $app = new Application($base_path, require $configPath);
         $this->db = $app->getContainer()->get('database');
 
         $this->settingsTableGateway = new TableGateway('directus_settings', $this->db);

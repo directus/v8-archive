@@ -16,7 +16,15 @@ if (!file_exists($configFilePath)) {
 $env = \Directus\get_api_env_from_request();
 $requestUri = trim(\Directus\get_virtual_path(), '/');
 
-$reservedNames = ['server', 'interfaces', 'pages', 'listings', 'types'];
+$reservedNames = [
+    'server',
+    'interfaces',
+    'pages',
+    'listings',
+    'types',
+    'install'
+];
+
 if ($requestUri && !empty($env) && $env !== '_' && !in_array($env, $reservedNames)) {
     $configFilePath = sprintf('%s/api.%s.php', $configPath, $env);
     if (!file_exists($configFilePath)) {
@@ -69,11 +77,6 @@ $container = $app->getContainer();
 
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
-// TODO: Implement old Slim 2 hooks into middleware
-
-//
-// ----------------------------------------------------------------------------
-
 $app->add(new \Directus\Application\Http\Middleware\TableGatewayMiddleware($app->getContainer()))
     ->add(new \Directus\Application\Http\Middleware\IpRateLimitMiddleware($app->getContainer()))
     ->add(new RKA\Middleware\IpAddress())
@@ -81,6 +84,8 @@ $app->add(new \Directus\Application\Http\Middleware\TableGatewayMiddleware($app-
 
 $app->get('/', \Directus\Api\Routes\Home::class)
     ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()));
+
+$app->group('/install', \Directus\Api\Routes\Install::class);
 
 $app->group('/{env}', function () {
     $this->group('/activity', \Directus\Api\Routes\Activity::class)

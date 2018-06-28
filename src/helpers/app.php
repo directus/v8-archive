@@ -2,6 +2,7 @@
 
 namespace Directus;
 
+use Directus\Api\Routes\Install;
 use Directus\Application\Application;
 use Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler;
 use Directus\Application\Http\Request;
@@ -106,6 +107,22 @@ if (!function_exists('create_ping_route')) {
     }
 }
 
+if (!function_exists('create_install_route')) {
+    /**
+     * Create a new install route
+     *
+     * @param Application $app
+     *
+     * @return Application
+     */
+    function create_install_route(Application $app)
+    {
+        $app->group('/install', Install::class);
+
+        return $app;
+    }
+}
+
 if (!function_exists('create_ping_server')) {
     /**
      * Creates a simple app
@@ -152,6 +169,7 @@ if (!function_exists('create_default_app')) {
         ], $config), $values);
 
         create_ping_route($app);
+        create_install_route($app);
 
         return $app;
     }

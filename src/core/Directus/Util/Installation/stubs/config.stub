@@ -71,7 +71,7 @@ return [
         'default' => [
             'adapter' => 'swift_mailer',
             'transport' => 'mail',
-            'from' => '{{directus_email}}'
+            'from' => '{{mail_from}}'
         ],
     ],
 

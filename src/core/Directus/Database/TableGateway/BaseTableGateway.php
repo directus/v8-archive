@@ -457,7 +457,7 @@ class BaseTableGateway extends TableGateway
         }
 
         $dropped = false;
-        if ($this->schemaManager->tableExists($tableName)) {
+        if ($this->schemaManager->collectionExists($tableName)) {
             // get drop table query
             $sql = new Sql($this->adapter);
             $drop = new Ddl\DropTable($tableName);
@@ -929,7 +929,7 @@ class BaseTableGateway extends TableGateway
     public function convertDates(array $records, Collection $tableSchema, $tableName = null)
     {
         $tableName = $tableName === null ? $this->table : $tableName;
-        $isCustomTable = !$this->schemaManager->isDirectusCollection($tableName);
+        $isCustomTable = !$this->schemaManager->isSystemCollection($tableName);
         $hasSystemDateColumn = $this->schemaManager->hasSystemDateField($tableName);
 
         if (!$hasSystemDateColumn && $isCustomTable) {

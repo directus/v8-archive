@@ -6,17 +6,19 @@ use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Sources\SchemaInterface;
-use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 
 class SchemaManager
 {
     // Tables
     const COLLECTION_ACTIVITY            = 'directus_activity';
+    const COLLECTION_ACTIVITY_SEEN       = 'directus_activity_seen';
     const COLLECTION_COLLECTIONS         = 'directus_collections';
     const COLLECTION_COLLECTION_PRESETS  = 'directus_collection_presets';
     const COLLECTION_FIELDS              = 'directus_fields';
     const COLLECTION_FILES               = 'directus_files';
+    const COLLECTION_FOLDERS             = 'directus_folders';
+    const COLLECTION_MIGRATIONS          = 'directus_migrations';
     const COLLECTION_ROLES               = 'directus_roles';
     const COLLECTION_PERMISSIONS         = 'directus_permissions';
     const COLLECTION_RELATIONS           = 'directus_relations';
@@ -171,35 +173,6 @@ class SchemaManager
     }
 
     /**
-     * Add the system table prefix to to a table name.
-     *
-     * @param string|array $names
-     *
-     * @return array
-     */
-    public function addSystemCollectionPrefix($names)
-    {
-        if (!is_array($names)) {
-            $names = [$names];
-        }
-
-        return array_map(function ($name) {
-            // TODO: Directus tables prefix _probably_ will be dynamic
-            return $this->prefix . $name;
-        }, $names);
-    }
-
-    /**
-     * Get Directus System tables name
-     *
-     * @return array
-     */
-    public function getSystemCollections()
-    {
-        return $this->addSystemCollectionPrefix($this->directusTables);
-    }
-
-    /**
      * Check if the given name is a system table
      *
      * @param $name
@@ -212,14 +185,15 @@ class SchemaManager
     }
 
     /**
-     * Check if a table name exists
+     * Check if a collection exists
      *
-     * @param $tableName
+     * @param string $collectionName
+     *
      * @return bool
      */
-    public function tableExists($tableName)
+    public function collectionExists($collectionName)
     {
-        return $this->source->collectionExists($tableName);
+        return $this->source->collectionExists($collectionName);
     }
 
     /**
@@ -469,39 +443,6 @@ class SchemaManager
     }
 
     /**
-     * Get all Directus system tables name
-     *
-     * @param array $filterNames
-     *
-     * @return array
-     */
-    public function getDirectusCollections(array $filterNames = [])
-    {
-        $tables = $this->directusTables;
-        if ($filterNames) {
-            foreach ($tables as $i => $table) {
-                if (!in_array($table, $filterNames)) {
-                    unset($tables[$i]);
-                }
-            }
-        }
-
-        return $this->addSystemCollectionPrefix($tables);
-    }
-
-    /**
-     * Check if a given table is a directus system table name
-     *
-     * @param $tableName
-     *
-     * @return bool
-     */
-    public function isDirectusCollection($tableName)
-    {
-        return in_array($tableName, $this->getDirectusCollections());
-    }
-
-    /**
      * Get the schema adapter
      *
      * @return SchemaInterface
@@ -549,6 +490,32 @@ class SchemaManager
         }
 
         return $templatesData;
+    }
+
+    /**
+     * Returns all directus system collections name
+     *
+     * @return array
+     */
+    public static function getSystemCollections()
+    {
+        return [
+            static::COLLECTION_ACTIVITY,
+            static::COLLECTION_ACTIVITY_SEEN,
+            static::COLLECTION_COLLECTIONS,
+            static::COLLECTION_COLLECTION_PRESETS,
+            static::COLLECTION_FIELDS,
+            static::COLLECTION_FILES,
+            static::COLLECTION_FOLDERS,
+            static::COLLECTION_MIGRATIONS,
+            static::COLLECTION_ROLES,
+            static::COLLECTION_PERMISSIONS,
+            static::COLLECTION_RELATIONS,
+            static::COLLECTION_REVISIONS,
+            static::COLLECTION_SETTINGS,
+            static::COLLECTION_USER_ROLES,
+            static::COLLECTION_USERS
+        ];
     }
 
     /**

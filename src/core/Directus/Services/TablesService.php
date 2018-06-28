@@ -398,7 +398,7 @@ class TablesService extends AbstractService
         $tableGateway->getOneData($name);
         // ----------------------------------------------------------------------------
 
-        if (!$this->getSchemaManager()->tableExists($name)) {
+        if (!$this->getSchemaManager()->collectionExists($name)) {
             throw new CollectionNotFoundException($name);
         }
 
@@ -815,7 +815,7 @@ class TablesService extends AbstractService
      */
     public function dropTable($name)
     {
-        if (!$this->getSchemaManager()->tableExists($name)) {
+        if (!$this->getSchemaManager()->collectionExists($name)) {
             throw new CollectionNotFoundException($name);
         }
 

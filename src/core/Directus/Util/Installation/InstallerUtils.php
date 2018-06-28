@@ -3,32 +3,42 @@
 namespace Directus\Util\Installation;
 
 use Directus\Application\Application;
-use Directus\Bootstrap;
+use Directus\Database\Connection;
+use Directus\Database\Schema\SchemaManager;
+use Directus\Database\Schema\Sources\MySQLSchema;
+use Directus\Exception\Exception;
+use Directus\Exception\InvalidPathException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Zend\Db\Sql\Ddl\DropTable;
+use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
 class InstallerUtils
 {
     /**
      * Create a config and configuration file into $path
-     * @param $data
-     * @param $path
+     *
+     * @param string $path
+     * @param array $data
+     * @param bool $force
      */
-    public static function createConfig($data, $path)
+    public static function createConfig($path, array $data, $force = false)
     {
-        $requiredAttributes = ['db_host', 'db_name', 'db_user', 'db_password'];
+        $requiredAttributes = ['db_name', 'db_user', 'db_password'];
         if (!ArrayUtils::contains($data, $requiredAttributes)) {
             throw new \InvalidArgumentException(
                 'Creating config files required: ' . implode(', ', $requiredAttributes)
             );
         }
 
-        static::createConfigFile($data, $path);
+        $data = static::createConfigData($data);
+
+        static::createConfigFile(rtrim($path, '/'), $data, $force);
     }
 
     public static function createConfigFileContent($data)
@@ -36,26 +46,6 @@ class InstallerUtils
         $configStub = file_get_contents(__DIR__ . '/stubs/config.stub');
 
         return static::replacePlaceholderValues($configStub, $data);
-    }
-
-    /**
-     * Create config file into $path
-     * @param array $data
-     * @param string $path
-     */
-    protected static function createConfigFile(array $data, $path)
-    {
-        $data = ArrayUtils::defaults([
-            'directus_email' => 'admin@example.com',
-            'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
-            'feedback_login' => true,
-            'cors_enabled' => false
-        ], $data);
-
-        $configStub = static::createConfigFileContent($data);
-
-        $configPath = rtrim($path, '/') . '/api.php';
-        file_put_contents($configPath, $configStub);
     }
 
     /**
@@ -76,17 +66,59 @@ class InstallerUtils
     }
 
     /**
+     * Ensure the tables can be created
+     *
+     * @param string $path
+     * @param array $data
+     * @param bool $force
+     */
+    public static function ensureCanCreateTables($path, array $data, $force = false)
+    {
+        static::ensureMigrationFileExists($path);
+        static::ensureDatabaseConnectionFromData($data);
+        if ($force !== true) {
+            static::ensureSystemTablesDoesNotExistsFromData($data);
+        }
+    }
+
+    /**
      * Create Directus Tables from Migrations
-     * @param string $directusPath
+     *
+     * @param string $basePath
+     * @param string $env
+     * @param bool $force
+     *
      * @throws \Exception
      */
-    public static function createTables($directusPath)
+    public static function createTables($basePath, $env = null, $force = false)
     {
-        $config = static::getMigrationConfig($directusPath);
+        $config = static::getMigrationConfig($basePath, $env);
+
+        if ($force === true) {
+            static::dropTables($basePath, $env);
+        }
 
         $manager = new Manager($config, new StringInput(''), new NullOutput());
         $manager->migrate('development');
         $manager->seed('development');
+    }
+
+    /**
+     * Throws an exception if it can make a database connection
+     *
+     * @param array $data
+     *
+     * @throws Exception
+     */
+    public static function ensureDatabaseConnectionFromData(array $data)
+    {
+        $db = static::createDatabaseConnectionFromData($data);
+
+        try {
+            $db->connect();
+        } catch (\Exception $e) {
+            throw new Exception('Cannot connect to the database');
+        }
     }
 
     /**
@@ -118,24 +150,19 @@ class InstallerUtils
     /**
      * Add Directus default settings
      *
+     * @param string $basePath
      * @param array $data
-     * @param string $directusPath
+     * @param string $env
      *
      * @throws \Exception
      */
-    public static function addDefaultSettings($data, $directusPath)
+    public static function addDefaultSettings($basePath, array $data, $env = null)
     {
-        $directusPath = rtrim($directusPath, '/');
-        /**
-         * Check if configuration files exists
-         * @throws \InvalidArgumentException
-         */
-        static::checkConfigurationFile($directusPath);
+        $basePath = rtrim($basePath, '/');
+        static::ensureConfigFileExists($basePath, $env);
 
-        // require_once $directusPath . '/api/config.php';
-
-        $app = new Application($directusPath, require $directusPath . '/config/api.php');
-        // $db = Bootstrap::get('ZendDb');
+        $configPath = static::createConfigPath($basePath, $env);
+        $app = new Application($basePath, require $configPath);
         $db = $app->getContainer()->get('database');
 
         $defaultSettings = static::getDefaultSettings($data);
@@ -149,35 +176,35 @@ class InstallerUtils
     /**
      * Add Directus default user
      *
+     * @param string $basePath
      * @param array $data
+     * @param string $env
+     *
      * @return array
      */
-    public static function addDefaultUser($data, $directusPath)
+    public static function addDefaultUser($basePath, array $data, $env = null)
     {
-        $app = new Application($directusPath, require $directusPath . '/config/api.php');
-        // $db = Bootstrap::get('ZendDb');
+        $configPath = static::createConfigPath($basePath, $env);
+        $app = new Application($basePath, require $configPath);
         $db = $app->getContainer()->get('database');
+        $auth = $app->getContainer()->get('auth');
         $tableGateway = new TableGateway('directus_users', $db);
 
         $data = ArrayUtils::defaults([
-            'directus_email' => 'admin@example.com',
-            'directus_password' => 'password',
-            'directus_token' => 'admin_token'
+            'user_email' => 'admin@example.com',
+            'user_password' => 'password',
+            'user_token' => 'admin_token'
         ], $data);
 
-        $hash = password_hash($data['directus_password'], PASSWORD_DEFAULT, ['cost' => 12]);
-
-        if (!isset($data['directus_token'])) {
-            $data['directus_token'] = StringUtils::randomString(32);
-        }
+        $hash = $auth->hashPassword($data['user_password']);
 
         $tableGateway->insert([
             'status' => 1,
             'first_name' => 'Admin',
             'last_name' => 'User',
-            'email' => $data['directus_email'],
+            'email' => $data['user_email'],
             'password' => $hash,
-            'token' => $data['directus_token'],
+            'token' => $data['user_token'],
             'locale' => 'en-US'
         ]);
 
@@ -238,20 +265,16 @@ class InstallerUtils
     /**
      * Executes the template migration
      *
-     * @param $name
-     * @param $directusPath
+     * @param string $name
+     * @param string $directusPath
+     * @param string $env
      *
      * @throws \Exception
      */
-    public static function installSchemaFromMigration($name, $directusPath)
+    public static function installSchemaFromMigration($name, $directusPath, $env = null)
     {
         $directusPath = rtrim($directusPath, '/');
-
-        /**
-         * Check if configuration files exists
-         * @throws \InvalidArgumentException
-         */
-        static::checkConfigurationFile($directusPath);
+        static::ensureConfigFileExists($directusPath, $env);
 
         // TODO: Install schema templates
     }
@@ -275,26 +298,102 @@ class InstallerUtils
     }
 
     /**
-     * @param $directusPath
+     * Returns the config name based on its environment
+     *
+     * @param $env
+     *
+     * @return string
+     */
+    public static function getConfigName($env)
+    {
+        $name = 'api';
+
+        if ($env && $env !== '_') {
+            $name = sprintf('api.%s', $env);
+        }
+
+        return $name;
+    }
+
+    /**
+     * Throws an exception if it can create a config file
+     *
+     * @param string $path
+     * @param array $data
+     * @param bool $force
+     */
+    public static function ensureCanCreateConfig($path, array $data, $force = false)
+    {
+        $configPath = static::createConfigPathFromData($path, $data);
+
+        static::ensureDirectoryIsWritable($path);
+        if ($force !== true) {
+            static::ensureFileDoesNotExists($configPath);
+        }
+    }
+
+    /**
+     * Creates a config path for the given environment
+     *
+     * @param string $path
+     * @param string $env
+     *
+     * @return string
+     */
+    public static function createConfigPath($path, $env = null)
+    {
+        $configName = static::getConfigName($env);
+
+        return $path . '/config/' . $configName . '.php';
+    }
+
+    /**
+     * Creates a config path from data
+     *
+     * @param string $path
+     * @param array $data
+     *
+     * @return string
+     */
+    private static function createConfigPathFromData($path, array $data)
+    {
+        return static::createConfigPath($path, ArrayUtils::get($data, 'env'));
+    }
+
+    /**
+     * Create config file into $path
+     *
+     * @param string $path
+     * @param array $data
+     * @param bool $force
+     */
+    private static function createConfigFile($path, array $data, $force = false)
+    {
+        static::ensureCanCreateConfig($path, $data, $force);
+
+        $configStub = static::createConfigFileContent($data);
+        $configPath = static::createConfigPathFromData($path, $data);
+
+        file_put_contents($configPath, $configStub);
+    }
+
+    /**
+     * @param string $basePath
+     * @param string $env
      *
      * @return Config
      */
-    private static function getMigrationConfig($directusPath)
+    private static function getMigrationConfig($basePath, $env = null)
     {
-        $directusPath = rtrim($directusPath, '/');
-        /**
-         * Check if configuration files exists
-         *
-         * @throws \InvalidArgumentException
-         */
-        static::checkConfigurationFile($directusPath);
+        static::ensureConfigFileExists($basePath, $env);
+        static::ensureMigrationFileExists($basePath);
 
-        $configPath = $directusPath . '/config';
+        $configPath = static::createConfigPath($basePath, $env);
 
-        $apiConfig = require $configPath . '/api.php';
-        $configArray = require $configPath . '/migrations.php';
-        $configArray['paths']['migrations'] = $directusPath . '/migrations/db/schemas';
-        $configArray['paths']['seeds'] = $directusPath . '/migrations/db/seeds';
+        $apiConfig = require $configPath;
+        $configArray = require $basePath . '/config/migrations.php';
+        $configArray['paths']['migrations'] = $basePath . '/migrations/db/schemas';
+        $configArray['paths']['seeds'] = $basePath . '/migrations/db/seeds';
         $configArray['environments']['development'] = [
             'adapter' => ArrayUtils::get($apiConfig, 'database.type'),
             'host' => ArrayUtils::get($apiConfig, 'database.host'),
@@ -324,7 +423,7 @@ class InstallerUtils
             [
                 'scope' => 'global',
                 'key' => 'project_name',
-                'value' => isset($data['directus_name']) ? $data['directus_name'] : 'Directus'
+                'value' => isset($data['project_name']) ? $data['project_name'] : 'Directus'
             ],
             [
                 'scope' => 'global',
@@ -350,19 +449,191 @@ class InstallerUtils
     }
 
     /**
-     * Check if config and configuration file exists
-     * @param $directusPath
+     * Check if the api configuration file exists
+     *
+     * @param string $basePath
+     * @param null $env
+     *
      * @throws \Exception
      */
-    private static function checkConfigurationFile($directusPath)
+    private static function ensureConfigFileExists($basePath, $env = null)
     {
-        $directusPath = rtrim($directusPath, '/');
-        if (!file_exists($directusPath . '/config/api.php')) {
-            throw new \Exception('Config file does not exists, run [directus config]');
+        $basePath = rtrim($basePath, '/');
+        $configName = static::getConfigName($env);
+        $configPath = static::createConfigPath($basePath, $env);
+
+        if (!file_exists($configPath)) {
+            throw new InvalidPathException(
+                sprintf('Config file for "%s" does not exists at: "%s"', $configName, $basePath)
+            );
+        }
+    }
+
+    /**
+     * Checks if the migration configuration file exists
+     *
+     * @param string $basePath
+     *
+     * @throws InvalidPathException
+     */
+    private static function ensureMigrationFileExists($basePath)
+    {
+        $migrationConfigPath = $basePath . '/config/migrations.php';
+
+        if (!file_exists($migrationConfigPath)) {
+            throw new InvalidPathException(
+                sprintf('Migration configuration file was not found at: %s', $migrationConfigPath)
+            );
+        }
+    }
+
+    /**
+     * Throws an exception when the given directory is not writable
+     *
+     * @param string $path
+     *
+     * @throws InvalidPathException
+     */
+    private static function ensureDirectoryIsWritable($path)
+    {
+        if (!is_writable($path) || !is_dir($path)) {
+            throw new InvalidPathException(
+                sprintf('Unable to create the config file at "%s"', $path)
+            );
+        }
+    }
+
+    /**
+     * Throws an exception when file exists
+     *
+     * @param string $path
+     *
+     * @throws InvalidPathException
+     */
+    private static function ensureFileDoesNotExists($path)
+    {
+        if (file_exists($path) && is_file($path)) {
+            throw new InvalidPathException(
+                sprintf('Unable to create the config file at "%s". Already exists.', $path)
+            );
+        }
+    }
+
+    /**
+     * Checks if there is not a single system table in the database
+     *
+     * @param array $data
+     *
+     * @throws Exception
+     */
+    private static function ensureSystemTablesDoesNotExistsFromData(array $data)
+    {
+        $db = static::createDatabaseConnectionFromData($data);
+        $schemaManager = static::createSchemaManagerFromData($data, $db);
+
+        foreach (SchemaManager::getSystemCollections() as $table) {
+            if ($schemaManager->collectionExists($table)) {
+                throw new Exception(
+                    sprintf('Directus seems to has been installed in the "%s" database.', $db->getCurrentSchema())
+                );
+            }
+        }
+    }
+
+    /**
+     * Creates a database connection from data
+     *
+     * @param array $data
+     *
+     * @return Connection
+     */
+    private static function createDatabaseConnectionFromData(array $data)
+    {
+        $data = static::createConfigData($data);
+        $charset = ArrayUtils::get($data, 'db_charset', 'utf8mb4');
+
+        $dbConfig = [
+            'driver' => 'Pdo_' . ArrayUtils::get($data, 'db_type'),
+            'host' => ArrayUtils::get($data, 'db_host'),
+            'port' => ArrayUtils::get($data, 'db_port'),
+            'database' => ArrayUtils::get($data, 'db_name'),
+            'username' => ArrayUtils::get($data, 'db_user'),
+            'password' => ArrayUtils::get($data, 'db_password'),
+            'charset' => $charset,
+            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+            \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+        ];
+
+        return new Connection($dbConfig);
+    }
+
+    /**
+     * Creates a Schema Manager adapter
+     *
+     * @param array $data
+     * @param Connection|null $db
+     *
+     * @return SchemaManager
+     */
+    private static function createSchemaManagerFromData(array $data, Connection $db = null)
+    {
+        if ($db === null) {
+            $db = static::createDatabaseConnectionFromData($data);
         }
 
-        if (!file_exists($directusPath . '/config/migrations.php')) {
-            throw new \Exception('Migration configuration file does not exists');
+        // TODO: Implement a factory to support multiple adapters
+        return new SchemaManager(new MySQLSchema($db));
+    }
+
+    /**
+     * Drop all system tables
+     *
+     * @param string $basePath
+     * @param string $env
+     */
+    private static function dropTables($basePath, $env)
+    {
+        $configPath = static::createConfigPath($basePath, $env);
+        $app = new Application($basePath, require $configPath);
+        /** @var Connection $db */
+        $db = $app->getContainer()->get('database');
+        /** @var SchemaManager $schemaManager */
+        $schemaManager = $app->getContainer()->get('schema_manager');
+
+        foreach (SchemaManager::getSystemCollections() as $table) {
+            if (!$schemaManager->collectionExists($table)) {
+                continue;
+            }
+
+            $dropTable = new DropTable($table);
+
+            $sql = new Sql($db);
+            $query = $sql->buildSqlString($dropTable);
+
+            $db->query(
+                $query
+            )->execute();
         }
+    }
+
+    /**
+     * Add the default attributes to config data
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    private static function createConfigData(array $data)
+    {
+        return ArrayUtils::defaults([
+            'db_type' => 'mysql',
+            'db_host' => 'localhost',
+            'db_port' => 3306,
+            'db_password' => null,
+            'email_from' => 'admin@example.com',
+            'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
+            'feedback_login' => true,
+            'cors_enabled' => false
+        ], $data);
     }
 }

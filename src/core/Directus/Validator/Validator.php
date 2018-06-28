@@ -85,6 +85,7 @@ class Validator
             case 'array':
             case 'numeric':
             case 'string':
+            case 'bool':
                 $constraint = new Type(['type' => $name]);
                 break;
             default:
