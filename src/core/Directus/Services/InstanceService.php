@@ -2,6 +2,7 @@
 
 namespace Directus\Services;
 
+use Directus\Exception\ForbiddenException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
 
@@ -9,6 +10,10 @@ class InstanceService extends AbstractService
 {
     public function create(array $data)
     {
+        if ($this->isLocked()) {
+            throw new ForbiddenException('Creating new instance is locked');
+        }
+
         $this->validate($data, [
             'env' => 'string',
 
@@ -39,5 +44,18 @@ class InstanceService extends AbstractService
         InstallerUtils::createTables($basePath, $env, $force);
         InstallerUtils::addDefaultSettings($basePath, $data, $env);
         InstallerUtils::addDefaultUser($basePath, $data, $env);
+    }
+
+    /**
+     * Checks whether .lock file exists
+     *
+     * @return bool
+     */
+    protected function isLocked()
+    {
+        $basePath = $this->container->get('path_base');
+        $lockFilePath = $basePath . '/.lock';
+
+        return file_exists($lockFilePath) && is_file($lockFilePath);
     }
 }
