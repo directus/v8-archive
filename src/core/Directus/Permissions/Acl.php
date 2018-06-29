@@ -105,6 +105,16 @@ class Acl
     protected $userId = null;
 
     /**
+     * @var string
+     */
+    protected $userEmail;
+
+    /**
+     * @var string
+     */
+    protected $userFullName;
+
+    /**
      * List of roles id the user beings to
      *
      * @var array
@@ -137,7 +147,27 @@ class Acl
      */
     public function setUserId($userId)
     {
-        $this->userId = (int)$userId;
+        $this->userId = (int) $userId;
+    }
+
+    /**
+     * Sets the authenticated user email
+     *
+     * @param string $email
+     */
+    public function setUserEmail($email)
+    {
+        $this->userEmail = $email;
+    }
+
+    /**
+     * Sets the authenticated user full name
+     *
+     * @param string $name
+     */
+    public function setUserFullName($name)
+    {
+        $this->userFullName = $name;
     }
 
     /**
@@ -147,7 +177,7 @@ class Acl
      */
     public function setPublic($public)
     {
-        $this->isPublic = (bool)$public;
+        $this->isPublic = (bool) $public;
     }
 
     /**
@@ -158,6 +188,26 @@ class Acl
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * Returns authenticated user email
+     *
+     * @return string
+     */
+    public function getUserEmail()
+    {
+        return $this->userEmail;
+    }
+
+    /**
+     * Returns authenticated user full name
+     *
+     * @return string
+     */
+    public function getUserFullName()
+    {
+        return $this->userFullName;
     }
 
     /**

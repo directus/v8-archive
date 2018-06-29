@@ -55,6 +55,8 @@ class AuthenticationMiddleware extends AbstractMiddleware
         // TODO: User data should be casted to its data type
         // TODO: Make sure that the group is not empty
         $acl->setUserId($user->getId());
+        $acl->setUserEmail($user->getEmail());
+        $acl->setUserFullName($user->get('first_name') . ' ' . $user->get('last_name'));
         if (!$user && $publicRoleId) {
             $acl->setPublic($publicRoleId);
         }
