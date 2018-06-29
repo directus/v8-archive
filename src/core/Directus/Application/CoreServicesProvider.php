@@ -1051,7 +1051,7 @@ class CoreServicesProvider
             $basePath = $container->get('path_base');
 
             return new Twig([
-                $basePath . '/custom/mail',
+                $basePath . '/public/extensions/custom/mail',
                 $basePath . '/src/mail'
             ]);
         };
