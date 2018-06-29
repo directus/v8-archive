@@ -511,7 +511,7 @@ abstract class AbstractService
      *
      * @return BaseRowGateway
      */
-    protected function fetchItem($collection, $id, array $columns = [], array $conditions = [])
+    protected function fetchItem($collection, $id, array $columns = null, array $conditions = [])
     {
         $tableGateway = $this->createTableGateway($collection);
         $conditions = array_merge($conditions, [
