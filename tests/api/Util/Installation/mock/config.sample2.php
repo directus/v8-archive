@@ -69,8 +69,7 @@ return [
 
     'mail' => [
         'default' => [
-            'adapter' => 'swift_mailer',
-            'transport' => 'mail',
+            'transport' => 'sendmail',
             'from' => 'admin@example.com'
         ],
     ],
