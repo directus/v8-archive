@@ -23,8 +23,8 @@ class SimpleFileTransport extends AbstractTransport
     public function send(Swift_Mime_Message $message, &$failedRecipients = null)
     {
         $path = rtrim($this->config->get('path', ''), '/') . '/' . time() . '.txt';
-
         $message = [
+            implode(', ', array_keys($message->getTo())),
             $message->getSubject(),
             $message->getBody()
         ];
