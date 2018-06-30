@@ -6,7 +6,7 @@
       :value="viewOptions.title"
       :options="fieldOptions"
       :placeholder="$t('select_field')"
-      @input="setOption('title', $event === '__none__' ? null : $event)" />
+      @input="setOption('title', $event === '__none__' ? null : $event)"></v-select>
 
     <label for="subtitle">{{ $t('listings-tile-subtitle') }}</label>
     <v-select
@@ -14,7 +14,7 @@
       :value="viewOptions.subtitle"
       :options="fieldOptions"
       :placeholder="$t('select_field')"
-      @input="setOption('subtitle', $event === '__none__' ? null : $event)" />
+      @input="setOption('subtitle', $event === '__none__' ? null : $event)"></v-select>
 
     <label for="src">{{ $t('listings-tile-src') }}</label>
     <v-select
@@ -22,7 +22,7 @@
       :value="viewOptions.src"
       :options="fileOptions"
       :placeholder="$t('select_field')"
-      @input="setOption('src', $event === '__none__' ? null : $event)" />
+      @input="setOption('src', $event === '__none__' ? null : $event)"></v-select>
 
     <label for="content">{{ $t('listings-tile-content') }}</label>
     <v-select
@@ -30,12 +30,12 @@
       :value="viewOptions.content"
       :options="fieldOptions"
       :placeholder="$t('select_field')"
-      @input="setOption('content', $event === '__none__' ? null : $event)" />
+      @input="setOption('content', $event === '__none__' ? null : $event)"></v-select>
 
     <label for="icon">Fallback Icon</label>
     <v-input
       :value="viewOptions.icon || 'photo'"
-      @input="setOption('icon', $event)" />
+      @input="setOption('icon', $event)"></v-input>
   </form>
 </template>
 
