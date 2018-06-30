@@ -1,17 +1,5 @@
 <template>
   <form @submit.prevent>
-    <label for="spacing">Spacing</label>
-    <v-select
-      id="spacing"
-      :value="viewOptions.spacing || 'cozy'"
-      :options="{
-        compact: 'Compact',
-        cozy: 'Cozy',
-        comfortable: 'Comfortable',
-      }"
-      class="select"
-      icon="reorder"
-      @input="setSpacing" />
     <fieldset>
       <legend>{{ $t('listings-tabular-fields') }}</legend>
       <draggable v-model="sortList" @end="sort">
@@ -28,6 +16,18 @@
         </div>
       </draggable>
     </fieldset>
+    <label for="spacing">Spacing</label>
+    <v-select
+      id="spacing"
+      :value="viewOptions.spacing || 'cozy'"
+      :options="{
+        compact: 'Compact',
+        cozy: 'Cozy',
+        comfortable: 'Comfortable',
+      }"
+      class="select"
+      icon="reorder"
+      @input="setSpacing" />
   </form>
 </template>
 
@@ -106,7 +106,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-fieldset {
+label {
   margin-top: 30px;
 }
 
