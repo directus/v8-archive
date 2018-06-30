@@ -50,8 +50,10 @@ class InstallerUtils
 
     /**
      * Replace placeholder wrapped by {{ }} with $data array
+     *
      * @param string $content
      * @param array $data
+     *
      * @return string
      */
     public static function replacePlaceholderValues($content, $data)

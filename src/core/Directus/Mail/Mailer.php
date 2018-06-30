@@ -31,7 +31,17 @@ class Mailer
         return new Message();
     }
 
-    public function send($view, array $data, \Closure $callback = null)
+    public function sendWithTemplate($view, array $data, \Closure $callback = null)
+    {
+        $content = \Directus\parse_twig($view, array_merge(
+            $data,
+            ['api' => ['env' => get_api_env_from_request()]]
+        ));
+
+        $this->sendWithContent($content, 'text/html', $callback);
+    }
+
+    public function sendWithContent($content, $contentType = 'text/html', \Closure $callback = null)
     {
         $transport = $this->transports->getDefault();
         $message = $this->createMessage();
@@ -50,12 +60,7 @@ class Mailer
             $message->setCc($config->get('cc'));
         }
 
-        $content = \Directus\parse_twig($view, array_merge(
-            $data,
-            ['api' => ['env' => get_api_env_from_request()]]
-        ));
-
-        $message->setBody($content, 'text/html');
+        $message->setBody($content, $contentType);
 
         if ($callback) {
             call_user_func($callback, $message);

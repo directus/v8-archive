@@ -76,6 +76,9 @@ class TransportManager
      * @param array $config
      *
      * @return AbstractTransport
+     *
+     * @throws InvalidTransportException
+     * @throws TransportNotFoundException
      */
     protected function build($name, array $config = [])
     {
@@ -87,6 +90,7 @@ class TransportManager
         if (!is_string($transport) && !is_object($transport) && !is_callable($transport)) {
             throw new InvalidTransportException($this->transports[$name]);
         }
+
         if (is_string($transport) && !class_exists($transport)) {
             throw new InvalidTransportException($this->transports[$name]);
         }

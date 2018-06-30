@@ -132,6 +132,9 @@ $app->group('/{env}', function () {
     $this->group('/utils', \Directus\Api\Routes\Utils::class)
         ->add(new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($this->getContainer()))
         ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($this->getContainer()));
+    $this->group('/mail', \Directus\Api\Routes\Mail::class)
+        ->add(new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($this->getContainer()))
+        ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($this->getContainer()));
 
     $this->group('/custom', function () {
         $endpointsList = \Directus\get_custom_endpoints('/public/custom/endpoints');

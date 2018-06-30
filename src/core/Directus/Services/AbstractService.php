@@ -518,6 +518,23 @@ abstract class AbstractService
             $tableGateway->primaryKeyFieldName => $id
         ]);
 
+        $result = $this->fetchItems($collection, $columns, $conditions);
+
+        return $result->current();
+    }
+
+    /**
+     * @param $collection
+     * @param array $columns
+     * @param array $conditions
+     * @param array $params
+     *
+     * @return \Zend\Db\ResultSet\ResultSetInterface
+     */
+    protected function fetchItems($collection, array $columns, array $conditions, array $params = [])
+    {
+        $tableGateway = $this->createTableGateway($collection);
+
         if ($columns === null) {
             $columns = [$tableGateway->primaryKeyFieldName];
         } else if (empty($columns)) {
@@ -527,9 +544,11 @@ abstract class AbstractService
         $select = $tableGateway->getSql()->select();
         $select->columns($columns);
         $select->where($conditions);
-        $select->limit(1);
+        if (ArrayUtils::has($params, 'limit')) {
+            $select->limit(ArrayUtils::get($params, 'limit'));
+        }
 
-        return $tableGateway->selectWith($select)->current();
+        return $tableGateway->selectWith($select);
     }
 
     /**

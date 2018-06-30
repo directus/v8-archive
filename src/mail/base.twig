@@ -36,7 +36,7 @@
 						<table border="0" cellpadding="0" cellspacing="0" width="100%">
 							<tr>
 								<td style="color: #818181; font-family: Helvetica, Arial, sans-serif; padding: 0; line-height: 1.5; font-size: 16px;">
-									{% block content %}{% endblock %}
+									{% block content %}{{ body|raw }}{% endblock %}
 								</td>
 							</tr>
 						</table>

@@ -219,6 +219,7 @@ The access token that is returned through this endpoint must be used with any su
 | /[env]/files               | Yes
 | /[env]/items               | Yes
 | /[env]/interfaces          | No
+| /[env]/mail                | Yes
 | /[env]/pages               | No
 | /[env]/permissions         | Yes
 | /[env]/relations           | Yes
@@ -1741,6 +1742,30 @@ GET /utils/random/string
 | --------------- | ---------------------------------------- |
 | 200 OK          | `data`: The random string                |
 | 400 Bad Request | `message`: Syntax error in provided JSON |
+
+
+### Mail
+
+Send a email to one or multiple emails
+
+```http
+POST /[env]/mail
+```
+
+#### Body
+
+```json
+{
+  "to": [1, "user@example.com", 2, {"email": "intern@example.com", "name": "Jane Doe"}],
+  "subject": "New password",
+  "body": "Hello <b>{{name}}</b>, this is your new password: {{password}}.",
+  "type": "html",
+  "data": {
+    "user": "John Doe",
+    "password": "secret"
+  }
+}
+```
 
 ## SCIM
 
