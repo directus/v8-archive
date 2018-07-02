@@ -47,6 +47,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.v-select {
+    margin-top: 0;
+}
+
 .x-small {
   max-width: var(--width-x-small);
 }
