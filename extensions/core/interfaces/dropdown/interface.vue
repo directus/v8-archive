@@ -48,7 +48,7 @@ export default {
 
 <style lang="scss" scoped>
 .v-select {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .x-small {
