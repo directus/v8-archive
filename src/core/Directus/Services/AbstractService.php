@@ -531,7 +531,7 @@ abstract class AbstractService
      *
      * @return \Zend\Db\ResultSet\ResultSetInterface
      */
-    protected function fetchItems($collection, array $columns, array $conditions, array $params = [])
+    protected function fetchItems($collection, array $columns = null, array $conditions = [], array $params = [])
     {
         $tableGateway = $this->createTableGateway($collection);
 
