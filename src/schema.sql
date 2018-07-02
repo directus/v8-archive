@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-06-25 18:39:36 +0000
+# Generation Time: 2018-07-02 19:29:49 +0000
 # ************************************************************
 
 
@@ -301,7 +301,7 @@ LOCK TABLES `directus_files` WRITE;
 
 INSERT INTO `directus_files` (`id`, `filename`, `title`, `description`, `location`, `tags`, `width`, `height`, `filesize`, `duration`, `metadata`, `type`, `charset`, `embed`, `folder`, `upload_user`, `upload_date`, `storage_adapter`)
 VALUES
-	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-06-25 18:38:31','local');
+	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-07-02 19:29:35','local');
 
 /*!40000 ALTER TABLE `directus_files` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -341,20 +341,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023144,'CreateActivitySeenTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023157,'CreateCollectionsTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023202,'CreateFieldsTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023208,'CreateFilesTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023213,'CreateFoldersTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023217,'CreateRolesTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023226,'CreatePermissionsTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023232,'CreateRelationsTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023238,'CreateRevisionsTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023243,'CreateSettingsTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180220023248,'CreateUsersTable','2018-06-25 20:38:31','2018-06-25 20:38:31',0),
-	(20180426173310,'CreateUserRoles','2018-06-25 20:38:31','2018-06-25 20:38:31',0);
+	(20180220023138,'CreateActivityTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023144,'CreateActivitySeenTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023157,'CreateCollectionsTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023202,'CreateFieldsTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023208,'CreateFilesTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023213,'CreateFoldersTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023217,'CreateRolesTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023226,'CreatePermissionsTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023232,'CreateRelationsTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023238,'CreateRevisionsTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023243,'CreateSettingsTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180220023248,'CreateUsersTable','2018-07-02 21:29:35','2018-07-02 21:29:35',0),
+	(20180426173310,'CreateUserRoles','2018-07-02 21:29:35','2018-07-02 21:29:35',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -370,13 +370,14 @@ CREATE TABLE `directus_permissions` (
   `collection` varchar(64) NOT NULL,
   `role` int(11) unsigned NOT NULL,
   `status` varchar(64) DEFAULT NULL,
-  `allowed_statuses` varchar(1000) DEFAULT NULL,
+  `status_blacklist` varchar(1000) DEFAULT NULL,
   `create` varchar(16) DEFAULT NULL,
   `read` varchar(16) DEFAULT NULL,
   `update` varchar(16) DEFAULT NULL,
   `delete` varchar(16) DEFAULT NULL,
   `navigate` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `comment` varchar(8) DEFAULT NULL,
+  `explain` varchar(8) DEFAULT NULL,
   `read_field_blacklist` varchar(1000) DEFAULT NULL,
   `write_field_blacklist` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -562,7 +563,7 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_access`, `last_page`, `token`, `external_id`)
 VALUES
-	(1,1,'Admin','User','admin@example.com',1,'$2y$12$Ev67perrQF5LDbD1WmMyKe..FFVdx8Blb8iuSakvUFu980TCCfTLa',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
+	(1,1,'Admin','User','admin@example.com',1,'$2y$10$hW2QV1NKUrdNFVmRRQqMl.dszIy04G5BTLozpweGDF/dgZTDquYVu',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;
