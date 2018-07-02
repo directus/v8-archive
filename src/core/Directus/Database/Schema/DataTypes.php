@@ -259,6 +259,18 @@ final class DataTypes
     }
 
     /**
+     * Checks if the given type is a list type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isListType($type)
+    {
+        return in_array(strtolower($type), static::getListTypes());
+    }
+
+    /**
      * Returns a list of Binary data types
      *
      * @return array
@@ -377,5 +389,31 @@ final class DataTypes
     public static function isUniqueType($type)
     {
         return in_array(strtolower($type), static::getUniqueTypes());
+    }
+
+    /**
+     * Returns a list of types that requires a length
+     *
+     * @return array
+     */
+    public static function getLengthTypes()
+    {
+        return array_merge(
+            static::getStringTypes(),
+            static::getNumericTypes(),
+            static::getListTypes()
+        );
+    }
+
+    /**
+     * Checks whether a type requires a length
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isLengthType($type)
+    {
+        return in_array(strtolower($type), static::getLengthTypes());
     }
 }

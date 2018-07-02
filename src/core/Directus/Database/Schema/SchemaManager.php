@@ -539,21 +539,34 @@ class SchemaManager
     public function createFieldFromArray($column)
     {
         // PRIMARY KEY must be required
-        if ($column['key'] === 'PRI') {
+        if ($column['primary_key']) {
             $column['required'] = true;
         }
 
         $options = json_decode(isset($column['options']) ? $column['options'] : '', true);
         $column['options'] = $options ? $options : null;
 
+        $type = strtolower($column['type']);
         // NOTE: Alias column must are nullable
-        if (strtoupper($column['type']) === 'ALIAS') {
-            $column['nullable'] = 1;
+        if (DataTypes::isAliasType($type)) {
+            $column['nullable'] = true;
+        }
+
+        if (DataTypes::isFloatingPointType($type)) {
+            $column['length'] = sprintf('%d,%d', $column['precision'], $column['scale']);
+        } else if (DataTypes::isListType($type)) {
+            $column['length'] = implode(',', array_map(function ($value) {
+                return sprintf('"%s"', $value);
+            }, $column['length']));
+        } else if (DataTypes::isIntegerType($type)) {
+            $column['length'] = $column['precision'];
+        } else {
+            $column['length'] = $column['char_length'];
         }
 
         // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
         // We reserved the word "NULL" on nullable data type to be actually null
-        if ($column['nullable'] === 1 && $column['default_value'] == 'NULL') {
+        if ($column['nullable'] === true && $column['default_value'] == 'NULL') {
             $column['default_value'] = null;
         }
 

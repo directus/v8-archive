@@ -2,9 +2,9 @@
 
 namespace Directus\Database\Ddl\Column;
 
-use Zend\Db\Sql\Ddl\Column\AbstractLengthColumn;
+use Zend\Db\Sql\Ddl\Column\AbstractPrecisionColumn;
 
-class Double extends AbstractLengthColumn
+class Double extends AbstractPrecisionColumn
 {
     /**
      * @var string

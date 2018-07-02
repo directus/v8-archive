@@ -31,6 +31,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Zend\Db\Sql\AbstractSql;
 use Zend\Db\Sql\Ddl\AlterTable;
 use Zend\Db\Sql\Ddl\Column\AbstractLengthColumn;
+use Zend\Db\Sql\Ddl\Column\AbstractPrecisionColumn;
 use Zend\Db\Sql\Ddl\Column\BigInteger;
 use Zend\Db\Sql\Ddl\Column\Binary;
 use Zend\Db\Sql\Ddl\Column\Blob;
@@ -204,7 +205,11 @@ class SchemaFactory
         }
 
         // CollectionLength are SET or ENUM data type
-        if ($column instanceof AbstractLengthColumn || $column instanceof CollectionLength) {
+        if ($column instanceof AbstractPrecisionColumn) {
+            $parts = !is_array($length) ? explode(',', $length) : $length;
+            $column->setDigits($parts[0]);
+            $column->setDecimal(isset($parts[1]) ? $parts[1] : 0);
+        } else if ($column instanceof AbstractLengthColumn || $column instanceof CollectionLength) {
             $column->setLength($length);
         } else {
             $column->setOption('length', $length);

@@ -283,7 +283,7 @@ class TablesService extends AbstractService
         $collectionsCollectionObject = $this->getSchemaManager()->getCollection($collectionsCollectionName);
         $constraints = $this->createConstraintFor($collectionsCollectionName, $collectionsCollectionObject->getFieldsName());
 
-        $this->validate($data, array_merge(['fields' => 'array'], $constraints));
+        $this->validate($data, array_merge(['fields' => 'required|array'], $constraints));
 
         if (!$this->isValidName($name)) {
             throw new InvalidRequestException('Invalid collection name');
@@ -474,9 +474,7 @@ class TablesService extends AbstractService
 
         $data['field'] = $columnName;
         $data['collection'] = $collectionName;
-        // TODO: Length is required by some data types, which make this validation not working fully for columns
-        // TODO: Create new constraint that validates the column data type to be one of the list supported
-        $this->validatePayload('directus_fields', null, $data, $params);
+        $this->validateFieldPayload($data, null, $params);
 
         // ----------------------------------------------------------------------------
 
@@ -545,7 +543,7 @@ class TablesService extends AbstractService
             'payload' => 'required|array'
         ]);
 
-        $this->validatePayload('directus_fields', array_keys($data), $data, $params);
+        $this->validateFieldPayload($data, array_keys($data), $params);
 
         // Remove field from data
         ArrayUtils::pull($data, 'field');
@@ -1091,6 +1089,24 @@ class TablesService extends AbstractService
     }
 
     /**
+     * @param array $data
+     * @param array|null $fields
+     * @param array $params
+     *
+     * @throws UnprocessableEntityException
+     */
+    protected function validateFieldPayload(array $data, array $fields = null, array $params = [])
+    {
+        // TODO: Create new constraint that validates the column data type to be one of the list supported
+        $this->validatePayload('directus_fields', $fields, $data, $params);
+
+        $type = ArrayUtils::get($data, 'type');
+        if ($type && DataTypes::isLengthType($type) && !ArrayUtils::get($data, 'length')) {
+            throw new UnprocessableEntityException('Missing length for: ' . ArrayUtils::get($data, 'field'));
+        }
+    }
+
+    /**
      * @param array $columns
      *
      * @throws InvalidRequestException
@@ -1260,7 +1276,7 @@ class TablesService extends AbstractService
     {
         $tableGateway = $this->getFieldsTableGateway();
         $isNumericType = DataTypes::isNumericType($field->getType());
-        $attributeWhitelist = ['managed', 'default_value', 'primary_key'];
+        $attributeWhitelist = ['managed', 'default_value', 'primary_key', 'length'];
 
         if ($isNumericType) {
             $attributeWhitelist[] = 'signed';
