@@ -374,12 +374,29 @@ class CoreServicesProvider
                     $key = $field->getName();
                     $value = $data[$key];
 
+                    // convert string to array
+                    $decodeFn = function ($value) {
+                        // if empty string, empty array, null or false
+                        if (empty($value) && !is_numeric($value)) {
+                            $value = [];
+                        } else {
+                            $value = !is_array($value) ? explode(',', $value) :  $value;
+                        }
+
+                        return $value;
+                    };
+
+                    // convert array into string
+                    $encodeFn = function ($value) {
+                        return is_array($value) ? implode(',', $value) : $value;
+                    };
+
                     // NOTE: If the array has value with comma it will be treat as a separate value
                     // should we encode the commas to "hide" the comma when splitting the values?
                     if ($decode) {
-                        $value = !is_array($value) ? explode(',', $value) :  $value;
+                        $value = $decodeFn($value);
                     } else {
-                        $value = is_array($value) ? implode(',', $value) : $value;
+                        $value = $encodeFn($value);
                     }
 
                     $data[$key] = $value;
