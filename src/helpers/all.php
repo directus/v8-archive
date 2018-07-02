@@ -1375,7 +1375,7 @@ if (!function_exists('display_missing_requirements_html')) {
 
 if (!function_exists('define_constant')) {
     /**
-     * Define a constant if it does not exists
+     * Define a constant if it does not exist
      *
      * @param string $name
      * @param mixed $value

@@ -1168,7 +1168,7 @@ class TablesService extends AbstractService
             try {
                 $collectionsData[] = $this->mergeSchemaCollection($name, []);
             } catch (CollectionNotFoundException $e) {
-                // if the collection doesn't exists don't bother with the exception
+                // if the collection doesn't exist don't bother with the exception
                 // as this is a "filtering" result
                 //  which means getting empty result is okay and expected
             }
@@ -1183,7 +1183,7 @@ class TablesService extends AbstractService
         foreach ($collectionsData as $collectionData) {
             $newData = $this->mergeSchemaCollection($collectionData['collection'], $collectionData);
 
-            // if null the actual table doesn't exists
+            // if null the actual table doesn't exist
             if ($newData) {
                 $newCollectionsData[] = $newData;
             }
@@ -1239,7 +1239,7 @@ class TablesService extends AbstractService
     {
         $field = $collection->getField(ArrayUtils::get($fieldData, 'field'));
 
-        // if for some reason the field key doesn't exists
+        // if for some reason the field key doesn't exist
         // continue with everything as if nothing has happened
         if (!$field) {
             return null;

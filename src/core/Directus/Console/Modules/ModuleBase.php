@@ -45,7 +45,7 @@ class ModuleBase implements ModuleInterface
     public function getCommandHelp($command)
     {
         if (!array_key_exists($command, $this->help)) {
-            throw new UnsupportedCommandException($this->__module_name . ':' . $command . ' command does not exists!');
+            throw new UnsupportedCommandException($this->__module_name . ':' . $command . ' command does not exist!');
         }
         return $this->help[$command];
     }
@@ -54,7 +54,7 @@ class ModuleBase implements ModuleInterface
     {
         $cmd_name = 'cmd' . ucwords($command);
         if (!method_exists($this, $cmd_name)) {
-            throw new UnsupportedCommandException($this->__module_name . ':' . $command . ' command does not exists!');
+            throw new UnsupportedCommandException($this->__module_name . ':' . $command . ' command does not exist!');
         }
         $this->$cmd_name($args, $extra);
     }

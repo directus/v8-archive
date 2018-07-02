@@ -77,7 +77,7 @@ class Cli
         }
 
         if (!array_key_exists($module, $this->cmd_modules)) {
-            echo PHP_EOL . PHP_EOL . 'Module ' . $module . ': does not exists!' . PHP_EOL . PHP_EOL;
+            echo PHP_EOL . PHP_EOL . 'Module ' . $module . ': does not exist!' . PHP_EOL . PHP_EOL;
             return;
         }
 
@@ -102,7 +102,7 @@ class Cli
     private function showModuleHelp()
     {
         if (!array_key_exists($this->help_module, $this->cmd_modules)) {
-            echo PHP_EOL . PHP_EOL . 'Module ' . $this->help_module . ': does not exists!' . PHP_EOL . PHP_EOL;
+            echo PHP_EOL . PHP_EOL . 'Module ' . $this->help_module . ': does not exist!' . PHP_EOL . PHP_EOL;
             return;
         }
         echo PHP_EOL . 'Directus Module ' . ucfirst($this->help_module) . ' Commands' . PHP_EOL . PHP_EOL;
