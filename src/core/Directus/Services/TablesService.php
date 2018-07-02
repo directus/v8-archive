@@ -476,9 +476,7 @@ class TablesService extends AbstractService
         $data['collection'] = $collectionName;
         // TODO: Length is required by some data types, which make this validation not working fully for columns
         // TODO: Create new constraint that validates the column data type to be one of the list supported
-        $collectionObject = $this->getSchemaManager()->getCollection('directus_fields');
-        $constraints = $this->createConstraintFor('directus_fields', $collectionObject->getFieldsName());
-        $this->validate(array_merge($data, ['collection' => $collectionName]), array_merge(['collection' => 'required|string'], $constraints));
+        $this->validatePayload('directus_fields', null, $data, $params);
 
         // ----------------------------------------------------------------------------
 
@@ -1294,7 +1292,8 @@ class TablesService extends AbstractService
             'auto_increment',
             'primary_key',
             'unique',
-            'signed'
+            'signed',
+            'length',
         ];
     }
 
