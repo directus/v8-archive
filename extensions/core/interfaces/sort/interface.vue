@@ -1,11 +1,15 @@
 <template>
-  <input
+  <v-input
     type="number"
-    :readonly="readonly"
-    :value="value"
-    @input="updateValue($event.target.value)"
     min="0"
-  />
+    :class="width"
+    :value="value"
+    :readonly="readonly"
+    :placeholder="options.placeholder"
+    :maxlength="+length"
+    :id="name"
+    :charactercount="options.showCharacterCount"
+    @input="updateValue" />
 </template>
 
 <script>
@@ -21,3 +25,9 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.v-input {
+  max-width: var(--width-x-small);
+}
+</style>
