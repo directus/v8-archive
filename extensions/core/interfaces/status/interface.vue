@@ -6,9 +6,9 @@
       :name="name"
       :value="key"
       :key="key"
-      :modelValue="value"
+      :model-value="value"
       :label="$t(options.name)"
-      @change="$emit('input', $event)" />
+      @change="$emit('input', $event)"></v-radio>
   </div>
 </template>
 
@@ -36,6 +36,5 @@ export default {
   grid-auto-flow: column;
   grid-auto-columns: max-content;
   grid-gap: 20px;
-  padding: 0 0 20px;
 }
 </style>
