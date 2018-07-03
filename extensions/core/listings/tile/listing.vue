@@ -1,5 +1,5 @@
 <template>
-  <div class="listing-tile">
+  <div class="listing-tile" @scroll="onScroll">
     <v-card
       v-for="item in items"
       :key="item.id"
@@ -10,6 +10,12 @@
       :opacity="emptySrc(item) ? 'half' : null"
       :src="src(item)"
       :body="content(item) "/>
+    <v-card
+      v-if="lazyLoading"
+      color="dark-gray"
+      icon="hourglass_empty"
+      opacity="half"
+      :title="$t('loading_more')" />
   </div>
 </template>
 
@@ -68,6 +74,13 @@ export default {
     emptySrc(item) {
       return this.viewOptions.src != null && this.src(item) === null;
     },
+    onScroll(event) {
+      const { scrollHeight, clientHeight, scrollTop } = event.srcElement;
+      const totalScroll = scrollHeight - clientHeight;
+      const delta = totalScroll - scrollTop;
+      if (delta <= 500) this.$emit("next-page");
+      this.scrolled = scrollTop > 0;
+    }
   },
 };
 </script>
@@ -78,5 +91,10 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, 160px);
   grid-gap: 20px;
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100vh;
 }
 </style>
