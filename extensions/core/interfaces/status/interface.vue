@@ -36,6 +36,6 @@ export default {
   grid-auto-flow: column;
   grid-auto-columns: max-content;
   grid-gap: 20px;
-  padding: 20px 0;
+  padding: 0 0 20px;
 }
 </style>
