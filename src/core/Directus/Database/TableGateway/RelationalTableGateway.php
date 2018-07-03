@@ -2144,7 +2144,7 @@ class RelationalTableGateway extends BaseTableGateway
     }
 
     /**
-     * Throws an exception if any of the given field doesn't exists
+     * Throws an exception if any of the given field doesn't exist
      *
      * @param array $fields
      *

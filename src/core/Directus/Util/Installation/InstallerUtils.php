@@ -466,7 +466,7 @@ class InstallerUtils
 
         if (!file_exists($configPath)) {
             throw new InvalidPathException(
-                sprintf('Config file for "%s" does not exists at: "%s"', $configName, $basePath)
+                sprintf('Config file for "%s" does not exist at: "%s"', $configName, $basePath)
             );
         }
     }
