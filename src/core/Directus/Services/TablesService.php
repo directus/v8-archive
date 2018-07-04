@@ -54,7 +54,10 @@ class TablesService extends AbstractService
 
         $result = $tableGateway->getItems($params);
 
-        $result['data'] = $this->mergeSchemaCollections($result['data']);
+        $result['data'] = $this->mergeMissingSchemaCollections(
+            $this->getSchemaManager()->getCollectionsName(),
+            $result['data']
+        );
 
         return $result;
     }
@@ -1325,7 +1328,9 @@ class TablesService extends AbstractService
             $collectionData
         );
 
-        $collectionData['managed'] = boolval($collectionData['managed']);
+        $collectionData['managed'] = (bool) $collectionData['managed'];
+        $collectionData['translation'] = ArrayUtils::get($collectionData, 'translation');
+        $collectionData['icon'] = ArrayUtils::get($collectionData, 'icon');
 
         return $tableGateway->parseRecord($collectionData);
     }

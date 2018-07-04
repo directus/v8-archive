@@ -230,6 +230,23 @@ class SchemaManager
     }
 
     /**
+     * Returns a list of all collections names
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    public function getCollectionsName(array $params = [])
+    {
+        $names = [];
+        foreach ($this->getCollections($params) as $collection) {
+            $names[] = $collection->getName();
+        }
+
+        return $names;
+    }
+
+    /**
      * Get all columns in the given table name
      *
      * @param $tableName
