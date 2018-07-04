@@ -399,7 +399,14 @@ final class DataTypes
     public static function getLengthTypes()
     {
         return array_merge(
-            static::getStringTypes(),
+            [
+                static::TYPE_CHAR,
+                static::TYPE_VARCHAR,
+                static::TYPE_CSV,
+                static::TYPE_UUID,
+                static::TYPE_ARRAY
+            ],
+            static::getListTypes(),
             static::getNumericTypes(),
             static::getListTypes()
         );

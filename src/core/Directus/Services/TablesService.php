@@ -287,6 +287,7 @@ class TablesService extends AbstractService
         $constraints = $this->createConstraintFor($collectionsCollectionName, $collectionsCollectionObject->getFieldsName());
 
         $this->validate($data, array_merge(['fields' => 'required|array'], $constraints));
+        $this->validateFieldsPayload($name, $data['fields'], false, $params);
 
         if (!$this->isValidName($name)) {
             throw new InvalidRequestException('Invalid collection name');
@@ -384,6 +385,7 @@ class TablesService extends AbstractService
 
         // Validates the collection name
         $this->validate(['collection' => $name], ['collection' => 'required|string']);
+        $this->validateFieldsPayload($name, $data['fields'], true, $params);
 
         // Validates payload data
         $collectionsCollectionObject = $this->getSchemaManager()->getCollection($this->collection);
@@ -1103,6 +1105,23 @@ class TablesService extends AbstractService
             }
 
             throw new UnprocessableEntityException($message);
+        }
+    }
+
+    /**
+     * @param string $collectionName
+     * @param array $fieldsData
+     * @param bool $update
+     * @param array $params
+     *
+     * @throws UnprocessableEntityException
+     */
+    protected function validateFieldsPayload($collectionName, array $fieldsData, $update, array $params = [])
+    {
+        foreach ($fieldsData as $data) {
+            $fieldsName = $update ? array_keys($data) : null;
+            $data['collection'] = $collectionName;
+            $this->validateFieldPayload($data, $fieldsName, $params);
         }
     }
 
