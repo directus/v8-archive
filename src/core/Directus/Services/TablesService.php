@@ -534,18 +534,8 @@ class TablesService extends AbstractService
 
         $this->enforcePermissions('directus_fields', $data, $params);
 
-        // TODO: Length is required by some data types, which make this validation not working fully for columns
-        // TODO: Create new constraint that validates the column data type to be one of the list supported
-        $this->validate([
-            'collection' => $collectionName,
-            'field' => $fieldName,
-            'payload' => $data
-        ], [
-            'collection' => 'required|string',
-            'field' => 'required|string',
-            'payload' => 'required|array'
-        ]);
-
+        $data['field'] = $fieldName;
+        $data['collection'] = $collectionName;
         $this->validateFieldPayload($data, array_keys($data), $params);
 
         // Remove field from data
@@ -1105,7 +1095,14 @@ class TablesService extends AbstractService
 
         $type = ArrayUtils::get($data, 'type');
         if ($type && DataTypes::isLengthType($type) && !ArrayUtils::get($data, 'length')) {
-            throw new UnprocessableEntityException('Missing length for: ' . ArrayUtils::get($data, 'field'));
+            $fieldName = ArrayUtils::get($data, 'field');
+            $message = 'Missing length';
+
+            if ($fieldName) {
+                $message .= ' for: ' . $fieldName;
+            }
+
+            throw new UnprocessableEntityException($message);
         }
     }
 
