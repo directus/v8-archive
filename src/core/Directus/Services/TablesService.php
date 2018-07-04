@@ -1251,7 +1251,8 @@ class TablesService extends AbstractService
             if ($result) {
                 $fieldsData[$key] = $result;
             } else {
-                // remove field data
+                // remove field data that doesn't have an actual column
+                // except for alias-type fields
                 unset($fieldsData[$key]);
             }
         }
