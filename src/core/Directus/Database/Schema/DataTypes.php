@@ -10,7 +10,6 @@ final class DataTypes
     const TYPE_TEXT         = 'text';
     const TYPE_MEDIUM_TEXT  = 'mediumtext';
     const TYPE_LONGTEXT     = 'longtext';
-    const TYPE_CSV          = 'csv';
     const TYPE_UUID         = 'uuid';
     const TYPE_ARRAY        = 'array';
     const TYPE_TINY_JSON    = 'tinyjson';
@@ -100,7 +99,6 @@ final class DataTypes
             static::TYPE_TEXT,
             static::TYPE_MEDIUM_TEXT,
             static::TYPE_LONGTEXT,
-            static::TYPE_CSV,
             static::TYPE_UUID,
             static::TYPE_ARRAY
         ], static::getJSONTypes(), static::getListTypes());
@@ -402,7 +400,6 @@ final class DataTypes
             [
                 static::TYPE_CHAR,
                 static::TYPE_VARCHAR,
-                static::TYPE_CSV,
                 static::TYPE_UUID,
                 static::TYPE_ARRAY
             ],

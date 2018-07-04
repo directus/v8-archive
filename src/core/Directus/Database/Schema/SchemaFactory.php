@@ -281,7 +281,6 @@ class SchemaFactory
             case DataTypes::TYPE_UUID:
                 $column = new Uuid($name);
                 break;
-            case DataTypes::TYPE_CSV:
             case DataTypes::TYPE_ARRAY:
                 $column = new Varchar($name);
                 break;
