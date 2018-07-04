@@ -54,4 +54,19 @@ class SettingsService extends AbstractService
     {
         return $this->itemsService->findAll($this->collection, $params);
     }
+
+    public function batchCreate(array $payload, array $params = [])
+    {
+        return $this->itemsService->batchCreate($this->collection, $payload, $params);
+    }
+
+    public function batchUpdate(array $payload, array $params = [])
+    {
+        return $this->itemsService->batchUpdate($this->collection, $payload, $params);
+    }
+
+    public function batchDeleteWithIds(array $ids, array $params = [])
+    {
+        return $this->itemsService->batchDeleteWithIds($this->collection, $ids, $params);
+    }
 }
