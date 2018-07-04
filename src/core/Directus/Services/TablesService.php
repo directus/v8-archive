@@ -1250,6 +1250,9 @@ class TablesService extends AbstractService
 
             if ($result) {
                 $fieldsData[$key] = $result;
+            } else {
+                // remove field data
+                unset($fieldsData[$key]);
             }
         }
 
