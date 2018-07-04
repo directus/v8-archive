@@ -23,6 +23,7 @@ use Directus\Exception\Exception;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Filesystem\Files;
 use function Directus\get_directus_setting;
+use Directus\Hook\Emitter;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
@@ -363,9 +364,22 @@ class BaseTableGateway extends TableGateway
     {
         $this->validateRecordArray($recordData);
 
+        $listenerId = null;
+        if (static::$emitter) {
+            $hookName = 'collection.insert.' . SchemaManager::COLLECTION_FILES;
+            // TODO: Implement once execute. Allowing a hook callback to run once.
+            $listenerId = static::$emitter->addAction($hookName, function ($data) use (&$recordData) {
+                $recordData['filename'] = $data['filename'];
+            }, Emitter::P_LOW);
+        }
+
         $TableGateway = $this->makeTable($this->table);
         $primaryKey = $TableGateway->primaryKeyFieldName;
         $TableGateway->insert($recordData);
+
+        if (static::$emitter && $listenerId) {
+            static::$emitter->removeListenerWithIndex($listenerId);
+        }
 
         // Only get the last inserted id, if the column has auto increment value
         $columnObject = $this->getTableSchema()->getField($primaryKey);

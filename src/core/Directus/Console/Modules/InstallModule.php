@@ -102,7 +102,7 @@ class InstallModule extends ModuleBase
 
         $apiPath = rtrim($directusPath, '/') . '/config';
         if (!file_exists($apiPath)) {
-            throw new \Exception(sprintf('Path "%s" does not exists', $apiPath));
+            throw new \Exception(sprintf('Path "%s" does not exist', $apiPath));
         }
 
         InstallerUtils::createConfig($directusPath, $data);

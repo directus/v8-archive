@@ -363,7 +363,7 @@ class Formatting
             ];
 
             // @TODO: find a substitute for get_locale (get_user_locale?)
-            // This function is a wordpress function and it doesn't exists in Directus
+            // This function is a wordpress function and it doesn't exist in Directus
             // Used for locale-specific rules
             $locale = get_locale();
 

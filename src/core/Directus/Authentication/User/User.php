@@ -67,7 +67,7 @@ class User implements UserInterface
     public function __get($name)
     {
         if (!array_key_exists($name, $this->attributes)) {
-            throw new UnknownUserAttributeException(sprintf('Property "%s" does not exists.', $name));
+            throw new UnknownUserAttributeException(sprintf('Property "%s" does not exist.', $name));
         }
 
         // TODO: Omit sensitive data

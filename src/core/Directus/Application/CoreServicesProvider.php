@@ -312,7 +312,7 @@ class CoreServicesProvider
                     $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
                 }
 
-                $payload->replace(array_merge($recordData, ArrayUtils::omit($data, 'filename')));
+                $payload->replace($recordData);
                 $payload->remove('data');
                 $payload->remove('html');
                 if (!$replace) {

@@ -125,7 +125,7 @@ class RolesService extends AbstractService
         $this->validate(['id' => $id], $this->createConstraintFor($this->collection, ['id']));
 
         // TODO: Create exists method
-        // NOTE: throw an exception if item does not exists
+        // NOTE: throw an exception if item does not exist
         $group = $this->find($id);
 
         // TODO: Make the error messages more specific

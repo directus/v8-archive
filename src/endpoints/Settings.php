@@ -19,6 +19,7 @@ class Settings extends Route
         $app->get('', [$this, 'all']);
         $app->get('/{id}', [$this, 'read']);
         $app->patch('/{id}', [$this, 'update']);
+        $app->patch('', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
     }
 
@@ -31,6 +32,12 @@ class Settings extends Route
     public function create(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
+
+        $payload = $request->getParsedBody();
+        if (isset($payload[0]) && is_array($payload[0])) {
+            return $this->batch($request, $response);
+        }
+
         $service = new SettingsService($this->container);
         $responseData = $service->create(
             $request->getParsedBody(),
@@ -82,6 +89,14 @@ class Settings extends Route
     public function update(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
+
+        $payload = $request->getParsedBody();
+        $id = $request->getAttribute('id');
+
+        if (strpos($id, ',') !== false || (isset($payload[0]) && is_array($payload[0]))) {
+            return $this->batch($request, $response);
+        }
+
         $service = new SettingsService($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),
@@ -101,6 +116,12 @@ class Settings extends Route
     public function delete(Request $request, Response $response)
     {
         $service = new SettingsService($this->container);
+
+        $id = $request->getAttribute('id');
+        if (strpos($id, ',') !== false) {
+            return $this->batch($request, $response);
+        }
+
         $service->delete(
             $request->getAttribute('id'),
             $request->getQueryParams()
@@ -109,5 +130,38 @@ class Settings extends Route
         $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    protected function batch(Request $request, Response $response)
+    {
+        $settingsService = new SettingsService($this->container);
+
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+
+        $responseData = null;
+        if ($request->isPost()) {
+            $responseData = $settingsService->batchCreate($payload, $params);
+        } else if ($request->isPatch()) {
+            $responseData = $settingsService->batchUpdate($payload, $params);
+        } else if ($request->isDelete()) {
+            $ids = explode(',', $request->getAttribute('id'));
+            $settingsService->batchDeleteWithIds($ids, $params);
+        }
+
+        if (empty($responseData)) {
+            $response = $response->withStatus(204);
+            $responseData = [];
+        }
+
+        return $this->responseWithData($request, $response, $responseData);
     }
 }

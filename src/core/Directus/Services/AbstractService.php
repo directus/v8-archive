@@ -288,7 +288,7 @@ abstract class AbstractService
 
             $this->tagResponseCache('table_'.$collectionName);
             // Note: See other reference to permissions_collection_<>
-            // to proper set a new tag now that group doesn't exists anymore
+            // to proper set a new tag now that group doesn't exist anymore
             $this->tagResponseCache('permissions_collection_'.$collectionName);
 
             foreach ($payload->getData() as $item) {
@@ -402,7 +402,7 @@ abstract class AbstractService
 
         if (!empty($unknownFields)) {
             throw new UnprocessableEntityException(
-                sprintf('Payload fields: "%s" does not exists in "%s" collection.', implode(', ', $unknownFields), $collectionName)
+                sprintf('Payload fields: "%s" does not exist in "%s" collection.', implode(', ', $unknownFields), $collectionName)
             );
         }
     }

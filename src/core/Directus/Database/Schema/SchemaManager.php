@@ -230,6 +230,23 @@ class SchemaManager
     }
 
     /**
+     * Returns a list of all collections names
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    public function getCollectionsName(array $params = [])
+    {
+        $names = [];
+        foreach ($this->getCollections($params) as $collection) {
+            $names[] = $collection->getName();
+        }
+
+        return $names;
+    }
+
+    /**
      * Get all columns in the given table name
      *
      * @param $tableName
@@ -245,41 +262,13 @@ class SchemaManager
         $columnsSchema = ArrayUtils::get($this->data, 'columns.' . $tableName, null);
         if (!$columnsSchema || $skipCache) {
             $columnsResult = $this->source->getFields($tableName, $params);
-            $relationsResult = $this->source->getRelations($tableName);
-
-            // TODO: Improve this logic
-            $relationsA = [];
-            $relationsB = [];
-            foreach ($relationsResult as $relation) {
-                $relationsA[$relation['field_a']] = $relation;
-
-                if (isset($relation['field_b'])) {
-                    $relationsB[$relation['field_b']] = $relation;
-                }
-            }
 
             $columnsSchema = [];
             foreach ($columnsResult as $column) {
-                $field = $this->createFieldFromArray($column);
-
-                // Set all FILE data type related to directus files (M2O)
-                if (DataTypes::isFilesType($field->getType())) {
-                    $field->setRelationship([
-                        'collection_a' => $field->getCollectionName(),
-                        'field_a' => $field->getName(),
-                        'collection_b' => static::COLLECTION_FILES,
-                        'field_b' => 'id'
-                    ]);
-                } else if (array_key_exists($field->getName(), $relationsA)) {
-                    $field->setRelationship($relationsA[$field->getName()]);
-                } else if (array_key_exists($field->getName(), $relationsB)) {
-                    $field->setRelationship($relationsB[$field->getName()]);
-                }
-
-                $columnsSchema[] = $field;
+                $columnsSchema[] = $this->createFieldFromArray($column);
             }
 
-            $this->data['columns'][$tableName] = $columnsSchema;
+            $this->data['columns'][$tableName] = $this->addFieldsRelationship($tableName, $columnsSchema);
         }
 
         return $columnsSchema;
@@ -571,6 +560,91 @@ class SchemaManager
         }
 
         return new Field($column);
+    }
+
+    /**
+     * @param string $collectionName
+     * @param Field[] $fields
+     *
+     * @return array|Field[]
+     */
+    public function addFieldsRelationship($collectionName, array $fields)
+    {
+        $fieldsRelation = $this->getRelationshipsData($collectionName);
+
+        foreach ($fields as $field) {
+            if (array_key_exists($field->getName(), $fieldsRelation)) {
+                $this->addFieldRelationship($field, $fieldsRelation[$field->getName()]);
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * @param Field $field
+     * @param $relationshipData
+     */
+    protected function addFieldRelationship(Field $field, $relationshipData)
+    {
+        // Set all FILE data type related to directus files (M2O)
+        if (DataTypes::isFilesType($field->getType())) {
+            $field->setRelationship([
+                'collection_a' => $field->getCollectionName(),
+                'field_a' => $field->getName(),
+                'collection_b' => static::COLLECTION_FILES,
+                'field_b' => 'id'
+            ]);
+        } else {
+            $field->setRelationship($relationshipData);
+        }
+    }
+
+    /**
+     * @param string $collectionName
+     *
+     * @return array
+     */
+    protected function getRelationshipsData($collectionName)
+    {
+        $relationsResult = $this->source->getRelations($collectionName);
+        $fieldsRelation = [];
+
+        foreach ($relationsResult as $relation) {
+            $isJunctionCollection = ArrayUtils::get($relation, 'junction_collection') === $collectionName;
+
+            if ($isJunctionCollection) {
+                if (!isset($relation['junction_key_a']) || !isset($relation['junction_key_b'])) {
+                    continue;
+                }
+
+                $junctionKeyA = $relation['junction_key_a'];
+                $fieldsRelation[$junctionKeyA] = [
+                    'collection_a' => $relation['junction_collection'],
+                    'field_a' => $junctionKeyA,
+                    'junction_key_a' => null,
+                    'junction_collection' => null,
+                    'junction_key_b' => null,
+                    'collection_b' => ArrayUtils::get($relation, 'collection_a'),
+                    'field_b' => null,
+                ];
+
+                $junctionKeyB = $relation['junction_key_b'];
+                $fieldsRelation[$junctionKeyB] = [
+                    'collection_a' => $relation['junction_collection'],
+                    'field_a' => $junctionKeyB,
+                    'junction_key_a' => null,
+                    'junction_collection' => null,
+                    'junction_key_b' => null,
+                    'collection_b' => ArrayUtils::get($relation, 'collection_b'),
+                    'field_b' => null,
+                ];
+            } else {
+                $fieldsRelation[$relation['field_a']] = $relation;
+            }
+        }
+
+        return $fieldsRelation;
     }
 
     /**
