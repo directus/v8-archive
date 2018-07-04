@@ -1894,7 +1894,12 @@ class RelationalTableGateway extends BaseTableGateway
             $relationalColumnName = $alias->getName();
             $relatedEntries = [];
             foreach ($results as $row) {
-                $relatedEntries[$row[$junctionKeyLeftColumn]][] = $row;
+                $rowId = $row[$junctionKeyLeftColumn];
+                if (isset($rowId[$junctionPrimaryKey])) {
+                    $rowId = $rowId[$junctionPrimaryKey];
+                }
+
+                $relatedEntries[$rowId][] = $row;
             }
 
             // Replace foreign keys with foreign rows
