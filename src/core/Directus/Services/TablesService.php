@@ -1357,7 +1357,7 @@ class TablesService extends AbstractService
         }
 
         $tableGateway = $this->getCollectionsTableGateway();
-        $attributesName = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed', 'fields']);
+        $attributesName = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed']);
 
         $collectionData = array_merge(
             ArrayUtils::pick($collection->toArray(), $attributesName),
