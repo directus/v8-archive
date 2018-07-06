@@ -13,6 +13,7 @@ use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
+use function Directus\get_array_flat_columns;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\StringUtils;
@@ -828,8 +829,11 @@ class RelationalTableGateway extends BaseTableGateway
 
         $params = array_merge($defaultParams, $params);
 
-        if (ArrayUtils::get($params, 'sort')) {
-            $params['sort'] = StringUtils::csv($params['sort']);
+        $sort = ArrayUtils::get($params, 'sort');
+        if ($sort && is_string($sort)) {
+            $params['sort'] = StringUtils::csv($sort);
+        } else if (!$sort) {
+            $params['sort'] = [];
         }
 
         // convert csv columns into array
@@ -1124,6 +1128,7 @@ class RelationalTableGateway extends BaseTableGateway
             $relatedFields = $this->getSelectedRelatedFields($fields);
 
             $relationalParams = [
+                'sort' => ArrayUtils::get($params, 'sort'),
                 'meta' => ArrayUtils::get($params, 'meta'),
                 'lang' => ArrayUtils::get($params, 'lang')
             ];
@@ -1618,22 +1623,28 @@ class RelationalTableGateway extends BaseTableGateway
      * Process Select Order
      *
      * @param Builder $query
-     * @param array $columns
+     * @param array $fieldsName
      *
      * @throws Exception\InvalidFieldException
      */
-    protected function processSort(Builder $query, array $columns)
+    protected function processSort(Builder $query, array $fieldsName)
     {
-        foreach ($columns as $column) {
-            $compact = \Directus\compact_sort_to_array($column);
+        $fieldsName = \Directus\get_columns_flat_at($fieldsName, 0);
+        $collection = $this->getTableSchema();
+
+        foreach ($fieldsName as $fieldName) {
+            $compact = \Directus\compact_sort_to_array($fieldName);
             $orderBy = key($compact);
             $orderDirection = current($compact);
 
-            if ($orderBy !== '?' && !SchemaService::hasCollectionField($this->table, $orderBy, $this->acl === null)) {
-                throw new Exception\InvalidFieldException($column);
+            if ($orderBy !== '?' && !$collection->hasField($orderBy)) {
+                throw new Exception\InvalidFieldException($fieldName);
             }
 
-            $query->orderBy($orderBy, $orderDirection, $this->shouldNullSortedLast());
+            $field = $collection->getField($orderBy);
+            if (!$field->isAlias()) {
+                $query->orderBy($orderBy, $orderDirection, $this->shouldNullSortedLast());
+            }
         }
     }
 
@@ -1752,6 +1763,11 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleColumns = $this->getTableSchema()->getFields(array_keys($columnsTree));
+        $sortFieldsTree = [];
+        if (ArrayUtils::has($params, 'sort')) {
+            $sortFieldsTree = \Directus\get_unflat_columns(ArrayUtils::get($params, 'sort'));
+        }
+
         foreach ($visibleColumns as $alias) {
             if (!$alias->isAlias() || !$alias->isOneToMany()) {
                 continue;
@@ -1781,6 +1797,8 @@ class RelationalTableGateway extends BaseTableGateway
                 $langIds = StringUtils::csv(ArrayUtils::get($params, 'lang'));
                 $filters[$alias->getOptions('left_column_name')] = ['in' => $langIds];
             }
+
+            $params['sort'] = $this->getSortingFieldsFromTree($alias->getName(), $sortFieldsTree);
 
             $results = $tableGateway->fetchItems(array_merge([
                 'fields' => array_merge([$relationalColumnName], $filterFields),
@@ -1844,6 +1862,10 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleFields = $this->getTableSchema()->getFields(array_keys($columnsTree));
+        $sortFieldsTree = [];
+        if (ArrayUtils::has($params, 'sort')) {
+            $sortFieldsTree = \Directus\get_unflat_columns(ArrayUtils::get($params, 'sort'));
+        }
 
         foreach ($visibleFields as $alias) {
             if (!$alias->isAlias() || !$alias->isManyToMany()) {
@@ -1876,6 +1898,8 @@ class RelationalTableGateway extends BaseTableGateway
                 $selectedFields = \Directus\get_array_flat_columns($fields);
                 array_unshift($selectedFields, $junctionPrimaryKey);
             }
+
+            $params['sort'] = $this->getSortingFieldsFromTree($alias->getName(), $sortFieldsTree);
 
             $results = $junctionTableGateway->fetchItems(array_merge([
                 // Fetch all related data
@@ -1932,6 +1956,11 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleColumns = $this->getTableSchema()->getFields(array_keys($columnsTree));
+        $sortFieldsTree = [];
+        if (ArrayUtils::has($params, 'sort')) {
+            $sortFieldsTree = \Directus\get_unflat_columns(ArrayUtils::get($params, 'sort'));
+        }
+
         foreach ($visibleColumns as $column) {
             if (!$column->isManyToOne()) {
                 continue;
@@ -1989,6 +2018,8 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
+            $params['sort'] = $this->getSortingFieldsFromTree($column->getName(), $sortFieldsTree);
+
             $filterColumns = \Directus\get_array_flat_columns($columnsTree[$column->getName()]);
             // Fetch the foreign data
             $results = $tableGateway->fetchItems(array_merge([
@@ -2042,6 +2073,22 @@ class RelationalTableGateway extends BaseTableGateway
      * HELPER FUNCTIONS
      *
      **/
+
+    /**
+     * @param string $name
+     * @param array $tree
+     *
+     * @return array
+     */
+    public function getSortingFieldsFromTree($name, array $tree)
+    {
+        $sort = ArrayUtils::get($tree, $name);
+        if (is_array($sort)) {
+           $sort = get_array_flat_columns($sort);
+        }
+
+        return $sort;
+    }
 
     /**
      * @param $fields
