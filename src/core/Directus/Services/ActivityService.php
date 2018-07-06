@@ -3,6 +3,7 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
@@ -57,7 +58,13 @@ class ActivityService extends AbstractService
 
         $collectionName = ArrayUtils::get($data, 'collection');
         $itemId = ArrayUtils::get($data, 'item');
-        $item = $this->fetchItem($this->collection, $itemId);
+
+        $collection = $this->getSchemaManager()->getCollection($collectionName);
+        if (!$collection) {
+            throw new CollectionNotFoundException($collectionName);
+        }
+
+        $item = $this->fetchItem($collectionName, $itemId);
 
         if (!$item) {
             throw new ItemNotFoundException();
