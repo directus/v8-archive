@@ -45,15 +45,7 @@ class Field extends AbstractObject
      */
     public function getType()
     {
-        $type = $this->attributes->get('type');
-
-        // if the type if empty in Directus Fields table
-        // fallback to the actual data type
-        if (!$type) {
-            $type = $this->getOriginalType();
-        }
-
-        return $type;
+        return $this->attributes->get('type');
     }
 
     /**
@@ -61,9 +53,9 @@ class Field extends AbstractObject
      *
      * @return string
      */
-    public function getOriginalType()
+    public function getDataType()
     {
-        return $this->attributes->get('original_type');
+        return $this->attributes->get('datatype');
     }
 
     /**

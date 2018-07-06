@@ -1096,6 +1096,17 @@ class TablesService extends AbstractService
         $this->validatePayload('directus_fields', $fields, $data, $params);
 
         $type = ArrayUtils::get($data, 'type');
+        $isMultiType = DataTypes::isMultiDataTypeType($type);
+        if ($isMultiType && !ArrayUtils::has($data, 'datatype')) {
+            throw new UnprocessableEntityException(
+                sprintf('type "%s" requires a "datatype" property', $type)
+            );
+        }
+
+        if ($isMultiType) {
+            $type = ArrayUtils::get($data, 'datatype', $type);
+        }
+
         if ($type && DataTypes::isLengthType($type) && !ArrayUtils::get($data, 'length')) {
             $fieldName = ArrayUtils::get($data, 'field');
             $message = 'Missing length';
@@ -1327,6 +1338,7 @@ class TablesService extends AbstractService
     protected function unknownFieldsAllowed()
     {
         return [
+            'datatype',
             'default_value',
             'auto_increment',
             'primary_key',

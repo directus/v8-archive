@@ -24,6 +24,7 @@ use Directus\Database\Ddl\Column\TinyText;
 use Directus\Database\Ddl\Column\Uuid;
 use Directus\Database\Exception\FieldAlreadyHasUniqueKeyException;
 use Directus\Database\Exception\UnknownDataTypeException;
+use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
@@ -180,7 +181,8 @@ class SchemaFactory
     public function createColumn($name, array $data)
     {
         $this->validate($data);
-        $type = $this->schemaManager->getDataType(ArrayUtils::get($data, 'type'));
+        $type = ArrayUtils::get($data, 'type');
+        $dataType = ArrayUtils::get($data, 'datatype', $type);
         $autoincrement = ArrayUtils::get($data, 'auto_increment', false);
         $unique = ArrayUtils::get($data, 'unique', false);
         $primaryKey = ArrayUtils::get($data, 'primary_key', false);
@@ -191,7 +193,7 @@ class SchemaFactory
         $note = ArrayUtils::get($data, 'note');
         // ZendDB doesn't support encoding nor collation
 
-        $column = $this->createColumnFromType($name, $type);
+        $column = $this->createColumnFromType($name, $dataType);
         $column->setNullable($nullable);
         $column->setDefault($default);
         $column->setOption('comment', $note);

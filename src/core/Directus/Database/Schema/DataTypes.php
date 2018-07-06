@@ -55,14 +55,16 @@ final class DataTypes
     const TYPE_GROUP        = 'group';
 
     const TYPE_FILE         = 'file';
-    const TYPE_TRANSLATION   = 'translation';
+    const TYPE_TRANSLATION  = 'translation';
 
-    const TYPE_STATUS        = 'status';
-    const TYPE_SORT          = 'sort';
+    const TYPE_PRIMARY_KEY       = 'primary_key';
+    const TYPE_STATUS            = 'status';
+
+    const TYPE_SORT              = 'sort';
     const TYPE_DATETIME_CREATED  = 'datetime_created';
     const TYPE_DATETIME_MODIFIED = 'datetime_modified';
-    const TYPE_USER_CREATED  = 'user_created';
-    const TYPE_USER_MODIFIED = 'user_modified';
+    const TYPE_USER_CREATED      = 'user_created';
+    const TYPE_USER_MODIFIED     = 'user_modified';
 
     /**
      * Returns a list all data types
@@ -365,13 +367,14 @@ final class DataTypes
     /**
      * Returns all the unique data types
      *
-     * Only one of these status can exists per collection
+     * Only one of these types can exists per collection
      *
      * @return array
      */
     public static function getUniqueTypes()
     {
         return array_merge([
+            static::TYPE_PRIMARY_KEY,
             static::TYPE_USER_CREATED,
             static::TYPE_USER_MODIFIED,
             static::TYPE_STATUS,
@@ -387,6 +390,29 @@ final class DataTypes
     public static function isUniqueType($type)
     {
         return in_array(strtolower($type), static::getUniqueTypes());
+    }
+
+    /**
+     * Returns all the type that allows different data types
+     *
+     * @return array
+     */
+    public static function getMultiDataTypeTypes()
+    {
+        return [
+            static::TYPE_PRIMARY_KEY,
+            static::TYPE_STATUS,
+        ];
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isMultiDataTypeType($type)
+    {
+        return in_array(strtolower($type), static::getMultiDataTypeTypes());
     }
 
     /**
