@@ -354,7 +354,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'tags',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_CSV,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags'
             ],
             [
@@ -697,7 +697,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_permissions',
                 'field' => 'allow_statuses',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_CSV,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags'
             ],
             [
