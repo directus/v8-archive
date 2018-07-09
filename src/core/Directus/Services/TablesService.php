@@ -923,7 +923,9 @@ class TablesService extends AbstractService
         $result = false;
 
         foreach ($fields as $field) {
-            if (ArrayUtils::get($field, $attribute) === $value) {
+            // use equal operator instead of identical
+            // to avoid true == 1 or false == 0 comparison
+            if (ArrayUtils::get($field, $attribute) == $value) {
                 $count++;
             }
         }
