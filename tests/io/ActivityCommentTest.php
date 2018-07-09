@@ -27,19 +27,25 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'id',
                     'auto_increment' => true,
-                    'type' => 'integer',
-                    'interface' => 'primary_key'
+                    'type' => 'primary_key',
+                    'datatype' => 'integer',
+                    'primary_key' => true,
+                    'interface' => 'primary_key',
+                    'length' => 11,
                 ],
                 [
                     'field' => 'name',
                     'type' => 'varchar',
-                    'interface' => 'text_input'
+                    'interface' => 'text_input',
+                    'length' => 255,
                 ],
                 [
                     'field' => 'status',
-                    'type' => 'integer',
+                    'type' => 'status',
+                    'datatype' => 'integer',
                     'interface' => 'status',
-                    'default_value' => 2
+                    'default_value' => 2,
+                    'length' => 11,
                 ],
             ]
         ], ['query' => ['access_token' => 'token']]);
@@ -89,6 +95,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         reset_table_id(static::$db, 'directus_roles', 4);
         reset_table_id(static::$db, 'directus_users', 4);
         reset_table_id(static::$db, 'directus_files', 2);
+        truncate_table(static::$db, 'directus_folders');
         $storagePath = __DIR__ . '/../../public/storage';
 
         clear_storage($storagePath);
@@ -152,56 +159,56 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->doUsers();
     }
 
-    public function testWithFlagOn()
+    public function testWithFlagOnAlways()
     {
         $this->clearData();
         $this->flags = [];
 
-        $this->setFlagOn('directus_collection_presets');
+        $this->setFlagOnAlways('directus_collection_presets');
         $this->doCollectionPresets(true);
         $this->doCollectionPresets(false, 'message');
 
-        $this->setFlagOn('directus_collections');
+        $this->setFlagOnAlways('directus_collections');
         $this->doCollections(true);
         $this->doCollections(false, 'message');
 
-        $this->setFlagOn('directus_fields');
+        $this->setFlagOnAlways('directus_fields');
         $this->doFields(true);
         $this->doFields(false, 'message');
 
-        $this->setFlagOn('directus_files');
+        $this->setFlagOnAlways('directus_files');
         $this->doFiles(true);
         $this->doFiles(false, 'message');
 
-        $this->setFlagOn('directus_folders');
+        $this->setFlagOnAlways('directus_folders');
         $this->doFilesFolders(true);
         $this->doFilesFolders(false, 'message');
 
-        $this->setFlagOn('directus_roles');
+        $this->setFlagOnAlways('directus_roles');
         $this->doRoles(true);
         $this->doRoles(false, 'message');
 
-        $this->setFlagOn('test');
+        $this->setFlagOnAlways('test');
         $this->doItems(true);
         $this->doItems(false, 'message');
 
-        $this->setFlagOn('test', 0);
+        $this->setFlagOnAlways('test', 0);
         $this->doItemsWithStatus(0, true);
         $this->doItemsWithStatus(0, false, 'message');
 
-        $this->setFlagOn('test', 1);
+        $this->setFlagOnAlways('test', 1);
         $this->doItemsWithStatus(1, true);
         $this->doItemsWithStatus(1, false, 'message');
 
-        $this->setFlagOn('directus_permissions');
+        $this->setFlagOnAlways('directus_permissions');
         $this->doPermissions(true);
         $this->doPermissions(false, 'message');
 
-        $this->setFlagOn('directus_settings');
+        $this->setFlagOnAlways('directus_settings');
         $this->doSettings(true);
         $this->doSettings(false, 'message');
 
-        $this->setFlagOn('directus_users');
+        $this->setFlagOnAlways('directus_users');
         $this->doUsers(true);
         $this->doUsers(false, 'message');
     }
@@ -306,8 +313,22 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $data = [
             'collection' => 'test2',
             'fields' => [
-                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'integer'],
-                ['field' => 'name', 'interface' => 'text_input', 'type' => 'varchar'],
+                [
+                    'field' => 'id',
+                    'interface' => 'primary_key',
+                    'type' => 'primary_key',
+                    'length' => 11,
+                    'auto_increment' => true,
+                    'datatype' => 'integer',
+                    'primary_key' => true,
+                    'auto_increment' => true,
+                ],
+                [
+                    'field' => 'name',
+                    'interface' => 'text_input',
+                    'type' => 'varchar',
+                    'length' => 255
+                ],
             ]
         ];
 
@@ -321,7 +342,8 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $data = [
             'field' => 'title',
             'interface' => 'text_input',
-            'type' => 'varchar'
+            'type' => 'varchar',
+            'length' => 255,
         ];
 
         $this->create('fields/objects', $data, $error, $message);
@@ -342,7 +364,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         return $this->request('post', $path, [
             'data' => $data,
             'error' => $error,
-            'query' => ['message' => $message]
+            'query' => ['comment' => $message]
         ]);
     }
 
@@ -351,7 +373,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         $this->request('patch', $path, [
             'data' => $data,
             'error' => $error,
-            'query' => ['message' => $message]
+            'query' => ['comment' => $message]
         ]);
     }
 
@@ -359,7 +381,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
     {
         $this->request('delete', $path, [
             'error' => $error,
-            'query' => ['message' => $message]
+            'query' => ['comment' => $message]
         ]);
     }
 
@@ -413,9 +435,15 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
             'collection' => $collection,
             'role' => 1,
             'status' => $status,
-            'explain' => $value ? 1 : 0
+            'explain' => $value
         ];
-        $options = ['query' => ['access_token' => 'token', 'message' => 'setting flag']];
+
+        $options = [
+            'query' => [
+                'access_token' => 'token',
+                'comment' => 'setting flag'
+            ]
+        ];
 
         if (isset($this->flags[$collection])) {
             request_patch('permissions/' . $this->flags[$collection], $data, $options);
@@ -425,13 +453,18 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    protected function setFlagOn($collection, $status = null)
+    protected function setFlagOn($collection, $level, $status = null)
     {
-        $this->setFlag($collection, true, $status);
+        $this->setFlag($collection, $level, $status);
+    }
+
+    protected function setFlagOnAlways($collection, $status = null)
+    {
+        $this->setFlagOn($collection, 'always', $status);
     }
 
     protected function setFlagOff($collection, $status = null)
     {
-        $this->setFlag($collection, false, $status);
+        $this->setFlag($collection, null, $status);
     }
 }
