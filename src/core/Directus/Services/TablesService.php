@@ -276,7 +276,7 @@ class TablesService extends AbstractService
     public function createTable($name, array $data = [], array $params = [])
     {
         if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Authorized to create collections');
+            throw new UnauthorizedException('Unauthorized to create collections');
         }
 
         $this->enforcePermissions($this->collection, $data, $params);
