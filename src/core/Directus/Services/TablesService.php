@@ -385,13 +385,15 @@ class TablesService extends AbstractService
 
         // Validates the collection name
         $this->validate(['collection' => $name], ['collection' => 'required|string']);
-        $this->validateFieldsPayload($name, $data['fields'], true, $params);
 
         // Validates payload data
         $collectionsCollectionObject = $this->getSchemaManager()->getCollection($this->collection);
         $constraints = $this->createConstraintFor($this->collection, $collectionsCollectionObject->getFieldsName());
         $data['collection'] = $name;
         $this->validate($data, array_merge(['fields' => 'array'], $constraints));
+        if (ArrayUtils::has($data, 'fields')) {
+            $this->validateFieldsPayload($name, $data['fields'], true, $params);
+        }
 
         $collectionObject = $this->getSchemaManager()->getCollection($name);
         if (!$collectionObject->isManaged()) {
