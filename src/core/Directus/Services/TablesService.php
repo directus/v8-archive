@@ -1373,14 +1373,13 @@ class TablesService extends AbstractService
         }
 
         $tableGateway = $this->getCollectionsTableGateway();
-        $attributesName = array_merge($tableGateway->getTableSchema()->getFieldsName(), ['managed']);
+        $attributesName = $tableGateway->getTableSchema()->getFieldsName();
 
         $collectionData = array_merge(
             ArrayUtils::pick($collection->toArray(), $attributesName),
             $collectionData
         );
 
-        $collectionData['managed'] = (bool) $collectionData['managed'];
         $collectionData['translation'] = ArrayUtils::get($collectionData, 'translation');
         $collectionData['icon'] = ArrayUtils::get($collectionData, 'icon');
 

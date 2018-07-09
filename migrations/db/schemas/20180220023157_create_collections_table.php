@@ -46,6 +46,11 @@ class CreateCollectionsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $table->addColumn('managed', 'boolean', [
+            'signed' => false,
+            'null' => false,
+            'default' => true
+        ]);
         $table->addColumn('hidden', 'boolean', [
             'signed' => false,
             'null' => false,

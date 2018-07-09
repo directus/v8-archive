@@ -128,6 +128,12 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_collections',
+                'field' => 'managed',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
+            ],
+            [
+                'collection' => 'directus_collections',
                 'field' => 'hidden',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle'

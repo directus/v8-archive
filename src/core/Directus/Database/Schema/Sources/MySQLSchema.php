@@ -75,7 +75,7 @@ class MySQLSchema extends AbstractSchema
                 'single' => new Expression('IFNULL(`DT`.`single`, 0)'),
                 'item_name_template',
                 'preview_url',
-                'managed' => new Expression('IF(ISNULL(`DT`.`collection`), 0, 1)')
+                'managed' => new Expression('IF(ISNULL(`DT`.`collection`), 0, `DT`.`managed`)')
             ],
             $select::JOIN_LEFT
         );
