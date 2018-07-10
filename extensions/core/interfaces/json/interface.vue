@@ -42,7 +42,9 @@ export default {
         try {
           value = JSON.stringify(JSON.parse(value));
           valid = true;
-        } catch (err) {}
+        } catch (err) {
+          return;
+        }
 
         this.valid = valid;
 

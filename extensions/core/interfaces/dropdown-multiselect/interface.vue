@@ -14,6 +14,7 @@
     >{{options.placeholder}}</option>
     <option
       v-for="(display, val) in options.choices"
+      :key="val"
       :value="val"
       :selected="value && value.includes(val)"
     >{{display}}</option>

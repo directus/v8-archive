@@ -8,7 +8,6 @@
 </template>
 
 <script>
-import meta from "./meta.json";
 import mixin from "../../../mixins/interface";
 import Color from "color";
 
@@ -24,25 +23,25 @@ export default {
             : this.value.split(",");
 
       if (this.options.formatValue === false) {
-        if (Boolean(this.value) === false) {
+        if (Boolean(value) === false) {
           return "";
         }
 
         if (this.options.output === "hex") {
-          return this.value;
+          return value;
         }
 
-        return this.value.join(", ");
+        return value.join(", ");
       }
 
       if (this.options.output === "hex") {
-        return Color(this.value)
+        return Color(value)
           .rgb()
           .string();
       }
 
       try {
-        return Color[this.options.output](this.value)
+        return Color[this.options.output](value)
           .rgb()
           .string();
       } catch (err) {

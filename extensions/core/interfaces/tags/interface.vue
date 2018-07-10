@@ -8,6 +8,7 @@
     <div class="buttons">
       <button
         v-for="(value, index) in valueArray"
+        :key="index"
         @click.prevent="removeTag(index)"
         >{{value}}</button>
     </div>
@@ -15,7 +16,6 @@
 </template>
 
 <script>
-import meta from "./meta.json";
 import mixin from "../../../mixins/interface";
 
 export default {

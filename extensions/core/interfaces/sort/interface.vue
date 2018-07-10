@@ -13,7 +13,6 @@
 </template>
 
 <script>
-import meta from "./meta.json";
 import mixin from "../../../mixins/interface";
 
 export default {

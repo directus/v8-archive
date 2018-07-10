@@ -2,6 +2,7 @@
   <div class="buttons no-wrap">
     <span
       v-for="(value, index) in displayValue"
+      :key="index"
       >{{value}}</span>
   </div>
 </template>

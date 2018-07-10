@@ -19,7 +19,7 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css
 
 import mixin from "../../../mixins/interface";
 
-FilePond.registerPlugin(FilePondPlwuginImagePreview, FilePondPluginFileEncode);
+FilePond.registerPlugin(FilePondPluginImagePreview, FilePondPluginFileEncode);
 
 export default {
   mixins: [mixin],
@@ -31,7 +31,7 @@ export default {
     this.pond.destroy();
   },
   methods: {
-    processFile() {
+    processFile(e) {
       const filePondInput = document.querySelector(
         '.interface-file-upload input[type="hidden"][name="filepond"]'
       );

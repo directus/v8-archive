@@ -156,6 +156,7 @@
     <button
       v-if="readonly === false"
       v-for="color in palette"
+      :key="color"
       :style="{ borderColor: color, color: color, backgroundColor: color }"
       @click="setRawValue(color)"><i class="material-icons">colorize</i></button>
   </div>

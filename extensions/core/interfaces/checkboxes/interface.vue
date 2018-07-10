@@ -35,7 +35,7 @@ export default {
     }
   },
   methods: {
-    updateValue(val, checked) {
+    updateValue(val) {
       let selection = [...this.selection];
 
       if (selection.includes(val)) {

@@ -73,7 +73,7 @@ export default {
           field.type.toLowerCase() === "alias" &&
           field.collection === "directus_files"
         ) {
-          viewOptions.storage = this.$t("file");
+          options.storage = this.$t("file");
         }
       }
 
