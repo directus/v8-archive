@@ -6,17 +6,17 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-    mixins: [mixin],
-    computed: {
-        displayValue() {
-            let value = this.value;
+  mixins: [mixin],
+  computed: {
+    displayValue() {
+      let value = this.value;
 
-            if (this.options.formatValue) {
-                value = this.$helpers.formatTitle(value);
-            }
+      if (this.options.formatValue) {
+        value = this.$helpers.formatTitle(value);
+      }
 
-            return value;
-        }
+      return value;
     }
+  }
 };
 </script>

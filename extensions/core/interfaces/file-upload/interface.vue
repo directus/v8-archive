@@ -22,45 +22,45 @@ import mixin from "../../../mixins/interface";
 FilePond.registerPlugin(FilePondPlwuginImagePreview, FilePondPluginFileEncode);
 
 export default {
-    mixins: [mixin],
-    mounted() {
-        this.pond = FilePond.create(this.$refs.file);
-        this.pond.on("addfile", this.processFile);
-    },
-    beforeDestroy() {
-        this.pond.destroy();
-    },
-    methods: {
-        processFile() {
-            const filePondInput = document.querySelector(
-                '.interface-file-upload input[type="hidden"][name="filepond"]'
-            );
+  mixins: [mixin],
+  mounted() {
+    this.pond = FilePond.create(this.$refs.file);
+    this.pond.on("addfile", this.processFile);
+  },
+  beforeDestroy() {
+    this.pond.destroy();
+  },
+  methods: {
+    processFile() {
+      const filePondInput = document.querySelector(
+        '.interface-file-upload input[type="hidden"][name="filepond"]'
+      );
 
-            const fileInfo = JSON.parse(filePondInput.value);
+      const fileInfo = JSON.parse(filePondInput.value);
 
-            if (this.options.nameField) {
-                this.$emit("setfield", {
-                    field: this.options.nameField,
-                    value: e.detail.name
-                });
-            }
+      if (this.options.nameField) {
+        this.$emit("setfield", {
+          field: this.options.nameField,
+          value: e.detail.name
+        });
+      }
 
-            if (this.options.sizeField) {
-                this.$emit("setfield", {
-                    field: this.options.sizeField,
-                    value: e.detail.size
-                });
-            }
+      if (this.options.sizeField) {
+        this.$emit("setfield", {
+          field: this.options.sizeField,
+          value: e.detail.size
+        });
+      }
 
-            if (this.options.typeField) {
-                this.$emit("setfield", {
-                    field: this.options.typeField,
-                    value: e.detail.type
-                });
-            }
+      if (this.options.typeField) {
+        this.$emit("setfield", {
+          field: this.options.typeField,
+          value: e.detail.type
+        });
+      }
 
-            this.$emit("input", fileInfo.data);
-        }
+      this.$emit("input", fileInfo.data);
     }
+  }
 };
 </script>
