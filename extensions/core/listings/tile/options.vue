@@ -40,53 +40,59 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/listing';
+import mixin from "../../../mixins/listing";
 
 export default {
-  mixins: [mixin],
-  computed: {
-    fieldOptions() {
-      return {
-        __none__: `(${this.$t('dont_show')})`,
-        ...this.$lodash.mapValues(this.fields, (info) => info.name),
-      };
-    },
-    fileOptions() {
-      const fileTypeFields = this.$lodash.filter(this.fields, (info) => info.type.toLowerCase() === 'file');
-      const fields = this.$lodash.keyBy(fileTypeFields, 'field');
-      const options = {
-        __none__: `(${this.$t('dont_show')})`,
-        ...this.$lodash.mapValues(fields, (info) => info.name),
-      };
+    mixins: [mixin],
+    computed: {
+        fieldOptions() {
+            return {
+                __none__: `(${this.$t("dont_show")})`,
+                ...this.$lodash.mapValues(this.fields, info => info.name)
+            };
+        },
+        fileOptions() {
+            const fileTypeFields = this.$lodash.filter(
+                this.fields,
+                info => info.type.toLowerCase() === "file"
+            );
+            const fields = this.$lodash.keyBy(fileTypeFields, "field");
+            const options = {
+                __none__: `(${this.$t("dont_show")})`,
+                ...this.$lodash.mapValues(fields, info => info.name)
+            };
 
-      // Check if one of the fields is `storage`. If that's the case, make sure that this
-      //   field is for the directus_files collection and it's an ALIAS type
-      //
-      // This is a hardcoded addition to make sure that directus_files can be used in the tile view preview
-      if ('storage' in this.fields) {
-        const field = this.fields.storage;
+            // Check if one of the fields is `storage`. If that's the case, make sure that this
+            //   field is for the directus_files collection and it's an ALIAS type
+            //
+            // This is a hardcoded addition to make sure that directus_files can be used in the tile view preview
+            if ("storage" in this.fields) {
+                const field = this.fields.storage;
 
-        if (field.type.toLowerCase() === 'alias' && field.collection === 'directus_files') {
-          viewOptions.storage = this.$t('file');
+                if (
+                    field.type.toLowerCase() === "alias" &&
+                    field.collection === "directus_files"
+                ) {
+                    viewOptions.storage = this.$t("file");
+                }
+            }
+
+            return options;
         }
-      }
-
-      return options;
     },
-  },
-  methods: {
-    setOption(field, value) {
-      this.$emit('options', {
-        ...this.viewOptions,
-        [field]: value,
-      });
-    },
-  },
+    methods: {
+        setOption(field, value) {
+            this.$emit("options", {
+                ...this.viewOptions,
+                [field]: value
+            });
+        }
+    }
 };
 </script>
 
 <style scoped>
 label:not(:first-of-type) {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 </style>

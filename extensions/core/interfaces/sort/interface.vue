@@ -13,21 +13,21 @@
 </template>
 
 <script>
-import meta from './meta.json';
-import mixin from '../../../mixins/interface';
+import meta from "./meta.json";
+import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin],
-  methods: {
-    updateValue(value) {
-      this.$emit('input', Number(value));
-    },
-  },
-}
+    mixins: [mixin],
+    methods: {
+        updateValue(value) {
+            this.$emit("input", Number(value));
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>
 .v-input {
-  max-width: var(--width-x-small);
+    max-width: var(--width-x-small);
 }
 </style>

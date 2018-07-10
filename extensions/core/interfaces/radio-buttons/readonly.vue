@@ -3,18 +3,18 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
+import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin],
-  computed: {
-    displayValue() {
-      if (this.options.formatting) {
-        return this.options.choices[this.value];
-      }
+    mixins: [mixin],
+    computed: {
+        displayValue() {
+            if (this.options.formatting) {
+                return this.options.choices[this.value];
+            }
 
-      return this.value;
-    },
-  },
+            return this.value;
+        }
+    }
 };
 </script>

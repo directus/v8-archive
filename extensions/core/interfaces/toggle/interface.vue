@@ -27,86 +27,87 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin],
-  computed: {
-    icon() {
-      return this.value ? "check_box" : "check_box_outline_blank";
+    mixins: [mixin],
+    computed: {
+        icon() {
+            return this.value ? "check_box" : "check_box_outline_blank";
+        },
+        checkbox() {
+            return this.options.checkbox || false;
+        }
     },
-    checkbox() {
-      return this.options.checkbox || false;
+    methods: {
+        updateValue(value) {
+            this.$emit("input", value);
+        }
     }
-  },
-  methods: {
-    updateValue(value) {
-      this.$emit("input", value);
-    }
-  }
 };
 </script>
 
 <style lang="scss" scoped>
 span {
-  position: relative;
+    position: relative;
 }
 
 input {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  z-index: 2;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    z-index: 2;
 }
 
 .toggle {
-  position: relative;
-  cursor: pointer;
-
-  label {
-    padding: 1rem 0 1rem 2.75rem;
     position: relative;
+    cursor: pointer;
 
-    &:before,
-    &:after {
-      content: "";
-      position: absolute;
-      margin: 0;
-      outline: 0;
-      top: 50%;
-      transform: translate(0, -50%);
-      transition: all 300ms var(--transition);
+    label {
+        padding: 1rem 0 1rem 2.75rem;
+        position: relative;
+
+        &:before,
+        &:after {
+            content: "";
+            position: absolute;
+            margin: 0;
+            outline: 0;
+            top: 50%;
+            transform: translate(0, -50%);
+            transition: all 300ms var(--transition);
+        }
+
+        &:before {
+            left: 0.0625rem;
+            width: 2.125rem;
+            height: 0.875rem;
+            border-radius: 0.5rem;
+            background-color: var(--gray);
+        }
+
+        &:after {
+            left: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: var(--lightest-gray);
+            border-radius: 50%;
+            box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.14),
+                0 2px 2px 0 rgba(0, 0, 0, 0.098),
+                0 1px 5px 0 rgba(0, 0, 0, 0.084);
+        }
     }
 
-    &:before {
-      left: 0.0625rem;
-      width: 2.125rem;
-      height: 0.875rem;
-      border-radius: 0.5rem;
-      background-color: var(--gray);
-    }
+    input:checked + label {
+        &:before {
+            background-color: var(--accent);
+            opacity: 0.4;
+        }
 
-    &:after {
-      left: 0;
-      width: 1.25rem;
-      height: 1.25rem;
-      background-color: var(--lightest-gray);
-      border-radius: 50%;
-      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.14),
-        0 2px 2px 0 rgba(0, 0, 0, 0.098), 0 1px 5px 0 rgba(0, 0, 0, 0.084);
+        &:after {
+            background-color: var(--accent);
+            transform: translate(80%, -50%);
+        }
     }
-  }
-
-  input:checked + label {
-    &:before {
-      background-color: var(--accent);
-      opacity: 0.4;
-    }
-
-    &:after {
-      background-color: var(--accent);
-      transform: translate(80%, -50%);
-    }
-  }
 }
 </style>

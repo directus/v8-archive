@@ -13,19 +13,19 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
+import mixin from "../../../mixins/interface";
 
 export default {
-  name: 'interface-radio-buttons',
-  mixins: [mixin],
-  computed: {
-    optionValues() {
-      if (typeof this.options.choices === 'string') {
-       return this.options.choices ? JSON.parse(this.choices) : {};
-      }
+    name: "interface-radio-buttons",
+    mixins: [mixin],
+    computed: {
+        optionValues() {
+            if (typeof this.options.choices === "string") {
+                return this.options.choices ? JSON.parse(this.choices) : {};
+            }
 
-      return this.options.choices || {};
-    },
-  },
-}
+            return this.options.choices || {};
+        }
+    }
+};
 </script>

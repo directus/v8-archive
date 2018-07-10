@@ -13,16 +13,16 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
+import mixin from "../../../mixins/interface";
 
 export default {
-  name: 'interface-date',
-  mixins: [mixin],
-}
+    name: "interface-date",
+    mixins: [mixin]
+};
 </script>
 
 <style lang="scss" scoped>
 .interface-date {
-  max-width: var(--width-small);
+    max-width: var(--width-small);
 }
 </style>

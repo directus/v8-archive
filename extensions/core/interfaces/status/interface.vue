@@ -13,28 +13,30 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
+import mixin from "../../../mixins/interface";
 
 export default {
-  name: 'interface-status',
-  mixins: [mixin],
-  computed: {
-    optionValues() {
-      if (typeof this.options.statusMapping === 'string') {
-       return this.options.statusMapping ? JSON.parse(this.statusMapping) : {};
-      }
+    name: "interface-status",
+    mixins: [mixin],
+    computed: {
+        optionValues() {
+            if (typeof this.options.statusMapping === "string") {
+                return this.options.statusMapping
+                    ? JSON.parse(this.statusMapping)
+                    : {};
+            }
 
-      return this.options.statusMapping || {};
-    },
-  },
-}
+            return this.options.statusMapping || {};
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>
 .interface-status {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
-  grid-gap: 20px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    grid-gap: 20px;
 }
 </style>

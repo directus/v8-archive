@@ -4,13 +4,13 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
-import formatSize from './format-size';
+import mixin from "../../../mixins/interface";
+import formatSize from "./format-size";
 
 export default {
-  mixins: [mixin],
-  methods: {
-    formatSize,
-  },
+    mixins: [mixin],
+    methods: {
+        formatSize
+    }
 };
 </script>

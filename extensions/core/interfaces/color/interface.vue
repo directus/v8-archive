@@ -162,152 +162,151 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
-import Color from 'color';
+import mixin from "../../../mixins/interface";
+import Color from "color";
 
 export default {
-  name: 'interface-color',
-  mixins: [mixin],
-  data() {
-    return {
-      rawValue: null,
-    };
-  },
-  computed: {
-    color() {
-      try {
-        if (this.options.input === 'hex') {
-          return Color(this.rawValue);
+    name: "interface-color",
+    mixins: [mixin],
+    data() {
+        return {
+            rawValue: null
+        };
+    },
+    computed: {
+        color() {
+            try {
+                if (this.options.input === "hex") {
+                    return Color(this.rawValue);
+                }
+                return Color[this.options.input](this.rawValue);
+            } catch (err) {
+                return null;
+            }
+        },
+        palette() {
+            if (this.options.palette) {
+                const rawPalette = Array.isArray(this.options.palette)
+                    ? this.options.palette
+                    : this.options.palette.split(",");
+                return rawPalette.map(val => Color(val));
+            }
         }
-        return Color[this.options.input](this.rawValue);
-      } catch (err) {
-        return null;
-      }
     },
-    palette() {
-      if (this.options.palette) {
-        const rawPalette = Array.isArray(this.options.palette) ?
-          this.options.palette :
-          this.options.palette.split(',');
-        return rawPalette.map(val => Color(val));
-      }
-    },
-  },
-  created() {
-    this.setDefault();
-  },
-  watch: {
-    rawValue() {
-      if (this.color === null) {
-        return this.$emit('input', null);
-      }
-
-      let value;
-
-      if (this.options.output === 'hex') {
-        value = this.color.hex();
-      } else {
-        value = this.color[this.options.output]().array();
-        value = value.map((num, index) => {
-          if (index === value.length - 1) {
-            return Math.round(num * 100) / 100;
-          }
-
-          return Math.round(num);
-        });
-      }
-
-      this.$emit('input', value);
-    },
-    options: {
-      deep: true,
-      handler() {
+    created() {
         this.setDefault();
-      },
     },
-  },
-  methods: {
-    setDefault() {
-      let savedColor = Color(this.value || '#000');
-      this.setRawValue(savedColor);
-    },
-    setRawValue(color) {
-      if (this.options.input === 'hex') {
-        return this.rawValue = color.hex();
-      }
+    watch: {
+        rawValue() {
+            if (this.color === null) {
+                return this.$emit("input", null);
+            }
 
-      return this.rawValue = color[this.options.input]().array();
+            let value;
+
+            if (this.options.output === "hex") {
+                value = this.color.hex();
+            } else {
+                value = this.color[this.options.output]().array();
+                value = value.map((num, index) => {
+                    if (index === value.length - 1) {
+                        return Math.round(num * 100) / 100;
+                    }
+
+                    return Math.round(num);
+                });
+            }
+
+            this.$emit("input", value);
+        },
+        options: {
+            deep: true,
+            handler() {
+                this.setDefault();
+            }
+        }
     },
-  },
-}
+    methods: {
+        setDefault() {
+            let savedColor = Color(this.value || "#000");
+            this.setRawValue(savedColor);
+        },
+        setRawValue(color) {
+            if (this.options.input === "hex") {
+                return (this.rawValue = color.hex());
+            }
+
+            return (this.rawValue = color[this.options.input]().array());
+        }
+    }
+};
 </script>
 
 <style scoped lang="scss">
-
 .input {
-  max-width: 100px;
-  display: inline-block;
-  margin-right: 8px;
+    max-width: 100px;
+    display: inline-block;
+    margin-right: 8px;
 }
 
 .sliders {
-  max-width: 200px;
-  display: inline-block;
-  margin-right: 36px;
-  vertical-align: middle;
-  .slider-label {
+    max-width: 200px;
     display: inline-block;
-    color: var(--light-gray);
-    width: 14px;
-    vertical-align: text-bottom;
-  }
-  .slider {
-    display: inline-block;
-    margin-bottom: 8px;
-  }
+    margin-right: 36px;
+    vertical-align: middle;
+    .slider-label {
+        display: inline-block;
+        color: var(--light-gray);
+        width: 14px;
+        vertical-align: text-bottom;
+    }
+    .slider {
+        display: inline-block;
+        margin-bottom: 8px;
+    }
 }
 
 .swatch {
-  transition: var(--fast) var(--transition);
-  display: inline-block;
-  width: 34px;
-  height: 34px;
-  border-radius: 100%;
-  vertical-align: middle;
-  margin-right: 8px;
-  color: var(--white);
-  text-align: center;
-  i {
-    line-height: 34px;
-  }
+    transition: var(--fast) var(--transition);
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    border-radius: 100%;
+    vertical-align: middle;
+    margin-right: 8px;
+    color: var(--white);
+    text-align: center;
+    i {
+        line-height: 34px;
+    }
 }
 
 button {
-  transition: var(--fast) var(--transition);
-  position: relative;
-  display: inline-block;
-  width: 34px;
-  height: 34px;
-  border-radius: 100%;
-  border: 2px solid var(--gray);
-  // background-color: var(--white);
-  margin-right: 8px;
-  &:first-of-type {
-    margin-left: 16px;
-    &::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: -16px;
-        border-left: 1px solid var(--lighter-gray);
-      }
-  }
-  &:not(:hover) {
-    background-color: var(--white) !important;
-  }
-  &:hover {
-    color: var(--white) !important;
-  }
+    transition: var(--fast) var(--transition);
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    border-radius: 100%;
+    border: 2px solid var(--gray);
+    // background-color: var(--white);
+    margin-right: 8px;
+    &:first-of-type {
+        margin-left: 16px;
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: -16px;
+            border-left: 1px solid var(--lighter-gray);
+        }
+    }
+    &:not(:hover) {
+        background-color: var(--white) !important;
+    }
+    &:hover {
+        color: var(--white) !important;
+    }
 }
 </style>

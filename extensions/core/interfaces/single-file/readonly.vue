@@ -13,34 +13,34 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin],
-  data() {
-    return {
-      error: null
-    };
-  },
-  methods: {
-    handleImageError(error) {
-      this.error = error;
+    mixins: [mixin],
+    data() {
+        return {
+            error: null
+        };
+    },
+    methods: {
+        handleImageError(error) {
+            this.error = error;
+        }
     }
-  }
 };
 </script>
 
 <style lang="scss" scoped>
 img {
-  width: 24px;
-  height: 24px;
-  object-fit: cover;
-  border-radius: 2px;
-  display: block;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 2px;
+    display: block;
 }
 
 .spinner {
-  display: inline-block;
+    display: inline-block;
 }
 
 i {
-  color: var(--lighter-gray);
+    color: var(--lighter-gray);
 }
 </style>

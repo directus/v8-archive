@@ -6,7 +6,7 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  name: "readonly-wysiwyg",
-  mixins: [mixin]
+    name: "readonly-wysiwyg",
+    mixins: [mixin]
 };
 </script>

@@ -20,28 +20,28 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
-import Readonly from './readonly.vue';
+import mixin from "../../../mixins/interface";
+import Readonly from "./readonly.vue";
 
 export default {
-  mixins: [mixin],
-  computed: {
-    inputType() {
-      if (this.type === 'VARCHAR' || this.type === 'CHAR') {
-        return 'text';
-      }
+    mixins: [mixin],
+    computed: {
+        inputType() {
+            if (this.type === "VARCHAR" || this.type === "CHAR") {
+                return "text";
+            }
 
-      return 'number';
+            return "number";
+        }
     },
-  },
-  components: {
-    Readonly,
-  },
-}
+    components: {
+        Readonly
+    }
+};
 </script>
 
 <style lang="scss" scoped>
 .input {
-  max-width: var(--width-small);
+    max-width: var(--width-small);
 }
 </style>

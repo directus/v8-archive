@@ -4,12 +4,12 @@
  * It takes the contents of the json file, minifies it, and returns it.
  */
 
-var through = require('through2');
-var jsonminify = require('jsonminify');
+var through = require("through2");
+var jsonminify = require("jsonminify");
 
-module.exports = function (file) {
-    return through(function (buf, enc, next) {
-        this.push(jsonminify(buf.toString('utf8')));
-        next();
-    });
+module.exports = function(file) {
+  return through(function(buf, enc, next) {
+    this.push(jsonminify(buf.toString("utf8")));
+    next();
+  });
 };

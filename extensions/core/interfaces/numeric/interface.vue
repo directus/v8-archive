@@ -9,23 +9,23 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
+import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin],
-}
+    mixins: [mixin]
+};
 </script>
 
 <style lang="scss" scoped>
 .small {
-  max-width: var(--width-small);
+    max-width: var(--width-small);
 }
 
 .medium {
-  max-width: var(--width-normal);
+    max-width: var(--width-normal);
 }
 
 .large {
-  max-width: var(--width-large);
+    max-width: var(--width-large);
 }
 </style>

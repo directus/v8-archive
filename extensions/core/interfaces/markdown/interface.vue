@@ -12,65 +12,66 @@
 </template>
 
 <script>
-import marked from 'marked';
-import mixin from '../../../mixins/interface';
+import marked from "marked";
+import mixin from "../../../mixins/interface";
 
 export default {
-  data() {
-    return {
-      editor: true,
-    };
-  },
-  computed: {
-    compiledMarkdown() {
-      if (this.value) {
-        return marked(this.value);
-      }
-
-      return this.value;
+    data() {
+        return {
+            editor: true
+        };
     },
-  },
-  mixins: [mixin],
-}
+    computed: {
+        compiledMarkdown() {
+            if (this.value) {
+                return marked(this.value);
+            }
+
+            return this.value;
+        }
+    },
+    mixins: [mixin]
+};
 </script>
 
 <style lang="scss" scoped>
 .interface-markdown {
-  max-width: var(--width-large);
-  position: relative;
+    max-width: var(--width-large);
+    position: relative;
 }
 
-.textarea, .preview {
-  max-width: var(--width-large);
-  min-height: 200px;
+.textarea,
+.preview {
+    max-width: var(--width-large);
+    min-height: 200px;
 }
 
 .textarea {
-  font-family: monospace;
+    font-family: monospace;
 }
 
 button {
-  position: absolute;
-  top: 1em;
-  right: 1em;
+    position: absolute;
+    top: 1em;
+    right: 1em;
 
-  i {
-    color: var(--light-gray);
-    transition: var(--fast) var(--transition);
-  }
-
-  &:hover,
-  .user-is-tabbing &:focus {
     i {
-      color: var(--primary);
+        color: var(--light-gray);
+        transition: var(--fast) var(--transition);
     }
-  }
+
+    &:hover,
+    .user-is-tabbing &:focus {
+        i {
+            color: var(--primary);
+        }
+    }
 }
 
 .preview {
-  background-color: var(--white);
-  padding: 10px;
-  border: var(--input-border-width) solid var(--lighter-gray);
-  border-radius: var(--border-radius);
+    background-color: var(--white);
+    padding: 10px;
+    border: var(--input-border-width) solid var(--lighter-gray);
+    border-radius: var(--border-radius);
 }
 </style>

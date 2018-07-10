@@ -38,82 +38,84 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  name: "interface-one-to-many",
-  mixins: [mixin],
-  data() {
-    return {
-      selecting: false,
+    name: "interface-one-to-many",
+    mixins: [mixin],
+    data() {
+        return {
+            selecting: false,
 
-      loading: false,
-      lazyLoading: false,
-      items: [],
-      error: null,
+            loading: false,
+            lazyLoading: false,
+            items: [],
+            error: null,
 
-      viewQuery: {},
-      viewOptions: {},
-      selection: [],
+            viewQuery: {},
+            viewOptions: {},
+            selection: [],
 
-      fields: {}
-    };
-  },
-  computed: {
-    relationshipSetup() {
-      return this.relationship != null;
+            fields: {}
+        };
     },
-    itemsByKey() {
-      if (!this.relationship) return {};
+    computed: {
+        relationshipSetup() {
+            return this.relationship != null;
+        },
+        itemsByKey() {
+            if (!this.relationship) return {};
 
-      return this.$lodash.keyBy(this.items, this.relationship.field);
+            return this.$lodash.keyBy(this.items, this.relationship.field);
+        },
+        selectionInItems() {
+            return this.selection.map(key => this.itemsByKey[key]);
+        }
     },
-    selectionInItems() {
-      return this.selection.map(key => this.itemsByKey[key]);
+    created() {
+        if (this.relationship) {
+            this.hydrate();
+        }
+    },
+    watch: {
+        relationship() {
+            this.hydrate();
+        },
+        selection() {
+            this.$emit("input", this.selectionInItems);
+        }
+    },
+    methods: {
+        hydrate() {
+            if (!this.relationship) return;
+
+            this.loading = true;
+            Promise.all([
+                this.$api.getFields(this.relationship.collection),
+                this.$api.getItems(this.relationship.collection, {
+                    fields: "*.*"
+                })
+            ])
+                .then(([fields, items]) => {
+                    this.loading = false;
+                    this.fields = this.$lodash.mapValues(
+                        this.$lodash.keyBy(fields.data, "field"),
+                        info => ({
+                            ...info,
+                            name: this.$helpers.formatTitle(info.field) // TODO: Map translation key to name field to support translatable field names #421 & #422
+                        })
+                    );
+                    this.items = items.data;
+                })
+                .catch(error => {
+                    this.loading = false;
+                    this.error = error;
+                });
+        },
+        setViewQuery(updates) {
+            this.viewQuery = Object.assign({}, this.viewQuery, updates);
+        },
+        setViewOptions(updates) {
+            this.viewQuery = Object.assign({}, this.viewQuery, updates);
+        },
+        fetchNextPage() {}
     }
-  },
-  created() {
-    if (this.relationship) {
-      this.hydrate();
-    }
-  },
-  watch: {
-    relationship() {
-      this.hydrate();
-    },
-    selection() {
-      this.$emit("input", this.selectionInItems);
-    }
-  },
-  methods: {
-    hydrate() {
-      if (!this.relationship) return;
-
-      this.loading = true;
-      Promise.all([
-        this.$api.getFields(this.relationship.collection),
-        this.$api.getItems(this.relationship.collection, { fields: "*.*" })
-      ])
-        .then(([fields, items]) => {
-          this.loading = false;
-          this.fields = this.$lodash.mapValues(
-            this.$lodash.keyBy(fields.data, "field"),
-            info => ({
-              ...info,
-              name: this.$helpers.formatTitle(info.field) // TODO: Map translation key to name field to support translatable field names #421 & #422
-            })
-          );
-          this.items = items.data;
-        })
-        .catch(error => {
-          this.loading = false;
-          this.error = error;
-        });
-    },
-    setViewQuery(updates) {
-      this.viewQuery = Object.assign({}, this.viewQuery, updates);
-    },
-    setViewOptions(updates) {
-      this.viewQuery = Object.assign({}, this.viewQuery, updates);
-    },
-    fetchNextPage() {}
-  }
 };
 </script>
