@@ -5,12 +5,18 @@
   "scripts": {
     "postinstall": "npx recursive-install --skip-root",
     "build": "parcel build \"core/**/*.vue\" -d ../public/extensions/core --no-source-maps --global __DirectusExtension__ && cpx \"core/**/meta.json\" ../public/extensions/core -t ./json-minifier.js -v",
-    "dev": "concurrently --raw \"cpx core/**/meta.json ../public/extensions/core -w\" \"parcel watch core/**/*.vue -d ../public/extensions/core --no-source-maps --global __DirectusExtension__\""
+    "dev": "concurrently --raw \"cpx core/**/meta.json ../public/extensions/core -w\" \"parcel watch core/**/*.vue -d ../public/extensions/core --no-source-maps --global __DirectusExtension__\"",
+    "lint": "vue-cli-service lint \"core/**/*.vue\"",
+    "fix": "prettier --write \"core/**/*.{js,vue}\""
   },
   "author": "Rijk van Zanten <rijkvanzanten@me.com>",
   "license": "GPL-3.0",
   "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.0.0-rc.3",
+    "@vue/cli-plugin-eslint": "^3.0.0-rc.3",
+    "@vue/cli-service": "^3.0.0-rc.3",
     "@vue/component-compiler-utils": "^2.0.0",
+    "@vue/eslint-config-prettier": "^3.0.0-rc.3",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.24.1",
     "concurrently": "^3.6.0",
@@ -25,5 +31,18 @@
   "dependencies": {
     "vue": "^2.5.16",
     "vue-hot-reload-api": "^2.3.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/prettier"
+    ],
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+      "parser": "babel-eslint",
+      "ecmaVersion": 8,
+      "sourceType": "module"
+    }
   }
 }
