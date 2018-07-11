@@ -2282,7 +2282,10 @@ class RelationalTableGateway extends BaseTableGateway
 
     protected function recordActivity($action, array $payload, array $record, array $nestedItems, array $params = [])
     {
-        if ($this->getTable() == SchemaManager::COLLECTION_ACTIVITY) {
+        $isActivityCollection = $this->getTable() == SchemaManager::COLLECTION_ACTIVITY;
+        $isDisabled = ArrayUtils::get($params, 'activity_mode') == DirectusActivityTableGateway::ACTIVITY_ENTRY_MODE_DISABLED;
+
+        if ($isActivityCollection || $isDisabled) {
             return;
         }
 
