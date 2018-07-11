@@ -22,24 +22,28 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         $this->dropSampleTables();
         $this->createSampleTables();
 
-        $startDay = date('d') - 15;
-        for ($i = 0; $i < 15; $i++) {
-            $datetime = sprintf('2017-12-%d 15:52:37', $startDay);
+        $currentTime = time();
+        for ($i = 15; $i >= 1; $i--) {
+            $date = date(
+                'Y-m-d',
+                strtotime(
+                    sprintf('-%d day', $i),
+                    $currentTime
+                )
+            );
             table_insert($this->db, 'directus_activity', [
                 'id' => null,
                 'type' => 'LOGIN',
                 'action' => 'LOGIN',
                 'user' => 1,
-                'datetime' => $datetime,
+                'datetime' => sprintf('%s 15:52:37', $date),
                 'ip' => '::1',
                 'user_agent' => 'GuzzleHttp/6.2.1 curl/7.52.1 PHP/5.5.38',
                 'collection' => 'directus_users',
                 'item' => 1,
-                'message' => null
+                'comment' => null
 
             ]);
-
-            $startDay++;
         }
     }
 
@@ -61,7 +65,9 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
             'user_agent',
             'collection',
             'item',
-            'message'
+            'datetime_edited',
+            'comment',
+            'deleted_comment',
         ];
 
         $path = 'activity';
@@ -149,11 +155,10 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
 
     public function testId()
     {
-        $path = 'activity';
+        $path = 'activity/1';
         $response = request_get($path, [
             'meta' => '*',
-            'access_token' => 'token',
-            'id' => 1
+            'access_token' => 'token'
         ]);
 
         assert_response($this, $response);
@@ -223,9 +228,11 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    public function testCreateMessage()
+    public function testCreateComment()
     {
-        $response = request_post('activity/message', [
+        $response = request_post('activity/comment', [
+            'collection' => 'categories',
+            'item' => 1,
             'comment' => 'a comment'
         ], ['query' => ['access_token' => 'token']]);
 
@@ -234,7 +241,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         ]);
 
         assert_response_data_contains($this, $response, [
-            'type' => DirectusActivityTableGateway::TYPE_MESSAGE,
+            'type' => DirectusActivityTableGateway::TYPE_COMMENT,
             'comment' => 'a comment'
         ]);
     }
