@@ -75,10 +75,12 @@ class RelationalTableGateway extends BaseTableGateway
 
     public function deleteRecord($id, array $params = [])
     {
-        // TODO: Add "item" hook, different from "table" hook
-        $success = $this->delete([
+        $conditions = [
             $this->primaryKeyFieldName => $id
-        ]);
+        ];
+
+        // TODO: Add "item" hook, different from "table" hook
+        $success = $this->delete($conditions);
 
         if (!$success) {
             throw new ErrorException(
@@ -86,22 +88,13 @@ class RelationalTableGateway extends BaseTableGateway
             );
         }
 
-        if ($this->table !== SchemaManager::COLLECTION_ACTIVITY) {
-            $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
-            $logData = [
-                'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
-                'action' => DirectusActivityTableGateway::ACTION_DELETE,
-                'user' => $this->acl->getUserId(),
-                'datetime' => DateTimeUtils::nowInUTC()->toString(),
-                'ip' => \Directus\get_request_ip(),
-                'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
-                'collection' => $this->table,
-                'item' => $id,
-                'comment' => ArrayUtils::get($params, 'activity_comment')
-            ];
-            $parentLogEntry->populate($logData, false);
-            $parentLogEntry->save();
-        }
+        $this->recordActivity(
+            DirectusActivityTableGateway::ACTION_DELETE,
+            null,
+            $conditions,
+            [],
+            $params
+        );
     }
 
     /**
@@ -2280,7 +2273,14 @@ class RelationalTableGateway extends BaseTableGateway
         return $stats;
     }
 
-    protected function recordActivity($action, array $payload, array $record, array $nestedItems, array $params = [])
+    /**
+     * @param string $action
+     * @param array|null $payload
+     * @param array|null $record
+     * @param array $nestedItems
+     * @param array $params
+     */
+    protected function recordActivity($action, $payload, array $record, array $nestedItems, array $params = [])
     {
         $isActivityCollection = $this->getTable() == SchemaManager::COLLECTION_ACTIVITY;
         $isDisabled = ArrayUtils::get($params, 'activity_mode') == DirectusActivityTableGateway::ACTIVITY_ENTRY_MODE_DISABLED;
@@ -2319,16 +2319,18 @@ class RelationalTableGateway extends BaseTableGateway
 
         // Add Revisions
         $revisionTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_REVISIONS, $this->adapter);
-        $revisionTableGateway->insert([
-            'activity' => $parentLogEntry->getId(),
-            'collection' => $this->getTable(),
-            'item' => $rowId,
-            'data' => json_encode($record),
-            'delta' => json_encode($deltaRecordData),
-            'parent_item' => null,
-            'parent_collection' => null,
-            'parent_changed' => null,
-        ]);
+        if ($action !== DirectusActivityTableGateway::ACTION_DELETE) {
+            $revisionTableGateway->insert([
+                'activity' => $parentLogEntry->getId(),
+                'collection' => $this->getTable(),
+                'item' => $rowId,
+                'data' => json_encode($record),
+                'delta' => json_encode($deltaRecordData),
+                'parent_item' => null,
+                'parent_collection' => null,
+                'parent_changed' => null,
+            ]);
+        }
 
         // Update & insert nested activity entries
         $ActivityGateway = new DirectusActivityTableGateway($this->adapter);
