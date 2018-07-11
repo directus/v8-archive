@@ -153,7 +153,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         }
 
         assert_response_error($this, $response, [
-            'status' => 400,
+            'status' => 422,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
 
@@ -166,7 +166,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         }
 
         assert_response_error($this, $response, [
-            'status' => 400,
+            'status' => 422,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
 
@@ -179,7 +179,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
         }
 
         assert_response_error($this, $response, [
-            'status' => 400,
+            'status' => 422,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
     }

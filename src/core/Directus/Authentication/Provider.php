@@ -197,6 +197,10 @@ class Provider
 
         $user = $this->userProvider->findWhere($conditions);
 
+        if (!$this->isActive($user)) {
+            throw new UserInactiveException();
+        }
+
         if ($user) {
             $this->setUser($user);
         }
@@ -220,11 +224,11 @@ class Provider
     /**
      * Authenticate an user using a private token
      *
-     * @param $token
+     * @param string $token
      *
      * @return UserInterface
      *
-     * @throws InvalidTokenException
+     * @throws UserInactiveException
      */
     public function authenticateWithPrivateToken($token)
     {
@@ -233,6 +237,11 @@ class Provider
         ];
 
         $user = $this->userProvider->findWhere($conditions);
+
+        if (!$this->isActive($user)) {
+            throw new UserInactiveException();
+        }
+
         if ($user) {
             $this->setUser($user);
         }

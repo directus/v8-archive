@@ -28,9 +28,7 @@ class UserTableGatewayProvider implements UserProviderInterface
         $user = null;
 
         $select = new Select($this->tableGateway->getTable());
-        $select->where(array_merge([
-            'status' => static::STATUS_ACTIVE
-        ], $conditions));
+        $select->where($conditions);
         $select->limit(1);
 
         /** @var BaseRowGateway $row */
