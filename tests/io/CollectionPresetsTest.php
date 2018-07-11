@@ -47,10 +47,11 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateMissingViewType()
     {
-        $data = ['collection' => 'products', 'fields' => 'id,name'];
+        $data = ['collection' => 'products', 'search_query' => 'search-query'];
         $response = request_error_post('collection_presets', $data, ['query' => ['access_token' => 'token']]);
+
         assert_response_error($this, $response, [
-            'status' => 400,
+            'status' => 422,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
     }
