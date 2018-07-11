@@ -115,6 +115,24 @@ class Provider
     }
 
     /**
+     * Finds a user with the given conditions
+     *
+     * @param array $conditions
+     * @return User\User
+     *
+     * @throws UserInactiveException
+     * @throws UserNotFoundException
+     */
+    public function findUserWithConditions(array $conditions)
+    {
+        $user = $this->userProvider->findWhere($conditions);
+
+        $this->validateUser($user);
+
+        return $user;
+    }
+
+    /**
      * Returns a user if the credentials matches
      *
      * @param string $email
@@ -146,14 +164,16 @@ class Provider
      *
      * @return User\User
      *
-     * @throws UserNotFoundException
+     * @throws UserWithEmailNotFoundException
      */
     public function findUserWithEmail($email)
     {
         $user = $this->userProvider->findByEmail($email);
 
-        if (!$user || !$user->getId()) {
-            throw new UserNotFoundException();
+        try {
+            $this->validateUser($user);
+        } catch (UserNotFoundException $e) {
+            throw new UserWithEmailNotFoundException($email);
         }
 
         return $user;
@@ -195,11 +215,7 @@ class Provider
             // 'group' => $payload->group
         ];
 
-        $user = $this->userProvider->findWhere($conditions);
-
-        if (!$this->isActive($user)) {
-            throw new UserInactiveException();
-        }
+        $user = $this->findUserWithConditions($conditions);
 
         if ($user) {
             $this->setUser($user);
@@ -232,15 +248,9 @@ class Provider
      */
     public function authenticateWithPrivateToken($token)
     {
-        $conditions = [
+        $user = $this->findUserWithConditions([
             'token' => $token
-        ];
-
-        $user = $this->userProvider->findWhere($conditions);
-
-        if (!$this->isActive($user)) {
-            throw new UserInactiveException();
-        }
+        ]);
 
         if ($user) {
             $this->setUser($user);
@@ -472,15 +482,28 @@ class Provider
      */
     protected function setUser(UserInterface $user)
     {
-        if (!$user->getId()) {
+        $this->validateUser($user);
+
+        $this->authenticated = true;
+        $this->user = $user;
+    }
+
+    /**
+     * Validates an user object
+     *
+     * @param UserInterface|null $user
+     *
+     * @throws UserInactiveException
+     * @throws UserNotFoundException
+     */
+    protected function validateUser($user)
+    {
+        if (!($user instanceof UserInterface) || !$user->getId()) {
             throw new UserNotFoundException();
         }
 
         if (!$this->isActive($user)) {
             throw new UserInactiveException();
         }
-
-        $this->authenticated = true;
-        $this->user = $user;
     }
 }

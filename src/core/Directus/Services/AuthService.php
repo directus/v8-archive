@@ -270,13 +270,9 @@ class AuthService extends AbstractService
 
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
-        $user = $auth->getUserProvider()->findWhere([
+        $user = $auth->findUserWithConditions([
             'id' => $payload->id
         ]);
-
-        if (!$auth->isActive($user)) {
-            throw new UserInactiveException();
-        }
 
         return [
             'data' => [
