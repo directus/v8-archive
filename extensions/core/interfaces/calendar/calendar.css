@@ -32,3 +32,14 @@
 .flatpickr-current-month input.cur-year[disabled], .flatpickr-current-month input.cur-year[disabled]:hover {
 	color: rgba(255,255,255,0.5);
 }
+.inactive .flatpickr-calendar::before {
+	position: absolute;
+	left: 0;
+	background-color: var(--dark-gray);
+    opacity: .3;
+    z-index: 10;
+    width: inherit;
+    height: 100%;
+    border-width: 0px;
+    margin: 0 0;
+}

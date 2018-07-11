@@ -1,6 +1,6 @@
 <template>
   <v-timeago
-    v-if="value && options.showRelative"
+    v-if="value && showRelative"
     :since="date"
     :auto-update="86400"
     :locale="$i18n.locale"
@@ -11,10 +11,17 @@
 
 <script>
 import mixin from '../../../mixins/interface';
+import dateFormat from 'dateformat';
 
 export default {
   mixins: [mixin],
   computed: {
+    showRelative() {
+      if (this.options.formatting == "" || this.options.formatting == null) {
+        return true;
+      }
+      return false;
+    },
     date() {
       if (this.value) {
         return new Date(this.value.replace(/-/g, '/'));
@@ -24,9 +31,9 @@ export default {
     displayValue() {
       if (this.value && this.options.localized) {
         return this.$d(this.date, 'short');
-      }
-
-      return this.value;
+      } else {
+        return dateFormat(this.date, this.options.formatting);
+      }  
     },
   },
 };

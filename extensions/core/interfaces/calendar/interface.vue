@@ -19,15 +19,19 @@ import mixin from '../../../mixins/interface';
 export default {
 	name: 'interface-calendar',
 	computed: {
-		dateFormat() {
-			return this.options.formatting ? "Y-m-d" : "F j, Y";
-		},
+		// dateFormat() {
+		// 	if (this.options.formatting == "" || this.options.formatting == null) {
+		// 		return "Y-m-d";
+		// 	}
+		// 		return this.options.formatting;
+		// },
 		configs() {
 			return {
 				inline: true,
 				minDate: this.options.min,
 				maxDate: this.options.max,
-				dateFormat: this.dateFormat,
+				dateFormat: "Y-m-d",
+				// dateFormat: this.dateFormat,
 				// mode: "range"
 			}
 		},

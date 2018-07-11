@@ -9,6 +9,7 @@
   "author": "JS GURU <i.asan825.mail@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
+    "dateformat": "^3.0.3",
     "vue-flatpickr-component": "^7.0.4"
   }
 }

@@ -18,19 +18,15 @@
     "formatting": {
       "name": "$t:formatting",
       "comment": "$t:formatting_comment",
-      "interface": "toggle",
-      "type": "BOOLEAN",
-      "default": true
+      "interface": "text-input",
+      "options": {
+        "placeholder": "eg: dddd, mmmm d, yyyy"
+      },
+      "length": 50
     },
     "localized": {
       "name": "$t:localized",
       "comment": "$t:localized_comment",
-      "interface": "toggle",
-      "default": true
-    },
-    "showRelative": {
-      "name": "$t:relative",
-      "comment": "$t:relative_comment",
       "interface": "toggle",
       "default": true
     }
@@ -43,13 +39,9 @@
       "max": "Maximum date",
       "max_comment": "Maximum date that can be chosen by the user",
       "formatting": "date format",
-      "formatting_comment": "Set date format to F j, Y or Y-m-d",
-      "enableTime": "Show time",
-      "enableTime_comment": "Set calendar to show time",
+      "formatting_comment": "If left blank, a relative date will be used (refer to https://www.npmjs.com/package/dateformat)",
       "localized": "Localized",
-      "localized_comment": "Show the date localized in the output",
-      "relative": "Show relative date",
-      "relative_comment": "Show the date relatively (eg 2 days ago)"
+      "localized_comment": "Show the date localized in the output"
     }
   }
 }
