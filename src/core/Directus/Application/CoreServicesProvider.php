@@ -328,6 +328,17 @@ class CoreServicesProvider
                     $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
                 }
 
+                // NOTE: Use the user input title, tags, description and location when exists.
+                $recordData = array_merge(
+                    $recordData,
+                    ArrayUtils::pick($data, [
+                        'title',
+                        'tags',
+                        'description',
+                        'location',
+                    ])
+                );
+
                 $payload->replace($recordData);
                 $payload->remove('data');
                 $payload->remove('html');
