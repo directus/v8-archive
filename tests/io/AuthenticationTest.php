@@ -6,8 +6,6 @@ use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserInactiveException;
-use Directus\Exception\BadRequestException;
-use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use GuzzleHttp\Exception\ClientException;
@@ -109,15 +107,11 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 
     public function testInvalidCredentials()
     {
-        try {
-            $path = 'auth/authenticate';
-            $response = request_post($path, [
-                'email' => 'user@getdirectus.com',
-                'password' => 'password'
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+        $path = 'auth/authenticate';
+        $response = request_error_post($path, [
+            'email' => 'user@getdirectus.com',
+            'password' => 'password'
+        ]);
 
         assert_response_error($this, $response, [
             'status' => 404,
@@ -144,38 +138,25 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
     public function testValidation()
     {
         $path = 'auth/authenticate';
-
-        try {
-            $response = request_post($path);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+        $response = request_error_post($path, []);
 
         assert_response_error($this, $response, [
             'status' => 422,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
 
-        try {
-            $response = request_post($path, [
-                'password' => 'password'
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+        $response = request_error_post($path, [
+            'password' => 'password'
+        ]);
 
         assert_response_error($this, $response, [
             'status' => 422,
             'code' => InvalidRequestException::ERROR_CODE
         ]);
 
-        try {
-            $response = request_post($path, [
-                'email' => 'user@getdirectus.com'
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+        $response = request_error_post($path, [
+            'email' => 'user@getdirectus.com'
+        ]);
 
         assert_response_error($this, $response, [
             'status' => 422,
@@ -186,41 +167,29 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
     public function testInvalidTokenRefresh()
     {
         $path = 'auth/refresh';
-        try {
-            $response = request_post($path, [
-                'token' => 'token'
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+        $response = request_error_post($path, [
+            'token' => 'token'
+        ]);
 
         assert_response_error($this, $response, [
             'status' => 401,
             'code' => InvalidTokenException::ERROR_CODE
         ]);
 
-        try {
-            // expired
-            $response = request_post($path, [
-                'token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZ3JvdXAiOjEsImV4cCI6LTF9.KYIEPZn_LC6P8YXEycuxJ2icVojswSbZOJN41r3h7lw'
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+        // expired
+        $response = request_error_post($path, [
+            'token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZ3JvdXAiOjEsImV4cCI6LTF9.KYIEPZn_LC6P8YXEycuxJ2icVojswSbZOJN41r3h7lw'
+        ]);
 
         assert_response_error($this, $response, [
             'status' => 401,
             'code' => ExpiredTokenException::ERROR_CODE
         ]);
 
-        try {
-            // empty payload
-            $response = request_post($path, [
-                'token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.W10.pwrFXDuy0W5KvU5BC7ZjwqssUKcYnkOFRKOUNkwhnkE'
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+        // empty payload
+        $response = request_error_post($path, [
+            'token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.W10.pwrFXDuy0W5KvU5BC7ZjwqssUKcYnkOFRKOUNkwhnkE'
+        ]);
 
         assert_response_error($this, $response, [
             'status' => 401,
