@@ -446,4 +446,16 @@ final class DataTypes
     {
         return in_array(strtolower($type), static::getLengthTypes());
     }
+
+    /**
+     * Checks whether or not a given type exists
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function exists($type)
+    {
+        return in_array(strtolower($type), static::getAllTypes());
+    }
 }
