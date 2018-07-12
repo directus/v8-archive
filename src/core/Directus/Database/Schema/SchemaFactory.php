@@ -182,7 +182,7 @@ class SchemaFactory
     {
         $this->validate($data);
         $type = ArrayUtils::get($data, 'type');
-        $dataType = ArrayUtils::get($data, 'datatype', $type);
+        $dataType = isset($data['datatype']) ? $data['datatype'] : $type;
         $autoincrement = ArrayUtils::get($data, 'auto_increment', false);
         $unique = ArrayUtils::get($data, 'unique', false);
         $primaryKey = ArrayUtils::get($data, 'primary_key', false);
