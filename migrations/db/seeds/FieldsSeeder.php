@@ -691,8 +691,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_permissions',
                 'field' => 'explain',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
