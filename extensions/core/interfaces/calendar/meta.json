@@ -20,20 +20,20 @@
       "comment": "$t:formatting_comment",
       "interface": "text-input",
       "options": {
-        "placeholder": "eg: dddd, mmmm d, yyyy"
+        "placeholder": "dddd, mmmm dS"
       },
       "length": 50
     }
   },
   "translation": {
     "en-US": {
-      "calendar": "Calenlar",
-      "min": "Minimum date",
+      "calendar": "Calendar",
+      "min": "Minimum Date",
       "min_comment": "Minimum date that can be chosen by the user",
       "max": "Maximum date",
       "max_comment": "Maximum date that can be chosen by the user",
-      "formatting": "date format",
-      "formatting_comment": "If left blank, a relative date will be used (refer to https://www.npmjs.com/package/dateformat)"
+      "formatting": "Date Format",
+      "formatting_comment": "If left blank, a relative date will be used"
     }
   }
 }
