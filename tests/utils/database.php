@@ -148,6 +148,10 @@ function drop_table(Connection $db, $table)
     delete_item($db, 'directus_collections', [
         'collection' => $table
     ]);
+
+    delete_item($db, 'directus_fields', [
+        'collection' => $table
+    ]);
 }
 
 /**
