@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import mixin from "../../../mixins/interface";
 import dateFormat from "dateformat";
+import mixin from "../../../mixins/interface";
 
 export default {
   mixins: [mixin],
