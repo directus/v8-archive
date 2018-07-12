@@ -23,12 +23,6 @@
         "placeholder": "eg: dddd, mmmm d, yyyy"
       },
       "length": 50
-    },
-    "localized": {
-      "name": "$t:localized",
-      "comment": "$t:localized_comment",
-      "interface": "toggle",
-      "default": true
     }
   },
   "translation": {
@@ -39,9 +33,7 @@
       "max": "Maximum date",
       "max_comment": "Maximum date that can be chosen by the user",
       "formatting": "date format",
-      "formatting_comment": "If left blank, a relative date will be used (refer to https://www.npmjs.com/package/dateformat)",
-      "localized": "Localized",
-      "localized_comment": "Show the date localized in the output"
+      "formatting_comment": "If left blank, a relative date will be used (refer to https://www.npmjs.com/package/dateformat)"
     }
   }
 }

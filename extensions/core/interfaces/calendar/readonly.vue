@@ -29,11 +29,7 @@ export default {
       return null;
     },
     displayValue() {
-      if (this.value && this.options.localized) {
-        return this.$d(this.date, 'short');
-      } else {
-        return dateFormat(this.date, this.options.formatting);
-      }  
+      return dateFormat(this.date, this.options.formatting);
     },
   },
 };
