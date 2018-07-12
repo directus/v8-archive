@@ -4,12 +4,9 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Connection;
 use Directus\Database\Exception\FieldNotFoundException;
-use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Exception\UnknownDataTypeException;
 use Directus\Database\Schema\DataTypes;
-use Directus\Exception\BadRequestException;
-use Directus\Exception\ErrorException;
-use Directus\Util\ArrayUtils;
+use Directus\Exception\UnprocessableEntityException;
 
 class FieldsTest extends \PHPUnit_Framework_TestCase
 {
@@ -29,10 +26,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
     public static function resetDatabase()
     {
-        reset_table_id(static::$db, 'directus_fields', 5);
-        delete_item(static::$db, 'directus_collections', [
-            'collection' => static::$tableName
-        ]);
         drop_table(static::$db, static::$tableName);
     }
 
@@ -55,7 +48,11 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'integer',
+                    'type' => 'primary_key',
+                    'datatype' => 'integer',
+                    'length' => 11,
+                    'primary_key' => true,
+                    'auto_increment' => true,
                     'interface' => 'primary_key'
                 ]
             ]
@@ -145,13 +142,14 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         foreach ($types as $type) {
             $data = [
-                'type' => 'integer'
+                'type' => 'integer',
+                'length' => 10
             ];
 
             $path = sprintf('fields/%s/%s', static::$tableName, $type);
             $response = request_patch($path, $data, ['query' => $this->queryParams]);
             assert_response($this, $response);
-            assert_response_data_contains($this, $response, $data);
+            assert_response_data_contains($this, $response, $data, false);
 
             // Has columns records
             $result = table_find(static::$db, 'directus_fields', [
@@ -186,7 +184,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
         foreach ($types as $type) {
             $response = request_delete('fields/' . static::$tableName . '/' . $type, ['query' => $this->queryParams]);
-            echo response_get_body_contents($response);
             assert_response_empty($this, $response);
         }
     }
@@ -199,7 +196,11 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'integer',
+                    'datatype' => 'integer',
+                    'type' => 'primary_key',
+                    'length' => 10,
+                    'primary_key' => true,
+                    'auto_increment' => true,
                     'interface' => 'primary_key'
                 ],
                 [
@@ -213,7 +214,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         $response = request_error_post('collections', $data, ['query' => $this->queryParams]);
         assert_response_error($this, $response, [
             'code' => UnknownDataTypeException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
     }
 
@@ -250,7 +251,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         $response = request_error_patch('fields/' . static::$tableName . '/name', $data, ['query' => $this->queryParams]);
         assert_response_error($this, $response, [
             'code' => UnknownDataTypeException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
     }
 
@@ -283,8 +284,8 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('fields/' . static::$tableName . '/name', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'options' => json_encode(['option' => '1', 'read_only' => '0'])
-        ]);
+            'options' => json_decode(json_encode(['option' => 1, 'read_only' => 0]))
+        ], false);
 
         $data = [
             'options' => $options
@@ -293,8 +294,8 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('fields/' . static::$tableName . '/name', $data, ['json' => true, 'query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
-            'options' => json_encode($options)
-        ]);
+            'options' => json_decode(json_encode($options))
+        ], false);
     }
 
     public function testGetOptions()
@@ -328,8 +329,8 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_delete('fields/' . static::$tableName . '/id', ['query' => $this->queryParams]);
         assert_response_error($this, $response, [
-            'code' => BadRequestException::ERROR_CODE,
-            'status' => 400
+            'code' => UnprocessableEntityException::ERROR_CODE,
+            'status' => 422
         ]);
     }
 }
