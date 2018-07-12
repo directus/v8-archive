@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import mixin from '../../../mixins/interface';
-import dateFormat from 'dateformat';
+import mixin from "../../../mixins/interface";
+import dateFormat from "dateformat";
 
 export default {
   mixins: [mixin],
@@ -24,13 +24,13 @@ export default {
     },
     date() {
       if (this.value) {
-        return new Date(this.value.replace(/-/g, '/'));
+        return new Date(this.value.replace(/-/g, "/"));
       }
       return null;
     },
     displayValue() {
       return dateFormat(this.date, this.options.formatting);
-    },
-  },
+    }
+  }
 };
 </script>
