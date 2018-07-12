@@ -93,7 +93,8 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
             'filters',
             'view_type',
             'view_query',
-            'view_options'
+            'view_options',
+            'translation',
         ]);
     }
 
