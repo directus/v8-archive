@@ -30,7 +30,7 @@
       "calendar": "Calendar",
       "min": "Minimum Date",
       "min_comment": "Minimum date that can be chosen by the user",
-      "max": "Maximum date",
+      "max": "Maximum Date",
       "max_comment": "Maximum date that can be chosen by the user",
       "formatting": "Date Format",
       "formatting_comment": "If left blank, a relative date will be used"
