@@ -57,13 +57,13 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
         $path = 'items/products';
         $data = [
             [
-                'status' => 1,
+                'status' => '1',
                 'name' => 'Special Product',
                 'price' => 999.99,
                 'category_id' => 1
             ],
             [
-                'status' => 1,
+                'status' => '1',
                 'name' => 'Special Product 2',
                 'price' => 999.99,
                 'category_id' => 1
@@ -83,7 +83,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
 
             foreach ($data[$index] as $key => $value) {
                 $this->assertArrayHasKey($key, $newData);
-                $this->assertSame($newData[$key], $value);
+                $this->assertSame($newData[$key], $value, $key);
             }
         }
     }
@@ -150,7 +150,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
         $path = 'items/products';
         $data = [
             [
-                'status' => 1,
+                'status' => '1',
                 'name' => 'Premium Product 1',
                 'price' => 9999.99,
                 'category_id' => [
@@ -158,7 +158,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
                 ]
             ],
             [
-                'status' => 1,
+                'status' => '1',
                 'name' => 'Premium Product 2',
                 'price' => 9999.99,
                 'category_id' => [
@@ -201,15 +201,17 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
             [
                 'name' => 'New Category 1',
                 'products' => [[
-                    'status' => 1,
-                    'name' => 'New Product 1'
+                    'status' => '1',
+                    'name' => 'New Product 1',
+                    'price' => 100,
                 ]]
             ],
             [
                 'name' => 'New Category 2',
                 'products' => [[
-                    'status' => 1,
-                    'name' => 'New Product 2'
+                    'status' => '1',
+                    'name' => 'New Product 2',
+                    'price' => 200,
                 ]]
             ]
         ];
@@ -243,7 +245,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
         $path = 'items/products';
         $data = [
             [
-                'status' => 1,
+                'status' => '1',
                 'name' => 'Limited Product 1',
                 'price' => 1010.01,
                 'images' => [
@@ -257,7 +259,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
                 ]
             ],
             [
-                'status' => 1,
+                'status' => '1',
                 'name' => 'Limited Product 2',
                 'price' => 1010.01,
                 'images' => [
