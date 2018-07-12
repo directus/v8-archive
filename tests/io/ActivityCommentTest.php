@@ -321,7 +321,6 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
                     'auto_increment' => true,
                     'datatype' => 'integer',
                     'primary_key' => true,
-                    'auto_increment' => true,
                 ],
                 [
                     'field' => 'name',
