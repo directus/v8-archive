@@ -640,6 +640,11 @@ class SchemaManager
                     'field_b' => null,
                 ];
             } else {
+                if ($collectionName === $relation['collection_b']) {
+                    ArrayUtils::swap($relation, 'collection_a', 'collection_b');
+                    ArrayUtils::swap($relation, 'field_a', 'field_b');
+                }
+
                 $fieldsRelation[$relation['field_a']] = $relation;
             }
         }

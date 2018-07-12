@@ -325,6 +325,8 @@ class MySQLSchema extends AbstractSchema
         $where->equalTo('collection_a', $collectionName);
         $where->OR;
         $where->equalTo('junction_collection', $collectionName);
+        $where->OR;
+        $where->equalTo('collection_b', $collectionName);
         $where->unnest();
 
         $sql = new Sql($this->adapter);

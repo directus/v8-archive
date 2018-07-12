@@ -429,26 +429,21 @@ class ArrayUtils
         }
     }
 
-    // /**
-    //  * Swaps element values
-    //  *
-    //  * @param array $array
-    //  * @param string $from
-    //  * @param string $to
-    //  *
-    //  * @return int
-    //  */
-    // public static function swap(array &$array, $from, $to)
-    // {
-        // TODO: Swap values
-        // if (!isset($array[$to])) {
-        //     static::rename($array, $from, $to);
-        // } else {
-        //     $temp = ArrayUtils::get($array, $from);
-        //     $array[$from] = ArrayUtils::get($array, $to);
-        //     $array[$to] = $temp;
-        // }
-    // }
+    /**
+     * Swaps element values
+     *
+     * @param array $array
+     * @param string $from
+     * @param string $to
+     *
+     * @return int
+     */
+    public static function swap(array &$array, $from, $to)
+    {
+        $temp = ArrayUtils::get($array, $from);
+        $array[$from] = ArrayUtils::get($array, $to);
+        $array[$to] = $temp;
+    }
 
     /**
      * Pushes a new element at the end of the given array
