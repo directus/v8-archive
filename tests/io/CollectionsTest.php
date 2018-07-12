@@ -2,7 +2,7 @@
 
 namespace Directus\Tests\Api\Io;
 
-use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Util\ArrayUtils;
 
 class CollectionsTest extends \PHPUnit_Framework_TestCase
@@ -17,10 +17,6 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
     public static function resetDatabase()
     {
         drop_table(static::$db, static::$tableName);
-        delete_item(static::$db, 'directus_collections', [
-            'collection' => static::$tableName
-        ]);
-        reset_table_id(static::$db, 'directus_fields', 5);
     }
 
     public static function setUpBeforeClass()
@@ -41,22 +37,27 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'integer',
+                    'type' => 'primary_key',
+                    'datatype' => 'integer',
                     'interface' => 'primary_key',
+                    'primary_key' => true,
                     'auto_increment' => true,
-                    'unsigned' => true
+                    'signed' => false,
+                    'length' => 11,
                 ],
                 [
                     'field' => 'status',
                     'type' => 'integer',
                     'interface' => 'status',
-                    'unsigned' => true
+                    'signed' => false,
+                    'length' => 11,
                 ],
                 [
                     'field' => 'sort',
                     'type' => 'integer',
                     'interface' => 'sort',
-                    'unsigned' => true
+                    'signed' => false,
+                    'length' => 11,
                 ],
                 [
                     'field' => 'name',
@@ -96,7 +97,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_get('collections/nonexisting', $this->queryParams);
         assert_response_error($this, $response, [
-            'code' => ItemNotFoundException::ERROR_CODE,
+            'code' => CollectionNotFoundException::ERROR_CODE,
             'status' => 404
         ]);
     }
@@ -104,8 +105,8 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
     public function testUpdate()
     {
         $data = [
-            'hidden' => 1,
-            'single' => 1
+            'hidden' => true,
+            'single' => true
         ];
 
         $response = request_patch('collections/' . static::$tableName, $data, ['query' => $this->queryParams]);
@@ -116,8 +117,8 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
 
         // Change back
         $data = [
-            'hidden' => 0,
-            'single' => 0
+            'hidden' => false,
+            'single' => false
         ];
 
         $response = request_patch('collections/' . static::$tableName, $data, ['query' => $this->queryParams]);
@@ -210,7 +211,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_get('collections', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 4
+            'count' => 18 // 15 core tables, categories, products and static::$tableName
         ]);
     }
 
@@ -221,7 +222,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_get('collections/' . static::$tableName, $this->queryParams);
         assert_response_error($this, $response, [
-            'code' => ItemNotFoundException::ERROR_CODE,
+            'code' => CollectionNotFoundException::ERROR_CODE,
             'status' => 404
         ]);
 
