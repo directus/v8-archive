@@ -1,0 +1,36 @@
+{
+	"name": "$t:code",
+	"version": "1.0.0",
+	"datatypes": {
+		"DATE": null
+	},
+	"options": {
+    "height": {
+      "name": "$t:height",
+      "comment": "$t:height_comment",
+      "interface": "numeric"
+    },
+    "lineNumber": {
+      "name": "$t:lineNumber",
+      "comment": "$t:lineNumber_comment",
+      "interface": "toggle",
+      "default": true
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "code"
+    }
+  },
+  "translation": {
+    "en-US": {
+      "code": "Code",
+      "height": "Editor Height",
+      "height_comment": "Enter the height of the code editor",
+      "lineNumber": "Line Number",
+      "lineNumber_comment": "Show line numer",
+      "placeholder": "Placeholder",
+      "placeholder_comment": "Enter placeholder code"
+    }
+  }
+}
