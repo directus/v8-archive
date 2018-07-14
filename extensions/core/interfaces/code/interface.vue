@@ -3,8 +3,6 @@
     <codemirror ref="cm"
       :value="code"
       :options="cmOptions"
-      @ready="onCmReady"
-      @focus="onCmFocus"
       @input="onCmInput"
     ></codemirror>
     <div class="clipboard-btn">
@@ -121,12 +119,6 @@ export default {
     },
   },
   methods: {
-    onCmReady(cm) {
-      console.log('the editor is readied!', cm)
-    },
-    onCmFocus(cm) {
-      console.log('the editor is focus!', cm)
-    },
     onCmInput(newCode) {
       // Set the height of the code editor
       this.setEditorSize(this.codemirror, this.options);
@@ -143,7 +135,6 @@ export default {
         let max = opts.max,
             min = opts.min,
             height = cm.getWrapperElement().offsetHeight;
-        console.log("the height of the code editor:" + height);
         if (min > height) {
           cm.setSize("100%", min);
         } else if ( max < height ) {
