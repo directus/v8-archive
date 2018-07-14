@@ -1,0 +1,335 @@
+<template>
+  <div>
+    <v-input
+      class="input"
+      type="text"
+      :value="value"
+      :placeholder="$t('interfaces-stock-placeholder_text')"
+      @input="$emit('input', $event)"
+      />
+    <div :class="[change < 0 ? 'down' : 'up', change == 0 ? '' : 'colorize', 'quote']">
+      <span class="latest">{{latestPrice}}</span><span class="currency">USD</span>
+      <div class="change-container">
+        <span class="change">{{change}}<br>{{changePercent}}</span>
+        <i class="material-icons trending">{{trending}}</i>
+      </div>
+    </div>
+    <div :class="[showChart ? '' : 'hidden', 'data-container']">
+      <div v-if="companyName" class="name">{{companyName}} <span>({{primaryExchange}})</span></div>
+      <div class="history-container"><canvas id="history" height="120"></canvas></div>
+      <div class="details">
+        <span><b>Open:</b> {{details.open}}</span>
+        <span><b>Mkt Cap:</b> {{details.marketCap}}</span>
+        <span><b>High:</b> {{details.high}}</span>
+        <span><b>52w High:</b> {{details.week52High}}</span>
+        <span><b>Low:</b> {{details.low}}</span>
+        <span><b>52w Low:</b> {{details.week52Low}}</span>
+      </div>
+    </div>
+    <div v-if="message" class="message">{{message}}</div>
+  </div>
+</template>
+
+<script>
+import Chart from "chart.js";
+import hexToRgba from "hex-to-rgba";
+import NumAbbr from "number-abbreviate";
+import mixin from "../../../mixins/interface";
+
+function getCSS(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+export default {
+  mixins: [mixin],
+  data: function () {
+    return {
+      details: {
+        open: 0,
+        marketCap: 0,
+        high: 0,
+        low: 0,
+        week52High: 0,
+        week52Low: 0,
+      },
+      latestPrice: "0.00",
+      change: "0.00",
+      changePercent: "0.00%",
+      trending: "trending_flat",
+      companyName: "",
+      primaryExchange: "",
+      message: "Please enter a stock symbol",
+      showChart: false,
+      historyData: {
+        labels: [1, 2],
+        datasets: [{
+          backgroundColor: hexToRgba(getCSS("--darkest-gray"), 0.2),
+          borderColor: hexToRgba(getCSS("--darkest-gray"), 1.0),
+          pointRadius: 0,
+          borderWidth: 1,
+          data: [1, 2]
+        }]
+      },
+      historyOptions: {
+        responsive: true,
+        maintainAspectRatio: false,
+        showTooltips: true,
+        lineTension: 1,
+        tooltips: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: "#000000",
+          titleFontColor: "#000000",
+          bodyFontColor: "#000000",
+          footerFontColor: "#000000",
+          borderColor: "#000000",
+          displayColors: false,
+        },
+        scales: {
+          xAxes: [
+            {
+              gridLines: {
+                display: false
+              },
+              ticks: {
+                display: false,
+                autoSkip: true,
+                maxTicksLimit: 3,
+                maxRotation: 0
+              }
+            }
+          ],
+          yAxes: [
+            {
+              gridLines: {
+                color: hexToRgba(getCSS("--lightest-gray"), 1.0),
+                drawTicks: false,
+                drawBorder: false
+              },
+              ticks: {
+                showLabelBackdrop: true,
+                backdropColor: hexToRgba(getCSS("--lighter-gray"), 1.0),
+                fontColor: hexToRgba(getCSS("--lighter-gray"), 1.0),
+                fontFamily: "Roboto",
+                fontSize: 12,
+                autoSkip: true,
+                maxTicksLimit: 3,
+                mirror: false,
+                // labelOffset: 10
+                padding: 8
+              }
+            }
+          ]
+        },
+        legend: {
+          display: false
+        }
+      }
+    }
+  },
+  watch: {
+    value: function (newValue, oldValue) {
+      if(newValue){
+        this.message = "Processing...";
+        this.debouncedGetStock()
+      } else {
+        this.message = "Please enter a stock symbol...";
+        this.showChart = false;
+        this.latestPrice = "0.00";
+        this.change = "0.00";
+        this.changePercent = "0.00%";
+        this.trending = "trending_flat";
+      }
+    }
+  },
+  created: function () {
+    this.debouncedGetStock = this.$lodash.debounce(this.getStock, 1000);
+  },
+  mounted: function () {
+    // var ctx = document.getElementById("history");
+    // var history = new Chart(ctx, {
+    //     type: 'line',
+    //     data: this.historyData,
+    //     options: this.historyOptions
+    // });
+  },
+  methods: {
+    getStock: function () {
+      let vm = this;
+      let symbol = this.value;
+      let numAbbr = new NumAbbr();
+
+      this.$api.axios.get('https://api.iextrading.com/1.0/stock/' + symbol + '/batch?types=quote,chart&range=dynamic&chartLast=100')
+        .then(function (response) {
+
+          vm.showChart = true;
+          vm.message = "";
+
+          vm.companyName = response.data.quote.companyName;
+          vm.primaryExchange = response.data.quote.primaryExchange;
+          vm.latestPrice = response.data.quote.latestPrice.toFixed(2);
+
+          vm.details.open = response.data.quote.open.toFixed(2);
+          vm.details.marketCap = numAbbr.abbreviate(response.data.quote.marketCap, 2).toUpperCase();
+          vm.details.high = response.data.quote.high.toFixed(2);
+          vm.details.low = response.data.quote.low.toFixed(2);
+          vm.details.week52High = response.data.quote.week52High.toFixed(2);
+          vm.details.week52Low = response.data.quote.week52Low.toFixed(2);
+
+          let dataLabels = [];
+          let dataValues = [];
+
+          for(var key in response.data.chart.data) {
+              if(response.data.chart.data.hasOwnProperty(key)) {
+                  dataLabels[key] = response.data.chart.data[key].date;
+                  dataValues[key] = response.data.chart.data[key].close;
+              }
+          }
+
+          vm.historyData.labels = dataLabels;
+          vm.historyData.datasets[0].data = dataValues;
+
+          if(response.data.quote.change > 0){
+            vm.trending = "trending_up";
+            vm.change = "+" + vm.$lodash.round(response.data.quote.change, 2);
+            vm.changePercent = "+" + vm.$lodash.round(response.data.quote.changePercent*100, 2) + "%";
+            vm.historyData.datasets[0].backgroundColor = hexToRgba(getCSS("--green"), 0.2);
+            vm.historyData.datasets[0].borderColor = hexToRgba(getCSS("--green"), 1.0);
+          } else {
+            vm.trending = "trending_down";
+            vm.change = vm.$lodash.round(response.data.quote.change, 2);
+            vm.changePercent = vm.$lodash.round(response.data.quote.changePercent*100, 2) + "%";
+            vm.historyData.datasets[0].backgroundColor = hexToRgba(getCSS("--red"), 0.2);
+            vm.historyData.datasets[0].borderColor = hexToRgba(getCSS("--red"), 1.0);
+          }
+
+          // Generate History Chart
+          var ctx = document.getElementById("history");
+          var history = new Chart(ctx, {
+              type: 'line',
+              data: vm.historyData,
+              options: vm.historyOptions
+          });
+        })
+        .catch(function (error) {
+          vm.message = 'Invalid stock symbol';
+          vm.showChart = false;
+          vm.latestPrice = "0.00";
+          vm.change = "0.00";
+          vm.changePercent = "0.00%";
+          vm.trending = "trending_flat";
+          console.log("Error:", error);
+        })
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.v-input {
+  max-width: var(--width-x-small);
+  display: inline-block;
+}
+.v-input input {
+  text-transform: uppercase;
+  // Why can't I style this input?????
+}
+.quote {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+  &.up.colorize .change-container {
+    background-color: var(--green);
+  }
+  &.down.colorize .change-container {
+    background-color: var(--red);
+  }
+  &.colorize .latest {
+    color: var(--darkest-gray);
+  }
+  .latest {
+    color: var(--lighter-gray);
+    font-weight: 300;
+    font-size: 32px;
+    line-height: 28px;
+  }
+  .currency {
+    font-weight: 600;
+    color: var(--lighter-gray);
+    font-size: 10px;
+    line-height: 28px;
+  }
+  .change-container {
+    display: inline-block;
+    background-color: var(--lighter-gray);
+    border-radius: var(--border-radius);
+    padding: 7px 10px;
+    height: 40px;
+    color: var(--white);
+    margin-left: 10px;
+    margin-top: -3px;
+    .change {
+      display: inline-block;
+      line-height: 13px;
+    }
+    .trending {
+      transform: translateY(-33%);
+      margin-left: 4px;
+    }
+  }
+}
+.data-container {
+  // transition: var(--slow) var(--transition);
+  background: var(--white);
+  // border: 1px solid var(--lighter-gray);
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-top: 20px;
+  max-width: var(--width-large);
+  opacity: 1;
+  &.hidden {
+    margin-top: 0;
+    padding: 0;
+    height: 0;
+    opacity: 0;
+  }
+  .history-container {
+    height: 120px;
+    margin-left: -6px;
+    overflow: hidden;
+  }
+  .details {
+    color: var(--light-gray);
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-gap: 10px;
+    row-gap: 4px;
+    font-weight: 400;
+    span {
+      padding-right: 10px;
+      b {
+        color: var(--gray);
+        font-weight: 600;
+        width: 40px;
+        width: 80px;
+        display: inline-block;
+      }
+    }
+  }
+}
+.name {
+  font-size: 18px;
+  line-height: 21px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  span {
+    color: var(--lighter-gray);
+  }
+}
+.message {
+  margin-top: 10px;
+}
+</style>
+

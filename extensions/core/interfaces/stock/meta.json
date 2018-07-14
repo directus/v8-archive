@@ -1,0 +1,14 @@
+{
+  "name": "$t:stock",
+  "version": "1.0.0",
+  "datatypes": {
+    "VARCHAR": 8
+  },
+  "options": {},
+  "translation": {
+    "en-US": {
+      "stock": "Stock",
+      "placeholder_text": "eg: TSLA"
+    }
+  }
+}

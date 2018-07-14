@@ -1,0 +1,17 @@
+{
+  "name": "@directus/stock",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Ben Haynes <ben@rngr.org>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "chart.js": "^2.7.2",
+    "hex-to-rgba": "^1.0.1",
+    "number-abbreviate": "^2.0.0"
+  }
+}
