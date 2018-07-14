@@ -2,13 +2,38 @@
 	"name": "$t:code",
 	"version": "1.0.0",
 	"datatypes": {
-		"DATE": null
+		"TEXT": null,
+    "TINYTEXT": null,
+    "MEDIUMTEXT": null,
+    "LONGTEXT": null,
+    "VARCHAR": 255
 	},
 	"options": {
-    "height": {
-      "name": "$t:height",
-      "comment": "$t:height_comment",
-      "interface": "numeric"
+    "max": {
+      "name": "$t:max",
+      "comment": "$t:max_comment",
+      "interface": "numeric",
+      "default": null
+    },
+    "min": {
+      "name": "$t:min",
+      "comment": "$t:min_comment",
+      "interface": "numeric",
+      "default": null
+    },
+    "mode": {
+      "name": "$t:mode",
+      "comment": "$t:mode_comment",
+      "interface": "dropdown",
+      "default": "text/javascript",
+      "options": {
+        "choices": {
+          "text/javascript": "$t:javascript",
+          "application/json": "$t:json",
+          "text/x-vue": "$t:vue",
+          "application/x-httpd-php": "$t:php"
+        }
+      }
     },
     "lineNumber": {
       "name": "$t:lineNumber",
@@ -27,10 +52,20 @@
       "code": "Code",
       "height": "Editor Height",
       "height_comment": "Enter the height of the code editor",
+      "max": "Max Height",
+      "max_comment": "Enter the max height of the code editor",
+      "min": "Min Height",
+      "min_comment": "Enter the min height of the code editor",
       "lineNumber": "Line Number",
       "lineNumber_comment": "Show line numer",
       "placeholder": "Placeholder",
-      "placeholder_comment": "Enter placeholder code"
+      "placeholder_comment": "Enter placeholder code",
+      "mode": "Language",
+      "mode_comment": "Set the language type",
+      "javascript": "JAVASCRIPT",
+      "json": "JSON",
+      "vue": "VUE",
+      "php": "PHP"
     }
   }
 }

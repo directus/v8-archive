@@ -1,35 +1,34 @@
 <template>
-  <div class="interface-code">
+  <div class="interface-code" v-bind:class="{ inactive: readonly }">
     <codemirror ref="cm"
-                :value="options.placeholder"
-                :options="cmOptions"
-                @ready="onCmReady"
-                @focus="onCmFocus"
-                @input="onCmCodeChange"
+      :value="code"
+      :options="cmOptions"
+      @ready="onCmReady"
+      @focus="onCmFocus"
+      @input="onCmInput"
     ></codemirror>
     <div class="clipboard-btn">
-      <button class="btn" @click="$emit('input', code)">
+      <button class="btn" @click="onBtnClick">
         <i class="material-icons">assignment_turned_in</i>
       </button>
+    </div>
+    <div class="line-count">
+      <p>{{ line_counts }}&nbsp;lines&nbsp;of&nbsp;<span class="lang">{{ lang_type }}</span></p>
     </div>
   </div>
 </template>
 
 <script>
 
-// require component
 import { codemirror } from 'vue-codemirror';
-
-// require styles
 import 'codemirror/lib/codemirror.css'
 
-// language
+// languages
 import 'codemirror/mode/javascript/javascript.js'
+import 'codemirror/mode/vue/vue.js'
+import 'codemirror/mode/php/php.js'
 
-// theme css
-// import 'codemirror/theme/monokai.css'
-
-// require active-line.js
+// import active-line.js
 import'codemirror/addon/selection/active-line.js'
 
 // styleSelectedText - (styleSelectedText and css class .CodeMirror-selectedtext)
@@ -58,33 +57,44 @@ import'codemirror/addon/search/searchcursor.js'
 import'codemirror/addon/search/search.js'
 import'codemirror/keymap/sublime.js'
 
-// foldGutter - (foldGutter and gutters)
-import'codemirror/addon/fold/foldgutter.css'
-import'codemirror/addon/fold/brace-fold.js'
-import'codemirror/addon/fold/comment-fold.js'
-import'codemirror/addon/fold/foldcode.js'
-import'codemirror/addon/fold/foldgutter.js'
-import'codemirror/addon/fold/indent-fold.js'
-import'codemirror/addon/fold/markdown-fold.js'
-import'codemirror/addon/fold/xml-fold.js'
-
 import './code.css';
 import mixin from '../../../mixins/interface';
 
 export default {
   name: "interface-code",
   mixins: [mixin],
+  components: {
+    codemirror,
+  },
   data () {
     return {
-      code: "",   
+      line_counts: 0,
+      lang_type: null,
+      avail_types: {
+        "text/javascript": "javascript",
+        "application/json": "json",
+        "text/x-vue": "vue",
+        "application/x-httpd-php": "php"
+      },
+      code: null,   
     }
   },
+  mounted() {
+    this.setEditorSize(this.codemirror, this.options);
+    this.line_counts = this.codemirror.lineCount();
+    this.lang_type = this.avail_types[this.options.mode];
+  },
   watch: {
-    options: function () {
-      this.codemirror.setSize("100%", this.options.height);
+    options: function (options) {
+      this.setEditorSize(this.codemirror, options);
+      this.codemirror.setOption("mode", options.mode);
+      this.lang_type = this.avail_types[options.mode];
     }
   },
   computed: {
+    codemirror() {
+      return this.$refs.cm.codemirror;
+    },
     cmOptions() {
       return {
         tabSize: 4,
@@ -94,10 +104,8 @@ export default {
         readOnly: this.readonly? "nocursor" : false,
         styleSelectedText: true,
         line: true,
-        foldGutter: true,
-        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        highlightSelectionMatches: { showToken: /\w/, annotateScrollbar: true },
-        mode: 'text/javascript',
+       highlightSelectionMatches: { showToken: /\w/, annotateScrollbar: true },
+        mode: this.options.mode,
         // hint.js options
         hintOptions:{
           // Automatically complete when there is only one match
@@ -111,9 +119,6 @@ export default {
         extraKeys: { "Ctrl": "autocomplete" }
       }
     },
-    codemirror() {
-      return this.$refs.cm.codemirror;
-    }
   },
   methods: {
     onCmReady(cm) {
@@ -122,12 +127,32 @@ export default {
     onCmFocus(cm) {
       console.log('the editor is focus!', cm)
     },
-    onCmCodeChange(newCode) {
-      this.code = newCode;
+    onCmInput(newCode) {
+      // Set the height of the code editor
+      this.setEditorSize(this.codemirror, this.options);
+      // Get line counts of the code editor
+      this.line_counts = this.codemirror.lineCount();
+      this.$emit('input', newCode);
+    },
+    onBtnClick() {
+      this.code = this.options.placeholder;
+    },
+    setEditorSize(cm, opts) {
+      if ( opts.max != null || opts.min != null ) {
+        cm.setSize("100%", "auto");
+        let max = opts.max,
+            min = opts.min,
+            height = cm.getWrapperElement().offsetHeight;
+        console.log("the height of the code editor:" + height);
+        if (min > height) {
+          cm.setSize("100%", min);
+        } else if ( max < height ) {
+          cm.setSize("100%", max);
+        } else {
+          cm.setSize("100%", "auto");
+        }
+      }
     }
-  },
-  components: {
-    codemirror,
   },
 };
 </script>
@@ -157,5 +182,18 @@ export default {
 }
 .btn:active {
   color: var(--lighter-gray);
+}
+.line-count {
+  position: absolute;
+  right: 5px;
+  bottom: -20px;
+}
+.line-count > * {
+  color: var(--light-gray);
+  font-style: italic;
+}
+.lang {
+  font-weight: 700;
+  text-transform: uppercase;
 }
 </style>

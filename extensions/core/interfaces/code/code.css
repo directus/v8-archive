@@ -1,14 +1,66 @@
 .CodeMirror {
-  /*color: var(--gray);*/
   font-weight: inherit;
-  /*height: auto;*/
-  /*font-family: inherit;*/
+  font-family: "Roboto";
 }
 .CodeMirror-focused .cm-matchhighlight {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
   background-position: bottom;
   background-repeat: repeat-x;
 }
-.cm-matchhighlight {background-color: var(--light-green)}
-.CodeMirror-selection-highlight-scrollbar {background-color: var(--green)}
+.cm-matchhighlight {
+	background-color: var(--light-green)
+}
+.CodeMirror-selection-highlight-scrollbar {
+	background-color: var(--green)
+}
 .CodeMirror-selectedtext {}
+.inactive .CodeMirror::before {
+	position: absolute;
+	background-color: var(--dark-gray);
+  opacity: .3;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  content: "";
+}
+
+
+.CodeMirror-linenumber {
+	color: var(--gray);
+}
+.cm-s-default .cm-keyword {
+	color: var(--purple-800);
+}
+.cm-s-default .cm-string {
+	color: var(--red-900);
+}
+/*php*/
+.cm-s-default .cm-string-2 {
+	color: var(--deep-orange-800);
+}
+.cm-s-default .cm-def {
+  color: var(--blue-900);
+}
+.cm-s-default .cm-tag {
+  color: var(--green-800);
+}
+.cm-s-default .cm-meta {
+  color: var(--grey-700);
+}
+.cm-s-default .cm-number {
+  color: var(--green-900);
+}
+/*json*/
+.cm-s-default .cm-atom {
+	color: var(--deep-purple-900);
+}
+/*vue*/
+.cm-s-default .cm-attribute {
+  color: var(--indigo-800);
+}
+.cm-s-default .cm-comment {
+  color: var(--deep-orange-900);
+}
+div.CodeMirror span.CodeMirror-matchingbracket {
+	color: var(--green-600);
+}
