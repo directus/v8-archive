@@ -14,7 +14,8 @@
       "details_high": "High",
       "details_52whigh": "52w High",
       "details_low": "Low",
-      "details_52wlow": "52w Low"
+      "details_52wlow": "52w Low",
+      "swap_units": "Swap Units"
     }
   }
 }
