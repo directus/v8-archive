@@ -6,7 +6,6 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  name: "code",
   mixins: [mixin]
 };
 </script>

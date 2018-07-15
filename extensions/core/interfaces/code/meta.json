@@ -28,10 +28,10 @@
       "default": "text/javascript",
       "options": {
         "choices": {
-          "text/javascript": "$t:javascript",
-          "application/json": "$t:json",
-          "text/x-vue": "$t:vue",
-          "application/x-httpd-php": "$t:php"
+          "text/javascript": "JAVASCRIPT",
+          "application/json": "JSON",
+          "text/x-vue": "VUE",
+          "application/x-httpd-php": "PHP"
         }
       }
     },
@@ -61,11 +61,7 @@
       "placeholder": "Placeholder",
       "placeholder_comment": "Enter placeholder code",
       "mode": "Language",
-      "mode_comment": "Set the language type",
-      "javascript": "JAVASCRIPT",
-      "json": "JSON",
-      "vue": "VUE",
-      "php": "PHP"
+      "mode_comment": "Set the language type"
     }
   }
 }
