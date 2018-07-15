@@ -61,7 +61,8 @@
       "placeholder": "Placeholder",
       "placeholder_comment": "Enter placeholder code",
       "mode": "Language",
-      "mode_comment": "Set the language type"
+      "mode_comment": "Set the language type",
+      "fill_placeholder": "Fill with placeholder"
     }
   }
 }

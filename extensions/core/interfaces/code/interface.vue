@@ -6,7 +6,7 @@
       @input="onCmInput"
     ></codemirror>
     <div class="clipboard-btn">
-      <button class="btn" @click="onBtnClick">
+      <button class="btn" @click="onBtnClick" v-tooltip="$t('interfaces-code-fill_placeholder')">
         <i class="material-icons">assignment_turned_in</i>
       </button>
     </div>
