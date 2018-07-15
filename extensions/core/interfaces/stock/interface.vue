@@ -83,9 +83,9 @@ export default {
           mode: "index",
           intersect: false,
           backgroundColor: "#000000",
-          titleFontColor: "#000000",
-          bodyFontColor: "#000000",
-          footerFontColor: "#000000",
+          titleFontColor: "#fff",
+          bodyFontColor: "#fff",
+          footerFontColor: "#fff",
           borderColor: "#000000",
           displayColors: false
         },
