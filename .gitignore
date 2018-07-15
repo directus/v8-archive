@@ -41,3 +41,5 @@ thumbnail/**/
 .sass-cache
 .gulp-scss-cache
 node_modules
+
+package-lock.json
