@@ -4,6 +4,7 @@
       class="input"
       type="text"
       :value="value"
+      :readonly="readonly"
       :placeholder="$t('interfaces-stock-placeholder_text')"
       @input="$emit('input', $event.target.value)"
       />
@@ -266,6 +267,10 @@ export default {
   max-width: var(--width-x-small);
   display: inline-block;
   text-transform: uppercase;
+  &:read-only {
+    background-color: var(--lightest-gray);
+    cursor: not-allowed;
+  }
 }
 .quote {
   display: inline-block;
