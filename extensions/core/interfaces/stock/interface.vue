@@ -37,12 +37,14 @@ import NumAbbr from "number-abbreviate";
 import mixin from "../../../mixins/interface";
 
 function getCSS(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
 }
 
 export default {
   mixins: [mixin],
-  data: function () {
+  data: function() {
     return {
       details: {
         open: 0,
@@ -50,7 +52,7 @@ export default {
         high: 0,
         low: 0,
         week52High: 0,
-        week52Low: 0,
+        week52Low: 0
       },
       latestPrice: "0.00",
       change: "0.00",
@@ -62,13 +64,15 @@ export default {
       showChart: false,
       historyData: {
         labels: [1, 2],
-        datasets: [{
-          backgroundColor: hexToRgba(getCSS("--darkest-gray"), 0.2),
-          borderColor: hexToRgba(getCSS("--darkest-gray"), 1.0),
-          pointRadius: 0,
-          borderWidth: 1,
-          data: [1, 2]
-        }]
+        datasets: [
+          {
+            backgroundColor: hexToRgba(getCSS("--darkest-gray"), 0.2),
+            borderColor: hexToRgba(getCSS("--darkest-gray"), 1.0),
+            pointRadius: 0,
+            borderWidth: 1,
+            data: [1, 2]
+          }
+        ]
       },
       historyOptions: {
         responsive: true,
@@ -76,14 +80,14 @@ export default {
         showTooltips: true,
         lineTension: 1,
         tooltips: {
-          mode: 'index',
+          mode: "index",
           intersect: false,
           backgroundColor: "#000000",
           titleFontColor: "#000000",
           bodyFontColor: "#000000",
           footerFontColor: "#000000",
           borderColor: "#000000",
-          displayColors: false,
+          displayColors: false
         },
         scales: {
           xAxes: [
@@ -125,13 +129,13 @@ export default {
           display: false
         }
       }
-    }
+    };
   },
   watch: {
-    value: function (newValue, oldValue) {
-      if(newValue){
+    value: function(newValue, oldValue) {
+      if (newValue) {
         this.message = "Processing...";
-        this.debouncedGetStock()
+        this.debouncedGetStock();
       } else {
         this.message = "Please enter a stock symbol...";
         this.showChart = false;
@@ -142,10 +146,10 @@ export default {
       }
     }
   },
-  created: function () {
+  created: function() {
     this.debouncedGetStock = this.$lodash.debounce(this.getStock, 1000);
   },
-  mounted: function () {
+  mounted: function() {
     // var ctx = document.getElementById("history");
     // var history = new Chart(ctx, {
     //     type: 'line',
@@ -154,14 +158,18 @@ export default {
     // });
   },
   methods: {
-    getStock: function () {
+    getStock: function() {
       let vm = this;
       let symbol = this.value;
       let numAbbr = new NumAbbr();
 
-      this.$api.axios.get('https://api.iextrading.com/1.0/stock/' + symbol + '/batch?types=quote,chart&range=dynamic&chartLast=100')
-        .then(function (response) {
-
+      this.$api.axios
+        .get(
+          "https://api.iextrading.com/1.0/stock/" +
+            symbol +
+            "/batch?types=quote,chart&range=dynamic&chartLast=100"
+        )
+        .then(function(response) {
           vm.showChart = true;
           vm.message = "";
 
@@ -170,7 +178,9 @@ export default {
           vm.latestPrice = response.data.quote.latestPrice.toFixed(2);
 
           vm.details.open = response.data.quote.open.toFixed(2);
-          vm.details.marketCap = numAbbr.abbreviate(response.data.quote.marketCap, 2).toUpperCase();
+          vm.details.marketCap = numAbbr
+            .abbreviate(response.data.quote.marketCap, 2)
+            .toUpperCase();
           vm.details.high = response.data.quote.high.toFixed(2);
           vm.details.low = response.data.quote.low.toFixed(2);
           vm.details.week52High = response.data.quote.week52High.toFixed(2);
@@ -179,47 +189,64 @@ export default {
           let dataLabels = [];
           let dataValues = [];
 
-          for(var key in response.data.chart.data) {
-              if(response.data.chart.data.hasOwnProperty(key)) {
-                  dataLabels[key] = response.data.chart.data[key].date;
-                  dataValues[key] = response.data.chart.data[key].close;
-              }
+          for (var key in response.data.chart.data) {
+            if (response.data.chart.data.hasOwnProperty(key)) {
+              dataLabels[key] = response.data.chart.data[key].date;
+              dataValues[key] = response.data.chart.data[key].close;
+            }
           }
 
           vm.historyData.labels = dataLabels;
           vm.historyData.datasets[0].data = dataValues;
 
-          if(response.data.quote.change > 0){
+          if (response.data.quote.change > 0) {
             vm.trending = "trending_up";
             vm.change = "+" + vm.$lodash.round(response.data.quote.change, 2);
-            vm.changePercent = "+" + vm.$lodash.round(response.data.quote.changePercent*100, 2) + "%";
-            vm.historyData.datasets[0].backgroundColor = hexToRgba(getCSS("--green"), 0.2);
-            vm.historyData.datasets[0].borderColor = hexToRgba(getCSS("--green"), 1.0);
+            vm.changePercent =
+              "+" +
+              vm.$lodash.round(response.data.quote.changePercent * 100, 2) +
+              "%";
+            vm.historyData.datasets[0].backgroundColor = hexToRgba(
+              getCSS("--green"),
+              0.2
+            );
+            vm.historyData.datasets[0].borderColor = hexToRgba(
+              getCSS("--green"),
+              1.0
+            );
           } else {
             vm.trending = "trending_down";
             vm.change = vm.$lodash.round(response.data.quote.change, 2);
-            vm.changePercent = vm.$lodash.round(response.data.quote.changePercent*100, 2) + "%";
-            vm.historyData.datasets[0].backgroundColor = hexToRgba(getCSS("--red"), 0.2);
-            vm.historyData.datasets[0].borderColor = hexToRgba(getCSS("--red"), 1.0);
+            vm.changePercent =
+              vm.$lodash.round(response.data.quote.changePercent * 100, 2) +
+              "%";
+            vm.historyData.datasets[0].backgroundColor = hexToRgba(
+              getCSS("--red"),
+              0.2
+            );
+            vm.historyData.datasets[0].borderColor = hexToRgba(
+              getCSS("--red"),
+              1.0
+            );
           }
 
           // Generate History Chart
           var ctx = document.getElementById("history");
           var history = new Chart(ctx, {
-              type: 'line',
-              data: vm.historyData,
-              options: vm.historyOptions
+            type: "line",
+            data: vm.historyData,
+            options: vm.historyOptions
           });
         })
-        .catch(function (error) {
-          vm.message = 'Invalid stock symbol';
+        .catch(function(error) {
+          vm.message = "Invalid stock symbol";
           vm.showChart = false;
           vm.latestPrice = "0.00";
           vm.change = "0.00";
           vm.changePercent = "0.00%";
           vm.trending = "trending_flat";
           console.log("Error:", error);
-        })
+        });
     }
   }
 };
@@ -332,4 +359,3 @@ export default {
   margin-top: 10px;
 }
 </style>
-
