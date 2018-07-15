@@ -158,6 +158,10 @@ export default {
   },
   created() {
     this.getStock = this.$lodash.debounce(this.getStock, 1000);
+
+    if(this.value){
+      this.getStock();
+    }
   },
   methods: {
     getStock() {
