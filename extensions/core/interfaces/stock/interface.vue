@@ -1,11 +1,11 @@
 <template>
   <div>
-    <v-input
+    <input
       class="input"
       type="text"
       :value="value"
       :placeholder="$t('interfaces-stock-placeholder_text')"
-      @input="$emit('input', $event)"
+      @input="$emit('input', $event.target.value)"
       />
     <div :class="[change < 0 ? 'down' : 'up', change == 0 ? '' : 'colorize', 'quote']">
       <span class="latest">{{latestPrice}}</span><span class="currency">USD</span>
@@ -18,12 +18,12 @@
       <div v-if="companyName" class="name">{{companyName}} <span>({{primaryExchange}})</span></div>
       <div class="history-container"><canvas id="history" height="120"></canvas></div>
       <div class="details">
-        <span><b>Open:</b> {{details.open}}</span>
-        <span><b>Mkt Cap:</b> {{details.marketCap}}</span>
-        <span><b>High:</b> {{details.high}}</span>
-        <span><b>52w High:</b> {{details.week52High}}</span>
-        <span><b>Low:</b> {{details.low}}</span>
-        <span><b>52w Low:</b> {{details.week52Low}}</span>
+        <span><b>{{ $t('interfaces-stock-details_open') }}:</b> {{details.open}}</span>
+        <span><b>{{ $t('interfaces-stock-details_mktcap') }}:</b> {{details.marketCap}}</span>
+        <span><b>{{ $t('interfaces-stock-details_high') }}:</b> {{details.high}}</span>
+        <span><b>{{ $t('interfaces-stock-details_52whigh') }}:</b> {{details.week52High}}</span>
+        <span><b>{{ $t('interfaces-stock-details_low') }}:</b> {{details.low}}</span>
+        <span><b>{{ $t('interfaces-stock-details_52wlow') }}:</b> {{details.week52Low}}</span>
       </div>
     </div>
     <div v-if="message" class="message">{{message}}</div>
@@ -82,12 +82,23 @@ export default {
         tooltips: {
           mode: "index",
           intersect: false,
-          backgroundColor: "#000000",
-          titleFontColor: "#fff",
-          bodyFontColor: "#fff",
-          footerFontColor: "#fff",
-          borderColor: "#000000",
+          titleFontFamily: 'Roboto',
+          bodyFontFamily: 'Roboto',
+          backgroundColor: hexToRgba(getCSS("--white"), 0.8),
+          titleFontColor: hexToRgba(getCSS("--dark-gray"), 1.0),
+          bodyFontColor: hexToRgba(getCSS("--dark-gray"), 1.0),
+          footerFontColor: hexToRgba(getCSS("--light-gray"), 1.0),
+          borderColor: hexToRgba(getCSS("--lighter-gray"), 1.0),
+          xPadding: 10,
+          yPadding: 6,
+          titleSpacing: 0,
+          titleMarginBottom: 2,
+          bodySpacing: 6,
+          caretPadding: 6,
+          cornerRadius: 3,
+          borderWidth: 2,
           displayColors: false
+
         },
         scales: {
           xAxes: [
@@ -237,7 +248,7 @@ export default {
           vm.change = "0.00";
           vm.changePercent = "0.00%";
           vm.trending = "trending_flat";
-          console.log("Error:", error);
+          console.error("Error:", error);
         });
     }
   }
@@ -245,13 +256,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.v-input {
+.input {
+  border: var(--input-border-width) solid var(--lighter-gray);
+  height: var(--input-height);
+  border-radius: var(--border-radius);
   max-width: var(--width-x-small);
   display: inline-block;
-}
-.v-input input {
   text-transform: uppercase;
-  // Why can't I style this input?????
 }
 .quote {
   display: inline-block;
