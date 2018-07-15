@@ -44,7 +44,7 @@ function getCSS(name) {
 
 export default {
   mixins: [mixin],
-  data: function() {
+  data() {
     return {
       details: {
         open: 0,
@@ -132,10 +132,10 @@ export default {
     };
   },
   watch: {
-    value: function(newValue, oldValue) {
+    value(newValue, oldValue) {
       if (newValue) {
         this.message = "Processing...";
-        this.debouncedGetStock();
+        this.getStock();
       } else {
         this.message = "Please enter a stock symbol...";
         this.showChart = false;
@@ -146,19 +146,11 @@ export default {
       }
     }
   },
-  created: function() {
-    this.debouncedGetStock = this.$lodash.debounce(this.getStock, 1000);
-  },
-  mounted: function() {
-    // var ctx = document.getElementById("history");
-    // var history = new Chart(ctx, {
-    //     type: 'line',
-    //     data: this.historyData,
-    //     options: this.historyOptions
-    // });
+  created() {
+    this.getStock = this.$lodash.debounce(this.getStock, 1000);
   },
   methods: {
-    getStock: function() {
+    getStock() {
       let vm = this;
       let symbol = this.value;
       let numAbbr = new NumAbbr();
