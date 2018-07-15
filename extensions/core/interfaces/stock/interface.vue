@@ -130,7 +130,6 @@ export default {
                 autoSkip: true,
                 maxTicksLimit: 3,
                 mirror: false,
-                // labelOffset: 10
                 padding: 8
               }
             }
@@ -309,9 +308,7 @@ export default {
   }
 }
 .data-container {
-  // transition: var(--slow) var(--transition);
   background: var(--white);
-  // border: 1px solid var(--lighter-gray);
   box-shadow: var(--box-shadow);
   border-radius: var(--border-radius);
   padding: 20px;
