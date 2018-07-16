@@ -49,7 +49,7 @@ export default {
       }
     },
     addTag(tag) {
-      let tags = this.valueArray.splice(0);
+      let tags = [...this.valueArray];
 
       if (this.options.lowercase) {
         tag = tag.toLowerCase();
