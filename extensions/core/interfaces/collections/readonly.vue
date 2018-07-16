@@ -9,6 +9,7 @@ export default {
   mixins: [mixin],
   computed: {
     displayValue() {
+      if (!this.value) return;
       return this.$helpers.formatTitle(this.value);
     }
   }
