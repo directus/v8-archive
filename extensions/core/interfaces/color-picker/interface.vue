@@ -47,6 +47,7 @@ export default {
     transition: transform var(--fast) var(--transition-in);
 
     &:hover {
+      transition: none;
       transform: scale(1.2);
       z-index: +1;
     }
