@@ -1,12 +1,12 @@
 <template>
-	<div 
-	:style="{ backgroundColor: `var(--${value})`}"
-	v-tooltip="tooltipValue">
-	</div>
+	<div
+  	:style="{ backgroundColor: `var(--${value})`}"
+  	v-tooltip="tooltipValue"></div>
 </template>
 
 <script>
 import mixin from "../../../mixins/interface";
+
 export default {
   mixins: [mixin],
   computed: {
