@@ -16,20 +16,15 @@ export default {
   computed: {
     choices() {
       const collections = this.$store.state.collections || {};
+      const includeSystem = this.options.include_system;
+
       let choices = {};
 
-      for (var key in collections) {
-        if (collections.hasOwnProperty(key) && collections[key].collection) {
-          if (
-            this.options.include_system ||
-            collections[key].collection.startsWith("directus_") === false
-          ) {
-            choices[key] = this.$helpers.formatTitle(
-              collections[key].collection
-            );
-          }
-        }
-      }
+      Object.keys(collections).forEach(key => {
+        if (includeSystem === false && key.startsWith("directus_")) return;
+
+        choices[key] = this.$helpers.formatTitle(key);
+      });
 
       return choices;
     }
