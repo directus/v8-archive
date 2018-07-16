@@ -6,7 +6,7 @@
       class="interface-file-size"
       :readonly="readonly"
       :placeholder="options.placeholder"
-      @input="calculateValue"/>
+      @input="calculateValue" />
     <v-select
       v-model="units"
       class="interface-file-size-units"
@@ -23,12 +23,11 @@
       :readonly="readonly"
       :placeholder="options.placeholder"
       :value="value"
-      @input="$emit('input', $event)"/>
+      @input="$emit('input', $event)" />
     <span class="interface-file-size-formatted">
       ({{ formatSize(value, true) }})
     </span>
   </div>
-</div>
 </template>
 
 <script>
@@ -53,35 +52,41 @@ export default {
     };
   },
   created() {
-    console.log(this.value);
-    if(this.value < 1000){ // B
+    if (this.value < 1000) {
+      // B
       this.reducedValue = this.value;
       this.units = "1";
-    } else if (this.value < 1000000) { // kB
+    } else if (this.value < 1000000) {
+      // kB
       this.reducedValue = this.value / 1000;
       this.units = "1000";
-    } else if (this.value < 1000000000) { // MB
+    } else if (this.value < 1000000000) {
+      // MB
       this.reducedValue = this.value / 1000000;
       this.units = "1000000";
-    } else if (this.value < 1000000000000) { // GB
+    } else if (this.value < 1000000000000) {
+      // GB
       this.reducedValue = this.value / 1000000000;
       this.units = "1000000000";
-    } else if (this.value < 1000000000000000) { // TB
+    } else if (this.value < 1000000000000000) {
+      // TB
       this.reducedValue = this.value / 1000000000000;
       this.units = "1000000000000";
-    } else if (this.value < 1000000000000000000) { // PB
+    } else if (this.value < 1000000000000000000) {
+      // PB
       this.reducedValue = this.value / 1000000000000000;
       this.units = "1000000000000000";
-    } else { // EB
+    } else {
+      // EB
       this.reducedValue = this.value / 1000000000000000000;
       this.units = "1000000000000000000";
     }
   },
   methods: {
     formatSize,
-    calculateValue(newValue) {
-      let value = Math.round(this.reducedValue * this.units);
-      this.$emit('input', value);
+    calculateValue() {
+      const value = Math.round(this.reducedValue * this.units);
+      this.$emit("input", value);
     }
   }
 };
