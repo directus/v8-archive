@@ -42,7 +42,7 @@ export default {
   },
   methods: {
     onInput(event) {
-      if ((event.target.value && event.key === "Enter") || event.key === ",") {
+      if ((event.target.value && (event.key === "Enter") || event.key === ",")) {
         event.preventDefault();
         this.addTag(event.target.value);
         event.target.value = "";
@@ -51,17 +51,21 @@ export default {
     addTag(tag) {
       let tags = [...this.valueArray];
 
+      tag = tag.trim();
+
       if (this.options.lowercase) {
         tag = tag.toLowerCase();
       }
-
-      tag = tag.trim();
 
       if (this.options.sanitize) {
         tag = tag.replace(/([^a-z0-9]+)/gi, "-").replace(/^-|-$/g, "");
       }
 
       if (tag.length > 0) tags.push(tag);
+
+      if (this.options.alphabetize) {
+        tags.sort();
+      }
 
       // Remove any duplicates
       tags = [...new Set(tags)];

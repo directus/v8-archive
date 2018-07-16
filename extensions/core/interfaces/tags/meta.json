@@ -8,6 +8,12 @@
     "TEXT": null
   },
   "options": {
+    "alphabetize": {
+      "name": "$t:alphabetize",
+      "comment": "$t:alphabetize_comment",
+      "interface": "toggle",
+      "default": true
+    },
     "lowercase": {
       "name": "$t:lowercase",
       "comment": "$t:lowercase_comment",
@@ -36,6 +42,8 @@
   "translation": {
     "en-US": {
       "tags": "Tags",
+      "alphabetize": "Alphabetize tags",
+      "alphabetize_comment": "Will rearrange tags to be alphabetical",
       "lowercase": "Force Lowercase",
       "lowercase_comment": "Convert all tags to lowercase",
       "wrap": "Wrap with delimiter",
