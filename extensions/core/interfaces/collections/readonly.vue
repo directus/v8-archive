@@ -9,7 +9,11 @@ export default {
   mixins: [mixin],
   computed: {
     displayValue() {
-      return this.$helpers.formatTitle(this.value);
+      if (this.value){
+        return this.$helpers.formatTitle(this.value);
+      } else {
+        return "";
+      }
     }
   }
 };
