@@ -237,7 +237,11 @@ export default {
         return (this.rawValue = color.hex());
       }
 
-      return (this.rawValue = color[this.options.input]().array());
+      return (this.rawValue = color[this.options.input]()
+        .array()
+        .map(val => {
+          return Math.round(val);
+        }));
     }
   }
 };
