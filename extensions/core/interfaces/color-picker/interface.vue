@@ -7,7 +7,7 @@
         :style="{ backgroundColor: `var(--${color})`}"
         :class="{ active: value === color}"
         @click="$emit('input', color)">
-        <template 
+        <template
           v-if="value === color">
           <i class="material-icons">check</i>
         </template>
@@ -45,11 +45,13 @@ export default {
     display: block;
     transform: scale(1);
     transition: transform var(--fast) var(--transition-out);
+
     &:hover {
       transform: scale(2);
       z-index: +1;
       transition: transform var(--fast) var(--transition-in);
     }
+
     i {
       font-size: 14px;
       color: hsl(0, 0%, 100%);
