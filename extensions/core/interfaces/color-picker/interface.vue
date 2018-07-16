@@ -47,7 +47,7 @@ export default {
     transition: transform var(--fast) var(--transition-out);
 
     &:hover {
-      transform: scale(2);
+      transform: scale(1.2);
       z-index: +1;
       transition: transform var(--fast) var(--transition-in);
     }
@@ -57,6 +57,12 @@ export default {
       color: hsl(0, 0%, 100%);
       filter: saturate(0);
       mix-blend-mode: difference;
+    }
+    &:nth-last-child(1) {
+      flex-grow: 1;
+    }
+    &:nth-last-child(2) {
+      flex-grow: 1;
     }
   }
 }
