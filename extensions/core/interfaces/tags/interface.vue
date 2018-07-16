@@ -42,7 +42,7 @@ export default {
   },
   methods: {
     onInput(event) {
-      if ((event.target.value && (event.key === "Enter") || event.key === ",")) {
+      if ((event.target.value && event.key === "Enter") || event.key === ",") {
         event.preventDefault();
         this.addTag(event.target.value);
         event.target.value = "";
