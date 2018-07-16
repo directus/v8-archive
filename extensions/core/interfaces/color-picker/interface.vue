@@ -33,8 +33,10 @@ export default {
 .interface-color-picker {
   --swatch-size: 20px;
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
-  width: calc(11 * var(--swatch-size));
+  height: calc(var(--swatch-size) * 11);
+  width: var(--swatch-size);
 
   button {
     flex-basis: var(--swatch-size);
