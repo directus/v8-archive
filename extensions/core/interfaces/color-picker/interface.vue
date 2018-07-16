@@ -50,6 +50,7 @@ export default {
       transition: none;
       transform: scale(1.2);
       z-index: +1;
+      box-shadow: var(--box-shadow);
     }
 
     i {
