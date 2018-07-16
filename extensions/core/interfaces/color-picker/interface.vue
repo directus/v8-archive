@@ -44,12 +44,11 @@ export default {
     height: var(--swatch-size);
     display: block;
     transform: scale(1);
-    transition: transform var(--fast) var(--transition-out);
+    transition: transform var(--fast) var(--transition-in);
 
     &:hover {
       transform: scale(1.2);
       z-index: +1;
-      transition: transform var(--fast) var(--transition-in);
     }
 
     i {
