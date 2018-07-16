@@ -17,7 +17,7 @@
       "comment": "$t:include_system_comment",
       "interface": "toggle",
       "type": "BOOLEAN",
-      "default": true
+      "default": false
     }
   },
   "translation": {
