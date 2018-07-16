@@ -13,13 +13,13 @@
       "name": "$t:max",
       "comment": "$t:max_comment",
       "interface": "numeric",
-      "default": null
+      "default": 600
     },
     "min": {
       "name": "$t:min",
       "comment": "$t:min_comment",
       "interface": "numeric",
-      "default": null
+      "default": 300
     },
     "mode": {
       "name": "$t:mode",
@@ -28,9 +28,9 @@
       "default": "text/javascript",
       "options": {
         "choices": {
-          "text/javascript": "JAVASCRIPT",
+          "text/javascript": "Javascript",
           "application/json": "JSON",
-          "text/x-vue": "VUE",
+          "text/x-vue": "Vue",
           "application/x-httpd-php": "PHP"
         }
       }

@@ -1,7 +1,7 @@
 <template>
-  <div class="interface-code" v-bind:class="{ inactive: readonly }">
+  <div class="interface-code" v-bind:class="{ inactive: readonly, indent: !options.lineNumber }">
     <codemirror ref="cm"
-      :value="code"
+      v-model="code"
       :options="cmOptions"
       @input="onCmInput"
     ></codemirror>

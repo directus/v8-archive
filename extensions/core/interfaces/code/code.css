@@ -24,6 +24,10 @@
   content: "";
 }
 
+.indent .CodeMirror-scroll {
+  padding-left: 30px;
+}
+
 
 .CodeMirror-linenumber {
 	color: var(--gray);
