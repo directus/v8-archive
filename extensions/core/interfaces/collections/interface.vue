@@ -20,17 +20,11 @@ export default {
 
       for (var key in collections) {
         if (collections.hasOwnProperty(key) && collections[key].collection) {
-          if (this.options.include_system || collections[key].collection.substring(0, 9) != 'directus_'){
+          if (this.options.include_system || collections[key].collection.startsWith("directus_") === false){
             choices[key] = this.$helpers.formatTitle(collections[key].collection);
           }
         }
       }
-
-      if (!choices) return {};
-
-      // if (typeof this.options.choices === "string") {
-      //   choices = JSON.parse(this.options.choices);
-      // }
 
       return choices;
     }
