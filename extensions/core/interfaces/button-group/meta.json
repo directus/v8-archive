@@ -28,7 +28,10 @@
           "icon": "directions_bike",
           "value": "bike"
         },
-        { "icon": "directions_run", "value": "run" },
+        {
+          "icon": "directions_run",
+          "value": "run"
+        },
         {
           "label": "$t:sleep",
           "value": "sleep"
@@ -54,11 +57,9 @@
     "en-US": {
       "button_group": "Button Group",
       "choices": "choices",
-      "choices_comment":
-        "Enter JSON key value pairs with the saved value and text displayed.",
+      "choices_comment": "Enter JSON key value pairs with the saved value and text displayed.",
       "wrap": "Wrap with Delimiter",
-      "wrap_comment":
-        "Wrap the saved value in a delimiter (improves searchability).",
+      "wrap_comment": "Wrap the saved value in a delimiter (improves searchability).",
       "option": "Option",
       "formatting": "Show display text",
       "formatting_comment": "Render the values as the display values",
@@ -66,7 +67,7 @@
       "value": "Value",
       "car": "Car",
       "bike": "Bike",
-      "bus": "Bus 1",
+      "bus": "Bus",
       "sleep": "Sleep"
     }
   }

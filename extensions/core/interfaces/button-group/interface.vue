@@ -16,12 +16,6 @@
 				<span v-if="item.label">{{item.label}}</span>
 			</span>
 		</label>
-		<!-- <v-button
-			:disabled="readonly"
-			:id="name"
-			:label="name"
-			type="button"> {{name}}
-		</v-button> -->
 	</div>
 </template>
 
