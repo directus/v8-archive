@@ -2,12 +2,12 @@
     "name": "$t:icons",
     "version": "1.0.0",
     "datatypes": {
-        "INT": null
+        "VARCHAR": null
     },
     "options": {},
     "translation": {
         "en-US": {
-            "single-file": "icons"
+            "icons": "icons"
         }
     }
 }
