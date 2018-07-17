@@ -11,7 +11,7 @@
       </button>
     </div>
     <div class="line-count">
-      <p>{{ line_counts }}&nbsp;lines&nbsp;of&nbsp;<span class="lang">{{ lang_type }}</span></p>
+      <p>{{ line_counts }}&nbsp;line{{line_plural}}&nbsp;of&nbsp;<span class="lang">{{ lang_type }}</span></p>
     </div>
   </div>
 </template>
@@ -66,12 +66,13 @@ export default {
   data() {
     return {
       line_counts: 0,
+      line_plural: 's',
       lang_type: null,
       avail_types: {
-        "text/javascript": "javascript",
-        "application/json": "json",
-        "text/x-vue": "vue",
-        "application/x-httpd-php": "php"
+        "text/javascript": "Javascript",
+        "application/json": "JSON",
+        "text/x-vue": "Vue",
+        "application/x-httpd-php": "PHP"
       },
       code: null
     };
@@ -79,6 +80,7 @@ export default {
   mounted() {
     this.setEditorSize(this.codemirror, this.options);
     this.line_counts = this.codemirror.lineCount();
+    this.line_plural = (this.line_counts == 1)? "": "s";
     this.lang_type = this.avail_types[this.options.mode];
   },
   watch: {
@@ -123,6 +125,7 @@ export default {
       this.setEditorSize(this.codemirror, this.options);
       // Get line counts of the code editor
       this.line_counts = this.codemirror.lineCount();
+      this.line_plural = (this.line_counts == 1)? "": "s";
       this.$emit("input", newCode);
     },
     onBtnClick() {
@@ -182,11 +185,11 @@ export default {
   bottom: -20px;
 }
 .line-count > * {
-  color: var(--light-gray);
+  color: var(--lighter-gray);
   font-style: italic;
 }
 .lang {
-  font-weight: 700;
-  text-transform: uppercase;
+  // font-weight: 700;
+  // text-transform: uppercase;
 }
 </style>
