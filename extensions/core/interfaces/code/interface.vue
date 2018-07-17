@@ -134,9 +134,11 @@ export default {
         let max = opts.max,
           min = opts.min,
           height = cm.getWrapperElement().offsetHeight;
-        if (min > height) {
+          console.log("height: " + height);
+        let offset = 10;
+        if (min > height + offset) {
           cm.setSize("100%", min);
-        } else if (max < height) {
+        } else if (max < height + offset) {
           cm.setSize("100%", max);
         } else {
           cm.setSize("100%", "auto");
@@ -151,9 +153,10 @@ export default {
 .interface-code {
   position: relative;
   max-width: var(--width-large);
-  border: var(--input-border-width) solid var(--lighter-gray);
-  border-radius: var(--border-radius);
   font-size: 13px;
+}
+.interface-code:focus {
+  border-color: var(--accent);
 }
 .clipboard-btn {
   position: absolute;
