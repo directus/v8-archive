@@ -12,13 +12,9 @@
   border-color: var(--accent);
   color: var(--darker-gray);
 }
-.CodeMirror-focused .cm-matchhighlight {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
-  background-position: bottom;
-  background-repeat: repeat-x;
-}
 .cm-matchhighlight {
 	background-color: var(--lightest-gray);
+	border-radius: var(--border-radius);
 }
 .CodeMirror-selection-highlight-scrollbar {
 	background-color: var(--green)
@@ -84,4 +80,8 @@
 div.CodeMirror span.CodeMirror-matchingbracket {
 	color: inherit;
 	border-bottom: 1px solid var(--accent);
+}
+/*errors*/
+div.CodeMirror span.CodeMirror-nonmatchingbracket {
+	color: var(--red);
 }
