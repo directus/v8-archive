@@ -65,7 +65,7 @@ export default {
   },
   data() {
     return {
-      line_counts: 0,
+      line_counts: 1,
       lang_type: null,
       avail_types: {
         "text/javascript": "javascript",
@@ -120,9 +120,11 @@ export default {
   methods: {
     onCmInput(newCode) {
       // Set the height of the code editor
-      this.setEditorSize(this.codemirror, this.options);
       // Get line counts of the code editor
-      this.line_counts = this.codemirror.lineCount();
+      if (this.line_counts != this.codemirror.lineCount()) {
+        this.setEditorSize(this.codemirror, this.options);
+        this.line_counts = this.codemirror.lineCount();
+      }
       this.$emit("input", newCode);
     },
     onBtnClick() {
