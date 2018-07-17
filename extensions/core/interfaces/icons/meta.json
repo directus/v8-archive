@@ -1,0 +1,13 @@
+{
+    "name": "$t:icons",
+    "version": "1.0.0",
+    "datatypes": {
+        "INT": null
+    },
+    "options": {},
+    "translation": {
+        "en-US": {
+            "single-file": "icons"
+        }
+    }
+}
