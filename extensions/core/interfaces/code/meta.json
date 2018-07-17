@@ -50,19 +50,17 @@
   "translation": {
     "en-US": {
       "code": "Code",
-      "height": "Editor Height",
-      "height_comment": "Enter the height of the code editor",
       "max": "Max Height",
-      "max_comment": "Enter the max height of the code editor",
+      "max_comment": "Enter the max height of the code editor in pixels",
       "min": "Min Height",
-      "min_comment": "Enter the min height of the code editor",
+      "min_comment": "Enter the min height of the code editor in pixels",
       "lineNumber": "Line Number",
-      "lineNumber_comment": "Show line numer",
+      "lineNumber_comment": "Show line number in gutter",
       "placeholder": "Placeholder",
-      "placeholder_comment": "Enter placeholder code",
+      "placeholder_comment": "Enter placeholder code, user will have the ability to paste this into the editor",
       "mode": "Language",
       "mode_comment": "Set the language type",
-      "fill_placeholder": "Fill with placeholder"
+      "fill_placeholder": "Fill with placeholder code"
     }
   }
 }
