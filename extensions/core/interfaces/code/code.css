@@ -4,6 +4,7 @@
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   color: var(--gray);
+  line-height: 18px;
 }
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection {
 	background: #e1f0fa;
