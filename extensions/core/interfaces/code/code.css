@@ -27,7 +27,8 @@
 .inactive .CodeMirror::before {
 	position: absolute;
 	background-color: var(--dark-gray);
-  opacity: .3;
+  opacity: .1;
+  cursor: not-allowed;
   z-index: 100;
   width: 100%;
   height: 100%;
