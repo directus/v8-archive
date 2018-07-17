@@ -6,6 +6,8 @@ use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\ForbiddenException;
+use Directus\Permissions\Exception\ForbiddenCollectionReadException;
+use Directus\Util\StringUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 
@@ -74,13 +76,27 @@ class ItemsService extends AbstractService
      * @param array $params
      *
      * @return array
+     *
+     * @throws ItemNotFoundException
+     * @throws ForbiddenCollectionReadException
      */
     public function findByIds($collection, $ids, array $params = [])
     {
         $statusValue = $this->getStatusValue($collection, $ids);
         $tableGateway = $this->createTableGateway($collection);
+        if (is_string($ids) && StringUtils::has($ids, ',')) {
+            $ids = StringUtils::csv((string)$ids, false);
+        }
 
-        $this->getAcl()->enforceRead($collection, $statusValue);
+        try {
+            $this->getAcl()->enforceRead($collection, $statusValue);
+        } catch (ForbiddenCollectionReadException $e) {
+            if (is_array($ids) && count($ids) > 1) {
+                throw new $e;
+            } else {
+                throw new ItemNotFoundException();
+            }
+        }
 
         return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $ids, array_merge($params, [
             'status' => null
