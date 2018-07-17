@@ -23,6 +23,9 @@
 .CodeMirror-selection-highlight-scrollbar {
 	background-color: var(--green)
 }
+.CodeMirror-activeline-background {
+	background: var(--body-background);
+}
 .CodeMirror-selectedtext {}
 .inactive .CodeMirror::before {
 	position: absolute;
