@@ -94,6 +94,15 @@ export default {
     codemirror() {
       return this.$refs.cm.codemirror;
     },
+    offset() {
+      // .indent .CodeMirror-lines {
+      //    padding: 25px 30px;
+      // }
+      // when the line numbers are hidden(it means that 'line number' toggle is set to 'false')
+      // the code editor have padding-top: 25 and padding-bottom: 25.
+      // we should consider 50px at the height of code editor.
+      return this.options.lineNumber ? 0 : (50);
+    },
     cmOptions() {
       return {
         tabSize: 4,
@@ -124,8 +133,8 @@ export default {
       // Set the height of the code editor
       // Get line counts of the code editor
       if (this.line_counts != this.codemirror.lineCount()) {
-        this.setEditorSize(this.codemirror, this.options);
         this.line_counts = this.codemirror.lineCount();
+        this.setEditorSize(this.codemirror, this.options);
         this.line_plural = (this.line_counts == 1)? "": "s"; 
       }
       this.$emit("input", newCode);
@@ -135,15 +144,13 @@ export default {
     },
     setEditorSize(cm, opts) {
       if (opts.max != null || opts.min != null) {
-        cm.setSize("100%", "auto");
         let max = opts.max,
-          min = opts.min,
-          height = cm.getWrapperElement().offsetHeight;
-          console.log("height: " + height);
-        let offset = 10;
-        if (min > height + offset) {
+            min = opts.min,
+            line_height = 18,
+            height = line_height * this.line_counts;
+        if (min > height + this.offset) {
           cm.setSize("100%", min);
-        } else if (max < height + offset) {
+        } else if (max < height + this.offset) {
           cm.setSize("100%", max);
         } else {
           cm.setSize("100%", "auto");
