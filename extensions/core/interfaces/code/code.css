@@ -37,7 +37,7 @@
 .CodeMirror pre {
   padding-left: 10px;
 }
-.indent .CodeMirror-scroll {
+.indent .CodeMirror-lines {
   padding: 25px 30px;
 }
 .CodeMirror-gutters {
