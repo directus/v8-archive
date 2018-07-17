@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "npx recursive-install --skip-root",
     "build": "parcel build \"core/**/*.vue\" -d ../public/extensions/core --no-source-maps --global __DirectusExtension__ && cpx \"core/**/meta.json\" ../public/extensions/core -t ./json-minifier.js -v",
-    "dev": "concurrently --raw \"cpx core/**/meta.json ../public/extensions/core -w\" \"parcel watch core/**/*.vue -d ../public/extensions/core --no-source-maps --global __DirectusExtension__\"",
+    "dev": "cpx \"core/**/meta.json\" ../public/extensions/core && concurrently --raw \"cpx core/**/meta.json ../public/extensions/core -w\" \"parcel watch core/**/*.vue -d ../public/extensions/core --no-source-maps --global __DirectusExtension__\"",
     "lint": "vue-cli-service lint \"core/**/*.vue\"",
     "fix": "prettier --write \"core/**/*.{js,vue}\""
   },
