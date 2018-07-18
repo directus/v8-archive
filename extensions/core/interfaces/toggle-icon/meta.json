@@ -1,0 +1,38 @@
+{
+  "name": "$t:icon-toggle",
+  "version": "1.0.0",
+  "datatypes": {
+    "BOOLEAN": null
+  },
+  "options": {
+    "colorA": {
+      "name": "Color A",
+      "comment": "Choose the inactive color",
+      "default": "yellow",
+      "interface": "color-picker"
+    },
+    "colorB": {
+      "name": "Color B",
+      "comment": "Choose the active color",
+      "default": "blue-grey",
+      "interface": "color-picker"
+    },
+    "iconInactive": {
+      "name": "Inactive icon",
+      "comment": "Pick your inactive icon",
+      "default": "star_border",
+      "interface": "icons"
+    },
+    "iconActive": {
+      "name": "Active icon",
+      "comment": "Pick your active icon",
+      "default": "star",
+      "interface": "icons"
+    }
+  },
+  "translation": {
+    "en-US": {
+      "icon-toggle": "Icon toggle"
+    }
+  }
+}
