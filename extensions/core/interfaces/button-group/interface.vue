@@ -14,8 +14,9 @@
 					type="radio"
 					:name="name"
 					:disabled="readonly"
-					@change="$emit('input', subitem.value)"
-					:value="subitem.value">
+					:value="subitem.value"
+          :checked="value === subitem.value"
+          @change="$emit('input', subitem.value)">
 				<span class="button-group-button">
 					<i v-if="subitem.icon" class="material-icons">{{subitem.icon}}</i>
 					<span v-if="subitem.label">{{subitem.label}}</span>
