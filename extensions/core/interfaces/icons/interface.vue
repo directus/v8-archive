@@ -1,8 +1,11 @@
 <template>
   <div class="interface-icons">
-    <input v-model="searchText">
+    <input v-model="searchText" placeholder="Search an icon">
     <div class="icons-view" v-show="searchText.length === 0">
-      <details v-for="(icongroup,groupname) in icons" open>
+      <details 
+      v-for="(icongroup,groupname) in icons"
+      :key="(icongroup,groupname)"
+      open>
         <summary>
           {{groupname}}
         </summary>
@@ -17,7 +20,7 @@
         </div>
       </details>
     </div>
-    <div v-if="searchText.length > 0">
+    <div class="search-view" v-if="searchText.length > 0">
       <button
         v-for="icon in filteredArray"
         :key="icon"
@@ -55,9 +58,69 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.icons-view {
+.interface-icons {
+  display: flex;
+  flex-direction: column;
   overflow-y: scroll;
-  height: 20px;
+  height: 20em;
+  width: 320px;
+  border: var(--input-border-width) solid var(--lighter-gray);
+  border-radius: var(--border-radius);
+  background-color: white;
+  padding: 0.3em;
+
+  input {
+    width: auto;
+    margin: 2px;
+    padding: 10px;
+    border: var(--input-border-width) solid var(--lighter-gray);
+    border-radius: var(--border-radius);
+    color: var(--gray);
+    height: var(--input-height);
+    transition: var(--fast) var(--transition);
+    transition-property: color, border-color, padding;
+    &:focus {
+      color: var(--darker-gray);
+      border-color: var(--accent);
+      outline: 0;
+    }
+  }
+  .icons-view {
+    details {
+      text-transform: uppercase;
+      summary {
+        margin: 5px 2px;
+      }
+      div {
+        button {
+          padding: 0.4em;
+          transform: scale(1);
+          transition: transform var(--fast) var(--transition-in);
+
+          &:hover {
+            transition: none;
+            transform: scale(1.2);
+            z-index: +1;
+            box-shadow: var(--box-shadow);
+          }
+        }
+      }
+    }
+  }
+  .search-view {
+    button {
+      padding: 0.4em;
+      transform: scale(1);
+      transition: transform var(--fast) var(--transition-in);
+
+      &:hover {
+        transition: none;
+        transform: scale(1.2);
+        z-index: +1;
+        box-shadow: var(--box-shadow);
+      }
+    }
+  }
 }
 </style>
 
