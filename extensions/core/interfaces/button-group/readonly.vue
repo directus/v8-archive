@@ -7,7 +7,7 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-	name: "readonly-button-group",
-	mixins: [mixin]
+  name: "readonly-button-group",
+  mixins: [mixin]
 };
 </script>
