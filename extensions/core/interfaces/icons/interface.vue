@@ -72,13 +72,13 @@ export default {
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   background-color: white;
-  padding: 0.3em;
+  padding: 5px;
 
   .v-input {
     color: var(--gray);
     height: var(--input-height);
     transition: var(--fast) var(--transition);
-    transition-property: color, border-color, padding;
+    transition-property: color, border-color;
     position: sticky;
     top: 0;
     z-index: +1;
@@ -89,48 +89,51 @@ export default {
       outline: 0;
     }
   }
+
   .icons-view {
     details {
       text-transform: uppercase;
+
       summary {
         margin: 5px 2px;
       }
-      div {
-        button {
-          padding: 0.4em;
-          transform: scale(1);
-          transition: transform var(--fast) var(--transition-in);
-          opacity: 0.5;
-          &.active {
-            opacity: 1;
-          }
-          &:hover {
-            opacity: 1;
-            transition: none;
-            transform: scale(1.2);
-            z-index: +1;
-            box-shadow: var(--box-shadow);
-          }
+
+      button {
+        padding: 5px;
+        transform: scale(1);
+        transition: transform var(--fast) var(--transition-in);
+        opacity: 0.5;
+
+        &.active {
+          opacity: 1;
+        }
+
+        &:hover {
+          opacity: 1;
+          transition: none;
+          transform: scale(1.2);
+          z-index: +1;
+          box-shadow: var(--box-shadow);
         }
       }
     }
   }
-  .search-view {
-    button {
-      padding: 0.4em;
-      transform: scale(1);
-      transition: transform var(--fast) var(--transition-in);
-      opacity: 0.5;
-      &.active {
-        opacity: 1;
-      }
-      &:hover {
-        opacity: 1;
-        transition: none;
-        transform: scale(1.2);
-        z-index: +1;
-        box-shadow: var(--box-shadow);
-      }
+  .search-view button {
+    padding: 0.4em;
+    transform: scale(1);
+    transition: transform var(--fast) var(--transition-in);
+    opacity: 0.5;
+
+    &.active {
+      opacity: 1;
+    }
+
+    &:hover {
+      opacity: 1;
+      transition: none;
+      transform: scale(1.2);
+      z-index: +1;
+      box-shadow: var(--box-shadow);
     }
   }
 }
