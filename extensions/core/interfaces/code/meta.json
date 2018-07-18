@@ -1,66 +1,55 @@
 {
-	"name": "$t:code",
-	"version": "1.0.0",
-	"datatypes": {
-		"TEXT": null,
+  "name": "$t:code",
+  "version": "1.0.0",
+  "datatypes": {
+    "TEXT": null,
     "TINYTEXT": null,
     "MEDIUMTEXT": null,
     "LONGTEXT": null,
     "VARCHAR": 255
-	},
-	"options": {
-    "max": {
-      "name": "$t:max",
-      "comment": "$t:max_comment",
-      "interface": "numeric",
-      "default": 600
-    },
-    "min": {
-      "name": "$t:min",
-      "comment": "$t:min_comment",
-      "interface": "numeric",
-      "default": 300
-    },
-    "mode": {
-      "name": "$t:mode",
-      "comment": "$t:mode_comment",
+  },
+  "options": {
+    "language": {
+      "name": "$t:language",
+      "comment": "$t:language_comment",
       "interface": "dropdown",
       "default": "text/javascript",
       "options": {
         "choices": {
-          "text/javascript": "Javascript",
+          "text/plain": "Plain Text",
+          "text/javascript": "JavaScript",
           "application/json": "JSON",
           "text/x-vue": "Vue",
           "application/x-httpd-php": "PHP"
         }
       }
     },
-    "lineNumber": {
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "code",
+      "options": {
+        "language": "text/plain"
+      }
+    },
+     "lineNumber": {
       "name": "$t:lineNumber",
       "comment": "$t:lineNumber_comment",
       "interface": "toggle",
       "default": true
-    },
-    "placeholder": {
-      "name": "$t:placeholder",
-      "comment": "$t:placeholder_comment",
-      "interface": "code"
     }
   },
   "translation": {
     "en-US": {
       "code": "Code",
-      "max": "Max Height",
-      "max_comment": "Enter the max height of the code editor in pixels",
-      "min": "Min Height",
-      "min_comment": "Enter the min height of the code editor in pixels",
+      "template": "Template",
+      "template_comment": "Provide a template the user can use to get started with",
+      "language": "Language",
+      "language_comment": "Set the programming language to use",
       "lineNumber": "Line Number",
-      "lineNumber_comment": "Show line number in gutter",
-      "placeholder": "Placeholder",
-      "placeholder_comment": "Enter placeholder code, user will have the ability to paste this into the editor",
-      "mode": "Language",
-      "mode_comment": "Set the language type",
-      "fill_placeholder": "Fill with placeholder code"
+      "lineNumber_comment": "Show line numbers",
+      "loc": "No lines of {lang} | One line of {lang} | {count} lines of {lang}",
+      "fill_template": "Fill with Template"
     }
   }
 }

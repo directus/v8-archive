@@ -1,43 +1,51 @@
 <template>
-  <div class="no-wrap"><i class="material-icons" :title="hover" :class="empty">code</i></div>
+  <i
+    v-tooltip="tooltipCopy"
+    :class="{ empty }"
+    class="material-icons" >code</i>
 </template>
 
 <script>
 import mixin from "../../../mixins/interface";
 
 export default {
+  name: "readonly-code",
   mixins: [mixin],
-  data() {
-    return {
-      empty: "empty",
-      avail_types: {
-        "text/javascript": "Javascript",
+  computed: {
+    lineCount() {
+      if (!this.value) return 0;
+      return this.value.split(/\r\n|\r|\n/).length;
+    },
+    availableTypes() {
+      return {
+        "text/javascript": "JavaScript",
         "application/json": "JSON",
         "text/x-vue": "Vue",
         "application/x-httpd-php": "PHP"
-      }
-    }
-  },
-  computed: {
-    hover() {
-      let hoverText = (this.value)? this.value.length : 0;
-      let plural = (hoverText == 1)? "" : "s";
-      let language = this.avail_types[this.options.mode];
-
-      this.empty = (hoverText > 0)? "" : "empty";
-
-      hoverText = `${hoverText} character${plural} of ${language}`;
-      return hoverText;
+      };
+    },
+    language() {
+      return this.availableTypes[this.options.language];
+    },
+    tooltipCopy() {
+      return this.$tc("interfaces-code-loc", this.lineCount, {
+        count: this.lineCount,
+        lang: this.language
+      });
+    },
+    empty() {
+      return this.lineCount === 0;
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-  i.material-icons {
-    cursor: help;
-    &.empty {
-      color: var(--lighter-gray);
-    }
+i.material-icons {
+  cursor: help;
+
+  &.empty {
+    color: var(--lighter-gray);
   }
+}
 </style>
