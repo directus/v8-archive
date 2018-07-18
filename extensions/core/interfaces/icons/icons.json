@@ -570,7 +570,7 @@
         "vertical_align_bottom",
         "vertical_align_center",
         "vertical_align_top",
-        "wrap_text",
+        "wrap_text"
     ],
     "file": [
         "attachment",
@@ -584,7 +584,7 @@
         "create_new_folder",
         "folder",
         "folder_open",
-        "folder_shared",
+        "folder_shared"
     ],
     "hardware": [
         "cast",
@@ -635,7 +635,7 @@
         "toys",
         "tv",
         "videogame_asset",
-        "watch",
+        "watch"
     ],
     "image": [
         "add_a_photo",
@@ -796,7 +796,7 @@
         "wb_cloudy",
         "wb_incandescent",
         "wb_iridescent",
-        "wb_sunny",
+        "wb_sunny"
     ],
     "maps": [
         "360",
@@ -910,7 +910,7 @@
         "subdirectory_arrow_left",
         "subdirectory_arrow_right",
         "unfold_less",
-        "unfold_more",
+        "unfold_more"
     ],
     "notification": [
         "adb",
@@ -964,7 +964,7 @@
         "vpn_lock",
         "wc",
         "wifi",
-        "wifi_off",
+        "wifi_off"
     ],
     "places": [
         "ac_unit",
@@ -987,7 +987,7 @@
         "rv_hookup",
         "smoke_free",
         "smoking_rooms",
-        "spa",
+        "spa"
     ],
     "social": [
         "cake",
@@ -1020,7 +1020,7 @@
         "share",
         "thumb_down_alt",
         "thumb_up_alt",
-        "whatshot",
+        "whatshot"
     ],
     "toggle": [
         "check_box",
