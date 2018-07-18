@@ -1,6 +1,6 @@
 <template>
   <div class="interface-icons">
-    <input v-model="searchText" placeholder="Search an icon" icon-right>
+    <v-input v-model="searchText" placeholder="Search an icon" :icon-right="value"/>
     <div class="icons-view" v-show="searchText.length === 0">
       <details 
       v-for="(icongroup,groupname) in icons"
@@ -13,6 +13,7 @@
           <button
             v-for="icon in icongroup"
             :key="icon"
+            v-tooltip="$helpers.formatTitle(icon)"
             :class="{ active: value === icon}"
             @click="$emit('input', icon)">
             <i class="material-icons">{{ icon }}</i>
