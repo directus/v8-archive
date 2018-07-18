@@ -1,5 +1,7 @@
 <template>
-    <hr/>
+    <hr 
+    :class="`line-style-${options.style}`"
+    />
 </template>
 
 <script>
@@ -15,6 +17,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+hr {
+  border-top: 1px solid var(--lighter-gray);
+}
+hr {
+  border-top: 1px solid var(--lighter-gray);
+}
 </style>
 
 
