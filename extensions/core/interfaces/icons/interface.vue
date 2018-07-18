@@ -67,7 +67,8 @@ export default {
   flex-direction: column;
   overflow-y: scroll;
   height: 320px;
-  max-width: 320px;
+  width: 100%;
+  max-width: var(--normal);
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   background-color: white;
