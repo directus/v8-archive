@@ -24,6 +24,7 @@
     <div class="search-view" v-if="searchText.length > 0">
       <button
         v-for="icon in filteredArray"
+        v-tooltip="$helpers.formatTitle(icon)"
         :key="icon"
         :class="{ active: value === icon}"
         @click="$emit('input', icon)">
