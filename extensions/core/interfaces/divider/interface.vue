@@ -5,7 +5,7 @@
 <script>
 import mixin from "../../../mixins/interface";
 export default {
-  mixin: [mixins],
+  mixins: [mixin],
   computed: {
     hello() {
       console.log("yo");
