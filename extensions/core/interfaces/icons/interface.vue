@@ -1,6 +1,6 @@
 <template>
   <div class="interface-icons">
-    <input v-model="searchText" placeholder="Search an icon">
+    <input v-model="searchText" placeholder="Search an icon" icon-right>
     <div class="icons-view" v-show="searchText.length === 0">
       <details 
       v-for="(icongroup,groupname) in icons"
@@ -51,7 +51,9 @@ export default {
       return this.$lodash.flatten(Object.values(this.icons));
     },
     filteredArray() {
-      return this.iconsArray.filter(icon => icon.includes(this.searchText));
+      return this.iconsArray.filter(icon =>
+        icon.includes(this.searchText.toLowerCase())
+      );
     }
   }
 };
@@ -62,8 +64,8 @@ export default {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  height: 20em;
-  width: 320px;
+  height: 320px;
+  max-width: 320px;
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   background-color: white;
