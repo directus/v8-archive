@@ -13,6 +13,18 @@
       "interface": "json",
       "type": "JSON",
       "default": [
+        [
+          {
+            "label": "$t:flight",
+            "icon": "flight",
+            "value": "flight"
+          },
+          {
+            "label": "$t:cruise",
+            "icon": "directions_boat",
+            "value": "cruise"
+          }
+        ],
         {
           "label": "$t:bus",
           "icon": "directions_bus",
@@ -38,37 +50,40 @@
         }
       ]
     },
-    "wrap": {
-      "name": "$t:wrap",
-      "comment": "$t:wrap_comment",
-      "interface": "toggle",
-      "type": "BOOLEAN",
-      "default": true
-    },
-    "formatting": {
-      "name": "$t:formatting",
-      "comment": "$t:formatting_comment",
-      "interface": "toggle",
-      "type": "BOOLEAN",
-      "default": true
+    "theme": {
+      "name": "$t:theme",
+      "comment": "$t:theme_comment",
+      "interface": "button-group",
+      "type": "JSON",
+      "options": {
+        "choices": [
+          {
+            "label": "Solid",
+            "value": "solid"
+          },
+          {
+            "label": "Outline",
+            "value": "outline"
+          }
+        ]
+      }
     }
   },
   "translation": {
     "en-US": {
       "button_group": "Button Group",
       "choices": "choices",
-      "choices_comment": "Enter JSON key value pairs with the saved value and text displayed.",
-      "wrap": "Wrap with Delimiter",
-      "wrap_comment": "Wrap the saved value in a delimiter (improves searchability).",
-      "option": "Option",
-      "formatting": "Show display text",
-      "formatting_comment": "Render the values as the display values",
-      "display_text": "Display Text",
+      "choices_comment":
+        "Enter JSON key value pairs with the saved value and text displayed.",
+      "theme": "Interface Theme",
+      "theme_comment": "Set the UI of interface if supported",
       "value": "Value",
       "car": "Car",
       "bike": "Bike",
       "bus": "Bus",
-      "sleep": "Sleep"
+      "sleep": "Sleep",
+      "flight": "Flight",
+      "cruise": "Cruise"
     }
   }
 }

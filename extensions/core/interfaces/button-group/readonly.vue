@@ -1,6 +1,6 @@
 <template>
   <!-- WIP -->
-  <div class="readonly-button-group no-wrap"></div>
+  <div class="readonly-button-group no-wrap">{{value?this.$helpers.formatTitle(value):''}}</div>
 </template>
 
 <script>
