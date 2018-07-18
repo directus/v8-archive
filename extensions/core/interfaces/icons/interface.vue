@@ -2,7 +2,7 @@
   <div class="interface-icons">
     <v-input v-model="searchText" placeholder="Search an icon" :icon-right="value"/>
     <div class="icons-view" v-show="searchText.length === 0">
-      <details 
+      <details
       v-for="(icongroup,groupname) in icons"
       :key="(icongroup,groupname)"
       open>
@@ -135,4 +135,3 @@ export default {
   }
 }
 </style>
-
