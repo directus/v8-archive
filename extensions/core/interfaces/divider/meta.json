@@ -4,7 +4,14 @@
     "datatypes": {
         "VARCHAR": 30
     },
-    "options": {},
+    "options": {
+        "colorA": {
+            "name": "Option 1",
+            "comment": "Choose a divider style",
+            "default": "none",
+            "interface": ""
+        }
+    },
     "translation": {
         "en-US": {
             "divider": "Divider"
