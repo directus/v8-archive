@@ -3,7 +3,7 @@
 		:class="options.theme ? `button-group-${options.theme}` : 'button-group-outline'"
 		class="interface-button-group">
 		<div
-			v-for="(item, index) in choices()"
+			v-for="(item, index) in choices"
       :key="`button-group-subgroup-${index}`"
 			class="button-group-subgroup">
 			<label
@@ -31,25 +31,26 @@ import mixin from "../../../mixins/interface";
 export default {
   name: "interface-button-group",
   mixins: [mixin],
-  methods: {
+  computed: {
     choices() {
       /**
        * We'll create an array of choices here.
        * If the button-group has subgroups of choices & indivisual choice both,
        * We'll need to create a new subgroup with all individual items.
        */
-      var _choices = [];
-      var _individualChoices = []; //This will contain all the choices which are not grouped.
+      const choices = [];
+      const individualChoices = [];
+
       this.options.choices.forEach(item => {
         if (Array.isArray(item)) {
-          _choices.push(item);
+          choices.push(item);
         } else {
-          _individualChoices.push(item);
+          individualChoices.push(item);
         }
       });
 
-      _choices.push(_individualChoices);
-      return _choices;
+      choices.push(individualChoices);
+      return choices;
     }
   }
 };
