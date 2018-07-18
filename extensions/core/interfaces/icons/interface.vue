@@ -3,25 +3,25 @@
     <v-input v-model="searchText" placeholder="Search an icon" :icon-right="value"/>
     <div class="icons-view" v-show="searchText.length === 0">
       <details
-      v-for="(icongroup,groupname) in icons"
-      :key="(icongroup,groupname)"
-      open>
+        v-for="(icongroup, groupname) in icons"
+        :key="groupname"
+        open>
         <summary>
-          {{groupname}}
+          {{ $helpers.formatTitle(groupname) }}
         </summary>
         <div>
           <button
             v-for="icon in icongroup"
             :key="icon"
             v-tooltip="$helpers.formatTitle(icon)"
-            :class="{ active: value === icon}"
+            :class="{ active: value === icon }"
             @click="$emit('input', icon)">
             <i class="material-icons">{{ icon }}</i>
           </button>
         </div>
       </details>
     </div>
-    <div class="search-view" v-if="searchText.length > 0">
+    <div v-if="searchText.length > 0" class="search-view">
       <button
         v-for="icon in filteredArray"
         v-tooltip="$helpers.formatTitle(icon)"
