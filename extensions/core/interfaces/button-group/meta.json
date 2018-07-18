@@ -55,7 +55,7 @@
       "comment": "$t:theme_comment",
       "interface": "button-group",
       "type": "JSON",
-      "default": "outline",
+      "default": "solid",
       "options": {
         "choices": [
           {
