@@ -96,8 +96,12 @@ export default {
           padding: 0.4em;
           transform: scale(1);
           transition: transform var(--fast) var(--transition-in);
-
+          opacity: 0.5;
+          &.active {
+            opacity: 1;
+          }
           &:hover {
+            opacity: 1;
             transition: none;
             transform: scale(1.2);
             z-index: +1;
@@ -112,8 +116,12 @@ export default {
       padding: 0.4em;
       transform: scale(1);
       transition: transform var(--fast) var(--transition-in);
-
+      opacity: 0.5;
+      &.active {
+        opacity: 1;
+      }
       &:hover {
+        opacity: 1;
         transition: none;
         transform: scale(1.2);
         z-index: +1;
