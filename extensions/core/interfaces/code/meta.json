@@ -1,0 +1,66 @@
+{
+	"name": "$t:code",
+	"version": "1.0.0",
+	"datatypes": {
+		"TEXT": null,
+    "TINYTEXT": null,
+    "MEDIUMTEXT": null,
+    "LONGTEXT": null,
+    "VARCHAR": 255
+	},
+	"options": {
+    "max": {
+      "name": "$t:max",
+      "comment": "$t:max_comment",
+      "interface": "numeric",
+      "default": 600
+    },
+    "min": {
+      "name": "$t:min",
+      "comment": "$t:min_comment",
+      "interface": "numeric",
+      "default": 300
+    },
+    "mode": {
+      "name": "$t:mode",
+      "comment": "$t:mode_comment",
+      "interface": "dropdown",
+      "default": "text/javascript",
+      "options": {
+        "choices": {
+          "text/javascript": "Javascript",
+          "application/json": "JSON",
+          "text/x-vue": "Vue",
+          "application/x-httpd-php": "PHP"
+        }
+      }
+    },
+    "lineNumber": {
+      "name": "$t:lineNumber",
+      "comment": "$t:lineNumber_comment",
+      "interface": "toggle",
+      "default": true
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "code"
+    }
+  },
+  "translation": {
+    "en-US": {
+      "code": "Code",
+      "max": "Max Height",
+      "max_comment": "Enter the max height of the code editor in pixels",
+      "min": "Min Height",
+      "min_comment": "Enter the min height of the code editor in pixels",
+      "lineNumber": "Line Number",
+      "lineNumber_comment": "Show line number in gutter",
+      "placeholder": "Placeholder",
+      "placeholder_comment": "Enter placeholder code, user will have the ability to paste this into the editor",
+      "mode": "Language",
+      "mode_comment": "Set the language type",
+      "fill_placeholder": "Fill with placeholder code"
+    }
+  }
+}

@@ -59,7 +59,7 @@ export default {
 
 <style lang="scss" scoped>
 /*
-Theme: Outline | Default
+Theme: Outline
 */
 .button-group-subgroup {
   display: inline-flex;
@@ -194,7 +194,7 @@ Theme: Outline | Default
 }
 
 /*
-Theme: Solid
+Theme: Solid | Default
 */
 .button-group-solid {
   .button-group-button {
