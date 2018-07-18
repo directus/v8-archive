@@ -73,16 +73,15 @@ export default {
   background-color: white;
   padding: 0.3em;
 
-  input {
-    width: auto;
-    margin: 2px;
-    padding: 10px;
-    border: var(--input-border-width) solid var(--lighter-gray);
-    border-radius: var(--border-radius);
+  .v-input {
     color: var(--gray);
     height: var(--input-height);
     transition: var(--fast) var(--transition);
     transition-property: color, border-color, padding;
+    position: sticky;
+    top: 0;
+    z-index: +1;
+
     &:focus {
       color: var(--darker-gray);
       border-color: var(--accent);
