@@ -9,6 +9,7 @@
   "author": "JS GURU <i.asan825.mail@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
+    "codemirror": "^5.39.0",
     "vue-codemirror": "^4.0.5"
   }
 }
