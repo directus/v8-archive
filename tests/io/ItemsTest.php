@@ -4,6 +4,7 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 
 class ItemsTest extends \PHPUnit_Framework_TestCase
@@ -324,13 +325,13 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // =============================================================================
         // FETCH BY ONE ID: Return a single object, not an array of one item
         // =============================================================================
-        $response = request_get($path, ['access_token' => 'token', 'id' => 2]);
+        $response = request_get($path . '/2', ['access_token' => 'token']);
         assert_response($this, $response);
 
         // =============================================================================
         // FETCH BY CSV
         // =============================================================================
-        $response = request_get($path, ['access_token' => 'token', 'id' => '2,3']);
+        $response = request_get($path . '/2,3', ['access_token' => 'token']);
         assert_response($this, $response, [
             'data' => 'array',
             'count' => 2
@@ -339,7 +340,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // =============================================================================
         // FETCH BY CSV: One non-existent
         // =============================================================================
-        $response = request_get($path, ['access_token' => 'token', 'id' => '2,3,10']);
+        $response = request_get($path . '/2,3,10', ['access_token' => 'token']);
         assert_response($this, $response, [
             'data' => 'array',
             'count' => 2
@@ -626,7 +627,8 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'name' => 'New Category',
             'products' => [[
                 'status' => 1,
-                'name' => 'New Product'
+                'name' => 'New Product',
+                'price' => 100
             ]]
         ];
 
@@ -706,7 +708,10 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 
     public function testStatusInterfaceMapping()
     {
-        request_patch('fields/products/status', ['field' => 'status', 'options' => ""], ['query' => ['access_token' => 'token']]);
+        request_patch(
+            'fields/products/status', ['options' => null],
+            ['query' => ['access_token' => 'token'], 'json' => true]
+        );
         truncate_table(static::$db, 'directus_settings');
 
         $response = request_error_get('items/products', ['access_token' => 'token']);
@@ -820,6 +825,15 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 
     public function testSoftDeleteNonAdmins()
     {
+        $data = array_merge([
+            'role' => 3,
+            'collection' => 'products',
+            'status' => 1
+        ], Acl::PERMISSION_FULL);
+
+        $response = request_post('permissions', $data, ['query' => ['access_token' => 'token']]);
+        assert_response($this, $response);
+
         $path = 'items/products';
         $data = ['name' => 'deleted product', 'status' => 0, 'price' => 0];
         $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
@@ -846,13 +860,13 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $response = request_get($path, ['access_token' => 'intern_token']);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 6
+            'count' => 5
         ]);
 
         $response = request_get($path, ['access_token' => 'intern_token', 'status' => '*']);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 6
+            'count' => 5
         ]);
 
         $response = request_error_get($path . '/9', ['access_token' => 'intern_token', 'status' => '*']);

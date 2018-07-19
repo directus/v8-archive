@@ -1,6 +1,6 @@
 <template>
   <div class="interface-icons">
-    <v-input v-model="searchText" placeholder="Search an icon" :icon-right="value"/>
+    <v-input v-model="searchText" :placeholder="$t('interfaces-icons-search_placeholder')" :readonly="readonly" :icon-right="value" icon-left="search"/>
     <div class="icons-view" v-show="searchText.length === 0">
       <details
         v-for="(icongroup, groupname) in icons"
@@ -66,27 +66,27 @@ export default {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  height: 320px;
+  height: 334px;
   width: 100%;
-  max-width: var(--normal);
+  max-width: var(--width-normal);
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   background-color: white;
-  padding: 5px;
+  padding: 10px;
 
   .v-input {
-    color: var(--gray);
-    height: var(--input-height);
-    transition: var(--fast) var(--transition);
-    transition-property: color, border-color;
+    // color: var(--gray);
+    // height: var(--input-height);
+    // transition: var(--fast) var(--transition);
+    // transition-property: color, border-color;
     position: sticky;
     top: 0;
     z-index: +1;
 
     &:focus {
-      color: var(--darker-gray);
-      border-color: var(--accent);
-      outline: 0;
+      // color: var(--darker-gray);
+      // border-color: var(--accent);
+      // outline: 0;
     }
   }
 
@@ -95,45 +95,56 @@ export default {
       text-transform: uppercase;
 
       summary {
-        margin: 5px 2px;
+        margin: 20px 2px 5px;
+        cursor: pointer;
+        color: var(--gray);
+        &:hover {
+          color: var(--darker-gray);
+        }
       }
 
       button {
         padding: 5px;
-        transform: scale(1);
-        transition: transform var(--fast) var(--transition-in);
-        opacity: 0.5;
+        // transform: scale(1);
+        transition: color var(--slow) var(--transition);
+        // opacity: 0.5;
+        color: var(--lighter-gray);
 
-        &.active {
-          opacity: 1;
+        &.active,
+        &.active:hover {
+          // opacity: 1;
+          color: var(--darker-gray);
         }
 
         &:hover {
-          opacity: 1;
-          transition: none;
-          transform: scale(1.2);
-          z-index: +1;
-          box-shadow: var(--box-shadow);
+          color: var(--dark-gray);
+          // opacity: 1;
+          // transition: none;
+          // transform: scale(1.2);
+          // z-index: +1;
+          // box-shadow: var(--box-shadow);
         }
       }
     }
   }
   .search-view button {
     padding: 0.4em;
-    transform: scale(1);
-    transition: transform var(--fast) var(--transition-in);
-    opacity: 0.5;
-
+    // transform: scale(1);
+    transition: color var(--slow) var(--transition);
+    // opacity: 0.5;
+    color: var(--lighter-gray);
     &.active {
-      opacity: 1;
+      // opacity: 1;
+      color: var(--darker-gray);
     }
 
     &:hover {
-      opacity: 1;
-      transition: none;
-      transform: scale(1.2);
-      z-index: +1;
-      box-shadow: var(--box-shadow);
+      color: var(--dark-gray);
+      // opacity: 1;
+      // transition: none;
+      // transform: scale(1.2);
+      // z-index: +1;
+      // box-shadow: var(--box-shadow);
     }
   }
 }

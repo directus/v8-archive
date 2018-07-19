@@ -229,4 +229,25 @@ class StringUtils
 
         return $array;
     }
+
+    /**
+     * Split by comma a given value into array
+     *
+     * @param string $string
+     * @param bool $trim
+     * @param bool $split
+     *
+     * @return array
+     */
+    public static function safeCvs($string, $trim = true, $split = true)
+    {
+        $result = $string;
+        if (is_string($string) && StringUtils::has($string, ',')) {
+            $result = StringUtils::csv((string)$string, $trim);
+        } else if ($split) {
+            $result = [$string];
+        }
+
+        return $result;
+    }
 }
