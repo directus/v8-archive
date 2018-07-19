@@ -33,11 +33,7 @@ export default {
     mirror() {
       const { mirroredField } = this.options;
 
-      return (
-        (this.$store.state.edits.values &&
-          this.$store.state.edits.values[mirroredField]) ||
-        ""
-      );
+      return this.values[mirroredField];
     }
   },
   watch: {

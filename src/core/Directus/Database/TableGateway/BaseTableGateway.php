@@ -26,6 +26,7 @@ use function Directus\get_directus_setting;
 use Directus\Hook\Emitter;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
+use Directus\Permissions\Exception\ForbiddenCollectionReadException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
@@ -1087,6 +1088,8 @@ class BaseTableGateway extends TableGateway
 
     /**
      * @param Builder $builder
+     *
+     * @throws ForbiddenCollectionReadException
      */
     protected function enforceReadPermission(Builder $builder)
     {
@@ -1096,9 +1099,15 @@ class BaseTableGateway extends TableGateway
         $this->acl->enforceReadOnce($this->table);
         $collectionObject = $this->getTableSchema();
         $userCreatedField = $collectionObject->getUserCreatedField();
+        $statuses = $this->acl->getCollectionStatuses($this->table);
         $statusField = $collectionObject->getStatusField();
 
-        // If there's not user created interface, user must have full read permission
+        // throw exception if the user has status permission enabled and not status field
+        if (!empty($statuses) && !$statusField) {
+            throw new ForbiddenCollectionReadException($this->table);
+        }
+
+        // If there's not user created or status interface, user must have full read permission
         if (!$userCreatedField && !$statusField) {
             $this->acl->enforceReadAll($this->table);
             return;
@@ -1111,7 +1120,6 @@ class BaseTableGateway extends TableGateway
 
         $groupUsersId = \Directus\get_user_ids_in_group($this->acl->getRolesId());
         $authenticatedUserId = $this->acl->getUserId();
-        $statuses = $this->acl->getCollectionStatuses($this->table);
 
         if (empty($statuses)) {
             $ownerIds = [$authenticatedUserId];
@@ -1150,8 +1158,6 @@ class BaseTableGateway extends TableGateway
                         $builder->whereEqualTo($statusField->getName(), $status);
                     });
                 }
-
-
             });
         }
     }

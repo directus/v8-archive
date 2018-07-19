@@ -1,13 +1,14 @@
 {
-    "name": "$t:icons",
-    "version": "1.0.0",
-    "datatypes": {
-        "VARCHAR": null
-    },
-    "options": {},
-    "translation": {
-        "en-US": {
-            "icons": "Icons"
-        }
+  "name": "$t:icons",
+  "version": "1.0.0",
+  "datatypes": {
+    "VARCHAR": 30
+  },
+  "options": {},
+  "translation": {
+    "en-US": {
+      "icons": "Icons",
+      "search_placeholder": "Search for an icon..."
     }
+  }
 }
