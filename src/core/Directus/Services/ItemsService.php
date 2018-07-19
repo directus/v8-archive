@@ -84,15 +84,13 @@ class ItemsService extends AbstractService
     {
         $statusValue = $this->getStatusValue($collection, $ids);
         $tableGateway = $this->createTableGateway($collection);
-        if (is_string($ids) && StringUtils::has($ids, ',')) {
-            $ids = StringUtils::csv((string)$ids, false);
-        }
+        $ids = StringUtils::safeCvs($ids, false, false);
 
         try {
             $this->getAcl()->enforceRead($collection, $statusValue);
         } catch (ForbiddenCollectionReadException $e) {
             if (is_array($ids) && count($ids) > 1) {
-                throw new $e;
+                throw $e;
             } else {
                 throw new ItemNotFoundException();
             }
