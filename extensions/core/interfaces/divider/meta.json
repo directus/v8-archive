@@ -9,13 +9,25 @@
             "name": "$t:style",
             "comment": "$t:style_comment",
             "interface": "dropdown",
-            "default": "text/javascript",
             "options": {
                 "choices": {
-                    "0": "Normal",
-                    "1": "JavaScript",
-                    "2": "JSON",
-                    "3": "Vue"
+                    "normal": "Normal",
+                    "line": "JavaScript",
+                    "text": "JSON",
+                    "small": "Vue"
+                }
+            }
+        },
+        "input": {
+            "name": "$t:input",
+            "comment": "$t:input_comment",
+            "interface": "text-input",
+            "options": {
+                "choices": {
+                    "normal": "Normal",
+                    "line": "JavaScript",
+                    "text": "JSON",
+                    "small": "Vue"
                 }
             }
         }
