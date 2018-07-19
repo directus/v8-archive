@@ -57,13 +57,13 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
         $path = 'items/products';
         $data = [
             [
-                'status' => '1',
+                'status' => 1,
                 'name' => 'Special Product',
                 'price' => 999.99,
                 'category_id' => 1
             ],
             [
-                'status' => '1',
+                'status' => 1,
                 'name' => 'Special Product 2',
                 'price' => 999.99,
                 'category_id' => 1
@@ -150,7 +150,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
         $path = 'items/products';
         $data = [
             [
-                'status' => '1',
+                'status' => 1,
                 'name' => 'Premium Product 1',
                 'price' => 9999.99,
                 'category_id' => [
@@ -158,7 +158,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
                 ]
             ],
             [
-                'status' => '1',
+                'status' => 1,
                 'name' => 'Premium Product 2',
                 'price' => 9999.99,
                 'category_id' => [
@@ -245,7 +245,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
         $path = 'items/products';
         $data = [
             [
-                'status' => '1',
+                'status' => 1,
                 'name' => 'Limited Product 1',
                 'price' => 1010.01,
                 'images' => [
@@ -259,7 +259,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
                 ]
             ],
             [
-                'status' => '1',
+                'status' => 1,
                 'name' => 'Limited Product 2',
                 'price' => 1010.01,
                 'images' => [
