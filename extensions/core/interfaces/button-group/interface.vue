@@ -171,7 +171,6 @@ Theme: Outline
   }
 
   .button-group-item {
-
     + .button-group-item {
       .button-group-button {
         margin-left: 0;
