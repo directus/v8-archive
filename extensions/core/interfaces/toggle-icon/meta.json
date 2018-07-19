@@ -5,34 +5,64 @@
     "BOOLEAN": null
   },
   "options": {
+    "textInactive": {
+      "name": "$t:text-inactive-name",
+      "comment": "$t:text-inactive-comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:text-inactive-placeholder"
+      }
+    },
     "iconInactive": {
-      "name": "Inactive Icon",
-      "comment": "Choose an inactive icon",
+      "name": "$t:icon-inactive-name",
+      "comment": "$t:icon-inactive-comment",
       "default": "favorite_border",
       "interface": "icons"
     },
-    "colorActive": {
-      "name": "Active Color",
-      "comment": "Choose the inactive color",
-      "default": "pink-500",
+    "colorInactive": {
+      "name": "$t:color-inactive-name",
+      "comment": "$t:color-inactive-comment",
+      "default": "blue-grey",
       "interface": "color-picker"
     },
+    "textActive": {
+      "name": "$t:text-active-name",
+      "comment": "$t:text-active-comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:text-active-placeholder"
+      }
+    },
     "iconActive": {
-      "name": "Active Icon",
-      "comment": "Choose an active icon",
+      "name": "$t:icon-active-name",
+      "comment": "$t:icon-active-comment",
       "default": "favorite",
       "interface": "icons"
     },
-    "colorInactive": {
-      "name": "Active Color",
-      "comment": "Choose the active color",
-      "default": "blue-grey",
+    "colorActive": {
+      "name": "$t:color-active-name",
+      "comment": "$t:color-active-comment",
+      "default": "pink-500",
       "interface": "color-picker"
     }
   },
   "translation": {
     "en-US": {
-      "toggle-icon": "Toggle Icon"
+      "toggle-icon": "Toggle Icon",
+      "text-inactive-name": "Text inactive",
+      "text-inactive-comment": "Text next to the inactive icon",
+      "text-inactive-placeholder": "Enter your text here",
+      "icon-inactive-name": "Inactive Icon",
+      "icon-inactive-comment": "Choose an inactive icon",
+      "color-inactive-name": "Inactive Color",
+      "color-inactive-comment": "Choose the inactive color",
+      "text-active-name": "Text active",
+      "text-active-comment": "Text next to the active icon",
+      "text-active-placeholder": "Enter your text here",
+      "icon-active-name": "active Icon",
+      "icon-active-comment": "Choose an active icon",
+      "color-active-name": "active Color",
+      "color-active-comment": "Choose the active color"
     }
   }
 }
