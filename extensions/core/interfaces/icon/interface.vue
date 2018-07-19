@@ -27,6 +27,7 @@
         v-tooltip="$helpers.formatTitle(icon)"
         :key="icon"
         :class="{ active: value === icon}"
+        :disabled="readonly"
         @click="$emit('input', icon)">
         <i class="material-icons">{{ icon }}</i>
       </button>
