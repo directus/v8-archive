@@ -3,9 +3,11 @@
 		<input
   		type="checkbox"
   		id="icon-toggle"
+      :disabled="readonly"
   		@change="updateValue($event.target.checked)">
 		<label for="icon-toggle" :style="{ color: `var(--${colorChange})` }">
 			<i class="material-icons">{{ icon }}</i>
+      <span>{{ textChange }}</span>
 		</label>
 	</div>
 </template>
@@ -22,6 +24,9 @@ export default {
     },
     colorChange() {
       return this.value ? this.options.colorActive : this.options.colorInactive;
+    },
+    textChange() {
+      return this.value ? this.options.textActive : this.options.textInactive;
     }
   },
   methods: {
@@ -45,6 +50,11 @@ input {
   clip: rect(1px, 1px, 1px, 1px);
   clip-path: polygon(0px 0px, 0px 0px, 0px 0px, 0px 0px);
 }
+
+input[disabled] + label {
+  opacity: 0.6;
+}
+
 label {
   cursor: pointer;
   display: inline-block;
