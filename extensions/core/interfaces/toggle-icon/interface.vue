@@ -21,7 +21,7 @@ export default {
       return this.value ? this.options.iconActive : this.options.iconInactive;
     },
     colorChange() {
-      return this.value ? this.options.colorA : this.options.colorB;
+      return this.value ? this.options.colorActive : this.options.colorInactive;
     }
   },
   methods: {
@@ -35,7 +35,6 @@ export default {
 <style lang="scss" scoped>
 .interface-toggle-icon {
   user-select: none;
-  cursor: pointer;
 }
 
 input {
@@ -45,5 +44,9 @@ input {
   overflow: hidden;
   clip: rect(1px, 1px, 1px, 1px);
   clip-path: polygon(0px 0px, 0px 0px, 0px 0px, 0px 0px);
+}
+label {
+  cursor: pointer;
+  display: inline-block;
 }
 </style>

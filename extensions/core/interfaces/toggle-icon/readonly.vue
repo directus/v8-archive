@@ -15,7 +15,7 @@ export default {
       return this.value ? this.options.iconActive : this.options.iconInactive;
     },
     colorChange() {
-      return this.value ? this.options.colorA : this.options.colorB;
+      return this.value ? this.options.colorActive : this.options.colorInactive;
     }
   }
 };
