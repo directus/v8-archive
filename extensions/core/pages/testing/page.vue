@@ -6,9 +6,9 @@
 </template>
 
 <script>
-  export default {
-    name: "first-page"
-  }
+export default {
+  name: "first-page"
+};
 </script>
 
 <style lang="scss" scoped>
