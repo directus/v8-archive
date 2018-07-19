@@ -110,8 +110,8 @@ export default {
   }
   button[disabled="disabled"] {
     &:hover {
-      color: var(--lighter-gray);
       cursor: not-allowed;
+      color: var(--lighter-gray);
     }
   }
 }
