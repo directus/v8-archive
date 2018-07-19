@@ -1,10 +1,10 @@
 <template>
-<div>
-  <i
-    class="material-icons readonly-toggle-icon"
-    :style="{color: `var(--${colorChange})`}">{{ icon }}</i>
+  <div>
+    <i
+      class="material-icons readonly-toggle-icon"
+      :style="{color: `var(--${colorChange})`}">{{ icon }}</i>
     <span :style="{color: `var(--${colorChange})`}">{{ textChange }}</span>
-    </div>
+  </div>
 </template>
 
 <script>
