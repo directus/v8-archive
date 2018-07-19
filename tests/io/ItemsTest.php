@@ -4,6 +4,7 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 
 class ItemsTest extends \PHPUnit_Framework_TestCase
@@ -21,10 +22,10 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
     ];
 
     protected static $data = [
-        ['status' => '2', 'name' => 'Old Product', 'price' => 4.99, 'category_id' => 1],
-        ['status' => '1', 'name' => 'Basic Product', 'price' => 9.99, 'category_id' => 1],
-        ['status' => '1', 'name' => 'Premium Product', 'price' => 19.99, 'category_id' => 1],
-        ['status' => '1', 'name' => 'Enterprise Product', 'price' => 49.99]
+        ['status' => 2, 'name' => 'Old Product', 'price' => 4.99, 'category_id' => 1],
+        ['status' => 1, 'name' => 'Basic Product', 'price' => 9.99, 'category_id' => 1],
+        ['status' => 1, 'name' => 'Premium Product', 'price' => 19.99, 'category_id' => 1],
+        ['status' => 1, 'name' => 'Enterprise Product', 'price' => 49.99]
     ];
 
     protected static $db;
@@ -63,7 +64,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 
     public static function tearDownAfterClass()
     {
-        // static::resetData();
+        static::resetData();
     }
 
     public function testNotDirectAccess()
@@ -547,7 +548,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
     {
         $path = 'items/products';
         $data = [
-            'status' => '1',
+            'status' => 1,
             'name' => 'Special Product',
             'price' => 999.99,
             'category_id' => 1
@@ -591,7 +592,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
     {
         $path = 'items/products';
         $data = [
-            'status' => '1',
+            'status' => 1,
             'name' => 'Premium Product',
             'price' => 9999.99,
             'category_id' => [
@@ -654,7 +655,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         // =============================================================================
         $path = 'items/products';
         $data = [
-            'status' => '1',
+            'status' => 1,
             'name' => 'Limited Product',
             'price' => 1010.01,
             'images' => [
@@ -824,8 +825,17 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 
     public function testSoftDeleteNonAdmins()
     {
+        $data = array_merge([
+            'role' => 3,
+            'collection' => 'products',
+            'status' => 1
+        ], Acl::PERMISSION_FULL);
+
+        $response = request_post('permissions', $data, ['query' => ['access_token' => 'token']]);
+        assert_response($this, $response);
+
         $path = 'items/products';
-        $data = ['name' => 'deleted product', 'status' => '0', 'price' => 0];
+        $data = ['name' => 'deleted product', 'status' => 0, 'price' => 0];
         $response = request_post($path, $data, ['query' => ['access_token' => 'token']]);
         assert_response($this, $response);
 
@@ -850,13 +860,13 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $response = request_get($path, ['access_token' => 'intern_token']);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 6
+            'count' => 5
         ]);
 
         $response = request_get($path, ['access_token' => 'intern_token', 'status' => '*']);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 6
+            'count' => 5
         ]);
 
         $response = request_error_get($path . '/9', ['access_token' => 'intern_token', 'status' => '*']);
