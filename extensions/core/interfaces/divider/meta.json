@@ -6,8 +6,8 @@
     },
     "options": {
         "orientation": {
-            "name": "$t:orientation",
-            "comment": "$t:orientation_comment",
+            "name": "$t:orientation-name",
+            "comment": "$t:orientation-comment",
             "interface": "radio-buttons",
             "default": "horizontal",
             "options": {
@@ -18,8 +18,8 @@
             }
         },
         "style": {
-            "name": "$t:style",
-            "comment": "$t:style_comment",
+            "name": "$t:style-name",
+            "comment": "$t:style-comment",
             "default": "text",
             "interface": "dropdown",
             "options": {
@@ -33,8 +33,8 @@
             }
         },
         "weight": {
-            "name": "$t:weight",
-            "comment": "$t:weight_comment",
+            "name": "$t:weight-name",
+            "comment": "$t:weight-comment",
             "default": "thin",
             "interface": "dropdown",
             "options": {
@@ -47,15 +47,23 @@
             }
         },
         "input": {
-            "name": "$t:input",
-            "comment": "$t:input_comment",
+            "name": "$t:input-name",
+            "comment": "$t:input-comment",
             "interface": "text-input",
             "default": "directus"
         }
     },
     "translation": {
         "en-US": {
-            "divider": "Divider"
+            "divider": "Divider",
+            "orientation-name": "Orientation",
+            "orientation-comment": "Change the orientation here",
+            "style-name": "Divider style",
+            "style-comment": "Change the style of the Divider",
+            "weight-name": "Thickness of the line",
+            "weight-comment": "Change the thickness of the line",
+            "input-name": "Divider text",
+            "input-comment": "Type your text here"
         }
     }
 }
