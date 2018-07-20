@@ -1,6 +1,6 @@
 <template>
-  <div :class="`line-style-${options.style}`">
-    <hr v-if="!options.input"/>
+  <div :class="`line-style-${options.style} ${options.weight}`">
+    <hr />
     <span v-if="options.input">{{options.input}}</span>
   </div>
 </template>
@@ -9,11 +9,7 @@
 import mixin from "../../../mixins/interface";
 export default {
   mixins: [mixin],
-  computed: {
-    hello() {
-      console.log("yo");
-    }
-  }
+  computed: {}
 };
 </script>
 
@@ -21,8 +17,28 @@ export default {
 .line-style {
   position: relative;
 }
-.line-style-normal > hr {
+
+// weights
+.hairline > hr {
   border-top: 1px solid var(--lighter-gray);
+}
+
+.thin > hr {
+  border-top: 2.5px solid var(--lighter-gray);
+}
+
+.medium > hr {
+  border-top: 3.2px solid var(--lighter-gray);
+}
+
+.heavy > hr {
+  border-top: 5px solid var(--lighter-gray);
+}
+
+.line-style-standard {
+  span {
+    display: none;
+  }
 }
 
 .line-style-text {
@@ -30,10 +46,17 @@ export default {
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
+
+  hr {
+    display: none;
+  }
 }
 
 .line-style-text > span {
   position: relative;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  font-weight: 700;
   display: inline-block;
 }
 
@@ -55,6 +78,34 @@ export default {
 .line-style-text > span:after {
   left: 100%;
   margin-left: 15px;
+}
+
+.line-style-small {
+  width: 100%;
+  max-width: var(--width-small);
+  margin: 0 auto;
+  span {
+    display: none;
+  }
+}
+
+.line-style-normal {
+  width: 100%;
+  max-width: var(--width-normal);
+  margin: 0 auto;
+
+  span {
+    display: none;
+  }
+}
+
+.line-style-big {
+  width: 100%;
+  max-width: var(--width-large);
+  margin: 0 auto;
+  span {
+    display: none;
+  }
 }
 </style>
 
