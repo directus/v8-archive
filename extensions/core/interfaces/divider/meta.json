@@ -5,6 +5,18 @@
         "VARCHAR": 30
     },
     "options": {
+        "orientation": {
+            "name": "$t:orientation",
+            "comment": "$t:orientation_comment",
+            "interface": "radio-buttons",
+            "default": "horizontal",
+            "options": {
+                "choices": {
+                    "horizontal": "Horizontal",
+                    "vertical": "Vertical"
+                }
+            }
+        },
         "style": {
             "name": "$t:style",
             "comment": "$t:style_comment",
