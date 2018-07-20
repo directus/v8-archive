@@ -1,5 +1,5 @@
 <template>
-  <div :class="`line-style-${options.style} ${options.weight} ${options.orientation}`">
+  <div :class="`line-style-${options.style} ${options.weight}`">
     <hr />
     <span v-if="options.input">{{options.input}}</span>
   </div>
@@ -108,11 +108,6 @@ export default {
   span {
     display: none;
   }
-}
-
-// vertical
-.vertical {
-  transform: rotate(90deg);
 }
 </style>
 

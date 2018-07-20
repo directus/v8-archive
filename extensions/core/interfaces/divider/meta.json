@@ -5,18 +5,6 @@
         "VARCHAR": 30
     },
     "options": {
-        "orientation": {
-            "name": "$t:orientation-name",
-            "comment": "$t:orientation-comment",
-            "interface": "radio-buttons",
-            "default": "horizontal",
-            "options": {
-                "choices": {
-                    "horizontal": "Horizontal",
-                    "vertical": "Vertical"
-                }
-            }
-        },
         "style": {
             "name": "$t:style-name",
             "comment": "$t:style-comment",
@@ -56,8 +44,6 @@
     "translation": {
         "en-US": {
             "divider": "Divider",
-            "orientation-name": "Orientation",
-            "orientation-comment": "Change the orientation here",
             "style-name": "Divider style",
             "style-comment": "Change the style of the Divider",
             "weight-name": "Thickness of the line",
