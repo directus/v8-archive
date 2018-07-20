@@ -8,13 +8,29 @@
         "style": {
             "name": "$t:style",
             "comment": "$t:style_comment",
+            "default": "text",
             "interface": "dropdown",
             "options": {
                 "choices": {
-                    "normal": "Normal",
-                    "line": "JavaScript",
-                    "text": "JSON",
-                    "small": "Vue"
+                    "text": "Text Directus",
+                    "standard": "Fullwidth",
+                    "big": "Large",
+                    "normal": "Medium",
+                    "small": "Small"
+                }
+            }
+        },
+        "weight": {
+            "name": "$t:weight",
+            "comment": "$t:weight_comment",
+            "default": "thin",
+            "interface": "dropdown",
+            "options": {
+                "choices": {
+                    "hairline": "Hairline",
+                    "thin": "Thin",
+                    "medium": "Medium",
+                    "heavy": "Heavy"
                 }
             }
         },
@@ -22,14 +38,7 @@
             "name": "$t:input",
             "comment": "$t:input_comment",
             "interface": "text-input",
-            "options": {
-                "choices": {
-                    "normal": "Normal",
-                    "line": "JavaScript",
-                    "text": "JSON",
-                    "small": "Vue"
-                }
-            }
+            "default": "directus"
         }
     },
     "translation": {
