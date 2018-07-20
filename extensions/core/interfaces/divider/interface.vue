@@ -1,5 +1,5 @@
 <template>
-  <div :class="`line-style-${options.style} ${options.weight}`">
+  <div :class="`line-style-${options.style} ${options.weight} ${options.orientation}`">
     <hr />
     <span v-if="options.input">{{options.input}}</span>
   </div>
@@ -14,33 +14,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.line-style {
-  position: relative;
-}
-
-// weights
-.hairline > hr {
-  border-top: 1px solid var(--lighter-gray);
-}
-
-.thin > hr {
-  border-top: 2.5px solid var(--lighter-gray);
-}
-
-.medium > hr {
-  border-top: 3.2px solid var(--lighter-gray);
-}
-
-.heavy > hr {
-  border-top: 5px solid var(--lighter-gray);
-}
-
-.line-style-standard {
-  span {
-    display: none;
-  }
-}
-
+// text
 .line-style-text {
   display: block;
   text-align: center;
@@ -80,6 +54,8 @@ export default {
   margin-left: 15px;
 }
 
+// small
+
 .line-style-small {
   width: 100%;
   max-width: var(--width-small);
@@ -106,6 +82,37 @@ export default {
   span {
     display: none;
   }
+}
+
+// options
+
+// weights
+.hairline > hr {
+  border-top: 1px solid var(--lighter-gray);
+}
+
+.thin > hr {
+  border-top: 2.5px solid var(--lighter-gray);
+}
+
+.medium > hr {
+  border-top: 3.2px solid var(--lighter-gray);
+}
+
+.heavy {
+  hr {
+    border-top: 5px solid var(--lighter-gray);
+  }
+}
+.line-style-standard {
+  span {
+    display: none;
+  }
+}
+
+// vertical
+.vertical {
+  transform: rotate(90deg);
 }
 </style>
 
