@@ -13,6 +13,7 @@ use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
+use Directus\Permissions\Exception\ForbiddenCollectionReadException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\StringUtils;
@@ -907,12 +908,8 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function getItemsByIds($ids, array $params = [])
     {
-        if (is_string($ids) && StringUtils::has($ids, ',')) {
-            $ids = StringUtils::csv((string)$ids, false);
-        }
-
         return $this->fetchData(array_merge($params, [
-            'id' => $ids
+            'id' => StringUtils::safeCvs($ids, false, false)
         ]));
     }
 
@@ -1051,8 +1048,8 @@ class RelationalTableGateway extends BaseTableGateway
      *
      * @return array
      *
-     * @throws Exception\InvalidFieldException
      * @throws Exception\ItemNotFoundException
+     * @throws ForbiddenCollectionReadException
      */
     public function fetchItems(array $params = [], \Closure $queryCallback = null)
     {
@@ -1087,7 +1084,15 @@ class RelationalTableGateway extends BaseTableGateway
             $builder
         );
 
-        $this->enforceReadPermission($builder);
+        try {
+            $this->enforceReadPermission($builder);
+        } catch (ForbiddenCollectionReadException $e) {
+            if (ArrayUtils::has($params, 'single')) {
+                throw new Exception\ItemNotFoundException();
+            } else {
+                throw $e;
+            }
+        }
 
         if ($queryCallback !== null) {
             $builder = $queryCallback($builder);

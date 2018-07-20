@@ -6,7 +6,6 @@ use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionCreateException;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
-use Directus\Permissions\Exception\ForbiddenCollectionReadException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
 
 class PermissionsTest extends \PHPUnit_Framework_TestCase
@@ -211,8 +210,8 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // Intern cannot read posts
         $response = request_error_get('items/products/1', $this->internQueryParams);
         assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionReadException::ERROR_CODE
+            'status' => 404,
+            'code' => ItemNotFoundException::ERROR_CODE
         ]);
 
         // ----------------------------------------------------------------------------
@@ -723,7 +722,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response);
         assert_response_data_fields($this, $response, ['id', 'title']);
 
-        $response = request_get('items/posts/1', array_merge(
+        $response = request_get('items/posts/2', array_merge(
             $this->internQueryParams,
             ['fields' => 'id,title,author']
         ));
@@ -735,7 +734,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'read_field_blacklist' => 'author'
         ]);
 
-        $response = request_get('items/posts/1', $this->internQueryParams);
+        $response = request_get('items/posts/2', $this->internQueryParams);
         assert_response($this, $response, [
             'has_fields' => true,
             'fields' => ['id', 'title', 'status']
@@ -744,7 +743,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response);
         assert_response_data_fields($this, $response, ['id', 'title', 'status']);
 
-        $response = request_get('items/posts/1', array_merge(
+        $response = request_get('items/posts/2', array_merge(
             $this->internQueryParams,
             ['fields' => 'id,title,author,status']
         ));
@@ -789,9 +788,9 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Read
         // ----------------------------------------------------------------------------
-        $response = request_get('items/posts/1', $this->internQueryParams);
-        assert_response($this, $response);
-        assert_response_data_fields($this, $response, ['id', 'title']);
+        $response = request_error_get('items/posts/1', $this->internQueryParams);
+        assert_response_error($this, $response);
+        // assert_response_data_fields($this, $response, ['id', 'title']);
         // ----------------------------------------------------------------------------
         // Write
         // ----------------------------------------------------------------------------
@@ -847,21 +846,15 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         // Read
         // ----------------------------------------------------------------------------
-        $response = request_get('items/posts/4', $this->internQueryParams);
-        assert_response($this, $response, [
-            // TODO: Should be an object, but php convert empty array to JSON array instead of JSON object
-            // As it normally do
-            // NEED TO CHANGE HOW THE API TREAT DATA OBJECT AS ARRAY
-            'data' => 'array',
-            'empty' => true
-        ]);
+        $response = request_error_get('items/posts/4', $this->internQueryParams);
+        assert_response_error($this, $response);
 
         // FETCH ALL
         // Status 3 should be removed as the user cannot read any fields
         $response = request_get('items/posts', array_merge(['status' => '*'], $this->internQueryParams));
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 3
+            'count' => 2
         ]);
 
         $items = response_get_data($response);
@@ -869,11 +862,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_data_fields($this, $item0, ['id', 'title']);
 
         $item1 = $items[1];
-        assert_data_fields($this, $item1, ['id', 'title']);
-
-        $item2 = $items[2];
-        assert_data_fields($this, $item2, ['id', 'title', 'author']);
-
+        assert_data_fields($this, $item1, ['id', 'title', 'author']);
 
         $this->resetTestPosts();
         truncate_table(static::$db, 'directus_permissions');
@@ -898,7 +887,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response_error($this, $response);
 
         // One item
-        $response = request_get('items/posts/1', $this->internQueryParams);
+        $response = request_get('items/posts/2', $this->internQueryParams);
         assert_response($this, $response);
         assert_response_data_fields($this, $response, ['id', 'title']);
 
@@ -1001,12 +990,12 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         table_insert(static::$db, $collection, $data2);
 
         $data3 = ['title' => 'Under Review Post', 'status' => $noPermissionStatusTwo, 'author' => 2];
-        table_insert(static::$db, 'posts', $data3);
+        table_insert(static::$db, $collection, $data3);
 
         $response = request_error_get('items/'.$collection.'/1', $this->internQueryParams);
         assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionReadException::ERROR_CODE
+            'status' => 404,
+            'code' => ItemNotFoundException::ERROR_CODE
         ]);
 
         $response = request_get('items/'.$collection.'/2', $this->internQueryParams);
@@ -1019,8 +1008,8 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_get('items/'.$collection.'/4', $this->internQueryParams);
         assert_response_error($this, $response, [
-            'status' => 403,
-            'code' => ForbiddenCollectionReadException::ERROR_CODE
+            'status' => 404,
+            'code' => ItemNotFoundException::ERROR_CODE
         ]);
 
         $response = request_get('items/' . $collection, $this->internQueryParams);
@@ -1151,7 +1140,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
+        assert_response_empty($this, $response);
 
         $response = request_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
@@ -1167,13 +1156,13 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
+        assert_response_empty($this, $response);
 
         $response = request_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
         assert_response_empty($this, $response);
 
         $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
+        assert_response_empty($this, $response);
 
         // ----------------------------------------------------------------------------
         // Intern CAN update any posts AND CAN read any posts
@@ -1183,13 +1172,13 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $response = request_patch('items/'.$collection.'/1', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
+        assert_response_empty($this, $response);
 
         $response = request_patch('items/'.$collection.'/5', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
+        assert_response_empty($this, $response);
 
         $response = request_patch('items/'.$collection.'/9', $data, ['query' => $this->internQueryParams]);
-        assert_response($this, $response);
+        assert_response_empty($this, $response);
 
         // ----------------------------------------------------------------------------
         // PERMISSION BY STATUS
@@ -1504,10 +1493,10 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $data = [
             'collection' => 'posts',
             'fields' => [
-                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'integer', 'auto_increment' => true],
-                ['field' => 'status', 'interface' => 'status', 'type' => 'integer', 'default_value' => 2, 'options' => $statusOptions],
+                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'primary_key', 'datatype' => 'integer', 'primary_key' => true, 'auto_increment' => true, 'length' => 10],
+                ['field' => 'status', 'interface' => 'status', 'type' => 'status', 'datatype' => 'integer', 'length' => 10, 'default_value' => 2, 'options' => $statusOptions],
                 ['field' => 'title', 'interface' => 'text_input', 'type' => 'varchar', 'length' => 100],
-                ['field' => 'author', 'interface' => 'user_created', 'type' => 'integer'],
+                ['field' => 'author', 'type' => 'user_created', 'interface' => 'user_created', 'datatype' => 'integer', 'length' => 10],
             ]
         ];
 
@@ -1522,10 +1511,10 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $data = [
             'collection' => 'articles',
             'fields' => [
-                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'integer', 'auto_increment' => true],
-                ['field' => 'status', 'interface' => 'status', 'type' => 'varchar', 'default_value' => 'draft', 'options' => $statusOptions],
+                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'primary_key', 'datatype' => 'integer', 'primary_key' => true, 'auto_increment' => true, 'length' => 10],
+                ['field' => 'status', 'interface' => 'status', 'type' => 'status', 'datatype' => 'varchar', 'length' => 16, 'default_value' => 'draft', 'options' => $statusOptions],
                 ['field' => 'title', 'interface' => 'text_input', 'type' => 'varchar', 'length' => 100],
-                ['field' => 'author', 'interface' => 'user_created', 'type' => 'integer'],
+                ['field' => 'author', 'type' => 'user_created', 'interface' => 'user_created', 'datatype' => 'integer', 'length' => 10],
             ]
         ];
 
