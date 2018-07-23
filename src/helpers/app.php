@@ -117,7 +117,7 @@ if (!function_exists('create_install_route')) {
      */
     function create_install_route(Application $app)
     {
-        $app->group('/install', Instances::class);
+        $app->group('/instances', Instances::class);
 
         return $app;
     }
