@@ -1,0 +1,17 @@
+
+.interface-color-picker[data-v-b48221]{--swatch-size:20px;display:flex;flex-direction:column;flex-wrap:wrap;height:calc(var(--swatch-size) * 11);width:var(--swatch-size)
+}
+.interface-color-picker button[data-v-b48221]{flex-basis:var(--swatch-size);width:var(--swatch-size);height:var(--swatch-size);display:block;transform:scale(1);transition:transform var(--fast) var(--transition-in)
+}
+.interface-color-picker button[data-v-b48221]:hover{transition:none;transform:scale(1.4);z-index:1;box-shadow:var(--box-shadow)
+}
+.interface-color-picker button i[data-v-b48221]{font-size:18px;margin-top:-3px;color:#fff;filter:saturate(0);mix-blend-mode:difference
+}
+.interface-color-picker button[data-v-b48221]:last-child{flex-grow:1
+}
+.interface-color-picker button[data-v-b48221]:last-child:hover{transform:scale(1.1)
+}
+.interface-color-picker button[data-v-b48221]:nth-last-child(2){flex-grow:1
+}
+.interface-color-picker button[data-v-b48221]:nth-last-child(2):hover{transform:scale(1.1)
+}

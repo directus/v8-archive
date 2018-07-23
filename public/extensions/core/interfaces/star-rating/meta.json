@@ -1,0 +1,39 @@
+{
+    "name": "$t:rating",
+    "version": "1.0.0",
+    "datatypes": {
+        "SMALLINT": 5
+    },
+    "options": {
+        "max": {
+            "name": "$t:max",
+            "comment": "$t:max_comment",
+            "interface": "text-input"
+        },
+        "disabled": {
+            "name": "$t:disabled",
+            "comment": "$t:disabled_comment",
+            "interface": "toggle",
+            "type": "BOOLEAN",
+            "default": false
+        },
+        "color": {
+            "name": "$t:color",
+            "comment": "$t:color_comment",
+            "interface": "toggle",
+            "type": "BOOLEAN",
+            "default": false
+        }
+    },
+    "translation": {
+        "en-US": {
+            "rating": "Rating",
+            "max": "Max Rating",
+            "max_comment": "Enter the max value of Rating",
+            "disabled": "Disabled",
+            "disabled_comment": "Default State",
+            "color": "Star Color",
+            "color_comment": "Blue Or Yellow"
+        }
+    }
+}
