@@ -5,14 +5,27 @@ namespace Directus\Application\Http\Middleware;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
+use Psr\Container\ContainerInterface;
 
 class CorsMiddleware extends AbstractMiddleware
 {
+    /**
+     * Force CORS headers processing
+     *
+     * @var bool
+     */
+    protected $force;
+
+    public function __construct(ContainerInterface $container, $force = false)
+    {
+        parent::__construct($container);
+        $this->force = $force;
+    }
+
     public function __invoke(Request $request, Response $response, callable $next)
     {
         $corsOptions = $this->getOptions();
-        if (ArrayUtils::get($corsOptions, 'enabled', false)) {
+        if ($this->force === true || ArrayUtils::get($corsOptions, 'enabled', false)) {
             $this->processHeaders($request, $response);
         }
 
