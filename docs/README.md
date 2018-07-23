@@ -261,6 +261,7 @@ POST /instances
 | `project_name`  | The Directus name. Default: `Directus` | No
 | `env`           | The environment name.                  | No
 | `force`         | Force the installation                 | No
+| `cors_enabled`  | Enable CORS                            | No 
 
 ::: warning
 When `env` is not specified it will create the default configuration
