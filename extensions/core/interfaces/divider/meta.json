@@ -1,55 +1,55 @@
 {
-    "name": "$t:divider",
-    "version": "1.0.0",
-    "datatypes": {
-        "VARCHAR": 30
-    },
-    "options": {
-        "style": {
-            "name": "$t:style-name",
-            "comment": "$t:style-comment",
-            "default": "text",
-            "interface": "dropdown",
-            "options": {
-                "choices": {
-                    "text": "Text Directus",
-                    "standard": "Fullwidth",
-                    "big": "Large",
-                    "normal": "Medium",
-                    "small": "Small"
-                }
-            }
-        },
-        "weight": {
-            "name": "$t:weight-name",
-            "comment": "$t:weight-comment",
-            "default": "thin",
-            "interface": "dropdown",
-            "options": {
-                "choices": {
-                    "hairline": "Hairline",
-                    "thin": "Thin",
-                    "medium": "Medium",
-                    "heavy": "Heavy"
-                }
-            }
-        },
-        "input": {
-            "name": "$t:input-name",
-            "comment": "$t:input-comment",
-            "interface": "text-input",
-            "default": "directus"
+  "name": "$t:divider",
+  "version": "1.0.0",
+  "datatypes": {
+    "VARCHAR": 30
+  },
+  "options": {
+    "style": {
+      "name": "$t:style-name",
+      "comment": "$t:style-comment",
+      "default": "text",
+      "interface": "dropdown",
+      "options": {
+        "choices": {
+          "text": "Text Directus",
+          "standard": "Fullwidth",
+          "big": "Large",
+          "normal": "Medium",
+          "small": "Small"
         }
+      }
     },
-    "translation": {
-        "en-US": {
-            "divider": "Divider",
-            "style-name": "Divider style",
-            "style-comment": "Change the style of the Divider",
-            "weight-name": "Thickness of the line",
-            "weight-comment": "Change the thickness of the line",
-            "input-name": "Divider text",
-            "input-comment": "Type your text here"
+    "weight": {
+      "name": "$t:weight-name",
+      "comment": "$t:weight-comment",
+      "default": "thin",
+      "interface": "dropdown",
+      "options": {
+        "choices": {
+          "hairline": "Hairline",
+          "thin": "Thin",
+          "medium": "Medium",
+          "heavy": "Heavy"
         }
+      }
+    },
+    "input": {
+      "name": "$t:input-name",
+      "comment": "$t:input-comment",
+      "interface": "text-input",
+      "default": "directus"
     }
+  },
+  "translation": {
+    "en-US": {
+      "divider": "Divider",
+      "style-name": "Divider style",
+      "style-comment": "Change the style of the Divider",
+      "weight-name": "Thickness of the line",
+      "weight-comment": "Change the thickness of the line",
+      "input-name": "Divider text",
+      "input-comment": "Type your text here"
+    }
+  }
 }
