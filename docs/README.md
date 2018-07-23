@@ -76,6 +76,7 @@ The `error` property is only present when an error has occurred.
 - **0011** - Failed to connect to the database (500)
 - **0012** - Unprocessable Entity (422)
 - **0013** - Invalid or Empty Payload (400)
+- **0014** - Default Instance not configured properly (503)
 
 #### Authentication error codes
 
