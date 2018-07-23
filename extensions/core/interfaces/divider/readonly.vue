@@ -1,17 +1,7 @@
 <template>
-  <div :class="`line-style-${options.style} ${options.weight}`">
-    <hr />
-    <span>{{options.input}}</span>
-  </div>
+  <div />
 </template>
 
-<script>
-import mixin from "../../../mixins/interface";
-export default {
-  mixins: [mixin],
-  computed: {}
-};
-</script>
+<script></script>
 
- <style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
