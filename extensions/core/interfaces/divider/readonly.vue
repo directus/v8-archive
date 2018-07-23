@@ -1,8 +1,8 @@
 <template>
-    <div :class="`line-style-${options.style} ${options.weight}`">
-        <hr />
-        <span>{{options.input}}</span>
-    </div>
+  <div :class="`line-style-${options.style} ${options.weight}`">
+    <hr />
+    <span>{{options.input}}</span>
+  </div>
 </template>
 
 <script>
