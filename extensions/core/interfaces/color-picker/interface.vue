@@ -4,12 +4,13 @@
         v-for="color in colors"
         v-tooltip="$helpers.formatTitle(color)"
         :key="color"
-        :style="{ backgroundColor: `var(--${color})`}"
-        :class="{ active: value === color}"
+        :disabled="readonly"
+        :style="{ backgroundColor: `var(--${color})` }"
+        :class="{ active: value === color }"
         @click="$emit('input', color)">
         <template
           v-if="value === color">
-          <i class="material-icons">check</i>
+          <i :class="{ dark: useDarkIconColor(color) }" class="material-icons">check</i>
         </template>
       </button>
     </div>
@@ -17,31 +18,36 @@
 
 <script>
 import mixin from "../../../mixins/interface";
+import hexRgb from "hex-rgb";
 import colors from "./colors.json";
-
-// var R, G, B, C, L;
-// C = [ R/255, G/255, B/255 ];
-
-// for ( var i = 0; i < C.length; ++i ) {
-//   if ( C[i] <= 0.03928 ) {
-//     C[i] = C[i] / 12.92
-//   } else {
-//     C[i] = Math.pow( ( C[i] + 0.055 ) / 1.055, 2.4);
-//   }
-// }
-// L = 0.2126 * C[0] + 0.7152 * C[1] + 0.0722 * C[2];
-
-// if ( L > 0.179 ) {
-//   this.invert = "#000000";
-// } else {
-//   this.invert = "#FFFFFF";
-// }
 
 export default {
   mixins: [mixin],
   computed: {
     colors() {
       return colors;
+    }
+  },
+  methods: {
+    useDarkIconColor(value) {
+      const hex = getComputedStyle(document.documentElement)
+        .getPropertyValue(`--${value}`)
+        .trim();
+
+      const rgb = hexRgb(hex, { format: "array" });
+
+      const colors = rgb.map(val => val / 255).map(val => {
+        if (val <= 0.03928) {
+          return val / 12.92;
+        }
+
+        return Math.pow((val + 0.055) / 1.055, 2.4);
+      });
+
+      const lightness =
+        0.2126 * colors[0] + 0.7152 * colors[1] + 0.0722 * colors[2];
+
+      return lightness > 0.25;
     }
   }
 };
@@ -74,21 +80,40 @@ export default {
     i {
       font-size: 18px;
       margin-top: -3px;
-      color: hsl(0, 0%, 100%);
-      filter: saturate(0);
-      mix-blend-mode: difference;
+      color: var(--white);
+
+      &.dark {
+        color: var(--black);
+      }
     }
+
     &:nth-last-child(1) {
       flex-grow: 1;
+
       &:hover {
         transform: scale(1.1);
       }
     }
+
     &:nth-last-child(2) {
       flex-grow: 1;
+
       &:hover {
         transform: scale(1.1);
       }
+    }
+  }
+  button[disabled="disabled"] {
+    cursor: not-allowed;
+    filter: grayscale(1);
+
+    &.active {
+      filter: none;
+    }
+
+    &:hover {
+      transform: none;
+      transition: none;
     }
   }
 }
