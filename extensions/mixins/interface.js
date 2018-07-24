@@ -38,11 +38,11 @@ module.exports = {
     },
     fields: {
       type: Object,
-      required: true
+      default: () => ({})
     },
     values: {
       type: Object,
-      required: true
+      default: () => ({})
     }
   }
 };
