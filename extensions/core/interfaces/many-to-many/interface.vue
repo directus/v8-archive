@@ -37,10 +37,36 @@
       <i class="material-icons">add</i>
       {{ $t("add_new") }}
     </button>
-    <button type="button" class="style-btn select">
+    <button type="button" class="style-btn select" @click="selectExisting = true">
       <i class="material-icons">playlist_add</i>
       <span>{{ $t("select_existing") }}</span>
     </button>
+
+    <portal to="modal" v-if="selectExisting">
+      <v-modal
+        :title="$t('select_existing')"
+        action-required
+        :buttons="{
+          save: {
+            text: 'save',
+            color: 'accent',
+            loading: selectionSaving
+          }
+        }"
+        @save="saveSelection">
+        <v-item-listing
+          :collection="relationship.collection"
+          :filters="filters"
+          :search-query="searchQuery"
+          :view-query="viewQuery"
+          :view-type="viewType"
+          :view-options="viewOptions"
+          :selection="selection"
+          @options="() => {}"
+          @select="selection = $event"
+          @query="() => {}" />
+      </v-modal>
+    </portal>
   </div>
 </template>
 
@@ -54,8 +80,17 @@
       return {
         sort: {
           field: null,
-          asc: true
-        }
+          asc: true,
+        },
+
+        selectExisting: false,
+        selectionSaving: false,
+        selection: [],
+        filters: [],
+        searchQuery: null,
+        viewType: "tabular",
+        viewQuery: {},
+        viewOptions: {}
       }
     },
     computed: {
@@ -77,6 +112,7 @@
     },
     created() {
       this.sort.field = this.visibleFields[0];
+      this.selection = this.value.map(val => val.movie.id);
     },
     methods: {
       changeSort(field) {
@@ -88,6 +124,17 @@
         this.sort.asc = true;
         this.sort.field = field;
         return;
+      },
+      saveSelection(selection) {
+        this.selectionSaving = true;
+
+        // Technically, the edit form only needs to know the IDs to be able to
+        // save the relation, but the table itself needs the full data to be dis-
+        // played.. I could potentially add a data-key that stores items' data
+        // in case it wasn't populated in the value..
+        //
+        // Food for thought. Let's create the edit-item flow first, seeing that's
+        // a bit easier. Good luck fixing this later! xoxo past Rijk
       }
     }
   }
