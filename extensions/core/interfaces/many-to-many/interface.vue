@@ -33,6 +33,14 @@
         </div>
       </div>
     </div>
+    <button type="button" class="style-btn select">
+      <i class="material-icons">add</i>
+      {{ $t("add_new") }}
+    </button>
+    <button type="button" class="style-btn select">
+      <i class="material-icons">playlist_add</i>
+      <span>{{ $t("select_existing") }}</span>
+    </button>
   </div>
 </template>
 
@@ -169,6 +177,26 @@
         }
       }
     }
+  }
+}
+
+button.select {
+  background-color: var(--accent);
+  border-radius: var(--border-radius);
+  height: var(--input-height);
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 10px;
+  transition: background-color var(--fast) var(--transition);
+
+  i {
+    margin-right: 5px;
+  }
+
+  &:hover {
+    transition: none;
+    background-color: var(--accent-dark);
   }
 }
 </style>
