@@ -20,7 +20,7 @@
           <div
             v-for="item in items"
             class="row"
-            :key="item[relatedPrimaryKey]"
+            :key="item[relatedKey]"
             @click="editExisting = item">
             <div
               v-for="column in columns"
@@ -123,9 +123,29 @@ export default {
     };
   },
   computed: {
+    currentCollection() {
+      return this.fields[this.name].collection;
+    },
+    relatedCollection() {
+      const { collection_a, collection_b } = this.relationship;
+
+      if (collection_a === this.currentCollection) return collection_b;
+      return collection_a;
+    },
     visibleFields() {
       if (!this.options.fields) return null;
       return this.options.fields.split(",").map(val => val.trim());
+    },
+    relatedKey() {
+      if (this.relationship.collection_a === this.currentCollection) {
+        return this.relationship.field_b;
+      }
+      return field_a;
+    },
+    junctionPrimaryKey() {
+      if (!this.junctionCollectionFields) return null;
+
+      return this.$lodash.find(this.junctionCollectionFields, { primary_key: true });
     },
     items() {
       const items = this.value.map(val => val.movie);
@@ -142,16 +162,6 @@ export default {
         name: this.$helpers.formatTitle(field)
       }));
     },
-    relatedPrimaryKey() {
-      if (!this.relatedCollectionFields) return null;
-
-      return this.$lodash.find(this.relatedCollectionFields, { primary_key: true });
-    },
-    junctionPrimaryKey() {
-      if (!this.junctionCollectionFields) return null;
-
-      return this.$lodash.find(this.junctionCollectionFields, { primary_key: true });
-    },
     doneLoading() {
       return this.relatedCollectionFields !== null && this.junctionCollectionFields !== null;
     }
@@ -164,15 +174,15 @@ export default {
   },
   methods: {
     getRelatedCollectionsFieldInfo() {
-      const { junction_collection, collection } = this.relationship;
+      const { junction_collection } = this.relationship;
 
-      if (!junction_collection || !collection) return null;
+      if (!junction_collection || !this.relatedCollection) return null;
 
       this.loading = true;
 
       Promise.all([
         this.$api.getFields(junction_collection),
-        this.$api.getFields(collection)
+        this.$api.getFields(this.relatedCollection)
       ])
         .then(([junctionRes, collectionRes]) => ({
           junctionFields: junctionRes.data,
