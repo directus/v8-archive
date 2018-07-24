@@ -4,9 +4,9 @@
 </template>
 
 <script>
-  export default {
-    name: "readonly-many-to-many"
-  }
+export default {
+  name: "readonly-many-to-many"
+};
 </script>
 
 <style lang="scss" scoped>

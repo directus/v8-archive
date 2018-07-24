@@ -71,73 +71,116 @@
 </template>
 
 <script>
-  import mixin from "../../../mixins/interface";
+import mixin from "../../../mixins/interface";
 
-  export default {
-    mixins: [mixin],
-    name: "interface-many-to-many",
-    data() {
-      return {
-        sort: {
-          field: null,
-          asc: true,
-        },
+export default {
+  mixins: [mixin],
+  name: "interface-many-to-many",
+  data() {
+    return {
+      loading: false,
+      error: null,
 
-        selectExisting: false,
-        selectionSaving: false,
-        selection: [],
-        filters: [],
-        searchQuery: null,
-        viewType: "tabular",
-        viewQuery: {},
-        viewOptions: {}
-      }
-    },
-    computed: {
-      visibleFields() {
-        if (!this.options.fields) return null;
-        return this.options.fields.split(",").map(val => val.trim());
+      relatedCollectionFields: null,
+      junctionCollectionFields: null,
+
+      sort: {
+        field: null,
+        asc: true
       },
-      items() {
-        const items = this.value.map(val => val.movie);
 
-        return this.$lodash.orderBy(items, this.sort.field, this.sort.asc ? "asc" : "desc");
-      },
-      columns() {
-        return this.visibleFields.map(field => ({
-          field,
-          name: this.$helpers.formatTitle(field)
-        }));
-      }
+      selectExisting: false,
+      selectionSaving: false,
+      selection: [],
+      filters: [],
+      searchQuery: null,
+      viewType: "tabular",
+      viewQuery: {},
+      viewOptions: {}
+    };
+  },
+  computed: {
+    visibleFields() {
+      if (!this.options.fields) return null;
+      return this.options.fields.split(",").map(val => val.trim());
     },
-    created() {
-      this.sort.field = this.visibleFields[0];
-      this.selection = this.value.map(val => val.movie.id);
-    },
-    methods: {
-      changeSort(field) {
-        if (this.sort.field === field) {
-          this.sort.asc = !this.sort.asc;
-          return
-        }
+    items() {
+      const items = this.value.map(val => val.movie);
 
-        this.sort.asc = true;
-        this.sort.field = field;
+      return this.$lodash.orderBy(
+        items,
+        this.sort.field,
+        this.sort.asc ? "asc" : "desc"
+      );
+    },
+    columns() {
+      return this.visibleFields.map(field => ({
+        field,
+        name: this.$helpers.formatTitle(field)
+      }));
+    }
+  },
+  created() {
+    this.sort.field = this.visibleFields[0];
+    this.selection = this.value.map(val => val.movie.id);
+
+    this.getRelatedCollectionsFieldInfo();
+  },
+  methods: {
+    getRelatedCollectionsFieldInfo() {
+      const { junction_collection, collection } = this.relationship;
+
+      if (!junction_collection || !collection) return null;
+
+      this.loading = true;
+
+      Promise.all([
+        this.$api.getFields(junction_collection),
+        this.$api.getFields(collection)
+      ])
+        .then(([junctionRes, collectionRes]) => ({
+          junctionFields: junctionRes.data,
+          collectionFields: collectionRes.data
+        }))
+        .then(({ junctionFields, collectionFields }) => {
+          this.relatedCollectionFields = this.$lodash.keyBy(
+            collectionFields,
+            "field"
+          );
+          this.junctionCollectionFields = this.$lodash.keyBy(
+            junctionFields,
+            "field"
+          );
+          this.loading = false;
+        })
+        .catch(error => {
+          this.error = error;
+          this.loading = false;
+        });
+    },
+    changeSort(field) {
+      if (this.sort.field === field) {
+        this.sort.asc = !this.sort.asc;
         return;
-      },
-      saveSelection(selection) {
-        this.selectionSaving = true;
-
-        // Technically, the edit form only needs to know the IDs to be able to
-        // save the relation, but the table itself needs the full data to be dis-
-        // played.. I could potentially add a data-key that stores items' data
-        // in case it wasn't populated in the value..
-        //
-        // Food for thought. Let's create the edit-item flow first, seeing that's
-        // a bit easier. Good luck fixing this later! xoxo past Rijk
       }
+
+      this.sort.asc = true;
+      this.sort.field = field;
+      return;
+    },
+    saveSelection(selection) {
+      this.selectionSaving = true;
+
+      // Technically, the edit form only needs to know the IDs to be able to
+      // save the relation, but the table itself needs the full data to be dis-
+      // played.. I could potentially add a data-key that stores items' data
+      // in case it wasn't populated in the value..
+      //
+      // Food for thought. Let's create the edit-item flow first, seeing that's
+      // a bit easier. Good luck fixing this later! xoxo past Rijk
     }
   }
+};
 </script>
 
 <style lang="scss" scoped>
