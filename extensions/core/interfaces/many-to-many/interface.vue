@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      <button type="button" class="style-btn select">
+      <button type="button" class="style-btn select" @click="addNew = true">
         <i class="material-icons">add</i>
         {{ $t("add_new") }}
       </button>
@@ -57,7 +57,7 @@
         }"
         @save="saveSelection">
         <v-item-listing
-          :collection="relationship.collection"
+          :collection="relatedCollection"
           :filters="filters"
           :search-query="searchQuery"
           :view-query="viewQuery"
@@ -86,6 +86,27 @@
           <v-edit-form
             :fields="relatedCollectionFields"
             :values="editExisting[junctionRelatedKey]"
+            @stage-value="stageValue" />
+        </div>
+      </v-modal>
+    </portal>
+
+    <portal to="modal" v-if="addNew !== null">
+      <v-modal
+        :title="$t('creating_item')"
+        :buttons="{
+          save: {
+            text: 'save',
+            color: 'accent',
+            loading: selectionSaving
+          }
+        }"
+        @close="addNew = null"
+        @save="addNewItem">
+        <div class="edit-modal-body">
+          <v-edit-form
+            :fields="relatedCollectionFields"
+            :values="relatedDefaultsWithEdits"
             @stage-value="stageValue" />
         </div>
       </v-modal>
@@ -122,7 +143,9 @@ export default {
       viewOptions: {},
 
       editExisting: null,
-      edits: {}
+      addNew: null,
+      edits: {},
+
     };
   },
   computed: {
@@ -170,6 +193,19 @@ export default {
     },
     doneLoading() {
       return this.relatedCollectionFields !== null && this.junctionCollectionFields !== null;
+    },
+    relatedDefaultValues() {
+      if (!this.relatedCollectionFields) return null
+
+      return this.$lodash.mapValues(this. relatedCollectionFields, field => field.default_value);
+    },
+    relatedDefaultsWithEdits() {
+      if (!this.relatedDefaultValues) return null;
+
+      return {
+        ...this.relatedDefaultValues,
+        ...this.edits
+      };
     }
   },
   created() {
@@ -231,7 +267,7 @@ export default {
       // a bit easier. Good luck fixing this later! xoxo past Rijk
     },
     stageValue({ field, value }) {
-      this.edits[field] = value;
+      this.$set(this.edits, field, value);
     },
     saveEdits() {
       this.$emit("input", [
@@ -248,10 +284,21 @@ export default {
 
           return val;
         }),
-      ])
+      ]);
 
       this.edits = {};
       this.editExisting = null;
+    },
+    addNewItem() {
+      this.$emit("input", [
+        ...this.value,
+        {
+          [this.junctionRelatedKey]: this.edits
+        }
+      ]);
+
+      this.edits = {};
+      this.addNew = null;
     }
   }
 };
