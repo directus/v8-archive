@@ -3,7 +3,12 @@
     <div class="table">
       <div class="header">
         <div class="row">
-          <div v-for="column in columns" :key="column.field">{{ column.name }}</div>
+          <div
+            v-for="column in columns"
+            :key="column.field"
+            @click="changeSort(column.field)">
+            {{ column.name }}
+          </div>
         </div>
       </div>
       <div class="body">
@@ -33,18 +38,44 @@
   export default {
     mixins: [mixin],
     name: "interface-many-to-many",
+    data() {
+      return {
+        sort: {
+          field: null,
+          asc: true
+        }
+      }
+    },
     computed: {
+      visibleFields() {
+        if (!this.options.fields) return null;
+        return this.options.fields.split(",").map(val => val.trim());
+      },
       items() {
-        return this.value.map(val => val.movie);
+        const items = this.value.map(val => val.movie);
+
+        return this.$lodash.orderBy(items, this.sort.field, this.sort.asc ? "asc" : "desc");
       },
       columns() {
-        if (!this.options.fields) return null;
-        const fields = this.options.fields.split(",").map(val => val.trim());
-
-        return fields.map(field => ({
+        return this.visibleFields.map(field => ({
           field,
           name: this.$helpers.formatTitle(field)
         }));
+      }
+    },
+    created() {
+      this.sort.field = this.visibleFields[0];
+    },
+    methods: {
+      changeSort(field) {
+        if (this.sort.field === field) {
+          this.sort.asc = !this.sort.asc;
+          return
+        }
+
+        this.sort.asc = true;
+        this.sort.field = field;
+        return;
       }
     }
   }
