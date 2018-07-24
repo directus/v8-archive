@@ -118,6 +118,16 @@ export default {
         field,
         name: this.$helpers.formatTitle(field)
       }));
+    },
+    relatedPrimaryKey() {
+      if (!this.relatedCollectionFields) return null;
+
+      return this.$lodash.find(this.relatedCollectionFields, { primary_key: true });
+    },
+    junctionPrimaryKey() {
+      if (!this.junctionCollectionFields) return null;
+
+      return this.$lodash.find(this.junctionCollectionFields, { primary_key: true });
     }
   },
   created() {
