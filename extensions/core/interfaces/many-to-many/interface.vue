@@ -18,7 +18,7 @@
         </div>
         <div class="body">
           <div
-            v-for="item in value"
+            v-for="item in items"
             class="row"
             :key="item[junctionPrimaryKey.field]"
             @click="editExisting = item">
@@ -152,11 +152,9 @@ export default {
       return this.options.fields.split(",").map(val => val.trim());
     },
     items() {
-      const items = this.value.map(val => val.movie);
-
       return this.$lodash.orderBy(
-        items,
-        this.sort.field,
+        this.value,
+        item => item[this.junctionRelatedKey][this.sort.field],
         this.sort.asc ? "asc" : "desc"
       );
     },
