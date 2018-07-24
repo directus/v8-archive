@@ -81,9 +81,12 @@
           }
         }"
         @close="editExisting = false"
-        @save="saveItem">
+        @save="saveEdits">
         <div class="edit-modal-body">
-          <v-edit-form :fields="relatedCollectionFields" :values="editExisting" />
+          <v-edit-form
+            :fields="relatedCollectionFields"
+            :values="editExisting[junctionRelatedKey]"
+            @stage-value="stageValue" />
         </div>
       </v-modal>
     </portal>
@@ -118,7 +121,8 @@ export default {
       viewQuery: {},
       viewOptions: {},
 
-      editExisting: null
+      editExisting: null,
+      edits: {}
     };
   },
   computed: {
@@ -225,6 +229,29 @@ export default {
       //
       // Food for thought. Let's create the edit-item flow first, seeing that's
       // a bit easier. Good luck fixing this later! xoxo past Rijk
+    },
+    stageValue({ field, value }) {
+      this.edits[field] = value;
+    },
+    saveEdits() {
+      this.$emit("input", [
+        ...this.value.map(val => {
+          if (val.id === this.editExisting[this.junctionPrimaryKey.field]) {
+            return {
+              ...val,
+              [this.junctionRelatedKey]: {
+                ...val[this.junctionRelatedKey],
+                ...this.edits
+              }
+            }
+          }
+
+          return val;
+        }),
+      ])
+
+      this.edits = {};
+      this.editExisting = null;
     }
   }
 };
