@@ -1,0 +1,21 @@
+{
+  "name": "$t:m2m",
+  "version": "1.0.0",
+  "datatypes": {
+    "INT": 11,
+    "VARCHAR": 100
+  },
+  "options": {
+    "fields": {
+      "name": "$t:visible_columns",
+      "comment": "$t:visible_columns_comment",
+      "interface": "text-input",
+      "placeholder": "name,description"
+    }
+  },
+  "translation": {
+    "en-US": {
+      "m2m": "Many to Many"
+    }
+  }
+}
