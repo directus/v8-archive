@@ -20,14 +20,16 @@
           <div
             v-for="item in items"
             class="row"
-            :key="item[junctionPrimaryKey.field]"
+            :key="item[junctionPrimaryKey.field.field]"
             @click="editExisting = item">
             <div
               v-for="column in columns"
               :key="column.field">{{ item[junctionRelatedKey][column.field] }}</div>
             <button
               type="button"
-              class="remove-item">
+              class="remove-item"
+              v-tooltip="$t('remove_related')"
+              @click.stop="removeRelated(item[junctionPrimaryKey.field])">
               <i class="material-icons">close</i>
             </button>
           </div>
@@ -144,8 +146,7 @@ export default {
 
       editExisting: null,
       addNew: null,
-      edits: {},
-
+      edits: {}
     };
   },
   computed: {
@@ -168,7 +169,9 @@ export default {
     junctionPrimaryKey() {
       if (!this.junctionCollectionFields) return null;
 
-      return this.$lodash.find(this.junctionCollectionFields, { primary_key: true });
+      return this.$lodash.find(this.junctionCollectionFields, {
+        primary_key: true
+      });
     },
     junctionRelatedKey() {
       return this.relationship["junction_key_" + this.relatedSide];
@@ -180,7 +183,7 @@ export default {
     },
     items() {
       return this.$lodash.orderBy(
-        this.value,
+        this.value.filter(val => !val.$delete),
         item => item[this.junctionRelatedKey][this.sort.field],
         this.sort.asc ? "asc" : "desc"
       );
@@ -192,12 +195,18 @@ export default {
       }));
     },
     doneLoading() {
-      return this.relatedCollectionFields !== null && this.junctionCollectionFields !== null;
+      return (
+        this.relatedCollectionFields !== null &&
+        this.junctionCollectionFields !== null
+      );
     },
     relatedDefaultValues() {
-      if (!this.relatedCollectionFields) return null
+      if (!this.relatedCollectionFields) return null;
 
-      return this.$lodash.mapValues(this. relatedCollectionFields, field => field.default_value);
+      return this.$lodash.mapValues(
+        this.relatedCollectionFields,
+        field => field.default_value
+      );
     },
     relatedDefaultsWithEdits() {
       if (!this.relatedDefaultValues) return null;
@@ -210,7 +219,9 @@ export default {
   },
   created() {
     this.sort.field = this.visibleFields[0];
-    this.selection = this.value.map(val => val[this.junctionRelatedKey][this.relatedKey]);
+    this.selection = this.value.map(
+      val => val[this.junctionRelatedKey][this.relatedKey]
+    );
     this.getRelatedCollectionsFieldInfo();
   },
   methods: {
@@ -279,11 +290,11 @@ export default {
                 ...val[this.junctionRelatedKey],
                 ...this.edits
               }
-            }
+            };
           }
 
           return val;
-        }),
+        })
       ]);
 
       this.edits = {};
@@ -300,10 +311,20 @@ export default {
       this.edits = {};
       this.addNew = false;
     },
-    closeModal() {
-      this.edits = {};
-      this.addNew = false;
-      this.editExisting = false;
+    removeRelated(id) {
+      this.$emit(
+        "input",
+        this.value.map(val => {
+          if (val[this.junctionPrimaryKey.field] === id) {
+            return {
+              ...val,
+              $delete: true
+            }
+          }
+
+          return val;
+        })
+      );
     }
   }
 };
