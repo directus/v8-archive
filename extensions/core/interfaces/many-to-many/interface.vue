@@ -18,17 +18,16 @@
         </div>
         <div class="body">
           <div
-            v-for="item in items"
+            v-for="item in value"
             class="row"
-            :key="item[relatedKey]"
+            :key="item[junctionPrimaryKey.field]"
             @click="editExisting = item">
             <div
               v-for="column in columns"
-              :key="column.field">{{ item[column.field] }}</div>
+              :key="column.field">{{ item[junctionRelatedKey][column.field] }}</div>
             <button
               type="button"
-              class="remove-item"
-              @click.stop="warnRemoveitem(item.id)">
+              class="remove-item">
               <i class="material-icons">close</i>
             </button>
           </div>
@@ -123,29 +122,34 @@ export default {
     };
   },
   computed: {
+    relatedSide() {
+      const { collection_a, collection_b } = this.relationship;
+
+      if (collection_a === this.currentCollection) return "b";
+
+      return "a";
+    },
     currentCollection() {
       return this.fields[this.name].collection;
     },
     relatedCollection() {
-      const { collection_a, collection_b } = this.relationship;
-
-      if (collection_a === this.currentCollection) return collection_b;
-      return collection_a;
-    },
-    visibleFields() {
-      if (!this.options.fields) return null;
-      return this.options.fields.split(",").map(val => val.trim());
+      return this.relationship["collection_" + this.relatedSide];
     },
     relatedKey() {
-      if (this.relationship.collection_a === this.currentCollection) {
-        return this.relationship.field_b;
-      }
-      return field_a;
+      return this.relationship["field_" + this.relatedSide];
     },
     junctionPrimaryKey() {
       if (!this.junctionCollectionFields) return null;
 
       return this.$lodash.find(this.junctionCollectionFields, { primary_key: true });
+    },
+    junctionRelatedKey() {
+      return this.relationship["junction_key_" + this.relatedSide];
+    },
+
+    visibleFields() {
+      if (!this.options.fields) return null;
+      return this.options.fields.split(",").map(val => val.trim());
     },
     items() {
       const items = this.value.map(val => val.movie);
@@ -168,8 +172,7 @@ export default {
   },
   created() {
     this.sort.field = this.visibleFields[0];
-    this.selection = this.value.map(val => val.movie.id);
-
+    this.selection = this.value.map(val => val[this.junctionRelatedKey][this.relatedKey]);
     this.getRelatedCollectionsFieldInfo();
   },
   methods: {
