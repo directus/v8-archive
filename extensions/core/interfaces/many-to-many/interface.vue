@@ -3,12 +3,16 @@
     <div class="table">
       <div class="header">
         <div class="row">
-          <div
+          <button
             v-for="column in columns"
+            type="button"
             :key="column.field"
             @click="changeSort(column.field)">
             {{ column.name }}
-          </div>
+            <i v-if="sort.field === column.field" class="material-icons">
+              {{ sort.asc ? 'arrow_downward' : 'arrow_upward' }}
+            </i>
+          </button>
         </div>
       </div>
       <div class="body">
@@ -92,11 +96,27 @@
 
   .header {
     height: var(--input-height);
-    color: var(--gray);
-    font-size: 10px;
-    text-transform: uppercase;
-    font-weight: 700;
     border-bottom: 1px solid var(--lighter-gray);
+
+    button {
+      text-align: left;
+      color: var(--gray);
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      transition: color var(--fast) var(--transition);
+
+      &:hover {
+        transition: none;
+        color: var(--darker-gray);
+      }
+    }
+
+    i {
+      font-size: 12px;
+      vertical-align: top;
+      color: var(--light-gray);
+    }
   }
 
   .row {
@@ -113,6 +133,11 @@
   .header .row {
     align-items: center;
     height: 40px;
+
+    & > button {
+      padding: 3px 5px;
+      flex-basis: 200px;
+    }
   }
 
   .body {
