@@ -70,7 +70,7 @@
       </v-modal>
     </portal>
 
-    <portal to="modal" v-if="editExisting !== null">
+    <portal to="modal" v-if="editExisting">
       <v-modal
         :title="$t('editing_item')"
         :buttons="{
@@ -91,7 +91,7 @@
       </v-modal>
     </portal>
 
-    <portal to="modal" v-if="addNew !== null">
+    <portal to="modal" v-if="addNew">
       <v-modal
         :title="$t('creating_item')"
         :buttons="{
@@ -287,7 +287,7 @@ export default {
       ]);
 
       this.edits = {};
-      this.editExisting = null;
+      this.editExisting = false;
     },
     addNewItem() {
       this.$emit("input", [
@@ -298,7 +298,12 @@ export default {
       ]);
 
       this.edits = {};
-      this.addNew = null;
+      this.addNew = false;
+    },
+    closeModal() {
+      this.edits = {};
+      this.addNew = false;
+      this.editExisting = false;
     }
   }
 };
