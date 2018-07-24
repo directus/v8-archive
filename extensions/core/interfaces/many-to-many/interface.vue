@@ -1,46 +1,49 @@
 <template>
   <div class="interface-many-to-many">
-    <div class="table">
-      <div class="header">
-        <div class="row">
-          <button
-            v-for="column in columns"
-            type="button"
-            :key="column.field"
-            @click="changeSort(column.field)">
-            {{ column.name }}
-            <i v-if="sort.field === column.field" class="material-icons">
-              {{ sort.asc ? 'arrow_downward' : 'arrow_upward' }}
-            </i>
-          </button>
+    <template v-if="doneLoading">
+      <div class="table">
+        <div class="header">
+          <div class="row">
+            <button
+              v-for="column in columns"
+              type="button"
+              :key="column.field"
+              @click="changeSort(column.field)">
+              {{ column.name }}
+              <i v-if="sort.field === column.field" class="material-icons">
+                {{ sort.asc ? 'arrow_downward' : 'arrow_upward' }}
+              </i>
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="body">
-        <div
-          v-for="item in items"
-          class="row"
-          :key="item.id"
-          @click="editItem(item)">
+        <div class="body">
           <div
-            v-for="column in columns"
-            :key="column.field">{{ item[column.field] }}</div>
-          <button
-            type="button"
-            class="remove-item"
-            @click.stop="warnRemoveitem(item.id)">
-            <i class="material-icons">close</i>
-          </button>
+            v-for="item in items"
+            class="row"
+            :key="item[relatedPrimaryKey]"
+            @click="editExisting = item">
+            <div
+              v-for="column in columns"
+              :key="column.field">{{ item[column.field] }}</div>
+            <button
+              type="button"
+              class="remove-item"
+              @click.stop="warnRemoveitem(item.id)">
+              <i class="material-icons">close</i>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <button type="button" class="style-btn select">
-      <i class="material-icons">add</i>
-      {{ $t("add_new") }}
-    </button>
-    <button type="button" class="style-btn select" @click="selectExisting = true">
-      <i class="material-icons">playlist_add</i>
-      <span>{{ $t("select_existing") }}</span>
-    </button>
+      <button type="button" class="style-btn select">
+        <i class="material-icons">add</i>
+        {{ $t("add_new") }}
+      </button>
+      <button type="button" class="style-btn select" @click="selectExisting = true">
+        <i class="material-icons">playlist_add</i>
+        <span>{{ $t("select_existing") }}</span>
+      </button>
+    </template>
+    <v-spinner v-else />
 
     <portal to="modal" v-if="selectExisting">
       <v-modal
@@ -65,6 +68,24 @@
           @options="() => {}"
           @select="selection = $event"
           @query="() => {}" />
+      </v-modal>
+    </portal>
+
+    <portal to="modal" v-if="editExisting !== null">
+      <v-modal
+        :title="$t('editing_item')"
+        :buttons="{
+          save: {
+            text: 'save',
+            color: 'accent',
+            loading: selectionSaving
+          }
+        }"
+        @close="editExisting = false"
+        @save="saveItem">
+        <div class="edit-modal-body">
+          <v-edit-form :fields="relatedCollectionFields" :values="editExisting" />
+        </div>
       </v-modal>
     </portal>
   </div>
@@ -96,7 +117,9 @@ export default {
       searchQuery: null,
       viewType: "tabular",
       viewQuery: {},
-      viewOptions: {}
+      viewOptions: {},
+
+      editExisting: null
     };
   },
   computed: {
@@ -128,6 +151,9 @@ export default {
       if (!this.junctionCollectionFields) return null;
 
       return this.$lodash.find(this.junctionCollectionFields, { primary_key: true });
+    },
+    doneLoading() {
+      return this.relatedCollectionFields !== null && this.junctionCollectionFields !== null;
     }
   },
   created() {
@@ -298,5 +324,10 @@ button.select {
     transition: none;
     background-color: var(--accent-dark);
   }
+}
+
+.edit-modal-body {
+  padding: 20px;
+  background-color: var(--body-background);
 }
 </style>
