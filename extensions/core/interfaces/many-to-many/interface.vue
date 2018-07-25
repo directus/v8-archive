@@ -287,6 +287,12 @@ export default {
           };
         }
 
+        if (junctionRow.$delete && this.selection.includes(relatedPK)) {
+          const clone = { ...junctionRow };
+          delete clone.$delete;
+          return clone;
+        }
+
         return junctionRow;
       }));
 
