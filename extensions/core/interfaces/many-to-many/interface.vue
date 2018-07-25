@@ -65,9 +65,9 @@
           :view-query="viewQuery"
           :view-type="viewType"
           :view-options="viewOptions"
-          :selection="selection"
+          :selection="filteredSelection"
           @options="() => {}"
-          @select="selection = $event"
+          @select="stageSelection"
           @query="() => {}" />
       </v-modal>
     </portal>
@@ -138,6 +138,8 @@ export default {
       selectExisting: false,
       selectionSaving: false,
       selection: [],
+      lastSelection: [],
+      deselected: [],
       filters: [],
       searchQuery: null,
       viewType: "tabular",
@@ -215,6 +217,9 @@ export default {
         ...this.relatedDefaultValues,
         ...this.edits
       };
+    },
+    filteredSelection() {
+      return this.selection.filter(pk => this.deselected.includes(pk) === false);
     }
   },
   created() {
@@ -222,6 +227,7 @@ export default {
     this.selection = this.value.map(
       val => val[this.junctionRelatedKey][this.relatedKey]
     );
+    this.lastSelection = this.selection;
     this.getRelatedCollectionsFieldInfo();
   },
   methods: {
@@ -266,16 +272,41 @@ export default {
       this.sort.field = field;
       return;
     },
-    saveSelection(selection) {
+    stageSelection(selection) {
+      this.selection = selection;
+
+      const savedSelection = this.value.map(
+        val => val[this.junctionRelatedKey][this.relatedKey]
+      );
+
+      if (this.lastSelection.length > this.selection) {
+        const deselected = this.$lodash.difference(this.lastSelection, this.selection);
+
+        if (this.deselected.includes(deselected[0]) === false && savedSelection.includes(deselected[0])) {
+          this.deselected = [...this.deselected, deselected[0]];
+        }
+      }
+
+      this.lastSelection = this.selection;
+
+      this.deselected = this.deselected.filter(key => {
+        return this.selection.includes(key) === false;
+      });
+    },
+    saveSelection() {
       this.selectionSaving = true;
 
-      // Technically, the edit form only needs to know the IDs to be able to
-      // save the relation, but the table itself needs the full data to be dis-
-      // played.. I could potentially add a data-key that stores items' data
-      // in case it wasn't populated in the value..
-      //
-      // Food for thought. Let's create the edit-item flow first, seeing that's
-      // a bit easier. Good luck fixing this later! xoxo past Rijk
+      this.$api
+        .getItem(this.relatedCollection, this.selection.join(","))
+        .then(res => {
+
+        })
+        .catch(error => {
+          console.error(error);
+        });
+
+      this.selectionSaving = false;
+      this.selectExisting = false;
     },
     stageValue({ field, value }) {
       this.$set(this.edits, field, value);
