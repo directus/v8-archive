@@ -1,6 +1,9 @@
 <template>
   <div class="interface-many-to-many">
-    <template v-if="doneLoading">
+    <div v-if="relationshipSetup === false" class="notice">
+      <p><i class="material-icons">warning</i> {{ $t('interfaces-many-to-many-relationship_not_setup') }}</p>
+    </div>
+    <template v-else-if="doneLoading">
       <div class="table" v-if="items.length">
         <div class="header">
           <div class="row">
@@ -153,7 +156,33 @@ export default {
     };
   },
   computed: {
+    relationshipSetup() {
+      const { isEmpty } = this.$lodash;
+
+      if (!this.relationship) return false;
+
+      const {
+        field_a,
+        field_b,
+        collection_a,
+        collection_b,
+        junction_collection,
+        junction_field_a,
+        junction_field_b
+      } = this.relationship;
+
+      return (
+        isEmpty(field_a) === false,
+        isEmpty(field_b) === false,
+        isEmpty(collection_a) === false,
+        isEmpty(collection_b) === false,
+        isEmpty(junction_field_a) === false,
+        isEmpty(junction_field_b) === false,
+        isEmpty(junction_collection) === false
+      );
+    },
     relatedSide() {
+      if (this.relationshipSetup === false) return null;
       const { collection_a, collection_b } = this.relationship;
 
       if (collection_a === this.currentCollection) return "b";
@@ -161,15 +190,19 @@ export default {
       return "a";
     },
     currentCollection() {
+      if (this.relationshipSetup === false) return null;
       return this.fields[this.name].collection;
     },
     relatedCollection() {
+      if (this.relationshipSetup === false) return null;
       return this.relationship["collection_" + this.relatedSide];
     },
     relatedKey() {
+      if (this.relationshipSetup === false) return null;
       return this.relationship["field_" + this.relatedSide];
     },
     junctionPrimaryKey() {
+      if (this.relationshipSetup === false) return null;
       if (!this.junctionCollectionFields) return null;
 
       return this.$lodash.find(this.junctionCollectionFields, {
@@ -177,14 +210,17 @@ export default {
       });
     },
     junctionRelatedKey() {
+      if (this.relationshipSetup === false) return null;
       return this.relationship["junction_key_" + this.relatedSide];
     },
 
     visibleFields() {
+      if (this.relationshipSetup === false) return null;
       if (!this.options.fields) return null;
       return this.options.fields.split(",").map(val => val.trim());
     },
     items() {
+      if (this.relationshipSetup === false) return null;
       return this.$lodash.orderBy(
         this.value.filter(val => !val.$delete),
         item => item[this.junctionRelatedKey][this.sort.field],
@@ -192,18 +228,21 @@ export default {
       );
     },
     columns() {
+      if (this.relationshipSetup === false) return null;
       return this.visibleFields.map(field => ({
         field,
         name: this.$helpers.formatTitle(field)
       }));
     },
     doneLoading() {
+      if (this.relationshipSetup === false) return null;
       return (
         this.relatedCollectionFields !== null &&
         this.junctionCollectionFields !== null
       );
     },
     relatedDefaultValues() {
+      if (this.relationshipSetup === false) return null;
       if (!this.relatedCollectionFields) return null;
 
       return this.$lodash.mapValues(
@@ -212,6 +251,7 @@ export default {
       );
     },
     relatedDefaultsWithEdits() {
+      if (this.relationshipSetup === false) return null;
       if (!this.relatedDefaultValues) return null;
 
       return {
@@ -221,24 +261,35 @@ export default {
     },
 
     filters() {
+      if (this.relationshipSetup === false) return null;
       return [
-        ...(this.options.preferences && this.options.preferences.filters || []),
+        ...((this.options.preferences && this.options.preferences.filters) ||
+          []),
         ...this.filtersOverride
       ];
     },
     viewOptions() {
-      const viewOptions = this.options.preferences && this.options.preferences.viewOptions || {};
+      if (this.relationshipSetup === false) return null;
+      const viewOptions =
+        (this.options.preferences && this.options.preferences.viewOptions) ||
+        {};
       return {
         ...viewOptions,
         ...this.viewOptionsOverride
       };
     },
     viewType() {
+      if (this.relationshipSetup === false) return null;
       if (this.viewTypeOverride) return this.viewTypeOverride;
-      return this.options.preferences && this.options.preferences.viewType || "tabular";
+      return (
+        (this.options.preferences && this.options.preferences.viewType) ||
+        "tabular"
+      );
     },
     viewQuery() {
-      const viewQuery = this.options.preferences && this.options.preferences.viewQuery || {};
+      if (this.relationshipSetup === false) return null;
+      const viewQuery =
+        (this.options.preferences && this.options.preferences.viewQuery) || {};
       return {
         ...viewQuery,
         ...this.viewQueryOverride
@@ -246,13 +297,22 @@ export default {
     }
   },
   created() {
-    this.sort.field = this.visibleFields[0];
-    this.setSelection();
-    this.getRelatedCollectionsFieldInfo();
+    if (this.relationshipSetup) {
+      this.sort.field = this.visibleFields[0];
+      this.setSelection();
+      this.getRelatedCollectionsFieldInfo();
+    }
   },
   watch: {
     value() {
       this.setSelection();
+    },
+    relationshipSetup(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.sort.field = this.visibleFields[0];
+        this.setSelection();
+        this.getRelatedCollectionsFieldInfo();
+      }
     }
   },
   methods: {
@@ -323,14 +383,17 @@ export default {
 
       // Set $delete: true to all items that aren't selected anymore
       const newValue = this.value.map(junctionRow => {
-        const relatedPK = (junctionRow[this.junctionRelatedKey] || {})[this.relatedKey];
+        const relatedPK = (junctionRow[this.junctionRelatedKey] || {})[
+          this.relatedKey
+        ];
 
         if (!relatedPK) return junctionRow;
 
         // If item was saved before, add $delete flag
         if (this.selection.includes(relatedPK) === false) {
           return {
-            [this.junctionPrimaryKey.field]: junctionRow[this.junctionPrimaryKey.field],
+            [this.junctionPrimaryKey.field]:
+              junctionRow[this.junctionPrimaryKey.field],
             $delete: true
           };
         }
@@ -346,7 +409,9 @@ export default {
       });
 
       // Fetch item values for all newly selected items
-      const newSelection = this.selection.filter(pk => savedRelatedPKs.includes(pk) === false);
+      const newSelection = this.selection.filter(
+        pk => savedRelatedPKs.includes(pk) === false
+      );
 
       (newSelection.length > 0
         ? this.$api.getItem(this.relatedCollection, newSelection.join(","))
@@ -359,9 +424,11 @@ export default {
         .then(data => {
           if (data) {
             if (Array.isArray(data)) {
-              data.forEach(row => newValue.push({
-                [this.junctionRelatedKey]: row
-              }));
+              data.forEach(row =>
+                newValue.push({
+                  [this.junctionRelatedKey]: row
+                })
+              );
             } else {
               newValue.push({
                 [this.junctionRelatedKey]: data
@@ -424,24 +491,37 @@ export default {
     },
     removeRelated({ junctionKey, relatedKey, item }) {
       if (junctionKey) {
-        this.$emit("input", this.value.map(val => {
-          if (val[this.junctionPrimaryKey.field] === junctionKey) {
-            return {
-              [this.junctionPrimaryKey.field]: val[this.junctionPrimaryKey.field],
-              $delete: true
+        this.$emit(
+          "input",
+          this.value.map(val => {
+            if (val[this.junctionPrimaryKey.field] === junctionKey) {
+              return {
+                [this.junctionPrimaryKey.field]:
+                  val[this.junctionPrimaryKey.field],
+                $delete: true
+              };
             }
-          }
 
-          return val;
-        }));
+            return val;
+          })
+        );
       } else if (!junctionKey && !relatedKey) {
-        this.$emit("input", this.value.filter(val => {
-          return this.$lodash.isEqual(val, item) === false;
-        }));
+        this.$emit(
+          "input",
+          this.value.filter(val => {
+            return this.$lodash.isEqual(val, item) === false;
+          })
+        );
       } else {
-        this.$emit("input", this.value.filter(val => {
-          return (val[this.junctionRelatedKey] || {} )[this.relatedKey] !== relatedKey
-        }));
+        this.$emit(
+          "input",
+          this.value.filter(val => {
+            return (
+              (val[this.junctionRelatedKey] || {})[this.relatedKey] !==
+              relatedKey
+            );
+          })
+        );
       }
     }
   }

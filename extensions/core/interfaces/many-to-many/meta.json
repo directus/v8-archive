@@ -40,7 +40,8 @@
       "visible_columns": "Visible Columns",
       "visible_columns_comment": "Add a CSV of columns you want to display as preview",
       "preferences": "Listing View Preferences",
-      "preferences_comment": "Set what options to use for the modal"
+      "preferences_comment": "Set what options to use for the modal",
+      "relationship_not_setup": "The relationship hasn't been configured correctly"
     }
   }
 }
