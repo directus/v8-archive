@@ -157,8 +157,6 @@ export default {
   },
   computed: {
     relationshipSetup() {
-      const { isEmpty } = this.$lodash;
-
       if (!this.relationship) return false;
 
       const {
@@ -167,18 +165,19 @@ export default {
         collection_a,
         collection_b,
         junction_collection,
-        junction_field_a,
-        junction_field_b
+        junction_key_a,
+        junction_key_b
       } = this.relationship;
 
       return (
-        isEmpty(field_a) === false,
-        isEmpty(field_b) === false,
-        isEmpty(collection_a) === false,
-        isEmpty(collection_b) === false,
-        isEmpty(junction_field_a) === false,
-        isEmpty(junction_field_b) === false,
-        isEmpty(junction_collection) === false
+        (field_a != null &&
+          field_b != null &&
+          collection_a != null &&
+          collection_b != null &&
+          junction_collection != null &&
+          junction_key_a != null &&
+          junction_key_b) ||
+        false
       );
     },
     relatedSide() {
@@ -215,14 +214,15 @@ export default {
     },
 
     visibleFields() {
-      if (this.relationshipSetup === false) return null;
-      if (!this.options.fields) return null;
+      if (this.relationshipSetup === false) return [];
+      if (!this.options.fields) return [];
       return this.options.fields.split(",").map(val => val.trim());
     },
     items() {
       if (this.relationshipSetup === false) return null;
+
       return this.$lodash.orderBy(
-        this.value.filter(val => !val.$delete),
+        (this.value || []).filter(val => !val.$delete),
         item => item[this.junctionRelatedKey][this.sort.field],
         this.sort.asc ? "asc" : "desc"
       );
@@ -298,7 +298,7 @@ export default {
   },
   created() {
     if (this.relationshipSetup) {
-      this.sort.field = this.visibleFields[0];
+      this.sort.field = this.visibleFields && this.visibleFields[0];
       this.setSelection();
       this.getRelatedCollectionsFieldInfo();
     }
@@ -307,9 +307,10 @@ export default {
     value() {
       this.setSelection();
     },
-    relationshipSetup(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.sort.field = this.visibleFields[0];
+    relationship() {
+      if (this.relationshipSetup) {
+        console.log("REFRESH");
+        this.sort.field = this.visibleFields && this.visibleFields[0];
         this.setSelection();
         this.getRelatedCollectionsFieldInfo();
       }
@@ -329,6 +330,8 @@ export default {
       };
     },
     setSelection() {
+      if (!this.value) return;
+
       this.selection = this.value
         .filter(val => !val.$delete)
         .map(val => val[this.junctionRelatedKey][this.relatedKey]);
@@ -377,12 +380,12 @@ export default {
     saveSelection() {
       this.selectionSaving = true;
 
-      const savedRelatedPKs = this.value
+      const savedRelatedPKs = (this.value || [])
         .filter(val => !val.$delete)
         .map(val => val[this.junctionRelatedKey][this.relatedKey]);
 
       // Set $delete: true to all items that aren't selected anymore
-      const newValue = this.value.map(junctionRow => {
+      const newValue = (this.value || []).map(junctionRow => {
         const relatedPK = (junctionRow[this.junctionRelatedKey] || {})[
           this.relatedKey
         ];
@@ -460,7 +463,7 @@ export default {
     },
     saveEdits() {
       this.$emit("input", [
-        ...this.value.map(val => {
+        ...((this.value || []) || []).map(val => {
           if (val.id === this.editExisting[this.junctionPrimaryKey.field]) {
             return {
               ...val,
@@ -480,7 +483,7 @@ export default {
     },
     addNewItem() {
       this.$emit("input", [
-        ...this.value,
+        ...(this.value || []),
         {
           [this.junctionRelatedKey]: this.edits
         }
@@ -493,7 +496,7 @@ export default {
       if (junctionKey) {
         this.$emit(
           "input",
-          this.value.map(val => {
+          (this.value || []).map(val => {
             if (val[this.junctionPrimaryKey.field] === junctionKey) {
               return {
                 [this.junctionPrimaryKey.field]:
@@ -508,14 +511,14 @@ export default {
       } else if (!junctionKey && !relatedKey) {
         this.$emit(
           "input",
-          this.value.filter(val => {
+          (this.value || []).filter(val => {
             return this.$lodash.isEqual(val, item) === false;
           })
         );
       } else {
         this.$emit(
           "input",
-          this.value.filter(val => {
+          (this.value || []).filter(val => {
             return (
               (val[this.junctionRelatedKey] || {})[this.relatedKey] !==
               relatedKey
