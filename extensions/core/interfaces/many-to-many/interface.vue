@@ -229,9 +229,9 @@ export default {
   },
   methods: {
     setSelection() {
-      this.selection = this.value.filter(val => !val.$delete).map(
-        val => val[this.junctionRelatedKey][this.relatedKey]
-      );
+      this.selection = this.value
+        .filter(val => !val.$delete)
+        .map(val => val[this.junctionRelatedKey][this.relatedKey]);
     },
     getRelatedCollectionsFieldInfo() {
       const { junction_collection } = this.relationship;
@@ -277,9 +277,11 @@ export default {
     saveSelection() {
       this.selectionSaving = true;
 
-      this.$emit("input", this.value.map(junctionRow => {
+      // Set $delete: true to all items that aren't selected anymore
+      const newValue = this.value.map(junctionRow => {
         const relatedPK = junctionRow[this.junctionRelatedKey][this.relatedKey];
 
+        // If item was saved before, add $delete flag
         if (this.selection.includes(relatedPK) === false) {
           return {
             ...junctionRow,
@@ -287,6 +289,7 @@ export default {
           };
         }
 
+        // If $delete flag is set and the item is re-selected, remove $delete flag
         if (junctionRow.$delete && this.selection.includes(relatedPK)) {
           const clone = { ...junctionRow };
           delete clone.$delete;
@@ -294,7 +297,7 @@ export default {
         }
 
         return junctionRow;
-      }));
+      });
 
       this.selectExisting = false;
       this.selectionSaving = false;
