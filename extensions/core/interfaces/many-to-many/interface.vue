@@ -147,6 +147,10 @@ import mixin from "../../../mixins/interface";
 //
 // store.save
 //   .then(navigate)
+//
+// TODO 3
+//
+// Allow the user to override the viewoptions / viewquery etc from the listing modal. Right now, the header stil lhas the hover for sort etc. These actions can be activated by merging in the overrides in the set preferences from options. We can store the overrides in a separate data key, and use a computed value for the merged key that's used by the item-listing component. BONUS: consider adding the search / filter widget _into_ the item listing modal? Food for thought.
 
 export default {
   mixins: [mixin],
