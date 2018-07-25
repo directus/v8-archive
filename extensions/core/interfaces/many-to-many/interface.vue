@@ -123,6 +123,18 @@
 <script>
 import mixin from "../../../mixins/interface";
 
+// TODO
+//
+// (Seeing I don't have internet on this plane, consider this a GH issue)
+//
+// If you save and stay, the edit form only re-fetches the values of the fields
+// 1 level deep. This causes the relational interfaces to stop working.
+//
+// When saving, the app should use the fields: *.*.* param so relationl interfaces
+// will keep working. This means that the SDK has to be updated to accept parameters
+// in PUT and POST requests and that the store action for saving items needs to be
+// updated to utilize the param.
+
 export default {
   mixins: [mixin],
   name: "interface-many-to-many",
