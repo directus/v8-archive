@@ -4,7 +4,7 @@
     :id="name"
     :placeholder="options.placeholder"
     :options="selectOptions"
-    :value="value"
+    :value="valuePK"
     @input="$emit('input', $event)" />
 </template>
 
@@ -22,6 +22,10 @@ export default {
     };
   },
   computed: {
+    valuePK() {
+      if (this.$lodash.isObject(this.value)) return String(this.value[this.relatedKey]);
+      return String(this.value);
+    },
     render() {
       return this.$helpers.micromustache.compile(this.options.template);
     },
@@ -29,10 +33,30 @@ export default {
       if (this.items.length === 0) return {};
 
       return this.$lodash.mapValues(
-        this.$lodash.keyBy(this.items, this.relationship.field),
+        this.$lodash.keyBy(this.items, this.relatedKey),
         item => this.render(item)
       );
-    }
+    },
+    currentCollection() {
+      if (this.relationshipSetup === false) return null;
+      return this.fields[this.name].collection;
+    },
+    relatedSide() {
+      if (this.relationshipSetup === false) return null;
+      const { collection_a, collection_b } = this.relationship;
+
+      if (collection_a === this.currentCollection) return "b";
+
+      return "a";
+    },
+    relatedCollection() {
+      if (this.relationshipSetup === false) return null;
+      return this.relationship["collection_" + this.relatedSide];
+    },
+    relatedKey() {
+      if (this.relationshipSetup === false) return null;
+      return this.relationship["field_" + this.relatedSide];
+    },
   },
   created() {
     if (this.relationship) {
@@ -48,7 +72,7 @@ export default {
     fetchItems() {
       if (this.relationship == null) return;
 
-      const collection = this.relationship.collection;
+      const collection = this.relatedCollection;
 
       this.loading = true;
 
