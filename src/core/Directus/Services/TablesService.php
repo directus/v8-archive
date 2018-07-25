@@ -397,12 +397,23 @@ class TablesService extends AbstractService
         }
 
         $collectionObject = $this->getSchemaManager()->getCollection($name);
-        if (!$collectionObject->isManaged()) {
+        $startManaging = (bool) ArrayUtils::get($data, 'managed', false);
+        $isManaged = $collectionObject->isManaged();
+
+        if (!$isManaged && !$startManaging) {
             throw new CollectionNotManagedException($collectionObject->getName());
         }
 
         // TODO: Create a check if exists method (quicker) + not found exception
         $tableGateway = $this->createTableGateway($this->collection);
+
+        if ($startManaging && !$isManaged) {
+            $table = $tableGateway->manageRecordUpdate('directus_collections', $data);
+            if (!$table) {
+                throw new ErrorException('Error managing the collection');
+            }
+        }
+
         $tableGateway->getOneData($name);
         // ----------------------------------------------------------------------------
 
