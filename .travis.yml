@@ -57,6 +57,7 @@ before_install:
   - sudo service apache2 restart
 
 before_script:
+  - cp phpunit.xml.dist phpunit.xml
   - mysql -uroot $DIRECTUS_DB_NAME < tests/db.sql
   - composer install
   - bin/directus install:config -h "localhost" -P 3306 -n "$DIRECTUS_DB_NAME" -u "$DIRECTUS_DB_USER" -e "$DIRECTUS_ADMIN_EMAIL"

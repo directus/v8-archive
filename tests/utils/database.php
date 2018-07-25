@@ -16,11 +16,11 @@ function create_db_connection()
 
     return new \Directus\Database\Connection([
         'driver' => 'Pdo_mysql',
-        'host' => 'localhost',
-        'port' => 3306,
-        'database' => 'directus_test',
-        'username' => 'root',
-        'password' => null,
+        'host' => \Directus\env('DB_HOST', 'localhost'),
+        'port' => \Directus\env('DB_PORT', 3306),
+        'database' => \Directus\env('DB_NAME', 'directus_test'),
+        'username' => \Directus\env('DB_USERNAME', 'root'),
+        'password' => \Directus\env('DB_PASSWORD', null),
         'charset' => $charset,
         \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
         \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
