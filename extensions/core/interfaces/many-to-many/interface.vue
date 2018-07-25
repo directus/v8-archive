@@ -20,7 +20,7 @@
           <div
             v-for="item in items"
             class="row"
-            :key="item[junctionPrimaryKey.field.field]"
+            :key="item[junctionPrimaryKey.field]"
             @click="editExisting = item">
             <div
               v-for="column in columns"
@@ -29,7 +29,10 @@
               type="button"
               class="remove-item"
               v-tooltip="$t('remove_related')"
-              @click.stop="removeRelated(item[junctionPrimaryKey.field])">
+              @click.stop="removeRelated({
+                junctionKey: item[junctionPrimaryKey.field],
+                relatedKey: item[junctionRelatedKey][relatedKey]
+              })">
               <i class="material-icons">close</i>
             </button>
           </div>
@@ -380,20 +383,23 @@ export default {
       this.edits = {};
       this.addNew = false;
     },
-    removeRelated(id) {
-      this.$emit(
-        "input",
-        this.value.map(val => {
-          if (val[this.junctionPrimaryKey.field] === id) {
+    removeRelated({ junctionKey, relatedKey }) {
+      if (junctionKey) {
+        this.$emit("input", this.value.map(val => {
+          if (val[this.junctionPrimaryKey.field] === junctionKey) {
             return {
-              ...val,
+              [this.junctionPrimaryKey.field]: val[this.junctionPrimaryKey.field],
               $delete: true
-            };
+            }
           }
 
           return val;
-        })
-      );
+        }));
+      } else {
+        this.$emit("input", this.value.filter(val => {
+          return (val[this.junctionRelatedKey] || {} )[this.relatedKey] !== relatedKey
+        }));
+      }
     }
   }
 };
