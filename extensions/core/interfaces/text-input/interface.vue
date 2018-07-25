@@ -1,10 +1,13 @@
 <template>
   <v-input
     type="text"
+    icon-right-color=""
     :class="width"
     :value="value || ''"
     :readonly="readonly"
     :placeholder="options.placeholder"
+    :icon-left="options.iconLeft"
+    :icon-right="options.iconRight"
     :maxlength="+length"
     :id="name"
     :charactercount="options.showCharacterCount"

@@ -3,6 +3,7 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\CollectionNotFoundException;
+use Directus\Database\Exception\CollectionNotManagedException;
 use Directus\Util\ArrayUtils;
 
 class CollectionsTest extends \PHPUnit_Framework_TestCase
@@ -239,5 +240,68 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
             'collection' => static::$tableName
         ]);
         $this->assertTrue(count($result) === 0);
+    }
+
+    public function testUnmanagedTable()
+    {
+        $name = static::$tableName;
+        $path = 'collections/' . $name;
+        drop_table(static::$db, $name);
+        create_table(static::$db, $name);
+
+        // GET COLLECTION (NOT MANAGED)
+        $response = request_get('collections/' . $name, $this->queryParams);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, ['managed' => false]);
+
+        // UPDATE COLLECTION (NOT MANAGED)
+        $response = request_error_patch($path, ['hidden' => true], ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'code' => CollectionNotManagedException::ERROR_CODE,
+            'status' => 404
+        ]);
+
+        $response = request_error_patch($path, ['hidden' => true, 'managed' => false], ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'code' => CollectionNotManagedException::ERROR_CODE,
+            'status' => 404
+        ]);
+
+        $response = request_patch($path, ['hidden' => true, 'managed' => true], ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, ['managed' => true]);
+
+        // GET COLLECTION ALREADY MANAGED
+        $response = request_get('collections/' . $name, $this->queryParams);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, ['managed' => true]);
+
+        // UPDATE A COLLECTION MANAGED
+        $response = request_patch($path, ['hidden' => true], ['query' => $this->queryParams]);
+        assert_response($this, $response);
+
+        // set managed to flag
+        $response = request_patch($path, ['managed' => false], ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, ['managed' => false]);
+
+
+        // GET COLLECTION (NOT MANAGED)
+        $response = request_get('collections/' . $name, $this->queryParams);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, ['managed' => false]);
+
+        // UPDATE COLLECTION (NOT MANAGED)
+        $response = request_error_patch($path, ['hidden' => true], ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'code' => CollectionNotManagedException::ERROR_CODE,
+            'status' => 404
+        ]);
+
+        $response = request_error_patch($path, ['hidden' => true, 'managed' => false], ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'code' => CollectionNotManagedException::ERROR_CODE,
+            'status' => 404
+        ]);
     }
 }
