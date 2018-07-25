@@ -134,6 +134,20 @@ import mixin from "../../../mixins/interface";
 // will keep working. This means that the SDK has to be updated to accept parameters
 // in PUT and POST requests and that the store action for saving items needs to be
 // updated to utilize the param.
+//
+// TODO 2
+//
+// When hitting save, the edit form shows the savedValues for a brief second. This is due to the fact that the edit form uses a reactive combination of the defaultvalues, savedvalues and edits (kept in the store) to render the values in the edit form. As soon as the save is done, the edits are being cleared from the store before the promise is resolves. The moment the edit form triggers the next step in the promise chain, the edits have already been cleared, causing the reactive values to revert to the edit-less state for the period of time between the edits being cleared and whatever the edit page does (f.e. navigating away). TO fix this, we either have to find a way to clear the edits from the store _after_ the edit form is done with handling the cleanup / naviagtion of the page, or we should "lock" the values used on the edit form as soon as saving commences. I think the second way is easier to do, seeing I wouldn't have a clue to "go back up" the promise chain:
+//
+// Store:
+//
+// return Promise.resolve()
+//   .then(clearEdits);
+//
+// Edit form:
+//
+// store.save
+//   .then(navigate)
 
 export default {
   mixins: [mixin],
