@@ -219,12 +219,20 @@ export default {
   },
   created() {
     this.sort.field = this.visibleFields[0];
-    this.selection = this.value.map(
-      val => val[this.junctionRelatedKey][this.relatedKey]
-    );
+    this.setSelection();
     this.getRelatedCollectionsFieldInfo();
   },
+  watch: {
+    value() {
+      this.setSelection();
+    }
+  },
   methods: {
+    setSelection() {
+      this.selection = this.value.filter(val => !val.$delete).map(
+        val => val[this.junctionRelatedKey][this.relatedKey]
+      );
+    },
     getRelatedCollectionsFieldInfo() {
       const { junction_collection } = this.relationship;
 
@@ -268,6 +276,22 @@ export default {
     },
     saveSelection() {
       this.selectionSaving = true;
+
+      this.$emit("input", this.value.map(junctionRow => {
+        const relatedPK = junctionRow[this.junctionRelatedKey][this.relatedKey];
+
+        if (this.selection.includes(relatedPK) === false) {
+          return {
+            ...junctionRow,
+            $delete: true
+          };
+        }
+
+        return junctionRow;
+      }));
+
+      this.selectExisting = false;
+      this.selectionSaving = false;
     },
     stageValue({ field, value }) {
       this.$set(this.edits, field, value);
