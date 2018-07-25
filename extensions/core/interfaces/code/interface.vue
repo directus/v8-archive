@@ -132,6 +132,10 @@ export default {
       this.$emit("input", value);
     },
     fillTemplate() {
+      if (this.$lodash.isObject(this.options.template)) {
+        return this.$emit("input", JSON.stringify(this.options.template, null, 4));
+      }
+
       this.$emit("input", this.options.template);
     }
   }
