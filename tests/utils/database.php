@@ -28,6 +28,23 @@ function create_db_connection()
 }
 
 /**
+ * Creates a table
+ *
+ * @param Connection $db
+ * @param string $name
+ */
+function create_table(Connection $db, $name)
+{
+    $query = sprintf('CREATE TABLE `%s` (
+            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+            `name` varchar(100) NOT NULL,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;', $name);
+
+    $db->execute($query);
+}
+
+/**
  * Fill a table with a array of key values
  *
  * @param Connection $db
