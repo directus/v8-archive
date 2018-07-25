@@ -49,7 +49,6 @@
     <portal to="modal" v-if="selectExisting">
       <v-modal
         :title="$t('select_existing')"
-        action-required
         :buttons="{
           save: {
             text: 'save',
@@ -57,6 +56,7 @@
             loading: selectionSaving
           }
         }"
+        @close="dismissSelection"
         @save="saveSelection">
         <v-item-listing
           :collection="relatedCollection"
@@ -341,6 +341,10 @@ export default {
           this.selectionSaving = false;
           this.selectExisting = false;
         });
+    },
+    dismissSelection() {
+      this.setSelection();
+      this.selectExisting = false;
     },
     stageValue({ field, value }) {
       this.$set(this.edits, field, value);
