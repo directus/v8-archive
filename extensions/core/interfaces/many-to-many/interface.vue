@@ -287,7 +287,9 @@ export default {
 
       // Set $delete: true to all items that aren't selected anymore
       const newValue = this.value.map(junctionRow => {
-        const relatedPK = junctionRow[this.junctionRelatedKey][this.relatedKey];
+        const relatedPK = (junctionRow[this.junctionRelatedKey] || {})[this.relatedKey];
+
+        if (!relatedPK) return junctionRow;
 
         // If item was saved before, add $delete flag
         if (this.selection.includes(relatedPK) === false) {
