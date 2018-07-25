@@ -31,7 +31,8 @@
               v-tooltip="$t('remove_related')"
               @click.stop="removeRelated({
                 junctionKey: item[junctionPrimaryKey.field],
-                relatedKey: item[junctionRelatedKey][relatedKey]
+                relatedKey: item[junctionRelatedKey][relatedKey],
+                item
               })">
               <i class="material-icons">close</i>
             </button>
@@ -383,7 +384,7 @@ export default {
       this.edits = {};
       this.addNew = false;
     },
-    removeRelated({ junctionKey, relatedKey }) {
+    removeRelated({ junctionKey, relatedKey, item }) {
       if (junctionKey) {
         this.$emit("input", this.value.map(val => {
           if (val[this.junctionPrimaryKey.field] === junctionKey) {
@@ -394,6 +395,10 @@ export default {
           }
 
           return val;
+        }));
+      } else if (!junctionKey && !relatedKey) {
+        this.$emit("input", this.value.filter(val => {
+          return this.$lodash.isEqual(val, item) === false;
         }));
       } else {
         this.$emit("input", this.value.filter(val => {
