@@ -88,8 +88,10 @@ return [
     ],
 
     'mail' => [
-        'transport' => 'mail',
-        'from' => 'admin@admin.com'
+        'default' => [
+            'transport' => 'sendmail',
+            'from' => 'admin@admin.com'
+        ],
     ],
 
     'cors' => [
