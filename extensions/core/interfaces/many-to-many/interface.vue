@@ -277,6 +277,10 @@ export default {
     saveSelection() {
       this.selectionSaving = true;
 
+      const savedRelatedPKs = this.value
+        .filter(val => !val.$delete)
+        .map(val => val[this.junctionRelatedKey][this.relatedKey]);
+
       // Set $delete: true to all items that aren't selected anymore
       const newValue = this.value.map(junctionRow => {
         const relatedPK = junctionRow[this.junctionRelatedKey][this.relatedKey];
@@ -284,7 +288,7 @@ export default {
         // If item was saved before, add $delete flag
         if (this.selection.includes(relatedPK) === false) {
           return {
-            ...junctionRow,
+            [this.junctionPrimaryKey.field]: junctionRow[this.junctionPrimaryKey.field],
             $delete: true
           };
         }
@@ -299,8 +303,44 @@ export default {
         return junctionRow;
       });
 
-      this.selectExisting = false;
-      this.selectionSaving = false;
+      // Fetch item values for all newly selected items
+      const newSelection = this.selection.filter(pk => savedRelatedPKs.includes(pk) === false);
+
+      (newSelection.length > 0
+        ? this.$api.getItem(this.relatedCollection, newSelection.join(","))
+        : Promise.resolve()
+      )
+        .then(res => {
+          if (res) return res.data;
+          return null;
+        })
+        .then(data => {
+          if (data) {
+            if (Array.isArray(data)) {
+              data.forEach(row => newValue.push({
+                [this.junctionRelatedKey]: row
+              }));
+            } else {
+              newValue.push({
+                [this.junctionRelatedKey]: data
+              });
+            }
+          }
+
+          this.$emit("input", newValue);
+
+          this.selectExisting = false;
+          this.selectionSaving = false;
+        })
+        .catch(error => {
+          this.$events.emit("error", {
+            notify: this.$t("something_went_wrong_body"),
+            error
+          });
+
+          this.selectionSaving = false;
+          this.selectExisting = false;
+        });
     },
     stageValue({ field, value }) {
       this.$set(this.edits, field, value);
