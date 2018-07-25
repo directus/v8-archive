@@ -1,7 +1,7 @@
 <template>
   <div class="interface-many-to-many">
     <template v-if="doneLoading">
-      <div class="table">
+      <div class="table" v-if="items.length">
         <div class="header">
           <div class="row">
             <button
