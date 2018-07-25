@@ -65,9 +65,9 @@
           :view-query="viewQuery"
           :view-type="viewType"
           :view-options="viewOptions"
-          :selection="filteredSelection"
+          :selection="selection"
           @options="() => {}"
-          @select="stageSelection"
+          @select="selection = $event"
           @query="() => {}" />
       </v-modal>
     </portal>
@@ -138,8 +138,6 @@ export default {
       selectExisting: false,
       selectionSaving: false,
       selection: [],
-      lastSelection: [],
-      deselected: [],
       filters: [],
       searchQuery: null,
       viewType: "tabular",
@@ -217,11 +215,6 @@ export default {
         ...this.relatedDefaultValues,
         ...this.edits
       };
-    },
-    filteredSelection() {
-      return this.selection.filter(
-        pk => this.deselected.includes(pk) === false
-      );
     }
   },
   created() {
@@ -229,7 +222,6 @@ export default {
     this.selection = this.value.map(
       val => val[this.junctionRelatedKey][this.relatedKey]
     );
-    this.lastSelection = this.selection;
     this.getRelatedCollectionsFieldInfo();
   },
   methods: {
@@ -274,95 +266,8 @@ export default {
       this.sort.field = field;
       return;
     },
-    stageSelection(selection) {
-      this.selection = selection;
-
-      const savedSelection = this.value.map(
-        val => val[this.junctionRelatedKey][this.relatedKey]
-      );
-
-      if (this.lastSelection.length > this.selection) {
-        const deselected = this.$lodash.difference(
-          this.lastSelection,
-          this.selection
-        );
-
-        if (
-          this.deselected.includes(deselected[0]) === false &&
-          savedSelection.includes(deselected[0])
-        ) {
-          this.deselected = [...this.deselected, deselected[0]];
-        }
-      }
-
-      this.lastSelection = this.selection;
-
-      this.deselected = this.deselected.filter(key => {
-        return this.selection.includes(key) === false;
-      });
-    },
     saveSelection() {
       this.selectionSaving = true;
-
-      const stageValue = [];
-
-      // Find the junction table row IDs based on the related items that were
-      // deselected. As soon as we got those, we can start building the array
-      // of to-be-staged values with the deselected items with the $delete true
-      // flag
-
-      this.deselected.forEach(pk => {
-        const junctionRow = this.$lodash.find(
-          this.value,
-          o => o[this.junctionRelatedKey][this.relatedKey] === pk
-        );
-
-        const junctionID = junctionRow && junctionRow.id || null;
-
-        if (junctionID) stageValue.push({
-          [this.junctionPrimaryKey.field]: junctionID,
-          $delete: true
-        });
-      });
-
-      // Fetch the full related information, so the staged value will contain the
-      // info. While the API technically accepts just the ID, staging just the
-      // ID would mean that we cannot show the picked information unless the user
-      // saves and reopens the edit view first.
-
-      if (this.selection.length > 0) {
-        this.$api
-          .getItem(this.relatedCollection, this.selection.join(","))
-          .then(res => res.data)
-          .then(items => {
-            if (Array.isArray(items)) {
-              items.forEach(item => {
-                stageValue.push({
-                  [this.junctionRelatedKey]: item
-                });
-              });
-            } else {
-              stageValue.push({
-                [this.junctionRelatedKey]: items
-              });
-            }
-
-            console.log(stageValue);
-
-            this.$emit("input", stageValue);
-            this.selectionSaving = false;
-            this.selectExisting = false;
-            this.deselected = [];
-          })
-          .catch(error => {
-            console.error(error);
-          });
-      } else {
-        this.$emit("input", stageValue);
-        this.selectionSaving = false;
-        this.selectExisting = false;
-        this.deselected = [];
-      }
     },
     stageValue({ field, value }) {
       this.$set(this.edits, field, value);
