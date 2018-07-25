@@ -64,14 +64,14 @@
         @save="saveSelection">
         <v-item-listing
           :collection="relatedCollection"
-          :filters="options.preferences && options.preferences.filters || []"
-          :view-query="options.preferences && options.preferences.viewQuery || {}"
-          :view-type="options.preferences && options.preferences.viewType || 'tabular'"
-          :view-options="options.preferences && options.preferences.viewOptions || {}"
+          :filters="filters"
+          :view-query="viewQuery"
+          :view-type="viewType"
+          :view-options="viewOptions"
           :selection="selection"
-          @options="() => {}"
-          @select="selection = $event"
-          @query="() => {}" />
+          @options="setViewOptions"
+          @query="setViewQuery"
+          @select="selection = $event" />
       </v-modal>
     </portal>
 
@@ -144,7 +144,12 @@ export default {
 
       editExisting: null,
       addNew: null,
-      edits: {}
+      edits: {},
+
+      viewOptionsOverride: {},
+      viewTypeOverride: null,
+      viewQueryOverride: {},
+      filtersOverride: []
     };
   },
   computed: {
@@ -213,6 +218,31 @@ export default {
         ...this.relatedDefaultValues,
         ...this.edits
       };
+    },
+
+    filters() {
+      return [
+        ...(this.options.preferences && this.options.preferences.filters || []),
+        ...this.filtersOverride
+      ];
+    },
+    viewOptions() {
+      const viewOptions = this.options.preferences && this.options.preferences.viewOptions || {};
+      return {
+        ...viewOptions,
+        ...this.viewOptionsOverride
+      };
+    },
+    viewType() {
+      if (this.viewTypeOverride) return this.viewTypeOverride;
+      return this.options.preferences && this.options.preferences.viewType || "tabular";
+    },
+    viewQuery() {
+      const viewQuery = this.options.preferences && this.options.preferences.viewQuery || {};
+      return {
+        ...viewQuery,
+        ...this.viewQueryOverride
+      };
     }
   },
   created() {
@@ -226,6 +256,18 @@ export default {
     }
   },
   methods: {
+    setViewOptions(updates) {
+      this.viewOptionsOverride = {
+        ...this.viewOptionsOverride,
+        ...updates
+      };
+    },
+    setViewQuery(updates) {
+      this.viewQueryOverride = {
+        ...this.viewQueryOverride,
+        ...updates
+      };
+    },
     setSelection() {
       this.selection = this.value
         .filter(val => !val.$delete)
