@@ -219,7 +219,9 @@ export default {
       };
     },
     filteredSelection() {
-      return this.selection.filter(pk => this.deselected.includes(pk) === false);
+      return this.selection.filter(
+        pk => this.deselected.includes(pk) === false
+      );
     }
   },
   created() {
@@ -280,9 +282,15 @@ export default {
       );
 
       if (this.lastSelection.length > this.selection) {
-        const deselected = this.$lodash.difference(this.lastSelection, this.selection);
+        const deselected = this.$lodash.difference(
+          this.lastSelection,
+          this.selection
+        );
 
-        if (this.deselected.includes(deselected[0]) === false && savedSelection.includes(deselected[0])) {
+        if (
+          this.deselected.includes(deselected[0]) === false &&
+          savedSelection.includes(deselected[0])
+        ) {
           this.deselected = [...this.deselected, deselected[0]];
         }
       }
@@ -296,17 +304,65 @@ export default {
     saveSelection() {
       this.selectionSaving = true;
 
-      this.$api
-        .getItem(this.relatedCollection, this.selection.join(","))
-        .then(res => {
+      const stageValue = [];
 
-        })
-        .catch(error => {
-          console.error(error);
+      // Find the junction table row IDs based on the related items that were
+      // deselected. As soon as we got those, we can start building the array
+      // of to-be-staged values with the deselected items with the $delete true
+      // flag
+
+      this.deselected.forEach(pk => {
+        const junctionRow = this.$lodash.find(
+          this.value,
+          o => o[this.junctionRelatedKey][this.relatedKey] === pk
+        );
+
+        const junctionID = junctionRow && junctionRow.id || null;
+
+        if (junctionID) stageValue.push({
+          [this.junctionPrimaryKey.field]: junctionID,
+          $delete: true
         });
+      });
 
-      this.selectionSaving = false;
-      this.selectExisting = false;
+      // Fetch the full related information, so the staged value will contain the
+      // info. While the API technically accepts just the ID, staging just the
+      // ID would mean that we cannot show the picked information unless the user
+      // saves and reopens the edit view first.
+
+      if (this.selection.length > 0) {
+        this.$api
+          .getItem(this.relatedCollection, this.selection.join(","))
+          .then(res => res.data)
+          .then(items => {
+            if (Array.isArray(items)) {
+              items.forEach(item => {
+                stageValue.push({
+                  [this.junctionRelatedKey]: item
+                });
+              });
+            } else {
+              stageValue.push({
+                [this.junctionRelatedKey]: items
+              });
+            }
+
+            console.log(stageValue);
+
+            this.$emit("input", stageValue);
+            this.selectionSaving = false;
+            this.selectExisting = false;
+            this.deselected = [];
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      } else {
+        this.$emit("input", stageValue);
+        this.selectionSaving = false;
+        this.selectExisting = false;
+        this.deselected = [];
+      }
     },
     stageValue({ field, value }) {
       this.$set(this.edits, field, value);
@@ -350,7 +406,7 @@ export default {
             return {
               ...val,
               $delete: true
-            }
+            };
           }
 
           return val;
