@@ -122,36 +122,6 @@
 <script>
 import mixin from "../../../mixins/interface";
 
-// TODO
-//
-// (Seeing I don't have internet on this plane, consider this a GH issue)
-//
-// If you save and stay, the edit form only re-fetches the values of the fields
-// 1 level deep. This causes the relational interfaces to stop working.
-//
-// When saving, the app should use the fields: *.*.* param so relationl interfaces
-// will keep working. This means that the SDK has to be updated to accept parameters
-// in PUT and POST requests and that the store action for saving items needs to be
-// updated to utilize the param.
-//
-// TODO 2
-//
-// When hitting save, the edit form shows the savedValues for a brief second. This is due to the fact that the edit form uses a reactive combination of the defaultvalues, savedvalues and edits (kept in the store) to render the values in the edit form. As soon as the save is done, the edits are being cleared from the store before the promise is resolves. The moment the edit form triggers the next step in the promise chain, the edits have already been cleared, causing the reactive values to revert to the edit-less state for the period of time between the edits being cleared and whatever the edit page does (f.e. navigating away). TO fix this, we either have to find a way to clear the edits from the store _after_ the edit form is done with handling the cleanup / naviagtion of the page, or we should "lock" the values used on the edit form as soon as saving commences. I think the second way is easier to do, seeing I wouldn't have a clue to "go back up" the promise chain:
-//
-// Store:
-//
-// return Promise.resolve()
-//   .then(clearEdits);
-//
-// Edit form:
-//
-// store.save
-//   .then(navigate)
-//
-// TODO 3
-//
-// Allow the user to override the viewoptions / viewquery etc from the listing modal. Right now, the header stil lhas the hover for sort etc. These actions can be activated by merging in the overrides in the set preferences from options. We can store the overrides in a separate data key, and use a computed value for the merged key that's used by the item-listing component. BONUS: consider adding the search / filter widget _into_ the item listing modal? Food for thought.
-
 export default {
   mixins: [mixin],
   name: "interface-many-to-many",
