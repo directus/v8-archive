@@ -64,11 +64,10 @@
         @save="saveSelection">
         <v-item-listing
           :collection="relatedCollection"
-          :filters="filters"
-          :search-query="searchQuery"
-          :view-query="viewQuery"
-          :view-type="viewType"
-          :view-options="viewOptions"
+          :filters="options.preferences && options.preferences.filters || []"
+          :view-query="options.preferences && options.preferences.viewQuery || {}"
+          :view-type="options.preferences && options.preferences.viewType || 'tabular'"
+          :view-options="options.preferences && options.preferences.viewOptions || {}"
           :selection="selection"
           @options="() => {}"
           @select="selection = $event"
@@ -168,11 +167,6 @@ export default {
       selectExisting: false,
       selectionSaving: false,
       selection: [],
-      filters: [],
-      searchQuery: null,
-      viewType: "tabular",
-      viewQuery: {},
-      viewOptions: {},
 
       editExisting: null,
       addNew: null,

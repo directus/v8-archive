@@ -11,11 +11,36 @@
       "comment": "$t:visible_columns_comment",
       "interface": "text-input",
       "placeholder": "name,description"
+    },
+    "preferences": {
+      "name": "$t:preferences",
+      "comment": "$t:preferences_comment",
+      "interface": "code",
+      "options": {
+        "language": "application/json",
+        "template": {
+          "viewType": "tabular",
+          "viewQuery": {
+            "fields": ["id", "name"]
+          },
+          "filters": [
+            {
+              "field": "name",
+              "operator": "contains",
+              "value": "hi"
+            }
+          ]
+        }
+      }
     }
   },
   "translation": {
     "en-US": {
-      "m2m": "Many to Many"
+      "m2m": "Many to Many",
+      "visible_columns": "Visible Columns",
+      "visible_columns_comment": "Add a CSV of columns you want to display as preview",
+      "preferences": "Listing View Preferences",
+      "preferences_comment": "Set what options to use for the modal"
     }
   }
 }
