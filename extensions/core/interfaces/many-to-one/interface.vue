@@ -1,11 +1,37 @@
 <template>
-  <v-select
-    :name="name"
-    :id="name"
-    :placeholder="options.placeholder"
-    :options="selectOptions"
-    :value="valuePK"
-    @input="$emit('input', $event)" />
+  <div class="interface-many-to-one">
+    <v-select
+      :name="name"
+      :id="name"
+      :placeholder="options.placeholder"
+      :options="selectOptions"
+      :value="valuePK"
+      :class="{ disabled: count > 10 }"
+      @input="$emit('input', $event)" />
+
+    <button v-if="count > 10" type="button" @click="showListing = true" />
+
+    <portal to="modal" v-if="showListing">
+      <v-modal
+        :title="$t('select_existing')"
+        :buttons="{
+          save: {
+            text: 'save',
+            color: 'accent',
+            loading: selectionSaving,
+            disabled: newSelected === null
+          }
+        }"
+        @close="dismissModal"
+        @save="populateDropdown">
+        <v-item-listing
+          :collection="relatedCollection"
+          :selection="[newSelected || valuePK]"
+          @select="newSelected = $event[$event.length - 1]" />
+      </v-modal>
+      </v-modal>
+    </portal>
+  </div>
 </template>
 
 <script>
@@ -18,13 +44,18 @@ export default {
     return {
       loading: false,
       error: null,
-      items: []
+      items: [],
+      count: null,
+
+      showListing: false,
+      selectionSaving: false,
+      newSelected: null
     };
   },
   computed: {
     valuePK() {
-      if (this.$lodash.isObject(this.value)) return String(this.value[this.relatedKey]);
-      return String(this.value);
+      if (this.$lodash.isObject(this.value)) return this.value[this.relatedKey];
+      return this.value;
     },
     render() {
       return this.$helpers.micromustache.compile(this.options.template);
@@ -56,7 +87,7 @@ export default {
     relatedKey() {
       if (this.relationshipSetup === false) return null;
       return this.relationship["field_" + this.relatedSide];
-    },
+    }
   },
   created() {
     if (this.relationship) {
@@ -76,27 +107,76 @@ export default {
 
       this.loading = true;
 
-      const params = { fields: "*.*", limit: this.options.limit };
+      const params = { fields: "*.*", meta: "total_count", limit: 10 };
 
       this.$api
         .getItems(collection, params)
-        .then(res => res.data)
-        .then(items => {
-          this.items = items;
+        .then(({ meta, data }) => {
+          this.items = data;
           this.loading = false;
+          this.count = meta.total_count;
         })
         .catch(error => {
           this.error = error;
           this.loading = false;
         });
+    },
+    populateDropdown() {
+      let exists = false;
+      this.selectionSaving = true;
+
+      this.items.forEach(item => {
+        if (item[this.relatedKey] === this.newSelected) {
+          exists = true;
+        }
+      });
+
+      if (exists === false) {
+        this.$api
+          .getItem(this.relatedCollection, this.newSelected)
+          .then(res => res.data)
+          .then(item => {
+            this.$emit("input", this.newSelected);
+            this.items = [...this.items, item];
+            this.selectionSaving = false;
+            this.showListing = false;
+          })
+          .catch(error => {
+            this.$events.emit("error", {
+              notify: this.$t("something_went_wrong_body"),
+              error
+            });
+          });
+      } else {
+        this.$emit("input", this.newSelected);
+        this.selectionSaving = false;
+        this.showListing = false;
+      }
+    },
+    dismissModal() {
+      this.showListing = false;
+      this.selectionSaving = false;
+      this.newSelected = null;
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+.interface-many-to-one {
+  position: relative;
+}
+
 .v-select {
   margin-top: 0;
   max-width: var(--width-normal);
+}
+
+button {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 </style>

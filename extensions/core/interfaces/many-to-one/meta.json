@@ -14,12 +14,6 @@
         "placeholder": "$t:template_placeholder"
       }
     },
-    "limit": {
-      "name": "$t:limit",
-      "comment": "$t:limit_comment",
-      "interface": "numeric",
-      "default": 50
-    },
     "placeholder": {
       "name": "$t:placeholder",
       "comment": "$t:placeholder_comment",
