@@ -96,7 +96,7 @@ export default {
   }
 
   button {
-    padding: 0.4em;
+    padding: 0.5em;
     transition: color var(--fast) var(--transition);
     color: var(--lighter-gray);
 
