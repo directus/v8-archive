@@ -37,6 +37,8 @@
             :view-query="viewQuery"
             :view-type="viewType"
             :view-options="viewOptions"
+            @options="setViewOptions"
+            @query="setViewQuery"
             @select="newSelected = $event[$event.length - 1]" />
         </v-modal>
       </portal>
@@ -59,7 +61,12 @@ export default {
 
       showListing: false,
       selectionSaving: false,
-      newSelected: null
+      newSelected: null,
+
+      viewOptionsOverride: {},
+      viewTypeOverride: null,
+      viewQueryOverride: {},
+      filtersOverride: []
     };
   },
   computed: {
@@ -110,19 +117,22 @@ export default {
       if (this.relationshipSetup === false) return null;
       return this.relationship["field_" + this.relatedSide];
     },
+    preferences() {
+      return typeof this.options.preferences === "string"
+        ? JSON.parse(this.options.preferences)
+        : this.options.preferences;
+    },
     filters() {
       if (this.relationshipSetup === false) return null;
       return [
-        ...((this.options.preferences && this.options.preferences.filters) ||
-          []),
+        ...((this.preferences && this.preferences.filters) || []),
         ...this.filtersOverride
       ];
     },
     viewOptions() {
       if (this.relationshipSetup === false) return null;
-      const viewOptions =
-        (this.options.preferences && this.options.preferences.viewOptions) ||
-        {};
+
+      const viewOptions = (this.preferences && this.preferences.viewOptions) || {};
       return {
         ...viewOptions,
         ...this.viewOptionsOverride
@@ -131,15 +141,11 @@ export default {
     viewType() {
       if (this.relationshipSetup === false) return null;
       if (this.viewTypeOverride) return this.viewTypeOverride;
-      return (
-        (this.options.preferences && this.options.preferences.viewType) ||
-        "tabular"
-      );
+      return (this.preferences && this.preferences.viewType) || "tabular";
     },
     viewQuery() {
       if (this.relationshipSetup === false) return null;
-      const viewQuery =
-        (this.options.preferences && this.options.preferences.viewQuery) || {};
+      const viewQuery = (this.preferences && this.preferences.viewQuery) || {};
       return {
         ...viewQuery,
         ...this.viewQueryOverride
@@ -225,6 +231,18 @@ export default {
       this.showListing = false;
       this.selectionSaving = false;
       this.newSelected = null;
+    },
+    setViewOptions(updates) {
+      this.viewOptionsOverride = {
+        ...this.viewOptionsOverride,
+        ...updates
+      };
+    },
+    setViewQuery(updates) {
+      this.viewQueryOverride = {
+        ...this.viewQueryOverride,
+        ...updates
+      };
     }
   }
 };
