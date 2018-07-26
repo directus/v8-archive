@@ -170,12 +170,12 @@ export default {
       } = this.relationship;
 
       return (
-        (field_a != null &&
-          field_b != null &&
-          collection_a != null &&
-          collection_b != null &&
-          junction_collection != null &&
-          junction_key_a != null &&
+        (field_a &&
+          field_b &&
+          collection_a &&
+          collection_b &&
+          junction_collection &&
+          junction_key_a &&
           junction_key_b) ||
         false
       );
@@ -309,7 +309,6 @@ export default {
     },
     relationship() {
       if (this.relationshipSetup) {
-        console.log("REFRESH");
         this.sort.field = this.visibleFields && this.visibleFields[0];
         this.setSelection();
         this.getRelatedCollectionsFieldInfo();
@@ -463,7 +462,7 @@ export default {
     },
     saveEdits() {
       this.$emit("input", [
-        ...((this.value || []) || []).map(val => {
+        ...(this.value || [] || []).map(val => {
           if (val.id === this.editExisting[this.junctionPrimaryKey.field]) {
             return {
               ...val,

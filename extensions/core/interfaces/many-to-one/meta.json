@@ -14,35 +14,45 @@
         "placeholder": "$t:template_placeholder"
       }
     },
-    "limit": {
-      "name": "$t:limit",
-      "comment": "$t:limit_comment",
-      "interface": "numeric",
-      "default": 50
-    },
     "placeholder": {
       "name": "$t:placeholder",
       "comment": "$t:placeholder_comment",
       "interface": "text-input",
       "length": 200
+    },
+    "preferences": {
+      "name": "$t:preferences",
+      "comment": "$t:preferences_comment",
+      "interface": "code",
+      "options": {
+        "language": "application/json",
+        "template": {
+          "viewType": "tabular",
+          "viewQuery": {
+            "fields": ["id", "name"]
+          },
+          "filters": [
+            {
+              "field": "name",
+              "operator": "contains",
+              "value": "hi"
+            }
+          ]
+        }
+      }
     }
   },
   "translation": {
     "en-US": {
       "m2o": "Many to One",
-      "columns": "Visible Columns",
-      "columns_comment": "Names of the columns you want to preview",
-      "columns_placeholder": "title,author",
       "template": "Dropdown Template",
       "template_comment": "How to format the dropdown options",
       "template_placeholder": "{{title}} — {{author}}",
-      "status": "Limit by Status",
-      "status_comment": "Filter the items that can be selected by status",
-      "status_placeholder": "published,under-review",
-      "limit": "Result Limit",
-      "limit_comment": "Limit the amount of results to be fetched",
       "placeholder": "Placeholder",
-      "placeholder_comment": "Enter placeholder text"
+      "placeholder_comment": "Enter placeholder text",
+      "preferences": "Listing View Preferences",
+      "preferences_comment": "Set what options to use for the modal",
+      "relationship_not_setup": "The relationship hasn't been configured correctly"
     }
   }
 }
