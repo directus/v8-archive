@@ -309,7 +309,6 @@ export default {
     },
     relationship() {
       if (this.relationshipSetup) {
-        console.log("REFRESH");
         this.sort.field = this.visibleFields && this.visibleFields[0];
         this.setSelection();
         this.getRelatedCollectionsFieldInfo();
