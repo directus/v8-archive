@@ -463,7 +463,7 @@ export default {
     },
     saveEdits() {
       this.$emit("input", [
-        ...((this.value || []) || []).map(val => {
+        ...(this.value || [] || []).map(val => {
           if (val.id === this.editExisting[this.junctionPrimaryKey.field]) {
             return {
               ...val,

@@ -36,7 +36,7 @@ export default {
       return this.options.checkbox || false;
     },
     label() {
-      return (this.value) ? this.options.labelOn : this.options.labelOff;
+      return this.value ? this.options.labelOn : this.options.labelOff;
     }
   },
   methods: {
