@@ -109,14 +109,22 @@ export default {
 
       const params = { fields: "*.*", meta: "total_count", limit: 10 };
 
-      this.$api
-        .getItems(collection, params)
-        .then(({ meta, data }) => {
-          this.items = data;
+      return Promise.all([
+        this.$api.getItems(collection, params),
+        this.value ? this.$api.getItem(collection, this.valuePK) : null
+      ])
+        .then(([{ meta, data: items }, singleRes]) => {
+          if (singleRes) {
+            this.items = [...items, singleRes.data];
+          } else {
+            this.items = items;
+          }
+
           this.loading = false;
           this.count = meta.total_count;
         })
         .catch(error => {
+          console.error(error);
           this.error = error;
           this.loading = false;
         });
@@ -142,6 +150,7 @@ export default {
             this.showListing = false;
           })
           .catch(error => {
+            console.error(error);
             this.$events.emit("error", {
               notify: this.$t("something_went_wrong_body"),
               error
