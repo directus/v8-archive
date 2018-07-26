@@ -170,12 +170,12 @@ export default {
       } = this.relationship;
 
       return (
-        (field_a != null &&
-          field_b != null &&
-          collection_a != null &&
-          collection_b != null &&
-          junction_collection != null &&
-          junction_key_a != null &&
+        (field_a &&
+          field_b &&
+          collection_a &&
+          collection_b &&
+          junction_collection &&
+          junction_key_a &&
           junction_key_b) ||
         false
       );

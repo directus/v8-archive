@@ -1,36 +1,46 @@
 <template>
   <div class="interface-many-to-one">
-    <v-select
-      :name="name"
-      :id="name"
-      :placeholder="options.placeholder"
-      :options="selectOptions"
-      :value="valuePK"
-      :class="{ disabled: count > 10 }"
-      @input="$emit('input', $event)" />
 
-    <button v-if="count > 10" type="button" @click="showListing = true" />
+    <div v-if="relationshipSetup === false" class="notice">
+      <p><i class="material-icons">warning</i> {{ $t('interfaces-many-to-many-relationship_not_setup') }}</p>
+    </div>
 
-    <portal to="modal" v-if="showListing">
-      <v-modal
-        :title="$t('select_existing')"
-        :buttons="{
-          save: {
-            text: 'save',
-            color: 'accent',
-            loading: selectionSaving,
-            disabled: newSelected === null
-          }
-        }"
-        @close="dismissModal"
-        @save="populateDropdown">
-        <v-item-listing
-          :collection="relatedCollection"
-          :selection="[newSelected || valuePK]"
-          @select="newSelected = $event[$event.length - 1]" />
-      </v-modal>
-      </v-modal>
-    </portal>
+    <template v-else>
+      <v-select
+        :name="name"
+        :id="name"
+        :placeholder="options.placeholder"
+        :options="selectOptions"
+        :value="valuePK"
+        :class="{ disabled: count > 10 }"
+        @input="$emit('input', $event)" />
+
+      <button v-if="count > 10" type="button" @click="showListing = true" />
+
+      <portal to="modal" v-if="showListing">
+        <v-modal
+          :title="$t('select_existing')"
+          :buttons="{
+            save: {
+              text: 'save',
+              color: 'accent',
+              loading: selectionSaving,
+              disabled: newSelected === null
+            }
+          }"
+          @close="dismissModal"
+          @save="populateDropdown">
+          <v-item-listing
+            :collection="relatedCollection"
+            :selection="[newSelected || valuePK]"
+            :filters="filters"
+            :view-query="viewQuery"
+            :view-type="viewType"
+            :view-options="viewOptions"
+            @select="newSelected = $event[$event.length - 1]" />
+        </v-modal>
+      </portal>
+    </template>
   </div>
 </template>
 
@@ -53,6 +63,18 @@ export default {
     };
   },
   computed: {
+    relationshipSetup() {
+      if (!this.relationship) return false;
+
+      const {
+        field_a,
+        field_b,
+        collection_a,
+        collection_b
+      } = this.relationship;
+
+      return (field_a && field_b && collection_a && collection_b) || false;
+    },
     valuePK() {
       if (this.$lodash.isObject(this.value)) return this.value[this.relatedKey];
       return this.value;
@@ -87,16 +109,53 @@ export default {
     relatedKey() {
       if (this.relationshipSetup === false) return null;
       return this.relationship["field_" + this.relatedSide];
+    },
+    filters() {
+      if (this.relationshipSetup === false) return null;
+      return [
+        ...((this.options.preferences && this.options.preferences.filters) ||
+          []),
+        ...this.filtersOverride
+      ];
+    },
+    viewOptions() {
+      if (this.relationshipSetup === false) return null;
+      const viewOptions =
+        (this.options.preferences && this.options.preferences.viewOptions) ||
+        {};
+      return {
+        ...viewOptions,
+        ...this.viewOptionsOverride
+      };
+    },
+    viewType() {
+      if (this.relationshipSetup === false) return null;
+      if (this.viewTypeOverride) return this.viewTypeOverride;
+      return (
+        (this.options.preferences && this.options.preferences.viewType) ||
+        "tabular"
+      );
+    },
+    viewQuery() {
+      if (this.relationshipSetup === false) return null;
+      const viewQuery =
+        (this.options.preferences && this.options.preferences.viewQuery) || {};
+      return {
+        ...viewQuery,
+        ...this.viewQueryOverride
+      };
     }
   },
   created() {
-    if (this.relationship) {
+    if (this.relationshipSetup) {
       this.fetchItems();
     }
   },
   watch: {
     relationship() {
-      this.fetchItems();
+      if (this.relationshipSetup) {
+        this.fetchItems();
+      }
     }
   },
   methods: {
