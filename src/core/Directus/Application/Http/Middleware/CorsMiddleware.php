@@ -281,8 +281,8 @@ class CorsMiddleware extends AbstractMiddleware
     protected function setHeaders(Response $response, array $headers)
     {
         $headers = array_filter($headers);
-        foreach ($headers as $name => $value) {
-            $response->setHeader($name, $value);
+        foreach ($headers as $header) {
+            $response->setHeader(key($header), current($header));
         }
     }
 }
