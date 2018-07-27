@@ -280,7 +280,7 @@ Cross-Origin Resource Sharing (CORS) is a mechanism that allows you to restricte
 | `enabled`         | Indicate whether or not CORS is enabled
 | `origin`          | One more more URI allowed access to the API resource. Default: `*` (All).
 | `methods`         | Method or methods allowed to access the API resource. Default: `GET,PUT,PATCH,POST,DELETE,HEAD`.
-| `headers`         | List of headers are allowed when making the actual request. Default: `none`.
+| `headers`         | List of headers are allowed when making the actual request. Default: `Access-Control-Allow-Headers,Content-Type,Authorization`.
 | `exposed_headers` | List of headers the browser are allowed to access. Default: `none`.
 | `max_age`         | How long in seconds a preflight request can be cached. Default: `none`.
 | `credentials`     | Indicate whether or not to include credentials in the request. Default: `false`.
