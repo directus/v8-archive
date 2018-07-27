@@ -29,8 +29,9 @@ export default {
 .badge {
   border-radius: var(--border-radius);
   padding: 5px 10px;
-  display: inline-block;
+  display: block;
   cursor: default;
+  width: max-content;
   max-width: 120px;
 }
 .simple {
