@@ -6,6 +6,7 @@
     :id="name"
     :options="choices"
     :placeholder="options.placeholder"
+    :icon="options.icon"
     @input="$emit('input', $event)" />
 </template>
 
