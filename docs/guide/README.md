@@ -275,11 +275,15 @@ You can extend `Directus\Mail\Transports\AbstractTransport` class to create your
 
 Cross-Origin Resource Sharing (CORS) is a mechanism that allows you to restricted access of Directus API from other domains
 
-| Name          | Description   |
-| ------------- | ------------- |
-| `enabled`     | Whether or not CORS is enabled
-| `origin`      | List of host origins that are allowed access to the API
-| `headers`     | List of headers to be appended to the preflight request
+| Name              | Description   |
+| ----------------- | ------------- |
+| `enabled`         | Indicate whether or not CORS is enabled
+| `origin`          | One more more URI allowed access to the API resource. Default: `*` (All).
+| `methods`         | Method or methods allowed to access the API resource. Default: `GET,PUT,PATCH,POST,DELETE,HEAD`.
+| `headers`         | List of headers are allowed when making the actual request. Default: `none`.
+| `exposed_headers` | List of headers the browser are allowed to access. Default: `none`.
+| `max_age`         | How long in seconds a preflight request can be cached. Default: `none`.
+| `credentials`     | Indicate whether or not to include credentials in the request. Default: `false`.
 
 ### `hooks`
 

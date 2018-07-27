@@ -97,11 +97,18 @@ return [
     'cors' => [
         'enabled' => false,
         'origin' => ['*'],
-        'headers' => [
-            ['Access-Control-Allow-Headers', 'Authorization, Content-Type, Access-Control-Allow-Origin'],
-            ['Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE'],
-            ['Access-Control-Allow-Credentials', 'false']
-        ]
+        'methods' => [
+            'GET',
+            'POST',
+            'PUT',
+            'PATCH',
+            'DELETE',
+            'HEAD',
+        ],
+        'headers' => [],
+        'exposed_headers' => [],
+        'max_age' => null, // in seconds
+        'credentials' => false,
     ],
 
     'rate_limit' => [
