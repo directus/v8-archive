@@ -48,17 +48,16 @@ class CorsMiddleware extends AbstractMiddleware
         $options = $this->getOptions();
         $corsEnabled = $this->force === true || ArrayUtils::get($options, 'enabled', false);
 
-        if (!$corsEnabled) {
-            return $next($request, $response);
+        if ($corsEnabled) {
+            if ($request->isOptions()) {
+                $this->processPreflightHeaders($request, $response);
+                return $response;
+            } else {
+                $this->processActualHeaders($request, $response);
+            }
         }
 
-        if ($request->isOptions()) {
-            $this->processPreflightHeaders($request, $response);
-        } else {
-            $this->processActualHeaders($request, $response);
-        }
-
-        return $response;
+        return $next($request, $response);
     }
 
     /**
