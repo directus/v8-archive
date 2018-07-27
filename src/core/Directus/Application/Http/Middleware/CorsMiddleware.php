@@ -26,7 +26,11 @@ class CorsMiddleware extends AbstractMiddleware
             'DELETE',
             'HEAD'
         ],
-        'headers' => [],
+        'headers' => [
+            'Access-Control-Allow-Headers',
+            'Content-Type',
+            'Authorization',
+        ],
         'exposed_headers' => [],
         'max_age' => null,
         'credentials' => false,
