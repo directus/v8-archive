@@ -1595,3 +1595,24 @@ if (!function_exists('is_valid_regex_pattern')) {
         return $valid;
     }
 }
+
+if (!function_exists('env')) {
+    /**
+     * Returns an environment variable
+     *
+     * @param string $key
+     * @param null $default
+     *
+     * @return array|false|null|string
+     */
+    function env($key, $default = null)
+    {
+        $value = getenv($key);
+
+        if ($value === false) {
+            $value = $default;
+        }
+
+        return $value;
+    }
+}
