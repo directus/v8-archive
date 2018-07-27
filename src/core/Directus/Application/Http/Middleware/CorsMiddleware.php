@@ -148,9 +148,16 @@ class CorsMiddleware extends AbstractMiddleware
      */
     protected function createOriginHeader(Request $request)
     {
-        return [
-            'Access-Control-Allow-Origin' => $this->getOrigin($request)
-        ];
+        $header = null;
+        $origin = $this->getOrigin($request);
+
+        if ($origin) {
+            $header = [
+                'Access-Control-Allow-Origin' => $origin
+            ];
+        }
+
+        return $header;
     }
 
     /**
