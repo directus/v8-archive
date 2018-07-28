@@ -8,6 +8,8 @@
     :max="options.max"
     :readonly="readonly"
     :value="ISO"
+    :icon-left="options.iconLeft"
+    :icon-right="options.iconRight"
     @input="updateValue" />
 </template>
 
@@ -37,6 +39,6 @@ export default {
 
 <style lang="scss" scoped>
 .interface-datetime {
-  max-width: var(--width-small);
+  max-width: var(--width-normal);
 }
 </style>
