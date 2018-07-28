@@ -21,7 +21,7 @@ export default {
   computed: {
     date() {
       if (!this.value) return;
-      return this.$helpers.date.sqlToDate(this.value);
+      return new Date(this.value);
     },
     ISO() {
       if (!this.value) return;
