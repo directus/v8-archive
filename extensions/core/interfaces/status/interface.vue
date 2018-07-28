@@ -6,9 +6,9 @@
       :name="name"
       :value="key"
       :key="key"
-      :model-value="value"
+      :model-value="String(value)"
       :label="$t(options.name)"
-      :checked="key === value"
+      :checked="key == value"
       @change="$emit('input', $event)"></v-radio>
   </div>
 </template>
