@@ -3,7 +3,9 @@
     v-if="currentStatus && currentStatus.listing_badge"
     :class="['badge', 'no-wrap', { simple: options.simpleBadge }]"
     :style="style"
-    v-tooltip="options.simpleBadge ? currentStatus.name : false">{{ $t(currentStatus.name) }}</div>
+    v-tooltip="options.simpleBadge ? currentStatus.name : false">
+      {{ options.simpleBadge ? null : $t(currentStatus.name) }}
+    </div>
 </template>
 
 <script>
@@ -34,11 +36,11 @@ export default {
   width: max-content;
   max-width: 120px;
 }
+
 .simple {
-  border-radius: 100%;
-  overflow: hidden;
-  font-size: 0;
-  padding: 6px;
-  vertical-align: middle;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  padding: 0;
 }
 </style>
