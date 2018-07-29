@@ -29,7 +29,7 @@ export default {
       const fieldValues = Object.values(this.fields);
       const queryFields =
         (this.viewQuery.fields && this.viewQuery.fields.split(",")) ||
-        fieldValues.map(field => field.field);
+        fieldValues.filter(field => field.primary_key === false).slice(0, 4).map(field => field.field);
 
       return queryFields.filter(field => this.fields[field]).map(fieldID => {
         const fieldInfo = this.fields[fieldID];

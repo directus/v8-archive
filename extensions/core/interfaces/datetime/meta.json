@@ -27,6 +27,18 @@
       "interface": "toggle",
       "comment": "$t:relative_comment",
       "value": false
+    },
+    "iconLeft": {
+      "name": "$t:icon_left",
+      "comment": "$t:icon_left_comment",
+      "interface": "icon",
+      "advanced": true
+    },
+    "iconRight": {
+      "name": "$t:icon_right",
+      "comment": "$t:icon_right_comment",
+      "interface": "icon",
+      "advanced": true
     }
   },
   "translation": {
@@ -39,7 +51,11 @@
       "localized": "Localized",
       "localized_comment": "Show the date localized in the output",
       "relative": "Show relative time",
-      "relative_comment": "Show the time relatively (eg 50 minutes ago)"
+      "relative_comment": "Show the time relatively (eg 50 minutes ago)",
+      "icon_left": "Icon Left",
+      "icon_left_comment": "Choose an optional icon to display on the left of the input",
+      "icon_right": "Icon Right",
+      "icon_right_comment": "Choose an optional icon to display on the right of the input"
     }
   }
 }

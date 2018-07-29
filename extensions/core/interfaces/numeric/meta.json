@@ -34,6 +34,18 @@
           "large": "$t:large"
         }
       }
+    },
+    "iconLeft": {
+      "name": "$t:icon_left",
+      "comment": "$t:icon_left_comment",
+      "interface": "icon",
+      "advanced": true
+    },
+    "iconRight": {
+      "name": "$t:icon_right",
+      "comment": "$t:icon_right_comment",
+      "interface": "icon",
+      "advanced": true
     }
   },
   "translation": {
@@ -48,7 +60,11 @@
       "auto": "Automatic",
       "small": "Small",
       "medium": "Medium",
-      "large": "Large"
+      "large": "Large",
+      "icon_left": "Icon Left",
+      "icon_left_comment": "Choose an optional icon to display on the left of the input",
+      "icon_right": "Icon Right",
+      "icon_right_comment": "Choose an optional icon to display on the right of the input"
     }
   }
 }
