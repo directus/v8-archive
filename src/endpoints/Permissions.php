@@ -14,7 +14,9 @@ class Permissions extends Route
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id}', [$this, 'read']);
+        $app->get('/{id:[0-9]+}', [$this, 'read']);
+        $app->get('/me', [$this, 'readUser']);
+        $app->get('/me/{collection}', [$this, 'readUserCollection']);
         $app->patch('/{id}', [$this, 'update']);
         $app->patch('', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
@@ -53,10 +55,43 @@ class Permissions extends Route
     public function read(Request $request, Response $response)
     {
         $service = new PermissionsService($this->container);
+
         $responseData = $service->findByIds(
             $request->getAttribute('id'),
             ArrayUtils::pick($request->getQueryParams(), ['fields', 'meta'])
         );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * Fetch authenticated user permissions
+     *
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function readUser(Request $request, Response $response)
+    {
+        $service = new PermissionsService($this->container);
+        $responseData = $service->getUserPermissions();
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * Fetch authenticated user permission of a given collection
+     *
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function readUserCollection(Request $request, Response $response)
+    {
+        $service = new PermissionsService($this->container);
+        $responseData = $service->getUserCollectionPermissions($request->getAttribute('collection'));
 
         return $this->responseWithData($request, $response, $responseData);
     }
