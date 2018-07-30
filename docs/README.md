@@ -1773,7 +1773,7 @@ POST /[env]/mail
 
 Directus partly supports Version 2 of System for Cross-domain Identity Management, or SCIM. This open standard allows for users to be created, managed, and disabled outside of Directus so that enterprise clients have the ability to use a single, centralize system for user provisioning.
 
-### Supported endpoints
+### Endpoints
 
 | Endpoint     | Methods                 |
 | ------------ | ----------------------- |
@@ -1784,7 +1784,7 @@ Directus partly supports Version 2 of System for Cross-domain Identity Managemen
 
 Read more in the "SCIM Endpoints and HTTP Methods" section of  [RFC7644](https://tools.ietf.org/html/rfc7644#section-3.2).
 
-### Get a list of users
+### Get Users
 
 ```
 GET /scim/v2/Users
@@ -1895,7 +1895,7 @@ GET /scim/v2/Users?filter=userName eq user@example.com
 }
 ```
 
-### Get details for a single user
+### Get User
 
 ```
 GET /scim/v2/Users/:id
@@ -1933,7 +1933,7 @@ GET /scim/v2/Users/:id
 }
 ```
 
-### Creating an user
+### Create User
 
 ```
 POST /scim/v2/Users
@@ -1985,7 +1985,7 @@ POST /scim/v2/Users
 }
 ```
 
-### Update an user attributes
+### Update User
 
 ```
 PATCH /scim/v2/Users/:id
@@ -2035,7 +2035,7 @@ PATCH /scim/v2/Users/:id
 ```
 
 
-### Get a list of groups
+### Get Groups
 
 ```
 GET /scim/v2/Groups
@@ -2124,7 +2124,7 @@ GET /scim/v2/Groups
 }
 ```
 
-### Get details for a single user
+### Get Group
 
 ```
 GET /scim/v2/Groups/:id
@@ -2155,7 +2155,7 @@ GET /scim/v2/Groups/:id
 }
 ```
 
-### Creating an group
+### Create Group
 
 ```
 POST /scim/v2/Users
@@ -2190,7 +2190,7 @@ POST /scim/v2/Users
 }
 ```
 
-### Update an group attributes
+### Update Group
 
 ```
 PATCH /scim/v2/Groups/:id
@@ -2223,7 +2223,7 @@ PATCH /scim/v2/Groups/:id
 }
 ```
 
-### Delete a group
+### Delete Group
 
 ```
 DELETE /scim/v2/Groups/:id
