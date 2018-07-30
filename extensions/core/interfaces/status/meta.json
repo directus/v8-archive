@@ -21,8 +21,49 @@
     "statusMapping": {
       "name": "$t:status_mapping",
       "comment": "$t:status_mapping_comment",
-      "interface": "json",
+      "interface": "code",
       "type": "JSON",
+      "options": {
+        "language": "application/json",
+        "template": {
+          "published": {
+            "name": "$t:published",
+            "text_color": "white",
+            "background_color": "accent",
+            "listing_subdued": false,
+            "listing_badge": false,
+            "soft_delete": false,
+            "published": true
+          },
+          "under-review": {
+            "name": "$t:under_review",
+            "text_color": "white",
+            "background_color": "amber",
+            "listing_subdued": true,
+            "listing_badge": true,
+            "soft_delete": false,
+            "published": false
+          },
+          "draft": {
+            "name": "$t:draft",
+            "text_color": "white",
+            "background_color": "blue-grey-200",
+            "listing_subdued": true,
+            "listing_badge": true,
+            "soft_delete": false,
+            "published": false
+          },
+          "deleted": {
+            "name": "$t:deleted",
+            "text_color": "white",
+            "background_color": "red",
+            "listing_subdued": true,
+            "listing_badge": true,
+            "soft_delete": true,
+            "published": false
+          }
+        }
+      },
       "default": {
         "published": {
           "name": "$t:published",

@@ -13,6 +13,7 @@
         :options="selectOptions"
         :value="valuePK"
         :class="{ disabled: count > 10 }"
+        :icon="options.icon"
         @input="$emit('input', $event)" />
 
       <button v-if="count > 10" type="button" @click="showListing = true" />
@@ -251,11 +252,11 @@ export default {
 <style lang="scss" scoped>
 .interface-many-to-one {
   position: relative;
+  max-width: var(--width-normal);
 }
 
 .v-select {
   margin-top: 0;
-  max-width: var(--width-normal);
 }
 
 button {

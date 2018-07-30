@@ -28,6 +28,12 @@
       "interface": "toggle",
       "type": "BOOLEAN",
       "default": true
+    },
+    "icon": {
+      "name": "$t:icon",
+      "comment": "$t:icon_comment",
+      "interface": "icon",
+      "advanced": true
     }
   },
   "translation": {
@@ -40,7 +46,9 @@
       "option": "Option",
       "formatting": "Show display text",
       "formatting_comment": "Render the values as the display values",
-      "placeholder_default": "Choose an option"
+      "placeholder_default": "Choose an option...",
+      "icon": "Icon",
+      "icon_comment": "Choose an optional icon to display on the left of the input"
     }
   }
 }

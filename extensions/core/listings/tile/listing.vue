@@ -93,7 +93,7 @@ export default {
 .listing-tile {
   padding: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, 160px);
+  grid-template-columns: repeat(auto-fill, var(--width-small));
   grid-gap: 20px;
   width: 100%;
   height: 100%;
