@@ -33,7 +33,12 @@ class CollectionPresetsService extends AbstractService
 
     public function createItem(array $payload, array $params = [])
     {
-        return $this->itemsService->createItem($this->collection, $payload, $params);
+        // NOTE: Collections Presets should not record activity (https://github.com/directus/api/issues/271)
+        return $this->itemsService->createItem(
+            $this->collection,
+            $payload,
+            array_merge($params, ['activity_skip' => 1])
+        );
     }
 
     public function find($id, array $params = [])
@@ -48,11 +53,20 @@ class CollectionPresetsService extends AbstractService
 
     public function update($id, array $payload, array $params = [])
     {
-        return $this->itemsService->update($this->collection, $id, $payload, $params);
+        return $this->itemsService->update(
+            $this->collection,
+            $id,
+            $payload,
+            array_merge($params, ['activity_skip' => 1])
+        );
     }
 
     public function delete($id, array $params = [])
     {
-        return $this->itemsService->delete($this->collection, $id, $params);
+        return $this->itemsService->delete(
+            $this->collection,
+            $id,
+            array_merge($params, ['activity_skip' => 1])
+        );
     }
 }
