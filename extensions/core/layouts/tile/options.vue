@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent>
-    <label for="title">{{ $t('listings-tile-title') }}</label>
+    <label for="title">{{ $t('layouts-tile-title') }}</label>
     <v-select
       id="title"
       :value="viewOptions.title"
@@ -8,7 +8,7 @@
       :placeholder="$t('select_field')"
       @input="setOption('title', $event === '__none__' ? null : $event)"></v-select>
 
-    <label for="subtitle">{{ $t('listings-tile-subtitle') }}</label>
+    <label for="subtitle">{{ $t('layouts-tile-subtitle') }}</label>
     <v-select
       id="subtitle"
       :value="viewOptions.subtitle"
@@ -16,7 +16,7 @@
       :placeholder="$t('select_field')"
       @input="setOption('subtitle', $event === '__none__' ? null : $event)"></v-select>
 
-    <label for="src">{{ $t('listings-tile-src') }}</label>
+    <label for="src">{{ $t('layouts-tile-src') }}</label>
     <v-select
       id="src"
       :value="viewOptions.src"
@@ -24,7 +24,7 @@
       :placeholder="$t('select_field')"
       @input="setOption('src', $event === '__none__' ? null : $event)"></v-select>
 
-    <label for="content">{{ $t('listings-tile-content') }}</label>
+    <label for="content">{{ $t('layouts-tile-content') }}</label>
     <v-select
       id="content"
       :value="viewOptions.content"
@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import mixin from "../../../mixins/listing";
+import mixin from "../../../mixins/layout";
 
 export default {
   mixins: [mixin],
