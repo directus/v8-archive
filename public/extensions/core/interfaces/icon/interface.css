@@ -1,0 +1,19 @@
+
+.interface-icon[data-v-372f49]{background-color:#fff;border:var(--input-border-width) solid var(--lighter-gray);border-radius:var(--border-radius);display:flex;flex-direction:column;height:334px;max-width:var(--width-normal);overflow-y:scroll;padding:10px;width:100%
+}
+.interface-icon .v-input[data-v-372f49]{position:sticky;top:0;z-index:1
+}
+.interface-icon details[data-v-372f49]{text-transform:uppercase
+}
+.interface-icon details summary[data-v-372f49]{color:var(--gray);cursor:pointer;margin:20px 2px 5px
+}
+.interface-icon details summary[data-v-372f49]:hover{color:var(--darker-gray)
+}
+.interface-icon button[data-v-372f49]{color:var(--lighter-gray);padding:.5em;transition:color var(--fast) var(--transition)
+}
+.interface-icon button.active[data-v-372f49]{color:var(--darker-gray)
+}
+.interface-icon button[data-v-372f49]:hover{color:var(--dark-gray);transition:none
+}
+.interface-icon button[disabled=disabled][data-v-372f49]:hover{color:var(--lighter-gray);cursor:not-allowed
+}

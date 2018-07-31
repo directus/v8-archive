@@ -1,0 +1,25 @@
+
+.input[data-v-a6d7b1]{margin-right:8px;max-width:100px
+}
+.input[data-v-a6d7b1],.sliders[data-v-a6d7b1]{display:inline-block
+}
+.sliders[data-v-a6d7b1]{margin-right:36px;max-width:200px;vertical-align:middle
+}
+.sliders .slider-label[data-v-a6d7b1]{color:var(--light-gray);display:inline-block;vertical-align:text-bottom;width:14px
+}
+.sliders .slider[data-v-a6d7b1]{display:inline-block;margin-bottom:8px
+}
+.swatch[data-v-a6d7b1]{border-radius:100%;color:var(--white);display:inline-block;height:34px;margin-right:8px;text-align:center;transition:var(--fast) var(--transition);vertical-align:middle;width:34px
+}
+.swatch i[data-v-a6d7b1]{line-height:34px
+}
+button[data-v-a6d7b1]{border:2px solid var(--gray);border-radius:100%;display:inline-block;height:34px;margin-right:8px;position:relative;transition:var(--fast) var(--transition);width:34px
+}
+button[data-v-a6d7b1]:first-of-type{margin-left:16px
+}
+button[data-v-a6d7b1]:first-of-type:before{border-left:1px solid var(--lighter-gray);bottom:0;content:"";left:-16px;position:absolute;top:0
+}
+button[data-v-a6d7b1]:not(:hover){background-color:var(--white)!important
+}
+button[data-v-a6d7b1]:hover{color:var(--white)!important
+}

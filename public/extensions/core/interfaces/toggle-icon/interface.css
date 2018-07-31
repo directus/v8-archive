@@ -1,0 +1,9 @@
+
+.interface-toggle-icon[data-v-a9c76b]{user-select:none
+}
+input[data-v-a9c76b]{clip:rect(1px,1px,1px,1px);clip-path:polygon(0 0,0 0,0 0,0 0);height:1px;overflow:hidden;position:absolute!important;width:1px
+}
+input[disabled]+label[data-v-a9c76b]{opacity:.6
+}
+label[data-v-a9c76b]{cursor:pointer;display:inline-block
+}

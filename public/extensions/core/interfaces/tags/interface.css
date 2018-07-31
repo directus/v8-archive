@@ -1,0 +1,9 @@
+
+.interface-tags[data-v-66efc8]{max-width:var(--width-normal)
+}
+.buttons[data-v-66efc8]{display:flex;flex-wrap:wrap;padding:5px 0
+}
+.buttons button[data-v-66efc8]{background-color:var(--gray);border-radius:var(--border-radius);color:var(--white);margin:2px;padding:2px 4px 3px
+}
+.buttons button[data-v-66efc8]:hover,.user-is-tabbing .buttons button[data-v-66efc8]:focus{background-color:var(--danger)
+}
