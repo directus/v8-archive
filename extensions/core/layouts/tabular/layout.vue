@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import mixin from "../../../mixins/listing";
+import mixin from "../../../mixins/layout";
 
 export default {
   mixins: [mixin],
