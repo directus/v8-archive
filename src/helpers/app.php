@@ -5,6 +5,7 @@ namespace Directus;
 use Directus\Api\Routes\Instances;
 use Directus\Application\Application;
 use Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler;
+use Directus\Application\Http\Middleware\CorsMiddleware;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Collection\Collection;
@@ -101,7 +102,9 @@ if (!function_exists('create_ping_route')) {
         /**
          * Ping the server
          */
-        $app->get('/ping', ping_route($app))->setName('server_ping');
+        $app->get('/ping', ping_route($app))
+            ->add(new CorsMiddleware($app->getContainer(), true))
+            ->setName('server_ping');
 
         return $app;
     }
@@ -117,7 +120,7 @@ if (!function_exists('create_install_route')) {
      */
     function create_install_route(Application $app)
     {
-        $app->group('/install', Instances::class);
+        $app->group('/instances', Instances::class);
 
         return $app;
     }
@@ -141,7 +144,9 @@ if (!function_exists('create_ping_server')) {
             ]
         ], $config), $values);
 
-        create_ping_route($app);
+        $app->group('/server', function () {
+            create_ping_route($this);
+        });
 
         return $app;
     }
@@ -168,7 +173,11 @@ if (!function_exists('create_default_app')) {
             ]
         ], $config), $values);
 
-        create_ping_route($app);
+        $app->add(new CorsMiddleware($app->getContainer(), true));
+
+        $app->group('/server', function () {
+            create_ping_route($this);
+        });
         create_install_route($app);
 
         return $app;

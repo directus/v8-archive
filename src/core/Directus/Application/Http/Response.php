@@ -7,6 +7,8 @@ class Response extends \Slim\Http\Response
     const HTTP_NOT_FOUND            = 404;
     const HTTP_METHOD_NOT_ALLOWED   = 405;
 
+    const HTTP_SERVICE_UNAVAILABLE  = 503;
+
     /**
      * Sets multiple headers
      *

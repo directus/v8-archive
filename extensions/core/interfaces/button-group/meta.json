@@ -2,7 +2,7 @@
   "name": "$t:button_group",
   "version": "1.0.0",
   "datatypes": {
-    "CSV": null,
+    "ARRAY": 255,
     "VARCHAR": 255
   },
   "fieldset": true,
@@ -55,6 +55,7 @@
       "comment": "$t:theme_comment",
       "interface": "button-group",
       "type": "JSON",
+      "default": "solid",
       "options": {
         "choices": [
           {

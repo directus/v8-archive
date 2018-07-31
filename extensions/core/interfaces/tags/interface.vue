@@ -4,6 +4,8 @@
       class="input"
       type="text"
       :placeholder="$t('interfaces-tags-placeholder_text')"
+      :icon-left="options.iconLeft"
+      :icon-right="options.iconRight"
       @keydown="onInput" />
     <div class="buttons">
       <button
@@ -49,19 +51,23 @@ export default {
       }
     },
     addTag(tag) {
-      let tags = this.valueArray.splice(0);
+      let tags = [...this.valueArray];
+
+      tag = tag.trim();
 
       if (this.options.lowercase) {
         tag = tag.toLowerCase();
       }
-
-      tag = tag.trim();
 
       if (this.options.sanitize) {
         tag = tag.replace(/([^a-z0-9]+)/gi, "-").replace(/^-|-$/g, "");
       }
 
       if (tag.length > 0) tags.push(tag);
+
+      if (this.options.alphabetize) {
+        tags.sort();
+      }
 
       // Remove any duplicates
       tags = [...new Set(tags)];

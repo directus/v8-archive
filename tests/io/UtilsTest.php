@@ -3,7 +3,6 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Hash\Exception\HasherNotFoundException;
-use Directus\Hash\Exception\MissingValueException;
 use Directus\Validator\Exception\InvalidRequestException;
 
 class UtilsTest extends \PHPUnit_Framework_TestCase
@@ -41,7 +40,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
         assert_response_error($this, $response, [
             'code' => HasherNotFoundException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
 
         // Empty string passed
@@ -51,7 +50,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
         assert_response_error($this, $response, [
             'code' => InvalidRequestException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
 
         // Not string passed
@@ -61,7 +60,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
         assert_response_error($this, $response, [
             'code' => InvalidRequestException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
     }
 
@@ -88,7 +87,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
         assert_response_error($this, $response, [
             'code' => HasherNotFoundException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
 
         // Empty string passed
@@ -98,7 +97,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
         assert_response_error($this, $response, [
             'code' => InvalidRequestException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
 
         // Not string passed
@@ -108,7 +107,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 
         assert_response_error($this, $response, [
             'code' => InvalidRequestException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
     }
 
@@ -137,7 +136,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
         $response = request_error_post($path, ['length' => 'a'], ['query' => $queryParams]);
         assert_response_error($this, $response, [
             'code' => InvalidRequestException::ERROR_CODE,
-            'status' => 400
+            'status' => 422
         ]);
     }
 

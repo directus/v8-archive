@@ -661,26 +661,26 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_permissions',
                 'field' => 'create',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'read',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'update',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'delete',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',

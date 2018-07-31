@@ -44,7 +44,11 @@ export default {
   computed: {
     fieldsInUse() {
       if (!this.viewQuery || !this.viewQuery.fields)
-        return Object.keys(this.fields);
+        return Object.values(this.fields)
+          .filter(field => field.primary_key === false)
+          .slice(0, 5)
+          .map(field => field.field);
+
       if (this.viewQuery.fields === "") return [];
 
       return this.viewQuery.fields

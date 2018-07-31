@@ -5,6 +5,8 @@
     :readonly="readonly"
     :placeholder="options.placeholder"
     :value="value"
+    :icon-left="options.iconLeft"
+    :icon-right="options.iconRight"
     @input="$emit('input', Number($event))" />
 </template>
 

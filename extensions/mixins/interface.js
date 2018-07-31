@@ -35,6 +35,14 @@ module.exports = {
     relationship: {
       type: Object,
       default: null
+    },
+    fields: {
+      type: Object,
+      default: null
+    },
+    values: {
+      type: Object,
+      default: null
     }
   }
 };

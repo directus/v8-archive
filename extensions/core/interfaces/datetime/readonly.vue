@@ -17,14 +17,13 @@ export default {
   computed: {
     date() {
       if (this.value) {
-        return this.$helpers.date.sqlToDate(this.value);
+        return new Date(this.value);
       }
       return null;
     },
     since() {
       if (this.value) {
-        const dateISOString = this.date.toISOString();
-        return dateISOString.substring(0, dateISOString.length - 1);
+        return this.date;
       }
       return null;
     },

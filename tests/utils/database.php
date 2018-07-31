@@ -16,15 +16,32 @@ function create_db_connection()
 
     return new \Directus\Database\Connection([
         'driver' => 'Pdo_mysql',
-        'host' => 'localhost',
-        'port' => 3306,
-        'database' => 'directus_test',
-        'username' => 'root',
-        'password' => null,
+        'host' => \Directus\env('DB_HOST', 'localhost'),
+        'port' => \Directus\env('DB_PORT', 3306),
+        'database' => \Directus\env('DB_NAME', 'directus_test'),
+        'username' => \Directus\env('DB_USERNAME', 'root'),
+        'password' => \Directus\env('DB_PASSWORD', null),
         'charset' => $charset,
         \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
         \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
     ]);
+}
+
+/**
+ * Creates a table
+ *
+ * @param Connection $db
+ * @param string $name
+ */
+function create_table(Connection $db, $name)
+{
+    $query = sprintf('CREATE TABLE `%s` (
+            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+            `name` varchar(100) NOT NULL,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;', $name);
+
+    $db->execute($query);
 }
 
 /**

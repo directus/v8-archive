@@ -1,0 +1,14 @@
+{
+  "name": "color-picker",
+  "version": "1.0.0",
+  "description": "Color Picker interface",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vincent Kempers",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "hex-rgb": "^3.0.0"
+  }
+}

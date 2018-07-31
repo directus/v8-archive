@@ -1,5 +1,5 @@
 <template>
-  <div v-if="checkbox">
+  <div v-if="checkbox" class="checkbox">
     <input
       type="checkbox"
       :disabled="readonly"
@@ -7,7 +7,7 @@
       @change="updateValue($event.target.checked)" />
     <label :for="name">
       <i class="material-icons icon">{{icon}}</i>
-      {{options.label}}
+      {{label}}
     </label>
   </div>
 
@@ -19,7 +19,7 @@
       :checked="value"
       @change="updateValue($event.target.checked)"
     />
-    <label :for="name"><span></span>{{options.label}}</label>
+    <label :for="name"><span></span>{{label}}&nbsp;</label>
   </div>
 </template>
 
@@ -34,6 +34,9 @@ export default {
     },
     checkbox() {
       return this.options.checkbox || false;
+    },
+    label() {
+      return this.value ? this.options.labelOn : this.options.labelOff;
     }
   },
   methods: {
@@ -45,10 +48,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-span {
-  position: relative;
-}
-
 input {
   position: absolute;
   width: 100%;
@@ -58,14 +57,22 @@ input {
   opacity: 0;
   z-index: 2;
 }
-
+.checkbox {
+  position: relative;
+  display: inline-block;
+}
 .toggle {
   position: relative;
   cursor: pointer;
+  display: inline-block;
 
   label {
     padding: 1rem 0 1rem 2.75rem;
     position: relative;
+
+    span {
+      position: relative;
+    }
 
     &:before,
     &:after {
@@ -98,6 +105,7 @@ input {
   }
 
   input:checked + label {
+    color: var(--accent);
     &:before {
       background-color: var(--accent);
       opacity: 0.4;

@@ -76,6 +76,7 @@ The `error` property is only present when an error has occurred.
 - **0011** - Failed to connect to the database (500)
 - **0012** - Unprocessable Entity (422)
 - **0013** - Invalid or Empty Payload (400)
+- **0014** - Default Instance not configured properly (503)
 
 #### Authentication error codes
 
@@ -260,6 +261,7 @@ POST /instances
 | `project_name`  | The Directus name. Default: `Directus` | No
 | `env`           | The environment name.                  | No
 | `force`         | Force the installation                 | No
+| `cors_enabled`  | Enable CORS                            | No 
 
 ::: warning
 When `env` is not specified it will create the default configuration
@@ -1771,7 +1773,7 @@ POST /[env]/mail
 
 Directus partly supports Version 2 of System for Cross-domain Identity Management, or SCIM. This open standard allows for users to be created, managed, and disabled outside of Directus so that enterprise clients have the ability to use a single, centralize system for user provisioning.
 
-### Supported endpoints
+### Endpoints
 
 | Endpoint     | Methods                 |
 | ------------ | ----------------------- |
@@ -1782,7 +1784,7 @@ Directus partly supports Version 2 of System for Cross-domain Identity Managemen
 
 Read more in the "SCIM Endpoints and HTTP Methods" section of  [RFC7644](https://tools.ietf.org/html/rfc7644#section-3.2).
 
-### Get a list of users
+### Get Users
 
 ```
 GET /scim/v2/Users
@@ -1893,7 +1895,7 @@ GET /scim/v2/Users?filter=userName eq user@example.com
 }
 ```
 
-### Get details for a single user
+### Get User
 
 ```
 GET /scim/v2/Users/:id
@@ -1931,7 +1933,7 @@ GET /scim/v2/Users/:id
 }
 ```
 
-### Creating an user
+### Create User
 
 ```
 POST /scim/v2/Users
@@ -1983,7 +1985,7 @@ POST /scim/v2/Users
 }
 ```
 
-### Update an user attributes
+### Update User
 
 ```
 PATCH /scim/v2/Users/:id
@@ -2033,7 +2035,7 @@ PATCH /scim/v2/Users/:id
 ```
 
 
-### Get a list of groups
+### Get Groups
 
 ```
 GET /scim/v2/Groups
@@ -2122,7 +2124,7 @@ GET /scim/v2/Groups
 }
 ```
 
-### Get details for a single user
+### Get Group
 
 ```
 GET /scim/v2/Groups/:id
@@ -2153,7 +2155,7 @@ GET /scim/v2/Groups/:id
 }
 ```
 
-### Creating an group
+### Create Group
 
 ```
 POST /scim/v2/Users
@@ -2188,7 +2190,7 @@ POST /scim/v2/Users
 }
 ```
 
-### Update an group attributes
+### Update Group
 
 ```
 PATCH /scim/v2/Groups/:id
@@ -2221,7 +2223,7 @@ PATCH /scim/v2/Groups/:id
 }
 ```
 
-### Delete a group
+### Delete Group
 
 ```
 DELETE /scim/v2/Groups/:id

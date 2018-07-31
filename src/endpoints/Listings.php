@@ -15,8 +15,6 @@ class Listings extends Route
      */
     public function __invoke(Application $app)
     {
-        \Directus\create_ping_route($app);
-
         $app->get('', [$this, 'all']);
     }
 

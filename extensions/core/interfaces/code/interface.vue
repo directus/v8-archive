@@ -1,0 +1,182 @@
+<template>
+  <div
+    :class="{ inactive: readonly }"
+    class="interface-code">
+
+    <codemirror
+      ref="codemirrorEl"
+      :options="cmOptions"
+      :value="value"
+      @input="onInput" />
+
+    <button
+      v-if="options.template"
+      v-tooltip="$t('interfaces-code-fill_template')"
+      @click="fillTemplate">
+      <i class="material-icons">playlist_add</i>
+    </button>
+
+    <small class="line-count">
+      {{ $tc('interfaces-code-loc', lineCount, { count: lineCount, lang: language }) }}
+    </small>
+
+  </div>
+</template>
+
+<script>
+import { codemirror } from "vue-codemirror";
+
+import "codemirror/lib/codemirror.css";
+
+import "codemirror/mode/vue/vue.js";
+import "codemirror/mode/javascript/javascript.js";
+import "codemirror/mode/php/php.js";
+
+import "codemirror/addon/selection/active-line.js";
+import "codemirror/addon/selection/mark-selection.js";
+import "codemirror/addon/search/searchcursor.js";
+import "codemirror/addon/hint/show-hint.js";
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/hint/javascript-hint.js";
+import "codemirror/addon/selection/active-line.js";
+import "codemirror/addon/scroll/annotatescrollbar.js";
+import "codemirror/addon/search/matchesonscrollbar.js";
+import "codemirror/addon/search/searchcursor.js";
+import "codemirror/addon/search/match-highlighter.js";
+import "codemirror/addon/edit/matchbrackets.js";
+import "codemirror/addon/comment/comment.js";
+import "codemirror/addon/dialog/dialog.js";
+import "codemirror/addon/dialog/dialog.css";
+import "codemirror/addon/search/searchcursor.js";
+import "codemirror/addon/search/search.js";
+
+import "codemirror/keymap/sublime.js";
+
+import "./code.css";
+
+import mixin from "../../../mixins/interface";
+
+// Example of the problem in Parcel's bundling path
+import("codemirror/mode/markdown/markdown.js")
+  .then(() => console.log("done"))
+  .catch(console.error);
+
+export default {
+  name: "interface-code",
+  mixins: [mixin],
+  components: {
+    codemirror
+  },
+  data() {
+    return {
+      lineCount: 0,
+
+      cmOptions: {
+        tabSize: 4,
+        indentUnit: 4,
+        styleActiveLine: true,
+        lineNumbers: this.options.lineNumber,
+        readOnly: this.readonly ? "nocursor" : false,
+        styleSelectedText: true,
+        line: true,
+        highlightSelectionMatches: { showToken: /\w/, annotateScrollbar: true },
+        mode: this.options.language,
+        hintOptions: {
+          completeSingle: true
+        },
+        keyMap: "sublime",
+        matchBrackets: true,
+        showCursorWhenSelecting: true,
+        theme: "default",
+        extraKeys: { Ctrl: "autocomplete" }
+      }
+    };
+  },
+  mounted() {
+    const { codemirror } = this.$refs.codemirrorEl;
+    this.lineCount = codemirror.lineCount();
+  },
+  watch: {
+    options(newVal, oldVal) {
+      if (newVal.language !== oldVal.language) {
+        this.$set(this.cmOptions, "mode", newVal.language);
+      }
+
+      if (newVal.lineNumber !== oldVal.lineNumber) {
+        this.$set(this.cmOptions, "lineNumbers", newVal.lineNumber);
+      }
+    }
+  },
+  computed: {
+    availableTypes() {
+      return {
+        "text/plain": "Plain Text",
+        "text/javascript": "JavaScript",
+        "application/json": "JSON",
+        "text/x-vue": "Vue",
+        "application/x-httpd-php": "PHP"
+      };
+    },
+    language() {
+      return this.availableTypes[this.options.language];
+    }
+  },
+  methods: {
+    onInput(value) {
+      const { codemirror } = this.$refs.codemirrorEl;
+
+      if (this.lineCount !== codemirror.lineCount()) {
+        this.lineCount = codemirror.lineCount();
+      }
+
+      this.$emit("input", value);
+    },
+    fillTemplate() {
+      if (this.$lodash.isObject(this.options.template)) {
+        return this.$emit(
+          "input",
+          JSON.stringify(this.options.template, null, 4)
+        );
+      }
+
+      this.$emit("input", this.options.template);
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.interface-code {
+  position: relative;
+  max-width: var(--width-large);
+  font-size: 13px;
+
+  &:focus {
+    border-color: var(--accent);
+  }
+}
+
+small {
+  margin-top: 5px;
+  font-style: italic;
+  text-align: right;
+  float: right;
+  color: var(--gray);
+}
+
+button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  user-select: none;
+  color: var(--light-gray);
+  cursor: pointer;
+  transition: color var(--fast) var(--transition-out);
+  z-index: 10;
+
+  &:hover {
+    transition: none;
+    color: var(--dark-gray);
+  }
+}
+</style>

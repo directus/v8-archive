@@ -3,6 +3,7 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Exception\RevisionInvalidDeltaException;
 use Directus\Database\Exception\RevisionNotFoundException;
 use Directus\Database\Schema\SchemaManager;
@@ -146,9 +147,14 @@ class RevisionsService extends AbstractService
     public function revert($collectionName, $item, $revision, array $params = [])
     {
         $this->throwErrorIfSystemTable($collectionName);
+
+        if (!$this->itemExists($collectionName, $item)) {
+            throw new ItemNotFoundException();
+        }
+
         $revisionTableGateway = new TableGateway(SchemaManager::COLLECTION_REVISIONS, $this->getConnection());
         $select = $revisionTableGateway->getSql()->select();
-        $select->columns(['delta']);
+        $select->columns(['data']);
         $select->where->equalTo('id', $revision);
         $select->where->equalTo('collection', $collectionName);
         $select->where->equalTo('item', $item);
@@ -158,7 +164,7 @@ class RevisionsService extends AbstractService
             throw new RevisionNotFoundException($revision);
         }
 
-        $data = json_decode($result->delta, true);
+        $data = json_decode($result->data, true);
         if (!$data) {
             throw new RevisionInvalidDeltaException($revision);
         }
@@ -166,16 +172,7 @@ class RevisionsService extends AbstractService
         $tableGateway = $this->createTableGateway($collectionName);
         $tableGateway->revertRecord($item, $data);
 
-        return $this->getDataAndSetResponseCacheTags(
-            [$tableGateway, 'getItems'],
-            [array_merge(
-                $params,
-                [
-                    'single' => true,
-                    'id' => $item
-                ]
-            )]
-        );
+        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $item, $params);
     }
 
     /**

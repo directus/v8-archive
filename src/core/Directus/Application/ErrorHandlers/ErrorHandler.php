@@ -10,6 +10,7 @@ use Directus\Exception\ConflictExceptionInterface;
 use Directus\Exception\Exception;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\NotFoundExceptionInterface;
+use Directus\Exception\ServiceUnavailableInterface;
 use Directus\Exception\UnauthorizedExceptionInterface;
 use Directus\Exception\UnprocessableEntityExceptionInterface;
 use Directus\Hook\Emitter;
@@ -111,6 +112,7 @@ class ErrorHandler extends AbstractHandler
             $code = $exception->getErrorCode();
         }
 
+        // TODO: Implement a method/property that returns the exception type/status
         $httpStatusCode = 500;
         if ($exception instanceof BadRequestExceptionInterface) {
             $httpStatusCode = 400;
@@ -124,6 +126,8 @@ class ErrorHandler extends AbstractHandler
             $httpStatusCode = 409;
         } else if ($exception instanceof UnprocessableEntityExceptionInterface) {
             $httpStatusCode = 422;
+        } else if ($exception instanceof ServiceUnavailableInterface) {
+            $httpStatusCode = 503;
         }
 
         $data = [

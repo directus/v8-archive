@@ -22,7 +22,7 @@ $reservedNames = [
     'pages',
     'listings',
     'types',
-    'instance'
+    'instances'
 ];
 
 if ($requestUri && !empty($env) && $env !== '_' && !in_array($env, $reservedNames)) {
@@ -85,7 +85,7 @@ $app->add(new \Directus\Application\Http\Middleware\TableGatewayMiddleware($app-
 $app->get('/', \Directus\Api\Routes\Home::class)
     ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()));
 
-$app->group('/instance', \Directus\Api\Routes\Instances::class);
+$app->group('/instances', \Directus\Api\Routes\Instances::class);
 
 $app->group('/{env}', function () {
     $this->group('/activity', \Directus\Api\Routes\Activity::class)
