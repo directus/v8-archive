@@ -1,0 +1,14 @@
+{
+  "name": "$t:icon",
+  "version": "1.0.0",
+  "datatypes": {
+    "VARCHAR": 30
+  },
+  "options": {},
+  "translation": {
+    "en-US": {
+      "icon": "Icon",
+      "search_placeholder": "Search for an icon..."
+    }
+  }
+}
