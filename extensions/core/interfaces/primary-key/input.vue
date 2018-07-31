@@ -7,7 +7,7 @@
     :readonly="readonly"
     :value="value"
     @input="$emit('input', $event)" />
-  <readonly
+  <v-display
     v-else
     :name="name"
     :value="value"
@@ -21,7 +21,7 @@
 
 <script>
 import mixin from "../../../mixins/interface";
-import Readonly from "./readonly.vue";
+import VDisplay from "./display.vue";
 
 export default {
   mixins: [mixin],
@@ -35,7 +35,7 @@ export default {
     }
   },
   components: {
-    Readonly
+    VDisplay
   }
 };
 </script>
