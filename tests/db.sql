@@ -285,7 +285,13 @@ VALUES
 	(128,'directus_revisions','parent_collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(129,'directus_revisions','parent_changed','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(130,'directus_settings','auto_sign_out','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(131,'directus_settings','youtube_api_key','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL);
+	(131,'directus_settings','youtube_api_key','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(132,'products','status','status','status','{\"status_mapping\":{\"1\":{\"name\":\"Published\"},\"2\":{\"name\":\"Draft\",\"published\":\"0\"}}}',0,NULL,0,0,0,4,'0',0,NULL,0,NULL),
+	(133,'products','category_id','integer','many_to_one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(134,'products','images','m2m','many_to_many',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(135,'categories','id','integer','primary_key',NULL,0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(136,'categories','products','O2M','one_to_many','{\"status_mapping\":{\"1\":{\"name\":\"Published\"},\"2\":{\"name\":\"Draft\",\"published\":\"0\"}}}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(137,'categories','name','varchar','text_input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL);
 
 /*!40000 ALTER TABLE `directus_fields` ENABLE KEYS */;
 UNLOCK TABLES;
