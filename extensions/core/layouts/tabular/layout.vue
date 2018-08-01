@@ -13,10 +13,12 @@
     :column-widths="viewOptions.widths || {}"
     :link="link"
     :use-interfaces="true"
+    :manual-sort-field="sortField"
     @sort="sort"
     @widths="setWidths"
     @select="$emit('select', $event)"
-    @scroll-end="$emit('next-page')" />
+    @scroll-end="$emit('next-page')"
+    @input="$emit('input', $event)" />
 </template>
 
 <script>
@@ -29,7 +31,10 @@ export default {
       const fieldValues = Object.values(this.fields);
       const queryFields =
         (this.viewQuery.fields && this.viewQuery.fields.split(",")) ||
-        fieldValues.filter(field => field.primary_key === false).slice(0, 4).map(field => field.field);
+        fieldValues
+          .filter(field => field.primary_key === false)
+          .slice(0, 4)
+          .map(field => field.field);
 
       return queryFields.filter(field => this.fields[field]).map(fieldID => {
         const fieldInfo = this.fields[fieldID];
