@@ -1,7 +1,10 @@
 <template>
-<div v-if="options.style === 'text-small'" :class="`line-style-${options.style}`">
+  <div v-if="options.style === 'text-small'" :class="`line-style-${options.style}`">
       <span>{{options.title}}</span>
       <p><em>{{options.description}}</em></p>
+  </div>
+  <div v-else-if="options.style === 'basic'" :class="`line-style-${options.style}`">
+      <hr />
   </div>
   <div v-else :class="`line-style-${options.style}`">
     <hr />
