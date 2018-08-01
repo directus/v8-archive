@@ -1,10 +1,10 @@
 <template>
   <div v-if="options.style === 'text-small'" :class="`line-style-${options.style}`">
-      <span>{{options.title}}</span>
-      <p><em>{{options.description}}</em></p>
+    <span>{{options.title}}</span>
+    <p><em>{{options.description}}</em></p>
   </div>
   <div v-else-if="options.style === 'basic'" :class="`line-style-${options.style}`">
-      <hr />
+    <hr />
   </div>
   <div v-else :class="`line-style-${options.style}`">
     <hr />
@@ -15,6 +15,7 @@
 
 <script>
 import mixin from "../../../mixins/interface";
+
 export default {
   mixins: [mixin],
   computed: {}
