@@ -136,6 +136,37 @@ class PermissionsService extends AbstractService
     }
 
     /**
+     * @return array
+     */
+    public function getUserPermissions()
+    {
+        $acl = $this->container->get('acl');
+
+        return [
+            'data' => $acl->getAllPermissions()
+        ];
+    }
+
+    /**
+     * @param string $collectionName
+     *
+     * @return array
+     */
+    public function getUserCollectionPermissions($collectionName)
+    {
+        $acl = $this->container->get('acl');
+        $permissions = $acl->getCollectionPermissions($collectionName);
+
+        if ($acl->hasWorkflowEnabled($collectionName)) {
+            $permissions = array_values($permissions);
+        }
+
+        return [
+            'data' => $permissions
+        ];
+    }
+
+    /**
      * @return \Directus\Database\TableGateway\RelationalTableGateway
      */
     protected function getTableGateway()

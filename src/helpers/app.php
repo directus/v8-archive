@@ -120,7 +120,7 @@ if (!function_exists('create_install_route')) {
      */
     function create_install_route(Application $app)
     {
-        $app->group('/instances', Instances::class)->add(new CorsMiddleware($app->getContainer(), true));
+        $app->group('/instances', Instances::class);
 
         return $app;
     }
@@ -172,6 +172,8 @@ if (!function_exists('create_default_app')) {
                 'env' => 'production'
             ]
         ], $config), $values);
+
+        $app->add(new CorsMiddleware($app->getContainer(), true));
 
         $app->group('/server', function () {
             create_ping_route($this);

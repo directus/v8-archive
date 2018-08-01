@@ -367,6 +367,21 @@ class Acl
         return array_merge($this->globalPermissions, $this->statusPermissions);
     }
 
+    /**
+     * Returns all permissions no grouped by collection or statuses
+     *
+     * @return array
+     */
+    public function getAllPermissions()
+    {
+        $allPermissions = array_values($this->globalPermissions);
+        foreach ($this->statusPermissions as $collection => $permissions) {
+            $allPermissions = array_merge($allPermissions, array_values($permissions));
+        }
+
+        return $allPermissions;
+    }
+
     public function getCollectionStatuses($collection)
     {
         $statuses = null;
@@ -416,6 +431,18 @@ class Acl
         }
 
         return $permissions;
+    }
+
+    /**
+     * Checks whether or not the collection has permissions by status
+     *
+     * @param string $collection
+     *
+     * @return bool
+     */
+    public function hasWorkflowEnabled($collection)
+    {
+        return array_key_exists($collection, $this->statusPermissions);
     }
 
     /**

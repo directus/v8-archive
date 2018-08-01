@@ -4,6 +4,8 @@ namespace Directus\Application\Http\Middleware;
 
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
+use Directus\Collection\Collection;
+use Directus\Config\Config;
 use Directus\Util\ArrayUtils;
 use Psr\Container\ContainerInterface;
 
@@ -16,52 +18,101 @@ class CorsMiddleware extends AbstractMiddleware
      */
     protected $force;
 
+    /**
+     * @var array
+     */
+    protected $defaults = [
+        'origin' => ['*'],
+        'methods' => [
+            'GET',
+            'POST',
+            'PUT',
+            'PATCH',
+            'DELETE',
+            'HEAD'
+        ],
+        'headers' => [
+            'Access-Control-Allow-Headers',
+            'Content-Type',
+            'Authorization',
+        ],
+        'exposed_headers' => [],
+        'max_age' => null,
+        'credentials' => false,
+    ];
+
+    /**
+     * @var null|Collection
+     */
+    protected $options = null;
+
     public function __construct(ContainerInterface $container, $force = false)
     {
         parent::__construct($container);
-        $this->force = $force;
+        $this->force = (bool) $force;
     }
 
     public function __invoke(Request $request, Response $response, callable $next)
     {
-        $corsOptions = $this->getOptions();
-        if ($this->force === true || ArrayUtils::get($corsOptions, 'enabled', false)) {
-            $this->processHeaders($request, $response);
+        if ($this->isEnabled()) {
+            if ($request->isOptions()) {
+                $this->processPreflightHeaders($request, $response);
+                return $response;
+            } else {
+                $this->processActualHeaders($request, $response);
+            }
         }
 
-        if (!$request->isOptions()) {
-            return $next($request, $response);
-        }
-
-        return $response;
+        return $next($request, $response);
     }
 
     /**
-     * Sets the headers
+     * Checks whether or not CORS is enabled
+     *
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        $options = $this->getOptions();
+
+        return $this->force === true || $options->get('enabled', false);
+    }
+
+    /**
+     * Sets the preflight response headers
      *
      * @param Request $request
      * @param Response $response
      */
-    protected function processHeaders(Request $request, Response $response)
+    protected function processPreflightHeaders(Request $request, Response $response)
     {
-        $corsOptions = $this->getOptions();
-        $origin = $this->getOrigin($request);
+        $headers = [];
 
-        if ($origin) {
-            $response->setHeader('Access-Control-Allow-Origin', $origin);
-            foreach (ArrayUtils::get($corsOptions, 'headers', []) as $name => $value) {
-                // Support two options:
-                // 1. [Key, Value]
-                // 2. Key => Value
-                if (is_array($value)) {
-                    // using $value will make name the first value character of $value value
-                    $temp = $value;
-                    list($name, $value) = $temp;
-                }
+        array_push($headers, $this->createOriginHeader($request));
+        array_push($headers, $this->createAllowedMethodsHeader());
+        array_push($headers, $this->createAllowedHeadersHeader($request));
+        array_push($headers, $this->createExposedHeadersHeader());
+        array_push($headers, $this->createMaxAgeHeader());
+        array_push($headers, $this->createCredentialsHeader());
 
-                $response->setHeader($name, $value);
-            }
-        }
+        $this->setHeaders($response, $headers);
+    }
+
+    /**
+     * Sets the actual response headers
+     *
+     * @param Request $request
+     * @param Response $response
+     */
+    protected function processActualHeaders(Request $request, Response $response)
+    {
+        $headers = [];
+
+        array_push($headers, $this->createOriginHeader($request));
+        array_push($headers, $this->createExposedHeadersHeader());
+        array_push($headers, $this->createCredentialsHeader());
+
+        $this->setHeaders($response, $headers);
     }
 
     /**
@@ -83,22 +134,187 @@ class CorsMiddleware extends AbstractMiddleware
      */
     protected function getOrigin(Request $request)
     {
-        $corsOptions = $this->getOptions();
+        $options = $this->getOptions();
         $requestOrigin = $request->getOrigin();
-        $allowedOrigins = ArrayUtils::get($corsOptions, 'origin', '*');
+        $allowedOrigins = $options->get('origin', '*');
 
         return \Directus\cors_get_allowed_origin($allowedOrigins, $requestOrigin);
     }
 
     /**
-     * Gets CORS options
+     * Returns the CORS origin header
+     *
+     * @param Request $request
      *
      * @return array
      */
+    protected function createOriginHeader(Request $request)
+    {
+        $header = null;
+        $origin = $this->getOrigin($request);
+
+        if ($origin) {
+            $header = [
+                'Access-Control-Allow-Origin' => $origin
+            ];
+        }
+
+        return $header;
+    }
+
+    /**
+     * Returns the CORS allowed methods header
+     *
+     * @return array|null
+     */
+    protected function createAllowedMethodsHeader()
+    {
+        $options = $this->getOptions();
+        $header = null;
+
+        $methods = $options->get('methods', []);
+        if (is_array($methods)) {
+            $methods = implode(',', $methods);
+        }
+
+        if (!empty($methods)) {
+            $header = [
+                'Access-Control-Allow-Methods' => $methods
+            ];
+        }
+
+        return $header;
+    }
+
+    /**
+     * Returns the allowed headers header
+     *
+     * @param Request $request
+     *
+     * @return array
+     */
+    protected function createAllowedHeadersHeader(Request $request)
+    {
+        $options = $this->getOptions();
+        $header = null;
+
+        $allowedHeaders = $options->get('headers', []);
+        if (is_array($allowedHeaders)) {
+            $allowedHeaders = implode(',', $allowedHeaders);
+        }
+
+        $headerName = 'Access-Control-Allow-Headers';
+        // fallback to the request allowed headers
+        if (empty($allowedHeaders)) {
+            $allowedHeaders = $request->getHeader($headerName);
+        }
+
+        if (!empty($allowedHeaders)) {
+            $header = [
+                $headerName => $allowedHeaders
+            ];
+        }
+
+        return $header;
+    }
+
+    /**
+     * Returns exposed headers header
+     *
+     * @return array|null
+     */
+    protected function createExposedHeadersHeader()
+    {
+        $header = null;
+        $options = $this->getOptions();
+
+        $headers = $options->get('exposed_headers', []);
+        if (is_array($headers)) {
+            $headers = implode(',', $headers);
+        }
+
+        if (!empty($headers)) {
+            $header = [
+                'Access-Control-Expose-Headers' => $headers
+            ];
+        }
+
+        return $header;
+    }
+
+    /**
+     * Returns the CORS max age header
+     *
+     * @return array|null
+     */
+    protected function createMaxAgeHeader()
+    {
+        $options = $this->getOptions();
+        $header = null;
+
+        $maxAge = (string) $options->get('max_age');
+        if (!empty($maxAge)) {
+            $header = [
+                'Access-Control-Max-Age' => $maxAge
+            ];
+        }
+
+        return $header;
+    }
+
+    /**
+     * Returns the credentials CORS header
+     *
+     * @return array|null
+     */
+    protected function createCredentialsHeader()
+    {
+        $options = $this->getOptions();
+        $header = null;
+
+        if ($options->get('credentials') === true) {
+            $header = [
+                'Access-Control-Allow-Credentials' => 'true'
+            ];
+        }
+
+        return $header;
+    }
+
+    /**
+     * Sets a given array of headers to the response object
+     *
+     * @param Response $response
+     * @param array $headers
+     */
+    protected function setHeaders(Response $response, array $headers)
+    {
+        $headers = array_filter($headers);
+        foreach ($headers as $header) {
+            $response->setHeader(key($header), current($header));
+        }
+    }
+
+    /**
+     * Gets CORS options
+     *
+     * @return Collection
+     */
     protected function getOptions()
     {
-        $config = $this->container->get('config');
+        if ($this->options === null) {
+            $config = $this->container->get('config');
+            $options = [];
 
-        return $config->get('cors', []);
+            if ($config instanceof Config && empty($options)) {
+                $options = $config->get('cors', []);
+            }
+
+            $this->options = new Collection(
+                ArrayUtils::defaults($this->defaults, $options)
+            );
+        }
+
+        return $this->options;
     }
 }

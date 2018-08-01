@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent>
     <fieldset>
-      <legend>{{ $t('listings-tabular-fields') }}</legend>
+      <legend>{{ $t('layouts-tabular-fields') }}</legend>
       <draggable v-model="sortList" @end="sort">
         <div class="draggable" v-for="(field) in sortList" :key="field.field">
           <v-checkbox
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import mixin from "../../../mixins/listing";
+import mixin from "../../../mixins/layout";
 
 export default {
   mixins: [mixin],

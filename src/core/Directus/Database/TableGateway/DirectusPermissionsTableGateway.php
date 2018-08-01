@@ -63,7 +63,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         foreach ($result as $permission) {
             foreach ($permission as $field => &$value) {
                 if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
-                    $value = explode(',', $value);
+                    $value = array_filter(explode(',', $value));
                 }
             }
 
