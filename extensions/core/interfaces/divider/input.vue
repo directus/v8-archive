@@ -3,6 +3,9 @@
       <span>{{options.title}}</span>
       <p><em>{{options.description}}</em></p>
   </div>
+  <div v-else-if="options.style === 'basic'" :class="`line-style-${options.style}`">
+      <hr />
+  </div>
   <div v-else :class="`line-style-${options.style}`">
     <hr />
     <h3>{{options.title}}</h3>
@@ -115,6 +118,12 @@ export default {
     font-weight: 100;
     width: 100%;
     max-width: 20em;
+  }
+}
+
+.line-style-basic {
+  hr {
+    border-top: 1px solid var(--lighter-gray);
   }
 }
 </style>
