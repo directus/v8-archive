@@ -442,12 +442,6 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
-            [
-                'collection' => 'directus_files',
-                'field' => 'storage',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
-                'interface' => 'file-upload'
-            ],
             // Folders
             [
                 'collection' => 'directus_folders',
