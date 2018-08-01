@@ -8,29 +8,12 @@
         "style": {
             "name": "$t:style-name",
             "comment": "$t:style-comment",
-            "default": "text",
+            "default": "text-small",
             "interface": "dropdown",
             "options": {
                 "choices": {
-                    "text": "Text Directus",
-                    "standard": "Fullwidth",
-                    "big": "Large",
-                    "normal": "Medium",
-                    "small": "Small"
-                }
-            }
-        },
-        "weight": {
-            "name": "$t:weight-name",
-            "comment": "$t:weight-comment",
-            "default": "thin",
-            "interface": "dropdown",
-            "options": {
-                "choices": {
-                    "hairline": "Hairline",
-                    "thin": "Thin",
-                    "medium": "Medium",
-                    "heavy": "Heavy"
+                    "text-small": "Small",
+                    "standard": "Fullwidth"
                 }
             }
         },
@@ -38,13 +21,13 @@
             "name": "$t:input-name",
             "comment": "$t:input-comment",
             "interface": "text-input",
-            "default": "directus"
+            "default": "A title"
         },
         "description": {
-            "name": "$t:input-name",
-            "comment": "$t:input-comment",
+            "name": "$t:desc-name",
+            "comment": "$t:desc-comment",
             "interface": "text-input",
-            "default": "directus"
+            "default": "A description"
         }
     },
     "translation": {
@@ -55,7 +38,9 @@
             "weight-name": "Thickness of the line",
             "weight-comment": "Change the thickness of the line",
             "input-name": "Divider text",
-            "input-comment": "Type your text here"
+            "input-comment": "Type your text here",
+            "desc-name": "Divider description",
+            "desc-comment": "Add here a description"
         }
     }
 }
