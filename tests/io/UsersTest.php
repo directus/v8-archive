@@ -3,6 +3,7 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Database\TableGateway\DirectusUsersTableGateway;
 
 class UsersTest extends \PHPUnit_Framework_TestCase
 {
@@ -32,6 +33,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
         $email = 'john@getdirectus.com';
         $password = 'password';
         $data = [
+            'status' => DirectusUsersTableGateway::STATUS_DRAFT,
             'email' => $email,
             'password' => $password
         ];

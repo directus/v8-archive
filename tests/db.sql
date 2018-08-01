@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus_test
-# Generation Time: 2018-07-19 12:02:33 +0000
+# Generation Time: 2018-07-30 21:04:00 +0000
 # ************************************************************
 
 
@@ -238,7 +238,7 @@ VALUES
 	(81,'directus_user_roles','user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(82,'directus_user_roles','role','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(83,'directus_users','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(84,'directus_users','status','int','status','{\"status_mapping\":[{\"name\": \"draft\"},{\"name\": \"active\"},{\"name\": \"delete\"}]}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(84,'directus_users','status','varchar','status','{\"status_mapping\":{\"deleted\":{\"name\":\"Deleted\",\"published\":false},\"active\":{\"name\":\"Active\",\"published\":true},\"draft\":{\"name\":\"Draft\",\"published\":false},\"suspended\":{\"name\":\"Suspended\",\"published\":false},\"invited\":{\"name\":\"Invited\",\"published\":false}}}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(85,'directus_users','first_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(86,'directus_users','last_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(87,'directus_users','email','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
@@ -555,7 +555,7 @@ DROP TABLE IF EXISTS `directus_users`;
 
 CREATE TABLE `directus_users` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `status` int(1) unsigned NOT NULL DEFAULT '2',
+  `status` varchar(16) NOT NULL DEFAULT 'draft',
   `first_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL,
   `email` varchar(128) NOT NULL,
@@ -583,9 +583,9 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_access`, `last_page`, `token`, `external_id`)
 VALUES
-	(1,1,'Admin','User','admin@getdirectus.com',1,'$2y$10$sx0.rYeNCXvJZ9LYGPZofekAq2ah7pVEWnB3YR5aNNseLBAILztc2',1,NULL,NULL,'en-US',0,NULL,'Europe/Berlin','2018-05-21 15:48:03','/collections/projects','token','00ud6pmxj4KW5F6Ua0h7'),
-	(2,1,'Intern','User','intern@getdirectus.com',1,NULL,NULL,NULL,NULL,'en-US',0,NULL,'Europe/Berlin',NULL,NULL,'intern_token',NULL),
-	(3,2,'Disabled','User','disabled@getdirectus.com',1,'$2y$10$Njtky/bsFG9qzeW7EPy8FubOay.GxRFWTlCrQEDyR9D0N2UMdxC3u',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'disabled_token',NULL);
+    (1,'active','Admin','User','admin@getdirectus.com',1,'$2y$10$sx0.rYeNCXvJZ9LYGPZofekAq2ah7pVEWnB3YR5aNNseLBAILztc2',1,NULL,NULL,'en-US',0,NULL,'Europe/Berlin','2018-05-21 15:48:03','/collections/projects','token','00ud6pmxj4KW5F6Ua0h7'),
+    (2,'active','Intern','User','intern@getdirectus.com',1,NULL,NULL,NULL,NULL,'en-US',0,NULL,'Europe/Berlin',NULL,NULL,'intern_token',NULL),
+    (3,'suspended','Disabled','User','disabled@getdirectus.com',1,'$2y$10$Njtky/bsFG9qzeW7EPy8FubOay.GxRFWTlCrQEDyR9D0N2UMdxC3u',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'disabled_token',NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;
