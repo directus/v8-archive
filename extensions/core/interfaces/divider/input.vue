@@ -78,6 +78,7 @@ export default {
   width: 100%;
   max-width: var(--width-small);
   margin: 0 auto;
+
   h3 {
     text-decoration: uppercase;
   }
@@ -97,6 +98,7 @@ export default {
   width: 100%;
   max-width: var(--width-large);
   margin: 0 auto;
+
   h3 {
     text-decoration: uppercase;
   }
@@ -106,14 +108,17 @@ export default {
 
 .line-style-standard {
   width: 100%;
+
   hr {
     border-top: 2px solid var(--lighter-gray);
   }
+
   h3 {
     font-size: 26px;
     font-weight: lighter;
     color: var(--dark-gray);
   }
+
   p {
     font-weight: 100;
     width: 100%;
@@ -121,9 +126,7 @@ export default {
   }
 }
 
-.line-style-basic {
-  hr {
-    border-top: 1px solid var(--lighter-gray);
-  }
+.line-style-basic > hr {
+  border-top: 1px solid var(--lighter-gray);
 }
 </style>
