@@ -1,8 +1,13 @@
 <template>
-    <div :class="`line-style-${options.style} ${options.weight}`">
-        <hr />
-        <span>{{options.input}}</span>
-    </div>
+<div v-if="options.style === 'text-small'" :class="`line-style-${options.style}`">
+      <span>{{options.title}}</span>
+      <p><em>{{options.description}}</em></p>
+  </div>
+  <div v-else :class="`line-style-${options.style}`">
+    <hr />
+    <h3>{{options.title}}</h3>
+    <p><em>{{options.description}}</em></p>
+  </div>
 </template>
 
 <script>
