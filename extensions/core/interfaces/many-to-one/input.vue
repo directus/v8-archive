@@ -133,7 +133,8 @@ export default {
     viewOptions() {
       if (this.relationshipSetup === false) return null;
 
-      const viewOptions = (this.preferences && this.preferences.viewOptions) || {};
+      const viewOptions =
+        (this.preferences && this.preferences.viewOptions) || {};
       return {
         ...viewOptions,
         ...this.viewOptionsOverride

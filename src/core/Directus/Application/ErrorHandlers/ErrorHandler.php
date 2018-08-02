@@ -108,6 +108,10 @@ class ErrorHandler extends AbstractHandler
             $message .= ' ' . $previous->getMessage();
         }
 
+        if ($exception instanceof \PDOException) {
+            $message = $this->cleanDBMessage($exception);
+        }
+
         if ($exception instanceof Exception) {
             $code = $exception->getErrorCode();
         }
@@ -199,5 +203,30 @@ class ErrorHandler extends AbstractHandler
         }
 
         return false;
+    }
+
+    /**
+     * Clean Database warning/error message
+     *
+     * @param Exception|\Throwable $exception
+     *
+     * @return string
+     */
+    protected function cleanDBMessage($exception)
+    {
+        $message = $exception->getMessage();
+
+        if (!($exception instanceof \PDOException)) {
+            return $message;
+        }
+
+        // Error: 1265 SQLSTATE: 01000 (WARN_DATA_TRUNCATED)
+        // Message: Data truncated for column '%s' at row %ld
+        // Ref: https://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html#error_warn_data_truncated
+        if (preg_match('/Data truncated for column \'(.*)\'/', $message, $matches)) {
+            $message = sprintf('Warning: Data is too large for "%s" column length and may be truncated', $matches[1]);
+        }
+
+        return $message;
     }
 }

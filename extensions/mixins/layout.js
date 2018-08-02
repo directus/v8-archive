@@ -35,6 +35,10 @@ module.exports = {
     link: {
       type: String,
       default: null
+    },
+    sortField: {
+      type: String,
+      default: null
     }
   }
 };

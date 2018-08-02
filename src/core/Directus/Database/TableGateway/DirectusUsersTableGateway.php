@@ -7,10 +7,11 @@ use Zend\Db\Adapter\AdapterInterface;
 
 class DirectusUsersTableGateway extends RelationalTableGateway
 {
-    const STATUS_HIDDEN = 0;
-    const STATUS_ACTIVE = 1;
-    const STATUS_DISABLED = 2;
-    const STATUS_INVITED = 3;
+    const STATUS_DELETED = 'deleted';
+    const STATUS_ACTIVE = 'active';
+    const STATUS_DRAFT = 'draft';
+    const STATUS_SUSPENDED = 'suspended';
+    const STATUS_INVITED = 'invited';
 
     const GRAVATAR_SIZE = 100;
 
