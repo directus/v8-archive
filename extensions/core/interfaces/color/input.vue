@@ -10,6 +10,7 @@
         type="text"
         placeholder="#3498dbee"
         pattern="[#0-9a-fA-F]"
+        iconLeft="palette"
         :maxlength="9"
         v-model="rawValue"
       />
@@ -18,6 +19,7 @@
         type="text"
         placeholder="#3498db"
         pattern="[#0-9a-fA-F]"
+        iconLeft="palette"
         :maxlength="7"
         v-model="rawValue"
       />
@@ -229,7 +231,7 @@ export default {
   },
   methods: {
     setDefault() {
-      let savedColor = Color(this.value || "#000");
+      let savedColor = Color(this.value || "#263238");
       this.setRawValue(savedColor);
     },
     setRawValue(color) {
@@ -248,10 +250,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.interface-color {
+  max-width: var(--width-large);
+}
 .input {
-  max-width: 100px;
+  max-width: var(--width-small);;
   display: inline-block;
   margin-right: 8px;
+  vertical-align: middle;
 }
 
 .sliders {
@@ -274,15 +280,15 @@ export default {
 .swatch {
   transition: var(--fast) var(--transition);
   display: inline-block;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 100%;
   vertical-align: middle;
   margin-right: 8px;
   color: var(--white);
   text-align: center;
   i {
-    line-height: 34px;
+    line-height: 40px;
   }
 }
 
@@ -290,12 +296,13 @@ button {
   transition: var(--fast) var(--transition);
   position: relative;
   display: inline-block;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 100%;
   border: 2px solid var(--gray);
   // background-color: var(--white);
   margin-right: 8px;
+  margin-bottom: 8px;
   &:first-of-type {
     margin-left: 16px;
     &::before {
@@ -311,6 +318,7 @@ button {
     background-color: var(--white) !important;
   }
   &:hover {
+    transition: none;
     color: var(--white) !important;
   }
 }
