@@ -19,7 +19,6 @@ use Directus\Cache\Response;
 use Directus\Config\StatusMapping;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
-use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;

@@ -11,12 +11,10 @@ use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\User\Provider\UserProviderInterface;
 use Directus\Authentication\User\UserInterface;
-use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class Provider
 {

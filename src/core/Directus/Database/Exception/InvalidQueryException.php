@@ -3,7 +3,6 @@
 namespace Directus\Database\Exception;
 
 use Directus\Exception\ErrorException;
-use Zend\Db\Sql\AbstractSql;
 
 class InvalidQueryException extends ErrorException
 {

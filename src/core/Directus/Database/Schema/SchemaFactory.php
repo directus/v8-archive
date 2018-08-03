@@ -24,7 +24,6 @@ use Directus\Database\Ddl\Column\TinyText;
 use Directus\Database\Ddl\Column\Uuid;
 use Directus\Database\Exception\FieldAlreadyHasUniqueKeyException;
 use Directus\Database\Exception\UnknownDataTypeException;
-use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
