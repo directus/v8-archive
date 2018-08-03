@@ -49,7 +49,7 @@
         "wrapWithDelimiter": false
       },
       "default": [
-        "#f44336", "#9C27B0", "#039BE5", "#4CAF50", "#FFC107", "#212121"
+        "#f44336", "#9C27B0", "#039BE5", "#4CAF50", "#FFC107"
       ]
     },
     "paletteOnly": {
