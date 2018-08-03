@@ -284,6 +284,7 @@ class SchemaFactory
                 $column = new Uuid($name);
                 break;
             case DataTypes::TYPE_ARRAY:
+            case DataTypes::TYPE_LANG:
                 $column = new Varchar($name);
                 break;
 
