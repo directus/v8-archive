@@ -1,0 +1,85 @@
+{
+  "name": "$t:map",
+  "version": "1.0.0",
+  "datatypes": {
+    "ARRAY": 255,
+    "VARCHAR": 255
+  },
+  "fieldset": true,
+  "options": {
+    "width": {
+      "name": "$t:width",
+      "interface": "text-input",
+      "default": 400
+    },
+    "height": {
+      "name": "$t:height",
+      "interface": "text-input",
+      "default": 200
+    },
+    "lat": {
+      "name": "$t:lat",
+      "interface": "text-input",
+      "default": 51.505
+    },
+    "lng": {
+      "name": "$t:long",
+      "interface": "text-input",
+      "default": -0.09
+    },
+    "zoom": {
+      "name": "$t:zoom",
+      "comment": "$t:zoom_comment",
+      "interface": "text-input",
+      "default": 13
+    },
+    "maxZoom": {
+      "name": "$t:max_zoom",
+      "comment": "$t:max_zoom_comment",
+      "interface": "text-input",
+      "default": 17
+    },
+    "theme": {
+      "name": "$t:theme",
+      "comment": "$t:theme_comment",
+      "interface": "button-group",
+      "type": "JSON",
+      "default": "http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
+      "options": {
+        "choices": [
+          {
+            "label": "Greyscale",
+            "value": "http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png"
+          },
+          {
+            "label": "Colored",
+            "value": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          }
+        ]
+      }
+    }
+  },
+  "translation": {
+    "en-US": {
+      "map": "Map",
+      "choices": "choices",
+      "choices_comment":
+        "Enter JSON key value pairs with the saved value and text displayed.",
+      "theme": "Interface Theme",
+      "theme_comment": "Set the UI of interface if supported",
+      "value": "Value",
+      "lat": "Latitude",
+      "long": "Longitude",
+      "width": "Width",
+      "height": "Height",
+      "zoom": "Zoom",
+      "zoom_comment": "Default zoom level of the map",
+      "max_zoom": "Max Zoom",
+      "max_zoom_comment": "Maximum zoom allowed in the map",
+      "user_location_error_blocked":
+        "You've disabled the location access. Kindly enable it from the browser addressbar to auto detect your location.",
+      "user_location_error":
+        "There was an error while trying to get your location. Plese try again."
+    }
+  }
+}
