@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus_test
-# Generation Time: 2018-07-30 21:04:00 +0000
+# Generation Time: 2018-08-03 18:54:40 +0000
 # ************************************************************
 
 
@@ -121,7 +121,19 @@ CREATE TABLE `directus_collections` (
   PRIMARY KEY (`collection`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `directus_collections` WRITE;
+/*!40000 ALTER TABLE `directus_collections` DISABLE KEYS */;
 
+INSERT INTO `directus_collections` (`collection`, `item_name_template`, `preview_url`, `managed`, `hidden`, `single`, `translation`, `note`, `icon`)
+VALUES
+    ('home',NULL,NULL,1,0,0,NULL,NULL,NULL),
+    ('home_news',NULL,NULL,1,0,0,NULL,NULL,NULL),
+    ('languages',NULL,NULL,1,0,0,NULL,NULL,NULL),
+    ('news',NULL,NULL,1,0,0,NULL,NULL,NULL),
+    ('news_translations',NULL,NULL,1,0,0,NULL,NULL,NULL);
+
+/*!40000 ALTER TABLE `directus_collections` ENABLE KEYS */;
+UNLOCK TABLES;
 
 # Dump of table directus_fields
 # ------------------------------------------------------------
@@ -291,7 +303,22 @@ VALUES
 	(134,'products','images','m2m','many_to_many',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(135,'categories','id','integer','primary_key',NULL,0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
 	(136,'categories','products','O2M','one_to_many','{\"status_mapping\":{\"1\":{\"name\":\"Published\"},\"2\":{\"name\":\"Draft\",\"published\":\"0\"}}}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(137,'categories','name','varchar','text_input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL);
+	(137,'categories','name','varchar','text_input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(138,'languages','code','char','text-input','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(139,'languages','name','varchar','text-input','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(140,'news','id','integer','text-input','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(141,'news_translations','id','integer','text-input','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(142,'news_translations','title','varchar','text-input','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(143,'news_translations','content','text','textarea','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(144,'news_translations','news','integer','numeric','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(145,'news_translations','language','lang','lang','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(146,'news','translations','translation','translation',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(147,'home','id','primary_key','numeric','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(148,'home','title','varchar','text-input','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(149,'home','news','m2m','many-to-many','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(150,'home_news','id','primary_key','numeric','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(151,'home_news','home_id','integer','numeric','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL),
+	(152,'home_news','news_id','integer','numeric','null',0,NULL,0,0,0,4,NULL,0,NULL,0,NULL);
 
 /*!40000 ALTER TABLE `directus_fields` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -449,7 +476,9 @@ VALUES
 	(11,'directus_users','roles','user','directus_user_roles',NULL,'role','directus_roles','users'),
 	(12,'directus_users','avatar',NULL,NULL,NULL,NULL,'directus_files',NULL),
 	(13,'products','category_id',NULL,NULL,NULL,NULL,'categories','products'),
-	(14,'products','images','product_id','products_images',NULL,'file_id','directus_files','id');
+	(14,'products','images','product_id','products_images',NULL,'file_id','directus_files','id'),
+	(15,'news','translations',NULL,NULL,NULL,NULL,'news_translations','news'),
+	(16,'home','news','home_id','home_news',NULL,'news_id','news','id');
 
 /*!40000 ALTER TABLE `directus_relations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -587,6 +616,123 @@ VALUES
     (3,'suspended','Disabled','User','disabled@getdirectus.com',1,'$2y$10$Njtky/bsFG9qzeW7EPy8FubOay.GxRFWTlCrQEDyR9D0N2UMdxC3u',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'disabled_token',NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+# Dump of table home
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `home`;
+
+CREATE TABLE `home` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `home` WRITE;
+/*!40000 ALTER TABLE `home` DISABLE KEYS */;
+
+INSERT INTO `home` (`id`, `title`)
+VALUES
+	(1,'title 1');
+
+/*!40000 ALTER TABLE `home` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table home_news
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `home_news`;
+
+CREATE TABLE `home_news` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `home_id` int(10) unsigned DEFAULT NULL,
+  `news_id` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `home_news` WRITE;
+/*!40000 ALTER TABLE `home_news` DISABLE KEYS */;
+
+INSERT INTO `home_news` (`id`, `home_id`, `news_id`)
+VALUES
+	(1,1,1);
+
+/*!40000 ALTER TABLE `home_news` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table languages
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `languages`;
+
+CREATE TABLE `languages` (
+  `code` char(2) NOT NULL DEFAULT '',
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `languages` WRITE;
+/*!40000 ALTER TABLE `languages` DISABLE KEYS */;
+
+INSERT INTO `languages` (`code`, `name`)
+VALUES
+	('en','English'),
+	('es','Español'),
+	('nl','Nederlands');
+
+/*!40000 ALTER TABLE `languages` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table news
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `news`;
+
+CREATE TABLE `news` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `news` WRITE;
+/*!40000 ALTER TABLE `news` DISABLE KEYS */;
+
+INSERT INTO `news` (`id`)
+VALUES
+	(1),
+	(2);
+
+/*!40000 ALTER TABLE `news` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table news_translations
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `news_translations`;
+
+CREATE TABLE `news_translations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `content` text,
+  `news` int(10) unsigned DEFAULT NULL,
+  `language` char(2) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `news_translations` WRITE;
+/*!40000 ALTER TABLE `news_translations` DISABLE KEYS */;
+
+INSERT INTO `news_translations` (`id`, `title`, `content`, `news`, `language`)
+VALUES
+	(1,'Title','content',1,'en'),
+	(2,'Titulo','contenido',1,'es'),
+	(3,'Titel','inhoud',1,'nl');
+
+/*!40000 ALTER TABLE `news_translations` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
