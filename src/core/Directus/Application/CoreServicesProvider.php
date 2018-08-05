@@ -159,50 +159,6 @@ class CoreServicesProvider
             $emitter = new Emitter();
             $cachePool = $container->get('cache');
 
-            // TODO: Move this separately, this is temporary while we move things around
-            $emitter->addFilter('load.relational.onetomany', function (Payload $payload) {
-                $rows = $payload->getData();
-                /** @var Field $column */
-                $column = $payload->attribute('column');
-
-                if ($column->getInterface() !== 'translation') {
-                    return $payload;
-                }
-
-                $options = $column->getOptions();
-                $code = ArrayUtils::get($options, 'languages_code_column', 'id');
-                $languagesTable = ArrayUtils::get($options, 'languages_table');
-                $languageIdColumn = ArrayUtils::get($options, 'left_column_name');
-
-                if (!$languagesTable) {
-                    throw new \Exception('Translations language table not defined for ' . $languageIdColumn);
-                }
-
-                $tableSchema = SchemaService::getCollection($languagesTable);
-                $primaryKeyColumn = 'id';
-                foreach($tableSchema->getColumns() as $column) {
-                    if ($column->isPrimary()) {
-                        $primaryKeyColumn = $column->getName();
-                        break;
-                    }
-                }
-
-                $newData = [];
-                foreach($rows as $row) {
-                    $index = $row[$languageIdColumn];
-                    if (is_array($row[$languageIdColumn])) {
-                        $index = $row[$languageIdColumn][$code];
-                        $row[$languageIdColumn] = $row[$languageIdColumn][$primaryKeyColumn];
-                    }
-
-                    $newData[$index] = $row;
-                }
-
-                $payload->replace($newData);
-
-                return $payload;
-            }, $emitter::P_HIGH);
-
             // Cache subscriptions
             $emitter->addAction('postUpdate', function (RelationalTableGateway $gateway, $data) use ($cachePool) {
                 if(isset($data[$gateway->primaryKeyFieldName])) {

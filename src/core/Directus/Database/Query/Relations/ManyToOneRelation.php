@@ -3,7 +3,6 @@
 namespace Directus\Database\Query\Relations;
 
 use Directus\Database\Query\Builder;
-use Zend\Db\Sql\Predicate\Expression;
 
 class ManyToOneRelation extends Builder
 {

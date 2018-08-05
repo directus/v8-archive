@@ -875,4 +875,106 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             'code' => ItemNotFoundException::ERROR_CODE
         ]);
     }
+
+    public function testLangOneItem()
+    {
+        $path = 'items/news/1';
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*']);
+        $result = response_get_data($response);
+
+        $this->assertObjectHasAttribute('translations', $result);
+        $this->assertInternalType('array', $result->translations);
+        $this->assertCount(3, $result->translations);
+
+        // wildcard
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*', 'lang' => '*']);
+        $result = response_get_data($response);
+
+        $this->assertObjectHasAttribute('translations', $result);
+        $this->assertInternalType('array', $result->translations);
+        $this->assertCount(3, $result->translations);
+
+        // one language
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*', 'lang' => 'en']);
+        $result = response_get_data($response);
+
+        $this->assertObjectHasAttribute('translations', $result);
+        $this->assertInternalType('array', $result->translations);
+        $this->assertCount(1, $result->translations);
+
+        // non-existing language
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*', 'lang' => 'de']);
+        $result = response_get_data($response);
+
+        $this->assertObjectHasAttribute('translations', $result);
+        $this->assertInternalType('array', $result->translations);
+        $this->assertCount(0, $result->translations);
+    }
+
+    public function testLangList()
+    {
+        $path = 'items/news';
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*']);
+        $result = response_get_data($response);
+
+        foreach ($result as $item) {
+            $this->assertObjectHasAttribute('translations', $item);
+            $this->assertInternalType('array', $item->translations);
+        }
+    }
+
+    public function testLangRelatedOneItem()
+    {
+        $path = 'items/home/1';
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*.*.*']);
+        $result = response_get_data($response);
+
+        $this->assertObjectHasAttribute('news', $result);
+        $homeNews = $result->news;
+        $this->assertInternalType('array', $homeNews);
+        $this->assertObjectHasAttribute('news_id', $homeNews[0]);
+        $news = $homeNews[0]->news_id;
+        $this->assertObjectHasAttribute('translations', $news);
+        $this->assertInternalType('array', $news->translations);
+        $this->assertCount(3, $news->translations);
+
+        // wildcard
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*.*.*', 'lang' => '*']);
+        $result = response_get_data($response);
+
+        $this->assertObjectHasAttribute('news', $result);
+        $homeNews = $result->news;
+        $this->assertInternalType('array', $homeNews);
+        $this->assertObjectHasAttribute('news_id', $homeNews[0]);
+        $news = $homeNews[0]->news_id;
+        $this->assertObjectHasAttribute('translations', $news);
+        $this->assertInternalType('array', $news->translations);
+        $this->assertCount(3, $news->translations);
+
+        // one language
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*.*.*', 'lang' => 'en']);
+        $result = response_get_data($response);
+
+        $this->assertObjectHasAttribute('news', $result);
+        $homeNews = $result->news;
+        $this->assertInternalType('array', $homeNews);
+        $this->assertObjectHasAttribute('news_id', $homeNews[0]);
+        $news = $homeNews[0]->news_id;
+        $this->assertObjectHasAttribute('translations', $news);
+        $this->assertInternalType('array', $news->translations);
+        $this->assertCount(1, $news->translations);
+
+        // non-existing language
+        $response = request_get($path, ['access_token' => 'token', 'fields' => '*.*.*.*', 'lang' => 'de']);
+        $result = response_get_data($response);
+
+        $this->assertObjectHasAttribute('news', $result);
+        $homeNews = $result->news;
+        $this->assertInternalType('array', $homeNews);
+        $this->assertObjectHasAttribute('news_id', $homeNews[0]);
+        $news = $homeNews[0]->news_id;
+        $this->assertObjectHasAttribute('translations', $news);
+        $this->assertInternalType('array', $news->translations);
+        $this->assertCount(0, $news->translations);
+    }
 }

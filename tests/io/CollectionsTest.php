@@ -212,7 +212,17 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
         $response = request_get('collections', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 19 // 15 core tables, categories, products, products_images and static::$tableName
+            'count' => 24
+            // 15 core tables,
+            // categories,
+            // products,
+            // products_images
+            // news
+            // news_translations
+            // languages
+            // home
+            // home_news
+            // and static::$tableName
         ]);
     }
 

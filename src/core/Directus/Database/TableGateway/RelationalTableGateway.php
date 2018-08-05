@@ -5,6 +5,7 @@ namespace Directus\Database\TableGateway;
 use Directus\Database\Exception;
 use Directus\Database\Filters\Filter;
 use Directus\Database\Filters\In;
+use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Query\Builder;
@@ -1744,14 +1745,16 @@ class RelationalTableGateway extends BaseTableGateway
      * @param Field[] $columns
      * @param array $params
      *
-     * @return bool|array
+     * @return array|bool
+     *
+     * @throws Exception\FieldNotFoundException
      */
     public function loadOneToManyRelationships($entries, $columns, array $params = [])
     {
         $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleColumns = $this->getTableSchema()->getFields(array_keys($columnsTree));
         foreach ($visibleColumns as $alias) {
-            if (!$alias->isAlias() || !$alias->isOneToMany()) {
+            if (!DataTypes::isO2MType($alias->getType())) {
                 continue;
             }
 
@@ -1775,9 +1778,19 @@ class RelationalTableGateway extends BaseTableGateway
             $tableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
             $filterFields = \Directus\get_array_flat_columns($columnsTree[$alias->getName()]);
             $filters = [];
-            if (ArrayUtils::get($params, 'lang')) {
-                $langIds = StringUtils::csv(ArrayUtils::get($params, 'lang'));
-                $filters[$alias->getOptions('left_column_name')] = ['in' => $langIds];
+
+            if (ArrayUtils::get($params, 'lang') && DataTypes::isTranslationsType($alias->getType())) {
+                $languageField = $this->schemaManager->getCollection($relatedTableName)->getLangField();
+                if (!$languageField) {
+                    throw new Exception\FieldNotFoundException(
+                        'field of lang type was not found in collection: ' . $relatedTableName
+                    );
+                }
+
+                $langIds = StringUtils::safeCvs(ArrayUtils::get($params, 'lang'));
+                if (!in_array('*', $langIds)) {
+                    $filters[$languageField->getName()] = ['in' => $langIds];
+                }
             }
 
             $results = $tableGateway->fetchItems(array_merge([
@@ -1821,7 +1834,6 @@ class RelationalTableGateway extends BaseTableGateway
                 // but weren't requested at first but were forced to be selected
                 // within directus as directus needs the related and the primary keys to work properly
                 $rows = ArrayUtils::get($relatedEntries, $parentRow[$primaryKey], []);
-                $rows = $this->applyHook('load.relational.onetomany', $rows, ['column' => $alias]);
                 $parentRow[$relationalColumnName] = $rows;
             }
         }

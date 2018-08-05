@@ -4,7 +4,6 @@ namespace Directus\Services;
 
 use Directus\Authentication\Exception\ExpiredRequestTokenException;
 use Directus\Authentication\Exception\InvalidRequestTokenException;
-use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Authentication\Sso\AbstractSocialProvider;
 use Directus\Authentication\Exception\ExpiredResetPasswordToken;
 use Directus\Authentication\Exception\InvalidResetPasswordTokenException;

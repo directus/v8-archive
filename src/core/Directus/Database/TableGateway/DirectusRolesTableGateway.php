@@ -3,7 +3,6 @@
 namespace Directus\Database\TableGateway;
 
 use Directus\Permissions\Acl;
-use Zend\Db\Adapter\Adapter;
 use Zend\Db\Adapter\AdapterInterface;
 
 class DirectusRolesTableGateway extends RelationalTableGateway
