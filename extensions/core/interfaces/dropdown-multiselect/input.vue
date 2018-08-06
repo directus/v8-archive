@@ -50,8 +50,7 @@ export default {
 
       const length = longestValue.length;
 
-      if (length <= 7) return "x-small";
-      else if (length > 7 && length <= 25) return "small";
+      if (length <= 16) return "small";
       else return "medium";
     }
   },
@@ -74,21 +73,31 @@ export default {
 
 <style lang="scss" scoped>
 .select {
-  border: var(--input-border-width) solid var(--light-gray);
+  transition: all var(--fast) var(--transition);
+  border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   width: 100%;
   font-family: "Roboto", sans-serif;
+  height: 130px;
 
+  &:hover {
+    transition: none;
+    border-color: var(--light-gray);
+  }
   &:focus {
     border-color: var(--accent);
     option {
-      color: var(--darker-gray);
+      color: var(--dark-gray);
     }
   }
   option {
+    transition: color var(--fast) var(--transition);
     padding: 5px 10px;
     color: var(--gray);
-
+    &:hover {
+      transition: none;
+      color: var(--accent);
+    }
     &:checked {
       background: var(--accent)
         linear-gradient(0deg, var(--accent) 0%, var(--accent) 100%);
