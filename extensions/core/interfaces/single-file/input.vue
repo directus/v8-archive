@@ -18,7 +18,9 @@
 
     <portal to="modal" v-if="newFile">
       <v-modal :title="$t('file_upload')" @close="newFile = false">
-        <v-upload />
+        <div class="body">
+          <v-upload />
+        </div>
       </v-modal>
     </portal>
 
@@ -26,14 +28,14 @@
       <v-modal :title="$t('choose_one')" @close="existing = false">
         <v-items
           collection="directus_files"
+          view-type="tile"
           :selection="selection"
-          :filters="{}"
+          :filters="[]"
           :view-query="{}"
-          :view-type="{}"
           :view-options="{}"
           @options="() => {}"
           @query="() => {}"
-          @select="selection = $event[$event.length - 1]" />
+          @select="selection = [$event[$event.length - 1]]" />
       </v-modal>
     </portal>
   </div>
@@ -50,6 +52,23 @@ export default {
       existing: false,
       selection: []
     };
+  },
+  watch: {
+    selection(newVal) {
+      const id = newVal[0];
+
+      this.$api.getItem("directus_files", newVal)
+        .then(res => res.data)
+        .then(file => {
+          this.$emit("input", file);
+        })
+        .catch(error => {
+          this.$events.emit("error", {
+            notify: this.$t("something_went_wrong_body"),
+            error
+          });
+        });
+    }
   }
 };
 </script>
@@ -77,5 +96,9 @@ button {
     transition: none;
     background-color: var(--accent-dark);
   }
+}
+
+.body {
+  padding: 20px;
 }
 </style>
