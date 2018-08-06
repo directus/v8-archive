@@ -11,6 +11,7 @@
       :src="src(item)"
       :body="content(item)"
       :selected="selection.includes(item.id)"
+      :selection-mode="selection.length > 0"
       @select="select(item.id)" />
     <v-card
       v-if="lazyLoading"
