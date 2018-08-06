@@ -1,6 +1,7 @@
 {
   "name": "$t:divider",
   "version": "1.0.0",
+  "noDisplay": true,
   "datatypes": {
     "VARCHAR": 30
   },
