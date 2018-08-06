@@ -4,9 +4,15 @@
       v-if="value"
       class="card"
       :title="value.title"
-      :subtitle="value.type"
+      :subtitle="subtitle"
       :src="value.data.full_url"
-      color="accent" />
+      :options="{
+        remove: {
+          text: $t('delete'),
+          icon: 'delete'
+        }
+      }"
+      @remove="$emit('input', null)" />
 
     <button class="style-btn" type="button" @click="newFile = true">
       <i class="material-icons">add</i>{{ $t('new') }}
@@ -19,7 +25,7 @@
     <portal to="modal" v-if="newFile">
       <v-modal :title="$t('file_upload')" @close="newFile = false">
         <div class="body">
-          <v-upload />
+          <v-upload @upload="saveUpload" />
         </div>
       </v-modal>
     </portal>
@@ -28,13 +34,13 @@
       <v-modal :title="$t('choose_one')" @close="existing = false">
         <v-items
           collection="directus_files"
-          view-type="tile"
+          :view-type="viewType"
           :selection="selection"
           :filters="[]"
-          :view-query="{}"
-          :view-options="{}"
-          @options="() => {}"
-          @query="() => {}"
+          :view-query="viewQuery"
+          :view-options="viewOptions"
+          @options="setViewOptions"
+          @query="setViewQuery"
           @select="selection = [$event[$event.length - 1]]" />
       </v-modal>
     </portal>
@@ -50,12 +56,62 @@ export default {
     return {
       newFile: false,
       existing: false,
-      selection: []
+      selection: [],
+
+      viewOptionsOverride: {},
+      viewTypeOverride: null,
+      viewQueryOverride: {},
+      filtersOverride: []
     };
+  },
+  computed: {
+    subtitle() {
+      return this.value.filename.split('.').pop() + " • " + this.$d(new Date(this.value.upload_date), "short");
+    },
+    viewOptions() {
+      const viewOptions = this.options.viewOptions;
+      return {
+        ...viewOptions,
+        ...this.viewOptionsOverride
+      };
+    },
+    viewType() {
+      if (this.viewTypeOverride) return this.viewTypeOverride;
+      return this.options.viewType;
+    },
+    viewQuery() {
+      const viewQuery = this.options.viewQuery;
+      return {
+        ...viewQuery,
+        ...this.viewQueryOverride
+      };
+    }
+  },
+  methods: {
+    saveUpload(fileInfo) {
+      this.$emit("input", fileInfo.res.data);
+    },
+    setViewOptions(updates) {
+      this.viewOptionsOverride = {
+        ...this.viewOptionsOverride,
+        ...updates
+      };
+    },
+    setViewQuery(updates) {
+      this.viewQueryOverride = {
+        ...this.viewQueryOverride,
+        ...updates
+      };
+    }
   },
   watch: {
     selection(newVal) {
       const id = newVal[0];
+
+      if (id == null) {
+        this.$emit("input", null);
+        return;
+      }
 
       this.$api.getItem("directus_files", newVal)
         .then(res => res.data)
