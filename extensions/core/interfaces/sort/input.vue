@@ -27,6 +27,6 @@ export default {
 
 <style lang="scss" scoped>
 .v-input {
-  max-width: var(--width-x-small);
+  max-width: var(--width-small);
 }
 </style>
