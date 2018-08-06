@@ -36,9 +36,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.interface-calendar {
-  max-width: var(--width-small);
-}
 .inactive {
   pointer-events: none;
   -webkit-user-select: none;
