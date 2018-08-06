@@ -1,4 +1,5 @@
 .CodeMirror {
+	transition: all var(--fast) var(--transition);
 	font-weight: inherit;
 	font-family: "Roboto Mono";
 	border: var(--input-border-width) solid var(--lighter-gray);
@@ -6,11 +7,18 @@
 	color: var(--gray);
 	line-height: 18px;
   	height: auto;
+  	width: 100%;
+  	margin-bottom: 40px;
+}
+
+.CodeMirror:hover {
+	transition: none;
+	border-color: var(--light-gray);
 }
 
 .CodeMirror-scroll {
-  	min-height: 100px;
-  	max-height: 300px;
+  	min-height: 200px;
+  	max-height: 460px;
 }
 
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection {

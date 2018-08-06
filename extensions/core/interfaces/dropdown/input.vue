@@ -39,8 +39,7 @@ export default {
 
       const length = longestValue.length;
 
-      if (length <= 7) return "x-small";
-      else if (length > 7 && length <= 25) return "small";
+      if (length <= 25) return "small";
       else return "medium";
     }
   }
@@ -50,10 +49,7 @@ export default {
 <style lang="scss" scoped>
 .v-select {
   margin-top: 0;
-}
-
-.x-small {
-  max-width: var(--width-x-small);
+  max-width: var(--width-normal);
 }
 
 .small {

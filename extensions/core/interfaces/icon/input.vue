@@ -99,6 +99,7 @@ export default {
     padding: 0.5em;
     transition: color var(--fast) var(--transition);
     color: var(--lighter-gray);
+    max-width: 37px;
 
     &.active {
       color: var(--darker-gray);

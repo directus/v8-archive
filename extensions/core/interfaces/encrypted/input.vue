@@ -28,8 +28,7 @@ export default {
 
       if (!length) return "normal";
 
-      if (length <= 7) return "x-small";
-      else if (length > 7 && length <= 25) return "small";
+      if (length <= 25) return "small";
       else return "medium";
     },
     valueChanged() {

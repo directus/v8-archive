@@ -11,8 +11,11 @@
       "comment": "$t:choices_comment",
       "interface": "json",
       "default": {
-        "option1": "Option 1",
-        "option2": "Option 2"
+        "value1": "$t:option 1",
+        "value2": "$t:option 2",
+        "value3": "$t:option 3",
+        "value4": "$t:option 4",
+        "value5": "$t:option 5"
       }
     },
     "placeholder": {
@@ -47,6 +50,7 @@
       "choices_comment": "Enter JSON key value pairs with the saved value and text displayed",
       "placeholder": "Placeholder",
       "placeholder_comment": "Enter placeholder text",
+      "option": "Option",
       "wrap": "Wrap with Delimiter",
       "wrap_comment": "Wrap the values with a pair of delimiters to allow strict searching for a single value",
       "format": "Format",
