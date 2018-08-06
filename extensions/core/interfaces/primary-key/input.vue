@@ -1,7 +1,9 @@
 <template>
   <v-input
     v-if="newItem"
-    :class="input"
+    class="input"
+    iconRight="vpn_key"
+    iconRightColor="null"
     :maxlength="length"
     :type="inputType"
     :readonly="readonly"
@@ -15,7 +17,6 @@
     :length="length"
     :readonly="readonly"
     :required="required"
-    :loading="loading"
     :options="options" />
 </template>
 
