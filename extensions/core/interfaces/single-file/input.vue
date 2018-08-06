@@ -13,14 +13,15 @@
         }
       }"
       @remove="$emit('input', null)" />
+    <v-upload v-else small class="dropzone" @upload="saveUpload" />
 
-    <button class="style-btn" type="button" @click="newFile = true">
-      <i class="material-icons">add</i>{{ $t('new') }}
-    </button>
+    <v-button type="button" @click="newFile = true">
+      <i class="material-icons">add</i>{{ $t('new_file') }}
+    </v-button><!--
 
-    <button class="style-btn" type="button" @click="existing = true">
-      <i class="material-icons">playlist_add</i>{{ $t('select_existing') }}
-    </button>
+ --><v-button type="button" @click="existing = true">
+      <i class="material-icons">playlist_add</i>{{ $t('existing') }}
+    </v-button>
 
     <portal to="modal" v-if="newFile">
       <v-modal :title="$t('file_upload')" @close="newFile = false">
@@ -103,7 +104,7 @@ export default {
   },
   methods: {
     saveUpload(fileInfo) {
-      this.$emit("input", fileInfo.res.data);
+      this.$emit("input", fileInfo.data);
     },
     setViewOptions(updates) {
       this.viewOptionsOverride = {
@@ -144,28 +145,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.card {
+.card,
+.dropzone {
   margin-bottom: 20px;
+  width: var(--width-normal);
+}
+
+.dropzone {
+  height: 190px;
 }
 
 button {
-  background-color: var(--accent);
-  border-radius: var(--border-radius);
-  height: var(--input-height);
-  padding: 0 10px;
-  display: inline-flex;
-  align-items: center;
-  margin-right: 10px;
-  transition: background-color var(--fast) var(--transition);
-
-  i {
-    margin-right: 5px;
-  }
-
-  &:hover {
-    transition: none;
-    background-color: var(--accent-dark);
-  }
+  display: inline-block;
+  margin-right: 20px;
 }
 
 .body {
