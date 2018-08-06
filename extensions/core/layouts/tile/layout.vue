@@ -9,7 +9,9 @@
       :icon="emptySrc(item) ? (viewOptions.icon || 'photo') : null"
       :opacity="emptySrc(item) ? 'half' : null"
       :src="src(item)"
-      :body="content(item) "/>
+      :body="content(item)"
+      :selected="selection.includes(item.id)"
+      @select="select(item.id)" />
     <v-card
       v-if="lazyLoading"
       color="dark-gray"
@@ -49,13 +51,13 @@ export default {
         ) {
           return (
             item[srcField] &&
-            item[srcField].storage &&
-            item[srcField].storage.full_url
+            item[srcField].data &&
+            item[srcField].data.full_url
           );
         }
 
         if (
-          srcField === "storage" &&
+          srcField === "data" &&
           this.fields[srcField].collection === "directus_files"
         ) {
           return item[srcField] && item[srcField].full_url;
@@ -84,6 +86,17 @@ export default {
       const delta = totalScroll - scrollTop;
       if (delta <= 500) this.$emit("next-page");
       this.scrolled = scrollTop > 0;
+    },
+    select(id) {
+      let newSelection;
+
+      if (this.selection.includes(id)) {
+        newSelection = this.selection.filter(selectedID => selectedID !== id);
+      } else {
+        newSelection = [...this.selection, id];
+      }
+
+      this.$emit("select", newSelection);
     }
   }
 };
