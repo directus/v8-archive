@@ -31,7 +31,7 @@
           }"
           @close="dismissModal"
           @save="populateDropdown">
-          <v-item-listing
+          <v-items
             :collection="relatedCollection"
             :selection="[newSelected || valuePK]"
             :filters="filters"
