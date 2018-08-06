@@ -263,8 +263,6 @@ class CoreServicesProvider
                     return null;
                 }
 
-                /** @var Acl $auth */
-                $acl = $container->get('acl');
                 $data = $payload->getData();
 
                 /** @var \Directus\Filesystem\Files $files */
@@ -299,6 +297,8 @@ class CoreServicesProvider
                 $payload->remove('data');
                 $payload->remove('html');
                 if (!$replace) {
+                    /** @var Acl $auth */
+                    $acl = $container->get('acl');
                     $payload->set('upload_user', $acl->getUserId());
                     $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
                 }
