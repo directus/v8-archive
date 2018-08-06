@@ -157,10 +157,11 @@ export default {
 }
 
 small {
-  margin-top: 5px;
+  position: absolute;
+  right: 0;
+  bottom: -20px;
   font-style: italic;
   text-align: right;
-  float: right;
   color: var(--gray);
 }
 

@@ -7,6 +7,8 @@
 	color: var(--gray);
 	line-height: 18px;
   	height: auto;
+  	width: 100%;
+  	margin-bottom: 40px;
 }
 
 .CodeMirror:hover {
