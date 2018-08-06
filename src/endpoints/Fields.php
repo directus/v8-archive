@@ -8,7 +8,6 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\CollectionNotFoundException;
-use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Services\TablesService;

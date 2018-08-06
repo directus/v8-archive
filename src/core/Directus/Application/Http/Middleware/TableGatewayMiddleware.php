@@ -2,7 +2,6 @@
 
 namespace Directus\Application\Http\Middleware;
 
-use Directus\Application\Container;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Database\SchemaService;

@@ -442,12 +442,6 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
-            [
-                'collection' => 'directus_files',
-                'field' => 'storage',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
-                'interface' => 'file-upload'
-            ],
             // Folders
             [
                 'collection' => 'directus_folders',
@@ -527,9 +521,32 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'status',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'status',
-                'options' => '{"status_mapping":[{"name": "draft"},{"name": "active"},{"name": "delete"}]}'
+                'options' => json_encode([
+                    'status_mapping' => [
+                        'deleted' => [
+                            'name' => 'Deleted',
+                            'published' => false,
+                        ],
+                        'active' => [
+                            'name' => 'Active',
+                            'published' => true,
+                        ],
+                        'draft' => [
+                            'name' => 'Draft',
+                            'published' => false,
+                        ],
+                        'suspended' => [
+                            'name' => 'Suspended',
+                            'published' => false,
+                        ],
+                        'invited' => [
+                            'name' => 'Invited',
+                            'published' => false,
+                        ]
+                    ]
+                ]),
             ],
             [
                 'collection' => 'directus_users',

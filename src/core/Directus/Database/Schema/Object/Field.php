@@ -433,6 +433,16 @@ class Field extends AbstractObject
     }
 
     /**
+     * Checks whether or not the field is a lang type
+     *
+     * @return bool
+     */
+    public function isLangType()
+    {
+        return $this->isType(DataTypes::TYPE_LANG);
+    }
+
+    /**
      * Checks whether or not the field is the given type
      *
      * @param string $type

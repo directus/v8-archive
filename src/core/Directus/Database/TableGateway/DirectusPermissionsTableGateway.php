@@ -4,10 +4,8 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Database\SchemaService;
 use Directus\Permissions\Acl;
-use Directus\Session\Session;
 use Directus\Util\ArrayUtils;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Update;

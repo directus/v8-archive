@@ -9,7 +9,11 @@
       "name": "$t:open",
       "comment": "$t:open_comment",
       "interface": "toggle",
-      "default": true
+      "default": true,
+      "options": {
+        "labelOn": "Starts Open",
+        "labelOff": "Starts Closed"
+      }
     },
     "title": {
       "name": "$t:title",

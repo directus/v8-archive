@@ -29,10 +29,9 @@ class CreateUsersTable extends AbstractMigration
     {
         $table = $this->table('directus_users', ['signed' => false]);
 
-        $table->addColumn('status', 'integer', [
-            'signed' => false,
-            'limit' => 1,
-            'default' => 2 // Inactive
+        $table->addColumn('status', 'string', [
+            'limit' => 16,
+            'default' => \Directus\Database\TableGateway\DirectusUsersTableGateway::STATUS_DRAFT
         ]);
         $table->addColumn('first_name', 'string', [
             'limit' => 50,

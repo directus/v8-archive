@@ -374,7 +374,7 @@ class ScimService extends AbstractService
         if (ArrayUtils::has($data, 'active')) {
             $userData['status'] = $data['active'] === true
                                     ? DirectusUsersTableGateway::STATUS_ACTIVE
-                                    : DirectusUsersTableGateway::STATUS_DISABLED;
+                                    : DirectusUsersTableGateway::STATUS_DRAFT;
         }
 
         return $userData;
