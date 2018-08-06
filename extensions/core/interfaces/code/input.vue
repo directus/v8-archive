@@ -6,7 +6,7 @@
     <codemirror
       ref="codemirrorEl"
       :options="cmOptions"
-      :value="value"
+      :value="stringValue"
       @input="onInput" />
 
     <button
@@ -119,6 +119,13 @@ export default {
     },
     language() {
       return this.availableTypes[this.options.language];
+    },
+    stringValue() {
+      if (typeof this.value === 'object') {
+        return JSON.stringify(this.value, null, 4);
+      }
+
+      return this.value;
     }
   },
   methods: {
