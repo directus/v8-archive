@@ -31,12 +31,20 @@
     </portal>
 
     <portal to="modal" v-if="existing">
-      <v-modal :title="$t('choose_one')" @close="existing = false">
+      <v-modal
+        :title="$t('choose_one')"
+        :buttons="{
+          done: {
+            text: $t('done')
+          }
+        }"
+        action-required
+        @done="existing = false">
         <v-items
           collection="directus_files"
           :view-type="viewType"
           :selection="selection"
-          :filters="[]"
+          :filters="filters"
           :view-query="viewQuery"
           :view-options="viewOptions"
           @options="setViewOptions"
@@ -85,7 +93,13 @@ export default {
         ...viewQuery,
         ...this.viewQueryOverride
       };
-    }
+    },
+    filters() {
+      return [
+        ...this.options.filters,
+        ...this.filtersOverride
+      ];
+    },
   },
   methods: {
     saveUpload(fileInfo) {
