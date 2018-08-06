@@ -29,3 +29,12 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.interface-radio-buttons {
+  max-width: var(--width-x-large);
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+}
+</style>
