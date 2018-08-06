@@ -17,13 +17,11 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin],
-  computed: {}
+  mixins: [mixin]
 };
 </script>
 
 <style lang="scss" scoped>
-// text
 .line-style-text-small {
   display: block;
   text-align: center;
@@ -104,8 +102,6 @@ export default {
     text-decoration: uppercase;
   }
 }
-
-// options
 
 .line-style-standard {
   width: 100%;
