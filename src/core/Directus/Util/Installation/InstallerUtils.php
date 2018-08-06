@@ -439,11 +439,6 @@ class InstallerUtils
             ],
             [
                 'scope' => 'files',
-                'key' => 'file_naming',
-                'value' => 'file_id'
-            ],
-            [
-                'scope' => 'files',
                 'key' => 'youtube_api_key',
                 'value' => ''
             ]
