@@ -61,7 +61,7 @@ export default {
           srcField === "data" &&
           this.fields[srcField].collection === "directus_files"
         ) {
-          return item[srcField] && item[srcField].full_url;
+          return item[srcField].full_url;
         }
 
         return item[srcField] || null;
