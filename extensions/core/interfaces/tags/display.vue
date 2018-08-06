@@ -14,7 +14,7 @@ export default {
   mixins: [mixin],
   computed: {
     displayValue() {
-      if (!value) return "";
+      if (!this.value) return "";
 
       let value = this.value.split(",");
 
