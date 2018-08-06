@@ -254,7 +254,7 @@ export default {
   max-width: var(--width-large);
 }
 .input {
-  max-width: var(--width-small);;
+  max-width: var(--width-small);
   display: inline-block;
   margin-right: 8px;
   vertical-align: middle;

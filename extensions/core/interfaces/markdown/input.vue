@@ -32,7 +32,7 @@ export default {
       return this.value;
     },
     tooltipText() {
-      let mode = (this.editor) ? "Preview" : "Editor";
+      let mode = this.editor ? "Preview" : "Editor";
       return "Show " + mode;
     }
   },

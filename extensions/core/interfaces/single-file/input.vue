@@ -75,7 +75,11 @@ export default {
   },
   computed: {
     subtitle() {
-      return this.value.filename.split('.').pop() + " • " + this.$d(new Date(this.value.upload_date), "short");
+      return (
+        this.value.filename.split(".").pop() +
+        " • " +
+        this.$d(new Date(this.value.upload_date), "short")
+      );
     },
     viewOptions() {
       const viewOptions = this.options.viewOptions;
@@ -96,11 +100,8 @@ export default {
       };
     },
     filters() {
-      return [
-        ...this.options.filters,
-        ...this.filtersOverride
-      ];
-    },
+      return [...this.options.filters, ...this.filtersOverride];
+    }
   },
   methods: {
     saveUpload(fileInfo) {
@@ -128,7 +129,8 @@ export default {
         return;
       }
 
-      this.$api.getItem("directus_files", newVal)
+      this.$api
+        .getItem("directus_files", newVal)
         .then(res => res.data)
         .then(file => {
           this.$emit("input", file);
