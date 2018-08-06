@@ -17,7 +17,7 @@
       "name": "$t:icon-inactive-name",
       "comment": "$t:icon-inactive-comment",
       "default": "favorite_border",
-      "interface": "icons"
+      "interface": "icon"
     },
     "colorInactive": {
       "name": "$t:color-inactive-name",
@@ -37,7 +37,7 @@
       "name": "$t:icon-active-name",
       "comment": "$t:icon-active-comment",
       "default": "favorite",
-      "interface": "icons"
+      "interface": "icon"
     },
     "colorActive": {
       "name": "$t:color-active-name",
