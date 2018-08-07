@@ -6,7 +6,7 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  name: "readonly-wysiwyg",
+  name: "display-wysiwyg-full",
   mixins: [mixin],
   computed: {
     cleanValue() {
