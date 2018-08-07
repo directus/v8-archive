@@ -1,3 +1,7 @@
+.ql-editor {
+  max-height: 600px;
+}
+
 .ql-snow.ql-toolbar:after,
 .ql-snow .ql-toolbar:after {
   clear: both;
