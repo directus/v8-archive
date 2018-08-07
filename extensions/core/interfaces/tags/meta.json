@@ -48,6 +48,7 @@
       "name": "$t:icon_right",
       "comment": "$t:icon_right_comment",
       "interface": "icon",
+      "default": "local_offer",
       "advanced": true
     }
   },
