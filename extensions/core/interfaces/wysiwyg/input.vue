@@ -165,10 +165,11 @@ button.fullscreen-toggle {
   top: 10px;
   right: 10px;
   background-color: var(--white);
+  color: var(--lighter-gray);
   border-radius: 100%;
   padding: 4px;
   &:hover {
-    color: var(--darker-gray);
+    color: var(--dark-gray);
   }
 }
 
