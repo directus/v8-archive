@@ -51,5 +51,4 @@ export default {
 .interface-wysiwyg-container {
   max-width: var(--width-large);
 }
-
 </style>

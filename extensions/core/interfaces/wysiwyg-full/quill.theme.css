@@ -111,6 +111,7 @@
 .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
   stroke: var(--accent);
 }
+
 @media (pointer: coarse) {
   .ql-snow.ql-toolbar button:hover:not(.ql-active),
   .ql-snow .ql-toolbar button:hover:not(.ql-active) {
@@ -129,6 +130,7 @@
     stroke: var(--light-gray);
   }
 }
+
 .ql-snow {
   box-sizing: border-box;
 }
@@ -259,13 +261,6 @@
 }
 .ql-snow .ql-editor img {
   max-width: 100%;
-}
-.ql-snow .ql-editor:hover {
-  border-color: var(--light-gray);
-}
-.ql-snow .ql-editor:focus {
-  border-color: var(--accent);
-  color: var(--darker-gray);
 }
 .ql-snow .ql-editor {
   transition: color var(--fast) var(--transition);
@@ -593,6 +588,10 @@
   font-weight: 400;
   line-height: 1.8;
   color: var(--gray);
+}
+
+.ql-container.ql-snow:hover {
+  border-color: var(--light-gray);
 }
 
 .ql-container.ql-snow:focus-within {
