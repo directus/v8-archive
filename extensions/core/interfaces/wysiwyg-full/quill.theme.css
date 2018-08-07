@@ -260,6 +260,9 @@
 .ql-snow .ql-editor img {
   max-width: 100%;
 }
+.ql-snow .ql-editor:hover {
+  border-color: var(--light-gray);
+}
 .ql-snow .ql-editor:focus {
   border-color: var(--accent);
   color: var(--darker-gray);
