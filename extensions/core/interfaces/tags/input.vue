@@ -6,6 +6,7 @@
       :placeholder="$t('interfaces-tags-placeholder_text')"
       :icon-left="options.iconLeft"
       :icon-right="options.iconRight"
+      iconRightColor="null"
       @keydown="onInput" />
     <div class="buttons">
       <button
