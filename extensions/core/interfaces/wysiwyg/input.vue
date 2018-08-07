@@ -1,7 +1,10 @@
 <template>
   <div :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']">
     <div ref="editor" class="interface-wysiwyg">{{ value }}</div>
-    <button v-on:click='distractionFree = !distractionFree' class="fullscreen-toggle" v-tooltip="$t('distraction_free_mode')">
+    <button
+      v-on:click='distractionFree = !distractionFree'
+      class="fullscreen-toggle"
+      v-tooltip="$t('interfaces-wysiwyg-distraction_free_mode')">
       <i class="material-icons">{{fullscreenIcon}}</i>
     </button>
   </div>
