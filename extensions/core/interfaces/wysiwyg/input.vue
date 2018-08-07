@@ -1,5 +1,5 @@
 <template>
-  <div :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']">
+  <div ref="input" :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']">
     <div ref="editor" class="interface-wysiwyg">{{ value }}</div>
     <button
       v-on:click='distractionFree = !distractionFree'
@@ -52,6 +52,13 @@ export default {
       if (newVal !== this.editor.origElements.innerHTML) {
         this.editor.origElements.innerHTML = newVal;
       }
+    },
+    distractionFree(on) {
+      if (on) {
+        this.$helpers.disableBodyScroll(this.$refs.input);
+      } else {
+        this.$helpers.enableBodyScroll(this.$refs.input);
+      }
     }
   },
   methods: {
@@ -72,6 +79,7 @@ export default {
 .interface-wysiwyg-container {
   position: relative;
   max-width: var(--width-large);
+
   &.fullscreen {
     position: fixed;
     top: 0;
@@ -82,6 +90,7 @@ export default {
     max-width: 100%;
     max-height: 100%;
     background-color: var(--body-background);
+
     button.fullscreen-toggle {
       position: fixed;
       top: 20px;
@@ -93,6 +102,7 @@ export default {
         background-color: var(--darkest-gray);
       }
     }
+
     .interface-wysiwyg {
       color: var(--dark-gray);
 
@@ -107,36 +117,44 @@ export default {
       font-size: 21px;
       line-height: 33px;
       font-weight: 400;
+
       p {
         margin-top: 30px;
       }
+
       blockquote {
         margin-top: 30px;
         padding-left: 20px;
       }
+
       h1 {
         margin-top: 60px;
       }
+
       h2 {
         margin-top: 60px;
       }
+
       h3 {
         margin-top: 40px;
       }
+
       h4 {
         margin-top: 30px;
       }
+
       h5 {
         margin-top: 20px;
       }
+
       h6 {
         margin-top: 20px;
       }
     }
   }
 }
+
 button.fullscreen-toggle {
-  transition: all var(--fast) var(--transition);
   position: absolute;
   top: 10px;
   right: 10px;
@@ -147,6 +165,7 @@ button.fullscreen-toggle {
     color: var(--darker-gray);
   }
 }
+
 .interface-wysiwyg {
   position: relative;
   width: 100%;
@@ -162,23 +181,6 @@ button.fullscreen-toggle {
   overflow: scroll;
   font-weight: 400;
   line-height: 1.7em;
-
-  // font-size: 16px;
-  // line-height: 26px;
-  // font-weight: 400;
-
-  // &::before {
-  //   content: "check";
-  //   font-family: "Material Icons";
-  //   font-size: 24px;
-  //   line-height: 24px;
-  //   position: absolute;
-  //   right: 10px;
-  //   top: 10px;
-  //   background-color: red;
-  //   color: var(--light-gray);
-  //   // transform: translateY(-54%);
-  // }
 
   & > :first-child {
     padding-top: 0;
