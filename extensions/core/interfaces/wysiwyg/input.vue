@@ -1,8 +1,9 @@
 <template>
   <div ref="input" :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']">
-    <div ref="editor" class="interface-wysiwyg">{{ value }}</div>
+    <div ref="editor" class="interface-wysiwyg" />
     <button
       v-on:click='distractionFree = !distractionFree'
+      type="button"
       class="fullscreen-toggle"
       v-tooltip="$t('interfaces-wysiwyg-distraction_free_mode')">
       <i class="material-icons">{{fullscreenIcon}}</i>
@@ -49,8 +50,8 @@ export default {
       this.init();
     },
     value(newVal) {
-      if (newVal !== this.editor.origElements.innerHTML) {
-        this.editor.origElements.innerHTML = newVal;
+      if (newVal !== this.editor.getContent()) {
+        this.editor.setContent(newVal);
       }
     },
     distractionFree(on) {
@@ -64,8 +65,13 @@ export default {
   methods: {
     init() {
       this.editor = new MediumEditor(this.$refs.editor, this.editorOptions);
+
+      if (this.value) {
+        this.editor.setContent(this.value);
+      }
+
       this.editor.origElements.addEventListener("input", () => {
-        this.$emit("input", this.editor.origElements.innerHTML);
+        this.$emit("input", this.editor.getContent());
       });
     },
     destroy() {
