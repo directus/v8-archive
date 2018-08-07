@@ -1,5 +1,10 @@
 <template>
-  <div ref="editor" class="interface-wysiwyg">{{ value }}</div>
+  <div :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']">
+    <div ref="editor" class="interface-wysiwyg">{{ value }}</div>
+    <button v-on:click='distractionFree = !distractionFree' class="fullscreen-toggle" v-tooltip="$t('distraction_free_mode')">
+      <i class="material-icons">{{fullscreenIcon}}</i>
+    </button>
+  </div>
 </template>
 
 <script>
@@ -11,6 +16,11 @@ import mixin from "../../../mixins/interface";
 export default {
   name: "interface-wysiwyg",
   mixins: [mixin],
+  data() {
+    return {
+      distractionFree: false
+    };
+  },
   computed: {
     editorOptions() {
       return {
@@ -19,6 +29,9 @@ export default {
           buttons: this.options.buttons
         }
       };
+    },
+    fullscreenIcon() {
+      return (this.distractionFree) ? "close" : "fullscreen";
     }
   },
   mounted() {
@@ -53,23 +66,129 @@ export default {
 </script>
 
 <style lang="scss">
+.interface-wysiwyg-container {
+  position: relative;
+  max-width: var(--width-large);
+  &.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    max-width: 100%;
+    max-height: 100%;
+    background-color: var(--body-background);
+    button.fullscreen-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 101;
+      background-color: var(--darker-gray);
+      color: var(--white);
+      &:hover {
+        background-color: var(--darkest-gray);
+      }
+    }
+    .interface-wysiwyg {
+      color: var(--dark-gray);
+
+      border: none;
+      border-radius: 0;
+      padding: 80px 80px 100px 80px;
+      max-width: 880px;
+      margin: 0 auto;
+      height: 100%;
+      max-height: 100%;
+
+      font-size: 21px;
+      line-height: 33px;
+      font-weight: 400;
+      p {
+        margin-top: 30px;
+      }
+      blockquote {
+        margin-top: 30px;
+        padding-left: 20px;
+      }
+      h1 {
+        margin-top: 60px;
+      }
+      h2 {
+        margin-top: 60px;
+      }
+      h3 {
+        margin-top: 40px;
+      }
+      h4 {
+        margin-top: 30px;
+      }
+      h5 {
+        margin-top: 20px;
+      }
+      h6 {
+        margin-top: 20px;
+      }
+    }
+  }
+}
+button.fullscreen-toggle {
+  transition: all var(--fast) var(--transition);
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--white);
+  border-radius: 100%;
+  padding: 4px;
+  &:hover {
+    color: var(--darker-gray);
+  }
+}
 .interface-wysiwyg {
+  position: relative;
   width: 100%;
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   color: var(--gray);
   padding: 12px 15px;
-  font-weight: 400;
-  line-height: 1.8;
   transition: var(--fast) var(--transition);
   transition-property: color, border-color, padding;
   background-color: var(--white);
-  min-height: 200px;
-  max-height: 1000px;
+  min-height: 300px;
+  max-height: 800px;
   overflow: scroll;
+  font-weight: 400;
+  line-height: 1.7em;
+
+  // font-size: 16px;
+  // line-height: 26px;
+  // font-weight: 400;
+
+  // &::before {
+  //   content: "check";
+  //   font-family: "Material Icons";
+  //   font-size: 24px;
+  //   line-height: 24px;
+  //   position: absolute;
+  //   right: 10px;
+  //   top: 10px;
+  //   background-color: red;
+  //   color: var(--light-gray);
+  //   // transform: translateY(-54%);
+  // }
+
+  & > :first-child {
+    padding-top: 0;
+    margin-top: 0;
+  }
 
   &::placeholder {
     color: var(--light-gray);
+  }
+
+  &:hover {
+    transition: none;
+    border-color: var(--light-gray);
   }
 
   &:focus {
@@ -106,54 +225,75 @@ export default {
   }
 
   p {
-    padding: 10px 0;
+    margin-top: 20px;
   }
 
   blockquote {
-    border-left: 4px solid var(--lighter-gray);
-    margin-bottom: 5px;
-    margin-top: 5px;
-    padding-left: 16px;
+    border-left: 4px solid var(--lightest-gray);
+    font-style: italic;
+    margin-top: 20px;
+    padding-left: 20px;
+  }
+
+  pre {
+    max-width: 100%;
+    background-color: var(--body-background);
+    padding: 20px 10px;
+    font-family: "Roboto Mono", mono;
+    overflow: scroll;
+    margin-top: 20px;
   }
 
   h1 {
-    font-size: 2em;
-    margin: 25px 0 15px;
+    font-size: 3em;
+    line-height: 1.2em;
+    font-weight: 600;
+    margin-top: 30px;
   }
   h2 {
-    font-size: 1.5em;
-    margin: 20px 0 12px;
+    font-size: 2.5em;
+    line-height: 1.2em;
+    font-weight: 600;
+    margin-top: 30px;
   }
   h3 {
-    font-size: 1.17em;
-    margin: 18px 0 10px;
+    font-size: 2em;
+    line-height: 1.2em;
+    font-weight: 600;
+    margin-top: 30px;
   }
   h4 {
-    font-size: 1em;
-    margin: 16px 0 10px;
+    font-size: 1.87em;
+    line-height: 1.2em;
+    font-weight: 600;
+    margin-top: 20px;
   }
   h5 {
-    font-size: 0.83em;
-    margin: 15px 0 10px;
+    font-size: 1.5em;
+    line-height: 1.2em;
+    font-weight: 600;
+    margin-top: 20px;
   }
   h6 {
-    font-size: 0.67em;
-    margin: 5px 0 10px;
+    font-size: 1.2em;
+    line-height: 1.2em;
+    font-weight: 600;
+    margin-top: 20px;
   }
 }
 
 .medium-toolbar-arrow-under:after {
-  top: 60px;
-  border-color: var(--gray) transparent transparent transparent;
+  top: 40px;
+  border-color: var(--darker-gray) transparent transparent transparent;
 }
 
 .medium-toolbar-arrow-over:before {
   top: -8px;
-  border-color: transparent transparent var(--gray) transparent;
+  border-color: transparent transparent var(--darker-gray) transparent;
 }
 
 .medium-editor-toolbar {
-  background-color: var(--gray);
+  background-color: var(--darker-gray);
   border-radius: var(--border-radius);
 }
 
@@ -162,10 +302,11 @@ export default {
 }
 
 .medium-editor-toolbar li button {
-  min-width: 60px;
-  height: 60px;
+  min-width: 40px;
+  height: 40px;
+  line-height: 0;
   border: none;
-  border-right: 1px solid var(--light-gray);
+  border-right: 1px solid var(--dark-gray);
   background-color: transparent;
   color: var(--white);
   transition: background-color var(--fast) var(--transition),
@@ -173,12 +314,12 @@ export default {
 }
 
 .medium-editor-toolbar li button:hover {
-  background-color: var(--darker-gray);
+  background-color: var(--dark-gray);
   color: var(--white);
 }
 
 .medium-editor-toolbar li .medium-editor-button-active {
-  background-color: var(--darker-gray);
+  background-color: var(--dark-gray);
   color: var(--white);
 }
 
@@ -192,8 +333,9 @@ export default {
 }
 
 .medium-editor-toolbar-form .medium-editor-toolbar-input {
-  height: 60px;
-  background: var(--gray);
+  height: 40px;
+  background: var(--darker-gray);
+  border-right: 1px solid var(--gray);
   color: var(--white);
   padding-left: 20px;
 }

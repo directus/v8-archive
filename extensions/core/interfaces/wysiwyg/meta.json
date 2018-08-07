@@ -43,7 +43,8 @@
     "en-US": {
       "wysiwyg": "WYSIWYG",
       "buttons": "Buttons",
-      "buttons_comment": "Choose what buttons to use in the toolbar"
+      "buttons_comment": "Choose what buttons to use in the toolbar",
+      "distraction_free_mode": "Distracton Free Mode"
     }
   }
 }
