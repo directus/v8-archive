@@ -1702,8 +1702,20 @@ class BaseTableGateway extends TableGateway
             $updateArray = [];
             if ($Files->getSettings('file_naming') == 'file_id') {
                 $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
-                $Files->rename($record['filename'], str_pad($record[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext, $replace);
-                $updateArray['filename'] = str_pad($record[$this->primaryKeyFieldName], 11, '0', STR_PAD_LEFT) . '.' . $ext;
+                $fileId = $record[$this->primaryKeyFieldName];
+                $newFilename = $Files->uniqueName(str_pad(
+                    $fileId,
+                    11,
+                    '0',
+                    STR_PAD_LEFT
+                ) . '.' . $ext);
+
+                $Files->rename(
+                    $record['filename'],
+                    $newFilename,
+                    $replace
+                );
+                $updateArray['filename'] = $newFilename;
                 $record['filename'] = $updateArray['filename'];
             }
 
