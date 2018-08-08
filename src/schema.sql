@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-08-01 18:20:47 +0000
+# Generation Time: 2018-08-08 15:06:30 +0000
 # ************************************************************
 
 
@@ -202,7 +202,7 @@ VALUES
 	(66,'directus_files','upload_user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(67,'directus_files','upload_date','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(68,'directus_files','storage_adapter','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(69,'directus_files','data','blob','blob','{ \"nameField\": \"filename\", \"sizeField\": \"filesize\", \"typeField\": \"type\" }',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(69,'directus_files','data','alias','alias','{ \"nameField\": \"filename\", \"sizeField\": \"filesize\", \"typeField\": \"type\" }',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(70,'directus_files','url','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(71,'directus_folders','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(72,'directus_folders','name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
@@ -302,7 +302,7 @@ LOCK TABLES `directus_files` WRITE;
 
 INSERT INTO `directus_files` (`id`, `filename`, `title`, `description`, `location`, `tags`, `width`, `height`, `filesize`, `duration`, `metadata`, `type`, `charset`, `embed`, `folder`, `upload_user`, `upload_date`, `storage_adapter`)
 VALUES
-	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-08-01 18:20:02','local');
+	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-08-08 15:06:16','local');
 
 /*!40000 ALTER TABLE `directus_files` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -342,20 +342,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023144,'CreateActivitySeenTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023157,'CreateCollectionsTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023202,'CreateFieldsTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023208,'CreateFilesTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023213,'CreateFoldersTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023217,'CreateRolesTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023226,'CreatePermissionsTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023232,'CreateRelationsTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023238,'CreateRevisionsTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023243,'CreateSettingsTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180220023248,'CreateUsersTable','2018-08-01 18:20:02','2018-08-01 18:20:02',0),
-	(20180426173310,'CreateUserRoles','2018-08-01 18:20:02','2018-08-01 18:20:02',0);
+	(20180220023138,'CreateActivityTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023144,'CreateActivitySeenTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023157,'CreateCollectionsTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023202,'CreateFieldsTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023208,'CreateFilesTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023213,'CreateFoldersTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023217,'CreateRolesTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023226,'CreatePermissionsTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023232,'CreateRelationsTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023238,'CreateRevisionsTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023243,'CreateSettingsTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180220023248,'CreateUsersTable','2018-08-08 15:06:16','2018-08-08 15:06:16',0),
+	(20180426173310,'CreateUserRoles','2018-08-08 15:06:16','2018-08-08 15:06:16',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -489,6 +489,19 @@ CREATE TABLE `directus_settings` (
   UNIQUE KEY `idx_scope_name` (`scope`,`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `directus_settings` WRITE;
+/*!40000 ALTER TABLE `directus_settings` DISABLE KEYS */;
+
+INSERT INTO `directus_settings` (`id`, `scope`, `key`, `value`)
+VALUES
+	(1,'global','auto_sign_out','60'),
+	(2,'global','project_name','Directus'),
+	(3,'global','default_limit','200'),
+	(4,'global','logo',''),
+	(5,'files','youtube_api_key','');
+
+/*!40000 ALTER TABLE `directus_settings` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table directus_user_roles
@@ -550,7 +563,7 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_access`, `last_page`, `token`, `external_id`)
 VALUES
-	(1,'1','Admin','User','admin@example.com',1,'$2y$10$oNybPvDHuescGK.DKX4PseKywBZPpeQ4rHzcISas3Xtk9dQZH5Qja',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
+	(1,'active','Admin','User','admin@example.com',1,'$2y$10$pONFlQvvsR7OfdzvHTTmxOUIZ2or1nFfUp1OeB8jLW9Ipv45HyBk6',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;

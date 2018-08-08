@@ -432,8 +432,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'data',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BLOB,
-                'interface' => 'blob',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
+                'interface' => 'alias',
                 'options' => '{ "nameField": "filename", "sizeField": "filesize", "typeField": "type" }'
             ],
             [

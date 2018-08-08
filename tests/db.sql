@@ -235,7 +235,7 @@ VALUES
 	(66,'directus_files','upload_user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(67,'directus_files','upload_date','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(68,'directus_files','storage_adapter','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(69,'directus_files','data','blob','blob','{ \"nameField\": \"filename\", \"sizeField\": \"filesize\", \"typeField\": \"type\" }',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(69,'directus_files','data','alias','alias','{ \"nameField\": \"filename\", \"sizeField\": \"filesize\", \"typeField\": \"type\" }',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(70,'directus_files','url','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(71,'directus_folders','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(72,'directus_folders','name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
