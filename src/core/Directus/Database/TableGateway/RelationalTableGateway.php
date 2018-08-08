@@ -167,9 +167,8 @@ class RelationalTableGateway extends BaseTableGateway
         foreach ($recordData as $key => $data) {
             $column = $tableSchema->getField($key);
 
-            // TODO: To work with files
-            // As `data` is not set as alias for files we are checking for actual aliases
-            if ($column && $column->isAlias()) {
+            // NOTE: Each interface or the API should handle the `alias` type
+            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
                 continue;
             }
 
@@ -390,9 +389,8 @@ class RelationalTableGateway extends BaseTableGateway
         foreach ($recordData as $key => $data) {
             $column = $tableSchema->getField($key);
 
-            // TODO: To work with files
-            // As `data` is not set as alias for files we are checking for actual aliases
-            if ($column && $column->isAlias()) {
+            // NOTE: Each interface or the API should handle the `alias` type
+            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
                 continue;
             }
 
@@ -471,9 +469,8 @@ class RelationalTableGateway extends BaseTableGateway
         foreach ($recordData as $key => $data) {
             $column = $tableSchema->getField($key);
 
-            // TODO: To work with files
-            // As `data` is not set as alias for files we are checking for actual aliases
-            if ($column && $column->isAlias()) {
+            // NOTE: Each interface or the API should handle the `alias` type
+            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
                 continue;
             }
 
