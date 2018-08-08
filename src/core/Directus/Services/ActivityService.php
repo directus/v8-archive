@@ -46,8 +46,7 @@ class ActivityService extends AbstractService
     public function createComment(array $data, array $params = [])
     {
         $data = array_merge($data, [
-            'type' => DirectusActivityTableGateway::TYPE_COMMENT,
-            'action' => DirectusActivityTableGateway::ACTION_ADD,
+            'action' => DirectusActivityTableGateway::ACTION_COMMENT,
             'datetime' => DateTimeUtils::nowInUTC()->toString(),
             'ip' => \Directus\get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
@@ -289,7 +288,7 @@ class ActivityService extends AbstractService
     protected function enforcePermissionsOnExisting($action, $id, array $params = [])
     {
         $commentItem = $this->fetchItem($this->collection, $id, ['collection', 'item'], [
-            'type' => DirectusActivityTableGateway::TYPE_COMMENT
+            'action' => DirectusActivityTableGateway::ACTION_COMMENT
         ]);
 
         if (!$commentItem) {
