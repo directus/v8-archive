@@ -12,7 +12,6 @@
         :placeholder="options.placeholder"
         :options="selectOptions"
         :value="valuePK"
-        :class="{ disabled: count > 10 }"
         :icon="options.icon"
         @input="$emit('input', $event)" />
 
@@ -266,5 +265,14 @@ button {
   top: 0;
   width: 100%;
   height: 100%;
+  background: transparent;
+  border: var(--input-border-width) solid var(--lighter-gray);
+  border-radius: var(--border-radius);
+  transition: border var(--fast) var(--transition);
+
+  &:hover {
+    transition: none;
+    border-color: var(--light-gray);
+  }
 }
 </style>
