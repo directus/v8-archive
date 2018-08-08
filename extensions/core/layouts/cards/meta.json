@@ -1,9 +1,9 @@
 {
-  "name": "$t:tile",
+  "name": "$t:cards",
   "version": "1.0.0",
   "translation": {
     "en-US": {
-      "tile": "Tiles",
+      "cards": "Cards",
       "title": "Title",
       "subtitle": "Subtitle",
       "src": "Image source",
