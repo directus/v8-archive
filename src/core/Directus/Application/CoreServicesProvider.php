@@ -48,6 +48,7 @@ use Directus\Session\Session;
 use Directus\Session\Storage\NativeSessionStorage;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
+use Directus\Util\Installation\InstallerUtils;
 use Directus\Util\StringUtils;
 use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
@@ -208,16 +209,20 @@ class CoreServicesProvider
                 $zendDb = $container->get('database');
                 $privilegesTable = new DirectusPermissionsTableGateway($zendDb, $acl);
 
-                $privilegesTable->insertPrivilege([
-                    'role' => $data['id'],
-                    'collection' => 'directus_users',
-                    'create' => Acl::LEVEL_NONE,
-                    'read' => Acl::LEVEL_FULL,
-                    'update' => Acl::LEVEL_MINE,
-                    'delete' => Acl::LEVEL_NONE,
-                    'read_field_blacklist' => 'token',
-                    'write_field_blacklist' => 'token'
-                ]);
+                $defaultPermissions = InstallerUtils::getDefaultPermissions();
+
+                foreach ($defaultPermissions as $collection => $permissions) {
+                    if (!ArrayUtils::isNumericKeys($permissions)) {
+                        $permissions = [$permissions];
+                    }
+
+                    foreach ($permissions as $permission) {
+                        $privilegesTable->insertPrivilege(array_merge($permission, [
+                            'role' => $data['id'],
+                            'collection' => $collection
+                        ]));
+                    }
+                }
             });
             $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($container) {
                 $collectionName = $payload->attribute('collection_name');
