@@ -2,11 +2,11 @@
   <div v-bind:style="{ color: 'var(--' + color + ')' }">
     <v-progress-ring
       class="icon"
+      :radius="17"
       :icon="icon"
       :color="color"
-      :progress="0"
-      :radius="this.options.radius"
-      :stroke="0" />
+      :progress="100"
+      :stroke="2" />
       <span class="label">{{label}}</span>
   </div>
 </template>
@@ -96,6 +96,6 @@ export default {
 }
 .label {
   display: inline-block;
-  margin-left: 10px;
+  margin-left: 4px;
 }
 </style>
