@@ -17,13 +17,13 @@
       "name": "$t:icon-inactive-name",
       "comment": "$t:icon-inactive-comment",
       "default": "favorite_border",
-      "interface": "icons"
+      "interface": "icon"
     },
     "colorInactive": {
       "name": "$t:color-inactive-name",
       "comment": "$t:color-inactive-comment",
       "default": "blue-grey",
-      "interface": "color-picker"
+      "interface": "color-palette"
     },
     "textActive": {
       "name": "$t:text-active-name",
@@ -37,13 +37,13 @@
       "name": "$t:icon-active-name",
       "comment": "$t:icon-active-comment",
       "default": "favorite",
-      "interface": "icons"
+      "interface": "icon"
     },
     "colorActive": {
       "name": "$t:color-active-name",
       "comment": "$t:color-active-comment",
       "default": "pink-500",
-      "interface": "color-picker"
+      "interface": "color-palette"
     }
   },
   "translation": {

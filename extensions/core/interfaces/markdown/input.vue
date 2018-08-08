@@ -7,7 +7,9 @@
       @input="$emit('input', $event)"
       :id="name" />
     <div class="preview" v-show="!editor" v-html="compiledMarkdown"></div>
-    <button @click="editor = !editor"><i class="material-icons">{{ editor ? 'remove_red_eye' : 'code' }}</i></button>
+    <button
+      @click="editor = !editor"
+      v-tooltip="tooltipText"><i class="material-icons">{{ editor ? 'remove_red_eye' : 'code' }}</i></button>
   </div>
 </template>
 
@@ -28,6 +30,10 @@ export default {
       }
 
       return this.value;
+    },
+    tooltipText() {
+      let mode = this.editor ? "Preview" : "Editor";
+      return "Show " + mode;
     }
   },
   mixins: [mixin]
@@ -47,7 +53,8 @@ export default {
 }
 
 .textarea {
-  font-family: monospace;
+  font-family: "Roboto Mono", monospace;
+  display: block;
 }
 
 button {

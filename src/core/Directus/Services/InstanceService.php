@@ -20,6 +20,7 @@ class InstanceService extends AbstractService
             'force' => 'bool',
 
             'db_host' => 'string',
+            'db_port' => 'numeric',
             'db_name' => 'required|string',
             'db_user' => 'required|string',
             'db_password' => 'string',

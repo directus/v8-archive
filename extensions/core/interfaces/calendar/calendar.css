@@ -1,10 +1,23 @@
 .flatpickr-calendar {
 	box-shadow: var(--box-shadow);
 	border-radius: var(--border-radius);
+	max-width: var(--width-normal);
+	width: var(--width-normal);
+}
+
+.flatpickr-rContainer {
+	width: var(--width-normal);
 }
 
 .flatpickr-input {
 	display: none;
+}
+
+.flatpickr-days,
+.dayContainer {
+	width: 100%;
+	min-width: 100%;
+	max-width: 100%;
 }
 
 .flatpickr-day {

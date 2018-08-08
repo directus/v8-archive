@@ -18,7 +18,13 @@
       "type": "JSON",
       "default": {
         "value1": "$t:option 1",
-        "value2": "$t:option 2"
+        "value2": "$t:option 2",
+        "value3": "$t:option 3",
+        "value4": "$t:option 4",
+        "value5": "$t:option 5",
+        "value6": "$t:option 6",
+        "value7": "$t:option 7",
+        "value8": "$t:option 8"
       }
     },
     "formatting": {

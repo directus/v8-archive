@@ -64,9 +64,9 @@ export default {
 
 <style lang="scss" scoped>
 .interface-checkboxes {
-  max-width: var(--width-large);
+  max-width: var(--width-x-large);
   display: grid;
-  grid-gap: 10px;
-  grid-template-columns: 25% 25% 25% 25%;
+  grid-gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
 }
 </style>

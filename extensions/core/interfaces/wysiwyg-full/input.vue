@@ -1,5 +1,7 @@
-w<template>
-  <div ref="editor" class="interface-wysiwyg">{{ value }}</div>
+<template>
+  <div class="interface-wysiwyg-container">
+    <div ref="editor" class="interface-wysiwyg">{{ value }}</div>
+  </div>
 </template>
 
 <script>
@@ -44,3 +46,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.interface-wysiwyg-container {
+  max-width: var(--width-large);
+}
+</style>

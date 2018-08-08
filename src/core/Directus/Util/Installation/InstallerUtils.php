@@ -201,7 +201,7 @@ class InstallerUtils
         $hash = $auth->hashPassword($data['user_password']);
 
         $tableGateway->insert([
-            'status' => 1,
+            'status' => 'active',
             'first_name' => 'Admin',
             'last_name' => 'User',
             'email' => $data['user_email'],
@@ -436,11 +436,6 @@ class InstallerUtils
                 'scope' => 'global',
                 'key' => 'logo',
                 'value' => ''
-            ],
-            [
-                'scope' => 'files',
-                'key' => 'file_naming',
-                'value' => 'file_id'
             ],
             [
                 'scope' => 'files',

@@ -60,11 +60,20 @@ input {
 .checkbox {
   position: relative;
   display: inline-block;
+  &:hover label {
+    color: var(--accent);
+  }
 }
 .toggle {
   position: relative;
   cursor: pointer;
   display: inline-block;
+
+  &:hover {
+    label:after {
+      background-color: var(--lighter-gray);
+    }
+  }
 
   label {
     padding: 1rem 0 1rem 2.75rem;

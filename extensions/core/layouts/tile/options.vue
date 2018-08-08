@@ -62,18 +62,18 @@ export default {
         ...this.$lodash.mapValues(fields, info => info.name)
       };
 
-      // Check if one of the fields is `storage`. If that's the case, make sure that this
+      // Check if one of the fields is `data`. If that's the case, make sure that this
       //   field is for the directus_files collection and it's an ALIAS type
       //
       // This is a hardcoded addition to make sure that directus_files can be used in the tile view preview
-      if ("storage" in this.fields) {
-        const field = this.fields.storage;
+      if ("data" in this.fields) {
+        const field = this.fields.data;
 
         if (
           field.type.toLowerCase() === "alias" &&
           field.collection === "directus_files"
         ) {
-          options.storage = this.$t("file");
+          options.data = this.$t("file");
         }
       }
 
