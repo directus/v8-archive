@@ -268,10 +268,11 @@ class CoreServicesProvider
                 /** @var \Directus\Filesystem\Files $files */
                 $files = $container->get('files');
 
-                if (array_key_exists('data', $data) && filter_var($data['data'], FILTER_VALIDATE_URL)) {
-                    $dataInfo = $files->getLink($data['data']);
+                $fileData = ArrayUtils::get($data, 'data');
+                if (filter_var($fileData, FILTER_VALIDATE_URL)) {
+                    $dataInfo = $files->getLink($fileData);
                 } else {
-                    $dataInfo = $files->getDataInfo($data['data']);
+                    $dataInfo = $files->getDataInfo($fileData);
                 }
 
                 $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));

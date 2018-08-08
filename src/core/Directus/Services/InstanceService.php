@@ -14,6 +14,8 @@ class InstanceService extends AbstractService
             throw new ForbiddenException('Creating new instance is locked');
         }
 
+        $data = ArrayUtils::defaults(['user_token' => null], $data);
+
         $this->validate($data, [
             'env' => 'string',
 

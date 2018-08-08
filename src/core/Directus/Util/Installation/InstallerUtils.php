@@ -6,6 +6,7 @@ use Directus\Application\Application;
 use Directus\Database\Connection;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\Schema\Sources\MySQLSchema;
+use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Exception\Exception;
 use Directus\Exception\InvalidPathException;
 use Directus\Util\ArrayUtils;
@@ -201,7 +202,7 @@ class InstallerUtils
         $hash = $auth->hashPassword($data['user_password']);
 
         $tableGateway->insert([
-            'status' => 'active',
+            'status' => DirectusUsersTableGateway::STATUS_ACTIVE,
             'first_name' => 'Admin',
             'last_name' => 'User',
             'email' => $data['user_email'],
