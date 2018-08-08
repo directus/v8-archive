@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-tile" @scroll="onScroll">
+  <div class="layout-cards" @scroll="onScroll">
     <v-card
       v-for="item in items"
       :key="item.id"
@@ -26,7 +26,7 @@
 import mixin from "../../../mixins/layout";
 
 export default {
-  name: "layout-tile",
+  name: "layout-cards",
   mixins: [mixin],
   methods: {
     title(item) {
@@ -104,7 +104,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.layout-tile {
+.layout-cards {
   padding: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, var(--width-small));
