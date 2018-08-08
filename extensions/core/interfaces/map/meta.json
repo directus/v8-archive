@@ -2,8 +2,7 @@
   "name": "$t:map",
   "version": "1.0.0",
   "datatypes": {
-    "ARRAY": 255,
-    "VARCHAR": 255
+    "JSON": null
   },
   "fieldset": true,
   "options": {
@@ -76,6 +75,7 @@
       "zoom_comment": "Default zoom level of the map",
       "max_zoom": "Max Zoom",
       "max_zoom_comment": "Maximum zoom allowed in the map",
+      "no_location": "No location found",
       "user_location_error_blocked":
         "You've disabled the location access. Kindly enable it from the browser addressbar to auto detect your location.",
       "user_location_error":

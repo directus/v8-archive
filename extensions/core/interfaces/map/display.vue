@@ -1,68 +1,57 @@
 <template>
   <div class="readonly-map">
-    <div class="interface-map-wrap">
-      <div class="map-display" id="directusMapDisplay" :style="{width:options.width+'px',height:options.height+'px'}">
-        <!-- Map Renders Here -->
-      </div>
-    </div>
+    <i
+      v-tooltip="location"
+      :class="value?'':'empty'"
+      class="material-icons">my_location</i>
   </div>
 </template>
 
 <script>
-import mapMixin from "./map.js";
+import mixin from "../../../mixins/interface";
 
 export default {
   name: "readonly-map",
-  mixins: [mapMixin],
-  data() {
-    return {
-      mapPlaceholder: "directusMapDisplay",
-      mode: "display"
-    };
-  },
-  watch: {
-    //? Do we need to re-render map when "value" changes from interface debugger?
-    value: function(newVal) {
-      this.viewMap(newVal);
-    }
-  },
-  mounted() {
-    this.viewMap(this.value);
-  },
-  methods: {
-    viewMap(latlng) {
-      this.latlng = JSON.parse(latlng);
-      if (this.latlng) {
-        if (this.map) {
-          this.map.setView(this.latlng);
-        } else {
-          this.createMap(JSON.parse(latlng));
-        }
+  mixins: [mixin],
+  computed: {
+    location() {
+      let _tooltip = "";
+      if (this.value) {
+        let _value = JSON.parse(JSON.stringify(this.value));
+        _tooltip = `
+        <table class="map-value-tooltip">
+          <tr>
+            <td>Latitude</td>
+            <td>${_value.lat}</td>
+          </tr>
+          <tr>
+            <td>Longitude</td>
+            <td>${_value.lng}</td>
+          </tr>
+        </table>`;
+      } else {
+        _tooltip = this.$t("interfaces-map-no_location");
       }
+      return _tooltip;
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.map-display {
-  width: 200px;
-  height: 200px;
-  z-index: 1;
-  border: var(--input-border-width) solid var(--lighter-gray);
-  border-radius: var(--border-radius);
+.empty {
+  color: var(--lighter-gray);
 }
-.interface-map-wrap {
-  position: relative;
-  display: inline-flex;
-  flex-direction: column;
-}
-@media only screen and (max-width: 800px) {
-  .interface-map-wrap {
-    display: flex;
+</style>
+
+<style lang="scss">
+.map-value-tooltip {
+  border-collapse: collapse;
+  tr + tr {
+    border-top: 1px solid var(--dark-gray);
   }
-  .map-display {
-    width: 100% !important;
+  td {
+    padding: 4px 8px;
   }
 }
 </style>
