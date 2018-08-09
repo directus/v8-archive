@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent>
     <fieldset>
-      <legend class="style-4">{{ $t('layouts-tabular-fields') }}</legend>
+      <legend>{{ $t('layouts-tabular-fields') }}</legend>
       <draggable v-model="sortList" @end="sort">
         <div class="draggable" v-for="(field) in sortList" :key="field.field">
           <v-checkbox
@@ -111,8 +111,10 @@ export default {
 
 <style lang="scss" scoped>
 label {
-  margin-top: 30px;
-  padding-bottom: 5px;
+  margin-bottom: 5px;
+  &:not(:first-of-type) {
+    margin-top: 20px;
+  }
 }
 
 .draggable {

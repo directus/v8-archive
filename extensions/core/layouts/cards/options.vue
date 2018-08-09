@@ -91,11 +91,11 @@ export default {
 };
 </script>
 
-<style scoped>
-label.style-4 {
-  padding-bottom: 5px;
-}
-label:not(:first-of-type) {
-  margin-top: 20px;
+<style lang="scss" scoped>
+label {
+  margin-bottom: 5px;
+  &:not(:first-of-type) {
+    margin-top: 20px;
+  }
 }
 </style>
