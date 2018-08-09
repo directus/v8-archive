@@ -16,7 +16,7 @@
         </div>
       </draggable>
     </fieldset>
-    <label for="spacing">Spacing</label>
+    <label for="spacing" class="style-4">Spacing</label>
     <v-select
       id="spacing"
       :value="viewOptions.spacing || 'cozy'"
@@ -111,7 +111,10 @@ export default {
 
 <style lang="scss" scoped>
 label {
-  margin-top: 30px;
+  margin-bottom: 5px;
+  &:not(:first-of-type) {
+    margin-top: 20px;
+  }
 }
 
 .draggable {
