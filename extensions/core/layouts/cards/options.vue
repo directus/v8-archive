@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent>
-    <label for="title">{{ $t('layouts-cards-title') }}</label>
+    <label for="title" class="style-4">{{ $t('layouts-cards-title') }}</label>
     <v-select
       id="title"
       :value="viewOptions.title"
@@ -8,7 +8,7 @@
       :placeholder="$t('select_field')"
       @input="setOption('title', $event === '__none__' ? null : $event)"></v-select>
 
-    <label for="subtitle">{{ $t('layouts-cards-subtitle') }}</label>
+    <label for="subtitle" class="style-4">{{ $t('layouts-cards-subtitle') }}</label>
     <v-select
       id="subtitle"
       :value="viewOptions.subtitle"
@@ -16,7 +16,7 @@
       :placeholder="$t('select_field')"
       @input="setOption('subtitle', $event === '__none__' ? null : $event)"></v-select>
 
-    <label for="src">{{ $t('layouts-cards-src') }}</label>
+    <label for="src" class="style-4">{{ $t('layouts-cards-src') }}</label>
     <v-select
       id="src"
       :value="viewOptions.src"
@@ -24,7 +24,7 @@
       :placeholder="$t('select_field')"
       @input="setOption('src', $event === '__none__' ? null : $event)"></v-select>
 
-    <label for="content">{{ $t('layouts-cards-content') }}</label>
+    <label for="content" class="style-4">{{ $t('layouts-cards-content') }}</label>
     <v-select
       id="content"
       :value="viewOptions.content"
@@ -32,7 +32,7 @@
       :placeholder="$t('select_field')"
       @input="setOption('content', $event === '__none__' ? null : $event)"></v-select>
 
-    <label for="icon">Fallback Icon</label>
+    <label for="icon" class="style-4">Fallback Icon</label>
     <v-input
       :value="viewOptions.icon || 'photo'"
       @input="setOption('icon', $event)"></v-input>
@@ -92,6 +92,9 @@ export default {
 </script>
 
 <style scoped>
+label.style-4 {
+  padding-bottom: 5px;
+}
 label:not(:first-of-type) {
   margin-top: 20px;
 }
