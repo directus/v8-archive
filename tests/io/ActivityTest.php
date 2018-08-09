@@ -33,8 +33,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
             );
             table_insert($this->db, 'directus_activity', [
                 'id' => null,
-                'type' => 'LOGIN',
-                'action' => 'LOGIN',
+                'action' => 'authentication',
                 'user' => 1,
                 'datetime' => sprintf('%s 15:52:37', $date),
                 'ip' => '::1',
@@ -57,7 +56,6 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
     {
         $columns = [
             'id',
-            'type',
             'action',
             'user',
             'datetime',
@@ -101,7 +99,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         ]);
 
         // Selecting some columns (array)
-        $someColumns = ['id', 'type', 'action'];
+        $someColumns = ['id', 'action'];
         $response = request_get($path, ['access_token' => 'token', 'fields' => $someColumns]);
         assert_response($this, $response, [
             'data' => 'array',
@@ -198,8 +196,8 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         $result = response_to_object($response);
         $data = $result->data;
         $actions = [
-            DirectusActivityTableGateway::ACTION_LOGIN,
-            DirectusActivityTableGateway::ACTION_ADD,
+            DirectusActivityTableGateway::ACTION_AUTHENTICATE,
+            DirectusActivityTableGateway::ACTION_CREATE,
             DirectusActivityTableGateway::ACTION_UPDATE,
             DirectusActivityTableGateway::ACTION_DELETE
         ];
@@ -241,7 +239,7 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         ]);
 
         assert_response_data_contains($this, $response, [
-            'type' => DirectusActivityTableGateway::TYPE_COMMENT,
+            'action' => DirectusActivityTableGateway::ACTION_COMMENT,
             'comment' => 'a comment'
         ]);
     }

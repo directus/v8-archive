@@ -4,6 +4,7 @@
     :since="since"
     :auto-update="60"
     :locale="$i18n.locale"
+    v-tooltip="ISO"
     class="no-wrap"
   ></v-timeago>
   <div v-else>{{displayValue}}</div>
@@ -33,6 +34,11 @@ export default {
       }
 
       return this.value;
+    },
+    ISO() {
+      if (!this.value) return;
+      const ISOString = this.date.toISOString();
+      return ISOString.substring(0, ISOString.length - 1);
     }
   }
 };

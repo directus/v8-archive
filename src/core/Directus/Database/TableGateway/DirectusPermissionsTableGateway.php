@@ -17,15 +17,19 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
     public $primaryKeyFieldName = 'id';
 
     // @todo: make this part of every table gateway
+    // TODO: based this on the collection object whitelist fields
     private $fillable = [
+        'collection',
+        'role',
+        'status',
+        'status_blacklist',
         'create',
         'read',
         'update',
         'delete',
         'navigate',
-        'role',
-        'collection',
-        'status',
+        'comment',
+        'explain',
         'read_field_blacklist',
         'write_field_blacklist'
     ];
@@ -153,10 +157,6 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
     public function insertPrivilege($attributes)
     {
         $attributes = $this->verifyPrivilege($attributes);
-        // @todo: this should fallback on field default value
-        if (!isset($attributes['status_id'])) {
-            $attributes['status_id'] = NULL;
-        }
 
         $attributes = $this->getFillableFields($attributes);
 
