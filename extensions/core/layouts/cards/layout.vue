@@ -105,15 +105,11 @@ export default {
 
 <style lang="scss" scoped>
 .layout-cards {
-  padding: 20px;
-  margin-bottom: var(--page-padding-bottom);
+  padding: var(--page-padding);
+  padding-bottom: var(--page-padding-bottom);
   display: grid;
   grid-template-columns: repeat(auto-fill, var(--width-small));
   grid-gap: 20px;
   width: 100%;
-  height: 100%;
-  overflow: scroll;
-  -webkit-overflow-scrolling: touch;
-  max-height: 100vh;
 }
 </style>
