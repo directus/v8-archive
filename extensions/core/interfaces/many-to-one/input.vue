@@ -17,6 +17,12 @@
 
       <button v-if="count > 10" type="button" @click="showListing = true" />
 
+      <v-spinner
+        v-show="loading"
+        line-fg-color="var(--light-gray)"
+        line-bg-color="var(--lighter-gray)"
+        class="spinner" />
+
       <portal to="modal" v-if="showListing">
         <v-modal
           :title="$t('select_existing')"
@@ -274,5 +280,12 @@ button {
     transition: none;
     border-color: var(--light-gray);
   }
+}
+
+.spinner {
+  position: absolute;
+  right: -50px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 </style>
