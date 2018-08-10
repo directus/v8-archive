@@ -65,7 +65,7 @@
         }"
         @close="dismissSelection"
         @save="saveSelection">
-        <v-item-listing
+        <v-items
           :collection="relatedCollection"
           :filters="filters"
           :view-query="viewQuery"
