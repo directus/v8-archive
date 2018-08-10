@@ -19,6 +19,7 @@ use Directus\Cache\Response;
 use Directus\Config\StatusMapping;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
+use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
@@ -540,28 +541,21 @@ class CoreServicesProvider
                 }
                 return $payload;
             };
-            // TODO: Merge with hash user password
+
             $onInsertOrUpdate = function (Payload $payload) use ($container) {
-                /** @var Provider $auth */
-                $auth = $container->get('auth');
+                /** @var SchemaManager $schemaManager */
+                $schemaManager = $container->get('schema_manager');
                 $collectionName = $payload->attribute('collection_name');
+                $collection = $schemaManager->getCollection($collectionName);
+                $isSystemCollection = $schemaManager->isSystemCollection($collectionName);
 
-                if (SchemaService::isSystemCollection($collectionName)) {
-                    return $payload;
-                }
-
-                $collection = SchemaService::getCollection($collectionName);
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
-                    $column = $collection->getField($key);
-                    if (!$column) {
-                        continue;
-                    }
-
-                    if ($column->getInterface() === 'password') {
-                        // TODO: Use custom password hashing method
-                        $payload->set($key, $auth->hashPassword($value));
-                    }
+                   $field = $collection->getField($key);
+                   if ($field->isSystemDateType() || ($isSystemCollection && DataTypes::isDateTimeType($field->getType()))) {
+                       $dateTime = new DateTimeUtils($value);
+                       $payload->set($key, $dateTime->toUTCString());
+                   }
                 }
 
                 return $payload;
@@ -590,7 +584,7 @@ class CoreServicesProvider
             $emitter->addFilter('collection.update.directus_users:before', $hashUserPassword);
             $emitter->addFilter('collection.insert.directus_users:before', $generateExternalId);
             $emitter->addFilter('collection.insert.directus_roles:before', $generateExternalId);
-            // Hash value to any non system table password interface column
+
             $emitter->addFilter('collection.insert:before', $onInsertOrUpdate);
             $emitter->addFilter('collection.update:before', $onInsertOrUpdate);
             $preventUsePublicGroup = function (Payload $payload) use ($container) {
