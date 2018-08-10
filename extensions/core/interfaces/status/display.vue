@@ -15,7 +15,7 @@ export default {
   mixins: [mixin],
   computed: {
     currentStatus() {
-      return this.options.statusMapping[this.value];
+      return this.options.status_mapping[this.value];
     },
     style() {
       return {
