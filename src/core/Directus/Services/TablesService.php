@@ -285,6 +285,7 @@ class TablesService extends AbstractService
             throw new UnauthorizedException('Unauthorized to create collections');
         }
 
+        $data = ArrayUtils::defaults(['managed' => true], $data);
         $this->enforcePermissions($this->collection, $data, $params);
 
         $data['collection'] = $name;
