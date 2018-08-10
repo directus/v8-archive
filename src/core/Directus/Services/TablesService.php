@@ -1403,7 +1403,7 @@ class TablesService extends AbstractService
 
         // Casting values and filter all blacklisted fields
         if (ArrayUtils::has($collectionData, 'fields')) {
-            $collectionData['fields'] = $this->mergeMissingSchemaFields($collection, array_values($collectionData['fields']));
+            $collectionData['fields'] = $this->mergeMissingSchemaFields($collection, $collectionData['fields']);
         }
 
         $collectionData['translation'] = ArrayUtils::get($collectionData, 'translation');
