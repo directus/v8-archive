@@ -3,11 +3,8 @@
 namespace Directus\Console\Common;
 
 use Directus\Application\Application;
-use Directus\Authentication\Provider;
-use Directus\Bootstrap;
 use Directus\Console\Common\Exception\PasswordChangeException;
 use Directus\Console\Common\Exception\UserUpdateException;
-use Directus\Util\StringUtils;
 use Zend\Db\TableGateway\TableGateway;
 
 class User

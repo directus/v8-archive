@@ -1,0 +1,210 @@
+[2018-08-13 20:27:53] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:28:05] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:28:13] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:28:23] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:28:34] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:28:43] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:28:54] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:29:03] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:29:14] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:29:24] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:29:34] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:29:45] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:29:53] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:29:53] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []
+[2018-08-13 20:29:54] api[_].ERROR: Directus\Exception\NotInstalledException: This instance of the Directus API has not been configured properly. Read More at: https://github.com/directus in /Users/rijkvanzanten/Development/api/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php:21
+Stack trace:
+#0 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(528): Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#1 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php(66): Slim\App->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#2 [internal function]: Directus\Application\Http\Middleware\CorsMiddleware->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#3 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/DeferredCallable.php(43): call_user_func_array(Object(Directus\Application\Http\Middleware\CorsMiddleware), Array)
+#4 [internal function]: Slim\DeferredCallable->__invoke(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#5 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(70): call_user_func(Object(Slim\DeferredCallable), Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response), Object(Directus\Application\Application))
+#6 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/MiddlewareAwareTrait.php(117): Slim\App->Slim\{closure}(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#7 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(406): Slim\App->callMiddlewareStack(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#8 /Users/rijkvanzanten/Development/api/vendor/slim/slim/Slim/App.php(314): Slim\App->process(Object(Directus\Application\Http\Request), Object(Directus\Application\Http\Response))
+#9 /Users/rijkvanzanten/Development/api/src/core/Directus/Application/Application.php(161): Slim\App->run(false)
+#10 /Users/rijkvanzanten/Development/api/public/index.php(5): Directus\Application\Application->run()
+#11 {main} [] []

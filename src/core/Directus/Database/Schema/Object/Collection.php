@@ -53,6 +53,11 @@ class Collection extends AbstractObject
     protected $dateModifiedField;
 
     /**
+     * @var Field
+     */
+    protected $langField;
+
+    /**
      * Gets the collection's name
      *
      * @return string
@@ -96,6 +101,8 @@ class Collection extends AbstractObject
                 $this->dateModifiedField = $field;
             } else if (!$this->getUserModifiedField() && $field->isUserModifiedType()) {
                 $this->userModifiedField = $field;
+            } else if (!$this->getLangField() && $field->isLangType()) {
+                $this->langField = $field;
             }
 
             $this->fields[$field->getName()] = $field;
@@ -556,6 +563,16 @@ class Collection extends AbstractObject
     }
 
     /**
+     * Returns the lang field
+     *
+     * @return Field|null
+     */
+    public function getLangField()
+    {
+        return $this->langField;
+    }
+
+    /**
      * Gets the collection comment
      *
      * @return string
@@ -563,16 +580,6 @@ class Collection extends AbstractObject
     public function getNote()
     {
         return $this->attributes->get('comment');
-    }
-
-    /**
-     * Gets the item preview url
-     *
-     * @return string
-     */
-    public function getPreviewUrl()
-    {
-        return $this->attributes->get('preview_url');
     }
 
     /**

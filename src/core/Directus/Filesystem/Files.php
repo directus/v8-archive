@@ -509,9 +509,13 @@ class Files
      *
      * @return bool
      */
-    private function uniqueName($fileName, $targetPath, $attempt = 0)
+    public function uniqueName($fileName, $targetPath = null, $attempt = 0)
     {
         $info = pathinfo($fileName);
+        if (!$targetPath) {
+            $targetPath = $this->filesystem->getPath();
+        }
+
         // @TODO: this will fail when the filename doesn't have extension
         $ext = $info['extension'];
         $name = basename($fileName, ".$ext");

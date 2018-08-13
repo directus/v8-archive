@@ -65,7 +65,7 @@ return [
         // use this instead
         // Ex: 'root' => realpath(ROOT_PATH.'/../storage/uploads'),
         // Note: ROOT_PATH constant doesn't end with trailing slash
-        'root' => 'storage/uploads',
+        'root' => 'public/storage/uploads',
         // This is the url where all the media will be pointing to
         // here all assets will be (yourdomain)/storage/uploads
         // same with thumbnails (yourdomain)/storage/uploads/thumbs
@@ -95,7 +95,7 @@ return [
     ],
 
     'cors' => [
-        'enabled' => false,
+        'enabled' => true,
         'origin' => ['*'],
         'methods' => [
             'GET',

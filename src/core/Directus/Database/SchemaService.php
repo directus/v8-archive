@@ -3,7 +3,6 @@
 namespace Directus\Database;
 
 use Directus\Application\Application;
-use Directus\Bootstrap;
 use Directus\Config\Config;
 use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Schema\Object\Field;

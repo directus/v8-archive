@@ -1,0 +1,15 @@
+
+.interface-markdown[data-v-2a05cf]{max-width:var(--width-large);position:relative
+}
+.preview[data-v-2a05cf],.textarea[data-v-2a05cf]{max-width:var(--width-large);min-height:200px
+}
+.textarea[data-v-2a05cf]{display:block;font-family:Roboto Mono,monospace
+}
+button[data-v-2a05cf]{position:absolute;right:1em;top:1em
+}
+button i[data-v-2a05cf]{color:var(--light-gray);transition:var(--fast) var(--transition)
+}
+.user-is-tabbing button:focus i[data-v-2a05cf],button:hover i[data-v-2a05cf]{color:var(--primary)
+}
+.preview[data-v-2a05cf]{background-color:var(--white);border:var(--input-border-width) solid var(--lighter-gray);border-radius:var(--border-radius);padding:10px
+}

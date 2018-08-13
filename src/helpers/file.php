@@ -98,14 +98,14 @@ if (!function_exists('append_storage_information'))
         }
 
         foreach ($rows as &$row) {
-            $storage = [];
+            $data = [];
             $thumbnailFilenameParts = explode('.', $row['filename']);
             $thumbnailExtension = array_pop($thumbnailFilenameParts);
-            $storage['url'] = $storage['full_url'] = $fileRootUrl . '/' . $row['filename'];
+            $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['filename'];
 
             // Add Full url
             if ($isLocalStorageAdapter && !$hasFileRootUrlHost) {
-                $storage['full_url'] = get_url($storage['url']);
+                $data['full_url'] = get_url($data['url']);
             }
 
             // Add Thumbnails
@@ -121,7 +121,7 @@ if (!function_exists('append_storage_information'))
                 $size = explode('x', $dimension);
                 if (count($size) == 2) {
                     $thumbnailUrl = \Directus\get_thumbnail_url($row['filename'], $size[0], $size[1]);
-                    $storage['thumbnails'][] = [
+                    $data['thumbnails'][] = [
                         'full_url' => $thumbnailUrl,
                         'url' => $thumbnailUrl,
                         'dimension' => $dimension,
@@ -142,9 +142,9 @@ if (!function_exists('append_storage_information'))
                     'url' => $provider->getUrl($row)
                 ];
             }
-            $storage['embed'] = $embed;
 
-            $row['storage'] = $storage;
+            $data['embed'] = $embed;
+            $row['data'] = $data;
         }
 
         return $list ? $rows : reset($rows);

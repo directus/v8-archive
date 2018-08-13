@@ -5,7 +5,6 @@ namespace Directus\Util;
 use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Exception\Exception;
-use Directus\Exception\UnauthorizedException;
 use Firebase\JWT\JWT;
 
 class JWTUtils

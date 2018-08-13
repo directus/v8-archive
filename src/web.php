@@ -20,7 +20,7 @@ $reservedNames = [
     'server',
     'interfaces',
     'pages',
-    'listings',
+    'layouts',
     'types',
     'instances'
 ];
@@ -168,7 +168,7 @@ $app->group('/{env}', function () {
 $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
     ->add(new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($app->getContainer()))
     ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()));
-$app->group('/listings', \Directus\Api\Routes\Listings::class)
+$app->group('/layouts', \Directus\Api\Routes\Layouts::class)
     ->add(new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($app->getContainer()))
     ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()));
 $app->group('/pages', \Directus\Api\Routes\Pages::class)

@@ -1,0 +1,11 @@
+
+.interface-many-to-one[data-v-6febcf]{max-width:var(--width-normal);position:relative
+}
+.v-select[data-v-6febcf]{margin-top:0
+}
+button[data-v-6febcf]{background:transparent;border:var(--input-border-width) solid var(--lighter-gray);border-radius:var(--border-radius);height:100%;left:0;position:absolute;top:0;transition:border var(--fast) var(--transition);width:100%
+}
+button[data-v-6febcf]:hover{border-color:var(--light-gray);transition:none
+}
+.spinner[data-v-6febcf]{position:absolute;right:-50px;top:50%;transform:translateY(-50%)
+}

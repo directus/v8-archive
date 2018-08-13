@@ -2,14 +2,10 @@
 
 namespace Directus\Console\Modules;
 
-use Directus\Console\Common\Exception\PasswordChangeException;
-use Directus\Console\Common\User;
-use Directus\Console\Exception\CommandFailedException;
 use Directus\Console\Exception\WrongArgumentsException;
 use function Directus\find_log_files;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class LogModule extends ModuleBase
 {

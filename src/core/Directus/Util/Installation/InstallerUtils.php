@@ -6,8 +6,10 @@ use Directus\Application\Application;
 use Directus\Database\Connection;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\Schema\Sources\MySQLSchema;
+use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Exception\Exception;
 use Directus\Exception\InvalidPathException;
+use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Phinx\Config\Config;
@@ -201,7 +203,7 @@ class InstallerUtils
         $hash = $auth->hashPassword($data['user_password']);
 
         $tableGateway->insert([
-            'status' => 1,
+            'status' => DirectusUsersTableGateway::STATUS_ACTIVE,
             'first_name' => 'Admin',
             'last_name' => 'User',
             'email' => $data['user_email'],
@@ -349,6 +351,160 @@ class InstallerUtils
         return $path . '/config/' . $configName . '.php';
     }
 
+    public static function getDefaultPermissions()
+    {
+        return [
+            SchemaManager::COLLECTION_ACTIVITY => [
+                'create' => Acl::LEVEL_FULL,
+                'read' => Acl::LEVEL_MINE,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_UPDATE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_ACTIVITY_SEEN => [
+                'create' => Acl::LEVEL_FULL,
+                'read' => Acl::LEVEL_MINE,
+                'update' => Acl::LEVEL_MINE,
+                'delete' => Acl::LEVEL_MINE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_COLLECTION_PRESETS => [
+                'create' => Acl::LEVEL_FULL,
+                'read' => Acl::LEVEL_FULL,
+                'update' => Acl::LEVEL_MINE,
+                'delete' => Acl::LEVEL_MINE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_COLLECTIONS => [
+                'create' => Acl::LEVEL_NONE,
+                'read' => Acl::LEVEL_FULL,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_FIELDS => [
+                'create' => Acl::LEVEL_NONE,
+                'read' => Acl::LEVEL_FULL,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_FILES => [
+                'create' => Acl::LEVEL_FULL,
+                'read' => Acl::LEVEL_FULL,
+                'update' => Acl::LEVEL_FULL,
+                'delete' => Acl::LEVEL_FULL,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_FOLDERS => [
+                'create' => Acl::LEVEL_FULL,
+                'read' => Acl::LEVEL_FULL,
+                'update' => Acl::LEVEL_FULL,
+                'delete' => Acl::LEVEL_FULL,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_PERMISSIONS => [
+                'create' => Acl::LEVEL_NONE,
+                'read' => Acl::LEVEL_MINE,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_RELATIONS => [
+                'create' => Acl::LEVEL_NONE,
+                'read' => Acl::LEVEL_FULL,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_REVISIONS => [
+                'create' => Acl::LEVEL_FULL,
+                'read' => Acl::LEVEL_FULL,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_ROLES => [
+                'create' => Acl::LEVEL_NONE,
+                'read' => Acl::LEVEL_MINE,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_SETTINGS => [
+                'create' => Acl::LEVEL_NONE,
+                'read' => Acl::LEVEL_FULL,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_USER_ROLES => [
+                'create' => Acl::LEVEL_NONE,
+                'read' => Acl::LEVEL_MINE,
+                'update' => Acl::LEVEL_NONE,
+                'delete' => Acl::LEVEL_NONE,
+                'comment' => Acl::COMMENT_LEVEL_NONE,
+                'explain' => Acl::EXPLAIN_LEVEL_NONE,
+            ],
+            SchemaManager::COLLECTION_USERS => [
+                [
+                    'status' => DirectusUsersTableGateway::STATUS_ACTIVE,
+                    'create' => Acl::LEVEL_NONE,
+                    'read' => Acl::LEVEL_FULL,
+                    'update' => Acl::LEVEL_MINE,
+                    'delete' => Acl::LEVEL_MINE,
+                    'comment' => Acl::COMMENT_LEVEL_NONE,
+                    'explain' => Acl::EXPLAIN_LEVEL_NONE,
+                ], [
+                    'status' => DirectusUsersTableGateway::STATUS_DELETED,
+                    'create' => Acl::LEVEL_NONE,
+                    'read' => Acl::LEVEL_NONE,
+                    'update' => Acl::LEVEL_NONE,
+                    'delete' => Acl::LEVEL_NONE,
+                    'comment' => Acl::COMMENT_LEVEL_NONE,
+                    'explain' => Acl::EXPLAIN_LEVEL_NONE,
+                ], [
+                    'status' => DirectusUsersTableGateway::STATUS_DRAFT,
+                    'create' => Acl::LEVEL_NONE,
+                    'read' => Acl::LEVEL_NONE,
+                    'update' => Acl::LEVEL_NONE,
+                    'delete' => Acl::LEVEL_NONE,
+                    'comment' => Acl::COMMENT_LEVEL_NONE,
+                    'explain' => Acl::EXPLAIN_LEVEL_NONE,
+                ], [
+                    'status' => DirectusUsersTableGateway::STATUS_INVITED,
+                    'create' => Acl::LEVEL_NONE,
+                    'read' => Acl::LEVEL_NONE,
+                    'update' => Acl::LEVEL_NONE,
+                    'delete' => Acl::LEVEL_NONE,
+                    'comment' => Acl::COMMENT_LEVEL_NONE,
+                    'explain' => Acl::EXPLAIN_LEVEL_NONE,
+                ], [
+                    'status' => DirectusUsersTableGateway::STATUS_SUSPENDED,
+                    'create' => Acl::LEVEL_NONE,
+                    'read' => Acl::LEVEL_NONE,
+                    'update' => Acl::LEVEL_NONE,
+                    'delete' => Acl::LEVEL_NONE,
+                    'comment' => Acl::COMMENT_LEVEL_NONE,
+                    'explain' => Acl::EXPLAIN_LEVEL_NONE,
+                ]
+            ],
+
+        ];
+    }
+
     /**
      * Creates a config path from data
      *
@@ -436,11 +592,6 @@ class InstallerUtils
                 'scope' => 'global',
                 'key' => 'logo',
                 'value' => ''
-            ],
-            [
-                'scope' => 'files',
-                'key' => 'file_naming',
-                'value' => 'file_id'
             ],
             [
                 'scope' => 'files',
@@ -635,7 +786,7 @@ class InstallerUtils
             'mail_from' => 'admin@example.com',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
             'feedback_login' => true,
-            'cors_enabled' => false
+            'cors_enabled' => true
         ], $data);
     }
 }

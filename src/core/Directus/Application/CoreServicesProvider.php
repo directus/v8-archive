@@ -19,6 +19,7 @@ use Directus\Cache\Response;
 use Directus\Config\StatusMapping;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
+use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
@@ -48,6 +49,7 @@ use Directus\Session\Session;
 use Directus\Session\Storage\NativeSessionStorage;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
+use Directus\Util\Installation\InstallerUtils;
 use Directus\Util\StringUtils;
 use League\Flysystem\Adapter\Local;
 use Monolog\Formatter\LineFormatter;
@@ -159,50 +161,6 @@ class CoreServicesProvider
             $emitter = new Emitter();
             $cachePool = $container->get('cache');
 
-            // TODO: Move this separately, this is temporary while we move things around
-            $emitter->addFilter('load.relational.onetomany', function (Payload $payload) {
-                $rows = $payload->getData();
-                /** @var Field $column */
-                $column = $payload->attribute('column');
-
-                if ($column->getInterface() !== 'translation') {
-                    return $payload;
-                }
-
-                $options = $column->getOptions();
-                $code = ArrayUtils::get($options, 'languages_code_column', 'id');
-                $languagesTable = ArrayUtils::get($options, 'languages_table');
-                $languageIdColumn = ArrayUtils::get($options, 'left_column_name');
-
-                if (!$languagesTable) {
-                    throw new \Exception('Translations language table not defined for ' . $languageIdColumn);
-                }
-
-                $tableSchema = SchemaService::getCollection($languagesTable);
-                $primaryKeyColumn = 'id';
-                foreach($tableSchema->getColumns() as $column) {
-                    if ($column->isPrimary()) {
-                        $primaryKeyColumn = $column->getName();
-                        break;
-                    }
-                }
-
-                $newData = [];
-                foreach($rows as $row) {
-                    $index = $row[$languageIdColumn];
-                    if (is_array($row[$languageIdColumn])) {
-                        $index = $row[$languageIdColumn][$code];
-                        $row[$languageIdColumn] = $row[$languageIdColumn][$primaryKeyColumn];
-                    }
-
-                    $newData[$index] = $row;
-                }
-
-                $payload->replace($newData);
-
-                return $payload;
-            }, $emitter::P_HIGH);
-
             // Cache subscriptions
             $emitter->addAction('postUpdate', function (RelationalTableGateway $gateway, $data) use ($cachePool) {
                 if(isset($data[$gateway->primaryKeyFieldName])) {
@@ -252,16 +210,20 @@ class CoreServicesProvider
                 $zendDb = $container->get('database');
                 $privilegesTable = new DirectusPermissionsTableGateway($zendDb, $acl);
 
-                $privilegesTable->insertPrivilege([
-                    'role' => $data['id'],
-                    'collection' => 'directus_users',
-                    'create' => Acl::LEVEL_NONE,
-                    'read' => Acl::LEVEL_FULL,
-                    'update' => Acl::LEVEL_MINE,
-                    'delete' => Acl::LEVEL_NONE,
-                    'read_field_blacklist' => 'token',
-                    'write_field_blacklist' => 'token'
-                ]);
+                $defaultPermissions = InstallerUtils::getDefaultPermissions();
+
+                foreach ($defaultPermissions as $collection => $permissions) {
+                    if (!ArrayUtils::isNumericKeys($permissions)) {
+                        $permissions = [$permissions];
+                    }
+
+                    foreach ($permissions as $permission) {
+                        $privilegesTable->insertPrivilege(array_merge($permission, [
+                            'role' => $data['id'],
+                            'collection' => $collection
+                        ]));
+                    }
+                }
             });
             $emitter->addFilter('collection.insert:before', function (Payload $payload) use ($container) {
                 $collectionName = $payload->attribute('collection_name');
@@ -307,17 +269,16 @@ class CoreServicesProvider
                     return null;
                 }
 
-                /** @var Acl $auth */
-                $acl = $container->get('acl');
                 $data = $payload->getData();
 
                 /** @var \Directus\Filesystem\Files $files */
                 $files = $container->get('files');
 
-                if (array_key_exists('data', $data) && filter_var($data['data'], FILTER_VALIDATE_URL)) {
-                    $dataInfo = $files->getLink($data['data']);
+                $fileData = ArrayUtils::get($data, 'data');
+                if (filter_var($fileData, FILTER_VALIDATE_URL)) {
+                    $dataInfo = $files->getLink($fileData);
                 } else {
-                    $dataInfo = $files->getDataInfo($data['data']);
+                    $dataInfo = $files->getDataInfo($fileData);
                 }
 
                 $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
@@ -343,6 +304,8 @@ class CoreServicesProvider
                 $payload->remove('data');
                 $payload->remove('html');
                 if (!$replace) {
+                    /** @var Acl $auth */
+                    $acl = $container->get('acl');
                     $payload->set('upload_user', $acl->getUserId());
                     $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
                 }
@@ -578,28 +541,21 @@ class CoreServicesProvider
                 }
                 return $payload;
             };
-            // TODO: Merge with hash user password
+
             $onInsertOrUpdate = function (Payload $payload) use ($container) {
-                /** @var Provider $auth */
-                $auth = $container->get('auth');
+                /** @var SchemaManager $schemaManager */
+                $schemaManager = $container->get('schema_manager');
                 $collectionName = $payload->attribute('collection_name');
+                $collection = $schemaManager->getCollection($collectionName);
+                $isSystemCollection = $schemaManager->isSystemCollection($collectionName);
 
-                if (SchemaService::isSystemCollection($collectionName)) {
-                    return $payload;
-                }
-
-                $collection = SchemaService::getCollection($collectionName);
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
-                    $column = $collection->getField($key);
-                    if (!$column) {
-                        continue;
-                    }
-
-                    if ($column->getInterface() === 'password') {
-                        // TODO: Use custom password hashing method
-                        $payload->set($key, $auth->hashPassword($value));
-                    }
+                   $field = $collection->getField($key);
+                   if ($field->isSystemDateType() || ($isSystemCollection && DataTypes::isDateTimeType($field->getType()))) {
+                       $dateTime = new DateTimeUtils($value);
+                       $payload->set($key, $dateTime->toUTCString());
+                   }
                 }
 
                 return $payload;
@@ -628,7 +584,7 @@ class CoreServicesProvider
             $emitter->addFilter('collection.update.directus_users:before', $hashUserPassword);
             $emitter->addFilter('collection.insert.directus_users:before', $generateExternalId);
             $emitter->addFilter('collection.insert.directus_roles:before', $generateExternalId);
-            // Hash value to any non system table password interface column
+
             $emitter->addFilter('collection.insert:before', $onInsertOrUpdate);
             $emitter->addFilter('collection.update:before', $onInsertOrUpdate);
             $preventUsePublicGroup = function (Payload $payload) use ($container) {

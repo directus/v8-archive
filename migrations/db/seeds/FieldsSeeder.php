@@ -24,12 +24,6 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_activity',
-                'field' => 'type',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
-                'interface' => 'text-input'
-            ],
-            [
-                'collection' => 'directus_activity',
                 'field' => 'action',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
@@ -117,12 +111,6 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_collections',
                 'field' => 'item_name_template',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
-                'interface' => 'text-input'
-            ],
-            [
-                'collection' => 'directus_collections',
-                'field' => 'preview_url',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
@@ -432,8 +420,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'data',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BLOB,
-                'interface' => 'blob',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
+                'interface' => 'alias',
                 'options' => '{ "nameField": "filename", "sizeField": "filesize", "typeField": "type" }'
             ],
             [
@@ -441,12 +429,6 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'url',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
-            ],
-            [
-                'collection' => 'directus_files',
-                'field' => 'storage',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
-                'interface' => 'file-upload'
             ],
             // Folders
             [
@@ -527,9 +509,32 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'status',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'status',
-                'options' => '{"status_mapping":[{"name": "draft"},{"name": "active"},{"name": "delete"}]}'
+                'options' => json_encode([
+                    'status_mapping' => [
+                        'deleted' => [
+                            'name' => 'Deleted',
+                            'published' => false,
+                        ],
+                        'active' => [
+                            'name' => 'Active',
+                            'published' => true,
+                        ],
+                        'draft' => [
+                            'name' => 'Draft',
+                            'published' => false,
+                        ],
+                        'suspended' => [
+                            'name' => 'Suspended',
+                            'published' => false,
+                        ],
+                        'invited' => [
+                            'name' => 'Invited',
+                            'published' => false,
+                        ]
+                    ]
+                ]),
             ],
             [
                 'collection' => 'directus_users',
@@ -681,12 +686,6 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'delete',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
-            ],
-            [
-                'collection' => 'directus_permissions',
-                'field' => 'navigate',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
             ],
             [
                 'collection' => 'directus_permissions',

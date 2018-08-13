@@ -56,6 +56,7 @@ final class DataTypes
 
     const TYPE_FILE         = 'file';
     const TYPE_TRANSLATION  = 'translation';
+    const TYPE_LANG         = 'lang';
 
     const TYPE_PRIMARY_KEY       = 'primary_key';
     const TYPE_STATUS            = 'status';
@@ -102,7 +103,8 @@ final class DataTypes
             static::TYPE_MEDIUM_TEXT,
             static::TYPE_LONGTEXT,
             static::TYPE_UUID,
-            static::TYPE_ARRAY
+            static::TYPE_ARRAY,
+            static::TYPE_LANG,
         ], static::getJSONTypes(), static::getListTypes());
     }
 
@@ -145,6 +147,18 @@ final class DataTypes
             static::TYPE_DATE,
             static::TYPE_DATETIME
         ];
+    }
+
+    /**
+     * Checks whether or not the given type is a date time type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isDateTimeType($type)
+    {
+        return in_array(strtolower($type), static::getDateTimeTypes());
     }
 
     /**
@@ -316,6 +330,31 @@ final class DataTypes
     }
 
     /**
+     * Returns all the o2m data types
+     *
+     * @return array
+     */
+    public static function getO2MTypes()
+    {
+        return [
+            static::TYPE_O2M,
+            static::TYPE_TRANSLATION
+        ];
+    }
+
+    /**
+     * Checks whether the given type is an o2m type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isO2MType($type)
+    {
+        return in_array(strtolower($type), static::getO2MTypes());
+    }
+
+    /**
      * Returns all the files type
      *
      * @return array
@@ -378,7 +417,8 @@ final class DataTypes
             static::TYPE_USER_CREATED,
             static::TYPE_USER_MODIFIED,
             static::TYPE_STATUS,
-            static::TYPE_SORT
+            static::TYPE_SORT,
+            static::TYPE_LANG,
         ], static::getSystemDateTypes());
     }
 
@@ -427,7 +467,8 @@ final class DataTypes
                 static::TYPE_CHAR,
                 static::TYPE_VARCHAR,
                 static::TYPE_UUID,
-                static::TYPE_ARRAY
+                static::TYPE_ARRAY,
+                static::TYPE_LANG,
             ],
             static::getListTypes(),
             static::getNumericTypes(),
@@ -448,6 +489,30 @@ final class DataTypes
     }
 
     /**
+     * Checks whether the given type is translations type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isTranslationsType($type)
+    {
+        return static::equals(static::TYPE_TRANSLATION, $type);
+    }
+
+    /**
+     * Checks whether the given type is lang type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isLangType($type)
+    {
+        return static::equals(static::TYPE_LANG, $type);
+    }
+
+    /**
      * Checks whether or not a given type exists
      *
      * @param string $type
@@ -457,5 +522,18 @@ final class DataTypes
     public static function exists($type)
     {
         return in_array(strtolower($type), static::getAllTypes());
+    }
+
+    /**
+     * Compare if two types are equal
+     *
+     * @param string $typeA
+     * @param string $typeB
+     *
+     * @return bool
+     */
+    public static function equals($typeA, $typeB)
+    {
+        return strtolower($typeA) === strtolower($typeB);
     }
 }

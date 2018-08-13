@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
+class ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -61,6 +61,7 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         array (
             'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
+            'Psr\\Http\\Server\\' => 16,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
             'Psr\\Cache\\' => 10,
@@ -187,7 +188,7 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         ),
         'RKA\\Middleware\\' => 
         array (
-            0 => __DIR__ . '/..' . '/akrabat/rka-ip-address-middleware/src',
+            0 => __DIR__ . '/..' . '/akrabat/ip-address-middleware/src',
         ),
         'Psr\\SimpleCache\\' => 
         array (
@@ -196,6 +197,11 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'Psr\\Http\\Server\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-server-handler/src',
+            1 => __DIR__ . '/..' . '/psr/http-server-middleware/src',
         ),
         'Psr\\Http\\Message\\' => 
         array (
@@ -397,7 +403,7 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         'Directus\\Api\\Routes\\Instances' => __DIR__ . '/../..' . '/src/endpoints/Instances.php',
         'Directus\\Api\\Routes\\Interfaces' => __DIR__ . '/../..' . '/src/endpoints/Interfaces.php',
         'Directus\\Api\\Routes\\Items' => __DIR__ . '/../..' . '/src/endpoints/Items.php',
-        'Directus\\Api\\Routes\\Listings' => __DIR__ . '/../..' . '/src/endpoints/Listings.php',
+        'Directus\\Api\\Routes\\Layouts' => __DIR__ . '/../..' . '/src/endpoints/Layouts.php',
         'Directus\\Api\\Routes\\Mail' => __DIR__ . '/../..' . '/src/endpoints/Mail.php',
         'Directus\\Api\\Routes\\Pages' => __DIR__ . '/../..' . '/src/endpoints/Pages.php',
         'Directus\\Api\\Routes\\Permissions' => __DIR__ . '/../..' . '/src/endpoints/Permissions.php',
@@ -649,6 +655,7 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         'Directus\\Permissions\\Exception\\ForbiddenFieldReadException' => __DIR__ . '/../..' . '/src/core/Directus/Permissions/Exception/ForbiddenFieldReadException.php',
         'Directus\\Permissions\\Exception\\ForbiddenFieldWriteException' => __DIR__ . '/../..' . '/src/core/Directus/Permissions/Exception/ForbiddenFieldWriteException.php',
         'Directus\\Permissions\\Exception\\PermissionException' => __DIR__ . '/../..' . '/src/core/Directus/Permissions/Exception/PermissionException.php',
+        'Directus\\Permissions\\Exception\\UnableFindOwnerItemsException' => __DIR__ . '/../..' . '/src/core/Directus/Permissions/Exception/UnableFindOwnerItemsException.php',
         'Directus\\Services\\AbstractExtensionsController' => __DIR__ . '/../..' . '/src/core/Directus/Services/AbstractExtensionsController.php',
         'Directus\\Services\\AbstractService' => __DIR__ . '/../..' . '/src/core/Directus/Services/AbstractService.php',
         'Directus\\Services\\ActivityService' => __DIR__ . '/../..' . '/src/core/Directus/Services/ActivityService.php',
@@ -658,7 +665,7 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         'Directus\\Services\\InstanceService' => __DIR__ . '/../..' . '/src/core/Directus/Services/InstanceService.php',
         'Directus\\Services\\InterfacesService' => __DIR__ . '/../..' . '/src/core/Directus/Services/InterfacesService.php',
         'Directus\\Services\\ItemsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/ItemsService.php',
-        'Directus\\Services\\ListingsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/ListingsService.php',
+        'Directus\\Services\\LayoutsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/LayoutsService.php',
         'Directus\\Services\\MailService' => __DIR__ . '/../..' . '/src/core/Directus/Services/MailService.php',
         'Directus\\Services\\PagesService' => __DIR__ . '/../..' . '/src/core/Directus/Services/PagesService.php',
         'Directus\\Services\\PermissionsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/PermissionsService.php',
@@ -1604,6 +1611,7 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         'Prophecy\\Doubler\\ClassPatch\\ProphecySubjectPatch' => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy/Doubler/ClassPatch/ProphecySubjectPatch.php',
         'Prophecy\\Doubler\\ClassPatch\\ReflectionClassNewInstancePatch' => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy/Doubler/ClassPatch/ReflectionClassNewInstancePatch.php',
         'Prophecy\\Doubler\\ClassPatch\\SplFileInfoPatch' => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy/Doubler/ClassPatch/SplFileInfoPatch.php',
+        'Prophecy\\Doubler\\ClassPatch\\ThrowablePatch' => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy/Doubler/ClassPatch/ThrowablePatch.php',
         'Prophecy\\Doubler\\ClassPatch\\TraversablePatch' => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy/Doubler/ClassPatch/TraversablePatch.php',
         'Prophecy\\Doubler\\DoubleInterface' => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy/Doubler/DoubleInterface.php',
         'Prophecy\\Doubler\\Doubler' => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy/Doubler/Doubler.php',
@@ -1675,6 +1683,8 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         'Psr\\Http\\Message\\StreamInterface' => __DIR__ . '/..' . '/psr/http-message/src/StreamInterface.php',
         'Psr\\Http\\Message\\UploadedFileInterface' => __DIR__ . '/..' . '/psr/http-message/src/UploadedFileInterface.php',
         'Psr\\Http\\Message\\UriInterface' => __DIR__ . '/..' . '/psr/http-message/src/UriInterface.php',
+        'Psr\\Http\\Server\\MiddlewareInterface' => __DIR__ . '/..' . '/psr/http-server-middleware/src/MiddlewareInterface.php',
+        'Psr\\Http\\Server\\RequestHandlerInterface' => __DIR__ . '/..' . '/psr/http-server-handler/src/RequestHandlerInterface.php',
         'Psr\\Log\\AbstractLogger' => __DIR__ . '/..' . '/psr/log/Psr/Log/AbstractLogger.php',
         'Psr\\Log\\InvalidArgumentException' => __DIR__ . '/..' . '/psr/log/Psr/Log/InvalidArgumentException.php',
         'Psr\\Log\\LogLevel' => __DIR__ . '/..' . '/psr/log/Psr/Log/LogLevel.php',
@@ -1688,7 +1698,7 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
         'Psr\\SimpleCache\\CacheException' => __DIR__ . '/..' . '/psr/simple-cache/src/CacheException.php',
         'Psr\\SimpleCache\\CacheInterface' => __DIR__ . '/..' . '/psr/simple-cache/src/CacheInterface.php',
         'Psr\\SimpleCache\\InvalidArgumentException' => __DIR__ . '/..' . '/psr/simple-cache/src/InvalidArgumentException.php',
-        'RKA\\Middleware\\IpAddress' => __DIR__ . '/..' . '/akrabat/rka-ip-address-middleware/src/IpAddress.php',
+        'RKA\\Middleware\\IpAddress' => __DIR__ . '/..' . '/akrabat/ip-address-middleware/src/IpAddress.php',
         'Ramsey\\Uuid\\BinaryUtils' => __DIR__ . '/..' . '/ramsey/uuid/src/BinaryUtils.php',
         'Ramsey\\Uuid\\Builder\\DefaultUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DefaultUuidBuilder.php',
         'Ramsey\\Uuid\\Builder\\DegradedUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DegradedUuidBuilder.php',
@@ -2955,10 +2965,10 @@ class ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit54f37eae3354cec22df1d8b8ea0908bf::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343::$classMap;
 
         }, null, ClassLoader::class);
     }

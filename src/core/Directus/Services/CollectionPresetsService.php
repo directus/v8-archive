@@ -4,7 +4,6 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Util\ArrayUtils;
 
 class CollectionPresetsService extends AbstractService
 {

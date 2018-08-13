@@ -42,6 +42,11 @@ class TablesService extends AbstractService
      */
     protected $fieldsTableGateway;
 
+    /**
+     * @var RelationalTableGateway
+     */
+    protected $collectionsTableGateway;
+
     public function __construct(Container $container)
     {
         parent::__construct($container);
@@ -280,6 +285,7 @@ class TablesService extends AbstractService
             throw new UnauthorizedException('Unauthorized to create collections');
         }
 
+        $data = ArrayUtils::defaults(['managed' => true], $data);
         $this->enforcePermissions($this->collection, $data, $params);
 
         $data['collection'] = $name;
@@ -1396,6 +1402,11 @@ class TablesService extends AbstractService
             $collectionData
         );
 
+        // Casting values and filter all blacklisted fields
+        if (ArrayUtils::has($collectionData, 'fields')) {
+            $collectionData['fields'] = $this->mergeMissingSchemaFields($collection, $collectionData['fields']);
+        }
+
         $collectionData['translation'] = ArrayUtils::get($collectionData, 'translation');
         $collectionData['icon'] = ArrayUtils::get($collectionData, 'icon');
 
@@ -1419,11 +1430,11 @@ class TablesService extends AbstractService
      */
     protected function getCollectionsTableGateway()
     {
-        if (!$this->fieldsTableGateway) {
-            $this->fieldsTableGateway = $this->createTableGateway('directus_collections');
+        if (!$this->collectionsTableGateway) {
+            $this->collectionsTableGateway = $this->createTableGateway('directus_collections');
         }
 
-        return $this->fieldsTableGateway;
+        return $this->collectionsTableGateway;
     }
 
     protected function getAllFieldsParams(array $params)
