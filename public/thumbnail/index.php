@@ -7,10 +7,10 @@ use Directus\Filesystem\Thumbnailer;
 
 $basePath = realpath(__DIR__ . '/../../');
 // Get Environment name
-$env = get_api_env_from_request();
+$env = \Directus\get_api_env_from_request();
 
 try {
-    $app = create_app_with_env($basePath, $env);
+    $app = \Directus\create_app_with_env($basePath, $env);
 } catch (\Exception $e) {
     http_response_code(404);
     header('Content-Type: application/json');
@@ -23,8 +23,8 @@ try {
     exit;
 }
 
-$settings = get_kv_directus_settings('thumbnail');
-$timeToLive = array_get($settings, 'cache_ttl', 86400);
+$settings = \Directus\get_kv_directus_settings('thumbnail');
+$timeToLive = \Directus\array_get($settings, 'cache_ttl', 86400);
 try {
     // if the thumb already exists, return it
     $thumbnailer = new Thumbnailer(
@@ -32,7 +32,7 @@ try {
         $app->getContainer()->get('filesystem'),
         $app->getContainer()->get('filesystem_thumb'),
         $settings,
-        get_virtual_path()
+        \Directus\get_virtual_path()
     );
 
     $image = $thumbnailer->get();
