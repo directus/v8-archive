@@ -95,7 +95,7 @@ return [
     ],
 
     'cors' => [
-        'enabled' => false,
+        'enabled' => true,
         'origin' => ['*'],
         'methods' => [
             'GET',

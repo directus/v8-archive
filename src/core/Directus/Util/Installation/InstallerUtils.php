@@ -786,7 +786,7 @@ class InstallerUtils
             'mail_from' => 'admin@example.com',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
             'feedback_login' => true,
-            'cors_enabled' => false
+            'cors_enabled' => true
         ], $data);
     }
 }
