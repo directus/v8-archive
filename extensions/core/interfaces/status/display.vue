@@ -4,8 +4,8 @@
     :class="['badge', 'no-wrap', { simple: options.simpleBadge }]"
     :style="style"
     v-tooltip="options.simpleBadge ? currentStatus.name : false">
-      {{ options.simpleBadge ? null : $t(currentStatus.name) }}
-    </div>
+    {{ options.simpleBadge ? null : $t(currentStatus.name) }}
+  </div>
 </template>
 
 <script>

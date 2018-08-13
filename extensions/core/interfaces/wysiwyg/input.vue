@@ -35,7 +35,7 @@ export default {
       };
     },
     fullscreenIcon() {
-      return (this.distractionFree) ? "close" : "fullscreen";
+      return this.distractionFree ? "close" : "fullscreen";
     }
   },
   mounted() {

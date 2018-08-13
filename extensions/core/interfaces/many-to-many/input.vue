@@ -222,7 +222,9 @@ export default {
       if (this.relationshipSetup === false) return null;
 
       return this.$lodash.orderBy(
-        (this.value || []).filter(val => !val.$delete),
+        (this.value || [])
+          .filter(val => !val.$delete)
+          .filter(val => val[this.junctionRelatedKey] != null),
         item => item[this.junctionRelatedKey][this.sort.field],
         this.sort.asc ? "asc" : "desc"
       );
@@ -333,6 +335,7 @@ export default {
 
       this.selection = this.value
         .filter(val => !val.$delete)
+        .filter(val => val[this.junctionRelatedKey] != null)
         .map(val => val[this.junctionRelatedKey][this.relatedKey]);
     },
     getRelatedCollectionsFieldInfo() {

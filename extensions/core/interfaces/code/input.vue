@@ -121,7 +121,7 @@ export default {
       return this.availableTypes[this.options.language];
     },
     stringValue() {
-      if (typeof this.value === 'object') {
+      if (typeof this.value === "object") {
         return JSON.stringify(this.value, null, 4);
       }
 

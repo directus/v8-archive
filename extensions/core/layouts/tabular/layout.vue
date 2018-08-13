@@ -32,7 +32,9 @@ export default {
       const queryFields =
         (this.viewQuery.fields && this.viewQuery.fields.split(",")) ||
         fieldValues
-          .filter(field => field.primary_key === false || field.primary_key === "0")
+          .filter(
+            field => field.primary_key === false || field.primary_key === "0"
+          )
           .slice(0, 4)
           .map(field => field.field);
 
