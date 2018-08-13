@@ -1160,6 +1160,57 @@
         ]
     },
     {
+        "name": "akrabat/rka-ip-address-middleware",
+        "version": "0.5",
+        "version_normalized": "0.5.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/akrabat/rka-ip-address-middleware.git",
+            "reference": "832687b13bae4d7fe889fab1414aef6fafeecf80"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/akrabat/rka-ip-address-middleware/zipball/832687b13bae4d7fe889fab1414aef6fafeecf80",
+            "reference": "832687b13bae4d7fe889fab1414aef6fafeecf80",
+            "shasum": ""
+        },
+        "require": {
+            "psr/http-message": "^1.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.8",
+            "squizlabs/php_codesniffer": "^2.3",
+            "zendframework/zend-diactoros": "^1.1"
+        },
+        "time": "2016-11-13T12:23:41+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "RKA\\Middleware\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Rob Allen",
+                "email": "rob@akrabat.com",
+                "homepage": "http://akrabat.com"
+            }
+        ],
+        "description": "PSR-7 Middleware that determines the client IP address and stores it as an ServerRequest attribute",
+        "homepage": "http://github.com/akrabat/rka-ip-address-middleware",
+        "keywords": [
+            "IP",
+            "middleware",
+            "psr7"
+        ],
+        "abandoned": "akrabat/ip-address-middleware"
+    },
+    {
         "name": "firebase/php-jwt",
         "version": "v5.0.0",
         "version_normalized": "5.0.0.0",
@@ -2561,171 +2612,6 @@
             "guid",
             "identifier",
             "uuid"
-        ]
-    },
-    {
-        "name": "psr/http-server-handler",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/php-fig/http-server-handler.git",
-            "reference": "439d92054dc06097f2406ec074a2627839955a02"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/php-fig/http-server-handler/zipball/439d92054dc06097f2406ec074a2627839955a02",
-            "reference": "439d92054dc06097f2406ec074a2627839955a02",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=7.0",
-            "psr/http-message": "^1.0"
-        },
-        "time": "2018-01-22T17:04:15+00:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Psr\\Http\\Server\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "PHP-FIG",
-                "homepage": "http://www.php-fig.org/"
-            }
-        ],
-        "description": "Common interface for HTTP server-side request handler",
-        "keywords": [
-            "handler",
-            "http",
-            "http-interop",
-            "psr",
-            "psr-15",
-            "psr-7",
-            "request",
-            "response",
-            "server"
-        ]
-    },
-    {
-        "name": "psr/http-server-middleware",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/php-fig/http-server-middleware.git",
-            "reference": "ea17eb1fb2c8df6db919cc578451a8013c6a0ae5"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/php-fig/http-server-middleware/zipball/ea17eb1fb2c8df6db919cc578451a8013c6a0ae5",
-            "reference": "ea17eb1fb2c8df6db919cc578451a8013c6a0ae5",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=7.0",
-            "psr/http-message": "^1.0",
-            "psr/http-server-handler": "^1.0"
-        },
-        "time": "2018-01-22T17:08:31+00:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Psr\\Http\\Server\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "PHP-FIG",
-                "homepage": "http://www.php-fig.org/"
-            }
-        ],
-        "description": "Common interface for HTTP server-side middleware",
-        "keywords": [
-            "http",
-            "http-interop",
-            "middleware",
-            "psr",
-            "psr-15",
-            "psr-7",
-            "request",
-            "response"
-        ]
-    },
-    {
-        "name": "akrabat/ip-address-middleware",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/akrabat/ip-address-middleware.git",
-            "reference": "9b0bffcad90bd365c5bfbdb430563cd4e35a93ba"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/akrabat/ip-address-middleware/zipball/9b0bffcad90bd365c5bfbdb430563cd4e35a93ba",
-            "reference": "9b0bffcad90bd365c5bfbdb430563cd4e35a93ba",
-            "shasum": ""
-        },
-        "require": {
-            "php": "^7.0",
-            "psr/http-message": "^1.0",
-            "psr/http-server-middleware": "^1.0"
-        },
-        "replace": {
-            "akrabat/rka-ip-address-middleware": "*"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "^6.5",
-            "squizlabs/php_codesniffer": "^3.2",
-            "zendframework/zend-diactoros": "^1.7"
-        },
-        "time": "2018-07-03T06:53:57+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "RKA\\Middleware\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Rob Allen",
-                "email": "rob@akrabat.com",
-                "homepage": "http://akrabat.com"
-            }
-        ],
-        "description": "PSR-15 middleware that determines the client IP address and stores it as a ServerRequest attribute",
-        "homepage": "http://github.com/akrabat/rka-ip-address-middleware",
-        "keywords": [
-            "IP",
-            "middleware",
-            "psr7"
         ]
     },
     {

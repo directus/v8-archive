@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343
+class ComposerStaticInit5c2fe182cab533a068fd0471f27f351f
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -61,7 +61,6 @@ class ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343
         array (
             'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
-            'Psr\\Http\\Server\\' => 16,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
             'Psr\\Cache\\' => 10,
@@ -188,7 +187,7 @@ class ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343
         ),
         'RKA\\Middleware\\' => 
         array (
-            0 => __DIR__ . '/..' . '/akrabat/ip-address-middleware/src',
+            0 => __DIR__ . '/..' . '/akrabat/rka-ip-address-middleware/src',
         ),
         'Psr\\SimpleCache\\' => 
         array (
@@ -197,11 +196,6 @@ class ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
-        ),
-        'Psr\\Http\\Server\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/http-server-handler/src',
-            1 => __DIR__ . '/..' . '/psr/http-server-middleware/src',
         ),
         'Psr\\Http\\Message\\' => 
         array (
@@ -1683,8 +1677,6 @@ class ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343
         'Psr\\Http\\Message\\StreamInterface' => __DIR__ . '/..' . '/psr/http-message/src/StreamInterface.php',
         'Psr\\Http\\Message\\UploadedFileInterface' => __DIR__ . '/..' . '/psr/http-message/src/UploadedFileInterface.php',
         'Psr\\Http\\Message\\UriInterface' => __DIR__ . '/..' . '/psr/http-message/src/UriInterface.php',
-        'Psr\\Http\\Server\\MiddlewareInterface' => __DIR__ . '/..' . '/psr/http-server-middleware/src/MiddlewareInterface.php',
-        'Psr\\Http\\Server\\RequestHandlerInterface' => __DIR__ . '/..' . '/psr/http-server-handler/src/RequestHandlerInterface.php',
         'Psr\\Log\\AbstractLogger' => __DIR__ . '/..' . '/psr/log/Psr/Log/AbstractLogger.php',
         'Psr\\Log\\InvalidArgumentException' => __DIR__ . '/..' . '/psr/log/Psr/Log/InvalidArgumentException.php',
         'Psr\\Log\\LogLevel' => __DIR__ . '/..' . '/psr/log/Psr/Log/LogLevel.php',
@@ -1698,7 +1690,7 @@ class ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343
         'Psr\\SimpleCache\\CacheException' => __DIR__ . '/..' . '/psr/simple-cache/src/CacheException.php',
         'Psr\\SimpleCache\\CacheInterface' => __DIR__ . '/..' . '/psr/simple-cache/src/CacheInterface.php',
         'Psr\\SimpleCache\\InvalidArgumentException' => __DIR__ . '/..' . '/psr/simple-cache/src/InvalidArgumentException.php',
-        'RKA\\Middleware\\IpAddress' => __DIR__ . '/..' . '/akrabat/ip-address-middleware/src/IpAddress.php',
+        'RKA\\Middleware\\IpAddress' => __DIR__ . '/..' . '/akrabat/rka-ip-address-middleware/src/IpAddress.php',
         'Ramsey\\Uuid\\BinaryUtils' => __DIR__ . '/..' . '/ramsey/uuid/src/BinaryUtils.php',
         'Ramsey\\Uuid\\Builder\\DefaultUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DefaultUuidBuilder.php',
         'Ramsey\\Uuid\\Builder\\DegradedUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DegradedUuidBuilder.php',
@@ -2965,10 +2957,10 @@ class ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInitcd7a7c820f9c041028aee1c481cbc343::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5c2fe182cab533a068fd0471f27f351f::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5c2fe182cab533a068fd0471f27f351f::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5c2fe182cab533a068fd0471f27f351f::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit5c2fe182cab533a068fd0471f27f351f::$classMap;
 
         }, null, ClassLoader::class);
     }
