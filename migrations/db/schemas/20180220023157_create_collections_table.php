@@ -41,11 +41,6 @@ class CreateCollectionsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('preview_url', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
         $table->addColumn('managed', 'boolean', [
             'signed' => false,
             'null' => false,

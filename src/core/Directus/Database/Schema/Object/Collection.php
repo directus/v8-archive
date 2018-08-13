@@ -583,16 +583,6 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the item preview url
-     *
-     * @return string
-     */
-    public function getPreviewUrl()
-    {
-        return $this->attributes->get('preview_url');
-    }
-
-    /**
      * Gets Collection item name display template
      *
      * Representation value of the table items
