@@ -27,7 +27,6 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         'read',
         'update',
         'delete',
-        'navigate',
         'comment',
         'explain',
         'read_field_blacklist',
