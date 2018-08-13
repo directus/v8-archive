@@ -117,6 +117,7 @@ The `error` property is only present when an error has occurred.
 - **0306** - Altering collection was denied (403)
 - **0307** - Collection already exists (422)
 - **0308** - Field already exists (422)
+- **0309** - Unable to find items owned by an specific user (403) 
 
 #### Schema error codes
 

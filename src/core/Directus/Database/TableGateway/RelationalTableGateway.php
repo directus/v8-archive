@@ -15,6 +15,8 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
+use Directus\Permissions\Exception\PermissionException;
+use Directus\Permissions\Exception\UnableFindOwnerItemsException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\StringUtils;
@@ -1088,11 +1090,20 @@ class RelationalTableGateway extends BaseTableGateway
 
         try {
             $this->enforceReadPermission($builder);
-        } catch (ForbiddenCollectionReadException $e) {
+        } catch (PermissionException $e) {
+            $isForbiddenRead = $e instanceof ForbiddenCollectionReadException;
+            $isUnableFindItems = $e instanceof UnableFindOwnerItemsException;
+
+            if (!$isForbiddenRead && !$isUnableFindItems) {
+                throw $e;
+            }
+
             if (ArrayUtils::has($params, 'single')) {
                 throw new Exception\ItemNotFoundException();
-            } else {
+            } else if ($isForbiddenRead) {
                 throw $e;
+            } else if ($isUnableFindItems) {
+                return [];
             }
         }
 
