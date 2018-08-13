@@ -88,6 +88,9 @@ $app->get('/', \Directus\Api\Routes\Home::class)
 $app->group('/instances', \Directus\Api\Routes\Instances::class);
 
 $app->group('/{env}', function () {
+    $this->get('/', \Directus\Api\Routes\InstanceHome::class)
+        ->add(new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($this->getContainer()))
+        ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($this->getContainer()));
     $this->group('/activity', \Directus\Api\Routes\Activity::class)
          ->add(new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($this->getContainer()))
          ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($this->getContainer()));

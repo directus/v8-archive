@@ -2,8 +2,8 @@
 
 namespace Directus\Filesystem;
 
+use function Directus\thumbnail_add_default;
 use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
 use Intervention\Image\ImageManagerStatic as Image;
 use Exception;
 
@@ -351,17 +351,7 @@ class Thumbnailer {
      */
     public function getSupportedThumbnailDimensions()
     {
-        $defaultDimension = '200x200';
-
-        $dimensions =  $this->parseCSV(
-            ArrayUtils::get($this->getConfig(), 'dimensions')
-        );
-
-        if (!in_array($defaultDimension, $dimensions)) {
-            array_unshift($dimensions, $defaultDimension);
-        }
-
-        return $dimensions;
+        return thumbnail_add_default(ArrayUtils::get($this->getConfig(), 'dimensions'));
     }
 
     /**
@@ -479,25 +469,5 @@ class Thumbnailer {
     public function getConfig()
     {
         return $this->config;
-    }
-
-    /**
-     * Parse csv string to an array
-     *
-     * @param string $value
-     *
-     * @return array
-     */
-    protected function parseCSV($value)
-    {
-        if (is_string($value)) {
-            $value = StringUtils::csv(
-                $value
-            );
-        } else {
-            $value = (array)$value;
-        }
-
-        return $value;
     }
 }

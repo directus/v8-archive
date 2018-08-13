@@ -3,11 +3,35 @@
 namespace Directus\Services;
 
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\UnauthorizedException;
+use function Directus\get_max_upload_size;
+use function Directus\get_server_timeout;
+use function Directus\thumbnail_get_supported;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
 
 class InstanceService extends AbstractService
 {
+    public function findAllInfo()
+    {
+        // TODO: Move Admin verification to middleware
+        if (!$this->getAcl()->isAdmin()) {
+            throw new UnauthorizedException('Only Admin can see this information');
+        }
+
+        return [
+            'data' => [
+                'api' => [
+                    'thumbnail_supported' => thumbnail_get_supported()
+                ],
+                'server' => [
+                    'timeout' => get_server_timeout(),
+                    'max_upload_size' => get_max_upload_size()
+                ]
+            ]
+        ];
+    }
+
     public function create(array $data)
     {
         if ($this->isLocked()) {

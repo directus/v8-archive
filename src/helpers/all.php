@@ -21,6 +21,7 @@ require __DIR__ . '/mail.php';
 require __DIR__ . '/server.php';
 require __DIR__ . '/settings.php';
 require __DIR__ . '/sorting.php';
+require __DIR__ . '/thumbnail.php';
 require __DIR__ . '/url.php';
 require __DIR__ . '/uuid.php';
 

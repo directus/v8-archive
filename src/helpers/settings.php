@@ -76,3 +76,27 @@ if (!function_exists('get_kv_directus_settings')) {
         return $result;
     }
 }
+
+if (!function_exists('supported_thumbnails')) {
+    /**
+     * Returns the supported thumbnail dimensions
+     *
+     * @return string|null
+     */
+    function setting_supported_thumbnails()
+    {
+        return get_directus_setting('thumbnail', 'dimensions');
+    }
+}
+
+if (!function_exists('get_server_timeout')) {
+    /**
+     * Returns the server max execution time
+     *
+     * @return int
+     */
+    function get_server_timeout()
+    {
+        return (int) ini_get('max_execution_time');
+    }
+}

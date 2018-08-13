@@ -4,6 +4,8 @@ namespace Directus\Services;
 
 use Directus\Application\Application;
 use Directus\Exception\UnauthorizedException;
+use function Directus\get_server_timeout;
+use function Directus\thumbnail_get_supported;
 
 class ServerService extends AbstractService
 {
@@ -24,6 +26,7 @@ class ServerService extends AbstractService
                         'php_version' => phpversion(),
                         'php_api' => php_sapi_name()
                     ],
+                    'timeout' => get_server_timeout(),
                     'max_upload_size' => \Directus\get_max_upload_size()
                 ]
             ]
