@@ -3,15 +3,15 @@
 return [
     'app' => [
         'path' => '/',
-        'env' => 'development',
-        'debug' => true,
+        'env' => 'production',
+        'debug' => false,
         'default_language' => 'en',
         'timezone' => 'America/New_York',
     ],
 
     'settings' => [
-        'debug' => true,
-        'displayErrorDetails' => true,
+        'debug' => false,
+        'displayErrorDetails' => false,
         'logger' => [
             'name' => 'directus-api',
             'level' => Monolog\Logger::DEBUG,
