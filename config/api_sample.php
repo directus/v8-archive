@@ -2,19 +2,12 @@
 
 return [
     'app' => [
-        'path' => '/',
         'env' => 'production',
-        'debug' => false,
-        'default_language' => 'en',
         'timezone' => 'America/New_York',
     ],
 
     'settings' => [
-        'debug' => false,
-        'displayErrorDetails' => false,
         'logger' => [
-            'name' => 'directus-api',
-            'level' => Monolog\Logger::DEBUG,
             'path' => __DIR__ . '/logs/app.log',
         ],
     ],
@@ -26,7 +19,6 @@ return [
         'name' => 'directus',
         'username' => 'root',
         'password' => 'pass',
-        'prefix' => '', // not used
         'engine' => 'InnoDB',
         'charset' => 'utf8mb4'
     ],
@@ -34,8 +26,6 @@ return [
     'cache' => [
         'enabled' => false,
         'response_ttl' => 3600, // seconds
-        'adapter' => 'filesystem',
-        'path' => '/storage/cache',
         // 'pool' => [
         //    'adapter' => 'apc'
         // ],
@@ -70,21 +60,11 @@ return [
         // here all assets will be (yourdomain)/storage/uploads
         // same with thumbnails (yourdomain)/storage/uploads/thumbs
         'root_url' => '/storage/uploads',
-        'root_thumb_url' => '/storage/uploads/thumbs',
         //   'key'    => 's3-key',
         //   'secret' => 's3-key',
         //   'region' => 's3-region',
         //   'version' => 's3-version',
         //   'bucket' => 's3-bucket'
-    ],
-
-    // HTTP Settings
-    'http' => [
-        'emulate_enabled' => false,
-        // can be null, or an array list of method to be emulated
-        // Ex: ['PATH', 'DELETE', 'PUT']
-        // 'emulate_methods' => null,
-        'force_https' => false
     ],
 
     'mail' => [
