@@ -212,6 +212,7 @@ The access token that is returned through this endpoint must be used with any su
 
 | Endpoint                   | Protected
 | -------------------------- | -----------------------
+| /[env]/                    | Yes
 | /[env]/activity            | Yes
 | /[env]/auth                | No
 | /[env]/collections         | Yes
@@ -230,12 +231,13 @@ The access token that is returned through this endpoint must be used with any su
 | /[env]/scim/v2             | Yes
 | /[env]/settings            | Yes
 | /[env]/users               | Yes
-| /[env]/utils               | No
+| /[env]/utils               | Yes
+| /                          | Yes
 | /instances                 | No
-| /interfaces                | No
-| /listings                  | No
-| /pages                     | No
-| /server                    | No
+| /interfaces                | Yes
+| /layouts                   | Yes
+| /pages                     | Yes
+| /server                    | Yes
 | /types                     | Yes
 
 ### Create new instance
