@@ -509,7 +509,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'status',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STATUS,
                 'interface' => 'status',
                 'options' => json_encode([
                     'status_mapping' => [

@@ -245,7 +245,7 @@ VALUES
 	(78,'directus_user_roles','user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(79,'directus_user_roles','role','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(80,'directus_users','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(81,'directus_users','status','varchar','status','{\"status_mapping\":{\"deleted\":{\"name\":\"Deleted\",\"published\":false},\"active\":{\"name\":\"Active\",\"published\":true},\"draft\":{\"name\":\"Draft\",\"published\":false},\"suspended\":{\"name\":\"Suspended\",\"published\":false},\"invited\":{\"name\":\"Invited\",\"published\":false}}}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(81,'directus_users','status','status','status','{\"status_mapping\":{\"deleted\":{\"name\":\"Deleted\",\"published\":false},\"active\":{\"name\":\"Active\",\"published\":true},\"draft\":{\"name\":\"Draft\",\"published\":false},\"suspended\":{\"name\":\"Suspended\",\"published\":false},\"invited\":{\"name\":\"Invited\",\"published\":false}}}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(82,'directus_users','first_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(83,'directus_users','last_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(84,'directus_users','email','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),

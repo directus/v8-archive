@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-08-13 18:45:30 +0000
+# Generation Time: 2018-08-15 13:21:12 +0000
 # ************************************************************
 
 
@@ -212,7 +212,7 @@ VALUES
 	(78,'directus_user_roles','user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(79,'directus_user_roles','role','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(80,'directus_users','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(81,'directus_users','status','varchar','status','{\"status_mapping\":{\"deleted\":{\"name\":\"Deleted\",\"published\":false},\"active\":{\"name\":\"Active\",\"published\":true},\"draft\":{\"name\":\"Draft\",\"published\":false},\"suspended\":{\"name\":\"Suspended\",\"published\":false},\"invited\":{\"name\":\"Invited\",\"published\":false}}}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(81,'directus_users','status','status','status','{\"status_mapping\":{\"deleted\":{\"name\":\"Deleted\",\"published\":false},\"active\":{\"name\":\"Active\",\"published\":true},\"draft\":{\"name\":\"Draft\",\"published\":false},\"suspended\":{\"name\":\"Suspended\",\"published\":false},\"invited\":{\"name\":\"Invited\",\"published\":false}}}',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(82,'directus_users','first_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(83,'directus_users','last_name','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(84,'directus_users','email','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
@@ -297,7 +297,7 @@ LOCK TABLES `directus_files` WRITE;
 
 INSERT INTO `directus_files` (`id`, `filename`, `title`, `description`, `location`, `tags`, `width`, `height`, `filesize`, `duration`, `metadata`, `type`, `charset`, `embed`, `folder`, `upload_user`, `upload_date`, `storage_adapter`)
 VALUES
-	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-08-13 18:43:44','local');
+	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-08-15 13:20:49','local');
 
 /*!40000 ALTER TABLE `directus_files` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -337,20 +337,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023144,'CreateActivitySeenTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023157,'CreateCollectionsTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023202,'CreateFieldsTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023208,'CreateFilesTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023213,'CreateFoldersTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023217,'CreateRolesTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023226,'CreatePermissionsTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023232,'CreateRelationsTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023238,'CreateRevisionsTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023243,'CreateSettingsTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180220023248,'CreateUsersTable','2018-08-13 18:43:44','2018-08-13 18:43:44',0),
-	(20180426173310,'CreateUserRoles','2018-08-13 18:43:44','2018-08-13 18:43:44',0);
+	(20180220023138,'CreateActivityTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023144,'CreateActivitySeenTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023157,'CreateCollectionsTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023202,'CreateFieldsTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023208,'CreateFilesTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023213,'CreateFoldersTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023217,'CreateRolesTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023226,'CreatePermissionsTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023232,'CreateRelationsTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023238,'CreateRevisionsTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023243,'CreateSettingsTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180220023248,'CreateUsersTable','2018-08-15 13:20:49','2018-08-15 13:20:49',0),
+	(20180426173310,'CreateUserRoles','2018-08-15 13:20:49','2018-08-15 13:20:49',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -557,7 +557,7 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_access`, `last_page`, `token`, `external_id`)
 VALUES
-	(1,'active','Admin','User','admin@example.com',1,'$2y$10$rg7MuSfvx5aTsYXd2zR/O.d4.Pwfa4KsCTstSBmTHFTyXwvSl6Gdy',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
+	(1,'active','Admin','User','admin@example.com',1,'$2y$10$oxjKEd9Q2pnO5My0r1JzROs8adK75w8VA6gqW9UzV3ETRRKwNPKFS',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;
