@@ -50,18 +50,19 @@ return [
 
     'filesystem' => [
         'adapter' => 'local',
-        // By default media directory are located at the same level of directus root
-        // To make them a level up outsite the root directory
-        // use this instead
-        // Ex: 'root' => realpath(ROOT_PATH.'/../storage/uploads'),
-        // Note: ROOT_PATH constant doesn't end with trailing slash
+        // The filesystem root is the directus root directory.
+        // All path are relative to the filesystem root when the path does not start with a forward slash.
+        // By default the uploads directory is located at the directus public root
+        // An absolute path can be used as alternative.
         'root' => 'public/storage/uploads',
         // This is the url where all the media will be pointing to
-        // here all assets will be (yourdomain)/storage/uploads
-        // same with thumbnails (yourdomain)/storage/uploads/thumbs
+        // here is where Directus will assume all assets will be accesed
+        // Ex: (yourdomain)/storage/uploads
         'root_url' => '/storage/uploads',
+        // Same as "root", but for the thumbnails
+        'root_thumb' => 'public/thumbnail/thumbs',
         //   'key'    => 's3-key',
-        //   'secret' => 's3-key',
+        //   'secret' => 's3-secret',
         //   'region' => 's3-region',
         //   'version' => 's3-version',
         //   'bucket' => 's3-bucket'
