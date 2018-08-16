@@ -7,7 +7,7 @@
       :src="src"
       :alt="displayValue"
       v-tooltip="displayValue"
-      color="light-gray" />
+      color="light-gray"></v-avatar>
       <span v-if="options.display !== 'avatar'" class="label">{{displayValue}}</span>
     </div>
 </template>

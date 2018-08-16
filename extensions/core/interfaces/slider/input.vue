@@ -7,7 +7,7 @@
     :step="options.step"
     :unit="options.unit"
     :value="value"
-    @input="$emit('input', $event)" />
+    @input="$emit('input', $event)"></v-slider>
 </template>
 
 <script>

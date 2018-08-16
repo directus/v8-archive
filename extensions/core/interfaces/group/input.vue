@@ -2,7 +2,7 @@
   <v-details
     :title="options.title ? options.title : 'Field Group'"
     :open="options.open">
-    <slot />
+    <slot></slot>
   </v-details>
 </template>
 

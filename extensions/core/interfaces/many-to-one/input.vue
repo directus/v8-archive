@@ -13,15 +13,15 @@
         :options="selectOptions"
         :value="valuePK"
         :icon="options.icon"
-        @input="$emit('input', $event)" />
+        @input="$emit('input', $event)"></v-select>
 
-      <button v-if="count > 10" type="button" @click="showListing = true" />
+      <button v-if="count > 10" type="button" @click="showListing = true"></button>
 
       <v-spinner
         v-show="loading"
         line-fg-color="var(--light-gray)"
         line-bg-color="var(--lighter-gray)"
-        class="spinner" />
+        class="spinner"></v-spinner>
 
       <portal to="modal" v-if="showListing">
         <v-modal
@@ -45,7 +45,7 @@
             :view-options="viewOptions"
             @options="setViewOptions"
             @query="setViewQuery"
-            @select="newSelected = $event[$event.length - 1]" />
+            @select="newSelected = $event[$event.length - 1]"></v-items>
         </v-modal>
       </portal>
     </template>

@@ -6,8 +6,8 @@
       :placeholder="$t('interfaces-tags-placeholder_text')"
       :icon-left="options.iconLeft"
       :icon-right="options.iconRight"
-      icon-right-color="null"
-      @keydown="onInput" />
+      :icon-right-color="null"
+      @keydown="onInput"></v-input>
     <div class="buttons">
       <button
         v-for="(value, index) in valueArray"

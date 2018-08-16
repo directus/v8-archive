@@ -26,7 +26,7 @@
             @options="setViewOptions"
             @select="selection = $event"
             @query="setViewQuery"
-            @next-page="fetchNextPage" />
+            @next-page="fetchNextPage"></v-listing>
         </v-modal>
       </portal>
     </template>

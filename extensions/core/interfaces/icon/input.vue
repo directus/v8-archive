@@ -1,6 +1,6 @@
 <template>
   <div class="interface-icon">
-    <v-input v-model="searchText" :placeholder="$t('interfaces-icon-search_placeholder')" :readonly="readonly" :icon-right="value" icon-left="search"/>
+    <v-input v-model="searchText" :placeholder="$t('interfaces-icon-search_placeholder')" :readonly="readonly" :icon-right="value" icon-left="search"></v-input>
     <div class="icons-view" v-show="searchText.length === 0">
       <details
         v-for="(icongroup, groupname) in icons"

@@ -18,7 +18,7 @@
     @widths="setWidths"
     @select="$emit('select', $event)"
     @scroll-end="$emit('next-page')"
-    @input="$emit('input', $event)" />
+    @input="$emit('input', $event)"></v-table>
 </template>
 
 <script>

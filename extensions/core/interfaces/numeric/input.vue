@@ -7,7 +7,7 @@
     :value="value"
     :icon-left="options.iconLeft"
     :icon-right="options.iconRight"
-    @input="$emit('input', Number($event))" />
+    @input="$emit('input', Number($event))">
 </template>
 
 <script>

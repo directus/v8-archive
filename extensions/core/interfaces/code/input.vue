@@ -7,7 +7,7 @@
       ref="codemirrorEl"
       :options="cmOptions"
       :value="stringValue"
-      @input="onInput" />
+      @input="onInput"></codemirror>
 
     <button
       v-if="options.template"

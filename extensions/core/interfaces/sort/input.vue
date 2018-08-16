@@ -9,7 +9,7 @@
     :maxlength="+length"
     :id="name"
     :charactercount="options.showCharacterCount"
-    @input="updateValue" />
+    @input="updateValue"></v-input>
 </template>
 
 <script>

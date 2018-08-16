@@ -51,7 +51,7 @@
         <span>{{ $t("select_existing") }}</span>
       </button>
     </template>
-    <v-spinner v-else />
+    <v-spinner v-else></v-spinner>
 
     <portal to="modal" v-if="selectExisting">
       <v-modal
@@ -74,7 +74,7 @@
           :selection="selection"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="selection = $event" />
+          @select="selection = $event"></v-items>
       </v-modal>
     </portal>
 
@@ -94,7 +94,7 @@
           <v-edit-form
             :fields="relatedCollectionFields"
             :values="editExisting[junctionRelatedKey]"
-            @stage-value="stageValue" />
+            @stage-value="stageValue"></v-edit-form>
         </div>
       </v-modal>
     </portal>
@@ -115,7 +115,7 @@
           <v-edit-form
             :fields="relatedCollectionFields"
             :values="relatedDefaultsWithEdits"
-            @stage-value="stageValue" />
+            @stage-value="stageValue"></v-edit-form>
         </div>
       </v-modal>
     </portal>
