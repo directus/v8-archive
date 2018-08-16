@@ -2,8 +2,8 @@
   <v-input
     v-if="newItem"
     class="input"
-    iconRight="vpn_key"
-    iconRightColor="null"
+    icon-right="vpn_key"
+    icon-right-color="null"
     :maxlength="length"
     :type="inputType"
     :readonly="readonly"
