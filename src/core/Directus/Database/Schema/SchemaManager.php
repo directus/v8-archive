@@ -619,48 +619,7 @@ class SchemaManager
         $fieldsRelation = [];
 
         foreach ($relationsResult as $relation) {
-            if ($collectionName === $relation['collection_one']) {
-                // ArrayUtils::swap($relation, 'collection_many', 'collection_one');
-                // ArrayUtils::swap($relation, 'field_many', 'field_one');
-            }
-
             $fieldsRelation[] = $relation;
-            // $isJunctionCollection = ArrayUtils::get($relation, 'junction_collection') === $collectionName;
-            //
-            // if ($isJunctionCollection) {
-            //     if (!isset($relation['junction_key_a']) || !isset($relation['junction_key_b'])) {
-            //         continue;
-            //     }
-            //
-            //     $junctionKeyA = $relation['junction_key_a'];
-            //     $fieldsRelation[$junctionKeyA] = [
-            //         'collection_many' => $relation['junction_collection'],
-            //         'field_many' => $junctionKeyA,
-            //         'junction_key_a' => null,
-            //         'junction_collection' => null,
-            //         'junction_key_b' => null,
-            //         'collection_one' => ArrayUtils::get($relation, 'collection_many'),
-            //         'field_one' => null,
-            //     ];
-            //
-            //     $junctionKeyB = $relation['junction_key_b'];
-            //     $fieldsRelation[$junctionKeyB] = [
-            //         'collection_many' => $relation['junction_collection'],
-            //         'field_many' => $junctionKeyB,
-            //         'junction_key_a' => null,
-            //         'junction_collection' => null,
-            //         'junction_key_b' => null,
-            //         'collection_one' => ArrayUtils::get($relation, 'collection_one'),
-            //         'field_one' => null,
-            //     ];
-            // } else {
-            //     if ($collectionName === $relation['collection_one']) {
-            //         ArrayUtils::swap($relation, 'collection_many', 'collection_one');
-            //         ArrayUtils::swap($relation, 'field_many', 'field_one');
-            //     }
-            //
-            //     $fieldsRelation[$relation['field_many']] = $relation;
-            // }
         }
 
         return $fieldsRelation;
