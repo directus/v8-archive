@@ -557,8 +557,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'roles',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_M2M,
-                'interface' => 'm2m'
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
+                'interface' => 'one-to-many'
             ],
             [
                 'collection' => 'directus_users',
@@ -714,43 +714,25 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_relations',
-                'field' => 'collection_a',
+                'field' => 'collection_many',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_relations',
-                'field' => 'field_a',
+                'field' => 'field_many',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_relations',
-                'field' => 'junction_key_a',
+                'field' => 'collection_one',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_relations',
-                'field' => 'junction_mixed_collections',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
-                'interface' => 'text-input'
-            ],
-            [
-                'collection' => 'directus_relations',
-                'field' => 'junction_key_b',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
-                'interface' => 'text-input'
-            ],
-            [
-                'collection' => 'directus_relations',
-                'field' => 'collection_b',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
-                'interface' => 'text-input'
-            ],
-            [
-                'collection' => 'directus_relations',
-                'field' => 'field_b',
+                'field' => 'field_one',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
             ],

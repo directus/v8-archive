@@ -573,8 +573,16 @@ class SchemaManager
         $fieldsRelation = $this->getRelationshipsData($collectionName);
 
         foreach ($fields as $field) {
-            if (array_key_exists($field->getName(), $fieldsRelation)) {
-                $this->addFieldRelationship($field, $fieldsRelation[$field->getName()]);
+            foreach ($fieldsRelation as $key => $value) {
+                if (empty($fieldsRelation)) {
+                    break;
+                }
+
+                if (ArrayUtils::get($value, 'field_many') == $field->getName() || ArrayUtils::get($value, 'field_one') == $field->getName()) {
+                    $relation = ArrayUtils::pull($fieldsRelation, $key);
+                    $this->addFieldRelationship($field, $relation);
+                    break;
+                }
             }
         }
 
@@ -590,10 +598,10 @@ class SchemaManager
         // Set all FILE data type related to directus files (M2O)
         if (DataTypes::isFilesType($field->getType())) {
             $field->setRelationship([
-                'collection_a' => $field->getCollectionName(),
-                'field_a' => $field->getName(),
-                'collection_b' => static::COLLECTION_FILES,
-                'field_b' => 'id'
+                'collection_many' => $field->getCollectionName(),
+                'field_many' => $field->getName(),
+                'collection_one' => static::COLLECTION_FILES,
+                'field_one' => 'id'
             ]);
         } else {
             $field->setRelationship($relationshipData);
@@ -611,42 +619,48 @@ class SchemaManager
         $fieldsRelation = [];
 
         foreach ($relationsResult as $relation) {
-            $isJunctionCollection = ArrayUtils::get($relation, 'junction_collection') === $collectionName;
-
-            if ($isJunctionCollection) {
-                if (!isset($relation['junction_key_a']) || !isset($relation['junction_key_b'])) {
-                    continue;
-                }
-
-                $junctionKeyA = $relation['junction_key_a'];
-                $fieldsRelation[$junctionKeyA] = [
-                    'collection_a' => $relation['junction_collection'],
-                    'field_a' => $junctionKeyA,
-                    'junction_key_a' => null,
-                    'junction_collection' => null,
-                    'junction_key_b' => null,
-                    'collection_b' => ArrayUtils::get($relation, 'collection_a'),
-                    'field_b' => null,
-                ];
-
-                $junctionKeyB = $relation['junction_key_b'];
-                $fieldsRelation[$junctionKeyB] = [
-                    'collection_a' => $relation['junction_collection'],
-                    'field_a' => $junctionKeyB,
-                    'junction_key_a' => null,
-                    'junction_collection' => null,
-                    'junction_key_b' => null,
-                    'collection_b' => ArrayUtils::get($relation, 'collection_b'),
-                    'field_b' => null,
-                ];
-            } else {
-                if ($collectionName === $relation['collection_b']) {
-                    ArrayUtils::swap($relation, 'collection_a', 'collection_b');
-                    ArrayUtils::swap($relation, 'field_a', 'field_b');
-                }
-
-                $fieldsRelation[$relation['field_a']] = $relation;
+            if ($collectionName === $relation['collection_one']) {
+                // ArrayUtils::swap($relation, 'collection_many', 'collection_one');
+                // ArrayUtils::swap($relation, 'field_many', 'field_one');
             }
+
+            $fieldsRelation[] = $relation;
+            // $isJunctionCollection = ArrayUtils::get($relation, 'junction_collection') === $collectionName;
+            //
+            // if ($isJunctionCollection) {
+            //     if (!isset($relation['junction_key_a']) || !isset($relation['junction_key_b'])) {
+            //         continue;
+            //     }
+            //
+            //     $junctionKeyA = $relation['junction_key_a'];
+            //     $fieldsRelation[$junctionKeyA] = [
+            //         'collection_many' => $relation['junction_collection'],
+            //         'field_many' => $junctionKeyA,
+            //         'junction_key_a' => null,
+            //         'junction_collection' => null,
+            //         'junction_key_b' => null,
+            //         'collection_one' => ArrayUtils::get($relation, 'collection_many'),
+            //         'field_one' => null,
+            //     ];
+            //
+            //     $junctionKeyB = $relation['junction_key_b'];
+            //     $fieldsRelation[$junctionKeyB] = [
+            //         'collection_many' => $relation['junction_collection'],
+            //         'field_many' => $junctionKeyB,
+            //         'junction_key_a' => null,
+            //         'junction_collection' => null,
+            //         'junction_key_b' => null,
+            //         'collection_one' => ArrayUtils::get($relation, 'collection_one'),
+            //         'field_one' => null,
+            //     ];
+            // } else {
+            //     if ($collectionName === $relation['collection_one']) {
+            //         ArrayUtils::swap($relation, 'collection_many', 'collection_one');
+            //         ArrayUtils::swap($relation, 'field_many', 'field_one');
+            //     }
+            //
+            //     $fieldsRelation[$relation['field_many']] = $relation;
+            // }
         }
 
         return $fieldsRelation;

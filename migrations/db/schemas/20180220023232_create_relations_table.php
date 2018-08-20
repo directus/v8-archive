@@ -29,35 +29,19 @@ class CreateRelationsTable extends AbstractMigration
     {
         $table = $this->table('directus_relations', ['signed' => false]);
 
-        $table->addColumn('collection_a', 'string', [
+        $table->addColumn('collection_many', 'string', [
             'limit' => 64,
             'null' => false
         ]);
-        $table->addColumn('field_a', 'string', [
+        $table->addColumn('field_many', 'string', [
             'limit' => 45,
             'null' => false
         ]);
-        $table->addColumn('junction_key_a', 'string', [
+        $table->addColumn('collection_one', 'string', [
             'limit' => 64,
             'null' => true
         ]);
-        $table->addColumn('junction_collection', 'string', [
-            'limit' => 64,
-            'null' => true
-        ]);
-        $table->addColumn('junction_mixed_collections', 'string', [
-            'limit' => 64,
-            'null' => true
-        ]);
-        $table->addColumn('junction_key_b', 'string', [
-            'limit' => 64,
-            'null' => true
-        ]);
-        $table->addColumn('collection_b', 'string', [
-            'limit' => 64,
-            'null' => true
-        ]);
-        $table->addColumn('field_b', 'string', [
+        $table->addColumn('field_one', 'string', [
             'limit' => 64,
             'null' => true
         ]);

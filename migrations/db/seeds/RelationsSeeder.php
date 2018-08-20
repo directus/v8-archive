@@ -16,68 +16,70 @@ class RelationsSeeder extends AbstractSeed
     {
         $data = [
             [
-                'collection_a' => 'directus_activity',
-                'field_a' => 'user',
-                'collection_b' => 'directus_users'
+                'collection_many' => 'directus_activity',
+                'field_many' => 'user',
+                'collection_one' => 'directus_users'
             ],
             [
-                'collection_a' => 'directus_activity_read',
-                'field_a' => 'user',
-                'collection_b' => 'directus_users'
+                'collection_many' => 'directus_activity_read',
+                'field_many' => 'user',
+                'collection_one' => 'directus_users'
             ],
             [
-                'collection_a' => 'directus_activity_read',
-                'field_a' => 'activity',
-                'collection_b' => 'directus_activity'
+                'collection_many' => 'directus_activity_read',
+                'field_many' => 'activity',
+                'collection_one' => 'directus_activity'
             ],
             [
-                'collection_a' => 'directus_collections_presets',
-                'field_a' => 'user',
-                'collection_b' => 'directus_users'
+                'collection_many' => 'directus_collections_presets',
+                'field_many' => 'user',
+                'collection_one' => 'directus_users'
             ],
             [
-                'collection_a' => 'directus_collections_presets',
-                'field_a' => 'group',
-                'collection_b' => 'directus_groups'
+                'collection_many' => 'directus_collections_presets',
+                'field_many' => 'group',
+                'collection_one' => 'directus_groups'
             ],
             [
-                'collection_a' => 'directus_files',
-                'field_a' => 'upload_user',
-                'collection_b' => 'directus_users'
+                'collection_many' => 'directus_files',
+                'field_many' => 'upload_user',
+                'collection_one' => 'directus_users'
             ],
             [
-                'collection_a' => 'directus_files',
-                'field_a' => 'folder',
-                'collection_b' => 'directus_folders'
+                'collection_many' => 'directus_files',
+                'field_many' => 'folder',
+                'collection_one' => 'directus_folders'
             ],
             [
-                'collection_a' => 'directus_folders',
-                'field_a' => 'parent_folder',
-                'collection_b' => 'directus_folders'
+                'collection_many' => 'directus_folders',
+                'field_many' => 'parent_folder',
+                'collection_one' => 'directus_folders'
             ],
             [
-                'collection_a' => 'directus_permissions',
-                'field_a' => 'group',
-                'collection_b' => 'directus_groups'
+                'collection_many' => 'directus_permissions',
+                'field_many' => 'group',
+                'collection_one' => 'directus_groups'
             ],
             [
-                'collection_a' => 'directus_revisions',
-                'field_a' => 'activity',
-                'collection_b' => 'directus_activity'
+                'collection_many' => 'directus_revisions',
+                'field_many' => 'activity',
+                'collection_one' => 'directus_activity'
             ],
             [
-                'collection_a' => 'directus_users',
-                'field_a' => 'roles',
-                'junction_key_a' => 'user',
-                'junction_collection' => 'directus_user_roles',
-                'junction_key_b' => 'role',
-                'field_b' => 'users',
-                'collection_b' => 'directus_roles'
+                'collection_many' => 'directus_user_roles',
+                'field_many' => 'user',
+                'collection_one' => 'directus_users',
+                'field_one' => 'roles'
             ],
             [
-                'collection_a' => 'directus_users',
-                'field_a' => 'avatar',
-                'collection_b' => 'directus_files'
+                'collection_many' => 'directus_user_roles',
+                'field_many' => 'role',
+                'collection_one' => 'directus_roles',
+            ],
+            [
+                'collection_many' => 'directus_users',
+                'field_many' => 'avatar',
+                'collection_one' => 'directus_files'
             ]
         ];
 

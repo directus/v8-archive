@@ -170,7 +170,7 @@ class RelationalTableGateway extends BaseTableGateway
             $column = $tableSchema->getField($key);
 
             // NOTE: Each interface or the API should handle the `alias` type
-            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
+            if ($column && $column->isOneToMany()) {
                 continue;
             }
 
@@ -396,7 +396,7 @@ class RelationalTableGateway extends BaseTableGateway
             $column = $tableSchema->getField($key);
 
             // NOTE: Each interface or the API should handle the `alias` type
-            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
+            if ($column && $column->isOneToMany()) {
                 continue;
             }
 
@@ -476,7 +476,7 @@ class RelationalTableGateway extends BaseTableGateway
             $column = $tableSchema->getField($key);
 
             // NOTE: Each interface or the API should handle the `alias` type
-            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
+            if ($column && $column->isOneToMany()) {
                 continue;
             }
 
@@ -583,7 +583,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $foreignDataSet = $parentRow[$fieldName];
             $foreignRow = $foreignDataSet;
-            $foreignTableName = $field->getRelationship()->getCollectionB();
+            $foreignTableName = $field->getRelationship()->getCollectionOne();
             $foreignTableSchema = $this->getTableSchema($foreignTableName);
             $primaryKey = $foreignTableSchema->getPrimaryKeyName();
             $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
@@ -631,7 +631,9 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relationship = $field->getRelationship();
-            $fieldIsCollectionAssociation = $relationship->isToMany();
+            if (!$relationship->isOneToMany()) {
+                continue;
+            }
 
             // Ignore non-arrays and empty collections
             if (empty($parentRow[$fieldName])) {//} || ($fieldIsOneToMany && )) {
@@ -641,121 +643,46 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $foreignDataSet = $parentRow[$fieldName];
+            $this->enforceColumnHasNonNullValues($relationship->toArray(), ['collection_one', 'field_many'], $this->table);
+            $foreignTableName = $relationship->getCollectionMany();
+            $foreignJoinColumn = $relationship->getFieldMany();
 
-            /** One-to-Many, Many-to-Many */
-            if ($fieldIsCollectionAssociation) {
-                $this->enforceColumnHasNonNullValues($relationship->toArray(), ['collection_b', 'field_a'], $this->table);
-                $foreignTableName = $relationship->getCollectionB();
-                $foreignJoinColumn = $relationship->getFieldB();
-                switch ($relationship->getType()) {
-                    /** One-to-Many */
-                    case FieldRelationship::ONE_TO_MANY:
-                        $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
-                        foreach ($foreignDataSet as &$foreignRecord) {
-                            if (empty($foreignRecord)) {
-                                continue;
-                            }
-
-                            // TODO: Fix a bug when fetching a single column
-                            // before fetching all columns from a table
-                            // due to our basic "cache" implementation on schema layer
-                            $hasPrimaryKey = isset($foreignRecord[$ForeignTable->primaryKeyFieldName]);
-
-                            if ($hasPrimaryKey && ArrayUtils::get($foreignRecord, $this->deleteFlag) === true) {
-                                $Where = new Where();
-                                $Where->equalTo($ForeignTable->primaryKeyFieldName, $foreignRecord[$ForeignTable->primaryKeyFieldName]);
-                                $ForeignTable->delete($Where);
-
-                                continue;
-                            }
-
-                            // only add parent id's to items that are lacking the parent column
-                            if (!array_key_exists($foreignJoinColumn, $foreignRecord)) {
-                                $foreignRecord[$foreignJoinColumn] = $parentRow['id'];
-                            }
-
-                            $foreignRecord = $this->manageRecordUpdate(
-                                $foreignTableName,
-                                $foreignRecord,
-                                ['activity_mode' => self::ACTIVITY_ENTRY_MODE_CHILD],
-                                $childLogEntries,
-                                $parentCollectionRelationshipsChanged,
-                                $parentData
-                            );
-                        }
-                        break;
-
-                    /** Many-to-Many */
-                    case FieldRelationship::MANY_TO_MANY:
-                        $foreignJoinColumn = $relationship->getJunctionKeyB();
-                        /**
-                         * [+] Many-to-Many payloads declare collection items this way:
-                         * $parentRecord['collectionName1'][0-9]['data']; // record key-value array
-                         * [+] With optional association metadata:
-                         * $parentRecord['collectionName1'][0-9]['id']; // for updating a pre-existing junction row
-                         * $parentRecord['collectionName1'][0-9]['active']; // for disassociating a junction via the '0' value
-                         */
-
-                        $this->enforceColumnHasNonNullValues($relationship->toArray(), ['junction_collection', 'junction_key_a'], $this->table);
-                        $junctionTableName = $relationship->getJunctionCollection();//$column['relationship']['junction_table'];
-                        $junctionKeyLeft = $relationship->getJunctionKeyA();//$column['relationship']['junction_key_left'];
-                        $junctionKeyRight = $relationship->getJunctionKeyB();//$column['relationship']['junction_key_right'];
-                        $JunctionTable = new RelationalTableGateway($junctionTableName, $this->adapter, $this->acl);
-                        $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
-                        foreach ($foreignDataSet as $junctionRow) {
-                            /** This association is designated for removal */
-                            $hasPrimaryKey = isset($junctionRow[$JunctionTable->primaryKeyFieldName]);
-
-                            if ($hasPrimaryKey && ArrayUtils::get($junctionRow, $this->deleteFlag) === true) {
-                                $Where = new Where;
-                                $Where->equalTo($JunctionTable->primaryKeyFieldName, $junctionRow[$JunctionTable->primaryKeyFieldName]);
-                                $JunctionTable->delete($Where);
-                                // Flag the top-level record as having been altered.
-                                // (disassociating w/ existing M2M collection entry)
-                                $parentCollectionRelationshipsChanged = true;
-                                continue;
-                            }
-
-                            /** Update foreign record */
-                            $foreignRecord = ArrayUtils::get($junctionRow, $junctionKeyRight, []);
-                            if (is_array($foreignRecord)) {
-                                $foreignRecord = $ForeignTable->manageRecordUpdate(
-                                    $foreignTableName,
-                                    $foreignRecord,
-                                    ['activity_mode' => self::ACTIVITY_ENTRY_MODE_CHILD],
-                                    $childLogEntries,
-                                    $parentCollectionRelationshipsChanged,
-                                    $parentData
-                                );
-                                $foreignJoinColumnKey = $foreignRecord[$ForeignTable->primaryKeyFieldName];
-                            } else {
-                                $foreignJoinColumnKey = $foreignRecord;
-                            }
-
-                            // Junction/Association row
-                            $junctionTableRecord = [
-                                $junctionKeyLeft => $parentRow[$this->primaryKeyFieldName],
-                                $foreignJoinColumn => $foreignJoinColumnKey
-                            ];
-
-                            // Update fields on the Junction Record
-                            $junctionTableRecord = array_merge($junctionRow, $junctionTableRecord);
-
-                            $foreignRecord = (array)$foreignRecord;
-
-                            $relationshipChanged = $this->recordDataContainsNonPrimaryKeyData($foreignRecord, $ForeignTable->primaryKeyFieldName) ||
-                                $this->recordDataContainsNonPrimaryKeyData($junctionTableRecord, $JunctionTable->primaryKeyFieldName);
-
-                            // Update Foreign Record
-                            if ($relationshipChanged) {
-                                $JunctionTable->addOrUpdateRecordByArray($junctionTableRecord, $junctionTableName);
-                            }
-                        }
-                        break;
+            $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
+            foreach ($foreignDataSet as &$foreignRecord) {
+                if (empty($foreignRecord)) {
+                    continue;
                 }
-                // Once they're managed, remove the foreign collections from the record array
-                unset($parentRow[$fieldName]);
+
+                // TODO: Fix a bug when fetching a single column
+                // before fetching all columns from a table
+                // due to our basic "cache" implementation on schema layer
+                $hasPrimaryKey = isset($foreignRecord[$ForeignTable->primaryKeyFieldName]);
+
+                if ($hasPrimaryKey && ArrayUtils::get($foreignRecord, $this->deleteFlag) === true) {
+                    $Where = new Where();
+                    $Where->equalTo($ForeignTable->primaryKeyFieldName, $foreignRecord[$ForeignTable->primaryKeyFieldName]);
+                    $ForeignTable->delete($Where);
+
+                    continue;
+                }
+
+                // only add parent id's to items that are lacking the parent column
+                if (!array_key_exists($foreignJoinColumn, $foreignRecord)) {
+                    $foreignRecord[$foreignJoinColumn] = $parentRow['id'];
+                }
+
+                $foreignRecord = $this->manageRecordUpdate(
+                    $foreignTableName,
+                    $foreignRecord,
+                    ['activity_mode' => self::ACTIVITY_ENTRY_MODE_CHILD],
+                    $childLogEntries,
+                    $parentCollectionRelationshipsChanged,
+                    $parentData
+                );
             }
+
+            // Once they're managed, remove the foreign collections from the record array
+            unset($parentRow[$fieldName]);
         }
 
         return $parentRow;
@@ -1220,7 +1147,6 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $result = $this->loadManyToOneRelationships($result, $columns, $params);
         $result = $this->loadOneToManyRelationships($result, $columns, $params);
-        $result = $this->loadManyToManyRelationships($result, $columns, $params);
 
         return $result;
     }
@@ -1326,9 +1252,6 @@ class RelationalTableGateway extends BaseTableGateway
                 }
 
                 if ($field->isManyToMany()) {
-                    $selectColumn = $field->getRelationship()->getJunctionKeyA();
-                    $column = $field->getRelationship()->getJunctionKeyB();
-                    $table = $field->getRelationship()->getJunctionCollection();
                 }
 
                 $query->columns([$selectColumn]);
@@ -1343,19 +1266,12 @@ class RelationalTableGateway extends BaseTableGateway
             // TODO: Make all this whereIn duplication into a function
             // TODO: Can we make the O2M simpler getting the parent id from itself
             //       right now is creating one unnecessary select
-            if ($field->isManyToMany() || $field->isOneToMany()) {
+            if ($field->isOneToMany()) {
                 $mainColumn = $collection->getPrimaryField()->getName();
                 $oldQuery = $query;
                 $query = new Builder($this->getAdapter());
-
-                if ($field->isManyToMany()) {
-                    $selectColumn = $relationship->getJunctionKeyB();
-                    $table = $relationship->getJunctionCollection();
-                    $column = $relationship->getJunctionKeyA();
-                } else {
-                    $selectColumn = $column = $relationship->getJunctionKeyA();
-                    $table = $relationship->getCollectionB();
-                }
+                $selectColumn = $column = $relationship->getFieldOne();
+                $table = $relationship->getCollectionOne();
 
                 $query->columns([$selectColumn]);
                 $query->from($table);
@@ -1399,7 +1315,7 @@ class RelationalTableGateway extends BaseTableGateway
         $logical = ArrayUtils::get($condition, 'logical');
 
         // TODO: if there's more, please add a better way to handle all this
-        if ($field->isToMany()) {
+        if ($field->isOneToMany()) {
             // translate some non-x2m relationship filter to x2m equivalent (if exists)
             switch ($operator) {
                 case 'empty':
@@ -1438,7 +1354,7 @@ class RelationalTableGateway extends BaseTableGateway
             $arguments[] = $logical;
         }
 
-        if (in_array($operator, ['all', 'has']) && $field->isToMany()) {
+        if (in_array($operator, ['all', 'has']) && $field->isOneToMany()) {
             if ($operator == 'all' && is_string($value)) {
                 $value = array_map(function ($item) {
                     return trim($item);
@@ -1449,28 +1365,18 @@ class RelationalTableGateway extends BaseTableGateway
 
             $primaryKey = $this->getTableSchema($table)->getPrimaryField()->getName();
             $relationship = $field->getRelationship();
-            if ($relationship->getType() == 'ONETOMANY') {
-                $arguments = [
-                    $primaryKey,
-                    $relationship->getCollectionB(),
-                    null,
-                    $relationship->getJunctionKeyB(),
-                    $value
-                ];
-            } else {
-                $arguments = [
-                    $primaryKey,
-                    $relationship->getJunctionCollection(),
-                    $relationship->getJunctionKeyA(),
-                    $relationship->getJunctionKeyB(),
-                    $value
-                ];
-            }
+            $arguments = [
+                $primaryKey,
+                $relationship->getCollectionOne(),
+                null,
+                $relationship->getFieldOne(),
+                $value
+            ];
         }
 
         // TODO: Move this into QueryBuilder if possible
         if (in_array($operator, ['like']) && $field->isManyToOne()) {
-            $relatedTable = $field->getRelationship()->getCollectionB();
+            $relatedTable = $field->getRelationship()->getCollectionOne();
             $tableSchema = SchemaService::getCollection($relatedTable);
             $relatedTableColumns = $tableSchema->getFields();
             $relatedPrimaryColumnName = $tableSchema->getPrimaryField()->getName();
@@ -1584,7 +1490,7 @@ class RelationalTableGateway extends BaseTableGateway
 
                 if ($column->isManyToOne()) {
                     $relationship = $column->getRelationship();
-                    $relatedTable = $relationship->getCollectionB();
+                    $relatedTable = $relationship->getCollectionOne();
                     $tableSchema = SchemaService::getCollection($relatedTable);
                     $relatedTableColumns = $tableSchema->getFields();
                     $relatedPrimaryColumnName = $tableSchema->getPrimaryKeyName();
@@ -1602,7 +1508,7 @@ class RelationalTableGateway extends BaseTableGateway
                     });
                 } else if ($column->isOneToMany()) {
                     $relationship = $column->getRelationship();
-                    $relatedTable = $relationship->getCollectionB();
+                    $relatedTable = $relationship->getCollectionOne();
                     $relatedRightColumn = $relationship->getJunctionKeyB();
                     $relatedTableColumns = SchemaService::getAllCollectionFields($relatedTable);
 
@@ -1618,8 +1524,6 @@ class RelationalTableGateway extends BaseTableGateway
                             }
                         }
                     });
-                } else if ($column->isManyToMany()) {
-                    // @TODO: Implement Many to Many search
                 } else if (!$column->isAlias()) {
                     $query->orWhereLike($column->getName(), $search);
                 }
@@ -1772,7 +1676,11 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
-            $relatedTableName = $alias->getRelationship()->getCollectionB();
+            if (!$alias->getRelationship()) {
+                var_dump($this->table, $alias->getName(), $alias->toArray());
+                exit;
+            }
+            $relatedTableName = $alias->getRelationship()->getCollectionMany();
             if ($this->acl && !SchemaService::canGroupReadCollection($relatedTableName)) {
                 continue;
             }
@@ -1788,7 +1696,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             // Only select the fields not on the currently authenticated user group's read field blacklist
-            $relationalColumnName = $alias->getRelationship()->getFieldB();
+            $relationalColumnName = $alias->getRelationship()->getFieldMany();
             $tableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
             $filterFields = \Directus\get_array_flat_columns($columnsTree[$alias->getName()]);
             $filters = [];
@@ -1856,90 +1764,6 @@ class RelationalTableGateway extends BaseTableGateway
     }
 
     /**
-     * Load many to many relational data
-     *
-     * @param array $entries
-     * @param Field[] $columns
-     * @param array $params
-     *
-     * @return bool|array
-     */
-    public function loadManyToManyRelationships($entries, $columns, array $params = [])
-    {
-        $columnsTree = \Directus\get_unflat_columns($columns);
-        $visibleFields = $this->getTableSchema()->getFields(array_keys($columnsTree));
-
-        foreach ($visibleFields as $alias) {
-            if (!$alias->isAlias() || !$alias->isManyToMany()) {
-                continue;
-            }
-
-            $relatedTableName = $alias->getRelationship()->getCollectionB();
-            if ($this->acl && !SchemaService::canGroupReadCollection($relatedTableName)) {
-                continue;
-            }
-
-            $primaryKey = $this->primaryKeyFieldName;
-            $callback = function($row) use ($primaryKey) {
-                return ArrayUtils::get($row, $primaryKey, null);
-            };
-
-            $ids = array_unique(array_filter(array_map($callback, $entries)));
-            if (empty($ids)) {
-                continue;
-            }
-
-            $junctionKeyLeftColumn = $alias->getRelationship()->getJunctionKeyA();
-            $junctionTableName = $alias->getRelationship()->getJunctionCollection();
-            $junctionTableGateway = new RelationalTableGateway($junctionTableName, $this->getAdapter(), $this->acl);
-            $junctionPrimaryKey = SchemaService::getCollectionPrimaryKey($junctionTableName);
-
-            $selectedFields = null;
-            $fields = $columnsTree[$alias->getName()];
-            if ($fields) {
-                $selectedFields = \Directus\get_array_flat_columns($fields);
-                array_unshift($selectedFields, $junctionPrimaryKey);
-            }
-
-            $results = $junctionTableGateway->fetchItems(array_merge([
-                // Fetch all related data
-                'limit' => -1,
-                // Add the aliases of the join columns to prevent being removed from array
-                // because there aren't part of the "visible" columns list
-                'fields' => $selectedFields,
-                'filter' => [
-                    new In(
-                        $junctionKeyLeftColumn,
-                        $ids
-                    )
-                ],
-            ], $params));
-
-            $relationalColumnName = $alias->getName();
-            $relatedEntries = [];
-            foreach ($results as $row) {
-                $rowId = $row[$junctionKeyLeftColumn];
-                if (isset($rowId[$junctionPrimaryKey])) {
-                    $rowId = $rowId[$junctionPrimaryKey];
-                }
-
-                $relatedEntries[$rowId][] = $row;
-            }
-
-            // Replace foreign keys with foreign rows
-            foreach ($entries as &$parentRow) {
-                $parentRow[$relationalColumnName] = ArrayUtils::get(
-                    $relatedEntries,
-                    $parentRow[$primaryKey],
-                    []
-                );
-            }
-        }
-
-        return $entries;
-    }
-
-    /**
      * Fetch related, foreign rows for a whole rowset's ManyToOne relationships.
      * (Given a table's schema and rows, iterate and replace all of its foreign
      * keys with the contents of these foreign rows.)
@@ -1961,7 +1785,7 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
-            $relatedTable = $column->getRelationship()->getCollectionB();
+            $relatedTable = $column->getRelationship()->getCollectionOne();
 
             // if user doesn't have permission to view the related table
             // fill the data with only the id, which the user has permission to
