@@ -1730,11 +1730,11 @@ class RelationalTableGateway extends BaseTableGateway
                 // @TODO: Make this result a object so it can be easy to interact.
                 // $row->getId(); RowGateway perhaps?
                 $relationalColumnId = $row[$relationalColumnName];
-                if (is_array($relationalColumnId)) {
+                if (is_array($relationalColumnId) && !empty($relationalColumnId)) {
                     $relationalColumnId = $relationalColumnId[$tableGateway->primaryKeyFieldName];
                 }
 
-                if (!in_array('*', $filterFields)) {
+                if ($filterFields && !in_array('*', $filterFields)) {
                     $row = ArrayUtils::pick(
                         $row,
                         $selectedFields
@@ -1848,7 +1848,7 @@ class RelationalTableGateway extends BaseTableGateway
             $relatedEntries = [];
             foreach ($results as $row) {
                 $rowId = $row[$primaryKeyName];
-                if (!in_array('*', $filterColumns)) {
+                if ($filterColumns && !in_array('*', $filterColumns)) {
                     $row = ArrayUtils::pick(
                         $row,
                         $tableGateway->getSelectedFields($filterColumns)
