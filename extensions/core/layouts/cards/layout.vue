@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-tile" @scroll="onScroll">
+  <div class="layout-cards" @scroll="onScroll">
     <v-card
       v-for="item in items"
       :key="item.id"
@@ -12,13 +12,13 @@
       :body="content(item)"
       :selected="selection.includes(item.id)"
       :selection-mode="selection.length > 0"
-      @select="select(item.id)" />
+      @select="select(item.id)"></v-card>
     <v-card
       v-if="lazyLoading"
       color="dark-gray"
       icon="hourglass_empty"
       opacity="half"
-      :title="$t('loading_more')" />
+      :title="$t('loading_more')"></v-card>
   </div>
 </template>
 
@@ -26,7 +26,7 @@
 import mixin from "../../../mixins/layout";
 
 export default {
-  name: "layout-tile",
+  name: "layout-cards",
   mixins: [mixin],
   methods: {
     title(item) {
@@ -104,15 +104,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.layout-tile {
-  padding: 20px;
+.layout-cards {
+  padding: var(--page-padding);
+  padding-bottom: var(--page-padding-bottom);
   display: grid;
   grid-template-columns: repeat(auto-fill, var(--width-small));
   grid-gap: 20px;
   width: 100%;
-  height: 100%;
-  overflow: scroll;
-  -webkit-overflow-scrolling: touch;
-  max-height: 100vh;
 }
 </style>

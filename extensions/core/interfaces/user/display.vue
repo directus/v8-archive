@@ -1,11 +1,15 @@
 <template>
-  <v-avatar
-    class="display-user"
-    :size="24"
-    :src="src"
-    :alt="displayValue"
-    v-tooltip="displayValue"
-    color="light-gray" />
+  <div>
+    <v-avatar
+      v-if="options.display !== 'name'"
+      class="display-user"
+      :size="28"
+      :src="src"
+      :alt="displayValue"
+      v-tooltip="displayValue"
+      color="light-gray"></v-avatar>
+      <span v-if="options.display !== 'avatar'" class="label">{{displayValue}}</span>
+    </div>
 </template>
 
 <script>
@@ -34,5 +38,11 @@ export default {
 <style lang="scss" scoped>
 .display-user {
   width: max-content;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.label {
+  display: inline-block;
 }
 </style>

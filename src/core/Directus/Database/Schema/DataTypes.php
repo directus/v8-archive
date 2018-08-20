@@ -150,6 +150,18 @@ final class DataTypes
     }
 
     /**
+     * Checks whether or not the given type is a date time type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isDateTimeType($type)
+    {
+        return in_array(strtolower($type), static::getDateTimeTypes());
+    }
+
+    /**
      * Returns a list of Numeric data types
      *
      * @return array

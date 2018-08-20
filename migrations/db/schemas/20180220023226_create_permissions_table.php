@@ -71,11 +71,6 @@ class CreatePermissionsTable extends AbstractMigration
             'default' => null,
             'length' => 16,
         ]);
-        $table->addColumn('navigate', 'boolean', [
-            'signed' => false,
-            'null' => false,
-            'default' => false,
-        ]);
         $table->addColumn('comment', 'string', [
             'limit' => 8,
             'null' => true,

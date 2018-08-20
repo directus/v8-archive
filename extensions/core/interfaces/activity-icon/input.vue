@@ -4,7 +4,7 @@
     readonly="true"
     :value="value"
     :icon-left="options.iconLeft"
-    :icon-right="options.iconRight" />
+    :icon-right="options.iconRight"></v-input>
 </template>
 
 <script>

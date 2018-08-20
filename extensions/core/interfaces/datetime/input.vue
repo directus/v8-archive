@@ -10,7 +10,7 @@
     :value="ISO"
     :icon-left="options.iconLeft"
     :icon-right="options.iconRight"
-    @input="updateValue" />
+    @input="updateValue"></v-input>
 </template>
 
 <script>

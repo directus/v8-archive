@@ -6,7 +6,7 @@
       :value="value"
       :icon-right="lockIcon"
       :icon-right-color="iconColor"
-      @input="$emit('input', $event)" />
+      @input="$emit('input', $event)"></v-input>
   </div>
 </template>
 

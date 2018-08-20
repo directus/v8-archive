@@ -5,7 +5,7 @@
       class="textarea"
       :value="value"
       @input="$emit('input', $event)"
-      :id="name" />
+      :id="name"></v-textarea>
     <div class="preview" v-show="!editor" v-html="compiledMarkdown"></div>
     <button
       @click="editor = !editor"

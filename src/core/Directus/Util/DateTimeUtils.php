@@ -48,7 +48,9 @@ class DateTimeUtils extends \DateTime
 
     public function __construct($time = null, $timezone = null)
     {
-        $timezone = $this->createTimeZone($timezone);
+        if ($timezone) {
+            $timezone = $this->createTimeZone($timezone);
+        }
 
         parent::__construct($time, $timezone);
 

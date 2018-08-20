@@ -45,6 +45,7 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'mail_from' => 'admin@directus.local',
             'feedback_token' => 'token',
             'feedback_login' => true,
+            'auth_secret' => 'secret-auth-key',
             'cors_enabled' => true
         ]);
 
@@ -64,6 +65,7 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'db_password' => 'password',
             'feedback_token' => 'token',
             'feedback_login' => true,
+            'auth_secret' => 'secret-auth-key',
             'cors_enabled' => true
         ]);
 

@@ -176,9 +176,9 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             'code' => InvalidTokenException::ERROR_CODE
         ]);
 
-        // expired
+        // valid but expired token
         $response = request_error_post($path, [
-            'token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZ3JvdXAiOjEsImV4cCI6LTF9.KYIEPZn_LC6P8YXEycuxJ2icVojswSbZOJN41r3h7lw'
+            'token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNTM0NTE1MTA4LCJ0eXBlIjoiYXV0aCJ9.Ux3JhxReqiSZIJOb_7_-R-1JzJ4krYRodyco09ZG6gI'
         ]);
 
         assert_response_error($this, $response, [

@@ -51,7 +51,7 @@
         <span>{{ $t("select_existing") }}</span>
       </button>
     </template>
-    <v-spinner v-else />
+    <v-spinner v-else></v-spinner>
 
     <portal to="modal" v-if="selectExisting">
       <v-modal
@@ -65,7 +65,7 @@
         }"
         @close="dismissSelection"
         @save="saveSelection">
-        <v-item-listing
+        <v-items
           :collection="relatedCollection"
           :filters="filters"
           :view-query="viewQuery"
@@ -74,7 +74,7 @@
           :selection="selection"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="selection = $event" />
+          @select="selection = $event"></v-items>
       </v-modal>
     </portal>
 
@@ -94,7 +94,7 @@
           <v-edit-form
             :fields="relatedCollectionFields"
             :values="editExisting[junctionRelatedKey]"
-            @stage-value="stageValue" />
+            @stage-value="stageValue"></v-edit-form>
         </div>
       </v-modal>
     </portal>
@@ -115,7 +115,7 @@
           <v-edit-form
             :fields="relatedCollectionFields"
             :values="relatedDefaultsWithEdits"
-            @stage-value="stageValue" />
+            @stage-value="stageValue"></v-edit-form>
         </div>
       </v-modal>
     </portal>
@@ -222,7 +222,9 @@ export default {
       if (this.relationshipSetup === false) return null;
 
       return this.$lodash.orderBy(
-        (this.value || []).filter(val => !val.$delete),
+        (this.value || [])
+          .filter(val => !val.$delete)
+          .filter(val => val[this.junctionRelatedKey] != null),
         item => item[this.junctionRelatedKey][this.sort.field],
         this.sort.asc ? "asc" : "desc"
       );
@@ -333,6 +335,7 @@ export default {
 
       this.selection = this.value
         .filter(val => !val.$delete)
+        .filter(val => val[this.junctionRelatedKey] != null)
         .map(val => val[this.junctionRelatedKey][this.relatedKey]);
     },
     getRelatedCollectionsFieldInfo() {

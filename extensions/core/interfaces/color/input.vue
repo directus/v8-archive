@@ -12,8 +12,7 @@
         pattern="[#0-9a-fA-F]"
         iconLeft="palette"
         :maxlength="9"
-        v-model="rawValue"
-      />
+        v-model="rawValue"></v-input>
       <v-input
         v-else
         type="text"
@@ -21,8 +20,7 @@
         pattern="[#0-9a-fA-F]"
         iconLeft="palette"
         :maxlength="7"
-        v-model="rawValue"
-      />
+        v-model="rawValue"></v-input>
     </div>
     <div class="sliders" v-else-if="
       !options.paletteOnly &&

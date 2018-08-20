@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent>
     <fieldset>
-      <legend>{{ $t('layouts-tabular-fields') }}</legend>
+      <legend class="style-4">{{ $t('layouts-tabular-fields') }}</legend>
       <draggable v-model="sortList" @end="sort">
         <div class="draggable" v-for="(field) in sortList" :key="field.field">
           <v-checkbox
@@ -11,12 +11,12 @@
             :label="field.name"
             :value="field.field"
             :checked="fieldsInUse.includes(field.field)"
-            @change="toggleField(field.field)" />
+            @change="toggleField(field.field)"></v-checkbox>
           <i class="material-icons">drag_handle</i>
         </div>
       </draggable>
     </fieldset>
-    <label for="spacing">Spacing</label>
+    <label for="spacing" class="style-4">Spacing</label>
     <v-select
       id="spacing"
       :value="viewOptions.spacing || 'cozy'"
@@ -27,7 +27,7 @@
       }"
       class="select"
       icon="reorder"
-      @input="setSpacing" />
+      @input="setSpacing"></v-select>
   </form>
 </template>
 
@@ -111,7 +111,8 @@ export default {
 
 <style lang="scss" scoped>
 label {
-  margin-top: 30px;
+  margin-bottom: 5px;
+  margin-top: 20px;
 }
 
 .draggable {

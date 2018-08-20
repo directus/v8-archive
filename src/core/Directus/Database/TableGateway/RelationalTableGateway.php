@@ -15,6 +15,8 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
+use Directus\Permissions\Exception\PermissionException;
+use Directus\Permissions\Exception\UnableFindOwnerItemsException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\StringUtils;
@@ -167,9 +169,8 @@ class RelationalTableGateway extends BaseTableGateway
         foreach ($recordData as $key => $data) {
             $column = $tableSchema->getField($key);
 
-            // TODO: To work with files
-            // As `data` is not set as alias for files we are checking for actual aliases
-            if ($column && $column->isAlias()) {
+            // NOTE: Each interface or the API should handle the `alias` type
+            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
                 continue;
             }
 
@@ -242,7 +243,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $statusField = $tableSchema->getStatusField();
         if ($recordIsNew) {
-            $logEntryAction = DirectusActivityTableGateway::ACTION_ADD;
+            $logEntryAction = DirectusActivityTableGateway::ACTION_CREATE;
         } else if (ArrayUtils::get($params, 'revert') === true) {
             $logEntryAction = DirectusActivityTableGateway::ACTION_REVERT;
         } else {
@@ -269,8 +270,10 @@ class RelationalTableGateway extends BaseTableGateway
                 // Activity logging is enabled, and I am a nested action
                 case self::ACTIVITY_ENTRY_MODE_CHILD:
                     $childLogEntries[] = [
-                        'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
-                        'action' => $logEntryAction,
+                        'action' => DirectusActivityTableGateway::makeLogActionFromTableName(
+                            $this->table,
+                            $logEntryAction
+                        ),
                         'user' => $currentUserId,
                         'datetime' => DateTimeUtils::nowInUTC()->toString(),
                         'ip' => \Directus\get_request_ip(),
@@ -308,8 +311,10 @@ class RelationalTableGateway extends BaseTableGateway
                         // Save parent log entry
                         $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
                         $logData = [
-                            'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
-                            'action' => $logEntryAction,
+                            'action' => DirectusActivityTableGateway::makeLogActionFromTableName(
+                                $this->table,
+                                $logEntryAction
+                            ),
                             'user' => $currentUserId,
                             'datetime' => DateTimeUtils::nowInUTC()->toString(),
                             'ip' => \Directus\get_request_ip(),
@@ -390,9 +395,8 @@ class RelationalTableGateway extends BaseTableGateway
         foreach ($recordData as $key => $data) {
             $column = $tableSchema->getField($key);
 
-            // TODO: To work with files
-            // As `data` is not set as alias for files we are checking for actual aliases
-            if ($column && $column->isAlias()) {
+            // NOTE: Each interface or the API should handle the `alias` type
+            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
                 continue;
             }
 
@@ -429,7 +433,7 @@ class RelationalTableGateway extends BaseTableGateway
         );
 
         $this->recordActivity(
-            DirectusActivityTableGateway::ACTION_ADD,
+            DirectusActivityTableGateway::ACTION_CREATE,
             $parentRecordWithoutAlias,
             $newRecordObject,
             $nestedLogEntries,
@@ -471,9 +475,8 @@ class RelationalTableGateway extends BaseTableGateway
         foreach ($recordData as $key => $data) {
             $column = $tableSchema->getField($key);
 
-            // TODO: To work with files
-            // As `data` is not set as alias for files we are checking for actual aliases
-            if ($column && $column->isAlias()) {
+            // NOTE: Each interface or the API should handle the `alias` type
+            if ($column && ($column->isOneToMany() || $column->isManyToMany())) {
                 continue;
             }
 
@@ -1087,11 +1090,20 @@ class RelationalTableGateway extends BaseTableGateway
 
         try {
             $this->enforceReadPermission($builder);
-        } catch (ForbiddenCollectionReadException $e) {
+        } catch (PermissionException $e) {
+            $isForbiddenRead = $e instanceof ForbiddenCollectionReadException;
+            $isUnableFindItems = $e instanceof UnableFindOwnerItemsException;
+
+            if (!$isForbiddenRead && !$isUnableFindItems) {
+                throw $e;
+            }
+
             if (ArrayUtils::has($params, 'single')) {
                 throw new Exception\ItemNotFoundException();
-            } else {
+            } else if ($isForbiddenRead) {
                 throw $e;
+            } else if ($isUnableFindItems) {
+                return [];
             }
         }
 
@@ -2322,8 +2334,10 @@ class RelationalTableGateway extends BaseTableGateway
         // Save parent log entry
         $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
         $logData = [
-            'type' => DirectusActivityTableGateway::makeLogTypeFromTableName($this->table),
-            'action' => $action,
+            'action' => DirectusActivityTableGateway::makeLogActionFromTableName(
+                $this->table,
+                $action
+            ),
             'user' => $currentUserId,
             'datetime' => DateTimeUtils::nowInUTC()->toString(),
             'ip' => \Directus\get_request_ip(),

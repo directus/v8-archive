@@ -4,8 +4,7 @@
     class="input"
     :readonly="readonly"
     @input="$emit('input', $event)"
-    :value="value"
-  />
+    :value="value"></v-input>
 </template>
 
 <script>

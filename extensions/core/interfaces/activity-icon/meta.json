@@ -5,19 +5,6 @@
     "VARCHAR": 100,
     "CHAR": 10
   },
-  "options": {
-    "radius": {
-      "name": "$t:radius",
-      "comment": "$t:radius-comment",
-      "interface": "slider",
-      "default": 24,
-      "options": {
-        "minimum": 12,
-        "maximum": 48,
-        "unit": "px"
-      }
-    }
-  },
   "translation": {
     "en-US": {
       "activity-icon": "Activity Icon",

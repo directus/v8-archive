@@ -12,11 +12,16 @@
         :placeholder="options.placeholder"
         :options="selectOptions"
         :value="valuePK"
-        :class="{ disabled: count > 10 }"
         :icon="options.icon"
-        @input="$emit('input', $event)" />
+        @input="$emit('input', $event)"></v-select>
 
-      <button v-if="count > 10" type="button" @click="showListing = true" />
+      <button v-if="count > 10" type="button" @click="showListing = true"></button>
+
+      <v-spinner
+        v-show="loading"
+        line-fg-color="var(--light-gray)"
+        line-bg-color="var(--lighter-gray)"
+        class="spinner"></v-spinner>
 
       <portal to="modal" v-if="showListing">
         <v-modal
@@ -40,7 +45,7 @@
             :view-options="viewOptions"
             @options="setViewOptions"
             @query="setViewQuery"
-            @select="newSelected = $event[$event.length - 1]" />
+            @select="newSelected = $event[$event.length - 1]"></v-items>
         </v-modal>
       </portal>
     </template>
@@ -266,5 +271,21 @@ button {
   top: 0;
   width: 100%;
   height: 100%;
+  background: transparent;
+  border: var(--input-border-width) solid var(--lighter-gray);
+  border-radius: var(--border-radius);
+  transition: border var(--fast) var(--transition);
+
+  &:hover {
+    transition: none;
+    border-color: var(--light-gray);
+  }
+}
+
+.spinner {
+  position: absolute;
+  right: -50px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 </style>

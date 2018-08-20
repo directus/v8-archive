@@ -7,7 +7,7 @@
       ref="codemirrorEl"
       :options="cmOptions"
       :value="stringValue"
-      @input="onInput" />
+      @input="onInput"></codemirror>
 
     <button
       v-if="options.template"
@@ -121,7 +121,7 @@ export default {
       return this.availableTypes[this.options.language];
     },
     stringValue() {
-      if (typeof this.value === 'object') {
+      if (typeof this.value === "object") {
         return JSON.stringify(this.value, null, 4);
       }
 

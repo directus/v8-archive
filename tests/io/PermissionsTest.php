@@ -120,12 +120,40 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, $data);
     }
 
+    public function testReadOneWithMinePermissionsWithoutOwner()
+    {
+        $data = [
+            'id' => 1,
+            'collection' => 'products',
+            'read' => Acl::LEVEL_MINE,
+        ];
+
+        $response = request_patch('permissions/1', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, array_merge(['id' => 1], $data));
+
+        $response = request_error_get('items/products/1', $this->internQueryParams);
+        assert_response_error($this, $response, [
+            'status' => 404,
+            'code' => ItemNotFoundException::ERROR_CODE
+        ]);
+    }
+
     public function testList()
     {
         $response = request_get('permissions', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
             'count' => 1
+        ]);
+    }
+
+    public function testReadAllMineWithoutOwner()
+    {
+        $response = request_get('items/products', $this->internQueryParams);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 0
         ]);
     }
 

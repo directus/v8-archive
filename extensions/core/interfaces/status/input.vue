@@ -21,11 +21,13 @@ export default {
   mixins: [mixin],
   computed: {
     optionValues() {
-      if (typeof this.options.statusMapping === "string") {
-        return this.options.statusMapping ? JSON.parse(this.statusMapping) : {};
+      if (typeof this.options.status_mapping === "string") {
+        return this.options.status_mapping
+          ? JSON.parse(this.status_mapping)
+          : {};
       }
 
-      return this.options.statusMapping || {};
+      return this.options.status_mapping || {};
     }
   }
 };

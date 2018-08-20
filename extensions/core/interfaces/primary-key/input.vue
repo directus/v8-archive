@@ -2,13 +2,13 @@
   <v-input
     v-if="newItem"
     class="input"
-    iconRight="vpn_key"
-    iconRightColor="null"
+    icon-right="vpn_key"
+    icon-right-color="null"
     :maxlength="length"
     :type="inputType"
     :readonly="readonly"
     :value="value"
-    @input="$emit('input', $event)" />
+    @input="$emit('input', $event)"></v-input>
   <v-display
     v-else
     :name="name"
@@ -17,7 +17,7 @@
     :length="length"
     :readonly="readonly"
     :required="required"
-    :options="options" />
+    :options="options"></v-display>
 </template>
 
 <script>

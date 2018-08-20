@@ -10,11 +10,26 @@
       "comment": "$t:template_comment",
       "interface": "text-input",
       "default": "{{first_name}} {{last_name}}"
+    },
+    "display": {
+      "name": "$t:display",
+      "comment": "$t:display_comment",
+      "interface": "dropdown",
+      "default": "both",
+      "options": {
+        "choices": {
+          "both": "$t:avatar + $t:name",
+          "avatar": "$t:avatar",
+          "name": "$t:name"
+        }
+      }
     }
   },
   "translation": {
     "en-US": {
-      "user": "User"
+      "user": "User",
+      "avatar": "Avatar",
+      "name": "Name"
     }
   }
 }
