@@ -1676,10 +1676,6 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
-            if (!$alias->getRelationship()) {
-                var_dump($this->table, $alias->getName(), $alias->toArray());
-                exit;
-            }
             $relatedTableName = $alias->getRelationship()->getCollectionMany();
             if ($this->acl && !SchemaService::canGroupReadCollection($relatedTableName)) {
                 continue;
