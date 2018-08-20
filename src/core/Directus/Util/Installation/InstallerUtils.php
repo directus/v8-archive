@@ -779,6 +779,7 @@ class InstallerUtils
     private static function createConfigData(array $data)
     {
         return ArrayUtils::defaults([
+            'env' => '_',
             'db_type' => 'mysql',
             'db_host' => 'localhost',
             'db_port' => 3306,

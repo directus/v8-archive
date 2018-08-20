@@ -54,13 +54,13 @@ return [
         // All path are relative to the filesystem root when the path is not starting with a forward slash.
         // By default the uploads directory is located at the directus public root
         // An absolute path can be used as alternative.
-        'root' => 'public/storage/uploads',
+        'root' => 'public/uploads/{{env}}/originals',
         // This is the url where all the media will be pointing to
         // here is where Directus will assume all assets will be accesed
-        // Ex: (yourdomain)/storage/uploads
-        'root_url' => '/storage/uploads',
+        // Ex: (yourdomain)/uploads/_/originals
+        'root_url' => '/uploads/{{env}}/originals',
         // Same as "root", but for the thumbnails
-        'root_thumb' => 'public/thumbnail/thumbs',
+        'thumb_root' => 'public/uploads/{{env}}/thumbnails',
         //   'key'    => 's3-key',
         //   'secret' => 's3-secret',
         //   'region' => 's3-region',

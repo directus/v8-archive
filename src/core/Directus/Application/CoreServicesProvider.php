@@ -957,7 +957,7 @@ class CoreServicesProvider
             $config = $container->get('config');
 
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('filesystem'), 'root_thumb')
+                FilesystemFactory::createAdapter($config->get('filesystem'), 'thumb_root')
             );
         };
     }
