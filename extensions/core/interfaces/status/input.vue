@@ -2,7 +2,7 @@
   <div class="interface-status">
     <v-radio
       v-for="(options, key) in optionValues"
-      :id="`${name}-${key}`"
+      :id="`${fields[name].collection}-${name}-${key}`"
       :name="name"
       :value="key"
       :key="key"
