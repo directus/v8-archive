@@ -12,10 +12,11 @@
         <div>
           <button
             v-for="icon in icongroup"
+            type="button"
             :key="icon"
             :class="{ active: value === icon }"
             :disabled="readonly"
-            @click="$emit('input', icon)">
+            @click="$emit('input', value === icon ? null : icon)">
             <i class="material-icons">{{ icon }}</i>
           </button>
         </div>
@@ -25,10 +26,11 @@
       <button
         v-for="icon in filteredArray"
         v-tooltip="$helpers.formatTitle(icon)"
+        type="button"
         :key="icon"
         :class="{ active: value === icon}"
         :disabled="readonly"
-        @click="$emit('input', icon)">
+        @click="$emit('input', value === icon ? null : icon)">
         <i class="material-icons">{{ icon }}</i>
       </button>
     </div>
