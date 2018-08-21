@@ -4,6 +4,7 @@
   "datatypes": {
     "ALIAS": null
   },
+  "relation": "o2m",
   "translation": {
     "en-US": {
       "o2m": "One to Many",

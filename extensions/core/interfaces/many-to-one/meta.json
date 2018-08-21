@@ -5,7 +5,7 @@
     "INT": 11,
     "VARCHAR": 100
   },
-  "relationship": "m2o",
+  "relation": "m2o",
   "options": {
     "template": {
       "name": "$t:template",

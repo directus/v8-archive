@@ -5,7 +5,7 @@
     "INT": 11,
     "VARCHAR": 100
   },
-  "relationship": "m2m",
+  "relation": "m2m",
   "options": {
     "fields": {
       "name": "$t:visible_columns",
