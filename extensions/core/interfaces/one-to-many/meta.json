@@ -4,6 +4,7 @@
   "datatypes": {
     "ALIAS": null
   },
+  "options": {},
   "relation": "o2m",
   "translation": {
     "en-US": {
