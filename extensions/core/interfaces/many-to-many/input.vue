@@ -3,7 +3,7 @@
     <div v-if="relationSetup === false" class="notice">
       <p><i class="material-icons">warning</i> {{ $t('interfaces-many-to-many-relation_not_setup') }}</p>
     </div>
-    <template v-else-if="doneLoading">
+    <template>
       <div class="table" v-if="items.length">
         <div class="header">
           <div class="row">
@@ -51,7 +51,6 @@
         <span>{{ $t("select_existing") }}</span>
       </button>
     </template>
-    <v-spinner v-else></v-spinner>
 
     <portal to="modal" v-if="selectExisting">
       <v-modal
@@ -130,12 +129,6 @@ export default {
   name: "interface-many-to-many",
   data() {
     return {
-      loading: false,
-      error: null,
-
-      relatedCollectionFields: null,
-      junctionCollectionFields: null,
-
       sort: {
         field: null,
         asc: true
@@ -165,6 +158,12 @@ export default {
     },
     relatedCollection() {
       return this.relation.junction.collection_one.collection;
+    },
+    relatedCollectionFields() {
+      return this.relation.junction.collection_one.fields;
+    },
+    junctionCollectionFields() {
+      return this.relation.collection_many.fields;
     },
     relatedKey() {
       return this.$lodash.find(this.relation.junction.collection_one.fields, {
@@ -202,13 +201,6 @@ export default {
         field,
         name: this.$helpers.formatTitle(field)
       }));
-    },
-    doneLoading() {
-      if (this.relationSetup === false) return null;
-      return (
-        this.relatedCollectionFields !== null &&
-        this.junctionCollectionFields !== null
-      );
     },
     relatedDefaultValues() {
       if (this.relationSetup === false) return null;
@@ -269,7 +261,6 @@ export default {
     if (this.relationSetup) {
       this.sort.field = this.visibleFields && this.visibleFields[0];
       this.setSelection();
-      this.getRelatedCollectionsFieldInfo();
     }
   },
   watch: {
@@ -280,7 +271,6 @@ export default {
       if (this.relationSetup) {
         this.sort.field = this.visibleFields && this.visibleFields[0];
         this.setSelection();
-        this.getRelatedCollectionsFieldInfo();
       }
     }
   },
@@ -304,37 +294,6 @@ export default {
         .filter(val => !val.$delete)
         .filter(val => val[this.junctionRelatedKey] != null)
         .map(val => val[this.junctionRelatedKey]);
-    },
-    getRelatedCollectionsFieldInfo() {
-      const junctionCollection = this.relation.collection_many.collection;
-
-      if (!junctionCollection || !this.relatedCollection) return null;
-
-      this.loading = true;
-
-      Promise.all([
-        this.$api.getFields(junctionCollection),
-        this.$api.getFields(this.relatedCollection)
-      ])
-        .then(([junctionRes, collectionRes]) => ({
-          junctionFields: junctionRes.data,
-          collectionFields: collectionRes.data
-        }))
-        .then(({ junctionFields, collectionFields }) => {
-          this.relatedCollectionFields = this.$lodash.keyBy(
-            collectionFields,
-            "field"
-          );
-          this.junctionCollectionFields = this.$lodash.keyBy(
-            junctionFields,
-            "field"
-          );
-          this.loading = false;
-        })
-        .catch(error => {
-          this.error = error;
-          this.loading = false;
-        });
     },
     changeSort(field) {
       if (this.sort.field === field) {
