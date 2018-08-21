@@ -32,7 +32,7 @@ module.exports = {
       type: Boolean,
       default: false
     },
-    relationship: {
+    relation: {
       type: Object,
       default: null
     },
