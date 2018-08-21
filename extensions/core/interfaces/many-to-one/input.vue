@@ -81,10 +81,13 @@ export default {
       return true;
     },
     relatedPrimaryKeyField() {
-      return this.$lodash.find(this.relation.collection_one.fields, { primary_key: true }).field;
+      return this.$lodash.find(this.relation.collection_one.fields, {
+        primary_key: true
+      }).field;
     },
     valuePK() {
-      if (this.$lodash.isObject(this.value)) return this.value[this.relatedPrimaryKeyField];
+      if (this.$lodash.isObject(this.value))
+        return this.value[this.relatedPrimaryKeyField];
       return this.value;
     },
     render() {
@@ -181,14 +184,20 @@ export default {
       this.selectionSaving = true;
 
       this.items.forEach(item => {
-        if (item[this.relatedPrimaryKeyField] === this.newSelected[this.relatedPrimaryKeyField]) {
+        if (
+          item[this.relatedPrimaryKeyField] ===
+          this.newSelected[this.relatedPrimaryKeyField]
+        ) {
           exists = true;
         }
       });
 
       if (exists === false) {
         this.$api
-          .getItem(this.relation.collection_one.collection, this.newSelected[this.relatedPrimaryKeyField])
+          .getItem(
+            this.relation.collection_one.collection,
+            this.newSelected[this.relatedPrimaryKeyField]
+          )
           .then(res => res.data)
           .then(item => {
             this.$emit("input", this.newSelected);
