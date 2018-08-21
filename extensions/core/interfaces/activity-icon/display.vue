@@ -6,7 +6,7 @@
       :icon="icon"
       :color="color"
       :progress="100"
-      :stroke="2" />
+      :stroke="2"></v-progress-ring>
       <span class="label">{{label}}</span>
   </div>
 </template>
@@ -20,65 +20,69 @@ export default {
   data() {
     return {
       styles: {
-        "add": {
-          "icon": "check",
-          "color": "success"
+        add: {
+          icon: "check",
+          color: "success"
         },
-        "update": {
-          "icon": "check",
-          "color": "success"
+        update: {
+          icon: "check",
+          color: "success"
         },
         "soft-delete": {
-          "icon": "delete",
-          "color": "warning"
+          icon: "delete",
+          color: "warning"
         },
-        "delete": {
-          "icon": "delete_forever",
-          "color": "warning"
+        delete: {
+          icon: "delete_forever",
+          color: "warning"
         },
-        "login": {
-          "icon": "lock_open",
-          "color": "dark-gray"
+        login: {
+          icon: "lock_open",
+          color: "dark-gray"
         },
-        "upload": {
-          "icon": "cloud_done",
-          "color": "accent"
+        upload: {
+          icon: "cloud_done",
+          color: "accent"
         },
-        "mention": {
-          "icon": "insert_comment",
-          "color": "purple"
+        mention: {
+          icon: "insert_comment",
+          color: "purple"
         },
-        "error": {
-          "icon": "error",
-          "color": "danger"
+        error: {
+          icon: "error",
+          color: "danger"
         }
       }
     };
   },
   computed: {
     icon() {
-      return this.value && this.styles[this.value.toLowerCase()] ? this.styles[this.value.toLowerCase()].icon : "help";
+      return this.value && this.styles[this.value.toLowerCase()]
+        ? this.styles[this.value.toLowerCase()].icon
+        : "help";
     },
     color() {
-      return this.value && this.styles[this.value.toLowerCase()] ? this.styles[this.value.toLowerCase()].color : "lighter-gray";
+      return this.value && this.styles[this.value.toLowerCase()]
+        ? this.styles[this.value.toLowerCase()].color
+        : "lighter-gray";
     },
     label() {
-      if(this.value){
-        if(this.value.toLowerCase() == "add") {
+      if (this.value) {
+        if (this.value.toLowerCase() == "add") {
           return "Item Created";
-        } else if(this.value.toLowerCase() == "update") {
+        } else if (this.value.toLowerCase() == "update") {
           return "Item Saved";
-        } else if(this.value.toLowerCase() == "soft-delete") {
+        } else if (this.value.toLowerCase() == "soft-delete") {
           return "Item Deleted";
-        } else if(this.value.toLowerCase() == "delete") {
+        } else if (this.value.toLowerCase() == "delete") {
           return "Item Deleted";
-        } else if(this.value.toLowerCase() == "login") {
+        } else if (this.value.toLowerCase() == "login") {
           return "Authenticated";
-        } else if(this.value.toLowerCase() == "upload") {
+        } else if (this.value.toLowerCase() == "upload") {
           return "File Uploaded";
-        } else if(this.value.toLowerCase() == "mention") {
+        } else if (this.value.toLowerCase() == "mention") {
           return "Mentioned";
-        } else if(this.value.toLowerCase() == "error") {
+        } else if (this.value.toLowerCase() == "error") {
           return "Error";
         }
       }

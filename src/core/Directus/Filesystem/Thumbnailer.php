@@ -40,7 +40,6 @@ class Thumbnailer {
     /**
      * Constructor
      *
-     * @param string $pathPrefix
      * @param Filesystem $main
      * @param Filesystem $thumb
      * @param array $config
@@ -48,7 +47,7 @@ class Thumbnailer {
      *
      * @throws Exception
      */
-    public function __construct($pathPrefix, Filesystem $main, Filesystem $thumb, array $config, $path = '')
+    public function __construct(Filesystem $main, Filesystem $thumb, array $config, $path = '')
     {
         try {
             // $this->files = $files;
@@ -78,8 +77,8 @@ class Thumbnailer {
                 throw new Exception('Invalid quality.');
             }
 
-            // relative to configuration['filesystem']['root_thumb']
-            $this->thumbnailDir = $pathPrefix . '/' . $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '');
+            // relative to configuration['filesystem']['thumb_root']
+            $this->thumbnailDir = $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '');
         } catch (Exception $e) {
             throw $e;
         }

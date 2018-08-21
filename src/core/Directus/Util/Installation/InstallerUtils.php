@@ -779,14 +779,16 @@ class InstallerUtils
     private static function createConfigData(array $data)
     {
         return ArrayUtils::defaults([
+            'env' => '_',
             'db_type' => 'mysql',
             'db_host' => 'localhost',
             'db_port' => 3306,
             'db_password' => null,
             'mail_from' => 'admin@example.com',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
+            'auth_secret' => StringUtils::randomString(32),
             'feedback_login' => true,
-            'cors_enabled' => false
+            'cors_enabled' => true
         ], $data);
     }
 }

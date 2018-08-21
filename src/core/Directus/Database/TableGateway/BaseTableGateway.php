@@ -28,6 +28,7 @@ use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
+use Directus\Permissions\Exception\UnableFindOwnerItemsException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Zend\Db\Adapter\AdapterInterface;
@@ -963,7 +964,7 @@ class BaseTableGateway extends TableGateway
 
         foreach ($records as $index => $row) {
             foreach ($tableSchema->getFields() as $column) {
-                $canConvert = in_array(strtolower($column->getType()), ['timestamp', 'datetime']);
+                $canConvert = DataTypes::isDateTimeType($column->getType());
                 // Directus convert all dates to ISO to all datetime columns in the core tables
                 // and any columns using system date interfaces (datetime_created or datetime_modified)
                 if ($isCustomTable && !$column->isSystemDateType()) {
@@ -1122,6 +1123,10 @@ class BaseTableGateway extends TableGateway
         $authenticatedUserId = $this->acl->getUserId();
 
         if (empty($statuses)) {
+            if (!$userCreatedField && !$this->acl->canReadAll($this->table)) {
+                throw new UnableFindOwnerItemsException($this->table);
+            }
+
             $ownerIds = [$authenticatedUserId];
             if ($this->acl->canReadFromRole($this->table)) {
                 $ownerIds = array_merge(
@@ -1137,6 +1142,10 @@ class BaseTableGateway extends TableGateway
                 foreach ($statuses as $status) {
                     $canReadAll = $this->acl->canReadAll($collection, $status);
                     $canReadMine = $this->acl->canReadMine($collection, $status);
+
+                    if (!$userCreatedField && !$canReadAll) {
+                        throw new UnableFindOwnerItemsException($collection);
+                    }
 
                     if ((!$canReadAll && !$userCreatedField) || !$canReadMine) {
                         continue;

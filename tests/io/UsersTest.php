@@ -78,10 +78,11 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     {
         $queryParams = ['access_token' => 'token'];
 
+        // Fetch only "published" items, which are all users with "active" status
         $response = request_get('users', $queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 4
+            'count' => 2
         ]);
     }
 

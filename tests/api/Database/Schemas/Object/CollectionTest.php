@@ -13,7 +13,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $data = [
             'collection' => 'users',
             'item_name_template' => '{name}',
-            'preview_url' => 'http://localhost/users/{id}',
             'hidden' => 0,
             'single' => 0,
             'comment' => 'All my clients',
@@ -23,7 +22,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $collection = new Collection($data);
         $this->assertSame(ArrayUtils::get($data, 'collection'), $collection->getName());
         $this->assertSame(ArrayUtils::get($data, 'item_name_template'), $collection->getItemNameTemplate());
-        $this->assertSame(ArrayUtils::get($data, 'preview_url'), $collection->getPreviewUrl());
         $this->assertFalse($collection->isHidden());
         $this->assertFalse($collection->isSingle());
         // $this->assertInstanceOf(StatusMapping::class, $collection->getStatusMapping());

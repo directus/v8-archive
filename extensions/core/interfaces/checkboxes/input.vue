@@ -8,7 +8,7 @@
       :disabled="readonly"
       :label="name"
       :checked="selection.includes(val)"
-      @change="updateValue(val, $event)" />
+      @change="updateValue(val, $event)"></v-checkbox>
   </div>
 </template>
 
@@ -52,7 +52,7 @@ export default {
         selection = `,${selection},`;
       }
 
-      if (this.type === "CSV") {
+      if (this.type === "ARRAY") {
         selection = selection.split(",");
       }
 

@@ -42,6 +42,11 @@ class TablesService extends AbstractService
      */
     protected $fieldsTableGateway;
 
+    /**
+     * @var RelationalTableGateway
+     */
+    protected $collectionsTableGateway;
+
     public function __construct(Container $container)
     {
         parent::__construct($container);
@@ -280,6 +285,7 @@ class TablesService extends AbstractService
             throw new UnauthorizedException('Unauthorized to create collections');
         }
 
+        $data = ArrayUtils::defaults(['managed' => true], $data);
         $this->enforcePermissions($this->collection, $data, $params);
 
         $data['collection'] = $name;
@@ -1055,8 +1061,7 @@ class TablesService extends AbstractService
         }
 
         $relationshipType = ArrayUtils::get($relationData, 'relationship_type', '');
-        $collectionBName = ArrayUtils::get($relationData, 'collection_b');
-        $storeCollectionName = ArrayUtils::get($relationData, 'store_collection');
+        $collectionBName = ArrayUtils::get($relationData, 'collection_one');
         $collectionBObject = $this->getSchemaManager()->getCollection($collectionBName);
         $relationsTableGateway = $this->createTableGateway('directus_relations');
 
@@ -1064,31 +1069,23 @@ class TablesService extends AbstractService
         switch ($relationshipType) {
             case FieldRelationship::MANY_TO_ONE:
                 $data['relationship_type'] = FieldRelationship::MANY_TO_ONE;
-                $data['collection_a'] = $collectionName;
-                $data['collection_b'] = $collectionBName;
+                $data['collection_many'] = $collectionName;
+                $data['collection_one'] = $collectionBName;
                 $data['store_key_a'] = $column['field'];
                 $data['store_key_b'] = $collectionBObject->getPrimaryKeyName();
                 break;
             case FieldRelationship::ONE_TO_MANY:
                 $data['relationship_type'] = FieldRelationship::ONE_TO_MANY;
-                $data['collection_a'] = $collectionName;
-                $data['collection_b'] = $collectionBName;
+                $data['collection_many'] = $collectionName;
+                $data['collection_one'] = $collectionBName;
                 $data['store_key_a'] = $collectionBObject->getPrimaryKeyName();
                 $data['store_key_b'] = $column['field'];
-                break;
-            case FieldRelationship::MANY_TO_MANY:
-                $data['relationship_type'] = FieldRelationship::MANY_TO_MANY;
-                $data['collection_a'] = $collectionName;
-                $data['store_collection'] = $storeCollectionName;
-                $data['collection_b'] = $collectionBName;
-                $data['store_key_a'] = $relationData['store_key_a'];
-                $data['store_key_b'] = $relationData['store_key_b'];
                 break;
         }
 
 
         $row = $relationsTableGateway->findOneByArray([
-            'collection_a' => $collectionName,
+            'collection_many' => $collectionName,
             'store_key_a' => $column['field']
         ]);
 
@@ -1396,6 +1393,11 @@ class TablesService extends AbstractService
             $collectionData
         );
 
+        // Casting values and filter all blacklisted fields
+        if (ArrayUtils::has($collectionData, 'fields')) {
+            $collectionData['fields'] = $this->mergeMissingSchemaFields($collection, $collectionData['fields']);
+        }
+
         $collectionData['translation'] = ArrayUtils::get($collectionData, 'translation');
         $collectionData['icon'] = ArrayUtils::get($collectionData, 'icon');
 
@@ -1419,11 +1421,11 @@ class TablesService extends AbstractService
      */
     protected function getCollectionsTableGateway()
     {
-        if (!$this->fieldsTableGateway) {
-            $this->fieldsTableGateway = $this->createTableGateway('directus_collections');
+        if (!$this->collectionsTableGateway) {
+            $this->collectionsTableGateway = $this->createTableGateway('directus_collections');
         }
 
-        return $this->fieldsTableGateway;
+        return $this->collectionsTableGateway;
     }
 
     protected function getAllFieldsParams(array $params)

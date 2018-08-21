@@ -6,7 +6,7 @@ use Directus\Exception\Exception;
 
 class FilesystemException extends Exception
 {
-    const ERROR_CODE = 300;
+    const ERROR_CODE = 600;
 
     public function __construct($message = '')
     {

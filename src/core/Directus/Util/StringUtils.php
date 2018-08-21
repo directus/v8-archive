@@ -125,6 +125,7 @@ class StringUtils
      */
     public static function randomString($length = 16)
     {
+        // TODO: Add options to allow symbols or user provided characters to extend the list
         $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);

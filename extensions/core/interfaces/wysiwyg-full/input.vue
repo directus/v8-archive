@@ -14,18 +14,6 @@ import mixin from "../../../mixins/interface";
 export default {
   name: "interface-wysiwyg",
   mixins: [mixin],
-  computed: {
-    editorOptions() {
-      const { inline, block, embeds } = this.options;
-      return {
-        theme: "snow",
-        modules: {
-          toolbar: [[...inline], [...block], [...embeds]]
-        },
-        formats: [...inline, ...block, ...embeds]
-      };
-    }
-  },
   mounted() {
     this.init();
   },
@@ -38,7 +26,12 @@ export default {
   },
   methods: {
     init() {
-      this.editor = new Quill(this.$refs.editor, this.editorOptions);
+      this.editor = new Quill(this.$refs.editor, {
+        theme: "snow",
+        modules: {
+          toolbar: this.options.toolbarOptions
+        }
+      });
       this.editor.on("text-change", () => {
         this.$emit("input", this.editor.root.innerHTML);
       });

@@ -12,13 +12,13 @@
       :body="content(item)"
       :selected="selection.includes(item.id)"
       :selection-mode="selection.length > 0"
-      @select="select(item.id)" />
+      @select="select(item.id)"></v-card>
     <v-card
       v-if="lazyLoading"
       color="dark-gray"
       icon="hourglass_empty"
       opacity="half"
-      :title="$t('loading_more')" />
+      :title="$t('loading_more')"></v-card>
   </div>
 </template>
 

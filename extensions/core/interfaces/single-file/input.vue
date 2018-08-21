@@ -12,8 +12,8 @@
           icon: 'delete'
         }
       }"
-      @remove="$emit('input', null)" />
-    <v-upload v-else small class="dropzone" @upload="saveUpload" />
+      @remove="$emit('input', null)"></v-card>
+    <v-upload v-else small class="dropzone" @upload="saveUpload"></v-upload>
 
     <v-button type="button" @click="newFile = true">
       <i class="material-icons">add</i>{{ $t('new_file') }}
@@ -26,7 +26,7 @@
     <portal to="modal" v-if="newFile">
       <v-modal :title="$t('file_upload')" @close="newFile = false">
         <div class="body">
-          <v-upload @upload="saveUpload" />
+          <v-upload @upload="saveUpload"></v-upload>
         </div>
       </v-modal>
     </portal>
@@ -50,7 +50,7 @@
           :view-options="viewOptions"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="selection = [$event[$event.length - 1]]" />
+          @select="selection = [$event[$event.length - 1]]"></v-items>
       </v-modal>
     </portal>
   </div>

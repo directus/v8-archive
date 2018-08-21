@@ -5,7 +5,7 @@
     :id="name"
     :options="choices"
     :placeholder="options.placeholder"
-    @input="$emit('input', $event)" />
+    @input="$emit('input', $event)"></v-select>
 </template>
 
 <script>

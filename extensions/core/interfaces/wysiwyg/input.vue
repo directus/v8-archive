@@ -1,6 +1,6 @@
 <template>
   <div ref="input" :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']">
-    <div ref="editor" class="interface-wysiwyg" />
+    <div ref="editor" class="interface-wysiwyg"></div>
     <button
       v-on:click='distractionFree = !distractionFree'
       type="button"
@@ -35,7 +35,7 @@ export default {
       };
     },
     fullscreenIcon() {
-      return (this.distractionFree) ? "close" : "fullscreen";
+      return this.distractionFree ? "close" : "fullscreen";
     }
   },
   mounted() {

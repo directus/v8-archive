@@ -4,10 +4,13 @@
   "datatypes": {
     "ALIAS": null
   },
+  "options": {},
+  "relation": "o2m",
   "translation": {
     "en-US": {
       "o2m": "One to Many",
-      "select_items": "Select the items"
+      "select_items": "Select the items",
+      "relationship_not_setup": "The relationship hasn't been configured correctly"
     }
   }
 }

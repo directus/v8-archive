@@ -45,6 +45,7 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'mail_from' => 'admin@directus.local',
             'feedback_token' => 'token',
             'feedback_login' => true,
+            'auth_secret' => 'secret-auth-key',
             'cors_enabled' => true
         ]);
 
@@ -56,6 +57,7 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
         $this->tearDown();
 
         InstallerUtils::createConfig(__DIR__ . '/', [
+            'env' => 'prod',
             'db_type' => 'mysql',
             'db_port' => 3306,
             'db_host' => 'localhost',
@@ -64,16 +66,21 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'db_password' => 'password',
             'feedback_token' => 'token',
             'feedback_login' => true,
+            'auth_secret' => 'secret-auth-key',
             'cors_enabled' => true
         ]);
 
-        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample2.php'), sha1_file(__DIR__ . '/config/api.php'));
+        $this->assertSame(sha1_file(__DIR__ . '/mock/config.sample2.php'), sha1_file(__DIR__ . '/config/api.prod.php'));
     }
 
     public function tearDown()
     {
         if (file_exists(__DIR__ . '/config/api.php')) {
             unlink(__DIR__ . '/config/api.php');
+        }
+
+        if (file_exists(__DIR__ . '/config/api.prod.php')) {
+            unlink(__DIR__ . '/config/api.prod.php');
         }
     }
 }

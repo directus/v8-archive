@@ -523,16 +523,6 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the relationship is MANY TO MANY
-     *
-     * @return bool
-     */
-    public function isManyToMany()
-    {
-        return $this->hasRelationship() ? $this->getRelationship()->isManyToMany() : false;
-    }
-
-    /**
      * Checks whether the relationship is ONE TO MANY
      *
      * @return bool
@@ -540,16 +530,6 @@ class Field extends AbstractObject
     public function isOneToMany()
     {
         return $this->hasRelationship() ? $this->getRelationship()->isOneToMany() : false;
-    }
-
-    /**
-     * Checks whether the field has ONE/MANY TO MANY Relationship
-     *
-     * @return bool
-     */
-    public function isToMany()
-    {
-        return $this->isOneToMany() || $this->isManyToMany();
     }
 
     /**

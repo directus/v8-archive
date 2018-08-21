@@ -4,8 +4,8 @@
     :class="['badge', 'no-wrap', { simple: options.simpleBadge }]"
     :style="style"
     v-tooltip="options.simpleBadge ? currentStatus.name : false">
-      {{ options.simpleBadge ? null : $t(currentStatus.name) }}
-    </div>
+    {{ options.simpleBadge ? null : $t(currentStatus.name) }}
+  </div>
 </template>
 
 <script>
@@ -15,7 +15,7 @@ export default {
   mixins: [mixin],
   computed: {
     currentStatus() {
-      return this.options.statusMapping[this.value];
+      return this.options.status_mapping[this.value];
     },
     style() {
       return {

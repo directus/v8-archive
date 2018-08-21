@@ -17,8 +17,7 @@
       :disabled="readonly"
       :id="name"
       :checked="value"
-      @change="updateValue($event.target.checked)"
-    />
+      @change="updateValue($event.target.checked)" />
     <label :for="name"><span></span>{{label}}&nbsp;</label>
   </div>
 </template>
