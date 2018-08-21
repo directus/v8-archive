@@ -56,11 +56,6 @@ import "./code.css";
 
 import mixin from "../../../mixins/interface";
 
-// Example of the problem in Parcel's bundling path
-import("codemirror/mode/markdown/markdown.js")
-  .then(() => console.log("done"))
-  .catch(console.error);
-
 export default {
   name: "interface-code",
   mixins: [mixin],
