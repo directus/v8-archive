@@ -1,8 +1,8 @@
 <template>
   <div class="interface-many-to-one">
 
-    <div v-if="relationshipSetup === false" class="notice">
-      <p><i class="material-icons">warning</i> {{ $t('interfaces-many-to-many-relationship_not_setup') }}</p>
+    <div v-if="relationSetup === false" class="notice">
+      <p><i class="material-icons">warning</i> {{ $t('interfaces-many-to-many-relation_not_setup') }}</p>
     </div>
 
     <template v-else>
@@ -37,8 +37,8 @@
           @close="dismissModal"
           @save="populateDropdown">
           <v-items
-            :collection="relatedCollection"
-            :selection="[newSelected || valuePK]"
+            :collection="relation.collection_one.collection"
+            :selection="[newSelected || { [relatedPrimaryKeyField]: valuePK }]"
             :filters="filters"
             :view-query="viewQuery"
             :view-type="viewType"
@@ -76,20 +76,15 @@ export default {
     };
   },
   computed: {
-    relationshipSetup() {
-      if (!this.relationship) return false;
-
-      const {
-        field_a,
-        field_b,
-        collection_a,
-        collection_b
-      } = this.relationship;
-
-      return (field_a && field_b && collection_a && collection_b) || false;
+    relationSetup() {
+      if (!this.relation) return false;
+      return true;
+    },
+    relatedPrimaryKeyField() {
+      return this.$lodash.find(this.relation.collection_one.fields, { primary_key: true }).field;
     },
     valuePK() {
-      if (this.$lodash.isObject(this.value)) return this.value[this.relatedKey];
+      if (this.$lodash.isObject(this.value)) return this.value[this.relatedPrimaryKeyField];
       return this.value;
     },
     render() {
@@ -99,29 +94,9 @@ export default {
       if (this.items.length === 0) return {};
 
       return this.$lodash.mapValues(
-        this.$lodash.keyBy(this.items, this.relatedKey),
+        this.$lodash.keyBy(this.items, this.relatedPrimaryKeyField),
         item => this.render(item)
       );
-    },
-    currentCollection() {
-      if (this.relationshipSetup === false) return null;
-      return this.fields[this.name].collection;
-    },
-    relatedSide() {
-      if (this.relationshipSetup === false) return null;
-      const { collection_a, collection_b } = this.relationship;
-
-      if (collection_a === this.currentCollection) return "b";
-
-      return "a";
-    },
-    relatedCollection() {
-      if (this.relationshipSetup === false) return null;
-      return this.relationship["collection_" + this.relatedSide];
-    },
-    relatedKey() {
-      if (this.relationshipSetup === false) return null;
-      return this.relationship["field_" + this.relatedSide];
     },
     preferences() {
       return typeof this.options.preferences === "string"
@@ -129,14 +104,14 @@ export default {
         : this.options.preferences;
     },
     filters() {
-      if (this.relationshipSetup === false) return null;
+      if (this.relationSetup === false) return null;
       return [
         ...((this.preferences && this.preferences.filters) || []),
         ...this.filtersOverride
       ];
     },
     viewOptions() {
-      if (this.relationshipSetup === false) return null;
+      if (this.relationSetup === false) return null;
 
       const viewOptions =
         (this.preferences && this.preferences.viewOptions) || {};
@@ -146,12 +121,12 @@ export default {
       };
     },
     viewType() {
-      if (this.relationshipSetup === false) return null;
+      if (this.relationSetup === false) return null;
       if (this.viewTypeOverride) return this.viewTypeOverride;
       return (this.preferences && this.preferences.viewType) || "tabular";
     },
     viewQuery() {
-      if (this.relationshipSetup === false) return null;
+      if (this.relationSetup === false) return null;
       const viewQuery = (this.preferences && this.preferences.viewQuery) || {};
       return {
         ...viewQuery,
@@ -160,22 +135,22 @@ export default {
     }
   },
   created() {
-    if (this.relationshipSetup) {
+    if (this.relationSetup) {
       this.fetchItems();
     }
   },
   watch: {
-    relationship() {
-      if (this.relationshipSetup) {
+    relation() {
+      if (this.relationSetup) {
         this.fetchItems();
       }
     }
   },
   methods: {
     fetchItems() {
-      if (this.relationship == null) return;
+      if (this.relation == null) return;
 
-      const collection = this.relatedCollection;
+      const collection = this.relation.collection_one.collection;
 
       this.loading = true;
 
@@ -206,14 +181,14 @@ export default {
       this.selectionSaving = true;
 
       this.items.forEach(item => {
-        if (item[this.relatedKey] === this.newSelected) {
+        if (item[this.relatedPrimaryKeyField] === this.newSelected[this.relatedPrimaryKeyField]) {
           exists = true;
         }
       });
 
       if (exists === false) {
         this.$api
-          .getItem(this.relatedCollection, this.newSelected)
+          .getItem(this.relation.collection_one.collection, this.newSelected[this.relatedPrimaryKeyField])
           .then(res => res.data)
           .then(item => {
             this.$emit("input", this.newSelected);
