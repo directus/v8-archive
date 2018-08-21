@@ -53,7 +53,9 @@ export default {
           return (
             item[srcField] &&
             item[srcField].data &&
-            item[srcField].data.full_url
+            item[srcField].data.thumbnails &&
+            item[srcField].data.thumbnails[0] &&
+            item[srcField].data.thumbnails[0].full_url
           );
         }
 
