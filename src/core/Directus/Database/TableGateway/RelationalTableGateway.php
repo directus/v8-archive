@@ -705,12 +705,6 @@ class RelationalTableGateway extends BaseTableGateway
             $params['limit'] = 1;
         }
 
-        // Remove the columns parameters
-        // Until we  call it fields internally
-        if (ArrayUtils::has($params, 'columns')) {
-            ArrayUtils::remove($params, 'columns');
-        }
-
         // NOTE: Let's use "columns" instead of "fields" internally for the moment
         if (ArrayUtils::has($params, 'fields')) {
             $params['fields'] = ArrayUtils::get($params, 'fields');
@@ -1594,10 +1588,6 @@ class RelationalTableGateway extends BaseTableGateway
                     return trim($item);
                 }, explode(',', $params['status']));
             }
-
-            // $statuses = array_filter($statuses, function ($value) {
-            //     return is_numeric($value);
-            // });
 
             if ($statuses) {
                 $query->whereIn(SchemaService::getStatusFieldName(
