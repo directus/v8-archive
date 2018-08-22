@@ -1015,6 +1015,8 @@ class RelationalTableGateway extends BaseTableGateway
             $builder
         );
 
+        $builder->orderBy($this->primaryKeyFieldName);
+
         try {
             $this->enforceReadPermission($builder);
         } catch (PermissionException $e) {
