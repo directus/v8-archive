@@ -45,6 +45,10 @@ class CreateRelationsTable extends AbstractMigration
             'limit' => 64,
             'null' => true
         ]);
+        $table->addColumn('junction_field', 'string', [
+            'limit' => 64,
+            'null' => true
+        ]);
 
         $table->create();
     }

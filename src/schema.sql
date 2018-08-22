@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-08-17 21:32:12 +0000
+# Generation Time: 2018-08-22 21:43:10 +0000
 # ************************************************************
 
 
@@ -246,17 +246,18 @@ VALUES
 	(112,'directus_relations','field_many','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(113,'directus_relations','collection_one','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(114,'directus_relations','field_one','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(115,'directus_revisions','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(116,'directus_revisions','activity','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(117,'directus_revisions','collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(118,'directus_revisions','item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(119,'directus_revisions','data','longjson','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(120,'directus_revisions','delta','longjson','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(121,'directus_revisions','parent_item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(122,'directus_revisions','parent_collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(123,'directus_revisions','parent_changed','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(124,'directus_settings','auto_sign_out','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(125,'directus_settings','youtube_api_key','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL);
+	(115,'directus_relations','junction_field','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(116,'directus_revisions','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(117,'directus_revisions','activity','int','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(118,'directus_revisions','collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(119,'directus_revisions','item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(120,'directus_revisions','data','longjson','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(121,'directus_revisions','delta','longjson','json',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(122,'directus_revisions','parent_item','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(123,'directus_revisions','parent_collection','varchar','many-to-one',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(124,'directus_revisions','parent_changed','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(125,'directus_settings','auto_sign_out','int','numeric',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(126,'directus_settings','youtube_api_key','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL);
 
 /*!40000 ALTER TABLE `directus_fields` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -294,7 +295,7 @@ LOCK TABLES `directus_files` WRITE;
 
 INSERT INTO `directus_files` (`id`, `filename`, `title`, `description`, `location`, `tags`, `width`, `height`, `filesize`, `duration`, `metadata`, `type`, `charset`, `embed`, `folder`, `upload_user`, `upload_date`, `storage_adapter`)
 VALUES
-	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-08-17 21:31:23','local');
+	(1,'00000000001.jpg','Mountain Range','A gorgeous view of this wooded mountain range','Earth','trees,rocks,nature,mountains,forest',1800,1200,602058,NULL,NULL,'image/jpeg','binary',NULL,NULL,1,'2018-08-22 21:42:50','local');
 
 /*!40000 ALTER TABLE `directus_files` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -334,20 +335,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023144,'CreateActivitySeenTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023157,'CreateCollectionsTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023202,'CreateFieldsTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023208,'CreateFilesTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023213,'CreateFoldersTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023217,'CreateRolesTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023226,'CreatePermissionsTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023232,'CreateRelationsTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023238,'CreateRevisionsTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023243,'CreateSettingsTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180220023248,'CreateUsersTable','2018-08-17 21:31:23','2018-08-17 21:31:23',0),
-	(20180426173310,'CreateUserRoles','2018-08-17 21:31:23','2018-08-17 21:31:23',0);
+	(20180220023138,'CreateActivityTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023144,'CreateActivitySeenTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023157,'CreateCollectionsTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023202,'CreateFieldsTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023208,'CreateFilesTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023213,'CreateFoldersTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023217,'CreateRolesTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023226,'CreatePermissionsTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023232,'CreateRelationsTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023238,'CreateRevisionsTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023243,'CreateSettingsTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180220023248,'CreateUsersTable','2018-08-22 21:42:50','2018-08-22 21:42:50',0),
+	(20180426173310,'CreateUserRoles','2018-08-22 21:42:50','2018-08-22 21:42:50',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -388,27 +389,28 @@ CREATE TABLE `directus_relations` (
   `field_many` varchar(45) NOT NULL,
   `collection_one` varchar(64) DEFAULT NULL,
   `field_one` varchar(64) DEFAULT NULL,
+  `junction_field` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `directus_relations` WRITE;
 /*!40000 ALTER TABLE `directus_relations` DISABLE KEYS */;
 
-INSERT INTO `directus_relations` (`id`, `collection_many`, `field_many`, `collection_one`, `field_one`)
+INSERT INTO `directus_relations` (`id`, `collection_many`, `field_many`, `collection_one`, `field_one`, `junction_field`)
 VALUES
-	(1,'directus_activity','user','directus_users',NULL),
-	(2,'directus_activity_read','user','directus_users',NULL),
-	(3,'directus_activity_read','activity','directus_activity',NULL),
-	(4,'directus_collections_presets','user','directus_users',NULL),
-	(5,'directus_collections_presets','group','directus_groups',NULL),
-	(6,'directus_files','upload_user','directus_users',NULL),
-	(7,'directus_files','folder','directus_folders',NULL),
-	(8,'directus_folders','parent_folder','directus_folders',NULL),
-	(9,'directus_permissions','group','directus_groups',NULL),
-	(10,'directus_revisions','activity','directus_activity',NULL),
-	(11,'directus_user_roles','user','directus_users','roles'),
-	(12,'directus_user_roles','role','directus_roles',NULL),
-	(13,'directus_users','avatar','directus_files',NULL);
+	(1,'directus_activity','user','directus_users',NULL,NULL),
+	(2,'directus_activity_read','user','directus_users',NULL,NULL),
+	(3,'directus_activity_read','activity','directus_activity',NULL,NULL),
+	(4,'directus_collections_presets','user','directus_users',NULL,NULL),
+	(5,'directus_collections_presets','group','directus_groups',NULL,NULL),
+	(6,'directus_files','upload_user','directus_users',NULL,NULL),
+	(7,'directus_files','folder','directus_folders',NULL,NULL),
+	(8,'directus_folders','parent_folder','directus_folders',NULL,NULL),
+	(9,'directus_permissions','group','directus_groups',NULL,NULL),
+	(10,'directus_revisions','activity','directus_activity',NULL,NULL),
+	(11,'directus_user_roles','user','directus_users','roles','role'),
+	(12,'directus_user_roles','role','directus_roles','users','user'),
+	(13,'directus_users','avatar','directus_files',NULL,NULL);
 
 /*!40000 ALTER TABLE `directus_relations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -551,7 +553,7 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_access`, `last_page`, `token`, `external_id`)
 VALUES
-	(1,'active','Admin','User','admin@example.com',1,'$2y$10$THySNlzYbjtPJgiHUi5bzuJl8LF8/OnsJwRSK6v9RRoXygh.6k4hm',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
+	(1,'active','Admin','User','admin@example.com',1,'$2y$10$hU0MZ9VTf90yhi5hPNEPX.6B.BuYTjr1RjT60j/xhcI36QRBGlJc.',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;
