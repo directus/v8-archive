@@ -432,7 +432,8 @@ class Builder
      */
     public function orderBy($column, $direction = 'ASC', $nullLast = false)
     {
-        $this->order[(string) $column] = [
+        $this->order[] = [
+            (string) $column,
             (string) $direction,
             (bool) $nullLast
         ];
@@ -707,14 +708,10 @@ class Builder
     protected function buildOrder()
     {
         $order = [];
-        foreach ($this->getOrder() as $orderBy => $options) {
-            if (is_array($options)) {
-                $orderDirection = array_shift($options);
-                $nullLast = array_shift($options);
-            } else {
-                $orderDirection = $options;
-                $nullLast = false;
-            }
+        foreach ($this->getOrder() as $options) {
+            $orderBy = $options[0];
+            $orderDirection = $options[1];
+            $nullLast = $options[2];
 
             if ($nullLast === true) {
                 $order[] = new IsNull($this->getIdentifier($orderBy));

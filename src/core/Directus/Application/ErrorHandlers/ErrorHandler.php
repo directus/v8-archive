@@ -151,7 +151,7 @@ class ErrorHandler extends AbstractHandler
                 // Do not output the trace
                 // it can be so long or complex
                 // that json_encode fails
-                'trace' => $exception->getTrace(),
+                // 'trace' => $exception->getTrace(),
                 // maybe as string, but let's get rid of them, for the best
                 // and look at the logs instead
                 // 'traceAsString' => $exception->getTraceAsString(),

@@ -50,7 +50,6 @@ final class DataTypes
     const TYPE_ENUM         = 'enum';
 
     const TYPE_ALIAS        = 'alias';
-    const TYPE_M2M          = 'm2m';
     const TYPE_O2M          = 'o2m';
     const TYPE_GROUP        = 'group';
 
@@ -310,7 +309,6 @@ final class DataTypes
     {
         return [
             static::TYPE_ALIAS,
-            static::TYPE_M2M,
             static::TYPE_O2M,
             static::TYPE_GROUP,
             static::TYPE_TRANSLATION

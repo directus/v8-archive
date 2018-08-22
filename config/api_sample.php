@@ -2,19 +2,12 @@
 
 return [
     'app' => [
-        'path' => '/',
-        'env' => 'development',
-        'debug' => true,
-        'default_language' => 'en',
+        'env' => 'production',
         'timezone' => 'America/New_York',
     ],
 
     'settings' => [
-        'debug' => true,
-        'displayErrorDetails' => true,
         'logger' => [
-            'name' => 'directus-api',
-            'level' => Monolog\Logger::DEBUG,
             'path' => __DIR__ . '/logs/app.log',
         ],
     ],
@@ -25,8 +18,7 @@ return [
         'port' => 3306,
         'name' => 'directus',
         'username' => 'root',
-        'password' => 'pass',
-        'prefix' => '', // not used
+        'password' => 'root',
         'engine' => 'InnoDB',
         'charset' => 'utf8mb4'
     ],
@@ -34,8 +26,6 @@ return [
     'cache' => [
         'enabled' => false,
         'response_ttl' => 3600, // seconds
-        'adapter' => 'filesystem',
-        'path' => '/storage/cache',
         // 'pool' => [
         //    'adapter' => 'apc'
         // ],
@@ -60,37 +50,28 @@ return [
 
     'filesystem' => [
         'adapter' => 'local',
-        // By default media directory are located at the same level of directus root
-        // To make them a level up outsite the root directory
-        // use this instead
-        // Ex: 'root' => realpath(ROOT_PATH.'/../storage/uploads'),
-        // Note: ROOT_PATH constant doesn't end with trailing slash
-        'root' => 'public/storage/uploads',
+        // The filesystem root is the directus root directory.
+        // All path are relative to the filesystem root when the path is not starting with a forward slash.
+        // By default the uploads directory is located at the directus public root
+        // An absolute path can be used as alternative.
+        'root' => 'public/uploads/_/originals',
         // This is the url where all the media will be pointing to
-        // here all assets will be (yourdomain)/storage/uploads
-        // same with thumbnails (yourdomain)/storage/uploads/thumbs
-        'root_url' => '/storage/uploads',
-        'root_thumb_url' => '/storage/uploads/thumbs',
+        // here is where Directus will assume all assets will be accesed
+        // Ex: (yourdomain)/uploads/_/originals
+        'root_url' => '/uploads/_/originals',
+        // Same as "root", but for the thumbnails
+        'thumb_root' => 'public/uploads/_/thumbnails',
         //   'key'    => 's3-key',
-        //   'secret' => 's3-key',
+        //   'secret' => 's3-secret',
         //   'region' => 's3-region',
         //   'version' => 's3-version',
         //   'bucket' => 's3-bucket'
     ],
 
-    // HTTP Settings
-    'http' => [
-        'emulate_enabled' => false,
-        // can be null, or an array list of method to be emulated
-        // Ex: ['PATH', 'DELETE', 'PUT']
-        // 'emulate_methods' => null,
-        'force_https' => false
-    ],
-
     'mail' => [
         'default' => [
             'transport' => 'sendmail',
-            'from' => 'admin@admin.com'
+            'from' => 'admin@example.com'
         ],
     ],
 

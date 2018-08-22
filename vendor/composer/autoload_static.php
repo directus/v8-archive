@@ -4,15 +4,15 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5c2fe182cab533a068fd0471f27f351f
+class ComposerStaticInit5634c9d72c9475c369d7addedaa0891c
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
-        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
         '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
@@ -220,9 +220,9 @@ class ComposerStaticInit5c2fe182cab533a068fd0471f27f351f
         'League\\OAuth2\\Client\\' => 
         array (
             0 => __DIR__ . '/..' . '/league/oauth2-client/src',
-            1 => __DIR__ . '/..' . '/league/oauth2-github/src',
-            2 => __DIR__ . '/..' . '/league/oauth2-google/src',
-            3 => __DIR__ . '/..' . '/league/oauth2-facebook/src',
+            1 => __DIR__ . '/..' . '/league/oauth2-facebook/src',
+            2 => __DIR__ . '/..' . '/league/oauth2-github/src',
+            3 => __DIR__ . '/..' . '/league/oauth2-google/src',
         ),
         'League\\OAuth1\\' => 
         array (
@@ -2957,10 +2957,10 @@ class ComposerStaticInit5c2fe182cab533a068fd0471f27f351f
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit5c2fe182cab533a068fd0471f27f351f::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit5c2fe182cab533a068fd0471f27f351f::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit5c2fe182cab533a068fd0471f27f351f::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit5c2fe182cab533a068fd0471f27f351f::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5634c9d72c9475c369d7addedaa0891c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5634c9d72c9475c369d7addedaa0891c::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5634c9d72c9475c369d7addedaa0891c::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit5634c9d72c9475c369d7addedaa0891c::$classMap;
 
         }, null, ClassLoader::class);
     }

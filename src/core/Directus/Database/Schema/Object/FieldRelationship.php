@@ -7,7 +7,6 @@ use Directus\Util\ArrayUtils;
 class FieldRelationship extends AbstractObject
 {
     const ONE_TO_MANY = 'O2M';
-    const MANY_TO_MANY = 'M2M';
     const MANY_TO_ONE = 'M2O';
 
     /**
@@ -29,12 +28,6 @@ class FieldRelationship extends AbstractObject
 
         parent::__construct($attributes);
 
-        if ($this->fromField->getName() === $this->attributes->get('field_b')) {
-            $this->attributes->replace(
-                $this->swapRelationshipAttributes($this->attributes->toArray())
-            );
-        }
-
         $this->attributes->set('type', $this->guessType());
     }
 
@@ -43,9 +36,9 @@ class FieldRelationship extends AbstractObject
      *
      * @return string
      */
-    public function getCollectionA()
+    public function getCollectionMany()
     {
-        return $this->attributes->get('collection_a');
+        return $this->attributes->get('collection_many');
     }
 
     /**
@@ -53,44 +46,19 @@ class FieldRelationship extends AbstractObject
      *
      * @return string
      */
-    public function getFieldA()
+    public function getFieldMany()
     {
-        return $this->attributes->get('field_a');
+        return $this->attributes->get('field_many');
     }
 
-    /**
-     *
-     *
-     * @return null|string
-     */
-    public function getJunctionKeyA()
+    public function getCollectionOne()
     {
-        return $this->attributes->get('junction_key_a');
+        return $this->attributes->get('collection_one');
     }
 
-    public function getJunctionCollection()
+    public function getFieldOne()
     {
-        return $this->attributes->get('junction_collection');
-    }
-
-    public function getJunctionMixedCollections()
-    {
-        return $this->attributes->get('junction_mixed_collections');
-    }
-
-    public function getJunctionKeyB()
-    {
-        return $this->attributes->get('junction_key_b');
-    }
-
-    public function getCollectionB()
-    {
-        return $this->attributes->get('collection_b');
-    }
-
-    public function getFieldB()
-    {
-        return $this->attributes->get('field_b');
+        return $this->attributes->get('field_one');
     }
 
     /**
@@ -124,16 +92,6 @@ class FieldRelationship extends AbstractObject
     }
 
     /**
-     * Checks whether the relatiopship is MANY TO MANY
-     *
-     * @return bool
-     */
-    public function isManyToMany()
-    {
-        return $this->getType() === static::MANY_TO_MANY;
-    }
-
-    /**
      * Checks whether the relatiopship is ONE TO MANY
      *
      * @return bool
@@ -141,16 +99,6 @@ class FieldRelationship extends AbstractObject
     public function isOneToMany()
     {
         return $this->getType() === static::ONE_TO_MANY;
-    }
-
-    /**
-     * Checks whether is a many to many or one to many
-     *
-     * @return bool
-     */
-    public function isToMany()
-    {
-        return $this->isManyToMany() || $this->isOneToMany();
     }
 
     /**
@@ -167,42 +115,19 @@ class FieldRelationship extends AbstractObject
         if (!$this->fromField) {
             $type = null;
         } else if (
-            !$isAlias                                        &&
-            $this->getCollectionB()                 !== null &&
-            $this->getFieldA()                      === $fieldName &&
-            $this->getJunctionKeyA()                === null &&
-            $this->getJunctionCollection()          === null &&
-            $this->getJunctionKeyB()                === null &&
-            $this->getJunctionMixedCollections()    === null &&
-            $this->getCollectionB()                 !== null
-            // Can have or not this value depends if the backward (O2M) relationship is set
-            // $this->getFieldB()                      === null
+            !$isAlias                   &&
+            $this->getCollectionOne()   !== null &&
+            $this->getFieldMany()       === $fieldName &&
+            $this->getCollectionMany()  !== null
         ) {
             $type = static::MANY_TO_ONE;
         } else if (
-            $isAlias                                         &&
-            $this->getCollectionB()                 !== null &&
-            $this->getFieldA()                      === $fieldName &&
-            $this->getJunctionKeyA()                === null &&
-            $this->getJunctionCollection()          === null &&
-            $this->getJunctionKeyB()                === null &&
-            $this->getJunctionMixedCollections()    === null &&
-            $this->getCollectionB()                 !== null &&
-            $this->getFieldB()                      !== null
+            $isAlias                    &&
+            $this->getCollectionMany()  !== null &&
+            $this->getFieldOne()        === $fieldName &&
+            $this->getCollectionOne()   !== null
         ) {
             $type = static::ONE_TO_MANY;
-        } else if (
-            $isAlias                                         &&
-            $this->getCollectionB()                 !== null &&
-            $this->getFieldA()                      === $fieldName &&
-            $this->getJunctionKeyA()                !== null &&
-            $this->getJunctionCollection()          !== null &&
-            $this->getJunctionKeyB()                !== null &&
-            $this->getJunctionMixedCollections()    === null &&
-            $this->getCollectionB()                 !== null
-            // $this->getFieldB()                      !== null
-        ) {
-            $type = static::MANY_TO_MANY;
         }
 
         return $type;
@@ -218,14 +143,10 @@ class FieldRelationship extends AbstractObject
     protected function swapRelationshipAttributes(array $attributes)
     {
         $newAttributes = [
-            'collection_a' => ArrayUtils::get($attributes, 'collection_b'),
-            'field_a' => ArrayUtils::get($attributes, 'field_b'),
-            'junction_key_a' => ArrayUtils::get($attributes, 'junction_key_b'),
-            'junction_collection' => ArrayUtils::get($attributes, 'junction_collection'),
-            'junction_mixed_collections' => ArrayUtils::get($attributes, 'junction_mixed_collections'),
-            'junction_key_b' => ArrayUtils::get($attributes, 'junction_key_a'),
-            'collection_b' => ArrayUtils::get($attributes, 'collection_a'),
-            'field_b' => ArrayUtils::get($attributes, 'field_a'),
+            'collection_many' => ArrayUtils::get($attributes, 'collection_one'),
+            'field_many' => ArrayUtils::get($attributes, 'field_one'),
+            'collection_one' => ArrayUtils::get($attributes, 'collection_many'),
+            'field_one' => ArrayUtils::get($attributes, 'field_many'),
         ];
 
         return $newAttributes;

@@ -28,7 +28,6 @@ $timeToLive = \Directus\array_get($settings, 'cache_ttl', 86400);
 try {
     // if the thumb already exists, return it
     $thumbnailer = new Thumbnailer(
-        $env,
         $app->getContainer()->get('filesystem'),
         $app->getContainer()->get('filesystem_thumb'),
         $settings,
