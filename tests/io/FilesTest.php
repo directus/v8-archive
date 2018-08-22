@@ -23,15 +23,9 @@ class FilesTest extends \PHPUnit_Framework_TestCase
      */
     protected static $uploadPath;
 
-    /**
-     * @var string
-     */
-    protected static $thumbsPath;
-
     public static function resetDatabase()
     {
-        static::$uploadPath = realpath(__DIR__ . '/../../public/storage/uploads');
-        static::$thumbsPath = static::$uploadPath . '/thumbs';
+        static::$uploadPath = realpath(__DIR__ . '/../../public/uploads/_/originals');
 
         static::$db = create_db_connection();
         reset_table_id(static::$db, 'directus_files', 2);
@@ -214,7 +208,6 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertFalse(file_exists(static::$uploadPath . '/' . static::$fileName));
-        $this->assertFalse(file_exists(static::$thumbsPath . '/2.jpg'));
 
         // delete second file
         $response = request_delete('files/4', ['query' => $this->queryParams]);
@@ -227,7 +220,6 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertFalse(file_exists(static::$uploadPath . '/' . static::$fileName2));
-        $this->assertFalse(file_exists(static::$thumbsPath . '/4.jpg'));
     }
 
     protected function getImageBase64()

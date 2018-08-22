@@ -96,7 +96,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         reset_table_id(static::$db, 'directus_users', 4);
         reset_table_id(static::$db, 'directus_files', 2);
         truncate_table(static::$db, 'directus_folders');
-        $storagePath = __DIR__ . '/../../public/storage';
+        $storagePath = __DIR__ . '/../../public/uploads/_/originals';
 
         clear_storage($storagePath);
     }
