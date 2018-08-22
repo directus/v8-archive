@@ -166,10 +166,12 @@ if (!function_exists('get_thumbnail_url'))
      */
     function get_thumbnail_url($name, $width, $height, $mode = 'crop', $quality = 'good')
     {
-        // width/height/mode/quality/name
+        $env = get_api_env_from_request();
+
+        // env/width/height/mode/quality/name
         return get_url(sprintf(
-            'thumbnail/%d/%d/%s/%s/%s',
-            $width, $height, $mode, $quality, $name
+            'thumbnail/%s/%d/%d/%s/%s/%s',
+            $env, $width, $height, $mode, $quality, $name
         ));
     }
 }
