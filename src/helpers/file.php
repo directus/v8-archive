@@ -126,8 +126,8 @@ if (!function_exists('append_storage_information'))
                         'url' => $thumbnailUrl,
                         'relative_url' => $thumbnailRelativeUrl,
                         'dimension' => $dimension,
-                        'width' => $size[0],
-                        'height' => $size[1]
+                        'width' => (int) $size[0],
+                        'height' => (int) $size[1]
                     ];
                 }
             }
