@@ -55,7 +55,7 @@ export default {
             item[srcField].data &&
             item[srcField].data.thumbnails &&
             item[srcField].data.thumbnails[0] &&
-            item[srcField].data.thumbnails[0].full_url
+            item[srcField].data.thumbnails[0].url
           );
         }
 
@@ -66,7 +66,7 @@ export default {
           return item[srcField] &&
             item[srcField].thumbnails &&
             item[srcField].thumbnails[0] &&
-            item[srcField].thumbnails[0].full_url
+            item[srcField].thumbnails[0].url
         }
 
         return item[srcField] || null;
