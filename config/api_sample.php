@@ -18,7 +18,7 @@ return [
         'port' => 3306,
         'name' => 'directus',
         'username' => 'root',
-        'password' => 'pass',
+        'password' => 'root',
         'engine' => 'InnoDB',
         'charset' => 'utf8mb4'
     ],
@@ -71,7 +71,7 @@ return [
     'mail' => [
         'default' => [
             'transport' => 'sendmail',
-            'from' => 'admin@admin.com'
+            'from' => 'admin@example.com'
         ],
     ],
 
