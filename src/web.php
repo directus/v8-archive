@@ -97,9 +97,11 @@ $app->add($middleware['rate_limit_ip'])
     ->add($middleware['cors']);
 
 $app->get('/', \Directus\Api\Routes\Home::class)
-    ->add($middleware['auth']);
+    ->add($middleware['auth'])
+    ->add($middleware['table_gateway']);
 
-$app->group('/instances', \Directus\Api\Routes\Instances::class);
+$app->group('/instances', \Directus\Api\Routes\Instances::class)
+    ->add($middleware['table_gateway']);
 
 $app->group('/{env}', function () use ($middleware) {
     $this->group('/activity', \Directus\Api\Routes\Activity::class)
