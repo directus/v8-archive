@@ -26,8 +26,8 @@ class FileSeeder extends AbstractSeed
             'filesize' => 602058,
             'type' => 'image/jpeg',
             'charset' => 'binary',
-            'upload_user' => 1,
-            'upload_date' => \Directus\Util\DateTimeUtils::nowInUTC()->toString(),
+            'uploaded_by' => 1,
+            'uploaded_on' => \Directus\Util\DateTimeUtils::nowInUTC()->toString(),
             'storage_adapter' => 'local'
         ];
 

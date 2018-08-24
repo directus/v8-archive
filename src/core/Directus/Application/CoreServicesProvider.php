@@ -306,8 +306,8 @@ class CoreServicesProvider
                 if (!$replace) {
                     /** @var Acl $auth */
                     $acl = $container->get('acl');
-                    $payload->set('upload_user', $acl->getUserId());
-                    $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
+                    $payload->set('uploaded_by', $acl->getUserId());
+                    $payload->set('uploaded_on', DateTimeUtils::nowInUTC()->toString());
                 }
             };
             $emitter->addFilter('collection.update:before', function (Payload $payload) use ($container, $savesFile) {
@@ -525,7 +525,7 @@ class CoreServicesProvider
                         $omit = array_merge($omit, [
                             'token',
                             'email_notifications',
-                            'last_access',
+                            'last_access_on',
                             'last_page'
                         ]);
                     }

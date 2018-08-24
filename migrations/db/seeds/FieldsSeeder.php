@@ -30,13 +30,13 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_activity',
-                'field' => 'user',
+                'field' => 'action_by',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
                 'interface' => 'user'
             ],
             [
                 'collection' => 'directus_activity',
-                'field' => 'datetime',
+                'field' => 'action_on',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime'
             ],
@@ -70,33 +70,45 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
                 'interface' => 'markdown'
             ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'edited_on',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime'
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'comment_deleted_on',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime'
+            ],
             // Activity Read
             [
-                'collection' => 'directus_activity_read',
+                'collection' => 'directus_activity_seen',
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
                 'interface' => 'primary-key'
             ],
             [
-                'collection' => 'directus_activity_read',
+                'collection' => 'directus_activity_seen',
                 'field' => 'activity',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
                 'interface' => 'many-to-one'
             ],
             [
-                'collection' => 'directus_activity_read',
+                'collection' => 'directus_activity_seen',
                 'field' => 'user',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
                 'interface' => 'user'
             ],
             [
-                'collection' => 'directus_activity_read',
-                'field' => 'read',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
+                'collection' => 'directus_activity_seen',
+                'field' => 'seen_on',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime'
             ],
             [
-                'collection' => 'directus_activity_read',
+                'collection' => 'directus_activity_seen',
                 'field' => 'archived',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle'
@@ -401,13 +413,13 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_files',
-                'field' => 'upload_user',
+                'field' => 'uploaded_by',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
                 'interface' => 'user'
             ],
             [
                 'collection' => 'directus_files',
-                'field' => 'upload_date',
+                'field' => 'uploaded_on',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime'
             ],
@@ -616,13 +628,7 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_users',
-                'field' => 'last_login',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
-                'interface' => 'datetime'
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'last_access',
+                'field' => 'last_access_on',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime'
             ],

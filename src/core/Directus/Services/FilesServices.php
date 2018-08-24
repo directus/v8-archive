@@ -25,8 +25,8 @@ class FilesServices extends AbstractService
         $this->enforceCreatePermissions($this->collection, $data, $params);
         $tableGateway = $this->createTableGateway($this->collection);
 
-        $data['upload_user'] = $this->getAcl()->getUserId();
-        $data['upload_date'] = DateTimeUtils::nowInUTC()->toString();
+        $data['uploaded_by'] = $this->getAcl()->getUserId();
+        $data['uploaded_on'] = DateTimeUtils::nowInUTC()->toString();
 
         $validationConstraints = $this->createConstraintFor($this->collection);
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
