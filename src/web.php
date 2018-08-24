@@ -13,7 +13,7 @@ if (!file_exists($configFilePath)) {
 }
 
 // Get Environment name
-$env = \Directus\get_api_env_from_request();
+$projectName = \Directus\get_api_project_from_request();
 $requestUri = trim(\Directus\get_virtual_path(), '/');
 
 $reservedNames = [
@@ -25,15 +25,15 @@ $reservedNames = [
     'instances'
 ];
 
-if ($requestUri && !empty($env) && $env !== '_' && !in_array($env, $reservedNames)) {
-    $configFilePath = sprintf('%s/api.%s.php', $configPath, $env);
+if ($requestUri && !empty($projectName) && $projectName !== '_' && !in_array($projectName, $reservedNames)) {
+    $configFilePath = sprintf('%s/api.%s.php', $configPath, $projectName);
     if (!file_exists($configFilePath)) {
         http_response_code(404);
         header('Content-Type: application/json');
         echo json_encode([
             'error' => [
                 'error' => 8,
-                'message' => 'API Environment Configuration Not Found: ' . $env
+                'message' => 'API Environment Configuration Not Found: ' . $projectName
             ]
         ]);
         exit;

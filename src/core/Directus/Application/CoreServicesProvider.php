@@ -36,7 +36,7 @@ use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
 use function Directus\generate_uui4;
-use function Directus\get_api_env_from_request;
+use function Directus\get_api_project_from_request;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -102,7 +102,7 @@ class CoreServicesProvider
          * @return Logger
          */
         $logger = function ($container) {
-            $logger = new Logger(sprintf('api[%s]', get_api_env_from_request()));
+            $logger = new Logger(sprintf('api[%s]', get_api_project_from_request()));
             $formatter = new LineFormatter();
             $formatter->allowInlineLineBreaks();
             $formatter->includeStacktraces();

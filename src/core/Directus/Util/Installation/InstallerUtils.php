@@ -156,16 +156,16 @@ class InstallerUtils
      *
      * @param string $basePath
      * @param array $data
-     * @param string $env
+     * @param string $projectName
      *
      * @throws \Exception
      */
-    public static function addDefaultSettings($basePath, array $data, $env = null)
+    public static function addDefaultSettings($basePath, array $data, $projectName = null)
     {
         $basePath = rtrim($basePath, '/');
-        static::ensureConfigFileExists($basePath, $env);
+        static::ensureConfigFileExists($basePath, $projectName);
 
-        $configPath = static::createConfigPath($basePath, $env);
+        $configPath = static::createConfigPath($basePath, $projectName);
         $app = new Application($basePath, require $configPath);
         $db = $app->getContainer()->get('database');
 
@@ -182,13 +182,13 @@ class InstallerUtils
      *
      * @param string $basePath
      * @param array $data
-     * @param string $env
+     * @param string $projectName
      *
      * @return array
      */
-    public static function addDefaultUser($basePath, array $data, $env = null)
+    public static function addDefaultUser($basePath, array $data, $projectName = null)
     {
-        $configPath = static::createConfigPath($basePath, $env);
+        $configPath = static::createConfigPath($basePath, $projectName);
         $app = new Application($basePath, require $configPath);
         $db = $app->getContainer()->get('database');
         $auth = $app->getContainer()->get('auth');
@@ -271,14 +271,14 @@ class InstallerUtils
      *
      * @param string $name
      * @param string $directusPath
-     * @param string $env
+     * @param string $projectName
      *
      * @throws \Exception
      */
-    public static function installSchemaFromMigration($name, $directusPath, $env = null)
+    public static function installSchemaFromMigration($name, $directusPath, $projectName = null)
     {
         $directusPath = rtrim($directusPath, '/');
-        static::ensureConfigFileExists($directusPath, $env);
+        static::ensureConfigFileExists($directusPath, $projectName);
 
         // TODO: Install schema templates
     }
@@ -304,16 +304,16 @@ class InstallerUtils
     /**
      * Returns the config name based on its environment
      *
-     * @param $env
+     * @param $projectName
      *
      * @return string
      */
-    public static function getConfigName($env)
+    public static function getConfigName($projectName)
     {
         $name = 'api';
 
-        if ($env && $env !== '_') {
-            $name = sprintf('api.%s', $env);
+        if ($projectName && $projectName !== '_') {
+            $name = sprintf('api.%s', $projectName);
         }
 
         return $name;
@@ -340,13 +340,13 @@ class InstallerUtils
      * Creates a config path for the given environment
      *
      * @param string $path
-     * @param string $env
+     * @param string $projectName
      *
      * @return string
      */
-    public static function createConfigPath($path, $env = null)
+    public static function createConfigPath($path, $projectName = null)
     {
-        $configName = static::getConfigName($env);
+        $configName = static::getConfigName($projectName);
 
         return $path . '/config/' . $configName . '.php';
     }
@@ -515,7 +515,7 @@ class InstallerUtils
      */
     private static function createConfigPathFromData($path, array $data)
     {
-        return static::createConfigPath($path, ArrayUtils::get($data, 'env'));
+        return static::createConfigPath($path, ArrayUtils::get($data, 'project'));
     }
 
     /**
@@ -537,16 +537,16 @@ class InstallerUtils
 
     /**
      * @param string $basePath
-     * @param string $env
+     * @param string $projectName
      *
      * @return Config
      */
-    private static function getMigrationConfig($basePath, $env = null)
+    private static function getMigrationConfig($basePath, $projectName = null)
     {
-        static::ensureConfigFileExists($basePath, $env);
+        static::ensureConfigFileExists($basePath, $projectName);
         static::ensureMigrationFileExists($basePath);
 
-        $configPath = static::createConfigPath($basePath, $env);
+        $configPath = static::createConfigPath($basePath, $projectName);
 
         $apiConfig = require $configPath;
         $configArray = require $basePath . '/config/migrations.php';
@@ -605,15 +605,15 @@ class InstallerUtils
      * Check if the api configuration file exists
      *
      * @param string $basePath
-     * @param null $env
+     * @param null $projectName
      *
      * @throws \Exception
      */
-    private static function ensureConfigFileExists($basePath, $env = null)
+    private static function ensureConfigFileExists($basePath, $projectName = null)
     {
         $basePath = rtrim($basePath, '/');
-        $configName = static::getConfigName($env);
-        $configPath = static::createConfigPath($basePath, $env);
+        $configName = static::getConfigName($projectName);
+        $configPath = static::createConfigPath($basePath, $projectName);
 
         if (!file_exists($configPath)) {
             throw new InvalidPathException(
@@ -742,11 +742,11 @@ class InstallerUtils
      * Drop all system tables
      *
      * @param string $basePath
-     * @param string $env
+     * @param string $projectName
      */
-    private static function dropTables($basePath, $env)
+    private static function dropTables($basePath, $projectName)
     {
-        $configPath = static::createConfigPath($basePath, $env);
+        $configPath = static::createConfigPath($basePath, $projectName);
         $app = new Application($basePath, require $configPath);
         /** @var Connection $db */
         $db = $app->getContainer()->get('database');
@@ -779,7 +779,7 @@ class InstallerUtils
     private static function createConfigData(array $data)
     {
         return ArrayUtils::defaults([
-            'env' => '_',
+            'project' => '_',
             'db_type' => 'mysql',
             'db_host' => 'localhost',
             'db_port' => 3306,

@@ -57,7 +57,7 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
         $this->tearDown();
 
         InstallerUtils::createConfig(__DIR__ . '/', [
-            'env' => 'prod',
+            'project' => 'prod',
             'db_type' => 'mysql',
             'db_port' => 3306,
             'db_host' => 'localhost',

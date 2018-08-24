@@ -186,12 +186,12 @@ if (!function_exists('get_thumbnail_path'))
      */
     function get_thumbnail_path($name, $width, $height, $mode = 'crop', $quality = 'good')
     {
-        $env = get_api_env_from_request();
+        $projectName = get_api_project_from_request();
 
         // env/width/height/mode/quality/name
         return sprintf(
             '/thumbnail/%s/%d/%d/%s/%s/%s',
-            $env, $width, $height, $mode, $quality, $name
+            $projectName, $width, $height, $mode, $quality, $name
         );
     }
 }

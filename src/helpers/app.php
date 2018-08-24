@@ -32,29 +32,29 @@ if (!function_exists('create_app'))  {
     }
 }
 
-if (!function_exists('create_app_with_env')) {
+if (!function_exists('create_app_with_project_name')) {
     /**
      * Creates an api application with the given environment
      *
      * @param $basePath
-     * @param $env
+     * @param $name
      * @param array $values
      *
      * @return \Directus\Application\Application
      *
      * @throws Exception
      */
-    function create_app_with_env($basePath, $env, array $values = [])
+    function create_app_with_project_name($basePath, $name, array $values = [])
     {
         $configPath = $basePath . '/config';
         $configFilePath = $configPath . '/api.php';
 
-        if (!empty($env) && $env !== '_') {
-            $configFilePath = sprintf('%s/api.%s.php', $configPath, $env);
+        if (!empty($name) && $name !== '_') {
+            $configFilePath = sprintf('%s/api.%s.php', $configPath, $name);
         }
 
         if (!file_exists($configFilePath)) {
-            throw new Exception('Unknown environment: ' . $env);
+            throw new Exception('Unknown environment: ' . $name);
         }
 
         return create_app($basePath, require $configFilePath);

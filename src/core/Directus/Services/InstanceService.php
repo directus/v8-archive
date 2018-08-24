@@ -17,7 +17,7 @@ class InstanceService extends AbstractService
         $data = ArrayUtils::defaults(['user_token' => null], $data);
 
         $this->validate($data, [
-            'env' => 'string',
+            'project' => 'string',
 
             'force' => 'bool',
 
@@ -37,16 +37,16 @@ class InstanceService extends AbstractService
         ]);
 
         $force = ArrayUtils::pull($data, 'force', false);
-        $env = ArrayUtils::get($data, 'env', '_');
+        $projectName = ArrayUtils::get($data, 'project', '_');
         $basePath = $this->container->get('path_base');
 
         InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
         InstallerUtils::ensureCanCreateTables($basePath, $data, $force);
 
         InstallerUtils::createConfig($basePath, $data, $force);
-        InstallerUtils::createTables($basePath, $env, $force);
-        InstallerUtils::addDefaultSettings($basePath, $data, $env);
-        InstallerUtils::addDefaultUser($basePath, $data, $env);
+        InstallerUtils::createTables($basePath, $projectName, $force);
+        InstallerUtils::addDefaultSettings($basePath, $data, $projectName);
+        InstallerUtils::addDefaultUser($basePath, $data, $projectName);
     }
 
     /**

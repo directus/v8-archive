@@ -363,7 +363,7 @@ class Provider
             // 'group' => (int) $user->getGroupId(),
             'exp' => time() + (5 * DateTimeUtils::MINUTE_IN_SECONDS),
             'url' => \Directus\get_url(),
-            'env' => \Directus\get_api_env_from_request()
+            'project' => \Directus\get_api_project_from_request()
         ];
 
         return $this->generateToken(JWTUtils::TYPE_SSO_REQUEST_TOKEN, $payload);

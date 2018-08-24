@@ -228,13 +228,13 @@ if (!function_exists('get_virtual_path')) {
     }
 }
 
-if (!function_exists('get_api_env_from_request')) {
+if (!function_exists('get_api_project_from_request')) {
     /**
-     * Gets the env from the request uri
+     * Gets the project name from the request uri
      *
      * @return string
      */
-    function get_api_env_from_request()
+    function get_api_project_from_request()
     {
         $path = trim(get_virtual_path(), '/');
         $parts = explode('/', $path);
