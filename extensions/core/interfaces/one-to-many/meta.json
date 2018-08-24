@@ -2,7 +2,7 @@
   "name": "$t:o2m",
   "version": "1.0.0",
   "datatypes": {
-    "ALIAS": null
+    "o2m": null
   },
   "options": {},
   "relation": "o2m",
@@ -10,7 +10,7 @@
     "en-US": {
       "o2m": "One to Many",
       "select_items": "Select the items",
-      "relationship_not_setup": "The relationship hasn't been configured correctly"
+      "relation_not_setup": "The relationship hasn't been configured correctly"
     }
   }
 }

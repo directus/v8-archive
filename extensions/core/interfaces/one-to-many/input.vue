@@ -3,7 +3,7 @@
     <div v-if="relationSetup === false" class="notice">
       <p><i class="material-icons">warning</i> {{ $t('interfaces-one-to-many-relation_not_setup') }}</p>
     </div>
-    <template>
+    <template v-else>
       <div class="table" v-if="items.length">
         <div class="header">
           <div class="row">
@@ -178,7 +178,7 @@ export default {
       return this.options.fields.split(",").map(val => val.trim());
     },
     items() {
-      if (this.relationSetup === false) return null;
+      if (this.relationSetup === false) return [];
 
       return this.$lodash.orderBy(
         (this.value || []).filter(val => !val.$delete),
