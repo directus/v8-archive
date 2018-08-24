@@ -103,7 +103,7 @@ $app->get('/', \Directus\Api\Routes\Home::class)
 $app->group('/instances', \Directus\Api\Routes\Instances::class)
     ->add($middleware['table_gateway']);
 
-$app->group('/{env}', function () use ($middleware) {
+$app->group('/{project}', function () use ($middleware) {
     $this->group('/activity', \Directus\Api\Routes\Activity::class)
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
