@@ -8,7 +8,7 @@ use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\User\User;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
-use Directus\Exception\UnauthorizedException;
+use Directus\Exception\UnauthorizedLocationException;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
 use Zend\Db\Sql\Select;
@@ -23,7 +23,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
      *
      * @return Response
      *
-     * @throws UnauthorizedException
+     * @throws UnauthorizedLocationException
      * @throws UserNotAuthenticatedException
      */
     public function __invoke(Request $request, Response $response, callable $next)
@@ -51,6 +51,11 @@ class AuthenticationMiddleware extends AbstractMiddleware
         $acl = $this->container->get('acl');
         $acl->setPermissions($permissionsByCollection);
         $acl->setRolesIpWhitelist($rolesIpWhitelist);
+
+        if (!$acl->isIpAllowed(\Directus\get_request_ip())) {
+            throw new UnauthorizedLocationException();
+        }
+
         // TODO: Adding an user should auto set its ID and GROUP
         // TODO: User data should be casted to its data type
         // TODO: Make sure that the group is not empty
@@ -59,10 +64,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
         $acl->setUserFullName($user->get('first_name') . ' ' . $user->get('last_name'));
         if (!$user && $publicRoleId) {
             $acl->setPublic($publicRoleId);
-        }
-
-        if (!$acl->isIpAllowed(\Directus\get_request_ip())) {
-            throw new UnauthorizedException('Request not allowed from IP address');
         }
 
         $hookEmitter = $this->container->get('hook_emitter');
