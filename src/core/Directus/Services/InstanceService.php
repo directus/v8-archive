@@ -17,7 +17,7 @@ class InstanceService extends AbstractService
         $data = ArrayUtils::defaults(['user_token' => null], $data);
 
         $this->validate($data, [
-            'project' => 'string',
+            'project' => 'string|regex:/^[a-z_-]+$/i',
 
             'force' => 'bool',
 
