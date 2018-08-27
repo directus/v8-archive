@@ -11,6 +11,7 @@
       <div class="map-actions">
         <!-- TODO: Add Geo Search Here -->
         <button 
+          v-if="isInteractive"
           class="map-my-location" 
           @click="locateMe()">
           <i class="material-icons">my_location</i>
@@ -23,6 +24,7 @@
           <span v-if="latlng">Longitude: {{latlng.lng}}</span>
         </div>
         <button 
+          v-if="isInteractive"
           class="map-clear style-4" 
           @click="setValue()">Clear</button>
       </div>
@@ -47,7 +49,16 @@ export default {
         lng: null
       },
       isLocating: false,
-      mapPlaceholder: "directusMap"
+      mapPlaceholder: "directusMap",
+      mapInteractions: [
+        "boxZoom",
+        "doubleClickZoom",
+        "dragging",
+        "keyboard",
+        "scrollWheelZoom",
+        "tap",
+        "touchZoom"
+      ]
     };
   },
   mounted() {
@@ -58,9 +69,26 @@ export default {
       leaflet.tileLayer(newVal).addTo(this.map);
     },
 
+    readonly(status) {
+      this.toggleMapInteractions(!status);
+      this.toggleMarkerInteractions(!status);
+      if (status) {
+        this.unbindMapEvents();
+        this.unbindMarkerEvents();
+      } else {
+        this.bindMapEvents();
+        this.bindMarkerEvents();
+      }
+    },
+
     // Automatically update the Marker based on lat & long
     latlng(newVal) {
       this.setMarker(newVal);
+    }
+  },
+  computed: {
+    isInteractive() {
+      return !this.readonly;
     }
   },
   methods: {
@@ -97,7 +125,7 @@ export default {
        * For "display" mode, interactions are not required.
        */
       this.setValue(latlng);
-      this.bindMapInteractions();
+      this.isInteractive ? this.bindMapEvents() : this.unbindMapEvents();
     },
 
     /**
@@ -122,11 +150,14 @@ export default {
         this.marker = leaflet
           .marker(latlng, {
             icon: markerIcon,
-            draggable: true
+            draggable: this.isInteractive
           })
           .addTo(this.map);
 
-        this.bindMarkerInteractions();
+        if (this.isInteractive) {
+          this.bindMarkerEvents();
+          this.toggleMapInteractions(true);
+        }
       }
     },
 
@@ -143,7 +174,15 @@ export default {
       );
     },
 
-    bindMarkerInteractions() {
+    toggleMarkerInteractions(status) {
+      status ? this.marker.dragging.enable() : this.marker.dragging.disable();
+    },
+
+    unbindMarkerEvents() {
+      this.marker.off("drag");
+    },
+
+    bindMarkerEvents() {
       // Handle drag event of marker.
       this.marker.on(
         "drag",
@@ -153,7 +192,22 @@ export default {
       );
     },
 
-    bindMapInteractions() {
+    toggleMapInteractions(status) {
+      /**
+       * Loop through all the possible interaction option & set status
+       */
+      this.mapInteractions.forEach(item => {
+        if (this.map[item]) {
+          status ? this.map[item].enable() : this.map[item].disable();
+        }
+      });
+    },
+
+    unbindMapEvents() {
+      this.map.off("click");
+    },
+
+    bindMapEvents() {
       /**
        * Handle click event on the map.
        * This will place marker on clicked point.
