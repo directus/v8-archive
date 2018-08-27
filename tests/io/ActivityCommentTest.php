@@ -5,7 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Database\Connection;
 use Psr\Http\Message\ResponseInterface;
 
-class ActivityMessageTest extends \PHPUnit_Framework_TestCase
+class ActivityCommentTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var Connection
