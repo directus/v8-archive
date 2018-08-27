@@ -3,6 +3,7 @@
 namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ItemNotFoundException;
+use Directus\Exception\BatchUploadNotAllowedException;
 
 class FilesTest extends \PHPUnit_Framework_TestCase
 {
@@ -28,8 +29,8 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         static::$uploadPath = realpath(__DIR__ . '/../../public/uploads/_/originals');
 
         static::$db = create_db_connection();
-        reset_table_id(static::$db, 'directus_files', 1);
-        reset_table_id(static::$db, 'directus_folders', 1);
+        truncate_table(static::$db, 'directus_files');
+        truncate_table(static::$db, 'directus_folders');
 
         clear_storage(static::$uploadPath);
     }
@@ -57,6 +58,25 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, ['filename' => $name]);
 
         $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
+    }
+
+    public function testUnableBatchCreate()
+    {
+        $data = [
+            [
+                'filename' => 'test1.jpg',
+                'data' => $this->getImageBase64()
+            ], [
+                'filename' => 'test2.jpg',
+                'data' => $this->getImageBase64()
+            ]
+        ];
+
+        $response = request_error_post('files', $data, ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'status' => 400,
+            'code' => BatchUploadNotAllowedException::ERROR_CODE,
+        ]);
     }
 
     public function testCreateWithMultipart()
@@ -100,6 +120,40 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('files/1', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, array_merge(['id' => 1], $data));
+    }
+
+    public function testUnableBatchUpdateWithFiles()
+    {
+        // Update multiple files with different data
+        $data = [
+            [
+                'id' => 1,
+                'filename' => 'test1.jpg',
+                'data' => $this->getImageBase64()
+            ], [
+                'id' => 2,
+                'filename' => 'test2.jpg',
+                'data' => $this->getImageBase64()
+            ]
+        ];
+
+        $response = request_error_patch('files', $data, ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'status' => 400,
+            'code' => BatchUploadNotAllowedException::ERROR_CODE,
+        ]);
+
+        // Update multiple files with same data
+        $data = [
+            'filename' => 'test2.jpg',
+            'data' => $this->getImageBase64()
+        ];
+
+        $response = request_error_patch('files/1,2', $data, ['query' => $this->queryParams]);
+        assert_response_error($this, $response, [
+            'status' => 400,
+            'code' => BatchUploadNotAllowedException::ERROR_CODE,
+        ]);
     }
 
     public function testGetOne()
@@ -194,6 +248,45 @@ class FilesTest extends \PHPUnit_Framework_TestCase
             'data' => 'array',
             'count' => 3
         ]);
+    }
+
+    public function testBatchUpdateWithoutFiles()
+    {
+        // Update multiple files with different data
+        $data = [
+            [
+                'id' => 1,
+                'title' => 'one',
+            ], [
+                'id' => 2,
+                'title' => 'two',
+            ]
+        ];
+
+        $response = request_patch('files', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 2
+        ]);
+
+        $items = response_get_data($response);
+        $this->assertSame('one', $items[0]->title);
+        $this->assertSame('two', $items[1]->title);
+
+        // Update multiple files with same data
+        $data = [
+            'title' => 'one-two'
+        ];
+
+        $response = request_patch('files/1,2', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response, [
+            'data' => 'array',
+            'count' => 2
+        ]);
+
+        $items = response_get_data($response);
+        $this->assertSame('one-two', $items[0]->title);
+        $this->assertSame('one-two', $items[1]->title);
     }
 
     public function testDelete()

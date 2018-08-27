@@ -7,11 +7,15 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Exception\BadRequestException;
+use Directus\Exception\BatchUploadNotAllowedException;
 use Directus\Exception\Exception;
 use Directus\Filesystem\Exception\FailedUploadException;
+use function Directus\regex_numeric_ids;
 use Directus\Services\FilesServices;
 use Directus\Services\RevisionsService;
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 use Slim\Http\UploadedFile;
 
 class Files extends Route
@@ -22,9 +26,10 @@ class Files extends Route
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id:[0-9]+}', [$this, 'read']);
-        $app->patch('/{id:[0-9]+}', [$this, 'update']);
-        $app->delete('/{id:[0-9]+}', [$this, 'delete']);
+        $app->get('/{id:' . regex_numeric_ids() . '}', [$this, 'read']);
+        $app->patch('/{id:' . regex_numeric_ids() . '}', [$this, 'update']);
+        $app->patch('', [$this, 'update']);
+        $app->delete('/{id:' . regex_numeric_ids() . '}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
 
         // Folders
@@ -57,15 +62,15 @@ class Files extends Route
         $uploadedFiles = $request->getUploadedFiles();
         $payload = $request->getParsedBody();
 
+        if (count($uploadedFiles) > 1 || (isset($payload[0]) && is_array($payload[0]))) {
+            throw new BatchUploadNotAllowedException();
+        }
+
         if (!empty($uploadedFiles)) {
             /** @var UploadedFile $uploadedFile */
             $uploadedFile = array_shift($uploadedFiles);
             if (!\Directus\is_uploaded_file_okay($uploadedFile->getError())) {
                 throw new FailedUploadException($uploadedFile->getError());
-            }
-
-            if (empty($payload)) {
-                $payload = [];
             }
 
             // TODO: the file already exists move it to the upload path location
@@ -111,6 +116,17 @@ class Files extends Route
     public function update(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
+
+        $payload = $request->getParsedBody();
+        if (isset($payload[0]) && is_array($payload[0])) {
+            return $this->batch($request, $response);
+        }
+
+        $id = $request->getAttribute('id');
+        if (strpos($id, ',') !== false) {
+            return $this->batch($request, $response);
+        }
+
         $service = new FilesServices($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),
@@ -123,9 +139,14 @@ class Files extends Route
 
     public function delete(Request $request, Response $response)
     {
+        $id = $request->getAttribute('id');
+        if (strpos($id, ',') !== false) {
+            return $this->batch($request, $response);
+        }
+
         $service = new FilesServices($this->container);
         $service->delete(
-            $request->getAttribute('id'),
+            $id,
             $request->getQueryParams()
         );
 
@@ -289,6 +310,41 @@ class Files extends Route
             $request->getAttribute('revision'),
             $request->getQueryParams()
         );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    protected function batch(Request $request, Response $response)
+    {
+        $filesService = new FilesServices($this->container);
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+
+        $responseData = null;
+        if ($request->isPatch()) {
+            if ($request->getAttribute('id')) {
+                $ids = StringUtils::safeCvs($request->getAttribute('id'));
+                $responseData = $filesService->batchUpdateWithIds($ids, $payload, $params);
+            } else {
+                $responseData = $filesService->batchUpdate($payload, $params);
+            }
+        } else if ($request->isDelete()) {
+            $ids = explode(',', $request->getAttribute('id'));
+            $filesService->batchDeleteWithIds($ids, $params);
+        }
+
+        if (empty($responseData)) {
+            $response = $response->withStatus(204);
+            $responseData = [];
+        }
 
         return $this->responseWithData($request, $response, $responseData);
     }
