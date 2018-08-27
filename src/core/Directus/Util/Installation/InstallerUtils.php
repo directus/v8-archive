@@ -8,6 +8,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\Schema\Sources\MySQLSchema;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Exception\Exception;
+use Directus\Exception\InvalidConfigPathException;
 use Directus\Exception\InvalidPathException;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
@@ -666,9 +667,7 @@ class InstallerUtils
     private static function ensureFileDoesNotExists($path)
     {
         if (file_exists($path) && is_file($path)) {
-            throw new InvalidPathException(
-                sprintf('Unable to create the config file at "%s". Already exists.', $path)
-            );
+            throw new InvalidConfigPathException($path);
         }
     }
 

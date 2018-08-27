@@ -3,6 +3,8 @@
 namespace Directus\Services;
 
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\InvalidConfigPathException;
+use Directus\Exception\ProjectAlreadyExistException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
 
@@ -40,7 +42,12 @@ class InstanceService extends AbstractService
         $projectName = ArrayUtils::get($data, 'project', '_');
         $basePath = $this->container->get('path_base');
 
-        InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
+        try {
+         InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
+        } catch (InvalidConfigPathException $e) {
+            throw new ProjectAlreadyExistException($projectName);
+        }
+
         InstallerUtils::ensureCanCreateTables($basePath, $data, $force);
 
         InstallerUtils::createConfig($basePath, $data, $force);
