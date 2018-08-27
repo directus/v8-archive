@@ -1,10 +1,10 @@
 <template>
   <div class="interface-map">
-    <div class="interface-map-wrap">
+    <div :class="['map',{'map-readonly':readonly}]">
       <div 
-        class="map" 
+        class="map-container" 
         id="directusMap" 
-        :style="{width:options.width+'px',height:options.height+'px'}">
+        :style="{height:options.height+'px'}">
       <!-- Map Renders Here -->
       </div>
 
@@ -17,17 +17,17 @@
           <i class="material-icons">my_location</i>
         </button>
       </div>
+    </div>
 
-      <div class="map-details">
-        <div class="map-location style-4">
-          <span v-if="latlng">Latitude: {{latlng.lat}}</span>
-          <span v-if="latlng">Longitude: {{latlng.lng}}</span>
-        </div>
-        <button 
-          v-if="isInteractive"
-          class="map-clear style-4" 
-          @click="setValue()">Clear</button>
+    <div class="map-details">
+      <div class="map-location style-4">
+        <span v-if="latlng">Latitude: {{latlng.lat}}</span>
+        <span v-if="latlng">Longitude: {{latlng.lng}}</span>
       </div>
+      <button 
+        v-if="isInteractive"
+        class="map-clear style-4" 
+        @click="setValue()">Clear</button>
     </div>
   </div>
 </template>
@@ -42,12 +42,10 @@ export default {
   mixins: [mixin],
   data() {
     return {
+      test: null,
       map: null,
       marker: null,
-      latlng: {
-        lat: null,
-        lng: null
-      },
+      latlng: null,
       isLocating: false,
       mapPlaceholder: "directusMap",
       mapInteractions: [
@@ -89,21 +87,38 @@ export default {
   computed: {
     isInteractive() {
       return !this.readonly;
+    },
+    accentColor() {
+      return getComputedStyle(document.documentElement)
+        .getPropertyValue("--accent")
+        .trim();
+    },
+    darkAccentColor() {
+      return getComputedStyle(document.documentElement)
+        .getPropertyValue("--accent-dark")
+        .trim();
     }
   },
   methods: {
     init() {
-      //Set default values to emit.
-      this.createMap({
-        lat: this.options.lat,
-        lng: this.options.lng
-      });
+      let _latlng;
+      /**
+       * If value is provided on initialization,
+       * map should be centered at lat/lng of value
+       * else it should center at provided default location.
+       */
+      if (this.value) {
+        _latlng = leaflet.latLng(this.value.lat, this.value.lng);
+      } else {
+        _latlng = leaflet.latLng(this.options.mapLat, this.options.mapLng);
+      }
+      this.createMap(_latlng);
     },
 
     createMap(latlng) {
       this.map = leaflet.map(this.mapPlaceholder, {
         center: latlng,
-        zoom: this.options.zoom,
+        zoom: this.options.defaultZoom,
         maxZoom: this.options.maxZoom,
         zoomControl: false
       });
@@ -121,10 +136,14 @@ export default {
         .addTo(this.map);
 
       /**
+       * Render marker only if value is set.
+       */
+      this.value ? this.setValue(this.value) : "";
+
+      /**
        * Bind interaction method only in "input" mode
        * For "display" mode, interactions are not required.
        */
-      this.setValue(latlng);
       this.isInteractive ? this.bindMapEvents() : this.unbindMapEvents();
     },
 
@@ -133,20 +152,20 @@ export default {
      */
     setMarker(latlng) {
       if (this.marker) {
+        //Hide marker if latlng is provided NULL
         if (latlng) {
           this.marker.setLatLng(latlng).setOpacity(1);
         } else {
           this.marker.setOpacity(0);
         }
-      } else if (this.map) {
+      } else {
         // Create A Marker Instance
         let markerIcon = leaflet.icon({
-          //? Should we use base64?
           iconUrl: this.markerSVG(),
           iconSize: [36, 36],
           iconAnchor: [18, 36]
         });
-        // Set marker on the default position
+        // Set marker on the position
         this.marker = leaflet
           .marker(latlng, {
             icon: markerIcon,
@@ -167,7 +186,6 @@ export default {
      */
     setValue(latlng) {
       this.latlng = latlng;
-      this.setMarker(latlng);
       this.$emit(
         "input",
         this.latlng ? JSON.parse(JSON.stringify(this.latlng)) : null
@@ -251,7 +269,11 @@ export default {
     },
 
     markerSVG() {
-      return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#039be5" stroke-width="1" stroke="#0078b3" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`;
+      return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="${
+        this.accentColor
+      }" stroke-width="1" stroke="${
+        this.darkAccentColor
+      }" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`;
     }
   }
 };
@@ -262,17 +284,19 @@ export default {
   overflow-x: auto;
   overflow-y: hidden;
 }
-.interface-map-wrap {
-  position: relative;
-  display: inline-flex;
-  flex-direction: column;
-}
+
 .map {
-  z-index: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
+}
+
+.map-container {
+  z-index: 1;
+  width: 100%;
   //This is fallback size. Generally this will be overwritten by default size provided in interface config.
-  width: var(--width-normal);
   height: var(--width-normal);
 }
 
@@ -312,12 +336,17 @@ export default {
   font-style: italic;
 }
 
-@media only screen and (max-width: 800px) {
-  .interface-map-wrap {
-    display: flex;
+//Read Only Map
+.map-readonly {
+  .map-container {
+    filter: grayscale(100%);
+    opacity: 0.8;
   }
+}
+
+@media only screen and (max-width: 800px) {
   .map {
-    width: 100% !important;
+    display: flex;
   }
 }
 </style>

@@ -6,29 +6,26 @@
   },
   "fieldset": true,
   "options": {
-    "width": {
-      "name": "$t:width",
-      "interface": "text-input",
-      "default": 400
-    },
     "height": {
       "name": "$t:height",
       "interface": "text-input",
       "default": 200
     },
-    "lat": {
-      "name": "$t:lat",
+    "mapLat": {
+      "name": "$t:map_lat",
+      "comment": "$t:map_lat_comment",
       "interface": "text-input",
       "default": 51.505
     },
-    "lng": {
-      "name": "$t:long",
+    "mapLng": {
+      "name": "$t:map_lng",
+      "comment": "$t:map_lng_comment",
       "interface": "text-input",
       "default": -0.09
     },
-    "zoom": {
-      "name": "$t:zoom",
-      "comment": "$t:zoom_comment",
+    "defaultZoom": {
+      "name": "$t:default_zoom",
+      "comment": "$t:default_zoom_comment",
       "interface": "text-input",
       "default": 13
     },
@@ -66,12 +63,13 @@
       "theme": "Interface Theme",
       "theme_comment": "Set the UI of interface if supported",
       "value": "Value",
-      "lat": "Latitude",
-      "long": "Longitude",
-      "width": "Width",
+      "map_lat": "Default Latitude",
+      "map_lat_comment": "Map will be centered at this latitude",
+      "map_lng": "Default Longitude",
+      "map_lng_comment": "Map will be centered at this longitude",
       "height": "Height",
-      "zoom": "Zoom",
-      "zoom_comment": "Default zoom level of the map",
+      "default_zoom": "Default Zoom",
+      "default_zoom_comment": "Default zoom level of the map",
       "max_zoom": "Max Zoom",
       "max_zoom_comment": "Maximum zoom allowed in the map",
       "no_location": "No location found",
