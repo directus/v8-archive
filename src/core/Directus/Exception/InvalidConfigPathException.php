@@ -2,7 +2,7 @@
 
 namespace Directus\Exception;
 
-class InvalidConfigPathException extends InvalidPathException
+class InvalidConfigPathException extends Exception implements UnprocessableEntityExceptionInterface
 {
     const ERROR_CODE = 17;
 
