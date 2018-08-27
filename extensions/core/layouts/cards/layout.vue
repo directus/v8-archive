@@ -53,7 +53,9 @@ export default {
           return (
             item[srcField] &&
             item[srcField].data &&
-            item[srcField].data.full_url
+            item[srcField].data.thumbnails &&
+            item[srcField].data.thumbnails[0] &&
+            item[srcField].data.thumbnails[0].url
           );
         }
 
@@ -61,7 +63,10 @@ export default {
           srcField === "data" &&
           this.fields[srcField].collection === "directus_files"
         ) {
-          return item[srcField].full_url;
+          return item[srcField] &&
+            item[srcField].thumbnails &&
+            item[srcField].thumbnails[0] &&
+            item[srcField].thumbnails[0].url
         }
 
         return item[srcField] || null;

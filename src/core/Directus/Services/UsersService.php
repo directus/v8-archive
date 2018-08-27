@@ -65,7 +65,7 @@ class UsersService extends AbstractService
     {
         $data = [
             'last_page' => $lastPage,
-            'last_access' => DateTimeUtils::nowInUTC()->toString()
+            'last_access_on' => DateTimeUtils::nowInUTC()->toString()
         ];
 
         $this->getTableGateway()->update($data, [

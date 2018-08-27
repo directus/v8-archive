@@ -55,15 +55,4 @@ function clear_storage($basePath)
 
         unlink($filename);
     }
-
-    $thumbsOmit = ['.gitignore', '1.jpg'];
-    $thumbsPath = $basePath . '/thumbs';
-    foreach (glob($thumbsPath . "/*.*") as $filename) {
-        $name = basename($filename);
-        if (is_dir($filename) || in_array($name, $thumbsOmit)) {
-            continue;
-        }
-
-        unlink($filename);
-    }
 }

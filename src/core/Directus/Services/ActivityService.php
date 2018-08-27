@@ -47,10 +47,10 @@ class ActivityService extends AbstractService
     {
         $data = array_merge($data, [
             'action' => DirectusActivityTableGateway::ACTION_COMMENT,
-            'datetime' => DateTimeUtils::nowInUTC()->toString(),
+            'action_on' => DateTimeUtils::nowInUTC()->toString(),
             'ip' => \Directus\get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
-            'user' => $this->getAcl()->getUserId()
+            'action_by' => $this->getAcl()->getUserId(),
         ]);
 
         $this->validateCommentsPayload($data, $params);
@@ -95,7 +95,7 @@ class ActivityService extends AbstractService
         $data = [
             'id' => $id,
             'comment' => $comment,
-            'datetime_edited' => DateTimeUtils::nowInUTC()->toString()
+            'edited_on' => DateTimeUtils::nowInUTC()->toString()
         ];
 
         $this->enforcepermissionsOnExisting(Acl::ACTION_UPDATE, $id, $params);
@@ -115,7 +115,9 @@ class ActivityService extends AbstractService
         $this->enforcePermissionsOnExisting(Acl::ACTION_DELETE, $id, $params);
 
         $tableGateway = $this->getTableGateway();
-        $tableGateway->updateRecord($id, ['deleted_comment' => true]);
+        $tableGateway->updateRecord($id, [
+            'comment_deleted_on' => DateTimeUtils::nowInUTC()->toString()
+        ]);
     }
 
     /**

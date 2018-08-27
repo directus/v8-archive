@@ -6,18 +6,18 @@ use Directus\Util\ArrayUtils;
 use Directus\Filesystem\Thumbnailer;
 
 $basePath = realpath(__DIR__ . '/../../');
-// Get Environment name
-$env = \Directus\get_api_env_from_request();
+// Get Project name
+$projectName = \Directus\get_api_project_from_request();
 
 try {
-    $app = \Directus\create_app_with_env($basePath, $env);
+    $app = \Directus\create_app_with_project_name($basePath, $projectName);
 } catch (\Exception $e) {
     http_response_code(404);
     header('Content-Type: application/json');
     echo json_encode([
         'error' => [
             'error' => 8,
-            'message' => 'API Environment Configuration Not Found: ' . $env
+            'message' => 'API Project Configuration Not Found: ' . $projectName
         ]
     ]);
     exit;
@@ -28,7 +28,6 @@ $timeToLive = \Directus\array_get($settings, 'cache_ttl', 86400);
 try {
     // if the thumb already exists, return it
     $thumbnailer = new Thumbnailer(
-        $env,
         $app->getContainer()->get('filesystem'),
         $app->getContainer()->get('filesystem_thumb'),
         $settings,

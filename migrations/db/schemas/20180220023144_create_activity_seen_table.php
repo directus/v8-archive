@@ -40,14 +40,9 @@ class CreateActivitySeenTable extends AbstractMigration
             'default' => 0
         ]);
 
-        // TODO: Add the time when this was read?
-        // $table->addColumn('datetime', 'datetime', [
-        //     'default' => null
-        // ]);
-
-        $table->addColumn('seen', 'boolean', [
-            'signed' => false,
-            'default' => false
+        $table->addColumn('seen_on', 'datetime', [
+            'null' => true,
+            'default' => null
         ]);
 
         $table->addColumn('archived', 'boolean', [

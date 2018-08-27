@@ -23,18 +23,12 @@ class FilesTest extends \PHPUnit_Framework_TestCase
      */
     protected static $uploadPath;
 
-    /**
-     * @var string
-     */
-    protected static $thumbsPath;
-
     public static function resetDatabase()
     {
-        static::$uploadPath = realpath(__DIR__ . '/../../public/storage/uploads');
-        static::$thumbsPath = static::$uploadPath . '/thumbs';
+        static::$uploadPath = realpath(__DIR__ . '/../../public/uploads/_/originals');
 
         static::$db = create_db_connection();
-        reset_table_id(static::$db, 'directus_files', 2);
+        reset_table_id(static::$db, 'directus_files', 1);
         reset_table_id(static::$db, 'directus_folders', 1);
 
         clear_storage(static::$uploadPath);
@@ -103,19 +97,19 @@ class FilesTest extends \PHPUnit_Framework_TestCase
             'title' => 'Green background'
         ];
 
-        $response = request_patch('files/2', $data, ['query' => $this->queryParams]);
+        $response = request_patch('files/1', $data, ['query' => $this->queryParams]);
         assert_response($this, $response);
-        assert_response_data_contains($this, $response, array_merge(['id' => 2], $data));
+        assert_response_data_contains($this, $response, array_merge(['id' => 1], $data));
     }
 
     public function testGetOne()
     {
         $data = [
-            'id' => 2,
+            'id' => 1,
             'title' => 'Green background'
         ];
 
-        $response = request_get('files/2', $this->queryParams);
+        $response = request_get('files/1', $this->queryParams);
         assert_response($this, $response);
         assert_response_data_contains($this, $response, $data);
     }
@@ -198,36 +192,34 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $response = request_get('files', $this->queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 4
+            'count' => 3
         ]);
     }
 
     public function testDelete()
     {
-        $response = request_delete('files/2', ['query' => $this->queryParams]);
+        $response = request_delete('files/1', ['query' => $this->queryParams]);
         assert_response_empty($this, $response);
 
-        $response = request_error_get('files/2', $this->queryParams);
+        $response = request_error_get('files/1', $this->queryParams);
         assert_response_error($this, $response, [
             'code' => ItemNotFoundException::ERROR_CODE,
             'status' => 404
         ]);
 
         $this->assertFalse(file_exists(static::$uploadPath . '/' . static::$fileName));
-        $this->assertFalse(file_exists(static::$thumbsPath . '/2.jpg'));
 
-        // delete second file
-        $response = request_delete('files/4', ['query' => $this->queryParams]);
+        // delete filename 2
+        $response = request_delete('files/3', ['query' => $this->queryParams]);
         assert_response_empty($this, $response);
 
-        $response = request_error_get('files/4', $this->queryParams);
+        $response = request_error_get('files/3', $this->queryParams);
         assert_response_error($this, $response, [
             'code' => ItemNotFoundException::ERROR_CODE,
             'status' => 404
         ]);
 
         $this->assertFalse(file_exists(static::$uploadPath . '/' . static::$fileName2));
-        $this->assertFalse(file_exists(static::$thumbsPath . '/4.jpg'));
     }
 
     protected function getImageBase64()

@@ -32,8 +32,8 @@ customs/interfaces/*
 !customs/interfaces/_example
 /customs/listviews/*
 !customs/listviews/.gitignore
-!storage/uploads/.gitignore
-!storage/uploads/thumbs/.gitignore
+!public/uploads/_/originals/.gitignore
+!public/uploads/_/thumbnails/.gitignore
 
 thumbnail/**/
 

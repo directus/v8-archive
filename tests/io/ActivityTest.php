@@ -34,8 +34,8 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
             table_insert($this->db, 'directus_activity', [
                 'id' => null,
                 'action' => 'authentication',
-                'user' => 1,
-                'datetime' => sprintf('%s 15:52:37', $date),
+                'action_by' => 1,
+                'action_on' => sprintf('%s 15:52:37', $date),
                 'ip' => '::1',
                 'user_agent' => 'GuzzleHttp/6.2.1 curl/7.52.1 PHP/5.5.38',
                 'collection' => 'directus_users',
@@ -57,15 +57,15 @@ class ActivityTest extends \PHPUnit_Framework_TestCase
         $columns = [
             'id',
             'action',
-            'user',
-            'datetime',
+            'action_by',
+            'action_on',
             'ip',
             'user_agent',
             'collection',
             'item',
-            'datetime_edited',
+            'edited_on',
             'comment',
-            'deleted_comment',
+            'comment_deleted_on',
         ];
 
         $path = 'activity';

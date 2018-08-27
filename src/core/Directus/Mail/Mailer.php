@@ -2,7 +2,7 @@
 
 namespace Directus\Mail;
 
-use function Directus\get_api_env_from_request;
+use function Directus\get_api_project_from_request;
 
 class Mailer
 {
@@ -35,7 +35,7 @@ class Mailer
     {
         $content = \Directus\parse_twig($view, array_merge(
             $data,
-            ['api' => ['env' => get_api_env_from_request()]]
+            ['api' => ['project' => get_api_project_from_request()]]
         ));
 
         $this->sendWithContent($content, 'text/html', $callback);

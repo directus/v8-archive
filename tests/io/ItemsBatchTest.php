@@ -26,7 +26,7 @@ class ItemsBatchTest extends \PHPUnit_Framework_TestCase
             ['name' => 'Old Category']
         ]);
         fill_table(static::$db, 'products', static::$data);
-        $uploadPath = realpath(__DIR__ . '/../../public/storage/uploads');
+        $uploadPath = realpath(__DIR__ . '/../../public/uploads/_/originals');
         clear_storage($uploadPath);
 
         request_patch('fields/products/status', ['options' => [

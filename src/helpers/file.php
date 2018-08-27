@@ -120,13 +120,14 @@ if (!function_exists('append_storage_information'))
 
                 $size = explode('x', $dimension);
                 if (count($size) == 2) {
-                    $thumbnailUrl = \Directus\get_thumbnail_url($row['filename'], $size[0], $size[1]);
+                    $thumbnailUrl =  get_thumbnail_url($row['filename'], $size[0], $size[1]);
+                    $thumbnailRelativeUrl = get_thumbnail_path($row['filename'], $size[0], $size[1]);
                     $data['thumbnails'][] = [
-                        'full_url' => $thumbnailUrl,
                         'url' => $thumbnailUrl,
+                        'relative_url' => $thumbnailRelativeUrl,
                         'dimension' => $dimension,
-                        'width' => $size[0],
-                        'height' => $size[1]
+                        'width' => (int) $size[0],
+                        'height' => (int) $size[1]
                     ];
                 }
             }
@@ -154,7 +155,7 @@ if (!function_exists('append_storage_information'))
 if (!function_exists('get_thumbnail_url'))
 {
     /**
-     * Returns a url to the thumbnailer
+     * Returns a url for the given file pointing to the thumbnailer
      *
      * @param string $name
      * @param int $width
@@ -166,10 +167,31 @@ if (!function_exists('get_thumbnail_url'))
      */
     function get_thumbnail_url($name, $width, $height, $mode = 'crop', $quality = 'good')
     {
-        // width/height/mode/quality/name
-        return get_url(sprintf(
-            'thumbnail/%d/%d/%s/%s/%s',
-            $width, $height, $mode, $quality, $name
-        ));
+        return get_url(get_thumbnail_path($name, $width, $height, $mode, $quality));
+    }
+}
+
+if (!function_exists('get_thumbnail_path'))
+{
+    /**
+     * Returns a relative url for the given file pointing to the thumbnailer
+     *
+     * @param string $name
+     * @param int $width
+     * @param int $height
+     * @param string $mode
+     * @param string $quality
+     *
+     * @return string
+     */
+    function get_thumbnail_path($name, $width, $height, $mode = 'crop', $quality = 'good')
+    {
+        $projectName = get_api_project_from_request();
+
+        // env/width/height/mode/quality/name
+        return sprintf(
+            '/thumbnail/%s/%d/%d/%s/%s/%s',
+            $projectName, $width, $height, $mode, $quality, $name
+        );
     }
 }

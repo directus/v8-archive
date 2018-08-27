@@ -353,7 +353,7 @@ class SchemaService
         $tableObject = static::getCollection($tableName);
         $columnObject = $tableObject->getField($columnName);
 
-        return $columnObject->getRelationship()->getCollectionB();
+        return $columnObject->getRelationship()->getCollectionOne();
     }
 
     /**

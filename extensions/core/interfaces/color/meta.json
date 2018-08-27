@@ -44,7 +44,7 @@
       "name": "$t:palette",
       "comment": "$t:palette_comment",
       "interface": "tags",
-      "type": "CSV",
+      "type": "ARRAY",
       "options": {
         "wrapWithDelimiter": false
       },

@@ -2,7 +2,7 @@
   "name": "$t:checkboxes",
   "version": "1.0.0",
   "datatypes": {
-    "CSV": null,
+    "ARRAY": null,
     "VARCHAR": 255
   },
   "fieldset": true,

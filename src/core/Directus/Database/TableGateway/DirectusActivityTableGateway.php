@@ -52,9 +52,9 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         $logData = [
             'collection' => 'directus_users',
             'action' => self::ACTION_AUTHENTICATE,
-            'user' => $userId,
+            'action_by' => $userId,
             'item' => $userId,
-            'datetime' => DateTimeUtils::nowInUTC()->toString(),
+            'action_on' => DateTimeUtils::nowInUTC()->toString(),
             'ip' => \Directus\get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
         ];

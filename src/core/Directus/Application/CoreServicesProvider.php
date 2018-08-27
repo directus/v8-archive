@@ -36,7 +36,7 @@ use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
 use function Directus\generate_uui4;
-use function Directus\get_api_env_from_request;
+use function Directus\get_api_project_from_request;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -102,7 +102,7 @@ class CoreServicesProvider
          * @return Logger
          */
         $logger = function ($container) {
-            $logger = new Logger(sprintf('api[%s]', get_api_env_from_request()));
+            $logger = new Logger(sprintf('api[%s]', get_api_project_from_request()));
             $formatter = new LineFormatter();
             $formatter->allowInlineLineBreaks();
             $formatter->includeStacktraces();
@@ -306,8 +306,8 @@ class CoreServicesProvider
                 if (!$replace) {
                     /** @var Acl $auth */
                     $acl = $container->get('acl');
-                    $payload->set('upload_user', $acl->getUserId());
-                    $payload->set('upload_date', DateTimeUtils::nowInUTC()->toString());
+                    $payload->set('uploaded_by', $acl->getUserId());
+                    $payload->set('uploaded_on', DateTimeUtils::nowInUTC()->toString());
                 }
             };
             $emitter->addFilter('collection.update:before', function (Payload $payload) use ($container, $savesFile) {
@@ -525,7 +525,7 @@ class CoreServicesProvider
                         $omit = array_merge($omit, [
                             'token',
                             'email_notifications',
-                            'last_access',
+                            'last_access_on',
                             'last_page'
                         ]);
                     }
@@ -957,7 +957,7 @@ class CoreServicesProvider
             $config = $container->get('config');
 
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('filesystem'), 'root_thumb')
+                FilesystemFactory::createAdapter($config->get('filesystem'), 'thumb_root')
             );
         };
     }

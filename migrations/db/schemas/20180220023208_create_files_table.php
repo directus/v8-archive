@@ -96,13 +96,13 @@ class CreateFilesTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('upload_user', 'integer', [
+        $table->addColumn('uploaded_by', 'integer', [
             'signed' => false,
             'null' => false
         ]);
         // TODO: Make directus set this value to whatever default is on the server (UTC)
         // In MySQL 5.5 and below doesn't support CURRENT TIMESTAMP on datetime as default
-        $table->addColumn('upload_date', 'datetime', [
+        $table->addColumn('uploaded_on', 'datetime', [
             'null' => false
         ]);
         $table->addColumn('storage_adapter', 'string', [

@@ -52,7 +52,7 @@ export default {
         selection = `,${selection},`;
       }
 
-      if (this.type === "CSV") {
+      if (this.type === "ARRAY") {
         selection = selection.split(",");
       }
 

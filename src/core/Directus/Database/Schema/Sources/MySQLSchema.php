@@ -305,27 +305,20 @@ class MySQLSchema extends AbstractSchema
     public function getRelations($collectionName)
     {
         $selectOne = new Select();
-        // $selectOne->quantifier($selectOne::QUANTIFIER_DISTINCT);
         $selectOne->columns([
             'id',
-            'collection_a',
-            'field_a',
-            'junction_key_a',
-            'junction_collection',
-            'junction_mixed_collections',
-            'junction_key_b',
-            'collection_b',
-            'field_b'
+            'collection_many',
+            'field_many',
+            'collection_one',
+            'field_one'
         ]);
 
         $selectOne->from('directus_relations');
 
         $where = $selectOne->where->nest();
-        $where->equalTo('collection_a', $collectionName);
+        $where->equalTo('collection_many', $collectionName);
         $where->OR;
-        $where->equalTo('junction_collection', $collectionName);
-        $where->OR;
-        $where->equalTo('collection_b', $collectionName);
+        $where->equalTo('collection_one', $collectionName);
         $where->unnest();
 
         $sql = new Sql($this->adapter);

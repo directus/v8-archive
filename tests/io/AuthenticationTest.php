@@ -2,10 +2,12 @@
 
 namespace Directus\Tests\Api\Io;
 
+use function Directus\array_get;
 use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserInactiveException;
+use Directus\Authentication\Provider;
 use Directus\Util\JWTUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use GuzzleHttp\Exception\ClientException;
@@ -178,7 +180,7 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
 
         // valid but expired token
         $response = request_error_post($path, [
-            'token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNTM0NTE1MTA4LCJ0eXBlIjoiYXV0aCJ9.Ux3JhxReqiSZIJOb_7_-R-1JzJ4krYRodyco09ZG6gI'
+            'token' => $this->generateExpiredToken()
         ]);
 
         assert_response_error($this, $response, [
@@ -208,5 +210,19 @@ class AuthenticationTest extends \PHPUnit_Framework_TestCase
             'status' => 401,
             'code' => UserInactiveException::ERROR_CODE
         ]);
+    }
+
+    protected function generateExpiredToken()
+    {
+        $config = require __DIR__ . '/../../config/api.php';
+        $secretKey = array_get($config, 'auth.secret_key');
+
+        $payload = [
+            'id' => 1,
+            'type' => JWTUtils::TYPE_AUTH,
+            'exp' => time() - 3600,
+        ];
+
+        return JWTUtils::encode($payload, $secretKey, 'HS256');
     }
 }

@@ -2,7 +2,7 @@
   "name": "$t:single-file",
   "version": "1.0.0",
   "datatypes": {
-    "INT": null
+    "file": null
   },
   "options": {
     "viewType": {
