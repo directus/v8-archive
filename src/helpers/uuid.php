@@ -45,3 +45,25 @@ if (!function_exists('generate_uuid4')) {
         return Uuid::uuid4()->toString();
     }
 }
+
+if (!function_exists('generate_uuid5')) {
+    /**
+     * Generates a UUID v5 string
+     *
+     * @param string $namespace
+     * @param string $name
+     *
+     * @return string
+     */
+    function generate_uui5($namespace, $name)
+    {
+        if ($namespace === null) {
+            $namespace = Uuid::NAMESPACE_DNS;
+        }
+
+        return Uuid::uuid5(
+            $namespace,
+            $name
+        )->toString();
+    }
+}
