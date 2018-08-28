@@ -38,9 +38,14 @@ class InstanceService extends AbstractService
             'user_token' => 'string'
         ]);
 
-        $force = ArrayUtils::pull($data, 'force', false);
-        $projectName = ArrayUtils::get($data, 'project', '_');
         $basePath = $this->container->get('path_base');
+        $force = ArrayUtils::pull($data, 'force', false);
+        $projectName = ArrayUtils::pull($data, 'project');
+        if (empty($projectName)) {
+            $projectName = '_';
+        }
+
+        $data['project'] = $projectName;
 
         try {
          InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
