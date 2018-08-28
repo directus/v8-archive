@@ -3,6 +3,7 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
+use function Directus\generate_uui5;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
 
@@ -556,8 +557,8 @@ class Files
     private function getFileName($fileName, $unique = true)
     {
         switch ($this->getSettings('file_naming')) {
-            case 'file_hash':
-                $fileName = $this->hashFileName($fileName);
+            case 'uuid':
+                $fileName = $this->uuidFileName($fileName);
                 break;
         }
 
@@ -575,10 +576,11 @@ class Files
      *
      * @return string
      */
-    private function hashFileName($fileName)
+    private function uuidFileName($fileName)
     {
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        $fileHashName = md5(microtime() . $fileName);
+        $fileHashName = generate_uui5(null, $fileName);
+
         return $fileHashName . '.' . $ext;
     }
 
