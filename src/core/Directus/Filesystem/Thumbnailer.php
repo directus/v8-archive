@@ -235,13 +235,13 @@ class Thumbnailer {
 
             // make sure filename is valid
             $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-            $basename = pathinfo($fileName, PATHINFO_BASENAME);
+            $name = pathinfo($fileName, PATHINFO_FILENAME);
             if (! $this->isSupportedFileExtension($ext)) {
                 throw new Exception('Invalid file extension.');
             }
 
             $thumbnailParams = [
-                'fileName' => filename_put_ext($basename, $ext),
+                'fileName' => filename_put_ext($name, $ext),
                 'fileExt' => $ext
             ];
 
