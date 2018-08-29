@@ -2,17 +2,19 @@
 
 namespace Directus\Util;
 
+use function Directus\filename_put_ext;
+
 class Formatting
 {
 
     public static function fileNameToFileTitle($fileName)
     {
-        $info = pathinfo($fileName);
-        $ext = $info['extension'];
-        $name = basename($fileName, '.' . $ext);
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        $name = filename_put_ext(basename($fileName), $ext);
         $name = strtolower($name);
         $name = str_replace(['_', '-'], [' ', ' '], $name);
         $name = ucwords($name);
+
         return $name;
     }
 

@@ -2,6 +2,7 @@
 
 namespace Directus\Filesystem;
 
+use function Directus\filename_put_ext;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -233,14 +234,15 @@ class Thumbnailer {
             $fileName = ArrayUtils::pop($urlSegments);
 
             // make sure filename is valid
-            $info = pathinfo($fileName);
-            if (! $this->isSupportedFileExtension((ArrayUtils::get($info, 'extension')))) {
+            $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+            $basename = pathinfo($fileName, PATHINFO_BASENAME);
+            if (! $this->isSupportedFileExtension($ext)) {
                 throw new Exception('Invalid file extension.');
             }
 
             $thumbnailParams = [
-                'fileName' => ArrayUtils::get($info, 'filename') . '.' . strtolower(ArrayUtils::get($info, 'extension')),
-                'fileExt' => ArrayUtils::get($info, 'extension')
+                'fileName' => filename_put_ext($basename, $ext),
+                'fileExt' => $ext
             ];
 
             foreach ($urlSegments as $segment) {

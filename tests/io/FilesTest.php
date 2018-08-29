@@ -315,6 +315,21 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(file_exists(static::$uploadPath . '/' . static::$fileName2));
     }
 
+    public function testCreateWithoutExtension()
+    {
+        $name = 'image';
+        $data = [
+            'filename' => $name,
+            'data' => $this->getImageBase64()
+        ];
+
+        $response = request_post('files', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, ['filename' => $name]);
+
+        $this->assertTrue(file_exists(static::$uploadPath . '/' . $name));
+    }
+
     protected function getImageBase64()
     {
         // TODO: Allow the data alone

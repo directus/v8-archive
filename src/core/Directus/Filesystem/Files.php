@@ -3,6 +3,8 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
+use function Directus\array_get;
+use function Directus\filename_put_ext;
 use function Directus\generate_uui5;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
@@ -512,38 +514,46 @@ class Files
      */
     public function uniqueName($fileName, $targetPath = null, $attempt = 0)
     {
-        $info = pathinfo($fileName);
         if (!$targetPath) {
             $targetPath = $this->filesystem->getPath();
         }
 
-        // @TODO: this will fail when the filename doesn't have extension
-        $ext = $info['extension'];
-        $name = basename($fileName, ".$ext");
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        $name = pathinfo($fileName, PATHINFO_FILENAME);
+        $newName = $this->sanitizeName(filename_put_ext($name, $ext));
 
-        $name = $this->sanitizeName($name);
-
-        $fileName = "$name.$ext";
         if ($this->filesystem->exists($fileName)) {
             $matches = [];
-            $trailingDigit = '/\-(\d)\.(' . $ext . ')$/';
+            $format = '/\-(\d)%s$/';
+            $withExtension = '';
+            if ($ext) {
+                $withExtension = '\.(' . $ext . ')';
+            }
+
+            $trailingDigit = sprintf($format, $withExtension);
+
             if (preg_match($trailingDigit, $fileName, $matches)) {
                 // Convert "fname-1.jpg" to "fname-2.jpg"
                 $attempt = 1 + (int)$matches[1];
-                $newName = preg_replace($trailingDigit, "-{$attempt}.$ext", $fileName);
-                $fileName = basename($newName);
+                $newName = preg_replace(
+                    $trailingDigit,
+                    filename_put_ext("-{$attempt}", $ext),
+                    $newName
+                );
             } else {
                 if ($attempt) {
                     $name = rtrim($name, $attempt);
                     $name = rtrim($name, '-');
                 }
+
                 $attempt++;
-                $fileName = $name . '-' . $attempt . '.' . $ext;
+                $newName = filename_put_ext($name . '-' . $attempt, $ext);
             }
-            return $this->uniqueName($fileName, $targetPath, $attempt);
+
+            return $this->uniqueName($newName, $targetPath, $attempt);
         }
 
-        return $fileName;
+        return $newName;
     }
 
     /**
