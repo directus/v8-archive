@@ -131,7 +131,6 @@ class Files
         }
 
         if ($info) {
-            $info['upload_date'] = DateTimeUtils::nowInUTC()->toString();
             $info['storage_adapter'] = $this->getConfig('adapter');
             $info['charset'] = isset($info['charset']) ? $info['charset'] : '';
         }
@@ -258,7 +257,6 @@ class Files
         $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
         $fileData['filename'] = basename($filePath);
-        $fileData['upload_date'] = DateTimeUtils::nowInUTC()->toString();
         $fileData['storage_adapter'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
