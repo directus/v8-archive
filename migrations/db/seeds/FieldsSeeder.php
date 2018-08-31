@@ -148,13 +148,20 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_collections',
                 'field' => 'translation',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'JSON'
+                'interface' => 'code',
+                'options' => '{ "language": "application/json" }',
             ],
             [
                 'collection' => 'directus_collections',
                 'field' => 'note',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
                 'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_collections',
+                'field' => 'icon',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'interface' => 'icon'
             ],
             // Collection Presets
             [
