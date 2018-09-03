@@ -1,18 +1,18 @@
 <template>
   <div class="interface-map">
-    <div :class="['map',{'map-readonly':readonly}]">
-      <div 
-        class="map-container" 
-        id="directusMap" 
-        :style="{height:options.height+'px'}">
+    <div :class="{ 'map-readonly': readonly}" class="map">
+      <div
+        class="map-container"
+        id="directusMap"
+        :style="{ height: options.height + 'px'}">
       <!-- Map Renders Here -->
       </div>
 
       <div class="map-actions">
         <!-- TODO: Add Geo Search Here -->
-        <button 
+        <button
           v-if="isInteractive"
-          class="map-my-location" 
+          class="map-my-location"
           @click="locateMe()">
           <i class="material-icons">my_location</i>
         </button>
@@ -24,10 +24,10 @@
         <span v-if="latlng">Latitude: {{latlng.lat}}</span>
         <span v-if="latlng">Longitude: {{latlng.lng}}</span>
       </div>
-      <button 
-        v-if="isInteractive"
-        class="map-clear style-4" 
-        @click="setValue()">Clear</button>
+      <button
+        v-if="isInteractive && latlng"
+        class="map-clear style-4"
+        @click="setValue()">{{ $t('clear') }}</button>
     </div>
   </div>
 </template>
