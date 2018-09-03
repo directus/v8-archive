@@ -1,0 +1,13 @@
+{
+  "name": "$t:translation",
+  "version": "1.0.0",
+  "datatypes": {
+    "m2o": null
+  },
+  "options": {},
+  "translation": {
+    "en-US": {
+      "translation": "Translation"
+    }
+  }
+}
