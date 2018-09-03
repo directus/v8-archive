@@ -211,7 +211,7 @@ class ItemsService extends AbstractService
     public function batchUpdate($collection, array $items, array $params = [])
     {
         if (!isset($items[0]) || !is_array($items[0])) {
-            throw new InvalidRequestException('batch create expect an array of items');
+            throw new InvalidRequestException('batch update expect an array of items');
         }
 
         foreach ($items as $data) {
@@ -248,7 +248,7 @@ class ItemsService extends AbstractService
      */
     public function batchUpdateWithIds($collection, array $ids, array $payload, array $params = [])
     {
-        $this->enforceCreatePermissions($collection, $payload, $params);
+        $this->enforceUpdatePermissions($collection, $payload, $params);
         $this->validatePayload($collection, array_keys($payload), $payload, $params);
 
         $allItems = [];

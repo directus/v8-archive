@@ -1709,15 +1709,17 @@ class BaseTableGateway extends TableGateway
             $Files = static::$container->get('files');
 
             $updateArray = [];
-            if ($Files->getSettings('file_naming') == 'file_id') {
+            if ($Files->getSettings('file_naming') == 'id') {
+                // overwrite a file with this file content if it already exists
+                $replace = true;
                 $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
                 $fileId = $record[$this->primaryKeyFieldName];
-                $newFilename = $Files->uniqueName(str_pad(
+                $newFilename = str_pad(
                     $fileId,
                     11,
                     '0',
                     STR_PAD_LEFT
-                ) . '.' . $ext);
+                ) . '.' . $ext;
 
                 $Files->rename(
                     $record['filename'],

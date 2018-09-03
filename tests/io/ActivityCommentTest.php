@@ -5,7 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Database\Connection;
 use Psr\Http\Message\ResponseInterface;
 
-class ActivityMessageTest extends \PHPUnit_Framework_TestCase
+class ActivityCommentTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var Connection
@@ -94,7 +94,7 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
         truncate_table(static::$db, 'directus_settings');
         reset_table_id(static::$db, 'directus_roles', 4);
         reset_table_id(static::$db, 'directus_users', 4);
-        reset_table_id(static::$db, 'directus_files', 2);
+        truncate_table(static::$db, 'directus_files');
         truncate_table(static::$db, 'directus_folders');
         $storagePath = __DIR__ . '/../../public/uploads/_/originals';
 
@@ -220,8 +220,8 @@ class ActivityMessageTest extends \PHPUnit_Framework_TestCase
             'data' => '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAB4AKADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAUH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AugILDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/9k='
         ];
         $this->create('files', $data, $error, $message);
-        $this->update('files/2', ['title' => 'Title test'], $error, $message);
-        $this->delete('files/2', $error, $message);
+        $this->update('files/1', ['title' => 'Title test'], $error, $message);
+        $this->delete('files/1', $error, $message);
     }
 
     protected function doFilesFolders($error = false, $message = null)

@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-08-24 17:24:54 +0000
+# Generation Time: 2018-09-03 13:39:20 +0000
 # ************************************************************
 
 
@@ -88,7 +88,6 @@ DROP TABLE IF EXISTS `directus_collections`;
 
 CREATE TABLE `directus_collections` (
   `collection` varchar(64) NOT NULL,
-  `item_name_template` varchar(255) DEFAULT NULL,
   `managed` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `hidden` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `single` tinyint(1) unsigned NOT NULL DEFAULT '0',
@@ -149,12 +148,12 @@ VALUES
 	(15,'directus_activity_seen','seen_on','datetime','datetime',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(16,'directus_activity_seen','archived','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(17,'directus_collections','collection','varchar','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(18,'directus_collections','item_name_template','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(19,'directus_collections','managed','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(20,'directus_collections','hidden','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(21,'directus_collections','single','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(22,'directus_collections','translation','json','JSON',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
-	(23,'directus_collections','note','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(18,'directus_collections','managed','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(19,'directus_collections','hidden','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(20,'directus_collections','single','boolean','toggle',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(21,'directus_collections','translation','json','code','{ \"language\": \"application/json\" }',0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(22,'directus_collections','note','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
+	(23,'directus_collections','icon','varchar','icon',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(24,'directus_collection_presets','id','int','primary-key',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(25,'directus_collection_presets','title','varchar','text-input',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
 	(26,'directus_collection_presets','user','int','user',NULL,0,NULL,0,0,NULL,4,NULL,0,NULL,0,NULL),
@@ -327,20 +326,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023144,'CreateActivitySeenTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023157,'CreateCollectionsTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023202,'CreateFieldsTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023208,'CreateFilesTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023213,'CreateFoldersTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023217,'CreateRolesTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023226,'CreatePermissionsTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023232,'CreateRelationsTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023238,'CreateRevisionsTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023243,'CreateSettingsTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180220023248,'CreateUsersTable','2018-08-24 17:23:56','2018-08-24 17:23:56',0),
-	(20180426173310,'CreateUserRoles','2018-08-24 17:23:56','2018-08-24 17:23:57',0);
+	(20180220023138,'CreateActivityTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023144,'CreateActivitySeenTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023157,'CreateCollectionsTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023202,'CreateFieldsTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023208,'CreateFilesTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023213,'CreateFoldersTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023217,'CreateRolesTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023226,'CreatePermissionsTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023232,'CreateRelationsTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023238,'CreateRevisionsTable','2018-09-03 13:22:08','2018-09-03 13:22:08',0),
+	(20180220023243,'CreateSettingsTable','2018-09-03 13:22:08','2018-09-03 13:22:09',0),
+	(20180220023248,'CreateUsersTable','2018-09-03 13:22:09','2018-09-03 13:22:09',0),
+	(20180426173310,'CreateUserRoles','2018-09-03 13:22:09','2018-09-03 13:22:09',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -545,7 +544,7 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `email_notifications`, `password`, `avatar`, `company`, `title`, `locale`, `high_contrast_mode`, `locale_options`, `timezone`, `last_access_on`, `last_page`, `token`, `external_id`)
 VALUES
-	(1,'active','Admin','User','admin@example.com',1,'$2y$10$gXrLtr8Jmn3MTTpVeQtnJuv3HCZxEQjIolEIHMvV2CaFyON/zObc2',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
+	(1,'active','Admin','User','admin@example.com',1,'$2y$10$VITqa8WVriXthvWGnsYzpe4lMclNsZavjm9X0aYALEdauabK01mmq',NULL,NULL,NULL,'en-US',0,NULL,'America/New_York',NULL,NULL,'admin_token',NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;

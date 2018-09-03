@@ -36,11 +36,6 @@ class CreateCollectionsTable extends AbstractMigration
             'limit' => 64,
             'null' => false
         ]);
-        $table->addColumn('item_name_template', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
         $table->addColumn('managed', 'boolean', [
             'signed' => false,
             'null' => false,

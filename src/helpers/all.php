@@ -18,6 +18,7 @@ require __DIR__ . '/extensions.php';
 require __DIR__ . '/file.php';
 require __DIR__ . '/items.php';
 require __DIR__ . '/mail.php';
+require __DIR__ . '/regex.php';
 require __DIR__ . '/server.php';
 require __DIR__ . '/settings.php';
 require __DIR__ . '/sorting.php';
