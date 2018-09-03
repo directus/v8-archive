@@ -363,10 +363,7 @@ export default {
       this.editExisting = false;
     },
     addNewItem() {
-      this.$emit("input", [
-        ...(this.value || []),
-        this.edits
-      ]);
+      this.$emit("input", [...(this.value || []), this.edits]);
 
       this.edits = {};
       this.addNew = false;
