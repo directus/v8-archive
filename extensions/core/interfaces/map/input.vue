@@ -35,7 +35,7 @@
 <script>
 import mixin from "../../../mixins/interface";
 import leaflet from "leaflet";
-import "leaflet/dist/leaflet.css";
+import "./leaflet.css";
 
 export default {
   name: "interface-map",
