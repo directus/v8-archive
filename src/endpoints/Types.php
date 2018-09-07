@@ -27,9 +27,9 @@ class Types extends Route
     public function all(Request $request, Response $response)
     {
         $responseData = [
-            'data' => array_map(function ($type) {
+            'data' => array_values(array_map(function ($type) {
                 return ['name' => $type];
-            }, DataTypes::getAllTypes())
+            }, DataTypes::getAllTypes()))
         ];
 
         return $this->responseWithData($request, $response, $responseData);
