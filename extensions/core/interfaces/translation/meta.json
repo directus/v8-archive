@@ -2,7 +2,7 @@
   "name": "$t:translation",
   "version": "1.0.0",
   "datatypes": {
-    "o2m": null
+    "O2M": null
   },
   "relation": "o2m",
   "options": {
@@ -18,7 +18,7 @@
       "options": {
         "placeholder": "code"
       }
-    },
+    }
   },
   "translation": {
     "en-US": {
@@ -27,7 +27,8 @@
       "languages_collection_comment": "What collection holds the languages you want to use?",
       "languages_primary": "Language Primary Key Field",
       "languages_primary_comment": "What field holds the language's primary key?",
-      "translation_not_setup": "Interface not configured correctly"
+      "translation_not_setup": "Interface not configured correctly",
+      "save_first": "You have to save this item before you can use translations"
     }
   }
 }
