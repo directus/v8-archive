@@ -18,10 +18,11 @@ export default {
   computed: {
     relatedFields() {
       if (!this.relation) return null;
-      return this.$store.state.collections[this.relation.collection_many].fields;
+      return this.$store.state.collections[this.relation.collection_many]
+        .fields;
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
