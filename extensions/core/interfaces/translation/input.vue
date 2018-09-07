@@ -1,5 +1,5 @@
 <template>
-  <div v-if="error" class="translation error">
+  <div v-if="error || !relation" class="translation error">
     <p><i class="material-icons">warning</i> {{ $t('interfaces-translation-translation_not_setup') }}</p>
   </div>
   <div v-else-if="activeLanguage" class="translation" :class="{ disabled: newItem }">
@@ -90,7 +90,7 @@ export default {
         .then(languages => {
           this.languages = languages;
           this.activeLanguage =
-            languages[languages.length - 1][
+            languages[0][
               this.$lodash.find(this.languageFields, {
                 primary_key: true
               }).field
