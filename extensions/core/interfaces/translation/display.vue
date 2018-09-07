@@ -8,6 +8,6 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin],
+  mixins: [mixin]
 };
 </script>

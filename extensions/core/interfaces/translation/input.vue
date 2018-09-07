@@ -38,7 +38,11 @@ export default {
   },
   computed: {
     error() {
-      if (!this.options.languagesCollection || !this.options.languagePrimaryKeyField) return true;
+      if (
+        !this.options.languagesCollection ||
+        !this.options.languagePrimaryKeyField
+      )
+        return true;
       return false;
     },
     primaryKeyField() {
@@ -53,7 +57,8 @@ export default {
     },
     languageFields() {
       if (!this.options.languagesCollection) return null;
-      return this.$store.state.collections[this.options.languagesCollection].fields;
+      return this.$store.state.collections[this.options.languagesCollection]
+        .fields;
     },
     langValue() {
       if (!this.languages || !this.activeLanguage) return {};
@@ -63,7 +68,10 @@ export default {
     },
     valuesByLang() {
       if (!this.value) return {};
-      return this.$lodash.keyBy(this.value, this.options.languagePrimaryKeyField);
+      return this.$lodash.keyBy(
+        this.value,
+        this.options.languagePrimaryKeyField
+      );
     }
   },
   created() {
@@ -71,12 +79,22 @@ export default {
   },
   methods: {
     fetchLanguages() {
-      if (!this.options.languagesCollection || !this.options.languagePrimaryKeyField) return null;
-      this.$api.getItems(this.options.languagesCollection, { limit: -1 })
+      if (
+        !this.options.languagesCollection ||
+        !this.options.languagePrimaryKeyField
+      )
+        return null;
+      this.$api
+        .getItems(this.options.languagesCollection, { limit: -1 })
         .then(res => res.data)
         .then(languages => {
           this.languages = languages;
-          this.activeLanguage = languages[languages.length - 1][this.$lodash.find(this.languageFields, { primary_key: true }).field];
+          this.activeLanguage =
+            languages[languages.length - 1][
+              this.$lodash.find(this.languageFields, {
+                primary_key: true
+              }).field
+            ];
         });
     },
     stageValue({ field, value }) {
@@ -91,19 +109,25 @@ export default {
         ]);
       }
 
-      return this.$emit("input", this.value.map(translation => {
-        if (translation[this.options.languagePrimaryKeyField] === this.activeLanguage) {
-          return {
-            ...translation,
-            [field]: value
-          };
-        }
+      return this.$emit(
+        "input",
+        this.value.map(translation => {
+          if (
+            translation[this.options.languagePrimaryKeyField] ===
+            this.activeLanguage
+          ) {
+            return {
+              ...translation,
+              [field]: value
+            };
+          }
 
-        return translation;
-      }));
+          return translation;
+        })
+      );
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
