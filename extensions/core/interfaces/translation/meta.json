@@ -2,7 +2,7 @@
   "name": "$t:translation",
   "version": "1.0.0",
   "datatypes": {
-    "O2M": null
+    "TRANSLATION": null
   },
   "relation": "o2m",
   "options": {
