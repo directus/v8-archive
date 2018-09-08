@@ -33,6 +33,14 @@
           ]
         }
       }
+    },
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:template_placeholder"
+      }
     }
   },
   "translation": {
@@ -42,7 +50,10 @@
       "visible_columns_comment": "Add a CSV of columns you want to display as preview",
       "preferences": "Listing View Preferences",
       "preferences_comment": "Set what options to use for the modal",
-      "relation_not_setup": "The relationship hasn't been configured correctly"
+      "relation_not_setup": "The relationship hasn't been configured correctly",
+      "template": "Display Template",
+      "template_comment": "Choose how to display values on the item layouts",
+      "template_placeholder": "{{movie.name}} — {{member.first_name}}"
     }
   }
 }
