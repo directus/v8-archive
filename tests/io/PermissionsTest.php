@@ -6,6 +6,7 @@ use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Permissions\Acl;
 use Directus\Permissions\Exception\ForbiddenCollectionCreateException;
 use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
+use Directus\Permissions\Exception\ForbiddenCollectionReadException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
 
 class PermissionsTest extends \PHPUnit_Framework_TestCase
@@ -925,6 +926,31 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'data' => 'array'
         ]);
         assert_response_data_fields($this, $response, ['id', 'title']);
+    }
+
+    public function testPublicList()
+    {
+        $response = request_error_get('items/products');
+        assert_response_error($this, $response, [
+            'status' => 403,
+            'code' => ForbiddenCollectionReadException::ERROR_CODE
+        ]);
+
+        $data = [
+            'role' => 2,
+            'collection' => 'products',
+            'read' => Acl::LEVEL_FULL,
+        ];
+
+        $response = request_post('permissions', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, array_merge(['id' => 2], $data));
+
+        $response = request_get('items/products');
+        assert_response($this, $response, [
+            'public' => true,
+            'data' => 'array'
+        ]);
     }
 
     protected function addPermissionTo($group, $collection, array $data)

@@ -34,21 +34,26 @@ class AuthenticationMiddleware extends AbstractMiddleware
             throw new UserNotAuthenticatedException();
         }
 
+        /** @var Acl $acl */
+        $acl = $this->container->get('acl');
+        $dbConnection = $this->container->get('database');
+        $permissionsTable = new DirectusPermissionsTableGateway($dbConnection, null);
+
         if (!$user && $publicRoleId) {
             // NOTE: 0 will not represent a "guest" or the "public" user
             // To prevent the issue where user column on activity table can't be null
             $user = new User([
                 'id' => 0
             ]);
+
+            $acl->setPublic(true);
+
+            $permissionsByCollection = $permissionsTable->getRolePermissions($publicRoleId);
+        } else {
+            $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());
         }
 
-        $dbConnection = $this->container->get('database');
-        $permissionsTable = new DirectusPermissionsTableGateway($dbConnection, null);
-        $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());
         $rolesIpWhitelist = $this->getRolesIPWhitelist();
-
-        /** @var Acl $acl */
-        $acl = $this->container->get('acl');
         $acl->setPermissions($permissionsByCollection);
         $acl->setRolesIpWhitelist($rolesIpWhitelist);
 
@@ -62,9 +67,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
         $acl->setUserId($user->getId());
         $acl->setUserEmail($user->getEmail());
         $acl->setUserFullName($user->get('first_name') . ' ' . $user->get('last_name'));
-        if (!$user && $publicRoleId) {
-            $acl->setPublic($publicRoleId);
-        }
 
         $hookEmitter = $this->container->get('hook_emitter');
         $hookEmitter->run('directus.authenticated', [$user]);
