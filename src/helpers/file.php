@@ -186,12 +186,31 @@ if (!function_exists('get_thumbnail_path'))
      */
     function get_thumbnail_path($name, $width, $height, $mode = 'crop', $quality = 'good')
     {
-        $env = get_api_env_from_request();
+        $projectName = get_api_project_from_request();
 
         // env/width/height/mode/quality/name
         return sprintf(
             '/thumbnail/%s/%d/%d/%s/%s/%s',
-            $env, $width, $height, $mode, $quality, $name
+            $projectName, $width, $height, $mode, $quality, $name
         );
+    }
+}
+
+if (!function_exists('filename_put_ext')) {
+    /**
+     * Appends an extension to a filename
+     *
+     * @param string $name
+     * @param string|null $ext
+     *
+     * @return string
+     */
+    function filename_put_ext($name, $ext = null)
+    {
+        if ($ext) {
+            $name = sprintf('%s.%s', $name, $ext);
+        }
+
+        return $name;
     }
 }

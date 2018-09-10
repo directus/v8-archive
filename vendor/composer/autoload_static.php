@@ -4,15 +4,15 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5634c9d72c9475c369d7addedaa0891c
+class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
-        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
+        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
         '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
@@ -220,9 +220,9 @@ class ComposerStaticInit5634c9d72c9475c369d7addedaa0891c
         'League\\OAuth2\\Client\\' => 
         array (
             0 => __DIR__ . '/..' . '/league/oauth2-client/src',
-            1 => __DIR__ . '/..' . '/league/oauth2-facebook/src',
-            2 => __DIR__ . '/..' . '/league/oauth2-github/src',
-            3 => __DIR__ . '/..' . '/league/oauth2-google/src',
+            1 => __DIR__ . '/..' . '/league/oauth2-github/src',
+            2 => __DIR__ . '/..' . '/league/oauth2-google/src',
+            3 => __DIR__ . '/..' . '/league/oauth2-facebook/src',
         ),
         'League\\OAuth1\\' => 
         array (
@@ -582,6 +582,7 @@ class ComposerStaticInit5634c9d72c9475c369d7addedaa0891c
         'Directus\\Embed\\Provider\\YoutubeProvider' => __DIR__ . '/../..' . '/src/core/Directus/Embed/Provider/YoutubeProvider.php',
         'Directus\\Exception\\BadRequestException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/BadRequestException.php',
         'Directus\\Exception\\BadRequestExceptionInterface' => __DIR__ . '/../..' . '/src/core/Directus/Exception/BadRequestExceptionInterface.php',
+        'Directus\\Exception\\BatchUploadNotAllowedException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/BatchUploadNotAllowedException.php',
         'Directus\\Exception\\ConflictExceptionInterface' => __DIR__ . '/../..' . '/src/core/Directus/Exception/ConflictExceptionInterface.php',
         'Directus\\Exception\\ErrorException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/ErrorException.php',
         'Directus\\Exception\\ErrorExceptionInterface' => __DIR__ . '/../..' . '/src/core/Directus/Exception/ErrorExceptionInterface.php',
@@ -591,16 +592,19 @@ class ComposerStaticInit5634c9d72c9475c369d7addedaa0891c
         'Directus\\Exception\\Http\\Auth\\ForbiddenException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/Http/Auth/ForbiddenException.php',
         'Directus\\Exception\\Http\\BadRequestException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/Http/BadRequestException.php',
         'Directus\\Exception\\Http\\NotFoundException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/Http/NotFoundException.php',
+        'Directus\\Exception\\InvalidConfigPathException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/InvalidConfigPathException.php',
         'Directus\\Exception\\InvalidPathException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/InvalidPathException.php',
         'Directus\\Exception\\InvalidPayloadException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/InvalidPayloadException.php',
         'Directus\\Exception\\MethodNotAllowedException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/MethodNotAllowedException.php',
         'Directus\\Exception\\NotFoundException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/NotFoundException.php',
         'Directus\\Exception\\NotFoundExceptionInterface' => __DIR__ . '/../..' . '/src/core/Directus/Exception/NotFoundExceptionInterface.php',
         'Directus\\Exception\\NotInstalledException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/NotInstalledException.php',
+        'Directus\\Exception\\ProjectAlreadyExistException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/ProjectAlreadyExistException.php',
         'Directus\\Exception\\RuntimeException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/RuntimeException.php',
         'Directus\\Exception\\ServiceUnavailableInterface' => __DIR__ . '/../..' . '/src/core/Directus/Exception/ServiceUnavailableInterface.php',
         'Directus\\Exception\\UnauthorizedException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/UnauthorizedException.php',
         'Directus\\Exception\\UnauthorizedExceptionInterface' => __DIR__ . '/../..' . '/src/core/Directus/Exception/UnauthorizedExceptionInterface.php',
+        'Directus\\Exception\\UnauthorizedLocationException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/UnauthorizedLocationException.php',
         'Directus\\Exception\\UnprocessableEntityException' => __DIR__ . '/../..' . '/src/core/Directus/Exception/UnprocessableEntityException.php',
         'Directus\\Exception\\UnprocessableEntityExceptionInterface' => __DIR__ . '/../..' . '/src/core/Directus/Exception/UnprocessableEntityExceptionInterface.php',
         'Directus\\Filesystem\\Exception\\FailedUploadException' => __DIR__ . '/../..' . '/src/core/Directus/Filesystem/Exception/FailedUploadException.php',
@@ -697,6 +701,7 @@ class ComposerStaticInit5634c9d72c9475c369d7addedaa0891c
         'Doctrine\\Common\\Cache\\CacheProvider' => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache/CacheProvider.php',
         'Doctrine\\Common\\Cache\\ChainCache' => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache/ChainCache.php',
         'Doctrine\\Common\\Cache\\ClearableCache' => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache/ClearableCache.php',
+        'Doctrine\\Common\\Cache\\CouchbaseBucketCache' => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache/CouchbaseBucketCache.php',
         'Doctrine\\Common\\Cache\\CouchbaseCache' => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache/CouchbaseCache.php',
         'Doctrine\\Common\\Cache\\ExtMongoDBCache' => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache/ExtMongoDBCache.php',
         'Doctrine\\Common\\Cache\\FileCache' => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache/FileCache.php',
@@ -2957,10 +2962,10 @@ class ComposerStaticInit5634c9d72c9475c369d7addedaa0891c
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit5634c9d72c9475c369d7addedaa0891c::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit5634c9d72c9475c369d7addedaa0891c::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit5634c9d72c9475c369d7addedaa0891c::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit5634c9d72c9475c369d7addedaa0891c::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92::$classMap;
 
         }, null, ClassLoader::class);
     }

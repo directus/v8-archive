@@ -503,7 +503,7 @@ class ScimService extends AbstractService
         $firstName = ArrayUtils::get($data, 'first_name');
         $lastName = ArrayUtils::get($data, 'last_name');
         $location = \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_user', [
-            'env' => \Directus\get_api_env_from_request(),
+            'project' => \Directus\get_api_project_from_request(),
             'id' => $externalId
         ]));
 
@@ -556,7 +556,7 @@ class ScimService extends AbstractService
         // $firstName = ArrayUtils::get($data, 'first_name');
         // $lastName = ArrayUtils::get($data, 'last_name');
         $location = \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_group', [
-            'env' => \Directus\get_api_env_from_request(),
+            'project' => \Directus\get_api_project_from_request(),
             'id' => $externalId
         ]));
 
@@ -575,7 +575,7 @@ class ScimService extends AbstractService
             return [
                 'value' => ArrayUtils::get($user, 'email'),
                 '$ref' => \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_user', [
-                    'env' => \Directus\get_api_env_from_request(),
+                    'project' => \Directus\get_api_project_from_request(),
                     'id' => ArrayUtils::get($user, 'id')
                 ])),
                 'display' => sprintf(

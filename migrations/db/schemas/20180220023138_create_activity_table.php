@@ -34,13 +34,13 @@ class CreateActivityTable extends AbstractMigration
             'null' => false
         ]);
 
-        $table->addColumn('user', 'integer', [
+        $table->addColumn('action_by', 'integer', [
             'signed' => false,
             'null' => false,
             'default' => 0
         ]);
 
-        $table->addColumn('datetime', 'datetime', [
+        $table->addColumn('action_on', 'datetime', [
             'default' => null
         ]);
 
@@ -62,7 +62,7 @@ class CreateActivityTable extends AbstractMigration
             'limit' => 255
         ]);
 
-        $table->addColumn('datetime_edited', 'datetime', [
+        $table->addColumn('edited_on', 'datetime', [
             'null' => true,
             'default' => null
         ]);
@@ -71,10 +71,9 @@ class CreateActivityTable extends AbstractMigration
             'null' => true
         ]);
 
-        $table->addColumn('deleted_comment', 'boolean', [
-            'signed' => false,
+        $table->addColumn('comment_deleted_on', 'datetime', [
             'null' => true,
-            'default' => false
+            'default' => null
         ]);
 
         $table->create();

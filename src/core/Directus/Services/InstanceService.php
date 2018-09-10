@@ -3,6 +3,8 @@
 namespace Directus\Services;
 
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\InvalidConfigPathException;
+use Directus\Exception\ProjectAlreadyExistException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
 
@@ -17,7 +19,7 @@ class InstanceService extends AbstractService
         $data = ArrayUtils::defaults(['user_token' => null], $data);
 
         $this->validate($data, [
-            'env' => 'string',
+            'project' => 'string|regex:/^[a-z_-]+$/i',
 
             'force' => 'bool',
 
@@ -36,17 +38,27 @@ class InstanceService extends AbstractService
             'user_token' => 'string'
         ]);
 
-        $force = ArrayUtils::pull($data, 'force', false);
-        $env = ArrayUtils::get($data, 'env', '_');
         $basePath = $this->container->get('path_base');
+        $force = ArrayUtils::pull($data, 'force', false);
+        $projectName = ArrayUtils::pull($data, 'project');
+        if (empty($projectName)) {
+            $projectName = '_';
+        }
 
-        InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
+        $data['project'] = $projectName;
+
+        try {
+         InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
+        } catch (InvalidConfigPathException $e) {
+            throw new ProjectAlreadyExistException($projectName);
+        }
+
         InstallerUtils::ensureCanCreateTables($basePath, $data, $force);
 
         InstallerUtils::createConfig($basePath, $data, $force);
-        InstallerUtils::createTables($basePath, $env, $force);
-        InstallerUtils::addDefaultSettings($basePath, $data, $env);
-        InstallerUtils::addDefaultUser($basePath, $data, $env);
+        InstallerUtils::createTables($basePath, $projectName, $force);
+        InstallerUtils::addDefaultSettings($basePath, $data, $projectName);
+        InstallerUtils::addDefaultUser($basePath, $data, $projectName);
     }
 
     /**

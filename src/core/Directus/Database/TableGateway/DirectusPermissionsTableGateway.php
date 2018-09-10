@@ -50,7 +50,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
             ['ur' => $subSelect],
             'p.role = ur.role',
             [
-                'user_role' => 'role'
+                'role'
             ],
             $select::JOIN_RIGHT
         );
@@ -60,6 +60,22 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $statement = $this->sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
+        return $this->parsePermissions($result);
+    }
+
+    public function getRolePermissions($roleId)
+    {
+        $select = new Select($this->table);
+        $select->where->equalTo('role', $roleId);
+
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+
+        return $this->parsePermissions($result);
+    }
+
+    protected function parsePermissions($result)
+    {
         $permissionsByCollection = [];
         foreach ($result as $permission) {
             foreach ($permission as $field => &$value) {
@@ -68,7 +84,6 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
                 }
             }
 
-            ArrayUtils::rename($permission, 'user_role', 'role');
             $permissionsByCollection[$permission['collection']][] = $this->parseRecord($permission);
         }
 

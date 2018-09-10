@@ -17,16 +17,16 @@ class RelationsSeeder extends AbstractSeed
         $data = [
             [
                 'collection_many' => 'directus_activity',
+                'field_many' => 'action_by',
+                'collection_one' => 'directus_users'
+            ],
+            [
+                'collection_many' => 'directus_activity_seen',
                 'field_many' => 'user',
                 'collection_one' => 'directus_users'
             ],
             [
-                'collection_many' => 'directus_activity_read',
-                'field_many' => 'user',
-                'collection_one' => 'directus_users'
-            ],
-            [
-                'collection_many' => 'directus_activity_read',
+                'collection_many' => 'directus_activity_seen',
                 'field_many' => 'activity',
                 'collection_one' => 'directus_activity'
             ],
@@ -42,7 +42,7 @@ class RelationsSeeder extends AbstractSeed
             ],
             [
                 'collection_many' => 'directus_files',
-                'field_many' => 'upload_user',
+                'field_many' => 'uploaded_by',
                 'collection_one' => 'directus_users'
             ],
             [

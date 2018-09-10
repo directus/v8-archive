@@ -94,8 +94,8 @@ class InstallModule extends ModuleBase
                 case 'c':
                     $data['cors_enabled'] = (bool) $value;
                     break;
-                case 'E':
-                    $data['env'] = (string) $value;
+                case 'N': // project Name
+                    $data['project'] = (string) $value;
                     break;
             }
         }
@@ -111,20 +111,20 @@ class InstallModule extends ModuleBase
     public function cmdDatabase($args, $extra)
     {
         $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
-        $env = null;
+        $projectName = null;
 
         foreach ($args as $key => $value) {
             switch ($key) {
                 case 'd':
                     $directus_path = $value;
                     break;
-                case 'E':
-                    $env = $value;
+                case 'N':
+                    $projectName = $value;
                     break;
             }
         }
 
-        InstallerUtils::createTables($directus_path, $env);
+        InstallerUtils::createTables($directus_path, $projectName);
     }
 
     public function cmdMigrate($args, $extra)
@@ -144,7 +144,7 @@ class InstallModule extends ModuleBase
     public function cmdInstall($args, $extra)
     {
         $data = [];
-        $env = null;
+        $projectName = null;
         $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
 
         foreach ($args as $key => $value) {
@@ -164,18 +164,18 @@ class InstallModule extends ModuleBase
                 case 'd':
                     $directus_path = $value;
                     break;
-                case 'E':
-                    $env = $value;
+                case 'N':
+                    $projectName = $value;
                     break;
             }
         }
 
         try {
-            $setting = new Setting($directus_path, $env);
+            $setting = new Setting($directus_path, $projectName);
 
             if (!$setting->isConfigured()) {
-                InstallerUtils::addDefaultSettings($directus_path, $data, $env);
-                InstallerUtils::addDefaultUser($directus_path, $data, $env);
+                InstallerUtils::addDefaultSettings($directus_path, $data, $projectName);
+                InstallerUtils::addDefaultUser($directus_path, $data, $projectName);
             } else {
                 $setting->setSetting('global', 'project_name', $data['directus_name']);
                  // NOTE: Do we really want to change the email when re-run install command?

@@ -13,14 +13,14 @@ class Setting
     private $db;
     private $settingsTableGateway;
 
-    public function __construct($base_path, $env = null)
+    public function __construct($base_path, $projectName = null)
     {
         if ($base_path == null) {
             $base_path = \Directus\base_path();
         }
 
         $this->directus_path = $base_path;
-        $configPath = InstallerUtils::createConfigPath($this->directus_path, $env);
+        $configPath = InstallerUtils::createConfigPath($this->directus_path, $projectName);
         $app = new Application($base_path, require $configPath);
         $this->db = $app->getContainer()->get('database');
 
