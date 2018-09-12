@@ -1,3 +1,60 @@
+
+/* Until we figure out why the controls are hidden */
+/* .leaflet-control-attribution {
+  pointer-events: none;
+} */
+
+.leaflet-map-pane {
+	z-index: -1 !important;
+}
+
+.leaflet-control-container {
+	z-index: 1;
+}
+
+.leaflet-control-attribution {
+	position: absolute;
+	right: 4px;
+	bottom: 4px;
+	color: var(--light-gray);
+}
+
+.leaflet-control-zoom {
+	position: absolute;
+	left: 20px;
+	top: 70px;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	display: block;
+	transition: var(--fast) var(--transition) color;
+	height: 40px;
+	width: 40px;
+	color: var(--light-gray);
+	box-shadow: var(--box-shadow);
+	background: #fff;
+	text-decoration: none;
+	font-size: 24px;
+	font-weight: 300;
+	padding: 4px;
+	text-align: center;
+}
+
+.leaflet-control-zoom-in:hover,
+.leaflet-control-zoom-out:hover {
+	color: var(--accent);
+}
+
+.leaflet-control-zoom-in {
+	border-radius: var(--border-radius) var(--border-radius) 0 0;
+	border-bottom: 1px solid var(--lightest-gray);
+}
+
+.leaflet-control-zoom-out {
+	border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
 /* required styles */
 
 .leaflet-pane,

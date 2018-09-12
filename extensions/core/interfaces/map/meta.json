@@ -9,25 +9,25 @@
     "height": {
       "name": "$t:height",
       "interface": "text-input",
-      "default": 200
+      "default": 400
     },
     "mapLat": {
       "name": "$t:map_lat",
       "comment": "$t:map_lat_comment",
       "interface": "text-input",
-      "default": 51.505
+      "default": 40.72803624
     },
     "mapLng": {
       "name": "$t:map_lng",
       "comment": "$t:map_lng_comment",
       "interface": "text-input",
-      "default": -0.09
+      "default": -73.948963880
     },
     "defaultZoom": {
       "name": "$t:default_zoom",
       "comment": "$t:default_zoom_comment",
       "interface": "text-input",
-      "default": 13
+      "default": 12
     },
     "maxZoom": {
       "name": "$t:max_zoom",
@@ -40,16 +40,16 @@
       "comment": "$t:theme_comment",
       "interface": "button-group",
       "type": "JSON",
-      "default": "http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
+      "default": "https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
       "options": {
         "choices": [
           {
-            "label": "Greyscale",
-            "value": "http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png"
+            "label": "Grayscale",
+            "value": "https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png"
           },
           {
-            "label": "Colored",
-            "value": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            "label": "Color",
+            "value": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
           }
         ]
       }

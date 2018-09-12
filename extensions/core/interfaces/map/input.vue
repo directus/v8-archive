@@ -20,13 +20,13 @@
     </div>
 
     <div class="map-details">
-      <div class="map-location style-4">
-        <span v-if="latlng">Latitude: {{latlng.lat}}</span>
-        <span v-if="latlng">Longitude: {{latlng.lng}}</span>
+      <div class="map-location">
+        <span v-if="latlng">Latitude: <b>{{latlng.lat}}</b></span>
+        <span v-if="latlng">Longitude: <b>{{latlng.lng}}</b></span>
       </div>
       <button
         v-if="isInteractive && latlng"
-        class="map-clear style-4"
+        class="map-clear"
         @click="setValue()">{{ $t('clear') }}</button>
     </div>
   </div>
@@ -120,7 +120,7 @@ export default {
         center: latlng,
         zoom: this.options.defaultZoom,
         maxZoom: this.options.maxZoom,
-        zoomControl: false
+        zoomControl: true
       });
 
       /**
@@ -131,7 +131,7 @@ export default {
       leaflet
         .tileLayer(this.options.theme, {
           attribution:
-            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            '&copy; <a href="https://carto.com/">Carto</a>'
         })
         .addTo(this.map);
 
@@ -306,15 +306,17 @@ export default {
   left: 20px;
   z-index: 2;
 }
+
 .map-my-location {
+  transition: var(--fast) var(--transition) color;
   height: 40px;
   width: 40px;
   border-radius: var(--border-radius);
-  color: var(--accent);
+  color: var(--light-gray);
   box-shadow: var(--box-shadow);
   background: #fff;
   &:hover {
-    box-shadow: var(--box-shadow-accent);
+    color: var(--accent);
   }
 }
 
@@ -322,18 +324,23 @@ export default {
   display: flex;
   margin-top: 4px;
   justify-content: space-between;
+  height: 18px;
 }
+
 .map-location {
   span {
+    color: var(--light-gray);
     text-transform: initial;
     margin-right: 20px;
     font-style: italic;
   }
 }
+
 .map-clear {
   text-transform: initial;
   color: var(--accent);
   font-style: italic;
+  padding-right: 2px; // To avoid cropping
 }
 
 //Read Only Map
