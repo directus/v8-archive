@@ -9,13 +9,13 @@
     "style": {
       "name": "$t:style-name",
       "comment": "$t:style-comment",
-      "default": "text-small",
+      "default": "small",
       "interface": "dropdown",
       "options": {
         "choices": {
-          "text-small": "Small",
-          "standard": "Fullwidth",
-          "basic": "Basic"
+          "small": "Small",
+          "medium": "Medium",
+          "large": "Large"
         }
       }
     },
@@ -23,13 +23,20 @@
       "name": "$t:input-name",
       "comment": "$t:input-comment",
       "interface": "text-input",
-      "default": "A title"
+      "default": "A Section Title"
     },
     "description": {
       "name": "$t:desc-name",
       "comment": "$t:desc-comment",
       "interface": "text-input",
-      "default": "A description"
+      "default": "An optional description of this divider or section"
+    },
+    "hr": {
+      "name": "$t:hr-name",
+      "comment": "$t:hr-comment",
+      "interface": "toggle",
+      "type": "BOOLEAN",
+      "default": true
     }
   },
   "translation": {
@@ -42,7 +49,9 @@
       "input-name": "Divider text",
       "input-comment": "Type your text here",
       "desc-name": "Divider description",
-      "desc-comment": "Add here a description"
+      "desc-comment": "Add here a description",
+      "hr-name": "HR",
+      "hr-comment": "Display a horizontal rule?"
     }
   }
 }
