@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "noDisplay": true,
   "datatypes": {
-    "VARCHAR": 30
+    "ALIAS": null
   },
   "options": {
     "style": {
