@@ -55,12 +55,14 @@ export default {
 
 <style lang="scss" scoped>
 .interface-color-picker {
+  position: relative;
   --swatch-size: 20px;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
   height: calc(var(--swatch-size) * 11);
-  width: var(--swatch-size);
+  width: calc(var(--swatch-size) * 18);
+  margin-bottom: var(--swatch-size);
 
   button {
     flex-basis: var(--swatch-size);
@@ -90,6 +92,11 @@ export default {
     &:nth-last-child(1) {
       flex-grow: 1;
 
+      position: absolute;
+      left: 50%;
+      top: calc(var(--swatch-size) * 11);
+      width: 50%;
+
       &:hover {
         transform: scale(1.1);
       }
@@ -97,6 +104,12 @@ export default {
 
     &:nth-last-child(2) {
       flex-grow: 1;
+      border: 1px solid var(--lightest-gray);
+
+      position: absolute;
+      left: 0;
+      top: calc(var(--swatch-size) * 11);
+      width: 50%;
 
       &:hover {
         transform: scale(1.1);
