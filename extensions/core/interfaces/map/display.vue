@@ -3,7 +3,7 @@
     <i
       v-tooltip="location"
       :class="value?'':'empty'"
-      class="material-icons">my_location</i>
+      class="material-icons">place</i>
   </div>
 </template>
 
@@ -39,8 +39,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.empty {
-  color: var(--lighter-gray);
+i {
+  cursor: help;
+  &.empty {
+    color: var(--lighter-gray);
+  }
 }
 </style>
 
