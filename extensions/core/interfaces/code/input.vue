@@ -164,7 +164,7 @@ small {
   bottom: -20px;
   font-style: italic;
   text-align: right;
-  color: var(--gray);
+  color: var(--light-gray);
 }
 
 button {
