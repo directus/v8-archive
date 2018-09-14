@@ -264,7 +264,15 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         ];
 
         $response = request_get('fields/' . static::$tableName . '/name', $this->queryParams);
-        assert_response($this, $response);
+        assert_response($this, $response, [
+            'datatype',
+            'default_value',
+            'auto_increment',
+            'primary_key',
+            'unique',
+            'signed',
+            'length',
+        ]);
         assert_response_data_contains($this, $response, $data);
         $this->assertTrue(column_exists(static::$db, static::$tableName, 'name'));
     }

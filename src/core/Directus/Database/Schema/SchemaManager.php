@@ -559,6 +559,24 @@ class SchemaManager
             $column['default_value'] = null;
         }
 
+        $castAttributesToBool = function (&$array, array $keys) {
+            foreach ($keys as $key) {
+                $array[$key] = (bool) ArrayUtils::get($array, $key);
+            }
+        };
+
+        $castAttributesToBool($column, [
+            'auto_increment',
+            'unique',
+            'managed',
+            'primary_key',
+            'signed',
+            'hidden_input',
+            'hidden_list',
+            'required',
+            'nullable',
+        ]);
+
         return new Field($column);
     }
 
