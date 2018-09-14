@@ -977,4 +977,132 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $news->translations);
         $this->assertCount(0, $news->translations);
     }
+
+    public function testWithRelationAndParams()
+    {
+        $path = 'items/products';
+        $data = [
+            'status' => 1,
+            'name' => 'Test',
+            'price' => 9999.99,
+            'category_id' => [
+                'name' => 'Premium Cat'
+            ]
+        ];
+
+        $testM2O = function ($response, $data) {
+            assert_response($this, $response);
+            $responseDataObject = response_get_data($response);
+            $this->assertInternalType('object', $responseDataObject);
+            $responseDataArray = (array) $responseDataObject;
+
+            unset($data['price']);
+            $categoryId = ArrayUtils::pull($data, 'category_id');
+            $this->assertArrayHasKey('category_id', $responseDataArray);
+            $category = ArrayUtils::pull($responseDataArray, 'category_id');
+            foreach ($data as $key => $value) {
+                $this->assertSame($value, $responseDataArray[$key]);
+            }
+
+            $this->assertInternalType('object', $category);
+            $this->assertSame($category->name, $categoryId['name']);
+        };
+
+        $response = request_post($path, $data, ['query' => ['fields' => '*.*', 'access_token' => 'token']]);
+        $testM2O($response, $data);
+        $id = response_get_data($response)->id;
+
+        $response = request_get('items/products/' . $id, ['access_token' => 'token', 'fields' => '*, category_id.*']);
+        $testM2O($response, $data);
+
+        $newData = ['name' => 'Test 2'];
+        $response = request_patch('items/products/' . $id, $newData, ['query' => ['fields' => '*.*', 'access_token' => 'token']]);
+        $testM2O($response, array_merge($data, $newData));
+
+        // TEST O2M
+        $path = 'items/categories';
+        $data = [
+            'name' => 'New Category',
+            'products' => [[
+                'status' => 1,
+                'name' => 'New Product',
+                'price' => 100
+            ]]
+        ];
+
+        $testO2M = function ($response, $data) {
+            assert_response($this, $response);
+            $responseDataObject = response_get_data($response);
+            $this->assertInternalType('object', $responseDataObject);
+            $responseDataArray = (array) $responseDataObject;
+
+            $this->assertArrayHasKey('products', $responseDataArray);
+            $products = ArrayUtils::pull($responseDataArray, 'products');
+            $productsRelated = ArrayUtils::pull($data, 'products');
+            foreach ($data as $key => $value) {
+                $this->assertSame($value, $responseDataArray[$key]);
+            }
+
+            $this->assertInternalType('array', $products);
+            $this->assertSame($products[0]->name, $productsRelated[0]['name']);
+        };
+
+        $response = request_post($path, $data, ['query' => ['access_token' => 'token', 'fields' => '*, products.*']]);
+        $testO2M($response, $data);
+        $id = response_get_data($response)->id;
+
+        $response = request_get('items/categories/' . $id, ['access_token' => 'token', 'fields' => '*, products.*']);
+        $testO2M($response, $data);
+
+        $newData = ['name' => 'New Category 2'];
+        $response = request_patch('items/categories/' . $id, $newData, ['query' => ['fields' => '*, products.*', 'access_token' => 'token']]);
+        $testO2M($response, array_merge($data, $newData));
+
+        // TEST M2M
+        $path = 'items/products';
+        $data = [
+            'status' => 1,
+            'name' => 'Limited Product',
+            'price' => 1010.01,
+            'images' => [
+                [
+                    'file_id' => [
+                        'filename' => 'potato.jpg',
+                        'title' => 'Image of a fake potato',
+                        'data' => '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAB4AKADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAUH/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AugILDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/9k='
+                    ]
+                ]
+            ]
+        ];
+
+        $testM2M = function ($response, $data) {
+            assert_response($this, $response);
+
+            $responseDataObject = response_get_data($response);
+            $this->assertInternalType('object', $responseDataObject);
+            $responseDataArray = (array) $responseDataObject;
+
+            $this->assertArrayHasKey('images', $responseDataArray);
+            $images = ArrayUtils::pull($responseDataArray, 'images');
+            $imagesRelated = ArrayUtils::pull($data, 'images');
+            unset($data['price']);
+            foreach ($data as $key => $value) {
+                $this->assertSame($value, $responseDataArray[$key]);
+            }
+
+            $this->assertInternalType('array', $images);
+            $this->assertSame($images[0]->file_id->title, $imagesRelated[0]['file_id']['title']);
+        };
+
+        $response = request_post($path, $data, ['query' => ['fields' => '*, images.*.*', 'access_token' => 'token']]);
+        $testM2M($response, $data);
+        $id = response_get_data($response)->id;
+
+        $response = request_get('items/products/' .  $id, ['access_token' => 'token', 'fields' => '*, images.*.*']);
+        $testM2M($response, $data);
+
+        $newData = ['name' => 'Limited Product 2'];
+        $response = request_patch('items/products/' . $id, $newData, ['query' => ['fields' => '*, images.*.*', 'access_token' => 'token']]);
+        $testM2M($response, array_merge($data, $newData));
+    }
 }
