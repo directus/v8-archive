@@ -195,3 +195,22 @@ if (!function_exists('get_thumbnail_path'))
         );
     }
 }
+
+if (!function_exists('filename_put_ext')) {
+    /**
+     * Appends an extension to a filename
+     *
+     * @param string $name
+     * @param string|null $ext
+     *
+     * @return string
+     */
+    function filename_put_ext($name, $ext = null)
+    {
+        if ($ext) {
+            $name = sprintf('%s.%s', $name, $ext);
+        }
+
+        return $name;
+    }
+}

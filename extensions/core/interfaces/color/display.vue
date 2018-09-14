@@ -2,6 +2,7 @@
   <div
     v-if="options.formatValue"
     class="swatch no-wrap"
+    v-tooltip="value"
     :style="`background-color: ${displayValue}`"
   ></div>
   <div v-else>{{ displayValue }}</div>

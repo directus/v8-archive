@@ -88,6 +88,7 @@ export default {
     valuePK() {
       if (this.$lodash.isObject(this.value))
         return this.value[this.relatedPrimaryKeyField];
+
       return this.value;
     },
     render() {

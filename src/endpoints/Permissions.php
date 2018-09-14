@@ -6,6 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use function Directus\regex_numeric_ids;
 use Directus\Services\PermissionsService;
 use Directus\Util\ArrayUtils;
 
@@ -14,10 +15,10 @@ class Permissions extends Route
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id:[0-9]+}', [$this, 'read']);
+        $app->get('/{id:' . regex_numeric_ids() . '}', [$this, 'read']);
         $app->get('/me', [$this, 'readUser']);
         $app->get('/me/{collection}', [$this, 'readUserCollection']);
-        $app->patch('/{id}', [$this, 'update']);
+        $app->patch('/{id:' . regex_numeric_ids() . '}', [$this, 'update']);
         $app->patch('', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
         $app->get('', [$this, 'all']);

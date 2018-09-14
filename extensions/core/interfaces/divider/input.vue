@@ -1,15 +1,8 @@
 <template>
-  <div v-if="options.style === 'text-small'" :class="`line-style-${options.style}`">
-    <span>{{options.title}}</span>
-    <p><em>{{options.description}}</em></p>
-  </div>
-  <div v-else-if="options.style === 'basic'" :class="`line-style-${options.style}`">
-    <hr />
-  </div>
-  <div v-else :class="`line-style-${options.style}`">
-    <hr />
-    <h3>{{options.title}}</h3>
-    <p><em>{{options.description}}</em></p>
+  <div :class="`${options.style}-style`">
+    <h2 v-if="options.title">{{options.title}}</h2>
+    <hr v-if="options.hr">
+    <p v-if="options.description">{{options.description}}</p>
   </div>
 </template>
 
@@ -22,108 +15,88 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.line-style-text-small {
-  display: block;
-  text-align: center;
-  overflow: hidden;
-  white-space: nowrap;
 
-  hr {
-    display: none;
-  }
-}
-
-.line-style-text-small > span {
+.small-style {
   position: relative;
-  text-transform: uppercase;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--gray);
-  display: inline-block;
-}
+  margin-top: 60px;
+  padding-top: 6px;
+  padding-bottom: 40px;
+  h2 {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translateX(-50%);
 
-.line-style-text-small > p {
-  font-size: 11px;
-  color: var(--light-gray);
-}
-
-.line-style-text-small > span:before,
-.line-style-text-small > span:after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 9999px;
-  height: 1px;
-  background: var(--lighter-gray);
-}
-
-.line-style-text-small > span:before {
-  right: 100%;
-  margin-right: 15px;
-}
-
-.line-style-text-small > span:after {
-  left: 100%;
-  margin-left: 15px;
-}
-
-.line-style-text-small > p {
-  text-decoration-style: dashed;
-}
-
-// small
-
-.line-style-small {
-  width: 100%;
-  max-width: var(--width-small);
-  margin: 0 auto;
-
-  h3 {
-    text-decoration: uppercase;
-  }
-}
-
-.line-style-normal {
-  width: 100%;
-  max-width: var(--width-normal);
-  margin: 0 auto;
-
-  h3 {
-    text-decoration: uppercase;
-  }
-}
-
-.line-style-big {
-  width: 100%;
-  max-width: var(--width-large);
-  margin: 0 auto;
-
-  h3 {
-    text-decoration: uppercase;
-  }
-}
-
-.line-style-standard {
-  width: 100%;
-
-  hr {
-    border-top: 2px solid var(--lighter-gray);
-  }
-
-  h3 {
-    font-size: 26px;
-    font-weight: lighter;
     color: var(--dark-gray);
+    font-size: 0.85em;
+    line-height: 1.18;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: var(--body-background);
+    padding: 0 10px;
   }
-
   p {
-    font-weight: 100;
-    width: 100%;
-    max-width: 20em;
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--light-gray);
+    font-style: italic;
+    max-width: 460px;
+  }
+  hr {
+    border: 0;
+    background: none;
+    border-bottom: 1px solid var(--lighter-gray);
   }
 }
 
-.line-style-basic > hr {
-  border-top: 1px solid var(--lighter-gray);
+.medium-style {
+  margin-top: 60px;
+  padding-top: 6px;
+  padding-bottom: 40px;
+  h2 {
+    color: var(--dark-gray);
+    font-size: 1.38em;
+    line-height: 1.16;
+    font-weight: 400;
+    margin-bottom: 10px;
+  }
+  p {
+    color: var(--light-gray);
+    font-style: italic;
+    max-width: 460px;
+    margin-top: 6px;
+  }
+  hr {
+    border: 0;
+    background: none;
+    border-bottom: 1px solid var(--lighter-gray);
+  }
 }
+
+.large-style {
+  margin-top: 60px;
+  padding-top: 6px;
+  padding-bottom: 40px;
+  h2 {
+    color: var(--dark-gray);
+    font-size: 2em;
+    line-height: 1.16;
+    font-weight: 300;
+    margin-bottom: 10px;
+  }
+  p {
+    color: var(--light-gray);
+    font-style: italic;
+    max-width: 460px;
+    margin-top: 6px;
+  }
+  hr {
+    border: 0;
+    background: none;
+    border-bottom: 1px solid var(--lighter-gray);
+  }
+}
+
 </style>

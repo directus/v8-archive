@@ -1,0 +1,14 @@
+{
+  "name": "@directus/map",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Harsh Kansagara <harsh@7span.com>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "leaflet": "^1.3.4"
+  }
+}

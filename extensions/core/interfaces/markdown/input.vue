@@ -80,5 +80,9 @@ button {
   padding: 10px;
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
+  b,
+  strong {
+    font-weight: 700;
+  }
 }
 </style>

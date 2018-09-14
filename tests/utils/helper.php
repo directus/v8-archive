@@ -46,8 +46,8 @@ function response_get_body_contents(\Psr\Http\Message\ResponseInterface $respons
 
 function clear_storage($basePath)
 {
-    $uploadsOmit = ['.gitignore', '.htaccess', '00000000001.jpg'];
-    foreach (glob($basePath . "/*.*") as $filename) {
+    $uploadsOmit = ['.gitignore', '.htaccess'];
+    foreach (glob($basePath . "/*") as $filename) {
         $name = basename($filename);
         if (is_dir($filename) || in_array($name, $uploadsOmit)) {
             continue;

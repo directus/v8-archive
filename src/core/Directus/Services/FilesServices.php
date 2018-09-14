@@ -4,8 +4,11 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Exception\BadRequestException;
+use Directus\Exception\BatchUploadNotAllowedException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
+use Directus\Validator\Exception\InvalidRequestException;
 
 class FilesServices extends AbstractService
 {
@@ -162,5 +165,98 @@ class FilesServices extends AbstractService
         ]);
 
         return $foldersTableGateway->deleteRecord($id, $this->getCRUDParams($params));
+    }
+
+    /**
+     * @param array $items
+     * @param array $params
+     *
+     * @return array
+     *
+     * @throws InvalidRequestException
+     */
+    public function batchUpdate(array $items, array $params = [])
+    {
+        if (!isset($items[0]) || !is_array($items[0])) {
+            throw new InvalidRequestException('batch update expect an array of items');
+        }
+
+        $collection = $this->collection;
+        foreach ($items as $data) {
+            $this->enforceCreatePermissions($collection, $data, $params);
+            $this->validatePayload($collection, array_keys($data), $data, $params);
+            $this->validatePayloadHasPrimaryKey($collection, $data);
+            $this->validateEmptyData($data);
+        }
+
+        $collectionObject = $this->getSchemaManager()->getCollection($collection);
+        $allItems = [];
+        foreach ($items as $data) {
+            $id = $data[$collectionObject->getPrimaryKeyName()];
+            $item = $this->update($id, $data, $params);
+
+            if (!is_null($item)) {
+                $allItems[] = $item['data'];
+            }
+        }
+
+        if (!empty($allItems)) {
+            $allItems = ['data' => $allItems];
+        }
+
+        return $allItems;
+    }
+
+    /**
+     * @param array $ids
+     * @param array $payload
+     * @param array $params
+     *
+     * @return array
+     */
+    public function batchUpdateWithIds(array $ids, array $payload, array $params = [])
+    {
+        $this->enforceUpdatePermissions($this->collection, $payload, $params);
+        $this->validatePayload($this->collection, array_keys($payload), $payload, $params);
+        $this->validateEmptyData($payload);
+
+        $allItems = [];
+        foreach ($ids as $id) {
+            $item = $this->update($id, $payload, $params);
+            if (!empty($item)) {
+                $allItems[] = $item['data'];
+            }
+        }
+
+        if (!empty($allItems)) {
+            $allItems = ['data' => $allItems];
+        }
+
+        return $allItems;
+    }
+
+    /**
+     * @param array $ids
+     * @param array $params
+     */
+    public function batchDeleteWithIds(array $ids, array $params = [])
+    {
+        foreach ($ids as $id) {
+            $this->delete($id, $params);
+        }
+    }
+
+    /**
+     * Throws exception if data property exists
+     *
+     * @param array $payload
+     *
+     * @throws BadRequestException
+     */
+    protected function validateEmptyData(array $payload)
+    {
+        if (ArrayUtils::has($payload, 'data')) {
+            throw new BatchUploadNotAllowedException();
+        }
     }
 }

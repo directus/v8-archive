@@ -583,18 +583,6 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets Collection item name display template
-     *
-     * Representation value of the table items
-     *
-     * @return string
-     */
-    public function getItemNameTemplate()
-    {
-        return $this->attributes->get('item_name_template');
-    }
-
-    /**
      * Array representation of the collection with fields
      *
      * @return array

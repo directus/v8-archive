@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "datatypes": {
     "VARCHAR": 100,
-    "CHAR": 1
+    "CHAR": 1,
+    "LANG": null
   },
   "options": {
     "placeholder": {

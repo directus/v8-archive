@@ -10,7 +10,7 @@
     "choices": {
       "name": "$t:choices",
       "comment": "$t:choices_comment",
-      "interface": "json",
+      "interface": "code",
       "type": "JSON",
       "default": {
         "value1": "$t:option 1",

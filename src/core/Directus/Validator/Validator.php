@@ -6,6 +6,7 @@ use Directus\Validator\Constraints\Required;
 use Directus\Validator\Exception\UnknownConstraintException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validation;
 
@@ -54,7 +55,16 @@ class Validator
         $constraintsObjects = [];
 
         foreach ($constraints as $constraint) {
-            $constraintsObjects[] = $this->getConstraint($constraint);
+            $options = null;
+
+            // NOTE: Simple implementation to adapt a new regex validation and its pattern
+            if (strpos($constraint, ':')) {
+                $constraintParts = explode(':', $constraint);
+                $constraint = $constraintParts[0];
+                $options = $constraintParts[1];
+            }
+
+            $constraintsObjects[] = $this->getConstraint($constraint, $options);
         }
 
         return $constraintsObjects;
@@ -63,12 +73,14 @@ class Validator
     /**
      * Gets constraint with the given name
      *
-     * @param $name
+     * @param string $name
+     * @param string $options
+     *
      * @return null|Constraint
      *
      * @throws UnknownConstraintException
      */
-    protected function getConstraint($name)
+    protected function getConstraint($name, $options = null)
     {
         $constraint = null;
 
@@ -87,6 +99,9 @@ class Validator
             case 'string':
             case 'bool':
                 $constraint = new Type(['type' => $name]);
+                break;
+            case 'regex':
+                $constraint = new Regex(['pattern' => $options]);
                 break;
             default:
                 throw new UnknownConstraintException(sprintf('Unknown "%s" constraint', $name));

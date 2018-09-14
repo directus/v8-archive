@@ -77,7 +77,7 @@ Follow us on [Twitter](https://twitter.com/directus) to be the first to hear abo
 
 ### Feature Requests
 
-Use our [Feature Request Tool](https://request.getdirectus.com/) to request new features or vote on existing community suggestions.
+Feature requests are managed as GitHub issues within the appropriate Directus repository. Before making a new submission, first [browse existing feature requests](https://github.com/directus/api/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc+label%3Aenhancement) using the `enhancement` label. If you find a similar request, simply vote for it using the :+1: or :-1: reactions and add any additional context in the comments. If _not_, [add a new feature request](https://github.com/directus/api/issues/new?template=Feature_request.md) by completing the provided template.
 
 ### Contributing
 
