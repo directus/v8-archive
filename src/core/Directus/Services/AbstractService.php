@@ -7,6 +7,7 @@ use Directus\Config\Config;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
+use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
@@ -214,9 +215,9 @@ abstract class AbstractService
                 $columnConstraints[] = 'required';
             }
 
-            if ($field->isArray()) {
+            if (DataTypes::isArray($field->getType())) {
                 $columnConstraints[] = 'array';
-            } else if ($field->isJson()) {
+            } else if (DataTypes::isJson($field->getType())) {
                 $columnConstraints[] = 'json';
             }
             // TODO: Relational accept its type, null (if allowed) and a object

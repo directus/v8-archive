@@ -38,7 +38,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'primary_key',
+                    'type' => 'number',
                     'datatype' => 'integer',
                     'interface' => 'primary_key',
                     'primary_key' => true,
@@ -48,14 +48,16 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
                 ],
                 [
                     'field' => 'status',
-                    'type' => 'integer',
+                    'type' => 'number',
+                    'datatype' => 'integer',
                     'interface' => 'status',
                     'signed' => false,
                     'length' => 11,
                 ],
                 [
                     'field' => 'sort',
-                    'type' => 'integer',
+                    'type' => 'number',
+                    'datatype' => 'integer',
                     'interface' => 'sort',
                     'signed' => false,
                     'length' => 11,
@@ -63,7 +65,8 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'name',
                     'interface' => 'text_input',
-                    'type' => 'VARCHAR',
+                    'type' => 'string',
+                    'datatype' => 'VARCHAR',
                     'length' => 255
                 ]
             ]
@@ -138,6 +141,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'datetime',
                     'type' => 'datetime',
+                    'datatype' => 'datetime',
                     'interface' => 'datetime',
                     'required' => true
                 ]
@@ -164,6 +168,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'datetime_two',
                     'type' => 'datetime',
+                    'datatype' => 'datetime',
                     'interface' => 'datetime',
                     'required' => true
                 ]

@@ -1666,7 +1666,7 @@ class BaseTableGateway extends TableGateway
         }
 
         $type = 'string';
-        if (DataTypes::isNumericType($statusField->getDataType())) {
+        if ($this->schemaManager->getSource()->isNumericType($statusField->getDataType())) {
             $type = 'numeric';
         }
 
@@ -1691,7 +1691,7 @@ class BaseTableGateway extends TableGateway
         foreach ($record as $columnName => $columnValue) {
             $field = $collectionObject->getField($columnName);
             // TODO: Should this be validate in here? should we let the database fails?
-            if (($field && is_array($columnValue) && (!$field->isJson() && !$field->isArray()))) {
+            if (($field && is_array($columnValue) && (!DataTypes::isJson($field->getType()) && !DataTypes::isArray($field->getType())))) {
                 // $table = is_null($tableName) ? $this->table : $tableName;
                 throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $this->table . '`.`' . $field->getName() . '.');
             }

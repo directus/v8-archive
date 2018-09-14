@@ -357,7 +357,7 @@ class CoreServicesProvider
                 $collectionObject = $schemaManager->getCollection($collection);
 
                 foreach ($collectionObject->getFields(array_keys($data)) as $field) {
-                    if (!$field->isArray()) {
+                    if (!DataTypes::isArray($field->getType())) {
                         continue;
                     }
 
@@ -401,7 +401,7 @@ class CoreServicesProvider
                 $collectionObject = $schemaManager->getCollection($collection);
 
                 foreach ($collectionObject->getFields(array_keys($data)) as $field) {
-                    if (!$field->isBoolean()) {
+                    if (!DataTypes::isBoolean($field->getType())) {
                         continue;
                     }
 
@@ -417,7 +417,7 @@ class CoreServicesProvider
                 $collectionObject = $schemaManager->getCollection($collection);
 
                 foreach ($collectionObject->getFields(array_keys($data)) as $field) {
-                    if (!$field->isJson()) {
+                    if (!DataTypes::isJson($field->getType())) {
                         continue;
                     }
 

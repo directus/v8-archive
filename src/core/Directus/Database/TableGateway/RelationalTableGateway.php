@@ -224,13 +224,13 @@ class RelationalTableGateway extends BaseTableGateway
         $rowId = $draftRecord[$this->primaryKeyFieldName];
 
         $columnNames = SchemaService::getAllNonAliasCollectionFieldNames($tableName);
-        $TemporaryTableGateway = new TableGateway($tableName, $this->adapter);
-        $fullRecordData = $TemporaryTableGateway->select(function ($select) use ($rowId, $columnNames) {
+        // TODO: Do not run user-specific hooks
+        $TemporaryTableGateway = new self($tableName, $this->adapter, null, null, null, null, $this->primaryKeyFieldName);
+        $fullRecordData = $TemporaryTableGateway->select(function (Select $select) use ($rowId, $columnNames) {
             $select->where->equalTo($this->primaryKeyFieldName, $rowId);
             $select->limit(1)->columns($columnNames);
-        })->current();
+        })->current()->toArray();
 
-        $fullRecordData = (array) $fullRecordData;
         if ($recordIsNew) {
             $deltaRecordData = $parentRecordWithoutAlias;
         } else {
@@ -635,7 +635,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             // Ignore non-arrays and empty collections
-            if (empty($parentRow[$fieldName])) {//} || ($fieldIsOneToMany && )) {
+            if (empty($parentRow[$fieldName])) {
                 // Once they're managed, remove the foreign collections from the record array
                 unset($parentRow[$fieldName]);
                 continue;
@@ -1049,6 +1049,9 @@ class RelationalTableGateway extends BaseTableGateway
         // ==========================================================================
         // Perform data casting based on the column types in our schema array
         // and Convert dates into ISO 8601 Format
+        // TODO: Casting value are going to be done using hooks to the Directus types
+        //       With the exception of number for MySQL, which the default client
+        //       Returns them as string
         // ==========================================================================
         $results = $this->parseRecord($results);
 
@@ -1475,9 +1478,10 @@ class RelationalTableGateway extends BaseTableGateway
         $query->nestWhere(function (Builder $query) use ($columns, $search, $table) {
             foreach ($columns as $column) {
                 // NOTE: Only search numeric or string type columns
-                $isNumeric = $this->getSchemaManager()->isNumericType($column->getType());
-                $isString = $this->getSchemaManager()->isStringType($column->getType());
-                if (!$isNumeric && !$isString) {
+                $isNumeric = $this->getSchemaManager()->getSource()->isNumericType($column->getType());
+                $isString = $this->getSchemaManager()->getSource()->isStringType($column->getType());
+
+                if (!$isNumeric && !$isString && !$column->isOneToMany()) {
                     continue;
                 }
 
@@ -1501,17 +1505,18 @@ class RelationalTableGateway extends BaseTableGateway
                     });
                 } else if ($column->isOneToMany()) {
                     $relationship = $column->getRelationship();
-                    $relatedTable = $relationship->getCollectionOne();
-                    $relatedRightColumn = $relationship->getJunctionKeyB();
+                    $relatedTable = $relationship->getCollectionMany();
+                    $relatedRightColumn = $relationship->getFieldMany();
                     $relatedTableColumns = SchemaService::getAllCollectionFields($relatedTable);
 
                     $query->from($table);
                     // TODO: Test here it may be not setting the proper primary key name
+                    // TODO: Only make this condition if it actually have conditions in the sub query
                     $query->orWhereRelational($this->primaryKeyFieldName, $relatedTable, null, $relatedRightColumn, function(Builder $query) use ($column, $relatedTable, $relatedTableColumns, $search) {
                         foreach ($relatedTableColumns as $column) {
                             // NOTE: Only search numeric or string type columns
-                            $isNumeric = $this->getSchemaManager()->isNumericType($column->getType());
-                            $isString = $this->getSchemaManager()->isStringType($column->getType());
+                            $isNumeric = $this->getSchemaManager()->getSource()->isNumericType($column->getType());
+                            $isString = $this->getSchemaManager()->getSource()->isStringType($column->getType());
                             if (!$column->isAlias() && ($isNumeric || $isString)) {
                                 $query->orWhereLike($column->getName(), $search, false);
                             }

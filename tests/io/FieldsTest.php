@@ -7,6 +7,7 @@ use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\UnknownDataTypeException;
 use Directus\Database\Schema\DataTypes;
 use Directus\Exception\UnprocessableEntityException;
+use Directus\Util\ArrayUtils;
 
 class FieldsTest extends \PHPUnit_Framework_TestCase
 {
@@ -48,7 +49,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'primary_key',
+                    'type' => 'number',
                     'datatype' => 'integer',
                     'length' => 11,
                     'primary_key' => true,
@@ -69,7 +70,8 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             'field' => 'name',
             'interface' => 'text_input',
             'length' => 100,
-            'type' => 'varchar'
+            'type' => 'string',
+            'datatype' => 'varchar',
         ];
 
         $response = request_post('fields/' . static::$tableName, $data, ['query' => $this->queryParams]);
@@ -77,7 +79,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, [
             'field' => 'name',
             'interface' => 'text_input',
-            'type' => 'varchar'
+            'type' => 'string',
         ]);
 
         // Has columns records
@@ -142,14 +144,15 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         foreach ($types as $type) {
             $data = [
-                'type' => 'integer',
+                'type' => 'number',
+                'datatype' => 'integer',
                 'length' => 10
             ];
 
             $path = sprintf('fields/%s/%s', static::$tableName, $type);
             $response = request_patch($path, $data, ['query' => $this->queryParams]);
             assert_response($this, $response);
-            assert_response_data_contains($this, $response, $data, false);
+            assert_response_data_contains($this, $response, ArrayUtils::omit($data, 'datatype'), false);
 
             // Has columns records
             $result = table_find(static::$db, 'directus_fields', [
@@ -229,7 +232,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
             'field' => 'name',
-            'type' => 'varchar',
+            'type' => 'string',
             'interface' => 'text_input'
         ]);
 
@@ -245,6 +248,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
     {
         $data = [
             'type' => 'unknown',
+            'datatype' => 'varchar',
             'length' => 255,
         ];
 

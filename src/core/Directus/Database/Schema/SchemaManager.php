@@ -396,7 +396,7 @@ class SchemaManager
      */
     public function isIntegerType($type)
     {
-        return DataTypes::isIntegerType($type);
+        return $this->source->isIntegerType($type);
     }
 
     /**
@@ -408,7 +408,7 @@ class SchemaManager
      */
     public function isFloatingPointType($type)
     {
-        return static::isFloatingPointType($type);
+        return $this->source->isFloatingPointType($type);
     }
 
     /**
@@ -515,6 +515,10 @@ class SchemaManager
      */
     public function createCollectionFromArray($data)
     {
+        $data['hidden'] = (bool) ArrayUtils::get($data, 'hidden');
+        $data['single'] = (bool) ArrayUtils::get($data, 'single');
+        $data['managed'] = (bool) ArrayUtils::get($data, 'managed');
+
         return new Collection($data);
     }
 
@@ -535,19 +539,16 @@ class SchemaManager
         $options = json_decode(isset($column['options']) ? $column['options'] : '', true);
         $column['options'] = $options ? $options : null;
 
-        $type = strtolower($column['type']);
+        $fieldType = ArrayUtils::get($column, 'type');
+        $dataType = ArrayUtils::get($column, 'datatype');
         // NOTE: Alias column must are nullable
-        if (DataTypes::isAliasType($type)) {
+        if (DataTypes::isAliasType($fieldType)) {
             $column['nullable'] = true;
         }
 
-        if (DataTypes::isFloatingPointType($type)) {
+        if ($this->isFloatingPointType($dataType)) {
             $column['length'] = sprintf('%d,%d', $column['precision'], $column['scale']);
-        } else if (DataTypes::isListType($type)) {
-            $column['length'] = implode(',', array_map(function ($value) {
-                return sprintf('"%s"', $value);
-            }, $column['length']));
-        } else if (DataTypes::isIntegerType($type)) {
+        } else if ($this->source->isIntegerType($dataType)) {
             $column['length'] = $column['precision'];
         } else {
             $column['length'] = $column['char_length'];

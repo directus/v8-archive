@@ -369,7 +369,7 @@ class Collection extends AbstractObject
      */
     public function hasJsonField()
     {
-        return $this->hasType(DataTypes::TYPE_JSON) || $this->hasType(DataTypes::TYPE_LONG_JSON) || $this->hasType(DataTypes::TYPE_TINY_JSON) || $this->hasType(DataTypes::TYPE_MEDIUM_JSON);
+        return $this->hasType(DataTypes::TYPE_JSON);
     }
 
     /**
@@ -389,7 +389,7 @@ class Collection extends AbstractObject
      */
     public function hasBooleanField()
     {
-        return $this->hasType(DataTypes::TYPE_BOOLEAN) || $this->hasType(DataTypes::TYPE_BOOL);
+        return $this->hasType(DataTypes::TYPE_BOOLEAN);
     }
 
     /**

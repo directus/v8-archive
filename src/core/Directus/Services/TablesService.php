@@ -1109,15 +1109,10 @@ class TablesService extends AbstractService
         $this->validatePayload('directus_fields', $fields, $data, $params);
 
         $type = ArrayUtils::get($data, 'type');
-        $isMultiType = DataTypes::isMultiDataTypeType($type);
-        if ($isMultiType && !ArrayUtils::has($data, 'datatype')) {
+        if ($type && !DataTypes::isAliasType($type) && !ArrayUtils::has($data, 'datatype')) {
             throw new UnprocessableEntityException(
-                sprintf('type "%s" requires a "datatype" property', $type)
+                'datatype is required'
             );
-        }
-
-        if ($isMultiType) {
-            $type = ArrayUtils::get($data, 'datatype', $type);
         }
 
         if ($type && DataTypes::isLengthType($type) && !ArrayUtils::get($data, 'length')) {

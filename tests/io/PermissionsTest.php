@@ -1547,9 +1547,9 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $data = [
             'collection' => 'posts',
             'fields' => [
-                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'primary_key', 'datatype' => 'integer', 'primary_key' => true, 'auto_increment' => true, 'length' => 10],
+                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'number', 'datatype' => 'integer', 'primary_key' => true, 'auto_increment' => true, 'length' => 10],
                 ['field' => 'status', 'interface' => 'status', 'type' => 'status', 'datatype' => 'integer', 'length' => 10, 'default_value' => 2, 'options' => $statusOptions],
-                ['field' => 'title', 'interface' => 'text_input', 'type' => 'varchar', 'length' => 100],
+                ['field' => 'title', 'interface' => 'text_input', 'type' => 'string', 'datatype' => 'varchar', 'length' => 100],
                 ['field' => 'author', 'type' => 'user_created', 'interface' => 'user_created', 'datatype' => 'integer', 'length' => 10],
             ]
         ];
@@ -1565,9 +1565,9 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $data = [
             'collection' => 'articles',
             'fields' => [
-                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'primary_key', 'datatype' => 'integer', 'primary_key' => true, 'auto_increment' => true, 'length' => 10],
+                ['field' => 'id', 'interface' => 'primary_key', 'type' => 'number', 'datatype' => 'integer', 'primary_key' => true, 'auto_increment' => true, 'length' => 10],
                 ['field' => 'status', 'interface' => 'status', 'type' => 'status', 'datatype' => 'varchar', 'length' => 16, 'default_value' => 'draft', 'options' => $statusOptions],
-                ['field' => 'title', 'interface' => 'text_input', 'type' => 'varchar', 'length' => 100],
+                ['field' => 'title', 'interface' => 'text_input', 'type' => 'string', 'datatype' => 'varchar', 'length' => 100],
                 ['field' => 'author', 'type' => 'user_created', 'interface' => 'user_created', 'datatype' => 'integer', 'length' => 10],
             ]
         ];
