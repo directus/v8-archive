@@ -32,7 +32,7 @@ class InstallerUtils
      */
     public static function createConfig($path, array $data, $force = false)
     {
-        $requiredAttributes = ['db_name', 'db_user', 'db_password'];
+        $requiredAttributes = ['db_name', 'db_user'];
         if (!ArrayUtils::contains($data, $requiredAttributes)) {
             throw new \InvalidArgumentException(
                 'Creating config files required: ' . implode(', ', $requiredAttributes)
