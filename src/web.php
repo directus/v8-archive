@@ -169,7 +169,7 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['table_gateway']);
 
     $this->group('/custom', function () {
-        $endpointsList = \Directus\get_custom_endpoints('/public/custom/endpoints');
+        $endpointsList = \Directus\get_custom_endpoints('public/extensions/custom/endpoints');
 
         foreach ($endpointsList as $name => $endpoints) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
