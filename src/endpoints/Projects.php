@@ -6,9 +6,9 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Services\InstanceService;
+use Directus\Services\ProjectService;
 
-class Instances extends Route
+class Projects extends Route
 {
     public function __invoke(Application $app)
     {
@@ -18,7 +18,7 @@ class Instances extends Route
     public function create(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
-        $installService = new InstanceService($this->container);
+        $installService = new ProjectService($this->container);
         $installService->create($request->getParsedBody());
 
         return $this->responseWithData($request, $response, []);

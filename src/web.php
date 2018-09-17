@@ -22,7 +22,7 @@ $reservedNames = [
     'pages',
     'layouts',
     'types',
-    'instances'
+    'projects'
 ];
 
 if ($requestUri && !empty($projectName) && $projectName !== '_' && !in_array($projectName, $reservedNames)) {
@@ -100,7 +100,7 @@ $app->get('/', \Directus\Api\Routes\Home::class)
     ->add($middleware['auth'])
     ->add($middleware['table_gateway']);
 
-$app->group('/instances', \Directus\Api\Routes\Instances::class)
+$app->group('/projects', \Directus\Api\Routes\Projects::class)
     ->add($middleware['table_gateway']);
 
 $app->group('/{project}', function () use ($middleware) {
