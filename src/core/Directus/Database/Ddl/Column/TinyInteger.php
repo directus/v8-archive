@@ -10,4 +10,5 @@ class TinyInteger extends Integer
      * @var string
      */
     protected $type = 'TINYINT';
-}
+} 
+
