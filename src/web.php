@@ -22,7 +22,7 @@ $reservedNames = [
     'pages',
     'layouts',
     'types',
-    'instances'
+    'projects'
 ];
 
 if ($requestUri && !empty($projectName) && $projectName !== '_' && !in_array($projectName, $reservedNames)) {
@@ -100,7 +100,7 @@ $app->get('/', \Directus\Api\Routes\Home::class)
     ->add($middleware['auth'])
     ->add($middleware['table_gateway']);
 
-$app->group('/instances', \Directus\Api\Routes\Instances::class)
+$app->group('/projects', \Directus\Api\Routes\Projects::class)
     ->add($middleware['table_gateway']);
 
 $app->group('/{project}', function () use ($middleware) {
@@ -169,7 +169,7 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['table_gateway']);
 
     $this->group('/custom', function () {
-        $endpointsList = \Directus\get_custom_endpoints('/public/custom/endpoints');
+        $endpointsList = \Directus\get_custom_endpoints('public/extensions/custom/endpoints');
 
         foreach ($endpointsList as $name => $endpoints) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);

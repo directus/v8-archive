@@ -56,13 +56,6 @@ class InstallModule extends ModuleBase
     {
         $data = [];
 
-        $data['db_type'] = 'mysql';
-        $data['db_port'] = '3306';
-        $data['db_host'] = 'localhost';
-        $data['db_name'] = '';
-        $data['db_user'] = '';
-        $data['db_password'] = '';
-
         $directusPath = $this->getBasePath();
 
         foreach ($args as $key => $value) {
@@ -84,9 +77,6 @@ class InstallModule extends ModuleBase
                     break;
                 case 'p':
                     $data['db_password'] = $value;
-                    break;
-                case 'r':
-                    $directusPath = $value;
                     break;
                 case 'e':
                     $data['directus_email'] = $value;
@@ -160,9 +150,6 @@ class InstallModule extends ModuleBase
                     break;
                 case 'T':
                     $data['directus_token'] = $value;
-                    break;
-                case 'd':
-                    $directus_path = $value;
                     break;
                 case 'N':
                     $projectName = $value;

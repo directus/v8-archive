@@ -1,0 +1,34 @@
+{
+  "name": "$t:rating",
+  "version": "1.0.0",
+  "datatypes": {
+    "INT": null,
+    "DECIMAL": 3,
+    "DOUBLE": 5
+  },
+  "fieldset": true,
+  "options": {
+    "active_color": {
+      "name": "$t:active_color",
+      "comment": "$t:active_color_comment",
+      "interface": "color-palette",
+      "default": "blue-grey-900"
+    },
+    "max_stars": {
+      "name": "$t:max_stars",
+      "comment": "$t:max_stars_comment",
+      "interface": "numeric",
+      "default": 5
+    }
+  },
+  "translation": {
+    "en-US": {
+      "rating": "Rating",
+      "value": "Value",
+      "active_color": "Active Color",
+      "active_color_comment": "Active color of selected stars",
+      "max_stars": "Max Stars",
+      "max_stars_comment": "Number of maximum rating allowed"
+    }
+  }
+}

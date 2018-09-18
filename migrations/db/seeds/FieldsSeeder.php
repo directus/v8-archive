@@ -19,19 +19,19 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_activity',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'action',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'action_by',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'user'
             ],
             [
@@ -43,31 +43,31 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_activity',
                 'field' => 'ip',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'user_agent',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'collection',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'item',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'comment',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'markdown'
             ],
             [
@@ -86,19 +86,19 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_activity_seen',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_activity_seen',
                 'field' => 'activity',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_activity_seen',
                 'field' => 'user',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'user'
             ],
             [
@@ -117,7 +117,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_collections',
                 'field' => 'collection',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'primary-key'
             ],
             [
@@ -148,50 +148,50 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_collections',
                 'field' => 'note',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_collections',
                 'field' => 'icon',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'icon'
             ],
             // Collection Presets
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'title',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'user',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'user'
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'role',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'collection',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'search_query',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -209,7 +209,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'view_type',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -228,31 +228,31 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_fields',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'collection',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'field',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'type',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'interface',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -288,13 +288,13 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_fields',
                 'field' => 'sort',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'sort'
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'note',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -312,44 +312,44 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_fields',
                 'field' => 'view_width',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'numeric'
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'group',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'many-to-one'
             ],
             // Files
             [
                 'collection' => 'directus_files',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'filename',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'title',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'description',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'location',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -361,25 +361,25 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'width',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'numeric'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'height',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'numeric'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'filesize',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'filesize'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'duration',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'numeric'
             ],
             [
@@ -391,31 +391,31 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'type',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'charset',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'embed',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'folder',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'uploaded_by',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'user'
             ],
             [
@@ -427,7 +427,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'storage_adapter',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -440,83 +440,83 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'url',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             // Folders
             [
                 'collection' => 'directus_folders',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_folders',
                 'field' => 'name',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_folders',
                 'field' => 'parent_folder',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'many-to-one'
             ],
             // Roles
             [
                 'collection' => 'directus_roles',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'name',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'description',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea'
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'ip_whitelist',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea'
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'nav_blacklist',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_TEXT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea'
             ],
             // User Roles
             [
                 'collection' => 'directus_user_roles',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_user_roles',
                 'field' => 'user',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'user'
             ],
             [
                 'collection' => 'directus_user_roles',
                 'field' => 'role',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'many-to-one'
             ],
             // Users
             [
                 'collection' => 'directus_users',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
@@ -552,19 +552,19 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'first_name',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'last_name',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'email',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -582,7 +582,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'password',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'password'
             ],
             [
@@ -594,19 +594,19 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'company',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'title',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'locale',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -618,13 +618,13 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'timezone',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'last_ip',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -636,68 +636,68 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'last_page',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'token',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             // Permissions
             [
                 'collection' => 'directus_permissions',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'collection',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'role',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'status',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'create',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'read',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'update',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'delete',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'explain',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
@@ -709,93 +709,93 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_permissions',
                 'field' => 'read_field_blacklist',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea'
             ],
             // Relations
             [
                 'collection' => 'directus_relations',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'collection_many',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'field_many',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'collection_one',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'field_one',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'junction_field',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             // Revisions
             [
                 'collection' => 'directus_revisions',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'activity',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'collection',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'item',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'data',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_LONG_JSON,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'json'
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'delta',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_LONG_JSON,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'json'
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'parent_item',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'parent_collection',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'many-to-one'
             ],
             [
@@ -808,13 +808,13 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_settings',
                 'field' => 'auto_sign_out',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INT,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
                 'interface' => 'numeric'
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'youtube_api_key',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_VARCHAR,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input'
             ],
         ];

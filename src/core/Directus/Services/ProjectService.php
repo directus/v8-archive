@@ -8,7 +8,7 @@ use Directus\Exception\ProjectAlreadyExistException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
 
-class InstanceService extends AbstractService
+class ProjectService extends AbstractService
 {
     public function create(array $data)
     {
