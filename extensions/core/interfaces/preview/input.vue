@@ -13,16 +13,15 @@ import mixin from "../../../mixins/interface";
 export default {
   mixins: [mixin],
   methods: {
-      preview: function (event) {
+    preview: function(event) {
+      let url = this.$helpers.micromustache.render(
+        this.options.url_template, // "Hello {{text}}!"
+        this.values // { text: "World" }
+      );
 
-        let url = this.$helpers.micromustache.render(
-          this.options.url_template, // "Hello {{text}}!"
-          this.values // { text: "World" }
-        );
-
-        window.open(url, '_blank');
-      }
+      window.open(url, "_blank");
     }
+  }
 };
 </script>
 

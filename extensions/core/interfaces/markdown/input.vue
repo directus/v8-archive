@@ -12,8 +12,8 @@
 </template>
 
 <script>
-  // v-show="editor"
-  // v-show="!editor"
+// v-show="editor"
+// v-show="!editor"
 import marked from "marked";
 import mixin from "../../../mixins/interface";
 
@@ -71,7 +71,12 @@ export default {
       margin-bottom: 0;
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       margin: 20px 0 10px;
       padding: 0;
       font-weight: 700;
@@ -79,22 +84,28 @@ export default {
       position: relative;
     }
 
-    h1 tt, h1 code {
+    h1 tt,
+    h1 code {
       font-size: inherit;
     }
-    h2 tt, h2 code {
+    h2 tt,
+    h2 code {
       font-size: inherit;
     }
-    h3 tt, h3 code {
+    h3 tt,
+    h3 code {
       font-size: inherit;
     }
-    h4 tt, h4 code {
+    h4 tt,
+    h4 code {
       font-size: inherit;
     }
-    h5 tt, h5 code {
+    h5 tt,
+    h5 code {
       font-size: inherit;
     }
-    h6 tt, h6 code {
+    h6 tt,
+    h6 code {
       font-size: inherit;
     }
 
@@ -118,7 +129,14 @@ export default {
       color: var(--gray);
     }
 
-    p, blockquote, ul, ol, dl, li, table, pre {
+    p,
+    blockquote,
+    ul,
+    ol,
+    dl,
+    li,
+    table,
+    pre {
       margin: 15px 0;
     }
 
@@ -131,40 +149,56 @@ export default {
       padding-top: 0;
     }
     & > h1:first-child + h2 {
-        margin-top: 0;
-        padding-top: 0;
+      margin-top: 0;
+      padding-top: 0;
     }
-    & > h3:first-child, & > h4:first-child, & > h5:first-child, & > h6:first-child {
+    & > h3:first-child,
+    & > h4:first-child,
+    & > h5:first-child,
+    & > h6:first-child {
       margin-top: 0;
       padding-top: 0;
     }
 
-    a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+    a:first-child h1,
+    a:first-child h2,
+    a:first-child h3,
+    a:first-child h4,
+    a:first-child h5,
+    a:first-child h6 {
       margin-top: 0;
       padding-top: 0;
     }
 
-    h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
+    h1 p,
+    h2 p,
+    h3 p,
+    h4 p,
+    h5 p,
+    h6 p {
       margin-top: 0;
     }
 
     li p.first {
       display: inline-block;
     }
-    ul, ol {
+    ul,
+    ol {
       padding-left: 30px;
     }
-    ul :first-child, ol :first-child {
+    ul :first-child,
+    ol :first-child {
       margin-top: 0;
     }
-    ul :last-child, ol :last-child {
+    ul :last-child,
+    ol :last-child {
       margin-bottom: 0;
     }
 
     blockquote {
       border-left: 4px solid var(--lightest-gray);
       padding: 0 15px;
-      color: var(--gray);;
+      color: var(--gray);
     }
     blockquote > :first-child {
       margin-top: 0;
@@ -200,10 +234,12 @@ export default {
       margin: 0;
       padding: 6px 13px;
     }
-    table tr th :first-child, table tr td :first-child {
+    table tr th :first-child,
+    table tr td :first-child {
       margin-top: 0;
     }
-    table tr th :last-child, table tr td :last-child {
+    table tr th :last-child,
+    table tr td :last-child {
       margin-bottom: 0;
     }
 
@@ -211,7 +247,8 @@ export default {
       max-width: 100%;
     }
 
-    code, tt {
+    code,
+    tt {
       font-family: "Roboto Mono", mono;
       margin: 0 2px;
       padding: 0 5px;
@@ -246,7 +283,8 @@ export default {
       padding: 6px 10px;
       border-radius: var(--border-radius);
     }
-    pre code, pre tt {
+    pre code,
+    pre tt {
       background-color: transparent;
       border: none;
     }
@@ -265,7 +303,6 @@ export default {
     a {
       color: var(--accent);
     }
-
   }
 }
 </style>

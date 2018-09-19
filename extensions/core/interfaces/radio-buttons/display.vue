@@ -9,7 +9,6 @@ export default {
   mixins: [mixin],
   computed: {
     displayValue() {
-
       const choices =
         typeof this.options.choices === "string"
           ? JSON.parse(this.options.choices)

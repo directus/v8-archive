@@ -78,7 +78,7 @@ export default {
       return (
         this.value.filename.split(".").pop() +
         " • " +
-        this.$d(new Date(this.value.upload_date), "short")
+        this.$d(new Date(this.value.uploaded_on), "short")
       );
     },
     viewOptions() {

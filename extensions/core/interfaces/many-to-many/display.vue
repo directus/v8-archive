@@ -22,10 +22,7 @@ export default {
   mixins: [mixin],
   methods: {
     render(val) {
-      return this.$helpers.micromustache.render(
-        this.options.template,
-        val
-      );
+      return this.$helpers.micromustache.render(this.options.template, val);
     }
   }
 };
