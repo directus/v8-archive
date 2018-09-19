@@ -1,13 +1,7 @@
 {
   "name": "$t:textarea",
   "version": "1.0.0",
-  "datatypes": {
-    "TEXT": null,
-    "TINYTEXT": null,
-    "MEDIUMTEXT": null,
-    "LONGTEXT": null,
-    "VARCHAR": 255
-  },
+  "types": ["string"],
   "options": {
     "rows": {
       "name": "$t:rows",

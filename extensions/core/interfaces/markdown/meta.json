@@ -1,13 +1,7 @@
 {
   "name": "$t:markdown",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 1024,
-    "TINYTEXT": null,
-    "TEXT": null,
-    "MEDIUMTEXT": null,
-    "LONGTEXT": null
-  },
+  "types": ["string"],
   "options": {
     "rows": {
       "name": "$t:rows",

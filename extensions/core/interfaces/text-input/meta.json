@@ -1,11 +1,7 @@
 {
   "name": "$t:input",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 100,
-    "CHAR": 1,
-    "LANG": null
-  },
+  "types": ["string", "lang"],
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

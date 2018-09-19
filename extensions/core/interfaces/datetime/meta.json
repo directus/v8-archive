@@ -1,10 +1,7 @@
 {
   "name": "$t:datetime",
   "version": "1.0.0",
-  "datatypes": {
-    "DATETIME": null,
-    "TIMESTAMP": null
-  },
+  "types": ["datetime"],
   "options": {
     "min": {
       "name": "$t:min",

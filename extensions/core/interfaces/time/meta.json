@@ -1,9 +1,7 @@
 {
   "name": "$t:time",
   "version": "1.0.0",
-  "datatypes": {
-    "TIME": null
-  },
+  "types": ["time"],
   "options": {
     "display24HourClock": {
       "name": "$t:24hour",

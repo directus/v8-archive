@@ -2,9 +2,7 @@
   "name": "$t:divider",
   "version": "1.0.0",
   "noDisplay": true,
-  "datatypes": {
-    "ALIAS": null
-  },
+  "types": ["alias"],
   "options": {
     "style": {
       "name": "$t:style-name",

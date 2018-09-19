@@ -1,10 +1,7 @@
 {
   "name": "$t:button_group",
   "version": "1.0.0",
-  "datatypes": {
-    "ARRAY": 255,
-    "VARCHAR": 255
-  },
+  "types": ["string"],
   "fieldset": true,
   "options": {
     "choices": {
