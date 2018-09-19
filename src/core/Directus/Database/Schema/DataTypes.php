@@ -23,9 +23,9 @@ final class DataTypes
     const TYPE_TRANSLATION          = 'translation';
     const TYPE_UUID                 = 'uuid';
     const TYPE_DATETIME_CREATED     = 'datetime_created';
-    const TYPE_DATETIME_MODIFIED    = 'datetime_modified';
+    const TYPE_DATETIME_UPDATED     = 'datetime_updated';
     const TYPE_USER_CREATED         = 'user_created';
-    const TYPE_USER_MODIFIED        = 'user_modified';
+    const TYPE_USER_UPDATED         = 'user_updated';
 
     /**
      * Returns a list all data types
@@ -54,9 +54,9 @@ final class DataTypes
             static::TYPE_TRANSLATION,
             static::TYPE_UUID,
             static::TYPE_DATETIME_CREATED,
-            static::TYPE_DATETIME_MODIFIED,
+            static::TYPE_DATETIME_UPDATED,
             static::TYPE_USER_CREATED,
-            static::TYPE_USER_MODIFIED,
+            static::TYPE_USER_UPDATED,
         ];
     }
 
@@ -253,7 +253,7 @@ final class DataTypes
     {
         return [
             static::TYPE_DATETIME_CREATED,
-            static::TYPE_DATETIME_MODIFIED
+            static::TYPE_DATETIME_UPDATED
         ];
     }
 
@@ -280,7 +280,7 @@ final class DataTypes
     {
         return array_merge([
             static::TYPE_USER_CREATED,
-            static::TYPE_USER_MODIFIED,
+            static::TYPE_USER_UPDATED,
             static::TYPE_STATUS,
             static::TYPE_SORT,
             static::TYPE_LANG,
