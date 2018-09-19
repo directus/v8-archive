@@ -9,8 +9,14 @@ export default {
   mixins: [mixin],
   computed: {
     displayValue() {
-      if (this.options.formatting) {
-        return this.options.choices[this.value];
+
+      const choices =
+        typeof this.options.choices === "string"
+          ? JSON.parse(this.options.choices)
+          : this.options.choices;
+
+      if (this.options.format) {
+        return choices[this.value];
       }
 
       return this.value;
