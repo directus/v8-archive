@@ -579,11 +579,11 @@ class TablesService extends AbstractService
             throw new FieldNotManagedException($field->getName());
         }
 
-        // TODO: Only update schema when is needed
-        $fieldData = array_merge($field->toArray(), $data);
-        $this->updateTableSchema($collection, [
-            'fields' => [$fieldData]
-        ]);
+        if ($this->shouldUpdateSchema($data)) {
+            $this->updateTableSchema($collection, [
+                'fields' => [array_merge($field->toArray(), $data)]
+            ]);
+        }
 
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
         $resultData = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
@@ -594,6 +594,26 @@ class TablesService extends AbstractService
             true,
             ArrayUtils::get($params, 'meta', 0)
         );
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return bool
+     */
+    protected function shouldUpdateSchema(array $data)
+    {
+        // NOTE: If any of these attributes exists the database needs to update the column
+        return ArrayUtils::containsSome($data, [
+            'datatype',
+            'unique',
+            'primary_key',
+            'auto_increment',
+            'length',
+            'note',
+            'signed',
+            'nullable',
+        ]);
     }
 
     /**
