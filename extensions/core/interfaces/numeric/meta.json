@@ -22,19 +22,6 @@
       "interface": "toggle",
       "default": true
     },
-    "width": {
-      "name": "$t:width",
-      "comment": "$t:width_comment",
-      "interface": "dropdown",
-      "default": "small",
-      "options": {
-        "choices": {
-          "small": "$t:small",
-          "medium": "$t:medium",
-          "large": "$t:large"
-        }
-      }
-    },
     "iconLeft": {
       "name": "$t:icon_left",
       "comment": "$t:icon_left_comment",
@@ -54,13 +41,7 @@
       "placeholder": "Placeholder",
       "placeholder_comment": "Enter placeholder text",
       "localized": "Localized",
-      "localized_comment": "Localize the output",
-      "width": "Size",
-      "width_comment": "Set what width to use for the input",
-      "auto": "Automatic",
-      "small": "Small",
-      "medium": "Medium",
-      "large": "Large",
+      "localized_comment": "Localize the output to the user's locale",
       "icon_left": "Icon Left",
       "icon_left_comment": "Choose an optional icon to display on the left of the input",
       "icon_right": "Icon Right",
