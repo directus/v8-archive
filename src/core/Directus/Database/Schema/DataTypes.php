@@ -8,6 +8,8 @@ final class DataTypes
     const TYPE_ARRAY                = 'array';
     const TYPE_BOOLEAN              = 'boolean';
     const TYPE_DATETIME             = 'datetime';
+    const TYPE_DATE                 = 'date';
+    const TYPE_TIME                 = 'time';
     const TYPE_FILE                 = 'file';
     const TYPE_GROUP                = 'group';
     const TYPE_NUMBER               = 'number';
@@ -37,6 +39,8 @@ final class DataTypes
             static::TYPE_ARRAY,
             static::TYPE_BOOLEAN,
             static::TYPE_DATETIME,
+            static::TYPE_DATE,
+            static::TYPE_TIME,
             static::TYPE_FILE,
             static::TYPE_GROUP,
             static::TYPE_NUMBER,
@@ -117,7 +121,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a date time type
+     * Checks whether or not the given type is a datetime type
      *
      * @param string $type
      *
@@ -126,6 +130,30 @@ final class DataTypes
     public static function isDateTimeType($type)
     {
         return in_array(strtolower($type), static::getDateTimeTypes());
+    }
+
+    /**
+     * Checks whether or not the given type is a date type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isDateType($type)
+    {
+        return strtolower($type) === static::TYPE_DATE;
+    }
+
+    /**
+     * Checks whether or not the given type is a time type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isTimeType($type)
+    {
+        return strtolower($type) === static::TYPE_TIME;
     }
 
     /**
