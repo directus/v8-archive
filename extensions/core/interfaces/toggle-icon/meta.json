@@ -1,9 +1,7 @@
 {
   "name": "$t:toggle-icon",
   "version": "1.0.0",
-  "datatypes": {
-    "BOOLEAN": null
-  },
+  "types": ["boolean"],
   "options": {
     "textInactive": {
       "name": "$t:text-inactive-name",

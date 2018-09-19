@@ -1,10 +1,7 @@
 {
   "name": "$t:multiselect",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 100,
-    "CHAR": 50
-  },
+  "types": ["array"],
   "options": {
     "choices": {
       "name": "$t:choices",

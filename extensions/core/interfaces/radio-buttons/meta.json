@@ -1,14 +1,7 @@
 {
   "name": "$t:radio",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 255,
-    "CHAR": 10,
-    "TINYTEXT": null,
-    "TEXT": null,
-    "MEDIUMTEXT": null,
-    "LONGTEXT": null
-  },
+  "types": ["string"],
   "fieldset": true,
   "options": {
     "choices": {

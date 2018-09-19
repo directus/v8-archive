@@ -1,9 +1,7 @@
 {
   "name": "$t:date",
   "version": "1.0.0",
-  "datatypes": {
-    "DATE": null
-  },
+  "types": ["date"],
   "options": {
     "min": {
       "name": "$t:min",

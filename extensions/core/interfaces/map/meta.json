@@ -1,9 +1,7 @@
 {
   "name": "$t:map",
   "version": "1.0.0",
-  "datatypes": {
-    "JSON": null
-  },
+  "types": ["json"],
   "fieldset": true,
   "options": {
     "height": {

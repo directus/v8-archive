@@ -1,13 +1,7 @@
 {
   "name": "$t:wysiwyg_full",
   "version": "1.0.0",
-  "datatypes": {
-    "TEXT": null,
-    "TINYTEXT": null,
-    "MEDIUMTEXT": null,
-    "LONGTEXT": null,
-    "VARCHAR": 255
-  },
+  "types": ["string"],
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

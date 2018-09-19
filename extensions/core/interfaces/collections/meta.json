@@ -1,9 +1,7 @@
 {
   "name": "$t:collections",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 100
-  },
+  "types": ["string"],
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

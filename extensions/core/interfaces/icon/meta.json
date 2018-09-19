@@ -1,9 +1,7 @@
 {
   "name": "$t:icon",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 30
-  },
+  "types": ["string"],
   "options": {},
   "translation": {
     "en-US": {

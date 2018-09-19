@@ -1,14 +1,7 @@
 {
   "name": "$t:status",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 255,
-    "CHAR": 10,
-    "TINYTEXT": null,
-    "TEXT": null,
-    "MEDIUMTEXT": null,
-    "LONGTEXT": null
-  },
+  "types": ["status"],
   "fieldset": true,
   "options": {
     "simpleBadge": {

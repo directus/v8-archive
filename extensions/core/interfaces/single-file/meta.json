@@ -1,9 +1,7 @@
 {
   "name": "$t:single-file",
   "version": "1.0.0",
-  "datatypes": {
-    "file": null
-  },
+  "types": ["file"],
   "options": {
     "viewType": {
       "name": "$t:view_type",

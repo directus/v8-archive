@@ -1,10 +1,7 @@
 {
   "name": "$t:color",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 30,
-    "CHAR": 30
-  },
+  "types": ["string"],
   "options": {
     "input": {
       "name": "$t:input",

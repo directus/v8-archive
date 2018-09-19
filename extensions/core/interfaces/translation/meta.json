@@ -1,9 +1,7 @@
 {
   "name": "$t:translation",
   "version": "1.0.0",
-  "datatypes": {
-    "TRANSLATION": null
-  },
+  "types": ["translation"],
   "relation": "o2m",
   "options": {
     "languagesCollection": {

@@ -1,14 +1,7 @@
 {
   "name": "$t:encrypted",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 100,
-    "CHAR": 10,
-    "TINYTEXT": null,
-    "TEXT": null,
-    "MEDIUMTEXT": null,
-    "LONGTEXT": null
-  },
+  "types": ["string"],
   "options": {
     "hide": {
       "name": "$t:hide",

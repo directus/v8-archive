@@ -1,9 +1,7 @@
 {
   "name": "$t:dropdown",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 100
-  },
+  "types": ["string"],
   "options": {
     "choices": {
       "name": "$t:choices",
