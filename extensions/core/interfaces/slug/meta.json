@@ -9,7 +9,8 @@
       "name": "$t:placeholder_name",
       "comment": "$t:placeholder_comment",
       "interface": "text-input",
-      "length": 200
+      "length": 200,
+      "default": "A unique label..."
     },
     "forceLowercase": {
       "name": "$t:force_lowercase",
@@ -21,20 +22,6 @@
       "name": "$t:mirrored_field",
       "comment": "$t:mirrored_field_comment",
       "interface": "text-input"
-    },
-    "width": {
-      "name": "$t:width",
-      "comment": "$t:width_comment",
-      "interface": "dropdown",
-      "default": "auto",
-      "options": {
-        "choices": {
-          "auto": "$t:auto",
-          "small": "$t:small",
-          "medium": "$t:medium",
-          "large": "$t:large"
-        }
-      }
     }
   },
   "translation": {
@@ -45,13 +32,7 @@
       "force_lowercase": "Force Lowercase",
       "force_lowercase_comment": "Makes sure the slug is in lowercase",
       "mirrored_field": "Mirrored Field",
-      "mirrored_field_comment": "Keep the slug up to date with another (text) field",
-      "width": "Size",
-      "width_comment": "Set what width to use for the input",
-      "auto": "Automatic",
-      "small": "Small",
-      "medium": "Medium",
-      "large": "Large"
+      "mirrored_field_comment": "Keep the slug up to date with another (text) field"
     }
   }
 }
