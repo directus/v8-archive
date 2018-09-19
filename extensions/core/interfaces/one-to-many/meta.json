@@ -1,9 +1,7 @@
 {
   "name": "$t:o2m",
   "version": "1.0.0",
-  "datatypes": {
-    "o2m": null
-  },
+  "types": ["o2m"],
   "options": {},
   "relation": "o2m",
   "translation": {

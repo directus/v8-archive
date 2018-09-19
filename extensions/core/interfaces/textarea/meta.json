@@ -1,13 +1,7 @@
 {
   "name": "$t:textarea",
   "version": "1.0.0",
-  "datatypes": {
-    "TEXT": null,
-    "TINYTEXT": null,
-    "MEDIUMTEXT": null,
-    "LONGTEXT": null,
-    "VARCHAR": 255
-  },
+  "types": ["string"],
   "options": {
     "rows": {
       "name": "$t:rows",
@@ -28,7 +22,7 @@
   },
   "translation": {
     "en-US": {
-      "textarea": "Textarea",
+      "textarea": "Text-Area",
       "rows": "Rows",
       "rows_comment": "The number of text rows available for the input before scrolling",
       "placeholder": "Placeholder",

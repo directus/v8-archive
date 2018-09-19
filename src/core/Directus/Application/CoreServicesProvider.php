@@ -35,7 +35,7 @@ use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
-use function Directus\generate_uui4;
+use function Directus\generate_uuid4;
 use function Directus\get_api_project_from_request;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
@@ -547,14 +547,20 @@ class CoreServicesProvider
                 $schemaManager = $container->get('schema_manager');
                 $collectionName = $payload->attribute('collection_name');
                 $collection = $schemaManager->getCollection($collectionName);
-                $isSystemCollection = $schemaManager->isSystemCollection($collectionName);
 
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
                    $field = $collection->getField($key);
-                   if ($field->isSystemDateType() || ($isSystemCollection && DataTypes::isDateTimeType($field->getType()))) {
+
+                   if (DataTypes::isDateTimeType($field->getType())) {
                        $dateTime = new DateTimeUtils($value);
                        $payload->set($key, $dateTime->toUTCString());
+                   } else if (DataTypes::isDateType($field->getType())) {
+                       $dateTime = new DateTimeUtils($value);
+                       $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_DATE_FORMAT));
+                   } else if (DataTypes::isTimeType($field->getType())) {
+                       $dateTime = new DateTimeUtils($value);
+                       $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_TIME_FORMAT));
                    }
                 }
 
@@ -575,7 +581,7 @@ class CoreServicesProvider
             $generateExternalId = function (Payload $payload) {
                 // generate an external id if none is passed
                 if (!$payload->get('external_id')) {
-                    $payload->set('external_id', generate_uui4());
+                    $payload->set('external_id', generate_uuid4());
                 }
 
                 return $payload;

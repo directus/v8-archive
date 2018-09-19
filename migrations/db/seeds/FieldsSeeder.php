@@ -19,7 +19,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_activity',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -31,7 +31,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_activity',
                 'field' => 'action_by',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user'
             ],
             [
@@ -86,19 +86,19 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_activity_seen',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_activity_seen',
                 'field' => 'activity',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_activity_seen',
                 'field' => 'user',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user'
             ],
             [
@@ -161,7 +161,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -173,13 +173,13 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'user',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user'
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'role',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'many-to-one'
             ],
             [
@@ -228,7 +228,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_fields',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -288,7 +288,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_fields',
                 'field' => 'sort',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'sort'
             ],
             [
@@ -312,20 +312,20 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_fields',
                 'field' => 'view_width',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric'
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'group',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'many-to-one'
             ],
             // Files
             [
                 'collection' => 'directus_files',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -361,25 +361,25 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'width',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'height',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'filesize',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'filesize'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'duration',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric'
             ],
             [
@@ -409,13 +409,13 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'folder',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'many-to-one'
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'uploaded_by',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user'
             ],
             [
@@ -447,7 +447,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_folders',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -459,14 +459,14 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_folders',
                 'field' => 'parent_folder',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'many-to-one'
             ],
             // Roles
             [
                 'collection' => 'directus_roles',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -497,26 +497,26 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_user_roles',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_user_roles',
                 'field' => 'user',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user'
             ],
             [
                 'collection' => 'directus_user_roles',
                 'field' => 'role',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'many-to-one'
             ],
             // Users
             [
                 'collection' => 'directus_users',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -649,7 +649,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_permissions',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -661,7 +661,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_permissions',
                 'field' => 'role',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'many-to-one'
             ],
             [
@@ -716,7 +716,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_relations',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
@@ -753,13 +753,13 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_revisions',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key'
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'activity',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'many-to-one'
             ],
             [
@@ -808,7 +808,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_settings',
                 'field' => 'auto_sign_out',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_NUMBER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric'
             ],
             [

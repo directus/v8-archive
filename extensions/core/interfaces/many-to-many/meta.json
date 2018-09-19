@@ -1,10 +1,7 @@
 {
   "name": "$t:m2m",
   "version": "1.0.0",
-  "datatypes": {
-    "INT": 11,
-    "VARCHAR": 100
-  },
+  "types": ["o2m"],
   "relation": "m2m",
   "options": {
     "fields": {

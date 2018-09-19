@@ -1,13 +1,7 @@
 {
   "name": "$t:wysiwyg_full",
   "version": "1.0.0",
-  "datatypes": {
-    "TEXT": null,
-    "TINYTEXT": null,
-    "MEDIUMTEXT": null,
-    "LONGTEXT": null,
-    "VARCHAR": 255
-  },
+  "types": ["string"],
   "options": {
     "placeholder": {
       "name": "$t:placeholder",
@@ -20,7 +14,22 @@
       "comment": "$t:toolbar_options_comment",
       "interface": "code",
       "options": {
-        "language": "application/json"
+        "language": "application/json",
+        "template": [
+          ["bold", "italic", "underline", "strike"],
+          ["blockquote", "code-block"],
+          [{ "header": 1 }, { "header": 2 }],
+          [{ "list": "ordered"}, { "list": "bullet" }],
+          [{ "script": "sub"}, { "script": "super" }],
+          [{ "indent": "-1"}, { "indent": "+1" }],
+          [{ "direction": "rtl" }],
+          [{ "size": ["small", false, "large", "huge"] }],
+          [{ "header": [1, 2, 3, 4, 5, 6, false] }],
+          [{ "color": [] }, { "background": [] }],
+          [{ "font": [] }],
+          [{ "align": [] }],
+          ["clean"]
+        ]
       },
       "default": [
         ["bold", "italic", "underline", "strike"],
@@ -29,11 +38,8 @@
         [{ "list": "ordered"}, { "list": "bullet" }],
         [{ "script": "sub"}, { "script": "super" }],
         [{ "indent": "-1"}, { "indent": "+1" }],
-        [{ "direction": "rtl" }],
-        [{ "size": ["small", false, "large", "huge"] }],
         [{ "header": [1, 2, 3, 4, 5, 6, false] }],
         [{ "color": [] }, { "background": [] }],
-        [{ "font": [] }],
         [{ "align": [] }],
         ["clean"]
       ]

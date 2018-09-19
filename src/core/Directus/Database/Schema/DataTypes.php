@@ -8,9 +8,12 @@ final class DataTypes
     const TYPE_ARRAY                = 'array';
     const TYPE_BOOLEAN              = 'boolean';
     const TYPE_DATETIME             = 'datetime';
+    const TYPE_DATE                 = 'date';
+    const TYPE_TIME                 = 'time';
     const TYPE_FILE                 = 'file';
     const TYPE_GROUP                = 'group';
-    const TYPE_NUMBER               = 'number';
+    const TYPE_INTEGER              = 'integer';
+    const TYPE_DECIMAL              = 'decimal';
     const TYPE_JSON                 = 'json';
     const TYPE_LANG                 = 'lang';
     const TYPE_M2O                  = 'm2o';
@@ -21,9 +24,9 @@ final class DataTypes
     const TYPE_TRANSLATION          = 'translation';
     const TYPE_UUID                 = 'uuid';
     const TYPE_DATETIME_CREATED     = 'datetime_created';
-    const TYPE_DATETIME_MODIFIED    = 'datetime_modified';
+    const TYPE_DATETIME_UPDATED     = 'datetime_updated';
     const TYPE_USER_CREATED         = 'user_created';
-    const TYPE_USER_MODIFIED        = 'user_modified';
+    const TYPE_USER_UPDATED         = 'user_updated';
 
     /**
      * Returns a list all data types
@@ -37,9 +40,12 @@ final class DataTypes
             static::TYPE_ARRAY,
             static::TYPE_BOOLEAN,
             static::TYPE_DATETIME,
+            static::TYPE_DATE,
+            static::TYPE_TIME,
             static::TYPE_FILE,
             static::TYPE_GROUP,
-            static::TYPE_NUMBER,
+            static::TYPE_INTEGER,
+            static::TYPE_DECIMAL,
             static::TYPE_JSON,
             static::TYPE_LANG,
             static::TYPE_M2O,
@@ -50,9 +56,9 @@ final class DataTypes
             static::TYPE_TRANSLATION,
             static::TYPE_UUID,
             static::TYPE_DATETIME_CREATED,
-            static::TYPE_DATETIME_MODIFIED,
+            static::TYPE_DATETIME_UPDATED,
             static::TYPE_USER_CREATED,
-            static::TYPE_USER_MODIFIED,
+            static::TYPE_USER_UPDATED,
         ];
     }
 
@@ -117,7 +123,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a date time type
+     * Checks whether or not the given type is a datetime type
      *
      * @param string $type
      *
@@ -129,6 +135,30 @@ final class DataTypes
     }
 
     /**
+     * Checks whether or not the given type is a date type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isDateType($type)
+    {
+        return strtolower($type) === static::TYPE_DATE;
+    }
+
+    /**
+     * Checks whether or not the given type is a time type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isTimeType($type)
+    {
+        return strtolower($type) === static::TYPE_TIME;
+    }
+
+    /**
      * Checks whether or not the given type is a numeric type
      *
      * @param string $type
@@ -137,7 +167,44 @@ final class DataTypes
      */
     public static function isNumericType($type)
     {
-        return strtolower($type) === $type;
+        return in_array(strtolower($type), static::getNumericTypes());
+    }
+
+    /**
+     * Checks whether or not the given type is a integer type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isInteger($type)
+    {
+        return strtolower($type) === static::TYPE_INTEGER;
+    }
+
+    /**
+     * Checks whether or not the given type is a decimal type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isDecimal($type)
+    {
+        return strtolower($type) === static::TYPE_DECIMAL;
+    }
+
+    /**
+     * Returns all numeric types
+     *
+     * @return array
+     */
+    public static function getNumericTypes()
+    {
+        return [
+            static::TYPE_INTEGER,
+            static::TYPE_DECIMAL,
+        ];
     }
 
     /**
@@ -225,7 +292,7 @@ final class DataTypes
     {
         return [
             static::TYPE_DATETIME_CREATED,
-            static::TYPE_DATETIME_MODIFIED
+            static::TYPE_DATETIME_UPDATED
         ];
     }
 
@@ -252,7 +319,7 @@ final class DataTypes
     {
         return array_merge([
             static::TYPE_USER_CREATED,
-            static::TYPE_USER_MODIFIED,
+            static::TYPE_USER_UPDATED,
             static::TYPE_STATUS,
             static::TYPE_SORT,
             static::TYPE_LANG,
@@ -277,7 +344,8 @@ final class DataTypes
     public static function getLengthTypes()
     {
         return [
-            static::TYPE_NUMBER,
+            static::TYPE_INTEGER,
+            static::TYPE_DECIMAL,
             static::TYPE_STRING,
             static::TYPE_ARRAY,
             static::TYPE_ARRAY,

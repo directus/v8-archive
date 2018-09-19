@@ -2,7 +2,6 @@
   <select
     :disabled="readonly"
     class="select"
-    :class="width"
     @change="updateValue($event.target.options)"
     :id="name"
     multiple
@@ -13,7 +12,7 @@
       :disabled="required"
     >{{options.placeholder}}</option>
     <option
-      v-for="(display, val) in options.choices"
+      v-for="(display, val) in choices"
       :key="val"
       :value="val"
       :selected="value && value.includes(val)"
@@ -37,21 +36,6 @@ export default {
       }
 
       return choices;
-    },
-    width() {
-      if (!this.choices) return "medium";
-
-      let longestValue = "";
-      Object.values(this.choices).forEach(choice => {
-        if (choice.length > longestValue.length) {
-          longestValue = choice;
-        }
-      });
-
-      const length = longestValue.length;
-
-      if (length <= 16) return "small";
-      else return "medium";
     }
   },
   methods: {
@@ -77,6 +61,7 @@ export default {
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   width: 100%;
+  max-width: var(--width-large);
   font-family: "Roboto", sans-serif;
   height: 130px;
 
@@ -116,17 +101,5 @@ export default {
       }
     }
   }
-}
-
-.x-small {
-  max-width: var(--width-x-small);
-}
-
-.small {
-  max-width: var(--width-small);
-}
-
-.medium {
-  max-width: var(--width-normal);
 }
 </style>

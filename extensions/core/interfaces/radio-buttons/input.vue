@@ -1,7 +1,7 @@
 <template>
   <div class="interface-radio-buttons">
     <v-radio
-      v-for="(display, val) in optionValues"
+      v-for="(display, val) in choices"
       :id="`${name}-${val}`"
       :name="name"
       :value="val"
@@ -19,12 +19,16 @@ export default {
   name: "interface-radio-buttons",
   mixins: [mixin],
   computed: {
-    optionValues() {
+    choices() {
+      let choices = this.options.choices;
+
+      if (!choices) return {};
+
       if (typeof this.options.choices === "string") {
-        return this.options.choices ? JSON.parse(this.choices) : {};
+        choices = JSON.parse(this.options.choices);
       }
 
-      return this.options.choices || {};
+      return choices;
     }
   }
 };

@@ -1,9 +1,7 @@
 {
   "name": "$t:group",
   "version": "1.0.0",
-  "datatypes": {
-    "GROUP": null
-  },
+  "types": ["group"],
   "options": {
     "open": {
       "name": "$t:open",

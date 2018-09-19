@@ -15,7 +15,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .small-style {
   position: relative;
   margin-top: 60px;
@@ -98,5 +97,4 @@ export default {
     border-bottom: 1px solid var(--lighter-gray);
   }
 }
-
 </style>

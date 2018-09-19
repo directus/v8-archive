@@ -3,11 +3,10 @@
 namespace Directus\Database\Schema;
 
 use Directus\Database\Ddl\Column\Bit;
-use Directus\Database\Ddl\Column\Boolean;
 use Directus\Database\Ddl\Column\CollectionLength;
+use Directus\Database\Ddl\Column\Custom;
 use Directus\Database\Ddl\Column\Double;
 use Directus\Database\Ddl\Column\Enum;
-use Directus\Database\Ddl\Column\File;
 use Directus\Database\Ddl\Column\LongBlob;
 use Directus\Database\Ddl\Column\LongText;
 use Directus\Database\Ddl\Column\MediumBlob;
@@ -15,15 +14,13 @@ use Directus\Database\Ddl\Column\MediumInteger;
 use Directus\Database\Ddl\Column\MediumText;
 use Directus\Database\Ddl\Column\Numeric;
 use Directus\Database\Ddl\Column\Real;
-use Directus\Database\Ddl\Column\Serial;
 use Directus\Database\Ddl\Column\Set;
 use Directus\Database\Ddl\Column\SmallInteger;
 use Directus\Database\Ddl\Column\TinyBlob;
 use Directus\Database\Ddl\Column\TinyInteger;
 use Directus\Database\Ddl\Column\TinyText;
-use Directus\Database\Ddl\Column\Uuid;
 use Directus\Database\Exception\FieldAlreadyHasUniqueKeyException;
-use Directus\Database\Exception\UnknownDataTypeException;
+use Directus\Database\Exception\UnknownTypeException;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
@@ -252,7 +249,7 @@ class SchemaFactory
      *
      * @return Column
      *
-     * @throws UnknownDataTypeException
+     * @throws UnknownTypeException
      */
     protected function createColumnFromType($name, $type)
     {
@@ -348,7 +345,7 @@ class SchemaFactory
                 $column = new Enum($name);
                 break;
             default:
-                throw new UnknownDataTypeException($type);
+                $column = new Custom($type, $name);
                 break;
         }
 

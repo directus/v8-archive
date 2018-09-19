@@ -1,10 +1,7 @@
 {
   "name": "$t:activity-icon",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 100,
-    "CHAR": 10
-  },
+  "types": ["string"],
   "translation": {
     "en-US": {
       "activity-icon": "Activity Icon",

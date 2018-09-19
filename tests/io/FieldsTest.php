@@ -4,10 +4,11 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Connection;
 use Directus\Database\Exception\FieldNotFoundException;
-use Directus\Database\Exception\UnknownDataTypeException;
+use Directus\Database\Exception\UnknownTypeException;
 use Directus\Database\Schema\DataTypes;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
+use Directus\Util\DateTimeUtils;
 
 class FieldsTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,10 +25,12 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
      * @var string
      */
     protected static $tableName = 'test';
+    protected static $testDateTime = 'datetime_test';
 
     public static function resetDatabase()
     {
         drop_table(static::$db, static::$tableName);
+        drop_table(static::$db, static::$testDateTime);
     }
 
     public static function setUpBeforeClass()
@@ -49,7 +52,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'number',
+                    'type' => 'integer',
                     'datatype' => 'integer',
                     'length' => 11,
                     'primary_key' => true,
@@ -144,7 +147,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         foreach ($types as $type) {
             $data = [
-                'type' => 'number',
+                'type' => 'integer',
                 'datatype' => 'integer',
                 'length' => 10
             ];
@@ -216,7 +219,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_post('collections', $data, ['query' => $this->queryParams]);
         assert_response_error($this, $response, [
-            'code' => UnknownDataTypeException::ERROR_CODE,
+            'code' => UnknownTypeException::ERROR_CODE,
             'status' => 422
         ]);
     }
@@ -254,7 +257,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_patch('fields/' . static::$tableName . '/name', $data, ['query' => $this->queryParams]);
         assert_response_error($this, $response, [
-            'code' => UnknownDataTypeException::ERROR_CODE,
+            'code' => UnknownTypeException::ERROR_CODE,
             'status' => 422
         ]);
     }
@@ -325,6 +328,101 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response, [
             'data' => 'array',
             'count' => 2
+        ]);
+    }
+
+    public function testDateTimeTypes()
+    {
+        $collectionName = static::$testDateTime;
+
+        // Create a test table
+        $data = [
+            'collection' => $collectionName,
+            'fields' => [
+                [
+                    'field' => 'id',
+                    'type' => 'integer',
+                    'datatype' => 'integer',
+                    'length' => 11,
+                    'primary_key' => true,
+                    'auto_increment' => true,
+                    'interface' => 'primary_key',
+                ],
+                [
+                    'field' => 'datetime',
+                    'type' => 'datetime',
+                    'datatype' => 'datetime',
+                    'interface' => 'datetime',
+                ],
+                [
+                    'field' => 'date',
+                    'type' => 'date',
+                    'datatype' => 'date',
+                    'interface' => 'date',
+                ],
+                [
+                    'field' => 'time',
+                    'type' => 'time',
+                    'datatype' => 'time',
+                    'interface' => 'time',
+                ],
+            ]
+        ];
+
+        $response = request_post('collections', $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, [
+            'collection' => $collectionName
+        ]);
+
+        // Using ISO format
+        $datetime = new DateTimeUtils();
+        $isoDateTime = $datetime->toISO8601Format();
+        $data = [
+            'datetime' => $isoDateTime,
+            'date' => $isoDateTime,
+            'time' => $isoDateTime,
+        ];
+
+        $response = request_post('items/' . $collectionName, $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, [
+            'datetime' => $datetime->toUTC()->toISO8601Format(),
+            'date' => $datetime->toString($datetime::DEFAULT_DATE_FORMAT),
+            'time' => $datetime->toString($datetime::DEFAULT_TIME_FORMAT),
+        ]);
+
+        // Using Datetime format
+        $datetime = new DateTimeUtils();
+        $datetimeValue = $datetime->toString();
+        $data = [
+            'datetime' => $datetimeValue,
+            'date' => $datetimeValue,
+            'time' => $datetimeValue,
+        ];
+
+        $response = request_post('items/' . $collectionName, $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, [
+            'datetime' => $datetime->toUTC()->toISO8601Format(),
+            'date' => $datetime->toString($datetime::DEFAULT_DATE_FORMAT),
+            'time' => $datetime->toString($datetime::DEFAULT_TIME_FORMAT),
+        ]);
+
+        // Using its format
+        $datetime = new DateTimeUtils();
+        $data = [
+            'datetime' => $datetime->toISO8601Format(),
+            'date' => $datetime->toString($datetime::DEFAULT_DATE_FORMAT),
+            'time' => $datetime->toString($datetime::DEFAULT_TIME_FORMAT),
+        ];
+
+        $response = request_post('items/' . $collectionName, $data, ['query' => $this->queryParams]);
+        assert_response($this, $response);
+        assert_response_data_contains($this, $response, [
+            'datetime' => $datetime->toUTC()->toISO8601Format(),
+            'date' => $datetime->toString($datetime::DEFAULT_DATE_FORMAT),
+            'time' => $datetime->toString($datetime::DEFAULT_TIME_FORMAT),
         ]);
     }
 

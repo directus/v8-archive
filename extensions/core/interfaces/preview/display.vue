@@ -1,5 +1,5 @@
 <template>
-  <a :href="url" class="no-wrap">{{$t('interfaces-preview-preview_item')}}</a>
+  <a :href="url" class="no-wrap" target="_blank">{{$t('interfaces-preview-preview_item')}}</a>
 </template>
 
 <script>

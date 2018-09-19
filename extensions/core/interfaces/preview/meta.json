@@ -1,9 +1,7 @@
 {
   "name": "$t:preview",
   "version": "1.0.0",
-  "datatypes": {
-    "ALIAS": null
-  },
+  "types": ["alias"],
   "options": {
     "url_template": {
       "name": "$t:url_template",

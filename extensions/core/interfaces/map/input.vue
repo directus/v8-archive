@@ -130,8 +130,7 @@ export default {
        */
       leaflet
         .tileLayer(this.options.theme, {
-          attribution:
-            '&copy; <a href="https://carto.com/">Carto</a>'
+          attribution: '&copy; <a href="https://carto.com/">Carto</a>'
         })
         .addTo(this.map);
 

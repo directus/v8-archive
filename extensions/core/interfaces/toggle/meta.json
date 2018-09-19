@@ -1,9 +1,7 @@
 {
   "name": "$t:toggle",
   "version": "1.0.0",
-  "datatypes": {
-    "BOOLEAN": null
-  },
+  "types": ["boolean"],
   "options": {
     "labelOn": {
       "name": "$t:label_on",

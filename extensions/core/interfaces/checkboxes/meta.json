@@ -1,10 +1,7 @@
 {
   "name": "$t:checkboxes",
   "version": "1.0.0",
-  "datatypes": {
-    "ARRAY": null,
-    "VARCHAR": 255
-  },
+  "types": ["array"],
   "fieldset": true,
   "options": {
     "choices": {

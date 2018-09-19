@@ -2,13 +2,11 @@
   <v-input
     type="number"
     min="0"
-    :class="width"
+    icon-left="swap_vert"
     :value="value"
     :readonly="readonly"
-    :placeholder="options.placeholder"
     :maxlength="+length"
     :id="name"
-    :charactercount="options.showCharacterCount"
     @input="updateValue"></v-input>
 </template>
 
@@ -27,6 +25,7 @@ export default {
 
 <style lang="scss" scoped>
 .v-input {
+  width: 100%;
   max-width: var(--width-small);
 }
 </style>

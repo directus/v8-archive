@@ -1,12 +1,7 @@
 {
   "name": "$t:tags",
   "version": "1.0.0",
-  "datatypes": {
-    "VARCHAR": 100,
-    "CHAR": 10,
-    "TINYTEXT" : null,
-    "TEXT": null
-  },
+  "types": ["string"],
   "options": {
     "alphabetize": {
       "name": "$t:alphabetize",

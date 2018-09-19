@@ -10,7 +10,7 @@ if (!function_exists('generate_uuid1')) {
      *
      * @return string
      */
-    function generate_uui1()
+    function generate_uuid1()
     {
         return Uuid::uuid1()->toString();
     }
@@ -25,7 +25,7 @@ if (!function_exists('generate_uuid3')) {
      *
      * @return string
      */
-    function generate_uui3($namespace, $name)
+    function generate_uuid3($namespace, $name)
     {
         return Uuid::uuid3(
             $namespace,
@@ -40,7 +40,7 @@ if (!function_exists('generate_uuid4')) {
      *
      * @return string
      */
-    function generate_uui4()
+    function generate_uuid4()
     {
         return Uuid::uuid4()->toString();
     }
@@ -55,7 +55,7 @@ if (!function_exists('generate_uuid5')) {
      *
      * @return string
      */
-    function generate_uui5($namespace, $name)
+    function generate_uuid5($namespace, $name)
     {
         if ($namespace === null) {
             $namespace = Uuid::NAMESPACE_DNS;
