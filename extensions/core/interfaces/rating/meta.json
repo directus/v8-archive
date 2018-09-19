@@ -24,17 +24,17 @@
       "name": "$t:display",
       "comment": "$t:display_comment",
       "interface": "button-group",
-      "default": "star",
+      "default": "number",
       "type": "JSON",
       "options": {
         "choices": [
           {
-            "label": "Stars",
-            "value": "star"
-          },
-          {
             "label": "Numbers",
             "value": "number"
+          },
+          {
+            "label": "Stars",
+            "value": "star"
           }
         ]
       }
