@@ -4,7 +4,7 @@
   "datatypes": {
     "INT": null,
     "DECIMAL": 3,
-    "DOUBLE": 5
+    "DOUBLE": 3
   },
   "fieldset": true,
   "options": {
@@ -19,6 +19,25 @@
       "comment": "$t:max_stars_comment",
       "interface": "numeric",
       "default": 5
+    },
+    "display": {
+      "name": "$t:display",
+      "comment": "$t:display_comment",
+      "interface": "button-group",
+      "default": "star",
+      "type": "JSON",
+      "options": {
+        "choices": [
+          {
+            "label": "Stars",
+            "value": "star"
+          },
+          {
+            "label": "Numbers",
+            "value": "number"
+          }
+        ]
+      }
     }
   },
   "translation": {
@@ -28,7 +47,9 @@
       "active_color": "Active Color",
       "active_color_comment": "Active color of selected stars",
       "max_stars": "Max Stars",
-      "max_stars_comment": "Number of maximum rating allowed"
+      "max_stars_comment": "Number of maximum rating allowed",
+      "display": "Display",
+      "display_comment": "How to display rating values"
     }
   }
 }

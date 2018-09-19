@@ -1,7 +1,16 @@
 <template>
   <div class="display-rating">
-    <i class="material-icons">star</i>
-    <span>{{value}}</span>
+    <!-- If 'number' is selected for display option -->
+    <div class="rating-numbers" v-if="options.display=='number'">
+      <i class="material-icons">star</i>
+      <span>{{value}}</span>
+    </div>
+
+    <!-- If 'star' is selected for display option -->
+    <div class="rating-numbers" v-if="options.display=='star'">
+      <stars :options="options" :rating="value" :readonly="true"></stars>
+    </div>
+
   </div>
 </template>
 
@@ -9,12 +18,15 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin]
+  mixins: [mixin],
+  components: {
+    Stars: require("./stars.vue").default
+  }
 };
 </script> 
 
 <style lang="scss" scoped>
-.display-rating {
+.rating-numbers {
   display: flex;
   align-items: center;
   i.material-icons {
