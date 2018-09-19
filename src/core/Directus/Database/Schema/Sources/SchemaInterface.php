@@ -222,7 +222,7 @@ interface SchemaInterface
      *
      * @return array
      */
-    public function getDecimalTypes();
+    public function getFloatingPointTypes();
 
     /**
      * Checks whether the given type is decimal type
@@ -231,7 +231,7 @@ interface SchemaInterface
      *
      * @return bool
      */
-    public function isDecimalType($type);
+    public function isFloatingPointType($type);
 
     /**
      * Gets Numeric data types

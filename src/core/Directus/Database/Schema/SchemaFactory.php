@@ -256,123 +256,97 @@ class SchemaFactory
      */
     protected function createColumnFromType($name, $type)
     {
+        // TODO: Move this to the Schema Source
         switch (strtolower($type)) {
-            case DataTypes::TYPE_CHAR:
+            case 'char':
                 $column = new Char($name);
                 break;
-            case DataTypes::TYPE_VARCHAR:
+            case 'varchar':
                 $column = new Varchar($name);
                 break;
-            case DataTypes::TYPE_TINY_JSON:
-            case DataTypes::TYPE_TINY_TEXT:
+            case 'tinytext':
                 $column = new TinyText($name);
                 break;
-            case DataTypes::TYPE_JSON:
-            case DataTypes::TYPE_TEXT:
+            case 'text':
                 $column = new Text($name);
                 break;
-            case DataTypes::TYPE_MEDIUM_JSON:
-            case DataTypes::TYPE_MEDIUM_TEXT:
+            case 'mediumtext':
                 $column = new MediumText($name);
                 break;
-            case DataTypes::TYPE_LONG_JSON:
-            case DataTypes::TYPE_LONGTEXT:
+            case 'longtext':
                 $column = new LongText($name);
                 break;
-            case DataTypes::TYPE_UUID:
-                $column = new Uuid($name);
-                break;
-            case DataTypes::TYPE_ARRAY:
-            case DataTypes::TYPE_LANG:
-                $column = new Varchar($name);
-                break;
-
-            case DataTypes::TYPE_TIME:
+            case 'time':
                 $column = new Time($name);
                 break;
-            case DataTypes::TYPE_DATE:
+            case 'date':
                 $column = new Date($name);
                 break;
-            case DataTypes::TYPE_DATETIME:
+            case 'datetime':
                 $column = new Datetime($name);
                 break;
-            case DataTypes::TYPE_TIMESTAMP:
+            case 'timestamp':
                 $column = new Timestamp($name);
                 break;
-
-            case DataTypes::TYPE_TINY_INT:
+            case 'tinyint':
                 $column = new TinyInteger($name);
                 break;
-            case DataTypes::TYPE_SMALL_INT:
+            case 'smallint':
                 $column = new SmallInteger($name);
                 break;
-            case DataTypes::TYPE_INTEGER:
-            case DataTypes::TYPE_INT:
+            case 'integer':
+            case 'int':
                 $column = new Integer($name);
                 break;
-            case DataTypes::TYPE_MEDIUM_INT:
+            case 'mediumint':
                 $column = new MediumInteger($name);
                 break;
-            case DataTypes::TYPE_BIG_INT:
+            case 'serial':
+            case 'bigint':
                 $column = new BigInteger($name);
                 break;
-            case DataTypes::TYPE_SERIAL:
-                $column = new Serial($name);
-                break;
-            case DataTypes::TYPE_FLOAT:
+            case 'float':
                 $column = new Floating($name);
                 break;
-            case DataTypes::TYPE_DOUBLE:
+            case 'double':
                 $column = new Double($name);
                 break;
-            case DataTypes::TYPE_DECIMAL:
+            case 'decimal':
                 $column = new Decimal($name);
                 break;
-            case DataTypes::TYPE_REAL:
+            case 'real':
                 $column = new Real($name);
                 break;
-            case DataTypes::TYPE_NUMERIC:
-            case DataTypes::TYPE_CURRENCY:
+            case 'numeric':
                 $column = new Numeric($name);
                 break;
-            case DataTypes::TYPE_BIT:
+            case 'bit':
                 $column = new Bit($name);
                 break;
-            case DataTypes::TYPE_BOOL:
-            case DataTypes::TYPE_BOOLEAN:
-                $column = new Boolean($name);
-                break;
-
-            case DataTypes::TYPE_BINARY:
+            case 'binary':
                 $column = new Binary($name);
                 break;
-            case DataTypes::TYPE_VARBINARY:
+            case 'varbinary':
                 $column = new Varbinary($name);
                 break;
-            case DataTypes::TYPE_TINY_BLOB:
+            case 'tinyblob':
                 $column = new TinyBlob($name);
                 break;
-            case DataTypes::TYPE_BLOB:
+            case 'blob':
                 $column = new Blob($name);
                 break;
-            case DataTypes::TYPE_MEDIUM_BLOB:
+            case 'mediumblob':
                 $column = new MediumBlob($name);
                 break;
-            case DataTypes::TYPE_LONG_BLOB:
+            case 'longblob':
                 $column = new LongBlob($name);
                 break;
-
-            case DataTypes::TYPE_SET:
+            case 'set':
                 $column = new Set($name);
                 break;
-            case DataTypes::TYPE_ENUM:
+            case 'enum':
                 $column = new Enum($name);
                 break;
-
-            case DataTypes::TYPE_FILE:
-                $column = new File($name);
-                break;
-
             default:
                 throw new UnknownDataTypeException($type);
                 break;

@@ -487,9 +487,14 @@ class MySQLSchema extends AbstractSchema
             case 'mediumint':
             case 'int':
             case 'integer':
-            case 'bigint':
-            case 'serial':
-                $data = ($data === null) ? null : (int)$data;
+            // do not cast bigint values. php doesn't support bigint
+            // case 'bigint':
+            // case 'serial':
+            // Only cast if the value is numeric already
+            // Avoid casting when the hooks already have cast numeric data type set as boolean type
+                if (is_numeric($data)) {
+                    $data = (int) $data;
+                }
                 break;
             case 'numeric':
             case 'float':
@@ -538,7 +543,7 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritdoc
      */
-    public function getDecimalTypes()
+    public function getFloatingPointTypes()
     {
         return [
             'double',
@@ -568,15 +573,15 @@ class MySQLSchema extends AbstractSchema
      */
     public function getNumericTypes()
     {
-        return array_merge($this->getDecimalTypes(), $this->getIntegerTypes());
+        return array_merge($this->getFloatingPointTypes(), $this->getIntegerTypes());
     }
 
     /**
      * @inheritdoc
      */
-    public function isDecimalType($type)
+    public function isFloatingPointType($type)
     {
-        return $this->isType($type, $this->getDecimalTypes());
+        return $this->isType($type, $this->getFloatingPointTypes());
     }
 
     /**

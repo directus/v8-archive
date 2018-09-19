@@ -7,12 +7,19 @@ use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\ForbiddenException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
+use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 
 class ItemsService extends AbstractService
 {
+    const SINGLE_ITEM_PARAMS_BLACKLIST = [
+        'filter',
+        'q',
+        'status'
+    ];
+
     public function createItem($collection, $payload, $params = [])
     {
         $this->enforceCreatePermissions($collection, $payload, $params);
@@ -22,7 +29,11 @@ class ItemsService extends AbstractService
         $newRecord = $tableGateway->createRecord($payload, $this->getCRUDParams($params));
 
         try {
-            $item = $this->find($collection, $newRecord->getId());
+            $item = $this->find(
+                $collection,
+                $newRecord->getId(),
+                ArrayUtils::omit($params, static::SINGLE_ITEM_PARAMS_BLACKLIST)
+            );
         } catch (\Exception $e) {
             $item = null;
         }
@@ -143,7 +154,11 @@ class ItemsService extends AbstractService
         $newRecord = $tableGateway->updateRecord($id, $payload, $this->getCRUDParams($params));
 
         try {
-            $item = $this->find($collection, $newRecord->getId());
+            $item = $this->find(
+                $collection,
+                $newRecord->getId(),
+                ArrayUtils::omit($params, static::SINGLE_ITEM_PARAMS_BLACKLIST)
+            );
         } catch (\Exception $e) {
             $item = null;
         }

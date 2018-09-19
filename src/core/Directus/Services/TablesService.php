@@ -1109,15 +1109,10 @@ class TablesService extends AbstractService
         $this->validatePayload('directus_fields', $fields, $data, $params);
 
         $type = ArrayUtils::get($data, 'type');
-        $isMultiType = DataTypes::isMultiDataTypeType($type);
-        if ($isMultiType && !ArrayUtils::has($data, 'datatype')) {
+        if ($type && !DataTypes::isAliasType($type) && !ArrayUtils::has($data, 'datatype')) {
             throw new UnprocessableEntityException(
-                sprintf('type "%s" requires a "datatype" property', $type)
+                'datatype is required'
             );
-        }
-
-        if ($isMultiType) {
-            $type = ArrayUtils::get($data, 'datatype', $type);
         }
 
         if ($type && DataTypes::isLengthType($type) && !ArrayUtils::get($data, 'length')) {
@@ -1326,12 +1321,7 @@ class TablesService extends AbstractService
     protected function mergeSchemaField(Field $field, array $fieldData = [])
     {
         $tableGateway = $this->getFieldsTableGateway();
-        $isNumericType = DataTypes::isNumericType($field->getType());
-        $attributeWhitelist = ['managed', 'default_value', 'primary_key', 'length'];
-
-        if ($isNumericType) {
-            $attributeWhitelist[] = 'signed';
-        }
+        $attributeWhitelist = $this->unknownFieldsAllowed();
 
         $fieldsAttributes = array_merge($tableGateway->getTableSchema()->getFieldsName(), $attributeWhitelist);
 
@@ -1339,10 +1329,6 @@ class TablesService extends AbstractService
             array_merge($field->toArray(), $fieldData),
             $fieldsAttributes
         );
-
-        $data['managed'] = (bool) ArrayUtils::get($data, 'managed');
-        $data['primary_key'] = (bool) ArrayUtils::get($data, 'primary_key');
-        $data['signed'] = $isNumericType ? (bool) ArrayUtils::get($data, 'signed') : null;
 
         $result = $tableGateway->parseRecord($data);
 

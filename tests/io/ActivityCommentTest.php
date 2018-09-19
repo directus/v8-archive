@@ -27,7 +27,7 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'id',
                     'auto_increment' => true,
-                    'type' => 'primary_key',
+                    'type' => 'number',
                     'datatype' => 'integer',
                     'primary_key' => true,
                     'interface' => 'primary_key',
@@ -35,7 +35,8 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
                 ],
                 [
                     'field' => 'name',
-                    'type' => 'varchar',
+                    'type' => 'string',
+                    'datatype' => 'varchar',
                     'interface' => 'text_input',
                     'length' => 255,
                 ],
@@ -316,7 +317,7 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'id',
                     'interface' => 'primary_key',
-                    'type' => 'primary_key',
+                    'type' => 'number',
                     'length' => 11,
                     'auto_increment' => true,
                     'datatype' => 'integer',
@@ -325,7 +326,8 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'name',
                     'interface' => 'text_input',
-                    'type' => 'varchar',
+                    'type' => 'string',
+                    'datatype' => 'varchar',
                     'length' => 255
                 ],
             ]
@@ -341,7 +343,8 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
         $data = [
             'field' => 'title',
             'interface' => 'text_input',
-            'type' => 'varchar',
+            'type' => 'string',
+            'datatype' => 'varchar',
             'length' => 255,
         ];
 
