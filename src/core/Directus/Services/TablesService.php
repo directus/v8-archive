@@ -11,7 +11,7 @@ use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Exception\InvalidFieldException;
 use Directus\Database\Exception\ItemNotFoundException;
-use Directus\Database\Exception\UnknownDataTypeException;
+use Directus\Database\Exception\UnknownTypeException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
@@ -1127,7 +1127,7 @@ class TablesService extends AbstractService
         }
 
         if ($type && !DataTypes::exists($type)) {
-            throw new UnknownDataTypeException($type);
+            throw new UnknownTypeException($type);
         }
     }
 

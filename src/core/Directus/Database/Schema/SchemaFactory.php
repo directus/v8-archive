@@ -23,7 +23,7 @@ use Directus\Database\Ddl\Column\TinyInteger;
 use Directus\Database\Ddl\Column\TinyText;
 use Directus\Database\Ddl\Column\Uuid;
 use Directus\Database\Exception\FieldAlreadyHasUniqueKeyException;
-use Directus\Database\Exception\UnknownDataTypeException;
+use Directus\Database\Exception\UnknownTypeException;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
@@ -252,7 +252,7 @@ class SchemaFactory
      *
      * @return Column
      *
-     * @throws UnknownDataTypeException
+     * @throws UnknownTypeException
      */
     protected function createColumnFromType($name, $type)
     {
@@ -348,7 +348,7 @@ class SchemaFactory
                 $column = new Enum($name);
                 break;
             default:
-                throw new UnknownDataTypeException($type);
+                throw new UnknownTypeException($type);
                 break;
         }
 

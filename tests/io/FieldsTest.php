@@ -4,7 +4,7 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Connection;
 use Directus\Database\Exception\FieldNotFoundException;
-use Directus\Database\Exception\UnknownDataTypeException;
+use Directus\Database\Exception\UnknownTypeException;
 use Directus\Database\Schema\DataTypes;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
@@ -219,7 +219,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_post('collections', $data, ['query' => $this->queryParams]);
         assert_response_error($this, $response, [
-            'code' => UnknownDataTypeException::ERROR_CODE,
+            'code' => UnknownTypeException::ERROR_CODE,
             'status' => 422
         ]);
     }
@@ -257,7 +257,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_error_patch('fields/' . static::$tableName . '/name', $data, ['query' => $this->queryParams]);
         assert_response_error($this, $response, [
-            'code' => UnknownDataTypeException::ERROR_CODE,
+            'code' => UnknownTypeException::ERROR_CODE,
             'status' => 422
         ]);
     }
