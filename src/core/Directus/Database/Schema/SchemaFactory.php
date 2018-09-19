@@ -4,6 +4,7 @@ namespace Directus\Database\Schema;
 
 use Directus\Database\Ddl\Column\Bit;
 use Directus\Database\Ddl\Column\CollectionLength;
+use Directus\Database\Ddl\Column\Custom;
 use Directus\Database\Ddl\Column\Double;
 use Directus\Database\Ddl\Column\Enum;
 use Directus\Database\Ddl\Column\LongBlob;
@@ -344,7 +345,7 @@ class SchemaFactory
                 $column = new Enum($name);
                 break;
             default:
-                throw new UnknownTypeException($type);
+                $column = new Custom($type, $name);
                 break;
         }
 
