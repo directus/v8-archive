@@ -1,7 +1,7 @@
 {
   "name": "$t:file_size",
   "version": "1.0.0",
-  "types": ["number"],
+  "types": ["integer"],
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

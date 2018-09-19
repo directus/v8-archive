@@ -1,7 +1,7 @@
 {
   "name": "$t:user",
   "version": "1.0.0",
-  "types": ["number", "user_created", "user_updated"],
+  "types": ["integer", "user_created", "user_updated"],
   "options": {
     "template": {
       "name": "$t:template",

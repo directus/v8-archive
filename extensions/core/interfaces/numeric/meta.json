@@ -1,7 +1,7 @@
 {
   "name": "$t:numeric",
   "version": "1.0.0",
-  "types": ["number"],
+  "types": ["integer", "decimal"],
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

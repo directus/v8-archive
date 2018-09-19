@@ -1,7 +1,7 @@
 {
   "name": "$t:slider",
   "version": "1.0.0",
-  "types": ["number"],
+  "types": ["integer"],
   "options": {
     "minimum": {
       "name": "$t:min",
