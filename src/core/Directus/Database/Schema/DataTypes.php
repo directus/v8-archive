@@ -12,7 +12,8 @@ final class DataTypes
     const TYPE_TIME                 = 'time';
     const TYPE_FILE                 = 'file';
     const TYPE_GROUP                = 'group';
-    const TYPE_NUMBER               = 'number';
+    const TYPE_INTEGER              = 'integer';
+    const TYPE_DECIMAL              = 'decimal';
     const TYPE_JSON                 = 'json';
     const TYPE_LANG                 = 'lang';
     const TYPE_M2O                  = 'm2o';
@@ -43,7 +44,8 @@ final class DataTypes
             static::TYPE_TIME,
             static::TYPE_FILE,
             static::TYPE_GROUP,
-            static::TYPE_NUMBER,
+            static::TYPE_INTEGER,
+            static::TYPE_DECIMAL,
             static::TYPE_JSON,
             static::TYPE_LANG,
             static::TYPE_M2O,
@@ -165,7 +167,44 @@ final class DataTypes
      */
     public static function isNumericType($type)
     {
-        return strtolower($type) === $type;
+        return in_array(strtolower($type), static::getNumericTypes());
+    }
+
+    /**
+     * Checks whether or not the given type is a integer type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isInteger($type)
+    {
+        return strtolower($type) === static::TYPE_INTEGER;
+    }
+
+    /**
+     * Checks whether or not the given type is a decimal type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isDecimal($type)
+    {
+        return strtolower($type) === static::TYPE_DECIMAL;
+    }
+
+    /**
+     * Returns all numeric types
+     *
+     * @return array
+     */
+    public static function getNumericTypes()
+    {
+        return [
+            static::TYPE_INTEGER,
+            static::TYPE_DECIMAL,
+        ];
     }
 
     /**
@@ -305,7 +344,8 @@ final class DataTypes
     public static function getLengthTypes()
     {
         return [
-            static::TYPE_NUMBER,
+            static::TYPE_INTEGER,
+            static::TYPE_DECIMAL,
             static::TYPE_STRING,
             static::TYPE_ARRAY,
             static::TYPE_ARRAY,

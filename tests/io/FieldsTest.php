@@ -52,7 +52,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'number',
+                    'type' => 'integer',
                     'datatype' => 'integer',
                     'length' => 11,
                     'primary_key' => true,
@@ -147,7 +147,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------------------
         foreach ($types as $type) {
             $data = [
-                'type' => 'number',
+                'type' => 'integer',
                 'datatype' => 'integer',
                 'length' => 10
             ];
@@ -341,7 +341,7 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'number',
+                    'type' => 'integer',
                     'datatype' => 'integer',
                     'length' => 11,
                     'primary_key' => true,

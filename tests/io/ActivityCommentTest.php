@@ -27,7 +27,7 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'id',
                     'auto_increment' => true,
-                    'type' => 'number',
+                    'type' => 'integer',
                     'datatype' => 'integer',
                     'primary_key' => true,
                     'interface' => 'primary_key',
@@ -317,7 +317,7 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
                 [
                     'field' => 'id',
                     'interface' => 'primary_key',
-                    'type' => 'number',
+                    'type' => 'integer',
                     'length' => 11,
                     'auto_increment' => true,
                     'datatype' => 'integer',

@@ -38,7 +38,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 [
                     'field' => 'id',
-                    'type' => 'number',
+                    'type' => 'integer',
                     'datatype' => 'integer',
                     'interface' => 'primary_key',
                     'primary_key' => true,
@@ -48,7 +48,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
                 ],
                 [
                     'field' => 'status',
-                    'type' => 'number',
+                    'type' => 'integer',
                     'datatype' => 'integer',
                     'interface' => 'status',
                     'signed' => false,
@@ -56,7 +56,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
                 ],
                 [
                     'field' => 'sort',
-                    'type' => 'number',
+                    'type' => 'integer',
                     'datatype' => 'integer',
                     'interface' => 'sort',
                     'signed' => false,
