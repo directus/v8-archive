@@ -13,7 +13,8 @@
   "options": {},
   "translation": {
     "en-US": {
-      "primary_key": "Primary Key"
+      "primary_key": "Primary Key",
+      "immutable": "Can not be changed"
     }
   }
 }
