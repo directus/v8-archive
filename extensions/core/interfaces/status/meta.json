@@ -101,7 +101,7 @@
     "en-US": {
       "status": "Status",
       "status_mapping": "Status Mapping",
-      "status_mapping_comment": "Enter JSON status options. Learn More.",
+      "status_mapping_comment": "Enter JSON status options",
       "simple_badge": "Simple Badge",
       "simple_badge_comment":
         "Displays a colored dot on the item listing page.",
