@@ -35,7 +35,7 @@ use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
-use function Directus\generate_uui4;
+use function Directus\generate_uuid4;
 use function Directus\get_api_project_from_request;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
@@ -575,7 +575,7 @@ class CoreServicesProvider
             $generateExternalId = function (Payload $payload) {
                 // generate an external id if none is passed
                 if (!$payload->get('external_id')) {
-                    $payload->set('external_id', generate_uui4());
+                    $payload->set('external_id', generate_uuid4());
                 }
 
                 return $payload;
