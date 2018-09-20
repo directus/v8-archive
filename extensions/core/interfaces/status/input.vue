@@ -38,6 +38,6 @@ export default {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: max-content;
-  grid-gap: 20px;
+  grid-gap: 40px;
 }
 </style>
