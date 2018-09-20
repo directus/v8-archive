@@ -3,12 +3,12 @@
     <!-- If 'number' is selected for display option -->
     <div class="rating-numbers" v-if="options.display=='number'">
       <i class="material-icons">star</i>
-      <span>{{value}}</span>
+      <span>{{value ? value : 0}}</span>
     </div>
 
     <!-- If 'star' is selected for display option -->
-    <div class="rating-numbers" v-if="options.display=='star'">
-      <stars :options="options" :rating="value" :readonly="true"></stars>
+    <div class="rating-stars" v-if="options.display=='star'">
+      <stars :options="options" :rating="value" :readonly="true" :small="true"></stars>
     </div>
 
   </div>
@@ -23,9 +23,10 @@ export default {
     Stars: require("./stars.vue").default
   }
 };
-</script> 
+</script>
 
 <style lang="scss" scoped>
+.rating-stars,
 .rating-numbers {
   display: flex;
   align-items: center;

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['rating-stars',{'rating-readonly':readonly}]">
+  <div :class="['rating-stars',{'rating-readonly':readonly},{'rating-small':small}]">
     <button
       v-for="n in options.max_stars"
       @mouseenter="readonly?'':hovered = n"
@@ -16,6 +16,10 @@
 export default {
   props: {
     readonly: {
+      type: Boolean,
+      default: false
+    },
+    small: {
       type: Boolean,
       default: false
     },
@@ -97,6 +101,15 @@ export default {
 .rating-readonly {
   .rating-button {
     cursor: initial;
+  }
+}
+.rating-small {
+  .rating-button {
+    width: 18px;
+    height: 20px;
+    &:after {
+      font-size: 18px;
+    }
   }
 }
 .rating-button {
