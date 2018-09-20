@@ -8,9 +8,9 @@
       :value="value"
       :icon-right="lockIcon"
       :icon-right-color="iconColor"
-      @input="$emit('input', $event)"></v-input>
+      @input="$emit('input', $event)"></v-input><!--
 
-      <v-input
+    --><v-input
       id="second"
       class="password second"
       v-model="confirmValue"
@@ -75,5 +75,10 @@ export default {
 }
 .second {
 
+}
+@media only screen and (max-width: 660px) {
+  .first {
+    margin-bottom: 10px;
+  }
 }
 </style>
