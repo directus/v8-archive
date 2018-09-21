@@ -36,7 +36,7 @@ export default {
           icon: "delete_forever",
           color: "warning"
         },
-        login: {
+        authenticate: {
           icon: "lock_open",
           color: "dark-gray"
         },
@@ -68,22 +68,24 @@ export default {
     },
     label() {
       if (this.value) {
-        if (this.value.toLowerCase() == "add") {
-          return "Item Created";
-        } else if (this.value.toLowerCase() == "update") {
-          return "Item Saved";
-        } else if (this.value.toLowerCase() == "soft-delete") {
-          return "Item Deleted";
-        } else if (this.value.toLowerCase() == "delete") {
-          return "Item Deleted";
-        } else if (this.value.toLowerCase() == "login") {
-          return "Authenticated";
-        } else if (this.value.toLowerCase() == "upload") {
-          return "File Uploaded";
-        } else if (this.value.toLowerCase() == "mention") {
-          return "Mentioned";
-        } else if (this.value.toLowerCase() == "error") {
-          return "Error";
+
+        switch (this.value.toLowerCase()) {
+          case "add":
+            return "Item Created";
+          case "update":
+            return "Item Saved";
+          case "soft-delete":
+            return "Item Deleted";
+          case "delete":
+            return "Item Deleted";
+          case "authenticate":
+            return "Authenticated";
+          case "upload":
+            return "File Uploaded";
+          case "mention":
+            return "Mentioned";
+          case "error":
+            return "Error";
         }
       }
 

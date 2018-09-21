@@ -43,7 +43,8 @@ class CreateFieldsTable extends AbstractMigration
         ]);
         $table->addColumn('interface', 'string', [
             'limit' => 64,
-            'null' => false
+            'null' => true,
+            'default' => null,
         ]);
         $table->addColumn('options', 'text', [
             'null' => true,

@@ -1,6 +1,6 @@
 <template>
   <v-select
-    :value="value"
+    :value="userID"
     :disabled="readonly"
     :id="name"
     :options="choices"
@@ -14,6 +14,10 @@ import mixin from "../../../mixins/interface";
 export default {
   mixins: [mixin],
   computed: {
+    userID() {
+      if (typeof this.value === "object") return this.value.id;
+      return this.value;
+    },
     choices() {
       const users = this.$store.state.users || {};
 
