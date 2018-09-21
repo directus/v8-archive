@@ -7,7 +7,7 @@
       "name": "$t:min",
       "comment": "$t:min_comment",
       "interface": "numeric",
-      "default": 1
+      "default": 0
     },
     "maximum": {
       "name": "$t:max",

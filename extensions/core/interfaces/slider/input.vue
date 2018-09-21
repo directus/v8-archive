@@ -19,6 +19,7 @@ export default {
   computed: {
     safeValue() {
       if (!this.value) return this.options.minimum;
+      return this.value;
     }
   }
 };
