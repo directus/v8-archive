@@ -4,8 +4,9 @@
   "description": "",
   "scripts": {
     "postinstall": "npx recursive-install --skip-root",
-    "build": "parcel build \"core/**/*.vue\" -d ../public/extensions/core --no-source-maps --global __DirectusExtension__ && cpx \"core/**/meta.json\" ../public/extensions/core -t ./json-minifier.js -v",
-    "dev": "cpx \"core/**/meta.json\" ../public/extensions/core && concurrently --raw \"cpx core/**/meta.json ../public/extensions/core -w\" \"parcel watch core/**/*.vue -d ../public/extensions/core --no-source-maps --global __DirectusExtension__\"",
+    "prebuild": "rm -rf $npm_package_PATH_EXTENSIONS_DIR/{interfaces,layouts,pages}",
+    "build": "parcel build \"core/**/*.vue\" -d $npm_package_PATH_EXTENSIONS_DIR --no-source-maps --global __DirectusExtension__ && cpx \"$npm_package_PATH_JSON_FILES\" $npm_package_PATH_EXTENSIONS_DIR -t ./json-minifier.js -v && cpx \"$npm_package_PATH_PHP_FILES\" $npm_package_PATH_EXTENSIONS_DIR",
+    "dev": "cpx \"$npm_package_PATH_STATIC_FILES\" $npm_package_PATH_EXTENSIONS_DIR && concurrently --raw \"cpx $npm_package_PATH_STATIC_FILES $npm_package_PATH_EXTENSIONS_DIR -w\" \"parcel watch core/**/*.vue -d $npm_package_PATH_EXTENSIONS_DIR --no-source-maps --global __DirectusExtension__\"",
     "lint": "vue-cli-service lint \"core/**/*.vue\"",
     "fix": "prettier --write \"core/**/*.{js,vue}\""
   },
@@ -44,5 +45,11 @@
       "ecmaVersion": 8,
       "sourceType": "module"
     }
+  },
+  "PATH": {
+    "JSON_FILES": "core/**/meta.json",
+    "PHP_FILES": "core/**/{hooks.php,endpoints.php}",
+    "STATIC_FILES": "core/**/{meta.json,hooks.php,endpoints.php}",
+    "EXTENSIONS_DIR": "../public/extensions/core"
   }
 }
