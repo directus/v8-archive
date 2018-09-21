@@ -128,9 +128,9 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_activity',
-                'field' => 'user_agent',
+                'field' => 'comment',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
+                'interface' => 'textarea',
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 10
