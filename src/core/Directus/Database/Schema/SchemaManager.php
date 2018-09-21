@@ -592,39 +592,29 @@ class SchemaManager
         $fieldsRelation = $this->getRelationshipsData($collectionName);
 
         foreach ($fields as $field) {
-            foreach ($fieldsRelation as $key => $value) {
-                if (empty($fieldsRelation)) {
-                    break;
+            if (empty($fieldsRelation)) {
+                // Set all FILE data type related to directus files (M2O)
+                if (DataTypes::isFilesType($field->getType())) {
+                    $field->setRelationship([
+                        'collection_many' => $field->getCollectionName(),
+                        'field_many' => $field->getName(),
+                        'collection_one' => static::COLLECTION_FILES,
+                        'field_one' => 'id'
+                    ]);
                 }
 
+                continue;
+            }
+
+            foreach ($fieldsRelation as $key => $value) {
                 if (ArrayUtils::get($value, 'field_many') == $field->getName() || ArrayUtils::get($value, 'field_one') == $field->getName()) {
-                    $relation = ArrayUtils::pull($fieldsRelation, $key);
-                    $this->addFieldRelationship($field, $relation);
+                    $field->setRelationship(ArrayUtils::pull($fieldsRelation, $key));
                     break;
                 }
             }
         }
 
         return $fields;
-    }
-
-    /**
-     * @param Field $field
-     * @param $relationshipData
-     */
-    protected function addFieldRelationship(Field $field, $relationshipData)
-    {
-        // Set all FILE data type related to directus files (M2O)
-        if (DataTypes::isFilesType($field->getType())) {
-            $field->setRelationship([
-                'collection_many' => $field->getCollectionName(),
-                'field_many' => $field->getName(),
-                'collection_one' => static::COLLECTION_FILES,
-                'field_one' => 'id'
-            ]);
-        } else {
-            $field->setRelationship($relationshipData);
-        }
     }
 
     /**
