@@ -105,6 +105,7 @@ export default {
   padding: 5px 0;
 
   button {
+    transition: var(--fast) var(--transition);
     margin: 2px;
     padding: 2px 4px 3px;
     background-color: var(--gray);
