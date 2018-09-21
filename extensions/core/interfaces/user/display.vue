@@ -25,11 +25,6 @@ export default {
       );
     },
     src() {
-      return (
-        this.value.avatar &&
-        this.value.avatar.data &&
-        this.value.avatar.data.full_url
-      );
     }
   }
 };
