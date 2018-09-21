@@ -6,8 +6,8 @@
       class="interface-file-size"
       :readonly="readonly"
       :placeholder="options.placeholder"
-      @input="calculateValue"></v-input>
-    <v-select
+      @input="calculateValue"></v-input><!--
+    --><v-select
       v-model="units"
       class="interface-file-size-units"
       :disabled="readonly"
@@ -100,13 +100,12 @@ export default {
 }
 .interface-file-size {
   display: inline-block;
-  max-width: var(--width-small);
+  max-width: calc(var(--width-small) - 60px);
 }
 .interface-file-size-units {
   margin: 0;
   display: inline-block;
-  min-width: 70px;
-  margin-left: 4px;
-  max-width: var(--width-x-small);
+  width: 62px;
+  margin-left: -2px;
 }
 </style>
