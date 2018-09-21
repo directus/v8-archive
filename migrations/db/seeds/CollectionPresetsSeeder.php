@@ -21,15 +21,15 @@ class CollectionPresetsSeeder extends AbstractSeed
                 'view_query' => json_encode([
                     'tabular' => [
                         'sort' => '-datetime',
-                        'fields' => 'action,user,datetime,collection,item'
+                        'fields' => 'action,action_by,action_on,collection,item'
                     ]
                 ]),
                 'view_options' => json_encode([
                     'tabular' => [
                         'widths' => [
                             'action' => 100,
-                            'user' => 170,
-                            'datetime' => 180,
+                            'action_by' => 170,
+                            'action_on' => 180,
                             'collection' => 200,
                             'item' => 200
                         ]
