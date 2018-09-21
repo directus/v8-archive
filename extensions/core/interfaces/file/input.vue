@@ -16,7 +16,7 @@
       </audio>
     </div>
     <div v-else class="file">
-      {{type}}
+      {{ fileType }}
     </div>
     <div class="toolbar">
       <span class="original">
@@ -63,7 +63,7 @@ export default {
       }
       return false;
     },
-    type() {
+    fileType() {
       return this.values.type.split("/")[1];
     },
     url() {
