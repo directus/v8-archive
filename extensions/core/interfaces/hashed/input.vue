@@ -2,8 +2,7 @@
   <div class="interface-encrypted">
     <v-input
       v-model="newValue"
-      :placeholder="options.showHash ? originalValue : $t('interfaces-hashed-hashed')"
-      :class="width"
+      :placeholder="options.showHash ? originalValue : $t('interfaces-hashed-secured')"
       :type="inputType"
       :icon-right="lockIcon"
       :icon-right-color="iconColor"></v-input>
@@ -27,16 +26,6 @@ export default {
     }
   },
   computed: {
-    width() {
-      if (this.options.width !== "auto") return this.options.width;
-
-      const length = this.length;
-
-      if (!length) return "normal";
-
-      if (length <= 25) return "small";
-      else return "medium";
-    },
     valueChanged() {
       return this.value !== this.originalValue;
     },
@@ -54,15 +43,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.x-small {
-  max-width: var(--width-x-small);
-}
-
-.small {
-  max-width: var(--width-small);
-}
-
-.medium {
+.v-input {
+  width: 100%;
   max-width: var(--width-normal);
 }
 </style>

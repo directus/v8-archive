@@ -38,20 +38,6 @@
           "sha512": "SHA-512"
         }
       }
-    },
-    "width": {
-      "name": "$t:width",
-      "comment": "$t:width_comment",
-      "interface": "dropdown",
-      "default": "auto",
-      "options": {
-        "choices": {
-          "auto": "$t:auto",
-          "small": "$t:small",
-          "medium": "$t:medium",
-          "large": "$t:large"
-        }
-      }
     }
   },
   "translation": {
@@ -71,7 +57,7 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
-      "hashed": "Value Securely Stored"
+      "secured": "Value Securely Stored"
     }
   }
 }
