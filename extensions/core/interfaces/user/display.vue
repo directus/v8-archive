@@ -20,6 +20,8 @@ export default {
   computed: {
     userInfo() {
       if (!this.value) return null;
+
+      if (typeof this.value === 'object') return this.value;
       return this.$store.state.users[this.value];
     },
     displayValue() {
