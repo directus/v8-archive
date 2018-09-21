@@ -2,6 +2,7 @@
   "name": "$t:divider",
   "version": "1.0.0",
   "types": ["alias"],
+  "hideLabel": true,
   "options": {
     "style": {
       "name": "$t:style-name",
