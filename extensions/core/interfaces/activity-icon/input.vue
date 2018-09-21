@@ -1,7 +1,7 @@
 <template>
   <v-input
     class="small"
-    readonly="true"
+    :readonly="true"
     :value="value"
     :icon-left="options.iconLeft"
     :icon-right="options.iconRight"></v-input>
