@@ -10,7 +10,7 @@
     --><v-select
       v-model="units"
       class="interface-file-size-units"
-      :disabled="readonly"
+      :readonly="readonly"
       :id="name"
       :options="unitChoices"
       :placeholder="options.placeholder"
