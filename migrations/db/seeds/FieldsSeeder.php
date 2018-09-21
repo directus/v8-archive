@@ -24,6 +24,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
                 'locked' => 1,
+                'readonly' => 1,
                 'required' => 1,
                 'hidden_input' => 1
             ],
@@ -32,59 +33,107 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'action',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'activity-icon',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_activity',
-                'field' => 'action_by',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
-                'interface' => 'user',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_activity',
-                'field' => 'action_on',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
-                'interface' => 'datetime',
                 'locked' => 1,
-                'options' => json_encode([
-                    'showRelative' => true
-                ])
-            ],
-            [
-                'collection' => 'directus_activity',
-                'field' => 'ip',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_activity',
-                'field' => 'user_agent',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'locked' => 1
+                'readonly' => 1,
+                'sort' => 1
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'collections',
-                'locked' => 1
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 2,
+                'view_width' => 2
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'item',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 3,
+                'view_width' => 2
             ],
             [
                 'collection' => 'directus_activity',
-                'field' => 'message',
+                'field' => 'action_by',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+                'interface' => 'user',
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 4,
+                'view_width' => 2
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'action_on',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime',
+                'options' => json_encode([
+                    'showRelative' => true
+                ]),
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 5,
+                'view_width' => 2
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'edited_on',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime',
+                'options' => json_encode([
+                    'showRelative' => true
+                ]),
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 6,
+                'view_width' => 2
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'comment_deleted_on',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime',
+                'options' => json_encode([
+                    'showRelative' => true
+                ]),
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 7,
+                'view_width' => 2
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'ip',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'markdown',
-                'locked' => 1
+                'interface' => 'text-input',
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 8,
+                'view_width' => 2
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'user_agent',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 9,
+                'view_width' => 2
+            ],
+            [
+                'collection' => 'directus_activity',
+                'field' => 'user_agent',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 10
             ],
 
 
@@ -390,6 +439,10 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'title',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
+                'options' => json_encode([
+                    'placeholder' => 'Enter a descriptive title...',
+                    'iconRight' => 'title'
+                ]),
                 'locked' => 1,
                 'sort' => 3,
                 'view_width' => 2
@@ -399,6 +452,10 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'filename',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
+                'options' => json_encode([
+                    'placeholder' => 'Enter a unique file name...',
+                    'iconRight' => 'insert_drive_file'
+                ]),
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 4,
@@ -418,6 +475,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
+                    'placeholder' => 'Enter a location...',
                     'iconRight' => 'place'
                 ]),
                 'sort' => 6,
@@ -428,6 +486,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'description',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'wysiwyg',
+                'options' => json_encode([
+                    'placeholder' => 'Enter a caption or description...'
+                ]),
                 'sort' => 7
             ],
             [
