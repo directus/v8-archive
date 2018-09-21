@@ -362,7 +362,6 @@ class SchemaFactory
         $constraints = [
             'field' => ['required', 'string'],
             'type' => ['required', 'string'],
-            'interface' => ['required', 'string']
         ];
 
         // Copied from route

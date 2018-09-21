@@ -56,7 +56,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
                     'datatype' => 'integer',
                     'primary_key' => true,
                     'auto_increment' => true,
-                    'interface' => 'primary_key'
                 ]
             ]
         ];
@@ -70,7 +69,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         // --------------------------------------------------------------------
         $data = [
             'field' => 'name',
-            'interface' => 'text_input',
             'length' => 100,
             'type' => 'string',
             'datatype' => 'varchar',
@@ -80,7 +78,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response);
         assert_response_data_contains($this, $response, [
             'field' => 'name',
-            'interface' => 'text_input',
             'type' => 'string',
         ]);
 
@@ -99,7 +96,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         foreach ($types as $type) {
             $data = [
                 'field' => $type,
-                'interface' => 'text_input',
                 'type' => $type
             ];
 
@@ -204,12 +200,10 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
                     'type' => 'primary_key',
                     'primary_key' => true,
                     'auto_increment' => true,
-                    'interface' => 'primary_key'
                 ],
                 [
                     'field' => 'test',
                     'type' => 'unknown',
-                    'interface' => 'unknown'
                 ]
             ]
         ];
@@ -233,7 +227,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, [
             'field' => 'name',
             'type' => 'string',
-            'interface' => 'text_input'
         ]);
 
         // Has columns records
@@ -263,7 +256,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
     {
         $data = [
             'field' => 'name',
-            'interface' => 'text_input',
             'collection' => 'test'
         ];
 
@@ -342,25 +334,21 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
                     'datatype' => 'integer',
                     'primary_key' => true,
                     'auto_increment' => true,
-                    'interface' => 'primary_key',
                 ],
                 [
                     'field' => 'datetime',
                     'type' => 'datetime',
                     'datatype' => 'datetime',
-                    'interface' => 'datetime',
                 ],
                 [
                     'field' => 'date',
                     'type' => 'date',
                     'datatype' => 'date',
-                    'interface' => 'date',
                 ],
                 [
                     'field' => 'time',
                     'type' => 'time',
                     'datatype' => 'time',
-                    'interface' => 'time',
                 ],
             ]
         ];
