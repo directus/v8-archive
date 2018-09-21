@@ -70,7 +70,8 @@
       "auto": "Automatic",
       "small": "Small",
       "medium": "Medium",
-      "large": "Large"
+      "large": "Large",
+      "hashed": "Value Securely Stored"
     }
   }
 }

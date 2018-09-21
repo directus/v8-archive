@@ -1,12 +1,12 @@
 <template>
   <div class="interface-encrypted">
     <v-input
+      v-model="newValue"
+      :placeholder="options.showHash ? originalValue : $t('interfaces-hashed-hashed')"
       :class="width"
       :type="inputType"
-      :value="value"
       :icon-right="lockIcon"
-      :icon-right-color="iconColor"
-      @input="$emit('input', $event)"></v-input>
+      :icon-right-color="iconColor"></v-input>
   </div>
 </template>
 
@@ -17,8 +17,14 @@ export default {
   mixins: [mixin],
   data() {
     return {
-      originalValue: this.value || ""
+      originalValue: this.value || "",
+      newValue: ""
     };
+  },
+  watch: {
+    newValue(val) {
+      this.$emit("input", val);
+    }
   },
   computed: {
     width() {
