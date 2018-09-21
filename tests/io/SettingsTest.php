@@ -79,4 +79,15 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
             'status' => 404
         ]);
     }
+
+    public function testFields()
+    {
+        $queryParams = ['access_token' => 'token'];
+        $path = 'settings/fields';
+
+        $response = request_get($path, $queryParams);
+        assert_response($this, $response, [
+            'data' => 'array'
+        ]);
+    }
 }
