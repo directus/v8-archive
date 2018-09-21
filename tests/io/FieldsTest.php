@@ -54,7 +54,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
                     'field' => 'id',
                     'type' => 'integer',
                     'datatype' => 'integer',
-                    'length' => 11,
                     'primary_key' => true,
                     'auto_increment' => true,
                     'interface' => 'primary_key'
@@ -149,7 +148,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
             $data = [
                 'type' => 'integer',
                 'datatype' => 'integer',
-                'length' => 10
             ];
 
             $path = sprintf('fields/%s/%s', static::$tableName, $type);
@@ -204,7 +202,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
                     'field' => 'id',
                     'datatype' => 'integer',
                     'type' => 'primary_key',
-                    'length' => 10,
                     'primary_key' => true,
                     'auto_increment' => true,
                     'interface' => 'primary_key'
@@ -343,7 +340,6 @@ class FieldsTest extends \PHPUnit_Framework_TestCase
                     'field' => 'id',
                     'type' => 'integer',
                     'datatype' => 'integer',
-                    'length' => 11,
                     'primary_key' => true,
                     'auto_increment' => true,
                     'interface' => 'primary_key',
