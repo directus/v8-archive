@@ -184,7 +184,7 @@ button.fullscreen-toggle {
   transition: var(--fast) var(--transition);
   transition-property: color, border-color, padding;
   background-color: var(--white);
-  min-height: 300px;
+  min-height: 200px;
   max-height: 800px;
   overflow: scroll;
   font-weight: 400;
