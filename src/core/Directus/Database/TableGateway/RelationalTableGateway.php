@@ -958,7 +958,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         if ($tableSchema->hasStatusField() && in_array('status', $list)) {
             $statusCount = $this->countByStatus();
-            $metadata['status'] = $statusCount;
+            $metadata['status_count'] = $statusCount;
         }
 
         return $metadata;
@@ -2096,7 +2096,7 @@ class RelationalTableGateway extends BaseTableGateway
             if (isset($row[$statusFieldName])) {
                 foreach ($statusMap as $status) {
                     if ($status->getValue() == $row[$statusFieldName]) {
-                        $stats[$status->getName()] = (int) $row['quantity'];
+                        $stats[$status->getValue()] = (int) $row['quantity'];
                     }
                 }
             }
@@ -2104,7 +2104,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $vals = [];
         foreach ($statusMap as $value) {
-            array_push($vals, $value->getName());
+            array_push($vals, $value->getValue());
         }
 
         $possibleValues = array_values($vals);
@@ -2112,8 +2112,6 @@ class RelationalTableGateway extends BaseTableGateway
         foreach ($makeMeZero as $unsetActiveColumn) {
             $stats[$unsetActiveColumn] = 0;
         }
-
-        $stats['total_entries'] = array_sum($stats);
 
         return $stats;
     }

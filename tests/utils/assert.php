@@ -103,16 +103,29 @@ function assert_response_meta(TestCase $testCase, ResponseInterface $response, a
     $testCase->assertObjectHasAttribute('meta', $result);
     $testCase->assertObjectNotHasAttribute('error', $result);
     $meta = $result->meta;
-    $validOptions = ['table', 'type', 'result_count'];
 
     // TODO: Check for 204 status code
-    if (!empty($options)) {
-        foreach ($validOptions as $option) {
-            if (isset($options[$option])) {
-                $testCase->assertObjectHasAttribute($option, $meta);
-                $testCase->assertSame($options[$option], $meta->{$option});
-            }
-        }
+    foreach ($options as $key => $option) {
+        $testCase->assertObjectHasAttribute($key, $meta);
+        $testCase->assertSame($option, $meta->{$key});
+    }
+}
+
+/**
+ * @param TestCase $testCase
+ * @param ResponseInterface $response
+ * @param array $fields
+ */
+function assert_response_meta_fields(TestCase $testCase, ResponseInterface $response, array $fields = [])
+{
+    $result = response_to_object($response);
+    $testCase->assertObjectHasAttribute('meta', $result);
+    $testCase->assertObjectNotHasAttribute('error', $result);
+    $meta = $result->meta;
+
+    // TODO: Check for 204 status code
+    foreach ($fields as $field) {
+        $testCase->assertObjectHasAttribute($field, $meta);
     }
 }
 

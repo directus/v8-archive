@@ -1105,4 +1105,39 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         $response = request_patch('items/products/' . $id, $newData, ['query' => ['fields' => '*, images.*.*', 'access_token' => 'token']]);
         $testM2M($response, array_merge($data, $newData));
     }
+
+    public function testListMeta()
+    {
+        $path = 'items/products';
+        $response = request_get($path, ['access_token' => 'token', 'meta' => '*']);
+        assert_response($this, $response, [
+            'data' => 'array'
+        ]);
+        assert_response_meta($this, $response, [
+            'collection' => 'products',
+            'type' => 'collection',
+        ]);
+        assert_response_meta_fields($this, $response, [
+            'collection',
+            'type',
+            'result_count',
+            'total_count',
+            'status_count',
+        ]);
+    }
+
+    public function testItemMeta()
+    {
+        $path = 'items/products/1';
+        $response = request_get($path, ['access_token' => 'token', 'meta' => '*']);
+        assert_response($this, $response);
+        assert_response_meta($this, $response, [
+            'collection' => 'products',
+            'type' => 'item',
+        ]);
+        assert_response_meta_fields($this, $response, [
+            'collection',
+            'type',
+        ]);
+    }
 }
