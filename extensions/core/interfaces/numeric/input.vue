@@ -1,7 +1,6 @@
 <template>
   <v-input
     type="number"
-    class="number"
     :readonly="readonly"
     :placeholder="options.placeholder"
     :value="value"
@@ -19,7 +18,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.number {
+.v-input {
   width: 100%;
   max-width: var(--width-normal);
 }
