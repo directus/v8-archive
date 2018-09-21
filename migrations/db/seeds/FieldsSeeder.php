@@ -214,37 +214,37 @@ class FieldsSeeder extends AbstractSeed
             // -----------------------------------------------------------------
             [
                 'collection' => 'directus_collections',
-                'field' => 'collection',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'primary-key',
-                'locked' => 1,
-                'readonly' => 1,
-                'required' => 1,
-                'hidden_input' => 1,
-                'sort' => 1
-            ],
-            [
-                'collection' => 'directus_collections',
                 'field' => 'fields',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
                 'interface' => 'one-to-many',
                 'locked' => 1,
                 'hidden_input' => 1,
                 'hidden_list' => 1,
-                'sort' => 2
+                'sort' => 1
+            ],
+            [
+                'collection' => 'directus_collections',
+                'field' => 'collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'primary-key',
+                'locked' => 1,
+                'readonly' => 1,
+                'required' => 1,
+                'sort' => 2,
+                'view_width' => 2
+            ],
+            [
+                'collection' => 'directus_collections',
+                'field' => 'note',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+                'sort' => 3,
+                'view_width' => 2
             ],
             [
                 'collection' => 'directus_collections',
                 'field' => 'managed',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
-                'locked' => 1,
-                'sort' => 3,
-                'view_width' => 1
-            ],
-            [
-                'collection' => 'directus_collections',
-                'field' => 'hidden',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
                 'locked' => 1,
@@ -253,7 +253,7 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_collections',
-                'field' => 'single',
+                'field' => 'hidden',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
                 'locked' => 1,
@@ -262,11 +262,12 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_collections',
-                'field' => 'note',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
+                'field' => 'single',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle',
                 'locked' => 1,
-                'sort' => 6
+                'sort' => 6,
+                'view_width' => 1
             ],
             [
                 'collection' => 'directus_collections',
