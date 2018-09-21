@@ -28,7 +28,10 @@ export default {
   computed: {
     editorOptions() {
       return {
-        placeholder: false,
+        placeholder: {
+          text: this.options.placeholder,
+          hideOnClick: true
+        },
         toolbar: {
           buttons: this.options.buttons
         }
@@ -388,6 +391,8 @@ button.fullscreen-toggle {
 }
 
 .medium-editor-placeholder:after {
-  color: #9ccea6;
+  color: var(--lighter-gray);
+  font-style: normal;
+  font-weight: 500;
 }
 </style>

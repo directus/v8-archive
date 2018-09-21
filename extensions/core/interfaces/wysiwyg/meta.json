@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "types": ["string"],
   "options": {
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "text-input",
+      "length": 200
+    },
     "buttons": {
       "name": "$t:buttons",
       "comment": "$t:buttons_comment",
@@ -36,6 +42,8 @@
   "translation": {
     "en-US": {
       "wysiwyg": "WYSIWYG",
+      "placeholder": "Placeholder",
+      "placeholder_comment": "Enter placeholder text",
       "buttons": "Buttons",
       "buttons_comment": "Choose what buttons to use in the toolbar",
       "distraction_free_mode": "Distracton Free Mode"
