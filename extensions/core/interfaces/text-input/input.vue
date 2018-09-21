@@ -7,7 +7,7 @@
     :placeholder="options.placeholder"
     :icon-left="options.iconLeft"
     :icon-right="options.iconRight"
-    :maxlength="+length"
+    :maxlength="length ? +length : null"
     :id="name"
     :charactercount="options.showCharacterCount"
     @input="updateValue"></v-input>
