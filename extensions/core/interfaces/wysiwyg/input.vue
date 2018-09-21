@@ -84,7 +84,8 @@ export default {
 <style lang="scss">
 .interface-wysiwyg-container {
   position: relative;
-  max-width: var(--width-large);
+  width: 100%;
+  max-width: var(--width-x-large);
 
   &.fullscreen {
     position: fixed;
