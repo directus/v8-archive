@@ -19,6 +19,7 @@ export default {
 
 <style lang="scss" scoped>
 .textarea {
-  max-width: var(--width-large);
+  width: 100%;
+  max-width: var(--width-x-large);
 }
 </style>
