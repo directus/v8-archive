@@ -2,7 +2,6 @@
   <v-input
     type="text"
     icon-right-color=""
-    :class="width"
     :value="value || ''"
     :readonly="readonly"
     :placeholder="options.placeholder"
@@ -19,19 +18,6 @@ import mixin from "../../../mixins/interface";
 
 export default {
   mixins: [mixin],
-  computed: {
-    width() {
-      if (this.options.width !== "auto") return this.options.width;
-
-      const length = this.length;
-
-      if (!length) return "normal";
-
-      if (length <= 7) return "x-small";
-      else if (length > 7 && length <= 25) return "small";
-      else return "medium";
-    }
-  },
   methods: {
     updateValue(rawValue) {
       let value = rawValue;
@@ -47,15 +33,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.x-small {
-  max-width: var(--width-x-small);
-}
-
-.small {
-  max-width: var(--width-small);
-}
-
-.medium {
+.v-input {
+  width: 100%;
   max-width: var(--width-normal);
 }
 </style>
