@@ -1,5 +1,5 @@
 {
-  "name": "$t:encrypted",
+  "name": "$t:hashed",
   "version": "1.0.0",
   "types": ["string"],
   "options": {
@@ -56,7 +56,7 @@
   },
   "translation": {
     "en-US": {
-      "encrypted": "Encrypted",
+      "hashed": "Hashed",
       "hide": "Hide Value",
       "hide_comment": "Display dots instead of the characters you enter",
       "placeholder": "Placeholder",
