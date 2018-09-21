@@ -391,7 +391,6 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'locked' => 1,
-                'required' => 1,
                 'sort' => 3,
                 'view_width' => 2
             ],
