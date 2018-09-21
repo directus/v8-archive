@@ -1,7 +1,6 @@
 {
   "name": "$t:divider",
   "version": "1.0.0",
-  "noDisplay": true,
   "types": ["alias"],
   "options": {
     "style": {
