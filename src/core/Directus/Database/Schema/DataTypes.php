@@ -344,7 +344,6 @@ final class DataTypes
     public static function getLengthTypes()
     {
         return [
-            static::TYPE_INTEGER,
             static::TYPE_DECIMAL,
             static::TYPE_STRING,
             static::TYPE_ARRAY,
