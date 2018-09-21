@@ -19,7 +19,7 @@ export default {
   mixins: [mixin],
   computed: {
     inputType() {
-      if (this.type === "VARCHAR" || this.type === "CHAR") {
+      if (this.type === "string") {
         return "text";
       }
 
