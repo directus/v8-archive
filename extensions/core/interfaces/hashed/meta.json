@@ -13,7 +13,8 @@
       "name": "$t:placeholder",
       "comment": "$t:placeholder_comment",
       "interface": "text-input",
-      "length": 100
+      "length": 100,
+      "default": "Enter a value..."
     },
     "showHash": {
       "name": "$t:show_hash",
@@ -57,7 +58,7 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
-      "secured": "Value Securely Stored"
+      "secured": "Value Secured"
     }
   }
 }

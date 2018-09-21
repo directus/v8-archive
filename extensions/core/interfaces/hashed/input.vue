@@ -2,7 +2,7 @@
   <div class="interface-encrypted">
     <v-input
       v-model="newValue"
-      :placeholder="options.showHash ? originalValue : $t('interfaces-hashed-secured')"
+      :placeholder="placeholder"
       :type="inputType"
       :icon-right="lockIcon"
       :icon-right-color="iconColor"></v-input>
@@ -26,6 +26,15 @@ export default {
     }
   },
   computed: {
+    placeholder() {
+      if (!this.originalValue) {
+        return this.options.placeholder;
+      } else if(this.options.showHash){
+        return this.originalValue;
+      } else {
+        return this.$t('interfaces-hashed-secured');
+      }
+    },
     valueChanged() {
       return this.value !== this.originalValue;
     },
