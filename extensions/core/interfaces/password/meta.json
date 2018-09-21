@@ -7,7 +7,7 @@
       "name": "$t:hide",
       "comment": "$t:hide_comment",
       "interface": "toggle",
-      "default": false
+      "default": true
     },
     "placeholder": {
       "name": "$t:placeholder",

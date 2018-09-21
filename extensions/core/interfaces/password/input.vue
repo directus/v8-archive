@@ -11,6 +11,7 @@
       @input="$emit('input', $event)"></v-input><!--
 
     --><v-input
+      v-if="false"
       id="second"
       class="password second"
       v-model="confirmValue"
