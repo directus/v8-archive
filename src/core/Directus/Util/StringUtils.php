@@ -200,7 +200,7 @@ class StringUtils
                 $value = $value ? 'true' : 'false';
             }
 
-            if (is_scalar($value)) {
+            if (is_scalar($value) || is_null($value)) {
                 $string = str_replace(sprintf($placeHolderFormat, $key), $value, $string);
             }
         }
