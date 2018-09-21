@@ -150,7 +150,7 @@ export default {
 <style lang="scss" scoped>
 .interface-code {
   position: relative;
-  max-width: var(--width-large);
+  max-width: var(--width-x-large);
   font-size: 13px;
 
   &:focus {
