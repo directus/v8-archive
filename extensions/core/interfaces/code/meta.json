@@ -7,7 +7,7 @@
       "name": "$t:language",
       "comment": "$t:language_comment",
       "interface": "dropdown",
-      "default": "text/javascript",
+      "default": "application/json",
       "options": {
         "choices": {
           "text/plain": "Plain Text",
