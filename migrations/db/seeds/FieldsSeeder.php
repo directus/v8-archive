@@ -1170,6 +1170,15 @@ class FieldsSeeder extends AbstractSeed
                 'readonly' => 1,
                 'hidden_input' => 1
             ],
+            [
+                'collection' => 'directus_users',
+                'field' => 'high_contrast_mode',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle',
+                'locked' => 1,
+                'hidden_input' => 1,
+                'hidden_list' => 1
+            ],
 
             // User Roles Junction
             // -----------------------------------------------------------------
