@@ -605,6 +605,7 @@ class TablesService extends AbstractService
     {
         // NOTE: If any of these attributes exists the database needs to update the column
         return ArrayUtils::containsSome($data, [
+            'type',
             'datatype',
             'unique',
             'primary_key',
