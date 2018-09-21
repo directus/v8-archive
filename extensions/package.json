@@ -4,9 +4,21 @@
   "description": "",
   "scripts": {
     "postinstall": "npx recursive-install --skip-root",
-    "prebuild": "rm -rf $npm_package_PATH_EXTENSIONS_DIR/{interfaces,layouts,pages}",
-    "build": "parcel build \"core/**/*.vue\" -d $npm_package_PATH_EXTENSIONS_DIR --no-source-maps --global __DirectusExtension__ && cpx \"$npm_package_PATH_JSON_FILES\" $npm_package_PATH_EXTENSIONS_DIR -t ./json-minifier.js -v && cpx \"$npm_package_PATH_PHP_FILES\" $npm_package_PATH_EXTENSIONS_DIR",
-    "dev": "cpx \"$npm_package_PATH_STATIC_FILES\" $npm_package_PATH_EXTENSIONS_DIR && concurrently --raw \"cpx $npm_package_PATH_STATIC_FILES $npm_package_PATH_EXTENSIONS_DIR -w\" \"parcel watch core/**/*.vue -d $npm_package_PATH_EXTENSIONS_DIR --no-source-maps --global __DirectusExtension__\"",
+    "prebuild": "npm run clear",
+
+    "clear": "rm -rf ../public/extensions/core/{interfaces,layouts,pages}",
+
+    "dev:json": "cpx \"core/**/meta.json\" ../public/extensions/core -w",
+    "dev:php": "cpx \"core/**/{hooks.php,endpoints.php}\" ../public/extensions/core",
+    "dev:vue": "parcel watch core/**/*.vue -d ../public/extensions/core --no-source-maps --global __DirectusExtension__",
+
+    "build:php": "cpx \"core/**/{hooks.php,endpoints.php}\" ../public/extensions/core",
+    "build:json": "cpx \"core/**/meta.json\" ../public/extensions/core -t ./json-minifier.js -v",
+    "build:vue": "parcel build \"core/**/*.vue\" -d ../public/extensions/core --no-source-maps --global __DirectusExtension__",
+
+    "build": "npm run build:vue && npm run build:json && npm run build:php",
+    "dev": "npm run build:json && concurrently --raw \"npm run dev:vue\" \"npm run dev:json\" \"npm run dev:php\"",
+
     "lint": "vue-cli-service lint \"core/**/*.vue\"",
     "fix": "prettier --write \"core/**/*.{js,vue}\""
   },
@@ -45,11 +57,5 @@
       "ecmaVersion": 8,
       "sourceType": "module"
     }
-  },
-  "PATH": {
-    "JSON_FILES": "core/**/meta.json",
-    "PHP_FILES": "core/**/{hooks.php,endpoints.php}",
-    "STATIC_FILES": "core/**/{meta.json,hooks.php,endpoints.php}",
-    "EXTENSIONS_DIR": "../public/extensions/core"
   }
 }
