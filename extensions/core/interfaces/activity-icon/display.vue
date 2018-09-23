@@ -7,7 +7,7 @@
       :color="color"
       :progress="100"
       :stroke="2"></v-progress-ring>
-      <span class="label">{{label}}</span>
+      <span class="label"><div>{{label}}</div></span>
   </div>
 </template>
 
@@ -98,10 +98,14 @@ export default {
 <style lang="scss" scoped>
 .v-progress-ring {
   display: inline-block;
-  vertical-align: middle;
+  vertical-align: top;
 }
 .label {
   display: inline-block;
   margin-left: 4px;
+  height: 34px;
+  div {
+    margin-top: 9px;
+  }
 }
 </style>

@@ -8,7 +8,7 @@
       :alt="displayValue"
       v-tooltip="options.display === 'avatar' ? displayValue : null"
       color="light-gray"></v-avatar>
-    <span v-if="options.display !== 'avatar'" class="label">{{displayValue}}</span>
+    <span v-if="options.display !== 'avatar'" class="label"><div>{{displayValue}}</div></span>
   </div>
 </template>
 
@@ -42,10 +42,14 @@ export default {
 .display-user {
   width: max-content;
   display: inline-block;
-  vertical-align: middle;
-  margin-right: 4px;
+  vertical-align: top;
 }
 .label {
   display: inline-block;
+  margin-left: 4px;
+  height: 28px;
+  div {
+    margin-top: 6px;
+  }
 }
 </style>
