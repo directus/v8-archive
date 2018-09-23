@@ -944,14 +944,6 @@ class BaseTableGateway extends TableGateway
      */
     public function convertDates(array $records, Collection $tableSchema, $tableName = null)
     {
-        $tableName = $tableName === null ? $this->table : $tableName;
-        $isCustomTable = !$this->schemaManager->isSystemCollection($tableName);
-        $hasSystemDateColumn = $this->schemaManager->hasSystemDateField($tableName);
-
-        if (!$hasSystemDateColumn && $isCustomTable) {
-            return $records;
-        }
-
         // ==========================================================================
         // hotfix: records sometimes are no set as an array of rows.
         // NOTE: this code is duplicate @see: AbstractSchema::parseRecordValuesByType
@@ -963,22 +955,14 @@ class BaseTableGateway extends TableGateway
         }
 
         foreach ($records as $index => $row) {
-            foreach ($tableSchema->getFields() as $column) {
-                $canConvert = DataTypes::isDateTimeType($column->getType());
-                // Directus convert all dates to ISO to all datetime columns in the core tables
-                // and any columns using system date interfaces (datetime_created or datetime_modified)
-                if ($isCustomTable && !$column->isSystemDateType()) {
-                    $canConvert = false;
+            foreach ($tableSchema->getFields(array_keys($row)) as $column) {
+                if (!DataTypes::isDateTimeType($column->getType()) || !isset($row[$column->getName()])) {
+                    continue;
                 }
 
-                if ($canConvert) {
-                    $columnName = $column->getName();
-
-                    if (isset($row[$columnName])) {
-                        $datetime = DateTimeUtils::createFromDefaultFormat($row[$columnName], 'UTC');
-                        $records[$index][$columnName] = $datetime->toISO8601Format();
-                    }
-                }
+                $columnName = $column->getName();
+                $datetime = DateTimeUtils::createFromDefaultFormat($row[$columnName], 'UTC');
+                $records[$index][$columnName] = $datetime->toISO8601Format();
             }
         }
 
@@ -1666,7 +1650,7 @@ class BaseTableGateway extends TableGateway
         }
 
         $type = 'string';
-        if (DataTypes::isNumericType($statusField->getDataType())) {
+        if ($this->schemaManager->getSource()->isNumericType($statusField->getDataType())) {
             $type = 'numeric';
         }
 
@@ -1691,7 +1675,7 @@ class BaseTableGateway extends TableGateway
         foreach ($record as $columnName => $columnValue) {
             $field = $collectionObject->getField($columnName);
             // TODO: Should this be validate in here? should we let the database fails?
-            if (($field && is_array($columnValue) && (!$field->isJson() && !$field->isArray()))) {
+            if (($field && is_array($columnValue) && (!DataTypes::isJson($field->getType()) && !DataTypes::isArray($field->getType())))) {
                 // $table = is_null($tableName) ? $this->table : $tableName;
                 throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $this->table . '`.`' . $field->getName() . '.');
             }

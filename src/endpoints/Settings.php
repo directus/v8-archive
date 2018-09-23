@@ -6,6 +6,7 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
+use function Directus\regex_numeric_ids;
 use Directus\Services\SettingsService;
 
 class Settings extends Route
@@ -17,10 +18,11 @@ class Settings extends Route
     {
         $app->post('', [$this, 'create']);
         $app->get('', [$this, 'all']);
-        $app->get('/{id}', [$this, 'read']);
-        $app->patch('/{id}', [$this, 'update']);
+        $app->get('/fields', [$this, 'fields']);
+        $app->get('/{id:' . regex_numeric_ids()  . '}', [$this, 'read']);
+        $app->patch('/{id:' . regex_numeric_ids()  . '}', [$this, 'update']);
         $app->patch('', [$this, 'update']);
-        $app->delete('/{id}', [$this, 'delete']);
+        $app->delete('/{id:' . regex_numeric_ids()  . '}', [$this, 'delete']);
     }
 
     /**
@@ -57,6 +59,22 @@ class Settings extends Route
     {
         $service = new SettingsService($this->container);
         $responseData = $service->findAll(
+            $request->getQueryParams()
+        );
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function fields(Request $request, Response $response)
+    {
+        $service = new SettingsService($this->container);
+        $responseData = $service->findAllFields(
             $request->getQueryParams()
         );
 

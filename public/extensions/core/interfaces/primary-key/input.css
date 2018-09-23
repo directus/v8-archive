@@ -1,3 +1,5 @@
 
-.input[data-v-ff2e5c]{max-width:var(--width-small)
+.input[data-v-ff2e5c]{max-width:var(--width-normal);width:100%
+}
+.immutable[data-v-ff2e5c]{color:var(--light-gray);display:block;font-style:italic;margin-right:20px;margin-top:4px;text-transform:none
 }

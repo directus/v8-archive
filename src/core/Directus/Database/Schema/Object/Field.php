@@ -7,12 +7,6 @@ use Directus\Util\ArrayUtils;
 
 class Field extends AbstractObject
 {
-    const TYPE_ARRAY        = 'ARRAY';
-    const TYPE_JSON         = 'JSON';
-    const TYPE_TINY_JSON    = 'TINYJSON';
-    const TYPE_MEDIUM_JSON  = 'MEDIUMJSON';
-    const TYPE_LONG_JSON    = 'LONGJSON';
-
     /**
      * @var FieldRelationship
      */
@@ -319,50 +313,6 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the field is a array type
-     *
-     * @return bool
-     */
-    public function isArray()
-    {
-        return strtoupper($this->getType()) === static::TYPE_ARRAY;
-    }
-
-    /**
-     * Checks whether the field is a json type
-     *
-     * @return bool
-     */
-    public function isJson()
-    {
-        return in_array(
-            strtoupper($this->getType()),
-            [
-                static::TYPE_JSON,
-                static::TYPE_TINY_JSON,
-                static::TYPE_MEDIUM_JSON,
-                static::TYPE_LONG_JSON
-            ]
-        );
-    }
-
-    /**
-     * Checks whether the field is a boolean type
-     *
-     * @return bool
-     */
-    public function isBoolean()
-    {
-        return in_array(
-            strtoupper($this->getType()),
-            [
-                strtoupper(DataTypes::TYPE_BOOLEAN),
-                strtoupper(DataTypes::TYPE_BOOL)
-            ]
-        );
-    }
-
-    /**
      * Checks whether this column is date system interface
      *
      * @return bool
@@ -419,7 +369,7 @@ class Field extends AbstractObject
      */
     public function isDateModifiedType()
     {
-        return $this->isType(DataTypes::TYPE_DATETIME_MODIFIED);
+        return $this->isType(DataTypes::TYPE_DATETIME_UPDATED);
     }
 
     /**
@@ -429,7 +379,7 @@ class Field extends AbstractObject
      */
     public function isUserModifiedType()
     {
-        return $this->isType(DataTypes::TYPE_USER_MODIFIED);
+        return $this->isType(DataTypes::TYPE_USER_UPDATED);
     }
 
     /**
@@ -451,7 +401,7 @@ class Field extends AbstractObject
      */
     public function isType($type)
     {
-        return $type === strtolower($this->getType());
+        return strtolower($type) === strtolower($this->getType());
     }
 
     /**

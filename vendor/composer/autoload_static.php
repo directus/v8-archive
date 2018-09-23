@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
+class ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -394,13 +394,13 @@ class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
         'Directus\\Api\\Routes\\Fields' => __DIR__ . '/../..' . '/src/endpoints/Fields.php',
         'Directus\\Api\\Routes\\Files' => __DIR__ . '/../..' . '/src/endpoints/Files.php',
         'Directus\\Api\\Routes\\Home' => __DIR__ . '/../..' . '/src/endpoints/Home.php',
-        'Directus\\Api\\Routes\\Instances' => __DIR__ . '/../..' . '/src/endpoints/Instances.php',
         'Directus\\Api\\Routes\\Interfaces' => __DIR__ . '/../..' . '/src/endpoints/Interfaces.php',
         'Directus\\Api\\Routes\\Items' => __DIR__ . '/../..' . '/src/endpoints/Items.php',
         'Directus\\Api\\Routes\\Layouts' => __DIR__ . '/../..' . '/src/endpoints/Layouts.php',
         'Directus\\Api\\Routes\\Mail' => __DIR__ . '/../..' . '/src/endpoints/Mail.php',
         'Directus\\Api\\Routes\\Pages' => __DIR__ . '/../..' . '/src/endpoints/Pages.php',
         'Directus\\Api\\Routes\\Permissions' => __DIR__ . '/../..' . '/src/endpoints/Permissions.php',
+        'Directus\\Api\\Routes\\Projects' => __DIR__ . '/../..' . '/src/endpoints/Projects.php',
         'Directus\\Api\\Routes\\Relations' => __DIR__ . '/../..' . '/src/endpoints/Relations.php',
         'Directus\\Api\\Routes\\Revisions' => __DIR__ . '/../..' . '/src/endpoints/Revisions.php',
         'Directus\\Api\\Routes\\Roles' => __DIR__ . '/../..' . '/src/endpoints/Roles.php',
@@ -495,12 +495,10 @@ class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
         'Directus\\Custom\\Hooks\\Products\\BeforeInsertProducts' => __DIR__ . '/../..' . '/public/extensions/custom/hooks/_products/BeforeInsertProducts.php',
         'Directus\\Database\\Connection' => __DIR__ . '/../..' . '/src/core/Directus/Database/Connection.php',
         'Directus\\Database\\Ddl\\Column\\Bit' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/Bit.php',
-        'Directus\\Database\\Ddl\\Column\\Boolean' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/Boolean.php',
         'Directus\\Database\\Ddl\\Column\\CollectionLength' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/CollectionLength.php',
         'Directus\\Database\\Ddl\\Column\\Custom' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/Custom.php',
         'Directus\\Database\\Ddl\\Column\\Double' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/Double.php',
         'Directus\\Database\\Ddl\\Column\\Enum' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/Enum.php',
-        'Directus\\Database\\Ddl\\Column\\File' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/File.php',
         'Directus\\Database\\Ddl\\Column\\LongBlob' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/LongBlob.php',
         'Directus\\Database\\Ddl\\Column\\LongText' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/LongText.php',
         'Directus\\Database\\Ddl\\Column\\MediumBlob' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/MediumBlob.php',
@@ -514,7 +512,6 @@ class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
         'Directus\\Database\\Ddl\\Column\\TinyBlob' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/TinyBlob.php',
         'Directus\\Database\\Ddl\\Column\\TinyInteger' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/TinyInteger.php',
         'Directus\\Database\\Ddl\\Column\\TinyText' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/TinyText.php',
-        'Directus\\Database\\Ddl\\Column\\Uuid' => __DIR__ . '/../..' . '/src/core/Directus/Database/Ddl/Column/Uuid.php',
         'Directus\\Database\\Exception\\CollectionAlreadyExistsException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/CollectionAlreadyExistsException.php',
         'Directus\\Database\\Exception\\CollectionHasNotStatusInterfaceException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/CollectionHasNotStatusInterfaceException.php',
         'Directus\\Database\\Exception\\CollectionNotFoundException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/CollectionNotFoundException.php',
@@ -537,7 +534,7 @@ class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
         'Directus\\Database\\Exception\\StatusMappingEmptyException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/StatusMappingEmptyException.php',
         'Directus\\Database\\Exception\\StatusMappingWrongValueTypeException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/StatusMappingWrongValueTypeException.php',
         'Directus\\Database\\Exception\\SuppliedArrayAsColumnValue' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/SuppliedArrayAsColumnValue.php',
-        'Directus\\Database\\Exception\\UnknownDataTypeException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/UnknownDataTypeException.php',
+        'Directus\\Database\\Exception\\UnknownTypeException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/UnknownTypeException.php',
         'Directus\\Database\\Filters\\Filter' => __DIR__ . '/../..' . '/src/core/Directus/Database/Filters/Filter.php',
         'Directus\\Database\\Filters\\In' => __DIR__ . '/../..' . '/src/core/Directus/Database/Filters/In.php',
         'Directus\\Database\\Query\\Builder' => __DIR__ . '/../..' . '/src/core/Directus/Database/Query/Builder.php',
@@ -660,13 +657,13 @@ class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
         'Directus\\Services\\AuthService' => __DIR__ . '/../..' . '/src/core/Directus/Services/AuthService.php',
         'Directus\\Services\\CollectionPresetsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/CollectionPresetsService.php',
         'Directus\\Services\\FilesServices' => __DIR__ . '/../..' . '/src/core/Directus/Services/FilesServices.php',
-        'Directus\\Services\\InstanceService' => __DIR__ . '/../..' . '/src/core/Directus/Services/InstanceService.php',
         'Directus\\Services\\InterfacesService' => __DIR__ . '/../..' . '/src/core/Directus/Services/InterfacesService.php',
         'Directus\\Services\\ItemsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/ItemsService.php',
         'Directus\\Services\\LayoutsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/LayoutsService.php',
         'Directus\\Services\\MailService' => __DIR__ . '/../..' . '/src/core/Directus/Services/MailService.php',
         'Directus\\Services\\PagesService' => __DIR__ . '/../..' . '/src/core/Directus/Services/PagesService.php',
         'Directus\\Services\\PermissionsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/PermissionsService.php',
+        'Directus\\Services\\ProjectService' => __DIR__ . '/../..' . '/src/core/Directus/Services/ProjectService.php',
         'Directus\\Services\\RelationsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/RelationsService.php',
         'Directus\\Services\\RevisionsService' => __DIR__ . '/../..' . '/src/core/Directus/Services/RevisionsService.php',
         'Directus\\Services\\RolesService' => __DIR__ . '/../..' . '/src/core/Directus/Services/RolesService.php',
@@ -1862,6 +1859,7 @@ class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
         'Slim\\Http\\Request' => __DIR__ . '/..' . '/slim/slim/Slim/Http/Request.php',
         'Slim\\Http\\RequestBody' => __DIR__ . '/..' . '/slim/slim/Slim/Http/RequestBody.php',
         'Slim\\Http\\Response' => __DIR__ . '/..' . '/slim/slim/Slim/Http/Response.php',
+        'Slim\\Http\\StatusCode' => __DIR__ . '/..' . '/slim/slim/Slim/Http/StatusCode.php',
         'Slim\\Http\\Stream' => __DIR__ . '/..' . '/slim/slim/Slim/Http/Stream.php',
         'Slim\\Http\\UploadedFile' => __DIR__ . '/..' . '/slim/slim/Slim/Http/UploadedFile.php',
         'Slim\\Http\\Uri' => __DIR__ . '/..' . '/slim/slim/Slim/Http/Uri.php',
@@ -2962,10 +2960,10 @@ class ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit8121c8cac51062f6abdbcf06fef97f92::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3::$classMap;
 
         }, null, ClassLoader::class);
     }

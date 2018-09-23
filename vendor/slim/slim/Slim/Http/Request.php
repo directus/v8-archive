@@ -1134,7 +1134,7 @@ class Request extends Message implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param  string $key The parameter key.
-     * @param  string $default The default value.
+     * @param  mixed $default The default value.
      *
      * @return mixed The parameter value.
      */
@@ -1211,7 +1211,7 @@ class Request extends Message implements ServerRequestInterface
         $params = $this->getQueryParams();
         $postParams = $this->getParsedBody();
         if ($postParams) {
-            $params = array_merge($params, (array)$postParams);
+            $params = array_replace($params, (array)$postParams);
         }
 
         if ($only) {

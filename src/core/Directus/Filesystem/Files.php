@@ -5,7 +5,7 @@ namespace Directus\Filesystem;
 use Directus\Application\Application;
 use function Directus\array_get;
 use function Directus\filename_put_ext;
-use function Directus\generate_uui5;
+use function Directus\generate_uuid5;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
 
@@ -587,7 +587,7 @@ class Files
     private function uuidFileName($fileName)
     {
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        $fileHashName = generate_uui5(null, $fileName);
+        $fileHashName = generate_uuid5(null, $fileName);
 
         return $fileHashName . '.' . $ext;
     }

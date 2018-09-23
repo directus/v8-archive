@@ -55,6 +55,15 @@ class SettingsService extends AbstractService
         return $this->itemsService->findAll($this->collection, $params);
     }
 
+    public function findAllFields(array $params = [])
+    {
+        return (new ItemsService($this->container))->findAll(SchemaManager::COLLECTION_FIELDS, array_merge($params, [
+            'filter' => [
+                'collection' => $this->collection
+            ]
+        ]));
+    }
+
     public function batchCreate(array $payload, array $params = [])
     {
         return $this->itemsService->batchCreate($this->collection, $payload, $params);

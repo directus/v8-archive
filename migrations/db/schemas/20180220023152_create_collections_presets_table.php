@@ -57,7 +57,8 @@ class CreateCollectionsPresetsTable extends AbstractMigration
         ]);
         $table->addColumn('view_type', 'string', [
             'limit' => 100,
-            'null' => false
+            'null' => false,
+            'default' => 'tabular'
         ]);
         $table->addColumn('view_query', 'text', [
             'null' => true,

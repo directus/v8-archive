@@ -1,1 +1,1 @@
-{"name":"$t:o2m","version":"1.0.0","datatypes":{"o2m":null},"options":{},"relation":"o2m","translation":{"en-US":{"o2m":"One to Many","select_items":"Select the items","relation_not_setup":"The relationship hasn't been configured correctly"}}}
+{"name":"$t:o2m","version":"1.0.0","types":["o2m"],"options":{},"relation":"o2m","translation":{"en-US":{"o2m":"One to Many","select_items":"Select the items","relation_not_setup":"The relationship hasn't been configured correctly"}}}

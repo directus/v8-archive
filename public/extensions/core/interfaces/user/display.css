@@ -1,5 +1,7 @@
 
-.display-user[data-v-4339ea]{margin-right:4px;vertical-align:middle;width:max-content
+.display-user[data-v-4339ea]{display:inline-block;vertical-align:top;width:max-content
 }
-.display-user[data-v-4339ea],.label[data-v-4339ea]{display:inline-block
+.label[data-v-4339ea]{display:inline-block;height:28px;margin-left:4px
+}
+.label div[data-v-4339ea]{margin-top:6px
 }

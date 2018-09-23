@@ -52,7 +52,7 @@ class App
      *
      * @var string
      */
-    const VERSION = '3.10.0';
+    const VERSION = '3.11.0';
 
     /**
      * Container
@@ -424,8 +424,10 @@ class App
         if (!headers_sent()) {
             // Headers
             foreach ($response->getHeaders() as $name => $values) {
+                $first = stripos($name, 'Set-Cookie') === 0 ? false : true;
                 foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
+                    header(sprintf('%s: %s', $name, $value), $first);
+                    $first = false;
                 }
             }
 
@@ -438,7 +440,7 @@ class App
                 $response->getProtocolVersion(),
                 $response->getStatusCode(),
                 $response->getReasonPhrase()
-            ));
+            ), true, $response->getStatusCode());
         }
 
         // Body

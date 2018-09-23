@@ -1,1 +1,1 @@
-{"name":"$t:color-picker","version":"1.0.0","datatypes":{"VARCHAR":50},"options":{},"translation":{"en-US":{"color-picker":"Color Picker"}}}
+{"name":"$t:color-picker","version":"1.0.0","types":["string"],"options":{},"translation":{"en-US":{"color-picker":"Color Picker"}}}

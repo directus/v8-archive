@@ -1,7 +1,3 @@
 
-.small[data-v-cc901d]{max-width:var(--width-small)
-}
-.medium[data-v-cc901d]{max-width:var(--width-normal)
-}
-.large[data-v-cc901d]{max-width:var(--width-large)
+.slider[data-v-cc901d]{max-width:var(--width-normal)
 }

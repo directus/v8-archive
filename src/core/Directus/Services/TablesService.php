@@ -11,7 +11,7 @@ use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Exception\InvalidFieldException;
 use Directus\Database\Exception\ItemNotFoundException;
-use Directus\Database\Exception\UnknownDataTypeException;
+use Directus\Database\Exception\UnknownTypeException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
@@ -579,11 +579,11 @@ class TablesService extends AbstractService
             throw new FieldNotManagedException($field->getName());
         }
 
-        // TODO: Only update schema when is needed
-        $fieldData = array_merge($field->toArray(), $data);
-        $this->updateTableSchema($collection, [
-            'fields' => [$fieldData]
-        ]);
+        if ($this->shouldUpdateSchema($data)) {
+            $this->updateTableSchema($collection, [
+                'fields' => [array_merge($field->toArray(), $data)]
+            ]);
+        }
 
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
         $resultData = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
@@ -594,6 +594,27 @@ class TablesService extends AbstractService
             true,
             ArrayUtils::get($params, 'meta', 0)
         );
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return bool
+     */
+    protected function shouldUpdateSchema(array $data)
+    {
+        // NOTE: If any of these attributes exists the database needs to update the column
+        return ArrayUtils::containsSome($data, [
+            'type',
+            'datatype',
+            'unique',
+            'primary_key',
+            'auto_increment',
+            'length',
+            'note',
+            'signed',
+            'nullable',
+        ]);
     }
 
     /**
@@ -1109,15 +1130,10 @@ class TablesService extends AbstractService
         $this->validatePayload('directus_fields', $fields, $data, $params);
 
         $type = ArrayUtils::get($data, 'type');
-        $isMultiType = DataTypes::isMultiDataTypeType($type);
-        if ($isMultiType && !ArrayUtils::has($data, 'datatype')) {
+        if ($type && !DataTypes::isAliasType($type) && !ArrayUtils::has($data, 'datatype')) {
             throw new UnprocessableEntityException(
-                sprintf('type "%s" requires a "datatype" property', $type)
+                'datatype is required'
             );
-        }
-
-        if ($isMultiType) {
-            $type = ArrayUtils::get($data, 'datatype', $type);
         }
 
         if ($type && DataTypes::isLengthType($type) && !ArrayUtils::get($data, 'length')) {
@@ -1132,7 +1148,7 @@ class TablesService extends AbstractService
         }
 
         if ($type && !DataTypes::exists($type)) {
-            throw new UnknownDataTypeException($type);
+            throw new UnknownTypeException($type);
         }
     }
 
@@ -1326,12 +1342,7 @@ class TablesService extends AbstractService
     protected function mergeSchemaField(Field $field, array $fieldData = [])
     {
         $tableGateway = $this->getFieldsTableGateway();
-        $isNumericType = DataTypes::isNumericType($field->getType());
-        $attributeWhitelist = ['managed', 'default_value', 'primary_key', 'length'];
-
-        if ($isNumericType) {
-            $attributeWhitelist[] = 'signed';
-        }
+        $attributeWhitelist = $this->unknownFieldsAllowed();
 
         $fieldsAttributes = array_merge($tableGateway->getTableSchema()->getFieldsName(), $attributeWhitelist);
 
@@ -1339,10 +1350,6 @@ class TablesService extends AbstractService
             array_merge($field->toArray(), $fieldData),
             $fieldsAttributes
         );
-
-        $data['managed'] = (bool) ArrayUtils::get($data, 'managed');
-        $data['primary_key'] = (bool) ArrayUtils::get($data, 'primary_key');
-        $data['signed'] = $isNumericType ? (bool) ArrayUtils::get($data, 'signed') : null;
 
         $result = $tableGateway->parseRecord($data);
 

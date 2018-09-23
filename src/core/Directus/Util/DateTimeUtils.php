@@ -33,6 +33,16 @@ class DateTimeUtils extends \DateTime
     const DEFAULT_DATETIME_FORMAT = 'Y-m-d H:i:s';
 
     /**
+     * @var string
+     */
+    const DEFAULT_DATE_FORMAT = 'Y-m-d';
+
+    /**
+     * @var string
+     */
+    const DEFAULT_TIME_FORMAT = 'H:i:s';
+
+    /**
      * DateTime modifier format days into the future
      *
      * @var string
@@ -232,11 +242,13 @@ class DateTimeUtils extends \DateTime
     /**
      * Gets the datetime string in UTC
      *
+     * @param string $format
+     *
      * @return string
      */
-    public function toUTCString()
+    public function toUTCString($format = null)
     {
-        return $this->toUTC()->toString();
+        return $this->toUTC()->toString($format);
     }
 
     /**

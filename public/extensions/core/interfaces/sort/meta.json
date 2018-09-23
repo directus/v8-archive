@@ -1,1 +1,1 @@
-{"name":"$t:sort","version":"1.0.0","datatypes":{"INT":11,"TINYINT":1,"SMALLINT":5,"MEDIUMINT":7,"BIGINT":18},"options":{},"translation":{"en-US":{"sort":"Sort"}}}
+{"name":"$t:sort","version":"1.0.0","types":["sort"],"options":{},"translation":{"en-US":{"sort":"Sort"}}}

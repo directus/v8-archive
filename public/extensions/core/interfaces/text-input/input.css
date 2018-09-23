@@ -1,7 +1,3 @@
 
-.x-small[data-v-59c15c]{max-width:var(--width-x-small)
-}
-.small[data-v-59c15c]{max-width:var(--width-small)
-}
-.medium[data-v-59c15c]{max-width:var(--width-normal)
+.v-input[data-v-59c15c]{max-width:var(--width-normal);width:100%
 }
