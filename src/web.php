@@ -104,6 +104,10 @@ $app->group('/projects', \Directus\Api\Routes\Projects::class)
     ->add($middleware['table_gateway']);
 
 $app->group('/{project}', function () use ($middleware) {
+    $this->get('/', \Directus\Api\Routes\ProjectHome::class)
+        ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
     $this->group('/activity', \Directus\Api\Routes\Activity::class)
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
