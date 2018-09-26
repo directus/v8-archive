@@ -21,7 +21,7 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
     public static function resetDatabase()
     {
         $db = create_db_connection();
-        truncate_table($db, 'directus_collection_presets');
+        reset_table_id($db, 'directus_collection_presets', 4);
     }
 
     public static function setUpBeforeClass()
@@ -45,20 +45,9 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
         assert_response_data_contains($this, $response, $data);
     }
 
-    public function testCreateMissingViewType()
-    {
-        $data = ['collection' => 'products', 'search_query' => 'search-query'];
-        $response = request_error_post('collection_presets', $data, ['query' => ['access_token' => 'token']]);
-
-        assert_response_error($this, $response, [
-            'status' => 422,
-            'code' => InvalidRequestException::ERROR_CODE
-        ]);
-    }
-
     public function testUpdate()
     {
-        $path = 'collection_presets/1';
+        $path = 'collection_presets/4';
 
         $data = [
             'collection' => 'products',
@@ -72,10 +61,10 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
 
     public function testGetOne()
     {
-        $path = 'collection_presets/1';
+        $path = 'collection_presets/4';
 
         $data = [
-            'id' => 1,
+            'id' => 4,
             'collection' => 'products',
             'search_query' => 'a product'
         ];
@@ -105,13 +94,13 @@ class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
         $response = request_get($path, ['access_token' => 'token']);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 1
+            'count' => 4
         ]);
     }
 
     public function testDelete()
     {
-        $path = 'collection_presets/1';
+        $path = 'collection_presets/4';
         $response = request_delete($path, ['query' => ['access_token' => 'token']]);
 
         assert_response_empty($this, $response);

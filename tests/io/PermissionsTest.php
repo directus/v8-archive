@@ -744,7 +744,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
             'create' => Acl::LEVEL_MINE,
             'read' => Acl::LEVEL_MINE,
             // 'write_field_blacklist' => 'author,status',
-            'read_field_blacklist' => 'status,author'
+            'read_field_blacklist' => ['status', 'author']
         ]);
 
         $response = request_post('items/posts', ['title' => 'one'], ['query' => $this->internQueryParams]);
@@ -760,7 +760,7 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         assert_response_data_fields($this, $response, ['id', 'title']);
 
         $this->updatePermission(1, [
-            'read_field_blacklist' => 'author'
+            'read_field_blacklist' => ['author']
         ]);
 
         $response = request_get('items/posts/2', $this->internQueryParams);
@@ -788,28 +788,28 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 0,
             'read' => Acl::LEVEL_MINE,
-            'write_field_blacklist' => 'author,status',
-            'read_field_blacklist' => 'status,author'
+            'write_field_blacklist' => ['author' , 'status'],
+            'read_field_blacklist' => ['status', 'author']
         ]);
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 1,
             'read' => Acl::LEVEL_MINE,
-            'write_field_blacklist' => 'author,status',
-            'read_field_blacklist' => 'status,author'
+            'write_field_blacklist' => ['author', 'status'],
+            'read_field_blacklist' => ['status', 'author']
         ]);
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 2,
             'read' => Acl::LEVEL_MINE,
-            'write_field_blacklist' => 'author,status',
-            'read_field_blacklist' => 'status'
+            'write_field_blacklist' => ['author', 'status'],
+            'read_field_blacklist' => ['status']
         ]);
 
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => 3,
             'read' => Acl::LEVEL_MINE,
-            'read_field_blacklist' => 'id,status,title,author'
+            'read_field_blacklist' => ['id', 'status', 'title', 'author']
         ]);
 
         // ----------------------------------------------------------------------------
@@ -899,8 +899,8 @@ class PermissionsTest extends \PHPUnit_Framework_TestCase
         $this->addPermissionTo($this->internGroup, 'posts', [
             'status' => null,
             'read' => Acl::LEVEL_MINE,
-            'write_field_blacklist' => 'author,status',
-            'read_field_blacklist' => 'status,author'
+            'write_field_blacklist' => ['author', 'status'],
+            'read_field_blacklist' => ['status', 'author']
         ]);
 
         $data = ['status' => 2, 'title' => 'Post 1', 'author' => 1];

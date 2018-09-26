@@ -287,6 +287,9 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
     protected function doUsers($error = false, $message = null)
     {
         $data = [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'password' => 'test',
             'email' => 'test@getdirectus.com'
         ];
 

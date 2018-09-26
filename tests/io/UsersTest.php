@@ -33,6 +33,8 @@ class UsersTest extends \PHPUnit_Framework_TestCase
         $email = 'john@getdirectus.com';
         $password = 'password';
         $data = [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'status' => DirectusUsersTableGateway::STATUS_DRAFT,
             'email' => $email,
             'password' => $password
@@ -82,7 +84,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
         $response = request_get('users', $queryParams);
         assert_response($this, $response, [
             'data' => 'array',
-            'count' => 2
+            'count' => 3
         ]);
     }
 
