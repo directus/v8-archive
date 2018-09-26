@@ -576,6 +576,7 @@ class SchemaManager
             'hidden_list',
             'required',
             'nullable',
+            'readonly',
         ]);
 
         return new Field($column);
