@@ -4,6 +4,7 @@
   "types": ["o2m"],
   "options": {},
   "relation": "o2m",
+  "icon": "call_split",
   "translation": {
     "en-US": {
       "o2m": "One to Many",

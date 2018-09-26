@@ -2,6 +2,7 @@
   "name": "$t:toggle-icon",
   "version": "1.0.0",
   "types": ["boolean"],
+  "icon": "favorite_border",
   "options": {
     "textInactive": {
       "name": "$t:text-inactive-name",

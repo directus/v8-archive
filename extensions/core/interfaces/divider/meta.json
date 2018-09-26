@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["alias"],
   "hideLabel": true,
+  "icon": "horizontal_split",
   "options": {
     "style": {
       "name": "$t:style-name",

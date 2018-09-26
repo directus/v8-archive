@@ -2,6 +2,7 @@
   "name": "$t:wysiwyg",
   "version": "1.0.0",
   "types": ["string"],
+  "icon": "format_quote",
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

@@ -2,6 +2,7 @@
   "name": "$t:slug",
   "version": "1.0.0",
   "types": ["string"],
+  "icon": "link",
   "options": {
     "placeholder": {
       "name": "$t:placeholder_name",

@@ -2,6 +2,7 @@
   "name": "$t:single-file",
   "version": "1.0.0",
   "types": ["file"],
+  "icon": "insert_drive_file",
   "options": {
     "viewType": {
       "name": "$t:view_type",

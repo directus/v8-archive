@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["string"],
   "fieldset": true,
+  "icon": "view_week",
   "options": {
     "choices": {
       "name": "$t:choices",

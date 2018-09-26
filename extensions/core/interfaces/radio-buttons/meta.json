@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["string"],
   "fieldset": true,
+  "icon": "radio_button_checked",
   "options": {
     "choices": {
       "name": "$t:choices",

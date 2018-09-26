@@ -2,6 +2,7 @@
 	"name": "$t:calendar",
 	"version": "1.0.0",
 	"types": ["date"],
+  "icon": "event",
 	"options": {
     "min": {
       "name": "$t:min",

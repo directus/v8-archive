@@ -2,6 +2,7 @@
   "name": "$t:password",
   "version": "1.0.0",
   "types": ["string"],
+  "icon": "security",
   "options": {
     "hide": {
       "name": "$t:hide",

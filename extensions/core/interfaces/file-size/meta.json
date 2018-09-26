@@ -2,6 +2,7 @@
   "name": "$t:file_size",
   "version": "1.0.0",
   "types": ["integer"],
+  "icon": "storage",
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

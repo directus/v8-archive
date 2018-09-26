@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["string"],
   "hideLabel": true,
+  "icon": "image",
   "options": {},
   "translation": {
     "en-US": {

@@ -2,6 +2,7 @@
   "name": "$t:datetime",
   "version": "1.0.0",
   "types": ["datetime"],
+  "icon": "event",
   "options": {
     "min": {
       "name": "$t:min",

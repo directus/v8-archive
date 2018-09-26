@@ -2,6 +2,7 @@
   "name": "$t:input",
   "version": "1.0.0",
   "types": ["string", "lang"],
+  "icon": "text_fields",
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

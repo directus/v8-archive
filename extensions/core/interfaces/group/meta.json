@@ -2,6 +2,7 @@
   "name": "$t:group",
   "version": "1.0.0",
   "types": ["group"],
+  "icon": "group_work",
   "options": {
     "open": {
       "name": "$t:open",

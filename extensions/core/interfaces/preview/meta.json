@@ -2,6 +2,7 @@
   "name": "$t:preview",
   "version": "1.0.0",
   "types": ["alias"],
+  "icon": "visibility",
   "options": {
     "url_template": {
       "name": "$t:url_template",

@@ -2,6 +2,7 @@
   "name": "$t:dropdown",
   "version": "1.0.0",
   "types": ["string"],
+  "icon": "arrow_drop_down_circle",
   "options": {
     "choices": {
       "name": "$t:choices",

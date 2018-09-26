@@ -2,6 +2,7 @@
   "name": "$t:user",
   "version": "1.0.0",
   "types": ["integer", "user_created", "user_updated"],
+  "icon": "account_circle",
   "options": {
     "template": {
       "name": "$t:template",

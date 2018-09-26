@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["array"],
   "fieldset": true,
+  "icon": "check_box",
   "options": {
     "choices": {
       "name": "$t:choices",

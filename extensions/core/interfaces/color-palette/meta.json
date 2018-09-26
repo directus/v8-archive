@@ -2,6 +2,7 @@
   "name": "$t:color-picker",
   "version": "1.0.0",
   "types": ["string"],
+  "icon": "palette",
   "options": {},
   "translation": {
     "en-US": {

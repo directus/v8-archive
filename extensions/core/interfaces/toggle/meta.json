@@ -2,6 +2,7 @@
   "name": "$t:toggle",
   "version": "1.0.0",
   "types": ["boolean"],
+  "icon": "toggle_on",
   "options": {
     "labelOn": {
       "name": "$t:label_on",

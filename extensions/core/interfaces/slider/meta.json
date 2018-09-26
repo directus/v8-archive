@@ -2,6 +2,7 @@
   "name": "$t:slider",
   "version": "1.0.0",
   "types": ["integer"],
+  "icon": "tune",
   "options": {
     "minimum": {
       "name": "$t:min",

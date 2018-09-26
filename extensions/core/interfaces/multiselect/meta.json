@@ -2,6 +2,7 @@
   "name": "$t:multiselect",
   "version": "1.0.0",
   "types": ["array"],
+  "icon": "playlist_add_check",
   "options": {
     "choices": {
       "name": "$t:choices",

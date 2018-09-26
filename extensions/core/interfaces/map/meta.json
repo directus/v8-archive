@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["json"],
   "fieldset": true,
+  "icon": "place",
   "options": {
     "height": {
       "name": "$t:height",

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["status"],
   "fieldset": true,
+  "icon": "outlined_flag",
   "options": {
     "simpleBadge": {
       "name": "$t:simple_badge",

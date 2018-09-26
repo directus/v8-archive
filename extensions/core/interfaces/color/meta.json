@@ -2,6 +2,7 @@
   "name": "$t:color",
   "version": "1.0.0",
   "types": ["string"],
+  "icon": "colorize",
   "options": {
     "input": {
       "name": "$t:input",

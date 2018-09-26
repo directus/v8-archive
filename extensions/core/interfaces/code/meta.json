@@ -2,6 +2,7 @@
   "name": "$t:code",
   "version": "1.0.0",
   "types": ["string"],
+  "icon": "code",
   "options": {
     "language": {
       "name": "$t:language",

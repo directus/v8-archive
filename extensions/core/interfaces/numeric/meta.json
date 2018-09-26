@@ -2,6 +2,7 @@
   "name": "$t:numeric",
   "version": "1.0.0",
   "types": ["integer", "decimal"],
+  "icon": "dialpad",
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

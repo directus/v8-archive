@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["m2o"],
   "relation": "m2o",
+  "icon": "call_merge",
   "options": {
     "template": {
       "name": "$t:template",

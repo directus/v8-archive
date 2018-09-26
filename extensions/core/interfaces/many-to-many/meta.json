@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "types": ["o2m"],
   "relation": "m2m",
+  "icon": "compare_arrows",
   "options": {
     "fields": {
       "name": "$t:visible_columns",
