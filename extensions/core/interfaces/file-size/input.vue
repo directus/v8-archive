@@ -100,12 +100,12 @@ export default {
 }
 .interface-file-size {
   display: inline-block;
-  max-width: calc(var(--width-small) - 60px);
+  max-width: calc(var(--width-small) - 50px);
 }
 .interface-file-size-units {
   margin: 0;
   display: inline-block;
   width: 62px;
-  margin-left: -2px;
+  margin-left: -12px;
 }
 </style>
