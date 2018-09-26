@@ -1331,6 +1331,11 @@ class RelationalTableGateway extends BaseTableGateway
             $not = ArrayUtils::get($operatorShorthand, 'not', !$value);
         }
 
+        // Ignore operator when value is empty
+        if ($this->shouldIgnoreQueryFilter($operator, $value)) {
+            return false;
+        }
+
         $operatorName = StringUtils::underscoreToCamelCase(strtolower($operator), true);
         $method = 'where' . ($not === true ? 'Not' : '') . $operatorName;
         if (!method_exists($query, $method)) {
@@ -1391,6 +1396,22 @@ class RelationalTableGateway extends BaseTableGateway
         } else {
             call_user_func_array([$query, $method], $arguments);
         }
+    }
+
+    /**
+     * Checks whether or not a filter should be ignored based on their operator and value
+     *
+     * @param string $operator
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected function shouldIgnoreQueryFilter($operator, $value)
+    {
+        // TODO: Add constant variables to store the filters
+        $operators = ['like'];
+
+        return in_array($operator, $operators) && empty($value) && !is_numeric($value);
     }
 
     /**
