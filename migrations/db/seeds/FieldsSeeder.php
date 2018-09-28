@@ -872,7 +872,7 @@ class FieldsSeeder extends AbstractSeed
                 'hidden_input' => 1
             ],
             [
-                'collection' => 'directus_revisions',
+                'collection' => 'directus_roles',
                 'field' => 'external_id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
@@ -882,7 +882,7 @@ class FieldsSeeder extends AbstractSeed
                 'hidden_list' => 1
             ],
             [
-                'collection' => 'directus_revisions',
+                'collection' => 'directus_roles',
                 'field' => 'name',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
@@ -891,7 +891,7 @@ class FieldsSeeder extends AbstractSeed
                 'view_width' => 2
             ],
             [
-                'collection' => 'directus_revisions',
+                'collection' => 'directus_roles',
                 'field' => 'description',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
@@ -900,14 +900,14 @@ class FieldsSeeder extends AbstractSeed
                 'view_width' => 2
             ],
             [
-                'collection' => 'directus_revisions',
+                'collection' => 'directus_roles',
                 'field' => 'ip_whitelist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea',
                 'locked' => 1
             ],
             [
-                'collection' => 'directus_revisions',
+                'collection' => 'directus_roles',
                 'field' => 'nav_blacklist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea',
