@@ -23,7 +23,7 @@ export default {
       if (this.value == null) return [];
 
       const selection = [
-        ...(this.type === "VARCHAR" ? this.value.split(",") : this.value)
+        ...(this.type === "string" ? this.value.split(",") : this.value)
       ];
 
       if (this.options.wrap && selection.length > 2) {
@@ -52,7 +52,7 @@ export default {
         selection = `,${selection},`;
       }
 
-      if (this.type === "ARRAY") {
+      if (this.type === "array") {
         selection = selection.split(",");
       }
 
