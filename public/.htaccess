@@ -10,8 +10,11 @@ Options +SymLinksIfOwnerMatch
     # Yield static media
     RewriteCond %{REQUEST_FILENAME} !-f
 
+    # Map all admin endpoints to the admin app
+    RewriteRule ^admin/(.*)   admin/index.html [NC,L]
+
     # Map all other requests to the main front controller, invoking the API router
-    RewriteRule ^ index.php?%{QUERY_STRING} [L]
+    RewriteRule !^admin index.php?%{QUERY_STRING} [L]
 </ifModule>
 
 <ifModule mod_php5.c>
