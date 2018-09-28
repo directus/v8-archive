@@ -2,7 +2,7 @@
   "name": "$t:date",
   "version": "1.0.0",
   "types": ["date"],
-  "icon": "date_range",
+  "icon": "event",
   "options": {
     "min": {
       "name": "$t:min",
