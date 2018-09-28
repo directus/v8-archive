@@ -6,7 +6,7 @@
     "DECIMAL": 3,
     "DOUBLE": 3
   },
-  "icon": "star_border",
+  "icon": "star",
   "fieldset": true,
   "options": {
     "active_color": {
