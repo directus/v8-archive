@@ -531,6 +531,11 @@ class SchemaManager
      */
     public function createFieldFromArray($column)
     {
+        $dataType = ArrayUtils::get($column, 'datatype');
+        if (ArrayUtils::get($column, 'type') === null) {
+            $column['type'] = $this->source->getTypeFromSource($dataType);
+        }
+
         // PRIMARY KEY must be required
         if ($column['primary_key']) {
             $column['required'] = true;
@@ -540,7 +545,6 @@ class SchemaManager
         $column['options'] = $options ? $options : null;
 
         $fieldType = ArrayUtils::get($column, 'type');
-        $dataType = ArrayUtils::get($column, 'datatype');
         // NOTE: Alias column must are nullable
         if (DataTypes::isAliasType($fieldType)) {
             $column['nullable'] = true;
@@ -672,18 +676,6 @@ class SchemaManager
     public function getFieldDefaultLength($type)
     {
         return $this->source->getColumnDefaultLength($type);
-    }
-
-    /**
-     * Gets the column type based the schema adapter
-     *
-     * @param string $type
-     *
-     * @return string
-     */
-    public function getDataType($type)
-    {
-        return $this->source->getDataType($type);
     }
 
     /**

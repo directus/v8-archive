@@ -266,11 +266,11 @@ interface SchemaInterface
     public function isStringType($type);
 
     /**
-     * Gets the real data type based on the database
+     * Gets the Directus' type based on the source data type
      *
      * @param $type
      *
      * @return string
      */
-    public function getDataType($type);
+    public function getTypeFromSource($type);
 }
