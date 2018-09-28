@@ -6,7 +6,6 @@ use Directus\Application\Container;
 use Directus\Database\Exception\CollectionNotManagedException;
 use Directus\Database\Exception\FieldAlreadyExistsException;
 use Directus\Database\Exception\FieldNotFoundException;
-use Directus\Database\Exception\FieldNotManagedException;
 use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Exception\InvalidFieldException;
@@ -544,7 +543,6 @@ class TablesService extends AbstractService
      * @return array
      *
      * @throws FieldNotFoundException
-     * @throws FieldNotManagedException
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
      */
@@ -573,10 +571,6 @@ class TablesService extends AbstractService
         $field = $collection->getField($fieldName);
         if (!$field) {
             throw new FieldNotFoundException($fieldName);
-        }
-
-        if (!$field->isManaged()) {
-            throw new FieldNotManagedException($field->getName());
         }
 
         if ($this->shouldUpdateSchema($data)) {
