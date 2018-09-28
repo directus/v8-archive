@@ -911,7 +911,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'nav_blacklist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea',
-                'locked' => 1
+                'locked' => 1,
+                'hidden_input' => 1,
+                'hidden_list' => 1
             ],
 
 
