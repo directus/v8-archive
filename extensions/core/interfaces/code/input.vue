@@ -19,7 +19,6 @@
     <small class="line-count">
       {{ $tc('interfaces-code-loc', lineCount, { count: lineCount, lang: language }) }}
     </small>
-
   </div>
 </template>
 
@@ -116,6 +115,8 @@ export default {
       return this.availableTypes[this.options.language];
     },
     stringValue() {
+      if (this.value == null) return null;
+
       if (typeof this.value === "object") {
         return JSON.stringify(this.value, null, 4);
       }
