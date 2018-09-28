@@ -75,6 +75,8 @@ export default {
   },
   computed: {
     subtitle() {
+      if (!this.value) return "";
+
       return (
         this.value.filename.split(".").pop() +
         " • " +
