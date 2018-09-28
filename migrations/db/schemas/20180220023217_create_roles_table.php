@@ -60,7 +60,7 @@ class CreateRolesTable extends AbstractMigration
 
         $table->addIndex('external_id', [
             'unique' => true,
-            'name' => 'idx_users_external_id'
+            'name' => 'idx_roles_external_id'
         ]);
 
         $table->create();
