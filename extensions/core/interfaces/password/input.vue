@@ -6,6 +6,7 @@
       :type="inputType"
       :placeholder="options.placeholder"
       :value="value"
+      :readonly="readonly"
       :icon-right="lockIcon"
       :icon-right-color="iconColor"
       @input="$emit('input', $event)"></v-input><!--
