@@ -6,6 +6,7 @@
       :name="name"
       :value="key"
       :key="key"
+      :disabled="readonly"
       :model-value="String(value)"
       :label="$t(options.name)"
       :checked="key == value"
