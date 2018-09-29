@@ -61,11 +61,12 @@ input {
   position: relative;
   display: inline-block;
   .material-icons {
-    margin-top: -1px;
+    margin-top: -2px;
   }
   label {
     transition: all var(--fast) var(--transition);
     color: var(--gray);
+    padding: 0.5rem 0 0.5rem 0;
   }
   &:hover label {
     color: var(--darker-gray);
@@ -91,11 +92,12 @@ input {
   }
 
   label {
-    padding: 1rem 0 1rem 2.75rem;
+    padding: 0.5rem 0 0.5rem 2.75rem;
     position: relative;
 
     span {
       position: relative;
+      vertical-align: middle;
     }
 
     &:before,
