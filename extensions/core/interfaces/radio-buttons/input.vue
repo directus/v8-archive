@@ -5,6 +5,7 @@
       :id="`${name}-${val}`"
       :name="name"
       :value="val"
+      :disabled="readonly"
       :key="val"
       :modelValue="value"
       :label="display"
