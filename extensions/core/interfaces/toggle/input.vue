@@ -55,17 +55,33 @@ input {
   top: 0;
   opacity: 0;
   z-index: 2;
+  cursor: pointer;
 }
 .checkbox {
   position: relative;
   display: inline-block;
+  .material-icons {
+    margin-top: -1px;
+  }
+  label {
+    transition: all var(--fast) var(--transition);
+    color: var(--gray);
+  }
   &:hover label {
+    color: var(--darker-gray);
+  }
+  input:checked + label {
     color: var(--accent);
+  }
+  input:disabled + label {
+    color: var(--light-gray);
+  }
+  input:disabled {
+    cursor: not-allowed;
   }
 }
 .toggle {
   position: relative;
-  cursor: pointer;
   display: inline-block;
 
   &:hover {
@@ -91,6 +107,7 @@ input {
       top: 50%;
       transform: translate(0, -50%);
       transition: all 300ms var(--transition);
+      cursor: pointer;
     }
 
     &:before {
@@ -118,11 +135,25 @@ input {
       background-color: var(--accent);
       opacity: 0.4;
     }
-
     &:after {
       background-color: var(--accent);
       transform: translate(80%, -50%);
     }
+  }
+
+  input:disabled + label {
+    color: var(--light-gray);
+    &:before,
+    &:after {
+      background-color: var(--light-gray);
+    }
+    &:before {
+      opacity: 0.4;
+    }
+  }
+
+  input:disabled {
+    cursor: not-allowed;
   }
 }
 </style>
