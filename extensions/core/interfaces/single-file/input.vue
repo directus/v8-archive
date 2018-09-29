@@ -152,7 +152,8 @@ export default {
 .card,
 .dropzone {
   margin-bottom: 20px;
-  width: var(--width-normal);
+  width: 100%;
+  max-width: var(--width-x-large);
 }
 
 .dropzone {
@@ -161,7 +162,10 @@ export default {
 
 button {
   display: inline-block;
-  margin-right: 20px;
+  margin-left: 20px;
+  &:first-of-type {
+    margin-left: 0;
+  }
 }
 
 .body {
