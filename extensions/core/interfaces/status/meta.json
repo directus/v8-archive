@@ -10,7 +10,7 @@
       "comment": "$t:simple_badge_comment",
       "interface": "toggle",
       "type": "BOOLEAN",
-      "default": false
+      "default": true
     },
     "status_mapping": {
       "name": "$t:status_mapping",
@@ -67,15 +67,6 @@
           "listing_badge": false,
           "soft_delete": false,
           "published": true
-        },
-        "under-review": {
-          "name": "$t:under_review",
-          "text_color": "white",
-          "background_color": "amber",
-          "listing_subdued": true,
-          "listing_badge": true,
-          "soft_delete": false,
-          "published": false
         },
         "draft": {
           "name": "$t:draft",
