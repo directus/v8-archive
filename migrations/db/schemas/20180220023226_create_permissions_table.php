@@ -50,36 +50,36 @@ class CreatePermissionsTable extends AbstractMigration
         $table->addColumn('create', 'string', [
             'signed' => false,
             'null' => true,
-            'default' => null,
+            'default' => 'none',
             'length' => 16,
         ]);
         $table->addColumn('read', 'string', [
             'signed' => false,
             'null' => true,
-            'default' => null,
+            'default' => 'none',
             'length' => 16,
         ]);
         $table->addColumn('update', 'string', [
             'signed' => false,
             'null' => true,
-            'default' => null,
+            'default' => 'none',
             'length' => 16,
         ]);
         $table->addColumn('delete', 'string', [
             'signed' => false,
             'null' => true,
-            'default' => null,
+            'default' => 'none',
             'length' => 16,
         ]);
         $table->addColumn('comment', 'string', [
             'limit' => 8,
             'null' => true,
-            'default' => null
+            'default' => 'none'
         ]);
         $table->addColumn('explain', 'string', [
             'limit' => 8,
             'null' => true,
-            'default' => null
+            'default' => 'none'
         ]);
         $table->addColumn('read_field_blacklist', 'string', [
             'limit' => 1000,
