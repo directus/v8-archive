@@ -262,11 +262,17 @@ class CoreServicesProvider
             $savesFile = function (Payload $payload, $replace = false) use ($container) {
                 $collectionName = $payload->attribute('collection_name');
                 if ($collectionName !== SchemaManager::COLLECTION_FILES) {
-                    return null;
+                    return;
                 }
 
                 if ($replace === true && !$payload->has('data')) {
-                    return null;
+                    return;
+                }
+
+                // NOTE: "data" should be ignore if it isn't a string on update
+                if ($replace === true && !is_string($payload->get('data'))) {
+                    $payload->remove('data');
+                    return;
                 }
 
                 $data = $payload->getData();
