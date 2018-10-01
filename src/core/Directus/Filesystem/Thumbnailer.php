@@ -78,7 +78,7 @@ class Thumbnailer {
                 throw new Exception('Invalid quality.');
             }
 
-            // relative to configuration['filesystem']['thumb_root']
+            // relative to configuration['storage']['thumb_root']
             $this->thumbnailDir = $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '');
         } catch (Exception $e) {
             throw $e;

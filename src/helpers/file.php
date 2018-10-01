@@ -88,9 +88,9 @@ if (!function_exists('append_storage_information'))
         array_unshift($thumbnailDimensions, '200x200');
 
         $config = $container->get('config');
-        $fileRootUrl = $config->get('filesystem.root_url');
+        $fileRootUrl = $config->get('storage.root_url');
         $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
-        $isLocalStorageAdapter = $config->get('filesystem.adapter') == 'local';
+        $isLocalStorageAdapter = $config->get('storage.adapter') == 'local';
         $list = isset($rows[0]);
 
         if (!$list) {

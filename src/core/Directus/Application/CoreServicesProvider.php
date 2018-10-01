@@ -949,7 +949,7 @@ class CoreServicesProvider
             $config = $container->get('config');
 
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('filesystem'), 'root')
+                FilesystemFactory::createAdapter($config->get('storage'), 'root')
             );
         };
     }
@@ -963,7 +963,7 @@ class CoreServicesProvider
             $config = $container->get('config');
 
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('filesystem'), 'thumb_root')
+                FilesystemFactory::createAdapter($config->get('storage'), 'thumb_root')
             );
         };
     }
@@ -1081,7 +1081,7 @@ class CoreServicesProvider
 
             $filesystem = $container->get('filesystem');
             $config = $container->get('config');
-            $config = $config->get('filesystem', []);
+            $config = $config->get('storage', []);
             $emitter = $container->get('hook_emitter');
 
             return new Files(
