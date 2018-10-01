@@ -51,7 +51,8 @@ class CreateCollectionsTable extends AbstractMigration
             'null' => false,
             'default' => false
         ]);
-        $table->addColumn('translation', 'text', [
+        $table->addColumn('icon', 'string', [
+            'limit' => 20,
             'null' => true,
             'default' => null
         ]);
@@ -60,8 +61,7 @@ class CreateCollectionsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('icon', 'string', [
-            'limit' => 20,
+        $table->addColumn('translation', 'text', [
             'null' => true,
             'default' => null
         ]);

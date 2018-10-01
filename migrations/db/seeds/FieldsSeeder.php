@@ -45,7 +45,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 2,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_activity',
@@ -55,7 +55,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 3,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_activity',
@@ -65,7 +65,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 4,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_activity',
@@ -78,7 +78,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 5,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_activity',
@@ -91,7 +91,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 6,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_activity',
@@ -104,7 +104,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 7,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_activity',
@@ -114,7 +114,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 8,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_activity',
@@ -124,7 +124,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 9,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_activity',
@@ -219,7 +219,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'one-to-many',
                 'locked' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1,
+                'hidden_browse' => 1,
                 'sort' => 1
             ],
             [
@@ -231,7 +231,7 @@ class FieldsSeeder extends AbstractSeed
                 'readonly' => 1,
                 'required' => 1,
                 'sort' => 2,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_collections',
@@ -240,7 +240,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'sort' => 3,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_collections',
@@ -249,7 +249,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1,
                 'sort' => 4,
-                'view_width' => 1
+                'width' => 1
             ],
             [
                 'collection' => 'directus_collections',
@@ -258,7 +258,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1,
                 'sort' => 5,
-                'view_width' => 1
+                'width' => 1
             ],
             [
                 'collection' => 'directus_collections',
@@ -267,7 +267,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1,
                 'sort' => 6,
-                'view_width' => 1
+                'width' => 1
             ],
             [
                 'collection' => 'directus_collections',
@@ -385,14 +385,14 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_fields',
-                'field' => 'hidden_list',
+                'field' => 'hidden_browse',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
                 'locked' => 1
             ],
             [
                 'collection' => 'directus_fields',
-                'field' => 'view_width',
+                'field' => 'width',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
                 'locked' => 1
@@ -446,7 +446,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'sort' => 3,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_files',
@@ -460,7 +460,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 4,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_files',
@@ -468,7 +468,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
                 'sort' => 5,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_files',
@@ -480,7 +480,7 @@ class FieldsSeeder extends AbstractSeed
                     'iconRight' => 'place'
                 ]),
                 'sort' => 6,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_files',
@@ -503,7 +503,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 8,
-                'view_width' => 1
+                'width' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -516,7 +516,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 9,
-                'view_width' => 1
+                'width' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -529,7 +529,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 10,
-                'view_width' => 1
+                'width' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -542,7 +542,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 11,
-                'view_width' => 1
+                'width' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -555,7 +555,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 12,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_files',
@@ -565,7 +565,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 13,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_files',
@@ -574,7 +574,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'code',
                 'locked' => 1,
                 'sort' => 14,
-                'view_width' => 4
+                'width' => 4
             ],
             [
                 'collection' => 'directus_files',
@@ -593,7 +593,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1
+                'hidden_browse' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -614,12 +614,12 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_files',
-                'field' => 'storage_adapter',
+                'field' => 'storage',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'locked' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1
+                'hidden_browse' => 1
             ],
 
 
@@ -879,7 +879,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1
+                'hidden_browse' => 1
             ],
             [
                 'collection' => 'directus_roles',
@@ -888,7 +888,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'sort' => 1,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_roles',
@@ -897,7 +897,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'sort' => 2,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_roles',
@@ -913,7 +913,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'textarea',
                 'locked' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1
+                'hidden_browse' => 1
             ],
 
 
@@ -1022,7 +1022,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'required' => 1,
                 'sort' => 3,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1035,7 +1035,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'required' => 1,
                 'sort' => 4,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1048,7 +1048,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'required' => 1,
                 'sort' => 5,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1057,7 +1057,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1,
                 'sort' => 6,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1077,7 +1077,7 @@ class FieldsSeeder extends AbstractSeed
                     'placeholder' => 'Enter your company or organization name...'
                 ]),
                 'sort' => 8,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1088,7 +1088,7 @@ class FieldsSeeder extends AbstractSeed
                     'placeholder' => 'Enter your title or role...'
                 ]),
                 'sort' => 9,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1110,7 +1110,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'sort' => 10,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1127,7 +1127,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'sort' => 11,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1135,7 +1135,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
                 'locked' => 1,
-                'hidden_list' => 1,
+                'hidden_browse' => 1,
                 'sort' => 12
             ],
             [
@@ -1145,7 +1145,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1,
+                'hidden_browse' => 1,
                 'sort' => 13
             ],
             [
@@ -1156,7 +1156,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 14,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1167,7 +1167,7 @@ class FieldsSeeder extends AbstractSeed
                 'readonly' => 1,
                 'hidden_input' => 1,
                 'sort' => 15,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1177,9 +1177,9 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1,
+                'hidden_browse' => 1,
                 'sort' => 16,
-                'view_width' => 2
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1196,7 +1196,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1
+                'hidden_browse' => 1
             ],
             [
                 'collection' => 'directus_users',
@@ -1205,7 +1205,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1
+                'hidden_browse' => 1
             ],
             [
                 'collection' => 'directus_users',
@@ -1223,7 +1223,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'many-to-many',
                 'locked' => 1,
                 'hidden_input' => 1,
-                'hidden_list' => 1
+                'hidden_browse' => 1
             ],
             [
                 'collection' => 'directus_users',
@@ -1233,15 +1233,6 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_input' => 1
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'high_contrast_mode',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
-                'locked' => 1,
-                'hidden_input' => 1,
-                'hidden_list' => 1
             ],
 
             // User Roles Junction

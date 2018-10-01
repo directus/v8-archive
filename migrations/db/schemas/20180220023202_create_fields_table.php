@@ -55,52 +55,52 @@ class CreateFieldsTable extends AbstractMigration
             'null' => false,
             'default' => false
         ]);
-        $table->addColumn('translation', 'text', [
+        $table->addColumn('validation', 'string', [
+            'limit' => 255,
             'null' => true,
             'default' => null
-        ]);
-        $table->addColumn('readonly', 'boolean', [
-            'signed' => false,
-            'null' => false,
-            'default' => false
         ]);
         $table->addColumn('required', 'boolean', [
             'signed' => false,
             'null' => false,
             'default' => false
         ]);
-        $table->addColumn('sort', 'integer', [
-            'signed' => false,
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('view_width', 'integer', [
+        $table->addColumn('readonly', 'boolean', [
             'signed' => false,
             'null' => false,
-            'default' => 4
-        ]);
-        $table->addColumn('note', 'string', [
-            'limit' => 1024,
-            'null' => true,
-            'default' => null
+            'default' => false
         ]);
         $table->addColumn('hidden_input', 'boolean', [
             'signed' => false,
             'null' => false,
             'default' => 0
         ]);
-        $table->addColumn('validation', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('hidden_list', 'boolean', [
+        $table->addColumn('hidden_browse', 'boolean', [
             'signed' => false,
             'null' => false,
             'default' => 0
         ]);
+        $table->addColumn('sort', 'integer', [
+            'signed' => false,
+            'null' => true,
+            'default' => null
+        ]);
+        $table->addColumn('width', 'integer', [
+            'signed' => false,
+            'null' => false,
+            'default' => 4
+        ]);
         $table->addColumn('group', 'integer', [
             'signed' => false,
+            'null' => true,
+            'default' => null
+        ]);
+        $table->addColumn('note', 'string', [
+            'limit' => 1024,
+            'null' => true,
+            'default' => null
+        ]);
+        $table->addColumn('translation', 'text', [
             'null' => true,
             'default' => null
         ]);

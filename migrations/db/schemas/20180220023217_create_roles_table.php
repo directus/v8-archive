@@ -29,12 +29,6 @@ class CreateRolesTable extends AbstractMigration
     {
         $table = $this->table('directus_roles', ['signed' => false]);
 
-        $table->addColumn('external_id', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
-
         $table->addColumn('name', 'string', [
             'limit' => 100,
             'null' => false
@@ -49,6 +43,11 @@ class CreateRolesTable extends AbstractMigration
             'default' => null
         ]);
         $table->addColumn('nav_blacklist', 'text', [
+            'null' => true,
+            'default' => null
+        ]);
+        $table->addColumn('external_id', 'string', [
+            'limit' => 255,
             'null' => true,
             'default' => null
         ]);

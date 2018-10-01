@@ -42,11 +42,6 @@ class CreatePermissionsTable extends AbstractMigration
             'default' => null,
             'null' => true
         ]);
-        $table->addColumn('status_blacklist', 'string', [
-            'length' => 1000,
-            'default' => null,
-            'null' => true
-        ]);
         $table->addColumn('create', 'string', [
             'signed' => false,
             'null' => true,
@@ -92,6 +87,11 @@ class CreatePermissionsTable extends AbstractMigration
             'null' => true,
             'default' => NULL,
             'encoding' => 'utf8',
+        ]);
+        $table->addColumn('status_blacklist', 'string', [
+            'length' => 1000,
+            'default' => null,
+            'null' => true
         ]);
 
         $table->create();

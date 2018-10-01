@@ -17,7 +17,7 @@ class FieldTest extends PHPUnit_Framework_TestCase
             'sort' => 999,
             'comment' => 'Projects related to this project',
             'hidden_input' => 0,
-            'hidden_list' => 0,
+            'hidden_browse' => 0,
 
             // from mysql
             'default_value' => 0,
@@ -35,7 +35,7 @@ class FieldTest extends PHPUnit_Framework_TestCase
             'sort' => 999,
             'comment' => 'Article price',
             'hidden_input' => 0,
-            'hidden_list' => 0,
+            'hidden_browse' => 0,
 
             // from mysql
             'default_value' => 0.00,

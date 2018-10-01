@@ -257,9 +257,9 @@ class Field extends AbstractObject
      *
      * @return bool
      */
-    public function isHiddenList()
+    public function isHiddenBrowse()
     {
-        return $this->attributes->get('hidden_list');
+        return $this->attributes->get('hidden_browse');
     }
 
     /**
