@@ -597,25 +597,21 @@ class SchemaManager
         $fieldsRelation = $this->getRelationshipsData($collectionName);
 
         foreach ($fields as $field) {
-            if (empty($fieldsRelation)) {
-                // Set all FILE data type related to directus files (M2O)
-                if (DataTypes::isFilesType($field->getType())) {
-                    $field->setRelationship([
-                        'collection_many' => $field->getCollectionName(),
-                        'field_many' => $field->getName(),
-                        'collection_one' => static::COLLECTION_FILES,
-                        'field_one' => 'id'
-                    ]);
-                }
-
-                continue;
-            }
-
             foreach ($fieldsRelation as $key => $value) {
                 if (ArrayUtils::get($value, 'field_many') == $field->getName() || ArrayUtils::get($value, 'field_one') == $field->getName()) {
                     $field->setRelationship(ArrayUtils::pull($fieldsRelation, $key));
                     break;
                 }
+            }
+
+            if (DataTypes::isFilesType($field->getType()) && !$field->getRelationship()) {
+                // Set all FILE data type related to directus files (M2O)
+                $field->setRelationship([
+                    'collection_many' => $field->getCollectionName(),
+                    'field_many' => $field->getName(),
+                    'collection_one' => static::COLLECTION_FILES,
+                    'field_one' => 'id'
+                ]);
             }
         }
 
