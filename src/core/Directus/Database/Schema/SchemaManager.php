@@ -651,6 +651,38 @@ class SchemaManager
         return DataTypes::isUniqueType($type);
     }
 
+    /**
+     * Checks if a field is a numeric type
+     *
+     * @param Field $field
+     *
+     * @return bool
+     */
+    public function isFieldNumericType(Field $field)
+    {
+        if ($field->getType()) {
+            return DataTypes::isNumericType($field->getType());
+        }
+
+        return $this->getSource()->isNumericType($field->getDataType());
+    }
+
+    /**
+     * Checks if a field is a string type
+     *
+     * @param Field $field
+     *
+     * @return bool
+     */
+    public function isFieldStringType(Field $field)
+    {
+        if ($field->getType()) {
+            return DataTypes::isStringType($field->getType());
+        }
+
+        return $this->getSource()->isStringType($field->getDataType());
+    }
+
     protected function addCollection($name, $schema)
     {
         // save the column into the data

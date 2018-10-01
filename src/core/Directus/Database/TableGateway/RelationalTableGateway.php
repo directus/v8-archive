@@ -1499,8 +1499,9 @@ class RelationalTableGateway extends BaseTableGateway
         $query->nestWhere(function (Builder $query) use ($columns, $search, $table) {
             foreach ($columns as $column) {
                 // NOTE: Only search numeric or string type columns
-                $isNumeric = $this->getSchemaManager()->getSource()->isNumericType($column->getType());
-                $isString = $this->getSchemaManager()->getSource()->isStringType($column->getType());
+                // Fields without data in directus_fields should fallback to source type
+                $isNumeric = $this->getSchemaManager()->isFieldNumericType($column);
+                $isString = $this->getSchemaManager()->isFieldStringType($column);
 
                 if (!$isNumeric && !$isString && !$column->isOneToMany()) {
                     continue;
