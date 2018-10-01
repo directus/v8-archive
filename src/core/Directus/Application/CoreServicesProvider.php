@@ -20,7 +20,6 @@ use Directus\Config\StatusMapping;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Database\Schema\DataTypes;
-use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\BaseTableGateway;
@@ -37,6 +36,7 @@ use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
 use function Directus\generate_uuid4;
 use function Directus\get_api_project_from_request;
+use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -640,6 +640,24 @@ class CoreServicesProvider
             $emitter->addFilter('collection.insert.directus_files:before', $beforeSavingFiles);
             $emitter->addFilter('collection.update.directus_files:before', $beforeSavingFiles);
             $emitter->addFilter('collection.delete.directus_files:before', $beforeSavingFiles);
+
+            $emitter->addAction('auth.authenticated:credentials', function () use ($container) {
+                /** @var Session $session */
+                $session = $container->get('session');
+                if ($session->getStorage()->get('telemetry') === true) {
+                    return;
+                }
+
+                $data = [
+                    'version' => Application::DIRECTUS_VERSION,
+                    'url' => get_url(),
+                    'type' => 'api'
+                ];
+                \Directus\request_send('POST', 'https://telemetry.directus.io/count', $data);
+
+                // NOTE: this only works when the client sends subsequent request with the same cookie
+                $session->getStorage()->set('telemetry', true);
+            });
 
             return $emitter;
         };

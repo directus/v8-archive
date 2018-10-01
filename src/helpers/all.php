@@ -19,6 +19,7 @@ require __DIR__ . '/file.php';
 require __DIR__ . '/items.php';
 require __DIR__ . '/mail.php';
 require __DIR__ . '/regex.php';
+require __DIR__ . '/request.php';
 require __DIR__ . '/server.php';
 require __DIR__ . '/settings.php';
 require __DIR__ . '/sorting.php';
@@ -1167,103 +1168,6 @@ if (!function_exists('find_twig_files')) {
     function find_twig_files($paths, $includeSubDirectories = false)
     {
         return find_files($paths, 0, '*.twig', $includeSubDirectories);
-    }
-}
-
-if (!function_exists('get_contents')) {
-    /**
-     * Get content from an URL
-     *
-     * @param $url
-     * @param $headers
-     *
-     * @return mixed
-     */
-    function get_contents($url, $headers = [])
-    {
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-
-        if ($headers) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
-
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return $result;
-    }
-}
-
-if (!function_exists('get_json')) {
-    /**
-     * Get json from an url
-     *
-     * @param $url
-     * @param array $headers
-     *
-     * @return mixed
-     */
-    function get_json($url, $headers = [])
-    {
-        $content = get_contents($url, array_merge(['Content-Type: application/json'], $headers));
-
-        return json_decode($content, true);
-    }
-}
-
-if (!function_exists('check_version')) {
-    /**
-     * Check Directus latest version
-     *
-     * @param bool $firstCheck
-     *
-     * @return array
-     */
-    function check_version($firstCheck = false)
-    {
-        $data = [
-            'outdated' => false,
-        ];
-
-        $version = \Directus\Application\Application::DIRECTUS_VERSION;
-
-        // =============================================================================
-        // Getting the latest version, silently skip it if the server is no responsive.
-        // =============================================================================
-        try {
-            $responseData = get_json('https://directus.io/check-version' . ($firstCheck ? '?first_check=1' : ''));
-
-            if ($responseData && isset($responseData['success']) && $responseData['success'] == true) {
-                $versionData = $responseData['data'];
-                $data = array_merge($data, $versionData);
-                $data['outdated'] = version_compare($version, $versionData['current_version'], '<');
-            }
-        } catch (\Exception $e) {
-            // Do nothing
-        }
-
-        return $data;
-    }
-}
-
-if (!function_exists('feedback_login_ping')) {
-    /**
-     * Sends a unique random token to help us understand approximately how many instances of Directus exist.
-     * This can be disabled in your config file.
-     *
-     * @param string $key
-     */
-    function feedback_login_ping($key)
-    {
-        try {
-            get_json('https://directus.io/feedback/ping/' . (string) $key);
-        } catch (\Exception $e) {
-            // Do nothing
-        }
     }
 }
 
