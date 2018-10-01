@@ -4,8 +4,6 @@ config/*
 !config/api_sample.php
 phpunit.xml
 
-public/core/
-
 documents
 
 assets/css/*.map
@@ -14,11 +12,13 @@ Icon
 .DS_Store
 dist/*
 
-# Don't track composer phar/vendors
+# Package managers
 composer.phar
 composer.lock
 .lock
 /vendor
+node_modules
+package-lock.json
 
 # Ignore log files, but track the log README
 *.log
@@ -37,13 +37,10 @@ thumbnail/**/
 .idea
 .sass-cache
 .gulp-scss-cache
-node_modules
 
-package-lock.json
-
-extensions/node_modules
 extensions/.cache
 
+/public/core/
 /public/uploads
 !/public/uploads/_/originals/.htaccess
 
