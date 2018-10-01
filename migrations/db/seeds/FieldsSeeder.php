@@ -26,7 +26,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'required' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_activity',
@@ -218,7 +218,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
                 'interface' => 'one-to-many',
                 'locked' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1,
                 'sort' => 1
             ],
@@ -276,7 +276,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'code',
                 'locked' => 1,
                 'sort' => 7,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_collections',
@@ -297,7 +297,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_fields',
@@ -378,7 +378,7 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_fields',
-                'field' => 'hidden_input',
+                'field' => 'hidden_detail',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
                 'locked' => 1
@@ -414,7 +414,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
                 'interface' => 'single-file',
                 'locked' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'sort' => 0
             ],
             [
@@ -424,7 +424,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'sort' => 1
             ],
             [
@@ -583,7 +583,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -592,7 +592,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
             [
@@ -602,7 +602,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -610,7 +610,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
                 'locked' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -618,7 +618,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'locked' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
 
@@ -632,7 +632,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_folders',
@@ -659,7 +659,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_permissions',
@@ -869,7 +869,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_roles',
@@ -878,7 +878,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
             [
@@ -912,7 +912,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea',
                 'locked' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
 
@@ -951,7 +951,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'sort' => 1
             ],
             [
@@ -1144,7 +1144,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'locked' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1,
                 'sort' => 13
             ],
@@ -1165,7 +1165,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'datetime',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'sort' => 15,
                 'width' => 2
             ],
@@ -1176,7 +1176,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1,
                 'sort' => 16,
                 'width' => 2
@@ -1195,7 +1195,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'locked' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
             [
@@ -1204,7 +1204,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
                 'locked' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
             [
@@ -1214,7 +1214,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_users',
@@ -1222,7 +1222,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
                 'interface' => 'many-to-many',
                 'locked' => 1,
-                'hidden_input' => 1,
+                'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
             [
@@ -1232,7 +1232,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
 
             // User Roles Junction
@@ -1244,7 +1244,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_input' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_user_roles',

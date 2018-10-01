@@ -267,9 +267,9 @@ class Field extends AbstractObject
      *
      * @return bool
      */
-    public function isHiddenInput()
+    public function isHiddenDetail()
     {
-        return $this->attributes->get('hidden_input');
+        return $this->attributes->get('hidden_detail');
     }
 
     /**

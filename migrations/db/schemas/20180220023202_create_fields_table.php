@@ -70,7 +70,7 @@ class CreateFieldsTable extends AbstractMigration
             'null' => false,
             'default' => false
         ]);
-        $table->addColumn('hidden_input', 'boolean', [
+        $table->addColumn('hidden_detail', 'boolean', [
             'signed' => false,
             'null' => false,
             'default' => 0

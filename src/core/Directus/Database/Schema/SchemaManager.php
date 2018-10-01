@@ -576,7 +576,7 @@ class SchemaManager
             'managed',
             'primary_key',
             'signed',
-            'hidden_input',
+            'hidden_detail',
             'hidden_browse',
             'required',
             'nullable',
