@@ -10,7 +10,7 @@ class SuppliedArrayAsColumnValue extends UnprocessableEntityException
 
     public function __construct($collection, $field)
     {
-        $message = 'Attempting to write an array as the value for column `' . $collection . '`.`' . $field . '.';
+        $message = sprintf('Attempting to write an array as the value for field "%s" in "%s"', $field, $collection);
         parent::__construct($message, 0, null);
     }
 }
