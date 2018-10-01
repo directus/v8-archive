@@ -30,10 +30,6 @@ customs/extensions/*
 customs/interfaces/*
 !customs/interfaces/.gitignore
 !customs/interfaces/_example
-/customs/listviews/*
-!customs/listviews/.gitignore
-!public/uploads/_/originals/.gitignore
-!public/uploads/_/thumbnails/.gitignore
 
 thumbnail/**/
 
@@ -44,3 +40,23 @@ thumbnail/**/
 node_modules
 
 package-lock.json
+
+extensions/node_modules
+extensions/.cache
+
+/public/uploads
+!/public/uploads/_/originals/.htaccess
+
+/public/extensions/core/interfaces
+/public/extensions/core/layouts
+/public/extensions/core/pages
+
+/public/extensions/custom/extensions
+!/public/extensions/custom/extensions/.htaccess
+!/public/extensions/custom/extensions/_example
+
+/public/extensions/custom/interfaces
+!/public/extensions/custom/interfaces/_example
+!/public/extensions/custom/interfaces/rating
+
+/public/extensions/custom/listviews
