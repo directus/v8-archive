@@ -1,4 +1,7 @@
 {
+  "name": "directus/api",
+  "license": "GPL-3.0-only",
+  "description": "Directus 7 API wrapper for custom SQL databases",
   "require": {
     "php": ">=5.6.0",
     "slim/slim": "^3.0.0",
@@ -34,11 +37,6 @@
   },
   "suggest": {
     "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes"
-  },
-  "_require": {
-    "rackspace/php-opencloud": "dev-master",
-    "amazonwebservices/aws-sdk-for-php": "1.6.2",
-    "aws/aws-sdk-php": "2.6.*@dev"
   },
   "autoload": {
     "psr-4": {
