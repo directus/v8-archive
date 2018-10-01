@@ -3,7 +3,6 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
-use function Directus\array_get;
 use function Directus\filename_put_ext;
 use function Directus\generate_uuid5;
 use Directus\Util\DateTimeUtils;

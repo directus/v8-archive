@@ -2,8 +2,6 @@
 
 namespace Directus\Tests\Api\Io;
 
-use Directus\Validator\Exception\InvalidRequestException;
-
 class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
 {
     /**
