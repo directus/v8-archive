@@ -70,7 +70,7 @@ export default {
 .password {
   display: inline-block;
   width: 100%;
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 .first {
   margin-right: 20px;

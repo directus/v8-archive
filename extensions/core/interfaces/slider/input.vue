@@ -27,6 +27,6 @@ export default {
 
 <style lang="scss" scoped>
 .slider {
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 </style>

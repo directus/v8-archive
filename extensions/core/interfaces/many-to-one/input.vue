@@ -243,7 +243,7 @@ export default {
 <style lang="scss" scoped>
 .interface-many-to-one {
   position: relative;
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 
 .v-select {

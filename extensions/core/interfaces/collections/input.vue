@@ -35,6 +35,6 @@ export default {
 <style lang="scss" scoped>
 .v-select {
   margin-top: 0;
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 </style>

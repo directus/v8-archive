@@ -296,7 +296,7 @@ export default {
   z-index: 1;
   width: 100%;
   //This is fallback size. Generally this will be overwritten by default size provided in interface config.
-  height: var(--width-normal);
+  height: var(--width-medium);
 }
 
 .map-actions {

@@ -35,7 +35,7 @@ export default {
 <style lang="scss" scoped>
 .input {
   width: 100%;
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 .immutable {
   display: block;

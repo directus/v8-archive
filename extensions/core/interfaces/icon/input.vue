@@ -71,7 +71,7 @@ export default {
   overflow-y: scroll;
   height: 334px;
   width: 100%;
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
   border: var(--input-border-width) solid var(--lighter-gray);
   border-radius: var(--border-radius);
   background-color: white;

@@ -96,7 +96,7 @@ export default {
 
 <style lang="scss" scoped>
 .interface-tags {
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 
 .buttons {

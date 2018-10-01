@@ -44,6 +44,6 @@ export default {
 
 <style lang="scss" scoped>
 .slug {
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 </style>

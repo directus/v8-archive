@@ -19,6 +19,6 @@ export default {
 <style lang="scss" scoped>
 .small {
   width: 100%;
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 </style>

@@ -1,12 +1,12 @@
 .flatpickr-calendar {
 	box-shadow: var(--box-shadow);
 	border-radius: var(--border-radius);
-	max-width: var(--width-normal);
-	width: var(--width-normal);
+	max-width: var(--width-medium);
+	width: var(--width-medium);
 }
 
 .flatpickr-rContainer {
-	width: var(--width-normal);
+	width: var(--width-medium);
 }
 
 .flatpickr-input {

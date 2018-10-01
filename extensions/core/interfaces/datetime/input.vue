@@ -39,6 +39,6 @@ export default {
 
 <style lang="scss" scoped>
 .interface-datetime {
-  max-width: var(--width-normal);
+  max-width: var(--width-medium);
 }
 </style>
