@@ -2,7 +2,6 @@
 
 namespace Directus\Tests\Database\Schemas\Object;
 
-use Directus\Config\StatusMapping;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Util\ArrayUtils;
 

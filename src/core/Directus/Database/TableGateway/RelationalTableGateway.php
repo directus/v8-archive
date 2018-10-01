@@ -4,13 +4,11 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Database\Exception;
 use Directus\Database\Filters\Filter;
-use Directus\Database\Filters\In;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Query\Builder;
 use Directus\Database\RowGateway\BaseRowGateway;
-use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
@@ -25,7 +23,6 @@ use Zend\Db\Sql\Predicate\PredicateInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Where;
-use Zend\Db\TableGateway\TableGateway;
 
 class RelationalTableGateway extends BaseTableGateway
 {

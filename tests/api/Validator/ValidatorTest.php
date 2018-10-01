@@ -2,9 +2,7 @@
 
 namespace Directus\Tests\Api;
 
-use Directus\Validator\Exception\UnknownConstraintException;
 use Directus\Validator\Validator;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 class ValidatorTest extends \PHPUnit_Framework_TestCase
 {

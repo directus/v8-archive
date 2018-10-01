@@ -7,10 +7,8 @@ use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\UserInactiveException;
-use Directus\Authentication\Provider;
 use Directus\Util\JWTUtils;
 use Directus\Validator\Exception\InvalidRequestException;
-use GuzzleHttp\Exception\ClientException;
 
 class AuthenticationTest extends \PHPUnit_Framework_TestCase
 {
