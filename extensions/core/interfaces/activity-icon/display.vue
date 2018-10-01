@@ -20,8 +20,8 @@ export default {
   data() {
     return {
       styles: {
-        add: {
-          icon: "check",
+        create: {
+          icon: "add",
           color: "success"
         },
         update: {
@@ -70,7 +70,7 @@ export default {
       if (this.value) {
 
         switch (this.value.toLowerCase()) {
-          case "add":
+          case "create":
             return "Item Created";
           case "update":
             return "Item Saved";
