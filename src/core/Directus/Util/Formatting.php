@@ -10,8 +10,7 @@ class Formatting
     public static function fileNameToFileTitle($fileName)
     {
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        $name = filename_put_ext(basename($fileName), $ext);
-        $name = strtolower($name);
+        $name = strtolower(basename($fileName, '.' . $ext));
         $name = str_replace(['_', '-'], [' ', ' '], $name);
         $name = ucwords($name);
 
