@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="currentStatus && currentStatus.listing_badge"
+    v-if="currentStatus && currentStatus.browse_badge"
     :class="['badge', 'no-wrap', { simple: options.simpleBadge }]"
     :style="style"
     v-tooltip="options.simpleBadge ? currentStatus.name : false">

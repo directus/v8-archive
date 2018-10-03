@@ -24,8 +24,8 @@
             "name": "$t:published",
             "text_color": "white",
             "background_color": "accent",
-            "listing_subdued": false,
-            "listing_badge": false,
+            "browse_subdued": false,
+            "browse_badge": false,
             "soft_delete": false,
             "published": true
           },
@@ -33,8 +33,8 @@
             "name": "$t:under_review",
             "text_color": "white",
             "background_color": "amber",
-            "listing_subdued": true,
-            "listing_badge": true,
+            "browse_subdued": true,
+            "browse_badge": true,
             "soft_delete": false,
             "published": false
           },
@@ -42,8 +42,8 @@
             "name": "$t:draft",
             "text_color": "white",
             "background_color": "blue-grey-200",
-            "listing_subdued": true,
-            "listing_badge": true,
+            "browse_subdued": true,
+            "browse_badge": true,
             "soft_delete": false,
             "published": false
           },
@@ -51,8 +51,8 @@
             "name": "$t:deleted",
             "text_color": "white",
             "background_color": "red",
-            "listing_subdued": true,
-            "listing_badge": true,
+            "browse_subdued": true,
+            "browse_badge": true,
             "soft_delete": true,
             "published": false
           }
@@ -63,8 +63,8 @@
           "name": "$t:published",
           "text_color": "white",
           "background_color": "accent",
-          "listing_subdued": false,
-          "listing_badge": false,
+          "browse_subdued": false,
+          "browse_badge": false,
           "soft_delete": false,
           "published": true
         },
@@ -72,8 +72,8 @@
           "name": "$t:draft",
           "text_color": "white",
           "background_color": "blue-grey-200",
-          "listing_subdued": true,
-          "listing_badge": true,
+          "browse_subdued": true,
+          "browse_badge": true,
           "soft_delete": false,
           "published": false
         },
@@ -81,8 +81,8 @@
           "name": "$t:deleted",
           "text_color": "white",
           "background_color": "red",
-          "listing_subdued": true,
-          "listing_badge": true,
+          "browse_subdued": true,
+          "browse_badge": true,
           "soft_delete": true,
           "published": false
         }
