@@ -1,7 +1,7 @@
 {
   "name": "$t:primary_key",
   "version": "1.0.0",
-  "types": ["integer"],
+  "types": ["integer", "string"],
   "icon": "vpn_key",
   "options": {},
   "translation": {
