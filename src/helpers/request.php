@@ -83,3 +83,27 @@ if (!function_exists('request_send')) {
         return $result;
     }
 }
+
+if (!function_exists('request_send_json')) {
+    /**
+     * Make a request with a json body
+     *
+     * @param string $method
+     * @param string $url
+     * @param mixed $body
+     * @param array $params
+     * @param array $headers
+     *
+     * @return mixed
+     */
+    function request_send_json($method, $url, $body, array $params = [], array $headers = [])
+    {
+        $headers = array_merge($headers, ['Content-Type: application/json']);
+
+        if (!is_string($body)) {
+            $body = json_encode($body);
+        }
+
+        return request_send($method, $url, $body, $params, $headers);
+    }
+}

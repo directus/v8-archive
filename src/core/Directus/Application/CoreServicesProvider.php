@@ -653,7 +653,7 @@ class CoreServicesProvider
                     'url' => get_url(),
                     'type' => 'api'
                 ];
-                \Directus\request_send('POST', 'https://telemetry.directus.io/count', $data);
+                \Directus\request_send_json('POST', 'https://telemetry.directus.io/count', $data);
 
                 // NOTE: this only works when the client sends subsequent request with the same cookie
                 $session->getStorage()->set('telemetry', true);
