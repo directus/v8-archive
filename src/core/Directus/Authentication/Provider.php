@@ -12,6 +12,7 @@ use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\User\Provider\UserProviderInterface;
 use Directus\Authentication\User\UserInterface;
 use Directus\Exception\Exception;
+use function Directus\get_api_project_from_request;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
@@ -52,6 +53,11 @@ class Provider
     protected $secretKey;
 
     /**
+     * @var string
+     */
+    protected $publicKey;
+
+    /**
      * JWT time to live in minutes
      *
      * @var int
@@ -61,7 +67,7 @@ class Provider
     public function __construct(UserProviderInterface $userProvider, array $options = [])
     {
         if (!isset($options['secret_key']) || !is_string($options['secret_key'])) {
-            throw new Exception('secret key must be a string');
+            throw new Exception('auth: secret key is required and it must be a string');
         }
 
         $ttl = ArrayUtils::get($options, 'ttl', 5);
@@ -72,6 +78,7 @@ class Provider
         $this->userProvider = $userProvider;
         $this->user = null;
         $this->secretKey = $options['secret_key'];
+        $this->publicKey = ArrayUtils::get($options, 'public_key');
         $this->ttl = (int)$ttl;
     }
 
@@ -207,7 +214,7 @@ class Provider
      */
     public function authenticateWithToken($token)
     {
-        $payload = JWTUtils::decode($token, $this->getSecretKey(), ['HS256']);
+        $payload = $this->getTokenPayload($token);
         if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_AUTH, $payload)) {
             throw new InvalidTokenException();
         }
@@ -411,8 +418,10 @@ class Provider
     public function generateToken($type, array $payload)
     {
         $payload['type'] = (string)$type;
+        $payload['key'] = $this->getPublicKey();
+        $payload['project'] = get_api_project_from_request();
 
-        return JWTUtils::encode($payload, $this->getSecretKey(), 'HS256');
+        return JWTUtils::encode($payload, $this->getSecretKey(), $this->getTokenAlgorithm());
     }
 
     /**
@@ -427,20 +436,65 @@ class Provider
      */
     public function refreshToken($token)
     {
-        $algo = 'HS256';
-        $payload = JWTUtils::decode($token, $this->getSecretKey(), [$algo]);
-        if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_AUTH, $payload)) {
-            throw new InvalidTokenException();
-        }
+        $payload = $this->getTokenPayload($token);
 
-        if (!is_object($payload)) {
-            // Empty payload, log this as debug?
+        if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_AUTH, $payload)) {
             throw new InvalidTokenException();
         }
 
         $payload->exp = $this->getNewExpirationTime();
 
-        return JWTUtils::encode($payload, $this->getSecretKey(), $algo);
+        return JWTUtils::encode($payload, $this->getSecretKey(), $this->getTokenAlgorithm());
+    }
+
+    /**
+     * Checks if the payload matches the public key
+     *
+     * @param object $payload
+     *
+     * @return bool
+     */
+    public function hasPayloadPublicKey($payload)
+    {
+        return JWTUtils::hasPayloadKey($this->getPublicKey(), $payload);
+    }
+
+    /**
+     * Checks if the payload matches the project name
+     *
+     * @param object $payload
+     *
+     * @return bool
+     */
+    public function hasPayloadProjectName($payload)
+    {
+        return JWTUtils::hasPayloadProjectName(get_api_project_from_request(), $payload);
+    }
+
+    /**
+     * Checks if the origin of the token in from this project configuration
+     *
+     * @param object $payload
+     *
+     * @return bool
+     */
+    public function isPayloadLocal($payload)
+    {
+        return $this->hasPayloadPublicKey($payload) && $this->hasPayloadProjectName($payload);
+    }
+
+    /**
+     * Throws an exception if the payload origin doesn't match this project configuration
+     *
+     * @param object $payload
+     *
+     * @throws InvalidTokenException
+     */
+    public function validatePayloadOrigin($payload)
+    {
+        if (!$this->isPayloadLocal($payload)) {
+            throw new InvalidTokenException();
+        }
     }
 
     /**
@@ -467,11 +521,52 @@ class Provider
     }
 
     /**
+     * Authentication public key
+     *
+     * @return string
+     */
+    public function getPublicKey()
+    {
+        return $this->publicKey;
+    }
+
+    /**
      * @return int
      */
     public function getNewExpirationTime()
     {
         return time() + ($this->ttl * DateTimeUtils::MINUTE_IN_SECONDS);
+    }
+
+    /**
+     * Verifies and Returns the payload if valid
+     *
+     * @param string $token
+     *
+     * @return object
+     *
+     * @throws InvalidTokenException
+     */
+    protected function getTokenPayload($token)
+    {
+        $payload = JWTUtils::decode($token, $this->getSecretKey(), [$this->getTokenAlgorithm()]);
+
+        if (!$this->isPayloadLocal($payload)) {
+            // Empty payload, log this as debug?
+            throw new InvalidTokenException();
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Return the token encoding algorithm
+     *
+     * @return string
+     */
+    protected function getTokenAlgorithm()
+    {
+        return 'HS256';
     }
 
     /**
