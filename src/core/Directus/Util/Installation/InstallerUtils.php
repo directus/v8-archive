@@ -10,7 +10,6 @@ use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Exception\Exception;
 use Directus\Exception\InvalidConfigPathException;
 use Directus\Exception\InvalidPathException;
-use function Directus\generate_uuid4;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
@@ -787,7 +786,6 @@ class InstallerUtils
             'mail_from' => 'admin@example.com',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
             'auth_secret' => StringUtils::randomString(32),
-            'auth_public' => generate_uuid4(),
             'feedback_login' => true,
             'cors_enabled' => true
         ], $data);

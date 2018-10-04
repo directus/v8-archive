@@ -3,7 +3,6 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
-use Directus\Authentication\Provider;
 use Directus\Config\Config;
 use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 use Directus\Database\Exception\ItemNotFoundException;
@@ -93,16 +92,6 @@ abstract class AbstractService
     protected function getAcl()
     {
         return $this->getContainer()->get('acl');
-    }
-
-    /**
-     * Returns the Authentication instance
-     *
-     * @return Provider
-     */
-    protected function getAuth()
-    {
-        return $this->getContainer()->get('auth');
     }
 
     /**

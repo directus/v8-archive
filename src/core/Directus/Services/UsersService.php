@@ -220,9 +220,6 @@ class UsersService extends AbstractService
             throw new InvalidTokenException();
         }
 
-        $auth = $this->getAuth();
-        $auth->validatePayloadOrigin($payload);
-
         $tableGateway = $this->getTableGateway();
         try {
             $result = $this->findOne([

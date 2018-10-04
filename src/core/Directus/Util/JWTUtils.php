@@ -83,56 +83,20 @@ class JWTUtils
     }
 
     /**
-     * Checks whether or not the payload has the given type
+     * Checks whether ot not the payload has the given type
      *
-     * @param string $type
      * @param object $payload
+     * @param string $type
      *
      * @return bool
      */
     public static function hasPayloadType($type, $payload)
     {
-        return static::hasPayloadAttr('type', $type, $payload);
-    }
+        if (is_object($payload) && property_exists($payload, 'type') && $payload->type === $type) {
+            return true;
+        }
 
-    /**
-     * Checks whether or not the payload has the given key
-     *
-     * @param string $key
-     * @param object $payload
-     *
-     * @return bool
-     */
-    public static function hasPayloadKey($key, $payload)
-    {
-        return static::hasPayloadAttr('key', $key, $payload);
-    }
-
-    /**
-     * Checks whether or not the payload has the given project name
-     *
-     * @param string $project
-     * @param object $payload
-     *
-     * @return bool
-     */
-    public static function hasPayloadProjectName($project, $payload)
-    {
-        return static::hasPayloadAttr('project', $project, $payload);
-    }
-
-    /**
-     * Checks whether or not the payload has the given attribute
-     *
-     * @param string $key
-     * @param mixed $value
-     * @param object $payload
-     *
-     * @return bool
-     */
-    public static function hasPayloadAttr($key, $value, $payload)
-    {
-        return is_object($payload) && property_exists($payload, $key) && $payload->{$key} === $value;
+        return false;
     }
 
     /**

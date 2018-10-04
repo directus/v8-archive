@@ -46,7 +46,6 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'feedback_token' => 'token',
             'feedback_login' => true,
             'auth_secret' => 'secret-auth-key',
-            'auth_public' => 'public-auth-key',
             'cors_enabled' => true
         ]);
 
@@ -68,7 +67,6 @@ class InstallerUtilsTest extends PHPUnit_Framework_TestCase
             'feedback_token' => 'token',
             'feedback_login' => true,
             'auth_secret' => 'secret-auth-key',
-            'auth_public' => 'public-auth-key',
             'cors_enabled' => true
         ]);
 

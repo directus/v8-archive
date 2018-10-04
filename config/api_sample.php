@@ -115,8 +115,7 @@ return [
     'tableBlacklist' => [],
 
     'auth' => [
-        'secret_key' => '<type-a-secret-authentication-key-string>',
-        'public_key' => '<type-a-public-authentication-key-string>',
+        'secret_key' => '<secret-authentication-key>',
         'social_providers' => [
             // 'okta' => [
             //     'client_id' => '',

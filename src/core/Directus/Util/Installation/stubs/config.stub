@@ -116,7 +116,6 @@ return [
 
     'auth' => [
         'secret_key' => '{{auth_secret}}',
-        'public_key' => '{{auth_public}}',
         'social_providers' => [
             // 'okta' => [
             //     'client_id' => '',
