@@ -42,5 +42,6 @@ thumbnail/**/
 .sass-cache
 .gulp-scss-cache
 node_modules
+.byebug
 
 package-lock.json
