@@ -42,6 +42,6 @@ export default {
 
 <style lang="scss">
 .interface-wysiwyg-container {
-  max-width: var(--width-large);
+  max-width: var(--width-x-large);
 }
 </style>
