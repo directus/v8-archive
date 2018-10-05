@@ -1,7 +1,7 @@
 {
   "name": "@directus/api",
   "private": true,
-  "version": "2.0.0-rc.3",
+  "version": "2.0.0-rc.5",
   "description": "This API is currently under development for the next major [Directus](https://github.com/directus/directus) version.",
   "main": "index.js",
   "repository": "directus/api",
