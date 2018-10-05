@@ -11,5 +11,8 @@
   "dependencies": {
     "codemirror": "^5.39.0",
     "vue-codemirror": "^4.0.5"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3"
   }
 }

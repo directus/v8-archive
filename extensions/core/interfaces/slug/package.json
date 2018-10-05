@@ -11,5 +11,8 @@
   "license": "GPL-3.0",
   "dependencies": {
     "slugify": "^1.2.9"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3"
   }
 }

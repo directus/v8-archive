@@ -49,6 +49,8 @@ import "codemirror/addon/dialog/dialog.css";
 import "codemirror/addon/search/searchcursor.js";
 import "codemirror/addon/search/search.js";
 
+import "codemirror/addon/display/autorefresh.js";
+
 import "codemirror/keymap/sublime.js";
 
 import "./code.css";
@@ -67,6 +69,7 @@ export default {
 
       cmOptions: {
         tabSize: 4,
+        autoRefresh: true,
         indentUnit: 4,
         styleActiveLine: true,
         lineNumbers: this.options.lineNumber,

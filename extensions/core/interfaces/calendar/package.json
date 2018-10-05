@@ -11,5 +11,8 @@
   "dependencies": {
     "dateformat": "^3.0.3",
     "vue-flatpickr-component": "^7.0.4"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3"
   }
 }

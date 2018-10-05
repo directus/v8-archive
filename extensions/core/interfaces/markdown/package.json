@@ -13,5 +13,8 @@
     "marked": "^0.3.12",
     "vue": "^2.5.16",
     "vue-hot-reload-api": "^2.3.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3"
   }
 }
