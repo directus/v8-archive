@@ -25,8 +25,14 @@ export default {
     },
     ISO() {
       if (!this.value) return;
-      const ISOString = this.date.toISOString();
-      return ISOString.substring(0, ISOString.length - 1);
+      return `${this.date.getFullYear()}-${String(
+        this.date.getMonth()
+      ).padStart(2, "0")}-${String(this.date.getDate()).padStart(
+        2,
+        "0"
+      )}T${String(this.date.getHours()).padStart(2, "0")}:${String(
+        this.date.getMinutes()
+      ).padStart(2, "0")}`;
     }
   },
   methods: {
