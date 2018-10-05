@@ -4,8 +4,6 @@ config/*
 !config/api_sample.php
 phpunit.xml
 
-public/core/
-
 documents
 
 assets/css/*.map
@@ -14,11 +12,13 @@ Icon
 .DS_Store
 dist/*
 
-# Don't track composer phar/vendors
+# Package managers
 composer.phar
 composer.lock
 .lock
 /vendor
+node_modules
+package-lock.json
 
 # Ignore log files, but track the log README
 *.log
@@ -30,10 +30,6 @@ customs/extensions/*
 customs/interfaces/*
 !customs/interfaces/.gitignore
 !customs/interfaces/_example
-/customs/listviews/*
-!customs/listviews/.gitignore
-!public/uploads/_/originals/.gitignore
-!public/uploads/_/thumbnails/.gitignore
 
 thumbnail/**/
 
@@ -41,6 +37,23 @@ thumbnail/**/
 .idea
 .sass-cache
 .gulp-scss-cache
-node_modules
 
-package-lock.json
+extensions/.cache
+
+/public/core/
+/public/uploads
+!/public/uploads/_/originals/.htaccess
+
+/public/extensions/core/interfaces
+/public/extensions/core/layouts
+/public/extensions/core/pages
+
+/public/extensions/custom/extensions
+!/public/extensions/custom/extensions/.htaccess
+!/public/extensions/custom/extensions/_example
+
+/public/extensions/custom/interfaces
+!/public/extensions/custom/interfaces/_example
+!/public/extensions/custom/interfaces/rating
+
+/public/extensions/custom/listviews
