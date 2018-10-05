@@ -13,13 +13,13 @@
         }
       }"
       @remove="$emit('input', null)"></v-card>
-    <v-upload v-else small class="dropzone" @upload="saveUpload"></v-upload>
+    <v-upload v-else small :disabled="readonly" class="dropzone" @upload="saveUpload"></v-upload>
 
-    <v-button type="button" @click="newFile = true">
+    <v-button type="button" :disabled="readonly" @click="newFile = true">
       <i class="material-icons">add</i>{{ $t('new_file') }}
     </v-button><!--
 
- --><v-button type="button" @click="existing = true">
+ --><v-button type="button" :disabled="readonly" @click="existing = true">
       <i class="material-icons">playlist_add</i>{{ $t('existing') }}
     </v-button>
 
