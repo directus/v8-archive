@@ -22,7 +22,6 @@
       <span class="original">
         <a :href="url" target="_blank"><i class="material-icons">link</i>{{url}}</a>
       </span>
-      <!-- <span class="download"><a :href="url" :download="url"><i class="material-icons">get_app</i></a></span> -->
     </div>
   </div>
 </template>
@@ -35,30 +34,30 @@ export default {
   computed: {
     isImage() {
       switch (this.values.type) {
-        case 'image/jpeg':
-        case 'image/gif':
-        case 'image/png':
-        case 'image/svg+xml':
-        case 'image/webp':
-        case 'image/bmp':
+        case "image/jpeg":
+        case "image/gif":
+        case "image/png":
+        case "image/svg+xml":
+        case "image/webp":
+        case "image/bmp":
           return true;
       }
       return false;
     },
     isVideo() {
       switch (this.values.type) {
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
+        case "video/mp4":
+        case "video/webm":
+        case "video/ogg":
           return true;
       }
       return false;
     },
     isAudio() {
       switch (this.values.type) {
-        case 'audio/mpeg':
-        case 'audio/ogg':
-        case 'audio/wav':
+        case "audio/mpeg":
+        case "audio/ogg":
+        case "audio/wav":
           return true;
       }
       return false;
@@ -67,7 +66,7 @@ export default {
       return this.values.type.split("/")[1];
     },
     url() {
-      return this.values['data'].full_url;
+      return this.values.data.full_url;
     }
   }
 };

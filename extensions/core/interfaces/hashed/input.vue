@@ -29,10 +29,10 @@ export default {
     placeholder() {
       if (!this.originalValue) {
         return this.options.placeholder;
-      } else if(this.options.showHash){
+      } else if (this.options.showHash) {
         return this.originalValue;
       } else {
-        return this.$t('interfaces-hashed-secured');
+        return this.$t("interfaces-hashed-secured");
       }
     },
     valueChanged() {

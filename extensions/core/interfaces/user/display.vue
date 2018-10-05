@@ -21,7 +21,7 @@ export default {
     userInfo() {
       if (!this.value) return null;
 
-      if (typeof this.value === 'object') return this.value;
+      if (typeof this.value === "object") return this.value;
       return this.$store.state.users[this.value];
     },
     displayValue() {

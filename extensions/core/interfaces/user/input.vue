@@ -24,7 +24,10 @@ export default {
       let choices = {};
 
       Object.keys(users).forEach(key => {
-        choices[key] = this.$helpers.micromustache.render(this.options.template, users[key]);
+        choices[key] = this.$helpers.micromustache.render(
+          this.options.template,
+          users[key]
+        );
       });
 
       return choices;

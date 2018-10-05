@@ -37,10 +37,10 @@ export default {
   },
   watch: {
     value() {
-      this.matches = (this.value === this.confirmValue) ? true : false;
+      this.matches = this.value === this.confirmValue ? true : false;
     },
     confirmValue() {
-      this.matches = (this.value === this.confirmValue) ? true : false;
+      this.matches = this.value === this.confirmValue ? true : false;
     }
   },
   computed: {
@@ -76,7 +76,6 @@ export default {
   margin-right: 20px;
 }
 .second {
-
 }
 @media only screen and (max-width: 660px) {
   .first {
