@@ -68,7 +68,6 @@ export default {
     },
     label() {
       if (this.value) {
-
         switch (this.value.toLowerCase()) {
           case "create":
             return "Item Created";

@@ -1,29 +1,58 @@
 <template>
-  <div>
-    <div v-if="isImage" class="image">
-      <img :src="url">
-    </div>
-    <div v-else-if="isVideo" class="video">
-      <video controls>
-        <source :src="url" :type="values.type">
-        I'm sorry; your browser doesn't support HTML5 video in this format.
-      </video>
-    </div>
-    <div v-else-if="isAudio" class="audio">
-      <audio controls>
-        <source :src="url" :type="values.type">
-        I'm sorry; your browser doesn't support HTML5 audio in this format.
-      </audio>
-    </div>
-    <div v-else class="file">
-      {{ fileType }}
-    </div>
-    <div class="toolbar">
-      <span class="original">
-        <a :href="url" target="_blank"><i class="material-icons">link</i>{{url}}</a>
-      </span>
-      <!-- <span class="download"><a :href="url" :download="url"><i class="material-icons">get_app</i></a></span> -->
-    </div>
+  <div class="input-single-file">
+    <v-card
+      v-if="value"
+      class="card"
+      :title="value.title"
+      :subtitle="subtitle"
+      :src="value.data.full_url"
+      :options="{
+        remove: {
+          text: $t('delete'),
+          icon: 'delete'
+        }
+      }"
+      @remove="$emit('input', null)"></v-card>
+    <v-upload v-else small :disabled="readonly" class="dropzone" @upload="saveUpload"></v-upload>
+
+    <v-button type="button" :disabled="readonly" @click="newFile = true">
+      <i class="material-icons">add</i>{{ $t('new_file') }}
+    </v-button><!--
+
+ --><v-button type="button" :disabled="readonly" @click="existing = true">
+      <i class="material-icons">playlist_add</i>{{ $t('existing') }}
+    </v-button>
+
+    <portal to="modal" v-if="newFile">
+      <v-modal :title="$t('file_upload')" @close="newFile = false">
+        <div class="body">
+          <v-upload @upload="saveUpload"></v-upload>
+        </div>
+      </v-modal>
+    </portal>
+
+    <portal to="modal" v-if="existing">
+      <v-modal
+        :title="$t('choose_one')"
+        :buttons="{
+          done: {
+            text: $t('done')
+          }
+        }"
+        action-required
+        @done="existing = false">
+        <v-items
+          collection="directus_files"
+          :view-type="viewType"
+          :selection="selection"
+          :filters="filters"
+          :view-query="viewQuery"
+          :view-options="viewOptions"
+          @options="setViewOptions"
+          @query="setViewQuery"
+          @select="selection = [$event[$event.length - 1]]"></v-items>
+      </v-modal>
+    </portal>
   </div>
 </template>
 
@@ -32,103 +61,114 @@ import mixin from "../../../mixins/interface";
 
 export default {
   mixins: [mixin],
+  data() {
+    return {
+      newFile: false,
+      existing: false,
+      selection: [],
+
+      viewOptionsOverride: {},
+      viewTypeOverride: null,
+      viewQueryOverride: {},
+      filtersOverride: []
+    };
+  },
   computed: {
-    isImage() {
-      switch (this.values.type) {
-        case 'image/jpeg':
-        case 'image/gif':
-        case 'image/png':
-        case 'image/svg+xml':
-        case 'image/webp':
-        case 'image/bmp':
-          return true;
+    subtitle() {
+      if (!this.value) return "";
+
+      return (
+        this.value.filename.split(".").pop() +
+        " • " +
+        this.$d(new Date(this.value.uploaded_on), "short")
+      );
+    },
+    viewOptions() {
+      const viewOptions = this.options.viewOptions;
+      return {
+        ...viewOptions,
+        ...this.viewOptionsOverride
+      };
+    },
+    viewType() {
+      if (this.viewTypeOverride) return this.viewTypeOverride;
+      return this.options.viewType;
+    },
+    viewQuery() {
+      const viewQuery = this.options.viewQuery;
+      return {
+        ...viewQuery,
+        ...this.viewQueryOverride
+      };
+    },
+    filters() {
+      return [...this.options.filters, ...this.filtersOverride];
+    }
+  },
+  methods: {
+    saveUpload(fileInfo) {
+      this.$emit("input", fileInfo.data);
+    },
+    setViewOptions(updates) {
+      this.viewOptionsOverride = {
+        ...this.viewOptionsOverride,
+        ...updates
+      };
+    },
+    setViewQuery(updates) {
+      this.viewQueryOverride = {
+        ...this.viewQueryOverride,
+        ...updates
+      };
+    }
+  },
+  watch: {
+    selection(newVal) {
+      const id = newVal[0];
+
+      if (id == null) {
+        this.$emit("input", null);
+        return;
       }
-      return false;
-    },
-    isVideo() {
-      switch (this.values.type) {
-        case 'video/mp4':
-        case 'video/webm':
-        case 'video/ogg':
-          return true;
-      }
-      return false;
-    },
-    isAudio() {
-      switch (this.values.type) {
-        case 'audio/mpeg':
-        case 'audio/ogg':
-        case 'audio/wav':
-          return true;
-      }
-      return false;
-    },
-    fileType() {
-      return this.values.type.split("/")[1];
-    },
-    url() {
-      return this.values['data'].full_url;
+
+      this.$api
+        .getItem("directus_files", newVal)
+        .then(res => res.data)
+        .then(file => {
+          this.$emit("input", file);
+        })
+        .catch(error => {
+          this.$events.emit("error", {
+            notify: this.$t("something_went_wrong_body"),
+            error
+          });
+        });
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.file,
-.audio,
-.video,
-.image {
+.card,
+.dropzone {
+  margin-bottom: 20px;
   width: 100%;
-  background-color: var(--black);
-  text-align: center;
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  img {
-    margin: 0 auto;
-    max-height: 400px;
-    max-width: 100%;
-    display: block;
-  }
-  video {
-    margin: 0 auto;
-    max-height: 400px;
-    max-width: 100%;
-    display: block;
-  }
-  audio {
-    margin: 0 auto;
-    width: 100%;
-    max-width: 100%;
-    display: block;
+  max-width: var(--width-x-large);
+}
+
+.dropzone {
+  height: 190px;
+}
+
+button {
+  display: inline-block;
+  margin-left: 20px;
+  &:first-of-type {
+    margin-left: 0;
   }
 }
-.audio,
-.file {
-  padding: 80px 40px;
-  font-size: 3em;
-  text-transform: uppercase;
-  font-weight: 300;
-  color: var(--lighter-gray);
-}
-.toolbar {
-  a {
-    transition: var(--fast) var(--transition);
-    text-decoration: none;
-    color: var(--gray);
-    &:hover {
-      color: var(--darker-gray);
-    }
-  }
-  span {
-    margin-right: 10px;
-    vertical-align: middle;
-  }
-  .original {
-    display: inline-block;
-    margin-top: 10px;
-    i {
-      margin-right: 6px;
-    }
-  }
+
+.body {
+  padding: 20px;
 }
 </style>
