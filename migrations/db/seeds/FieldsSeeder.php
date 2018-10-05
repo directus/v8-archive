@@ -412,7 +412,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_files',
                 'field' => 'data',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
-                'interface' => 'single-file',
+                'interface' => 'file',
                 'locked' => 1,
                 'hidden_detail' => 1,
                 'sort' => 0
@@ -431,7 +431,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_files',
                 'field' => 'preview',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
-                'interface' => 'file',
+                'interface' => 'file-preview',
                 'locked' => 1,
                 'sort' => 2
             ],
@@ -1185,7 +1185,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_users',
                 'field' => 'avatar',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
-                'interface' => 'single-file',
+                'interface' => 'file',
                 'locked' => 1,
                 'sort' => 17
             ],
