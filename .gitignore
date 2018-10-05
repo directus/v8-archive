@@ -5,6 +5,7 @@ config/*
 phpunit.xml
 
 public/core/
+public/uploads/*/
 
 documents
 
