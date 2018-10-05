@@ -547,8 +547,13 @@ class MySQLSchema extends AbstractSchema
     {
         return [
             'double',
+            'double precision', // alias of double
+            'real', // alias of double or float when REAL_AS_FLOAT is enabled
             'decimal',
-            'float'
+            'dec', // alias of decimal
+            'fixed', // alias of decimal
+            'numeric', // alias of decimal
+            'float',
         ];
     }
 
@@ -563,6 +568,7 @@ class MySQLSchema extends AbstractSchema
             'smallint',
             'mediumint',
             'int',
+            'integer', // alias of int
             'long',
             'tinyint'
         ];
@@ -624,5 +630,45 @@ class MySQLSchema extends AbstractSchema
     public function isStringType($type)
     {
         return in_array(strtolower($type), $this->getStringTypes());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTypesRequireLength()
+    {
+        return [
+            'varchar',
+            'varbinary',
+            'enum',
+            'set',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTypesAllowLength()
+    {
+        return array_merge($this->getNumericTypes(), [
+            'char',
+            'binary',
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isTypeLengthRequired($type)
+    {
+        return in_array(strtolower($type), $this->getTypesRequireLength());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isTypeLengthAllowed($type)
+    {
+        return in_array(strtolower($type), $this->getTypesAllowLength());
     }
 }

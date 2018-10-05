@@ -679,6 +679,42 @@ class SchemaManager
         return $this->getSource()->isStringType($field->getDataType());
     }
 
+    /**
+     * Checks if a given type requires length
+     *
+     * @param string $type
+     *
+     * @return mixed
+     */
+    public function isTypeLengthRequired($type)
+    {
+        return $this->getSource()->isTypeLengthRequired($type);
+    }
+
+    /**
+     * Checks if a given type allows length
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function isTypeLengthAllowed($type)
+    {
+        return $this->getSource()->isTypeLengthAllowed($type);
+    }
+
+    /**
+     * Checks if the given type allows or requires length
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function canTypeUseLength($type)
+    {
+        return $this->isTypeLengthRequired($type) || $this->isTypeLengthAllowed($type);
+    }
+
     protected function addCollection($name, $schema)
     {
         // save the column into the data

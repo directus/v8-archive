@@ -339,34 +339,6 @@ final class DataTypes
     }
 
     /**
-     * Returns a list of types that requires a length
-     *
-     * @return array
-     */
-    public static function getLengthTypes()
-    {
-        return [
-            static::TYPE_DECIMAL,
-            static::TYPE_STRING,
-            static::TYPE_ARRAY,
-            static::TYPE_ARRAY,
-            static::TYPE_LANG
-        ];
-    }
-
-    /**
-     * Checks whether a type requires a length
-     *
-     * @param string $type
-     *
-     * @return bool
-     */
-    public static function isLengthType($type)
-    {
-        return in_array(strtolower($type), static::getLengthTypes());
-    }
-
-    /**
      * Checks whether the given type is translations type
      *
      * @param string $type
