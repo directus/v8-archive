@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-10-01 17:22:29 +0000
+# Generation Time: 2018-10-05 18:41:00 +0000
 # ************************************************************
 
 
@@ -340,20 +340,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023144,'CreateActivitySeenTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023157,'CreateCollectionsTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023202,'CreateFieldsTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023208,'CreateFilesTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023213,'CreateFoldersTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023217,'CreateRolesTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023226,'CreatePermissionsTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023232,'CreateRelationsTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023238,'CreateRevisionsTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023243,'CreateSettingsTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180220023248,'CreateUsersTable','2018-10-01 17:22:16','2018-10-01 17:22:16',0),
-	(20180426173310,'CreateUserRoles','2018-10-01 17:22:16','2018-10-01 17:22:16',0);
+	(20180220023138,'CreateActivityTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023144,'CreateActivitySeenTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023157,'CreateCollectionsTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023202,'CreateFieldsTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023208,'CreateFilesTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023213,'CreateFoldersTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023217,'CreateRolesTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023226,'CreatePermissionsTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023232,'CreateRelationsTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023238,'CreateRevisionsTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023243,'CreateSettingsTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180220023248,'CreateUsersTable','2018-10-05 18:40:31','2018-10-05 18:40:31',0),
+	(20180426173310,'CreateUserRoles','2018-10-05 18:40:31','2018-10-05 18:40:31',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -480,7 +480,7 @@ CREATE TABLE `directus_settings` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `scope` varchar(64) NOT NULL,
   `key` varchar(64) NOT NULL,
-  `value` varchar(255) NOT NULL,
+  `value` text NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_scope_name` (`scope`,`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -558,7 +558,7 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `password`, `token`, `timezone`, `locale`, `locale_options`, `avatar`, `company`, `title`, `email_notifications`, `last_access_on`, `last_page`, `external_id`)
 VALUES
-	(1,'active','Admin','User','admin@example.com','$2y$10$RXWLznI9Iy5afoZ2zht0a.Bgcl0xT438r.U/DiE0KCApdakpwz4je','admin_token','America/New_York','en-US',NULL,NULL,NULL,NULL,1,NULL,NULL,NULL);
+	(1,'active','Admin','User','admin@example.com','$2y$10$PA4vjJ5SODMiBBsBp4Jn/OO.YCOXQo.SHfmP9gF8RJnWgWGcJRcCW','admin_token','America/New_York','en-US',NULL,NULL,NULL,NULL,1,NULL,NULL,NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;

@@ -37,8 +37,7 @@ class CreateSettingsTable extends AbstractMigration
             'limit' => 64,
             'null' => false
         ]);
-        $table->addColumn('value', 'string', [
-            'limit' => 255,
+        $table->addColumn('value', 'text', [
             'default' => null
         ]);
 
