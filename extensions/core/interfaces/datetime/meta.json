@@ -1,7 +1,7 @@
 {
   "name": "$t:datetime",
   "version": "1.0.0",
-  "types": ["datetime"],
+  "types": ["datetime", "datetime_updated", "datetime_created"],
   "icon": "event",
   "options": {
     "min": {
