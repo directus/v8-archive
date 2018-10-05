@@ -712,7 +712,8 @@ class CoreServicesProvider
                     new DirectusUsersTableGateway($db)
                 ),
                 [
-                    'secret_key' => $container->get('config')->get('auth.secret_key')
+                    'secret_key' => $container->get('config')->get('auth.secret_key'),
+                    'public_key' => $container->get('config')->get('auth.public_key'),
                 ]
             );
         };

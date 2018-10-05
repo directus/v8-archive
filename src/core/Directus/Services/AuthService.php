@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Authentication\Exception\ExpiredRequestTokenException;
 use Directus\Authentication\Exception\InvalidRequestTokenException;
+use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Sso\AbstractSocialProvider;
 use Directus\Authentication\Exception\ExpiredResetPasswordToken;
 use Directus\Authentication\Exception\InvalidResetPasswordTokenException;
@@ -181,16 +182,17 @@ class AuthService extends AbstractService
     }
 
     /**
-     * @param $token
+     * @param string $token
+     * @param bool $ignoreOrigin
      *
      * @return UserInterface
      */
-    public function authenticateWithToken($token)
+    public function authenticateWithToken($token, $ignoreOrigin = false)
     {
         if (JWTUtils::isJWT($token)) {
-            $authenticated = $this->getAuthProvider()->authenticateWithToken($token);
+            $authenticated = $this->getAuth()->authenticateWithToken($token, $ignoreOrigin);
         } else {
-            $authenticated = $this->getAuthProvider()->authenticateWithPrivateToken($token);
+            $authenticated = $this->getAuth()->authenticateWithPrivateToken($token);
         }
 
         return $authenticated;
@@ -207,7 +209,7 @@ class AuthService extends AbstractService
      */
     public function authenticateWithEmail($email)
     {
-        return $this->getAuthProvider()->authenticateWithEmail($email);
+        return $this->getAuth()->authenticateWithEmail($email);
     }
 
     /**
@@ -250,6 +252,7 @@ class AuthService extends AbstractService
      *
      * @throws ExpiredRequestTokenException
      * @throws InvalidRequestTokenException
+     * @throws InvalidTokenException
      */
     public function authenticateWithSsoRequestToken($token)
     {
@@ -267,8 +270,9 @@ class AuthService extends AbstractService
             throw new InvalidRequestTokenException();
         }
 
-        /** @var Provider $auth */
-        $auth = $this->container->get('auth');
+        $auth = $this->getAuth();
+        $auth->validatePayloadOrigin($payload);
+
         $user = $auth->findUserWithConditions([
             'id' => $payload->id
         ]);
@@ -344,8 +348,9 @@ class AuthService extends AbstractService
             throw new InvalidResetPasswordTokenException($token);
         }
 
-        /** @var Provider $auth */
-        $auth = $this->container->get('auth');
+        $auth = $this->getAuth();
+        $auth->validatePayloadOrigin($payload);
+
         $userProvider = $auth->getUserProvider();
         $user = $userProvider->find($payload->id);
 
@@ -378,14 +383,6 @@ class AuthService extends AbstractService
         $auth = $this->container->get('auth');
 
         return ['data' => ['token' => $auth->refreshToken($token)]];
-    }
-
-    /**
-     * @return Provider
-     */
-    protected function getAuthProvider()
-    {
-        return $this->container->get('auth');
     }
 
     /**
