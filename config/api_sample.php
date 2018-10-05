@@ -48,15 +48,15 @@ return [
         // ],
     ],
 
-    'filesystem' => [
+    'storage' => [
         'adapter' => 'local',
-        // The filesystem root is the directus root directory.
-        // All path are relative to the filesystem root when the path is not starting with a forward slash.
+        // The storage root is the directus root directory.
+        // All path are relative to the storage root when the path is not starting with a forward slash.
         // By default the uploads directory is located at the directus public root
         // An absolute path can be used as alternative.
         'root' => 'public/uploads/_/originals',
         // This is the url where all the media will be pointing to
-        // here is where Directus will assume all assets will be accesed
+        // here is where Directus will assume all assets will be accessed
         // Ex: (yourdomain)/uploads/_/originals
         'root_url' => '/uploads/_/originals',
         // Same as "root", but for the thumbnails
@@ -115,7 +115,8 @@ return [
     'tableBlacklist' => [],
 
     'auth' => [
-        'secret_key' => '<secret-authentication-key>',
+        'secret_key' => '<type-a-secret-authentication-key-string>',
+        'public_key' => '<type-a-public-authentication-key-string>',
         'social_providers' => [
             // 'okta' => [
             //     'client_id' => '',

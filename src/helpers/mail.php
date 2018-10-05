@@ -132,7 +132,10 @@ if (!function_exists('send_reset_password_email')) {
      */
     function send_reset_password_email($user, $password)
     {
-        $data = ['new_password' => $password];
+        $data = [
+            'new_password' => $password,
+            'user_full_name' => $user->get('first_name') . ' ' . $user->get('last_name'),
+        ];
         send_mail_with_template('reset-password.twig', $data, function (Message $message) use ($user) {
             $message->setSubject(
                 sprintf('New Temporary Password: %s', get_directus_setting('global', 'project_name', ''))
@@ -151,7 +154,10 @@ if (!function_exists('send_forgot_password_email')) {
      */
     function send_forgot_password_email($user, $token)
     {
-        $data = ['reset_token' => $token];
+        $data = [
+            'reset_token' => $token,
+            'user_full_name' => $user->get('first_name') . ' ' . $user->get('last_name'),
+        ];
         send_mail_with_template('forgot-password.twig', $data, function (Message  $message) use ($user) {
             $message->setSubject(
                 sprintf('Password Reset Request: %s', get_directus_setting('global', 'project_name', ''))

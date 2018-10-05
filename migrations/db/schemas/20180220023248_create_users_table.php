@@ -47,13 +47,28 @@ class CreateUsersTable extends AbstractMigration
             'limit' => 128,
             'null' => false
         ]);
-        $table->addColumn('email_notifications', 'integer', [
-            'limit' => 1,
-            'default' => 1
-        ]);
         $table->addColumn('password', 'string', [
             'limit' => 255,
             'encoding' => 'utf8',
+            'null' => true,
+            'default' => null
+        ]);
+        $table->addColumn('token', 'string', [
+            'limit' => 255,
+            'encoding' => 'utf8',
+            'null' => true,
+            'default' => null
+        ]);
+        $table->addColumn('timezone', 'string', [
+            'limit' => 32,
+            'default' => 'America/New_York'
+        ]);
+        $table->addColumn('locale', 'string', [
+            'limit' => 8,
+            'null' => true,
+            'default' => 'en-US'
+        ]);
+        $table->addColumn('locale_options', 'text', [
             'null' => true,
             'default' => null
         ]);
@@ -73,23 +88,9 @@ class CreateUsersTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('locale', 'string', [
-            'limit' => 8,
-            'null' => true,
-            'default' => 'en-US'
-        ]);
-        $table->addColumn('high_contrast_mode', 'boolean', [
-            'signed' => false,
-            'null' => true,
-            'default' => false
-        ]);
-        $table->addColumn('locale_options', 'text', [
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('timezone', 'string', [
-            'limit' => 32,
-            'default' => 'America/New_York'
+        $table->addColumn('email_notifications', 'integer', [
+            'limit' => 1,
+            'default' => 1
         ]);
         $table->addColumn('last_access_on', 'datetime', [
             'null' => true,
@@ -97,12 +98,6 @@ class CreateUsersTable extends AbstractMigration
         ]);
         $table->addColumn('last_page', 'string', [
             'limit' => 45,
-            'null' => true,
-            'default' => null
-        ]);
-        $table->addColumn('token', 'string', [
-            'limit' => 255,
-            'encoding' => 'utf8',
             'null' => true,
             'default' => null
         ]);

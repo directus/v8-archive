@@ -266,11 +266,43 @@ interface SchemaInterface
     public function isStringType($type);
 
     /**
-     * Gets the real data type based on the database
+     * Gets the Directus' type based on the source data type
      *
      * @param $type
      *
      * @return string
      */
-    public function getDataType($type);
+    public function getTypeFromSource($type);
+
+    /**
+     * Returns all types that requires length
+     *
+     * @return array
+     */
+    public function getTypesRequireLength();
+
+    /**
+     * Returns all types that allow length but are not required
+     *
+     * @return array
+     */
+    public function getTypesAllowLength();
+
+    /**
+     * Checks whether or not the given type requires length
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function isTypeLengthRequired($type);
+
+    /**
+     * Checks whether or not the given type allow length
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function isTypeLengthAllowed($type);
 }

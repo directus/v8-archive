@@ -1,7 +1,7 @@
 
 .interface-toggle-icon[data-v-592292]{user-select:none
 }
-input[data-v-592292]{clip:rect(1px,1px,1px,1px);clip-path:polygon(0 0,0 0,0 0,0 0);height:1px;overflow:hidden;position:absolute!important;width:1px
+input[data-v-592292]{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);clip-path:polygon(0 0,0 0,0 0,0 0)
 }
 input[disabled]+label[data-v-592292]{opacity:.6
 }

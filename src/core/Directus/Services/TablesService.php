@@ -6,7 +6,6 @@ use Directus\Application\Container;
 use Directus\Database\Exception\CollectionNotManagedException;
 use Directus\Database\Exception\FieldAlreadyExistsException;
 use Directus\Database\Exception\FieldNotFoundException;
-use Directus\Database\Exception\FieldNotManagedException;
 use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Exception\InvalidFieldException;
@@ -544,7 +543,6 @@ class TablesService extends AbstractService
      * @return array
      *
      * @throws FieldNotFoundException
-     * @throws FieldNotManagedException
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
      */
@@ -573,10 +571,6 @@ class TablesService extends AbstractService
         $field = $collection->getField($fieldName);
         if (!$field) {
             throw new FieldNotFoundException($fieldName);
-        }
-
-        if (!$field->isManaged()) {
-            throw new FieldNotManagedException($field->getName());
         }
 
         if ($this->shouldUpdateSchema($data)) {
@@ -770,8 +764,8 @@ class TablesService extends AbstractService
             'required' => false,
             'sort' => 0,
             'note' => null,
-            'hidden_input' => 0,
-            'hidden_list' => 0,
+            'hidden_detail' => 0,
+            'hidden_browse' => 0,
             'options' => null
         ];
 
@@ -1033,12 +1027,19 @@ class TablesService extends AbstractService
             $field = $collection->getField($fieldData['field']);
 
             if ($field) {
+                $fullFieldData = array_merge($field->toArray(), $fieldData);
+                // NOTE: To avoid the table builder to add another primary key constraint
+                //       the primary key flag should be remove if the field already has primary key
+                if ($field->hasPrimaryKey() && $fullFieldData['primary_key'] === true) {
+                    unset($fullFieldData['primary_key']);
+                }
+
                 if (!$field->isAlias() && DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
                     $toDrop[] = $field->getName();
                 } else if ($field->isAlias() && !DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
-                    $toAdd[] = array_merge($field->toArray(), $fieldData);
+                    $toAdd[] = $fullFieldData;
                 } else {
-                    $toChange[] = array_merge($field->toArray(), $fieldData);
+                    $toChange[] = $fullFieldData;
                 }
             } else {
                 $toAdd[] = $fieldData;
@@ -1129,22 +1130,46 @@ class TablesService extends AbstractService
         // TODO: Create new constraint that validates the column data type to be one of the list supported
         $this->validatePayload('directus_fields', $fields, $data, $params);
 
+        $fieldName = ArrayUtils::get($data, 'field');
+        $field = null;
+
+        try {
+            $collection = $this->getSchemaManager()->getCollection(ArrayUtils::get($data, 'collection'));
+            $field = $collection->getField($fieldName);
+        } catch (\Exception $e) {
+            // do nothing
+        }
+
         $type = ArrayUtils::get($data, 'type');
-        if ($type && !DataTypes::isAliasType($type) && !ArrayUtils::has($data, 'datatype')) {
+        $dataType = ArrayUtils::get($data, 'datatype');
+        if ($type && !DataTypes::isAliasType($type) && !$dataType) {
             throw new UnprocessableEntityException(
                 'datatype is required'
             );
         }
 
-        if ($type && DataTypes::isLengthType($type) && !ArrayUtils::get($data, 'length')) {
-            $fieldName = ArrayUtils::get($data, 'field');
+        $length = ArrayUtils::get($data, 'length');
+        if ($dataType && $this->getSchemaManager()->isTypeLengthRequired($dataType) && !$length) {
             $message = 'Missing length';
 
             if ($fieldName) {
                 $message .= ' for: ' . $fieldName;
             }
 
+            // TODO: Create an exception class for length required
             throw new UnprocessableEntityException($message);
+        }
+
+        $fieldDataType = $dataType;
+        if ($field && !$fieldDataType) {
+            $fieldDataType = $field->getDataType();
+        }
+
+        if ($length && !$this->getSchemaManager()->canTypeUseLength($fieldDataType)) {
+            // TODO: Create an exception class for length is not supported
+            throw new UnprocessableEntityException(
+                sprintf('field "%s" does not support length', $fieldName)
+            );
         }
 
         if ($type && !DataTypes::exists($type)) {

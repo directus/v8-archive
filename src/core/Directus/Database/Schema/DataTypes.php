@@ -7,6 +7,7 @@ final class DataTypes
     const TYPE_ALIAS                = 'alias';
     const TYPE_ARRAY                = 'array';
     const TYPE_BOOLEAN              = 'boolean';
+    const TYPE_BINARY               = 'binary';
     const TYPE_DATETIME             = 'datetime';
     const TYPE_DATE                 = 'date';
     const TYPE_TIME                 = 'time';
@@ -38,6 +39,7 @@ final class DataTypes
         return [
             static::TYPE_ALIAS,
             static::TYPE_ARRAY,
+            static::TYPE_BINARY,
             static::TYPE_BOOLEAN,
             static::TYPE_DATETIME,
             static::TYPE_DATE,
@@ -334,34 +336,6 @@ final class DataTypes
     public static function isUniqueType($type)
     {
         return in_array(strtolower($type), static::getUniqueTypes());
-    }
-
-    /**
-     * Returns a list of types that requires a length
-     *
-     * @return array
-     */
-    public static function getLengthTypes()
-    {
-        return [
-            static::TYPE_DECIMAL,
-            static::TYPE_STRING,
-            static::TYPE_ARRAY,
-            static::TYPE_ARRAY,
-            static::TYPE_LANG
-        ];
-    }
-
-    /**
-     * Checks whether a type requires a length
-     *
-     * @param string $type
-     *
-     * @return bool
-     */
-    public static function isLengthType($type)
-    {
-        return in_array(strtolower($type), static::getLengthTypes());
     }
 
     /**

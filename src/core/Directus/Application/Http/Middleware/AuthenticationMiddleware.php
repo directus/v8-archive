@@ -90,7 +90,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
             /** @var AuthService $authService */
             $authService = $this->container->get('services')->get('auth');
 
-            $user = $authService->authenticateWithToken($authToken);
+            $user = $authService->authenticateWithToken($authToken, $request->getAttribute('ignore_origin'));
         }
 
         return $user;

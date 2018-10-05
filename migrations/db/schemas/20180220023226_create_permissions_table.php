@@ -42,44 +42,39 @@ class CreatePermissionsTable extends AbstractMigration
             'default' => null,
             'null' => true
         ]);
-        $table->addColumn('status_blacklist', 'string', [
-            'length' => 1000,
-            'default' => null,
-            'null' => true
-        ]);
         $table->addColumn('create', 'string', [
             'signed' => false,
             'null' => true,
-            'default' => null,
+            'default' => 'none',
             'length' => 16,
         ]);
         $table->addColumn('read', 'string', [
             'signed' => false,
             'null' => true,
-            'default' => null,
+            'default' => 'none',
             'length' => 16,
         ]);
         $table->addColumn('update', 'string', [
             'signed' => false,
             'null' => true,
-            'default' => null,
+            'default' => 'none',
             'length' => 16,
         ]);
         $table->addColumn('delete', 'string', [
             'signed' => false,
             'null' => true,
-            'default' => null,
+            'default' => 'none',
             'length' => 16,
         ]);
         $table->addColumn('comment', 'string', [
             'limit' => 8,
             'null' => true,
-            'default' => null
+            'default' => 'none'
         ]);
         $table->addColumn('explain', 'string', [
             'limit' => 8,
             'null' => true,
-            'default' => null
+            'default' => 'none'
         ]);
         $table->addColumn('read_field_blacklist', 'string', [
             'limit' => 1000,
@@ -92,6 +87,11 @@ class CreatePermissionsTable extends AbstractMigration
             'null' => true,
             'default' => NULL,
             'encoding' => 'utf8',
+        ]);
+        $table->addColumn('status_blacklist', 'string', [
+            'length' => 1000,
+            'default' => null,
+            'null' => true
         ]);
 
         $table->create();

@@ -531,6 +531,11 @@ class SchemaManager
      */
     public function createFieldFromArray($column)
     {
+        $dataType = ArrayUtils::get($column, 'datatype');
+        if (ArrayUtils::get($column, 'type') === null) {
+            $column['type'] = $this->source->getTypeFromSource($dataType);
+        }
+
         // PRIMARY KEY must be required
         if ($column['primary_key']) {
             $column['required'] = true;
@@ -540,7 +545,6 @@ class SchemaManager
         $column['options'] = $options ? $options : null;
 
         $fieldType = ArrayUtils::get($column, 'type');
-        $dataType = ArrayUtils::get($column, 'datatype');
         // NOTE: Alias column must are nullable
         if (DataTypes::isAliasType($fieldType)) {
             $column['nullable'] = true;
@@ -572,10 +576,11 @@ class SchemaManager
             'managed',
             'primary_key',
             'signed',
-            'hidden_input',
-            'hidden_list',
+            'hidden_detail',
+            'hidden_browse',
             'required',
             'nullable',
+            'readonly',
         ]);
 
         return new Field($column);
@@ -592,25 +597,21 @@ class SchemaManager
         $fieldsRelation = $this->getRelationshipsData($collectionName);
 
         foreach ($fields as $field) {
-            if (empty($fieldsRelation)) {
-                // Set all FILE data type related to directus files (M2O)
-                if (DataTypes::isFilesType($field->getType())) {
-                    $field->setRelationship([
-                        'collection_many' => $field->getCollectionName(),
-                        'field_many' => $field->getName(),
-                        'collection_one' => static::COLLECTION_FILES,
-                        'field_one' => 'id'
-                    ]);
-                }
-
-                continue;
-            }
-
             foreach ($fieldsRelation as $key => $value) {
                 if (ArrayUtils::get($value, 'field_many') == $field->getName() || ArrayUtils::get($value, 'field_one') == $field->getName()) {
                     $field->setRelationship(ArrayUtils::pull($fieldsRelation, $key));
                     break;
                 }
+            }
+
+            if (DataTypes::isFilesType($field->getType()) && !$field->getRelationship()) {
+                // Set all FILE data type related to directus files (M2O)
+                $field->setRelationship([
+                    'collection_many' => $field->getCollectionName(),
+                    'field_many' => $field->getName(),
+                    'collection_one' => static::COLLECTION_FILES,
+                    'field_one' => 'id'
+                ]);
             }
         }
 
@@ -646,6 +647,74 @@ class SchemaManager
         return DataTypes::isUniqueType($type);
     }
 
+    /**
+     * Checks if a field is a numeric type
+     *
+     * @param Field $field
+     *
+     * @return bool
+     */
+    public function isFieldNumericType(Field $field)
+    {
+        if ($field->getType()) {
+            return DataTypes::isNumericType($field->getType());
+        }
+
+        return $this->getSource()->isNumericType($field->getDataType());
+    }
+
+    /**
+     * Checks if a field is a string type
+     *
+     * @param Field $field
+     *
+     * @return bool
+     */
+    public function isFieldStringType(Field $field)
+    {
+        if ($field->getType()) {
+            return DataTypes::isStringType($field->getType());
+        }
+
+        return $this->getSource()->isStringType($field->getDataType());
+    }
+
+    /**
+     * Checks if a given type requires length
+     *
+     * @param string $type
+     *
+     * @return mixed
+     */
+    public function isTypeLengthRequired($type)
+    {
+        return $this->getSource()->isTypeLengthRequired($type);
+    }
+
+    /**
+     * Checks if a given type allows length
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function isTypeLengthAllowed($type)
+    {
+        return $this->getSource()->isTypeLengthAllowed($type);
+    }
+
+    /**
+     * Checks if the given type allows or requires length
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function canTypeUseLength($type)
+    {
+        return $this->isTypeLengthRequired($type) || $this->isTypeLengthAllowed($type);
+    }
+
     protected function addCollection($name, $schema)
     {
         // save the column into the data
@@ -671,18 +740,6 @@ class SchemaManager
     public function getFieldDefaultLength($type)
     {
         return $this->source->getColumnDefaultLength($type);
-    }
-
-    /**
-     * Gets the column type based the schema adapter
-     *
-     * @param string $type
-     *
-     * @return string
-     */
-    public function getDataType($type)
-    {
-        return $this->source->getDataType($type);
     }
 
     /**

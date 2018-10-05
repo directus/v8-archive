@@ -174,17 +174,17 @@ class MySQLSchema extends AbstractSchema
             'SF.COLUMN_NAME = DF.field AND SF.TABLE_NAME = DF.collection',
             [
                 'id' => new Expression('IF(ISNULL(DF.id), NULL, DF.id)'),
-                'type' => new Expression('UCASE(IFNULL(DF.type, SF.DATA_TYPE))'),
+                'type',
                 'managed' =>  new Expression('IF(ISNULL(DF.id),0,1)'),
                 'interface',
-                'hidden_input' => new Expression('IF(DF.hidden_input=1,1,0)'),
-                'hidden_list' => new Expression('IF(DF.hidden_list=1,1,0)'),
+                'hidden_detail' => new Expression('IF(DF.hidden_detail=1,1,0)'),
+                'hidden_browse' => new Expression('IF(DF.hidden_browse=1,1,0)'),
                 'required' => new Expression('IF(DF.required=1,1,0)'),
                 'options',
                 'locked',
                 'translation',
                 'readonly',
-                'view_width',
+                'width',
                 'validation',
                 'group',
             ],
@@ -225,14 +225,14 @@ class MySQLSchema extends AbstractSchema
             'type' => new Expression('UCASE(type)'),
             'managed' =>  new Expression('IF(ISNULL(DF2.id),0,1)'),
             'interface',
-            'hidden_input',
-            'hidden_list',
+            'hidden_detail',
+            'hidden_browse',
             'required',
             'options',
             'locked',
             'translation',
             'readonly',
-            'view_width',
+            'width',
             'validation',
             'group',
         ]);
@@ -547,8 +547,13 @@ class MySQLSchema extends AbstractSchema
     {
         return [
             'double',
+            'double precision', // alias of double
+            'real', // alias of double or float when REAL_AS_FLOAT is enabled
             'decimal',
-            'float'
+            'dec', // alias of decimal
+            'fixed', // alias of decimal
+            'numeric', // alias of decimal
+            'float',
         ];
     }
 
@@ -563,6 +568,7 @@ class MySQLSchema extends AbstractSchema
             'smallint',
             'mediumint',
             'int',
+            'integer', // alias of int
             'long',
             'tinyint'
         ];
@@ -624,5 +630,45 @@ class MySQLSchema extends AbstractSchema
     public function isStringType($type)
     {
         return in_array(strtolower($type), $this->getStringTypes());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTypesRequireLength()
+    {
+        return [
+            'varchar',
+            'varbinary',
+            'enum',
+            'set',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTypesAllowLength()
+    {
+        return array_merge($this->getNumericTypes(), [
+            'char',
+            'binary',
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isTypeLengthRequired($type)
+    {
+        return in_array(strtolower($type), $this->getTypesRequireLength());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isTypeLengthAllowed($type)
+    {
+        return in_array(strtolower($type), $this->getTypesAllowLength());
     }
 }

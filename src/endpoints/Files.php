@@ -7,7 +7,6 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Exception\BadRequestException;
 use Directus\Exception\BatchUploadNotAllowedException;
 use Directus\Exception\Exception;
 use Directus\Filesystem\Exception\FailedUploadException;

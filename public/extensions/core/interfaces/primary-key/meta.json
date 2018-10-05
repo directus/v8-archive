@@ -1,1 +1,1 @@
-{"name":"$t:primary_key","version":"1.0.0","types":["integer"],"options":{},"translation":{"en-US":{"primary_key":"Primary Key","immutable":"Can not be changed"}}}
+{"name":"$t:primary_key","version":"1.0.0","types":["integer","string"],"icon":"vpn_key","options":{},"translation":{"en-US":{"primary_key":"Primary Key","immutable":"Can not be changed"}}}

@@ -1,19 +1,19 @@
 
-.interface-color-picker[data-v-3d8097]{--swatch-size:20px;display:flex;flex-direction:column;flex-wrap:wrap;height:calc(var(--swatch-size) * 11);margin-bottom:var(--swatch-size);position:relative;width:calc(var(--swatch-size) * 18)
+.interface-color-picker[data-v-3d8097]{position:relative;--swatch-size:20px;display:flex;flex-direction:column;flex-wrap:wrap;height:calc(var(--swatch-size) * 11);width:calc(var(--swatch-size) * 18);margin-bottom:var(--swatch-size)
 }
-.interface-color-picker button[data-v-3d8097]{display:block;flex-basis:var(--swatch-size);height:var(--swatch-size);transform:scale(1);transition:transform var(--fast) var(--transition-in);width:var(--swatch-size)
+.interface-color-picker button[data-v-3d8097]{flex-basis:var(--swatch-size);width:var(--swatch-size);height:var(--swatch-size);display:block;transform:scale(1);transition:transform var(--fast) var(--transition-in)
 }
-.interface-color-picker button[data-v-3d8097]:hover{box-shadow:var(--box-shadow);transform:scale(1.4);transition:none;z-index:1
+.interface-color-picker button[data-v-3d8097]:hover{transition:none;transform:scale(1.4);z-index:1;box-shadow:var(--box-shadow)
 }
-.interface-color-picker button i[data-v-3d8097]{color:var(--white);font-size:18px;margin-top:-3px
+.interface-color-picker button i[data-v-3d8097]{font-size:18px;margin-top:-3px;color:var(--white)
 }
 .interface-color-picker button i.dark[data-v-3d8097]{color:var(--black)
 }
-.interface-color-picker button[data-v-3d8097]:last-child{flex-grow:1;left:50%;position:absolute;top:calc(var(--swatch-size) * 11);width:50%
+.interface-color-picker button[data-v-3d8097]:last-child{flex-grow:1;position:absolute;left:50%;top:calc(var(--swatch-size) * 11);width:50%
 }
 .interface-color-picker button[data-v-3d8097]:last-child:hover{transform:scale(1.1)
 }
-.interface-color-picker button[data-v-3d8097]:nth-last-child(2){border:1px solid var(--lightest-gray);flex-grow:1;left:0;position:absolute;top:calc(var(--swatch-size) * 11);width:50%
+.interface-color-picker button[data-v-3d8097]:nth-last-child(2){flex-grow:1;border:1px solid var(--lightest-gray);position:absolute;left:0;top:calc(var(--swatch-size) * 11);width:50%
 }
 .interface-color-picker button[data-v-3d8097]:nth-last-child(2):hover{transform:scale(1.1)
 }

@@ -1674,10 +1674,22 @@ class BaseTableGateway extends TableGateway
 
         foreach ($record as $columnName => $columnValue) {
             $field = $collectionObject->getField($columnName);
-            // TODO: Should this be validate in here? should we let the database fails?
-            if (($field && is_array($columnValue) && (!DataTypes::isJson($field->getType()) && !DataTypes::isArray($field->getType())))) {
-                // $table = is_null($tableName) ? $this->table : $tableName;
-                throw new SuppliedArrayAsColumnValue('Attempting to write an array as the value for column `' . $this->table . '`.`' . $field->getName() . '.');
+
+            if (
+                ($field && is_array($columnValue)
+                    && (
+                        !DataTypes::isJson($field->getType())
+                        && !DataTypes::isArray($field->getType())
+                            // The owner of the alias should handle it
+                            // either on hook or custom field validation to ignore any value
+                        && !DataTypes::isAliasType($field->getType())
+                    )
+                )
+            ) {
+                throw new SuppliedArrayAsColumnValue(
+                    $this->table,
+                    $field->getName()
+                );
             }
         }
     }

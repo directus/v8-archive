@@ -20,7 +20,6 @@ use Directus\Config\StatusMapping;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Database\Schema\DataTypes;
-use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\BaseTableGateway;
@@ -37,6 +36,7 @@ use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
 use function Directus\generate_uuid4;
 use function Directus\get_api_project_from_request;
+use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
@@ -262,11 +262,17 @@ class CoreServicesProvider
             $savesFile = function (Payload $payload, $replace = false) use ($container) {
                 $collectionName = $payload->attribute('collection_name');
                 if ($collectionName !== SchemaManager::COLLECTION_FILES) {
-                    return null;
+                    return;
                 }
 
                 if ($replace === true && !$payload->has('data')) {
-                    return null;
+                    return;
+                }
+
+                // NOTE: "data" should be ignore if it isn't a string on update
+                if ($replace === true && !is_string($payload->get('data'))) {
+                    $payload->remove('data');
+                    return;
                 }
 
                 $data = $payload->getData();
@@ -635,6 +641,24 @@ class CoreServicesProvider
             $emitter->addFilter('collection.update.directus_files:before', $beforeSavingFiles);
             $emitter->addFilter('collection.delete.directus_files:before', $beforeSavingFiles);
 
+            $emitter->addAction('auth.authenticated:credentials', function () use ($container) {
+                /** @var Session $session */
+                $session = $container->get('session');
+                if ($session->getStorage()->get('telemetry') === true) {
+                    return;
+                }
+
+                $data = [
+                    'version' => Application::DIRECTUS_VERSION,
+                    'url' => get_url(),
+                    'type' => 'api'
+                ];
+                \Directus\request_send_json('POST', 'https://telemetry.directus.io/count', $data);
+
+                // NOTE: this only works when the client sends subsequent request with the same cookie
+                $session->getStorage()->set('telemetry', true);
+            });
+
             return $emitter;
         };
     }
@@ -688,7 +712,8 @@ class CoreServicesProvider
                     new DirectusUsersTableGateway($db)
                 ),
                 [
-                    'secret_key' => $container->get('config')->get('auth.secret_key')
+                    'secret_key' => $container->get('config')->get('auth.secret_key'),
+                    'public_key' => $container->get('config')->get('auth.public_key'),
                 ]
             );
         };
@@ -949,7 +974,7 @@ class CoreServicesProvider
             $config = $container->get('config');
 
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('filesystem'), 'root')
+                FilesystemFactory::createAdapter($config->get('storage'), 'root')
             );
         };
     }
@@ -963,7 +988,7 @@ class CoreServicesProvider
             $config = $container->get('config');
 
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('filesystem'), 'thumb_root')
+                FilesystemFactory::createAdapter($config->get('storage'), 'thumb_root')
             );
         };
     }
@@ -1081,7 +1106,7 @@ class CoreServicesProvider
 
             $filesystem = $container->get('filesystem');
             $config = $container->get('config');
-            $config = $config->get('filesystem', []);
+            $config = $config->get('storage', []);
             $emitter = $container->get('hook_emitter');
 
             return new Files(

@@ -2,7 +2,6 @@
 
 namespace Directus\Authentication\Sso\Provider\google;
 
-use Directus\Application\Application;
 use Directus\Authentication\Sso\TwoSocialProvider;
 use League\OAuth2\Client\Provider\Google;
 

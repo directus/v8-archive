@@ -6,7 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'phpDocumentor\\Reflection\\' => array($vendorDir . '/phpdocumentor/reflection-common/src', $vendorDir . '/phpdocumentor/type-resolver/src', $vendorDir . '/phpdocumentor/reflection-docblock/src'),
+    'phpDocumentor\\Reflection\\' => array($vendorDir . '/phpdocumentor/reflection-common/src', $vendorDir . '/phpdocumentor/reflection-docblock/src', $vendorDir . '/phpdocumentor/type-resolver/src'),
     'Zend\\Stdlib\\' => array($vendorDir . '/zendframework/zend-stdlib/src'),
     'Zend\\Db\\' => array($vendorDir . '/zendframework/zend-db/src'),
     'WellingGuzman\\OAuth2\\Client\\' => array($vendorDir . '/wellingguzman/oauth2-okta/src'),
@@ -32,7 +32,7 @@ return array(
     'Psr\\Cache\\' => array($vendorDir . '/psr/cache/src'),
     'Phinx\\' => array($vendorDir . '/robmorgan/phinx/src/Phinx'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
-    'League\\OAuth2\\Client\\' => array($vendorDir . '/league/oauth2-client/src', $vendorDir . '/league/oauth2-github/src', $vendorDir . '/league/oauth2-google/src', $vendorDir . '/league/oauth2-facebook/src'),
+    'League\\OAuth2\\Client\\' => array($vendorDir . '/league/oauth2-client/src', $vendorDir . '/league/oauth2-facebook/src', $vendorDir . '/league/oauth2-github/src', $vendorDir . '/league/oauth2-google/src'),
     'League\\OAuth1\\' => array($vendorDir . '/league/oauth1-client/src'),
     'League\\Flysystem\\' => array($vendorDir . '/league/flysystem/src'),
     'Intervention\\Image\\' => array($vendorDir . '/intervention/image/src/Intervention/Image'),

@@ -3,7 +3,6 @@
 namespace Directus\Filesystem;
 
 use Directus\Application\Application;
-use function Directus\array_get;
 use function Directus\filename_put_ext;
 use function Directus\generate_uuid5;
 use Directus\Util\DateTimeUtils;
@@ -103,7 +102,7 @@ class Files
             //    @TODO: Returns date in ISO 8601 Ex: 2016-06-06T17:18:20Z
             //    see: https://en.wikipedia.org/wiki/ISO_8601
             'date_uploaded' => $fileData['date_uploaded'],// . ' UTC',
-            'storage_adapter' => $fileData['storage_adapter']
+            'storage' => $fileData['storage']
         ];
     }
 
@@ -131,7 +130,7 @@ class Files
         }
 
         if ($info) {
-            $info['storage_adapter'] = $this->getConfig('adapter');
+            $info['storage'] = $this->getConfig('adapter');
             $info['charset'] = isset($info['charset']) ? $info['charset'] : '';
         }
 
@@ -257,7 +256,7 @@ class Files
         $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
         $fileData['filename'] = basename($filePath);
-        $fileData['storage_adapter'] = $this->config['adapter'];
+        $fileData['storage'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
 
@@ -272,7 +271,7 @@ class Files
             'filesize' => $fileData['size'],
             'width' => $fileData['width'],
             'height' => $fileData['height'],
-            'storage_adapter' => $fileData['storage_adapter']
+            'storage' => $fileData['storage']
         ];
     }
 
@@ -480,7 +479,7 @@ class Files
 
         $fileData['name'] = basename($finalPath);
         $fileData['date_uploaded'] = DateTimeUtils::nowInUTC()->toString();
-        $fileData['storage_adapter'] = $this->config['adapter'];
+        $fileData['storage'] = $this->config['adapter'];
 
         return $fileData;
     }

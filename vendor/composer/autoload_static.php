@@ -4,19 +4,19 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3
+class ComposerStaticInit981a078995f745663b59dfe6277ca51e
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
-        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
-        '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
-        'cf0c1b33f2c95076010ff23d7e02d3ac' => __DIR__ . '/../..' . '/src/helpers/all.php',
+        '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
+        '79c6260273d1303c3d11c2b0b06acb78' => __DIR__ . '/../..' . '/src/helpers/all.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -114,8 +114,8 @@ class ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3
         'phpDocumentor\\Reflection\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
-            1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
-            2 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+            1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+            2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
         ),
         'Zend\\Stdlib\\' => 
         array (
@@ -220,9 +220,9 @@ class ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3
         'League\\OAuth2\\Client\\' => 
         array (
             0 => __DIR__ . '/..' . '/league/oauth2-client/src',
-            1 => __DIR__ . '/..' . '/league/oauth2-github/src',
-            2 => __DIR__ . '/..' . '/league/oauth2-google/src',
-            3 => __DIR__ . '/..' . '/league/oauth2-facebook/src',
+            1 => __DIR__ . '/..' . '/league/oauth2-facebook/src',
+            2 => __DIR__ . '/..' . '/league/oauth2-github/src',
+            3 => __DIR__ . '/..' . '/league/oauth2-google/src',
         ),
         'League\\OAuth1\\' => 
         array (
@@ -400,6 +400,7 @@ class ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3
         'Directus\\Api\\Routes\\Mail' => __DIR__ . '/../..' . '/src/endpoints/Mail.php',
         'Directus\\Api\\Routes\\Pages' => __DIR__ . '/../..' . '/src/endpoints/Pages.php',
         'Directus\\Api\\Routes\\Permissions' => __DIR__ . '/../..' . '/src/endpoints/Permissions.php',
+        'Directus\\Api\\Routes\\ProjectHome' => __DIR__ . '/../..' . '/src/endpoints/ProjectHome.php',
         'Directus\\Api\\Routes\\Projects' => __DIR__ . '/../..' . '/src/endpoints/Projects.php',
         'Directus\\Api\\Routes\\Relations' => __DIR__ . '/../..' . '/src/endpoints/Relations.php',
         'Directus\\Api\\Routes\\Revisions' => __DIR__ . '/../..' . '/src/endpoints/Revisions.php',
@@ -422,6 +423,7 @@ class ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3
         'Directus\\Application\\Http\\Middleware\\AbstractRateLimitMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AbstractRateLimitMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\AdminMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AdminMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\AuthenticatedMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AuthenticatedMiddleware.php',
+        'Directus\\Application\\Http\\Middleware\\AuthenticationIgnoreOriginMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AuthenticationIgnoreOriginMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\AuthenticationMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AuthenticationMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\CorsMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/CorsMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\IpRateLimitMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/IpRateLimitMiddleware.php',
@@ -523,7 +525,6 @@ class ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3
         'Directus\\Database\\Exception\\FieldAlreadyExistsException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/FieldAlreadyExistsException.php',
         'Directus\\Database\\Exception\\FieldAlreadyHasUniqueKeyException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/FieldAlreadyHasUniqueKeyException.php',
         'Directus\\Database\\Exception\\FieldNotFoundException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/FieldNotFoundException.php',
-        'Directus\\Database\\Exception\\FieldNotManagedException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/FieldNotManagedException.php',
         'Directus\\Database\\Exception\\ForbiddenSystemTableDirectAccessException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/ForbiddenSystemTableDirectAccessException.php',
         'Directus\\Database\\Exception\\InvalidFieldException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/InvalidFieldException.php',
         'Directus\\Database\\Exception\\InvalidQueryException' => __DIR__ . '/../..' . '/src/core/Directus/Database/Exception/InvalidQueryException.php',
@@ -2960,10 +2961,10 @@ class ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInitd81bc2cb83d72130d7f01eda15b36ce3::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit981a078995f745663b59dfe6277ca51e::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit981a078995f745663b59dfe6277ca51e::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit981a078995f745663b59dfe6277ca51e::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit981a078995f745663b59dfe6277ca51e::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -4,13 +4,11 @@ namespace Directus\Database\TableGateway;
 
 use Directus\Database\Exception;
 use Directus\Database\Filters\Filter;
-use Directus\Database\Filters\In;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Query\Builder;
 use Directus\Database\RowGateway\BaseRowGateway;
-use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
@@ -25,7 +23,6 @@ use Zend\Db\Sql\Predicate\PredicateInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Where;
-use Zend\Db\TableGateway\TableGateway;
 
 class RelationalTableGateway extends BaseTableGateway
 {
@@ -1331,6 +1328,11 @@ class RelationalTableGateway extends BaseTableGateway
             $not = ArrayUtils::get($operatorShorthand, 'not', !$value);
         }
 
+        // Ignore operator when value is empty
+        if ($this->shouldIgnoreQueryFilter($operator, $value)) {
+            return false;
+        }
+
         $operatorName = StringUtils::underscoreToCamelCase(strtolower($operator), true);
         $method = 'where' . ($not === true ? 'Not' : '') . $operatorName;
         if (!method_exists($query, $method)) {
@@ -1391,6 +1393,22 @@ class RelationalTableGateway extends BaseTableGateway
         } else {
             call_user_func_array([$query, $method], $arguments);
         }
+    }
+
+    /**
+     * Checks whether or not a filter should be ignored based on their operator and value
+     *
+     * @param string $operator
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected function shouldIgnoreQueryFilter($operator, $value)
+    {
+        // TODO: Add constant variables to store the filters
+        $operators = ['like'];
+
+        return in_array($operator, $operators) && empty($value) && !is_numeric($value);
     }
 
     /**
@@ -1478,8 +1496,9 @@ class RelationalTableGateway extends BaseTableGateway
         $query->nestWhere(function (Builder $query) use ($columns, $search, $table) {
             foreach ($columns as $column) {
                 // NOTE: Only search numeric or string type columns
-                $isNumeric = $this->getSchemaManager()->getSource()->isNumericType($column->getType());
-                $isString = $this->getSchemaManager()->getSource()->isStringType($column->getType());
+                // Fields without data in directus_fields should fallback to source type
+                $isNumeric = $this->getSchemaManager()->isFieldNumericType($column);
+                $isString = $this->getSchemaManager()->isFieldStringType($column);
 
                 if (!$isNumeric && !$isString && !$column->isOneToMany()) {
                     continue;
