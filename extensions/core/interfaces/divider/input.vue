@@ -19,7 +19,7 @@ export default {
   position: relative;
   margin-top: 60px;
   padding-top: 6px;
-  padding-bottom: 40px;
+  padding-bottom: 20px;
   h2 {
     position: absolute;
     top: 0px;
@@ -53,7 +53,7 @@ export default {
 .medium-style {
   margin-top: 60px;
   padding-top: 6px;
-  padding-bottom: 40px;
+  padding-bottom: 20px;
   h2 {
     color: var(--dark-gray);
     font-size: 1.38em;
@@ -77,7 +77,7 @@ export default {
 .large-style {
   margin-top: 60px;
   padding-top: 6px;
-  padding-bottom: 40px;
+  padding-bottom: 20px;
   h2 {
     color: var(--dark-gray);
     font-size: 2em;

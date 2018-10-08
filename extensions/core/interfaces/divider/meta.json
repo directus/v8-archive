@@ -8,7 +8,7 @@
     "style": {
       "name": "$t:style-name",
       "comment": "$t:style-comment",
-      "default": "small",
+      "default": "large",
       "interface": "dropdown",
       "options": {
         "choices": {
