@@ -1,5 +1,5 @@
 {
-  "name": "$t:single-file",
+  "name": "$t:file",
   "version": "1.0.0",
   "types": ["file"],
   "icon": "insert_drive_file",
@@ -45,7 +45,7 @@
   },
   "translation": {
     "en-US": {
-      "single-file": "Single File",
+      "file": "File",
       "view_type": "View Type",
       "view_type_comment": "Select in what way you want to view the files",
       "view_options": "View Options",

@@ -1,5 +1,5 @@
 {
-  "name": "$t:file",
+  "name": "$t:file_preview",
   "version": "1.0.0",
   "types": ["string"],
   "hideLabel": true,
@@ -7,7 +7,7 @@
   "options": {},
   "translation": {
     "en-US": {
-      "file": "File"
+      "file_preview": "File Preview"
     }
   }
 }
