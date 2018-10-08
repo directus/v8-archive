@@ -1075,6 +1075,7 @@ class BaseTableGateway extends TableGateway
      * @param Builder $builder
      *
      * @throws ForbiddenCollectionReadException
+     * @throws UnableFindOwnerItemsException
      */
     protected function enforceReadPermission(Builder $builder)
     {
@@ -1126,10 +1127,6 @@ class BaseTableGateway extends TableGateway
                 foreach ($statuses as $status) {
                     $canReadAll = $this->acl->canReadAll($collection, $status);
                     $canReadMine = $this->acl->canReadMine($collection, $status);
-
-                    if (!$userCreatedField && !$canReadAll) {
-                        throw new UnableFindOwnerItemsException($collection);
-                    }
 
                     if ((!$canReadAll && !$userCreatedField) || !$canReadMine) {
                         continue;
