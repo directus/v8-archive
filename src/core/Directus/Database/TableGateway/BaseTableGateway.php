@@ -1553,16 +1553,6 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Gets the table published statuses
-     *
-     * @return array
-     */
-    public function getPublishedStatuses()
-    {
-        return $this->getStatuses('published');
-    }
-
-    /**
      * Gets the table non-soft-delete statuses
      *
      * @return array
@@ -1586,9 +1576,6 @@ class BaseTableGateway extends TableGateway
 
         if ($statusMapping) {
             switch ($type) {
-                case 'published':
-                    $statuses = $statusMapping->getPublishedStatusesValue();
-                    break;
                 case 'non-soft-delete':
                     $statuses = $statusMapping->getNonSoftDeleteStatusesValue();
                     break;
