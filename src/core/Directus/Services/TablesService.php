@@ -5,6 +5,8 @@ namespace Directus\Services;
 use Directus\Application\Container;
 use Directus\Database\Exception\CollectionNotManagedException;
 use Directus\Database\Exception\FieldAlreadyExistsException;
+use Directus\Database\Exception\FieldLengthNotSupportedException;
+use Directus\Database\Exception\FieldLengthRequiredException;
 use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\CollectionAlreadyExistsException;
 use Directus\Database\Exception\CollectionNotFoundException;
@@ -1150,14 +1152,7 @@ class TablesService extends AbstractService
 
         $length = ArrayUtils::get($data, 'length');
         if ($dataType && $this->getSchemaManager()->isTypeLengthRequired($dataType) && !$length) {
-            $message = 'Missing length';
-
-            if ($fieldName) {
-                $message .= ' for: ' . $fieldName;
-            }
-
-            // TODO: Create an exception class for length required
-            throw new UnprocessableEntityException($message);
+            throw new FieldLengthRequiredException($fieldName);
         }
 
         $fieldDataType = $dataType;
@@ -1166,10 +1161,7 @@ class TablesService extends AbstractService
         }
 
         if ($length && !$this->getSchemaManager()->canTypeUseLength($fieldDataType)) {
-            // TODO: Create an exception class for length is not supported
-            throw new UnprocessableEntityException(
-                sprintf('field "%s" does not support length', $fieldName)
-            );
+            throw new FieldLengthNotSupportedException($fieldName);
         }
 
         if ($type && !DataTypes::exists($type)) {
