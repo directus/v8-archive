@@ -3,12 +3,12 @@
     <stars :options="options" :rating.sync="rating" :readonly="readonly"></stars>
     <div 
       class="rating-value" 
-      v-if="['DECIMAL','DOUBLE'].includes(type)">
+      v-if="type=='decimal'">
       <v-input 
         class="rating-input" 
         type="text"
-        :disabled="readonly"
         :maxlength="length"
+        :disabled="readonly"
         v-model="rating"/>
       <span>out of {{options.max_stars}} stars</span>
     </div>
@@ -27,7 +27,7 @@ export default {
   computed: {
     rating: {
       get() {
-        return this.value;
+        return this.value || 0;
       },
       set(value) {
         //? How to stop user from entering value, larger than number of stars
