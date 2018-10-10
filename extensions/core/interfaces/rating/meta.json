@@ -1,11 +1,7 @@
 {
   "name": "$t:rating",
   "version": "1.0.0",
-  "datatypes": {
-    "INT": null,
-    "DECIMAL": 3,
-    "DOUBLE": 3
-  },
+  "types": ["decimal", "integer"],
   "icon": "star",
   "fieldset": true,
   "options": {
