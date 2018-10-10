@@ -83,7 +83,7 @@ export default {
         return item[contentField] || null;
       }
 
-      return "--";
+      return null;
     },
     emptySrc(item) {
       return this.viewOptions.src != null && this.src(item) === null;
