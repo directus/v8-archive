@@ -1024,6 +1024,10 @@ class TablesService extends AbstractService
         $fields = ArrayUtils::get($data, 'fields', []);
         $this->validateSystemFields($fields);
 
+        /** @var Emitter $hookEmitter */
+        $hookEmitter = $this->container->get('hook_emitter');
+        $hookEmitter->run('collection.schema.update:before', [$name, $data]);
+
         $toAdd = $toChange = $toDrop = [];
         foreach ($fields as $fieldData) {
             $field = $collection->getField($fieldData['field']);
@@ -1054,8 +1058,9 @@ class TablesService extends AbstractService
             'drop' => $toDrop
         ]);
 
-        /** @var Emitter $hookEmitter */
-        $hookEmitter = $this->container->get('hook_emitter');
+        $hookEmitter->run('collection.schema.update', [$name, $data]);
+        $hookEmitter->run('collection.schema.update:after', [$name, $data]);
+
         $hookEmitter->run('collection.update:before', $name);
 
         $result = $schemaFactory->buildTable($table);
