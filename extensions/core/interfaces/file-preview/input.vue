@@ -84,13 +84,13 @@ export default {
   overflow: hidden;
   img {
     margin: 0 auto;
-    max-height: 400px;
+    max-height: 414px;
     max-width: 100%;
     display: block;
   }
   video {
     margin: 0 auto;
-    max-height: 400px;
+    max-height: 414px;
     max-width: 100%;
     display: block;
   }
