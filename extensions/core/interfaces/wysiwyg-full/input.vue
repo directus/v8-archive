@@ -26,14 +26,14 @@ export default {
   },
   methods: {
     init() {
-      this.$refs.editor.innerHTML = this.value;
-
       this.editor = new Quill(this.$refs.editor, {
         theme: "snow",
         modules: {
           toolbar: this.options.toolbarOptions
         }
       });
+
+      this.editor.clipboard.dangerouslyPasteHTML(this.value);
 
       this.editor.on("text-change", () => {
         this.$emit("input", this.editor.root.innerHTML);
