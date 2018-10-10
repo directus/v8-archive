@@ -357,6 +357,13 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_fields',
+                'field' => 'validation',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+            ],
+            [
+                'collection' => 'directus_fields',
                 'field' => 'required',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
