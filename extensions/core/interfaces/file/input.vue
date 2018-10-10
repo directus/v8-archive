@@ -44,13 +44,13 @@
         <v-items
           collection="directus_files"
           :view-type="viewType"
-          :selection="selection"
+          :selection="value ? [value] : []"
           :filters="filters"
           :view-query="viewQuery"
           :view-options="viewOptions"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="selection = [$event[$event.length - 1]]"></v-items>
+          @select="$emit('input', $event[$event.length - 1])"></v-items>
       </v-modal>
     </portal>
   </div>
@@ -65,7 +65,6 @@ export default {
     return {
       newFile: false,
       existing: false,
-      selection: [],
 
       viewOptionsOverride: {},
       viewTypeOverride: null,
@@ -120,29 +119,6 @@ export default {
         ...this.viewQueryOverride,
         ...updates
       };
-    }
-  },
-  watch: {
-    selection(newVal) {
-      const id = newVal[0];
-
-      if (id == null) {
-        this.$emit("input", null);
-        return;
-      }
-
-      this.$api
-        .getItem("directus_files", newVal)
-        .then(res => res.data)
-        .then(file => {
-          this.$emit("input", file);
-        })
-        .catch(error => {
-          this.$events.emit("error", {
-            notify: this.$t("something_went_wrong_body"),
-            error
-          });
-        });
     }
   }
 };

@@ -7,7 +7,7 @@
     "viewType": {
       "name": "$t:view_type",
       "comment": "$t:view_type_comment",
-      "default": "tile",
+      "default": "cards",
       "interface": "text-input"
     },
     "viewOptions": {
