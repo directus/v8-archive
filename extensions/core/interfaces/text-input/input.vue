@@ -23,7 +23,9 @@ export default {
       let value = rawValue;
 
       if (this.options.trim) {
-        value = value.trim();
+        if (value.length > this.value.length) {
+          value = value.trim();
+        }
       }
 
       this.$emit("input", value);
