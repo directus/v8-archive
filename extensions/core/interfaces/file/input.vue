@@ -13,7 +13,7 @@
         }
       }"
       @remove="$emit('input', null)"></v-card>
-    <v-upload v-else small :disabled="readonly" class="dropzone" @upload="saveUpload"></v-upload>
+    <v-upload v-else small :disabled="readonly" class="dropzone" @upload="saveUpload" :multiple="false"></v-upload>
 
     <v-button type="button" :disabled="readonly" @click="newFile = true">
       <i class="material-icons">add</i>{{ $t('new_file') }}
@@ -26,7 +26,7 @@
     <portal to="modal" v-if="newFile">
       <v-modal :title="$t('file_upload')" @close="newFile = false">
         <div class="body">
-          <v-upload @upload="saveUpload"></v-upload>
+          <v-upload @upload="saveUpload" :multiple="false"></v-upload>
         </div>
       </v-modal>
     </portal>
@@ -107,6 +107,7 @@ export default {
   methods: {
     saveUpload(fileInfo) {
       this.$emit("input", fileInfo.data);
+      this.newFile = false;
     },
     setViewOptions(updates) {
       this.viewOptionsOverride = {
