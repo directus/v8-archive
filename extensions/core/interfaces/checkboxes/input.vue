@@ -44,8 +44,6 @@ export default {
         selection.push(val);
       }
 
-      selection.sort();
-
       selection = selection.join(",");
 
       if (this.options.wrap && selection.length > 0) {
