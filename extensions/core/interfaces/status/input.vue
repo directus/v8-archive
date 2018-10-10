@@ -36,9 +36,11 @@ export default {
 
 <style lang="scss" scoped>
 .interface-status {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
-  grid-gap: 40px;
+  max-width: var(--width-x-large);
+  .v-radio {
+    display: inline-block;
+    margin-right: 40px;
+    margin-bottom: 20px;
+  }
 }
 </style>
