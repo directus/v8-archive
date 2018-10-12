@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "types": ["string"],
   "icon": "code",
+  "recommended": {
+    "length": 2000
+  },
   "options": {
     "language": {
       "name": "$t:language",

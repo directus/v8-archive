@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "types": ["string"],
   "icon": "text_fields",
+  "recommended": {
+    "length": 2000
+  },
   "options": {
     "rows": {
       "name": "$t:rows",

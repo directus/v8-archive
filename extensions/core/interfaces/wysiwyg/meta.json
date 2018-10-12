@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "types": ["string"],
   "icon": "format_quote",
+  "recommended": {
+    "length": 2000
+  },
   "options": {
     "placeholder": {
       "name": "$t:placeholder",
