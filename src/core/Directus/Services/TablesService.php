@@ -358,6 +358,15 @@ class TablesService extends AbstractService
 
         $table = $collectionsTableGateway->manageRecordUpdate('directus_collections', $item);
 
+        // NOTE: The collection didn't exists.
+        // This means the collection was created instead of started to being managed by directus
+        if (!$collection) {
+            /** @var Emitter $hookEmitter */
+            $hookEmitter = $this->container->get('hook_emitter');
+            $hookEmitter->run('collection.create', $name);
+            $hookEmitter->run('collection.create:after', $name);
+        }
+
         // ----------------------------------------------------------------------------
 
         $collectionTableGateway = $this->createTableGateway($collectionsCollectionName);
@@ -1003,9 +1012,6 @@ class TablesService extends AbstractService
 
         $result = $schemaFactory->buildTable($table);
 
-        $hookEmitter->run('collection.create', $name);
-        $hookEmitter->run('collection.create:after', $name);
-
         return $result ? true : false;
     }
 
@@ -1026,7 +1032,7 @@ class TablesService extends AbstractService
 
         /** @var Emitter $hookEmitter */
         $hookEmitter = $this->container->get('hook_emitter');
-        $hookEmitter->run('collection.schema.update:before', [$name, $data]);
+        $hookEmitter->run('collection.update:before', [$name, $data]);
 
         $toAdd = $toChange = $toDrop = [];
         foreach ($fields as $fieldData) {
@@ -1058,16 +1064,11 @@ class TablesService extends AbstractService
             'drop' => $toDrop
         ]);
 
-        $hookEmitter->run('collection.schema.update', [$name, $data]);
-        $hookEmitter->run('collection.schema.update:after', [$name, $data]);
-
-        $hookEmitter->run('collection.update:before', $name);
-
         $result = $schemaFactory->buildTable($table);
         $this->updateColumnsRelation($name, array_merge($toAdd, $toChange));
 
-        $hookEmitter->run('collection.update', $name);
-        $hookEmitter->run('collection.update:after', $name);
+        $hookEmitter->run('collection.update', [$name, $data]);
+        $hookEmitter->run('collection.update:after', [$name, $data]);
 
         return $result ? true : false;
     }
