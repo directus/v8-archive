@@ -177,7 +177,9 @@ class TablesService extends AbstractService
 
         /** @var SchemaManager $schemaManager */
         $schemaManager = $this->container->get('schema_manager');
-        $collectionObject = $schemaManager->getCollection($collection);
+        // NOTE: Always skip temporary cache when fetching collection data
+        // It avoids error error trying to fetch recently created field
+        $collectionObject = $schemaManager->getCollection($collection, [], true);
         if (!$collectionObject) {
             throw new CollectionNotFoundException($collection);
         }
@@ -534,13 +536,9 @@ class TablesService extends AbstractService
 
         // ----------------------------------------------------------------------------
 
-        $field = $this->addFieldInfo($collectionName, $columnName, $columnData);
+        $this->addFieldInfo($collectionName, $columnName, $columnData);
 
-        return $this->getFieldsTableGateway()->wrapData(
-            $field->toArray(),
-            true,
-            ArrayUtils::get($params, 'meta', 0)
-        );
+        return $this->findField($collectionName, $columnName, $params);
     }
 
     /**
