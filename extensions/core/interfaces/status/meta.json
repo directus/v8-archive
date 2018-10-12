@@ -72,6 +72,15 @@
           "soft_delete": false,
           "published": true
         },
+        "under-review": {
+          "name": "$t:under_review",
+          "text_color": "white",
+          "background_color": "amber",
+          "browse_subdued": true,
+          "browse_badge": true,
+          "soft_delete": false,
+          "published": false
+        },
         "draft": {
           "name": "$t:draft",
           "text_color": "white",
