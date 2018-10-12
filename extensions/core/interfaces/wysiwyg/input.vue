@@ -29,7 +29,7 @@ export default {
     editorOptions() {
       return {
         placeholder: {
-          text: this.options.placeholder,
+          text: this.options.placeholder || "",
           hideOnClick: true
         },
         toolbar: {
