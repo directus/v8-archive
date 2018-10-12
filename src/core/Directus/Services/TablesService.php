@@ -263,7 +263,17 @@ class TablesService extends AbstractService
 
         $tableService = new TablesService($this->container);
 
+        /** @var Emitter $hookEmitter */
+        $hookEmitter = $this->container->get('hook_emitter');
+        $hookEmitter->run('field.delete:before', [$collection, $field]);
+        $hookEmitter->run('field.delete.' . $collection. '.:before', [$field]);
+
         $tableService->dropColumn($collection, $field);
+
+        $hookEmitter->run('field.delete', [$collection, $field]);
+        $hookEmitter->run('field.delete.' . $collection, [$field]);
+        $hookEmitter->run('field.delete:after', [$collection, $field]);
+        $hookEmitter->run('field.delete.' . $collection . '.:after', [$field]);
 
         return true;
     }
@@ -529,6 +539,11 @@ class TablesService extends AbstractService
             'field' => $columnName
         ]);
 
+        /** @var Emitter $hookEmitter */
+        $hookEmitter = $this->container->get('hook_emitter');
+        $hookEmitter->run('field.create:before', [$collectionName, $columnName, $data]);
+        $hookEmitter->run('field.create.' . $collectionName . '.:before', [$columnName, $data]);
+
         // TODO: Only call this when necessary
         $this->updateTableSchema($collection, [
             'fields' => [$columnData]
@@ -537,6 +552,11 @@ class TablesService extends AbstractService
         // ----------------------------------------------------------------------------
 
         $this->addFieldInfo($collectionName, $columnName, $columnData);
+
+        $hookEmitter->run('field.create', [$collectionName, $columnName, $data]);
+        $hookEmitter->run('field.create.' . $collectionName, [$columnName, $data]);
+        $hookEmitter->run('field.create:after', [$collectionName, $columnName, $data]);
+        $hookEmitter->run('field.create.' . $collectionName . '.:after', [$columnName, $data]);
 
         return $this->findField($collectionName, $columnName, $params);
     }
@@ -582,6 +602,11 @@ class TablesService extends AbstractService
             throw new FieldNotFoundException($fieldName);
         }
 
+        /** @var Emitter $hookEmitter */
+        $hookEmitter = $this->container->get('hook_emitter');
+        $hookEmitter->run('field.update:before', [$collectionName, $fieldName, $data]);
+        $hookEmitter->run('field.update.' . $collectionName . '.:before', [$fieldName, $data]);
+
         if ($this->shouldUpdateSchema($data)) {
             $this->updateTableSchema($collection, [
                 'fields' => [array_merge($field->toArray(), $data)]
@@ -591,6 +616,11 @@ class TablesService extends AbstractService
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
         $resultData = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
         // ----------------------------------------------------------------------------
+
+        $hookEmitter->run('field.update', [$collectionName, $fieldName, $data]);
+        $hookEmitter->run('field.update.' . $collectionName, [$fieldName, $data]);
+        $hookEmitter->run('field.update:after', [$collectionName, $fieldName, $data]);
+        $hookEmitter->run('field.update.' . $collectionName . '.:after', [$fieldName, $data]);
 
         return $this->getFieldsTableGateway()->wrapData(
             $resultData,
