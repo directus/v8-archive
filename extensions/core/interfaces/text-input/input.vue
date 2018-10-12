@@ -20,10 +20,12 @@ export default {
   mixins: [mixin],
   methods: {
     updateValue(rawValue) {
+      if (!rawValue) return;
+
       let value = rawValue;
 
       if (this.options.trim) {
-        if (value.length > this.value.length) {
+        if (!this.value || value.length > this.value.length) {
           value = value.trim();
         }
       }
