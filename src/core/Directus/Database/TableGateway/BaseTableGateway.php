@@ -367,7 +367,7 @@ class BaseTableGateway extends TableGateway
         $this->validateRecordArray($recordData);
 
         $listenerId = null;
-        if (static::$emitter) {
+        if (static::$emitter && $this->shouldUseFilter()) {
             $hookName = 'item.create.' . SchemaManager::COLLECTION_FILES;
             // TODO: Implement once execute. Allowing a hook callback to run once.
             $listenerId = static::$emitter->addAction($hookName, function ($data) use (&$recordData) {
@@ -377,6 +377,11 @@ class BaseTableGateway extends TableGateway
 
         $TableGateway = $this->makeTable($this->table);
         $primaryKey = $TableGateway->primaryKeyFieldName;
+
+        if (!$this->shouldUseFilter()) {
+            $TableGateway->ignoreFilters();
+        }
+
         $TableGateway->insert($recordData);
 
         if (static::$emitter && $listenerId) {
@@ -695,7 +700,7 @@ class BaseTableGateway extends TableGateway
      */
     protected function executeSelect(Select $select)
     {
-        $useFilter = ArrayUtils::get($this->options, 'filter', true) !== false;
+        $useFilter = $this->shouldUseFilter();
         unset($this->options['filter']);
 
         if ($this->acl) {
@@ -748,6 +753,9 @@ class BaseTableGateway extends TableGateway
      */
     protected function executeInsert(Insert $insert)
     {
+        $useFilter = $this->shouldUseFilter();
+        unset($this->options['filter']);
+
         if ($this->acl) {
             $this->enforceInsertPermission($insert);
         }
@@ -758,22 +766,24 @@ class BaseTableGateway extends TableGateway
         // Data to be inserted with the column name as assoc key.
         $insertDataAssoc = array_combine($insertState['columns'], $insertData);
 
-        $this->runHook('item.create:before', [$insertTable, $insertDataAssoc]);
-        $this->runHook('item.create.' . $insertTable . ':before', [$insertDataAssoc]);
+        if ($useFilter) {
+            $this->runHook('item.create:before', [$insertTable, $insertDataAssoc]);
+            $this->runHook('item.create.' . $insertTable . ':before', [$insertDataAssoc]);
 
-        $newInsertData = $this->applyHook('item.create:before', $insertDataAssoc, [
-            'collection_name' => $insertTable
-        ]);
-        $newInsertData = $this->applyHook('item.create.' . $insertTable . ':before', $newInsertData);
+            $newInsertData = $this->applyHook('item.create:before', $insertDataAssoc, [
+                'collection_name' => $insertTable
+            ]);
+            $newInsertData = $this->applyHook('item.create.' . $insertTable . ':before', $newInsertData);
 
-        // NOTE: set the primary key to null
-        // to default the value to whatever increment value is next
-        // avoiding the error of inserting nothing
-        if (empty($newInsertData)) {
-            $newInsertData[$this->primaryKeyFieldName] = null;
+            // NOTE: set the primary key to null
+            // to default the value to whatever increment value is next
+            // avoiding the error of inserting nothing
+            if (empty($newInsertData)) {
+                $newInsertData[$this->primaryKeyFieldName] = null;
+            }
+
+            $insert->values($newInsertData);
         }
-
-        $insert->values($newInsertData);
 
         try {
             $result = parent::executeInsert($insert);
@@ -806,10 +816,12 @@ class BaseTableGateway extends TableGateway
 
         $resultData = $insertTableGateway->find($generatedValue);
 
-        $this->runHook('item.create', [$insertTable, $resultData]);
-        $this->runHook('item.create.' . $insertTable, [$resultData]);
-        $this->runHook('item.create:after', [$insertTable, $resultData]);
-        $this->runHook('item.create.' . $insertTable . ':after', [$resultData]);
+        if ($useFilter) {
+            $this->runHook('item.create', [$insertTable, $resultData]);
+            $this->runHook('item.create.' . $insertTable, [$resultData]);
+            $this->runHook('item.create:after', [$insertTable, $resultData]);
+            $this->runHook('item.create.' . $insertTable . ':after', [$resultData]);
+        }
 
         return $result;
     }
@@ -823,7 +835,7 @@ class BaseTableGateway extends TableGateway
      */
     protected function executeUpdate(Update $update)
     {
-        $useFilter = ArrayUtils::get($this->options, 'filter', true) !== false;
+        $useFilter = $this->shouldUseFilter();
         unset($this->options['filter']);
 
         if ($this->acl) {
@@ -1727,5 +1739,13 @@ class BaseTableGateway extends TableGateway
     protected function shouldNullSortedLast()
     {
         return (bool) get_directus_setting('global', 'sort_null_last', true);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function shouldUseFilter()
+    {
+        return !is_array($this->options) || ArrayUtils::get($this->options, 'filter', true) !== false;
     }
 }
