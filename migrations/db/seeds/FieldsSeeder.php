@@ -1223,9 +1223,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'roles',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
                 'interface' => 'user-roles',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'locked' => 1
             ],
             [
                 'collection' => 'directus_users',
