@@ -1,5 +1,5 @@
 {
-  "name": "$t:user-role",
+  "name": "$t:user-roles",
   "version": "1.0.0",
   "types": ["o2m"],
   "relation": "m2m",
@@ -14,7 +14,7 @@
   },
   "translation": {
     "en-US": {
-      "user-role": "User Role",
+      "user-roles": "User Role",
       "relational": "Relational",
       "relational_comment": "Save as M2M value to directus_user_roles"
     }
