@@ -1138,6 +1138,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'code',
                 'locked' => 1,
                 'hidden_browse' => 1,
+                'hidden_detail' => 1,
                 'sort' => 12
             ],
             [
