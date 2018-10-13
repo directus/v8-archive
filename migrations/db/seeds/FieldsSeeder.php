@@ -1108,7 +1108,7 @@ class FieldsSeeder extends AbstractSeed
                         'America/Anchorage' => 'Anchorage (Alaska)',
                         'Pacific/Honolulu' => 'Honolulu (Hawaii)'
                     ],
-                    'placeholder' => 'Choose a language...'
+                    'placeholder' => 'Choose a timezone...'
                 ]),
                 'locked' => 1,
                 'sort' => 10,
