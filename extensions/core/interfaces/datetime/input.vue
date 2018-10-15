@@ -25,14 +25,14 @@ export default {
     },
     ISO() {
       if (!this.value) return;
-      return `${this.date.getFullYear()}-${String(
-        this.date.getMonth()
+      return dt = `${this.date.getFullYear()}-${String(
+        this.date.getMonth()+1
       ).padStart(2, "0")}-${String(this.date.getDate()).padStart(
         2,
         "0"
       )}T${String(this.date.getHours()).padStart(2, "0")}:${String(
         this.date.getMinutes()
-      ).padStart(2, "0")}`;
+      ).padStart(2, "0")}:00`;
     }
   },
   methods: {
