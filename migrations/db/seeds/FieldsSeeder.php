@@ -937,7 +937,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_settings',
                 'field' => 'logo',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
-                'interface' => 'single_file',
+                'interface' => 'file',
                 'locked' => 1
             ],
             [
