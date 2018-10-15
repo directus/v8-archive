@@ -1,6 +1,5 @@
 /**
  * This transformation is used in the copy command for the meta.json files
- *
  * It takes the contents of the json file, minifies it, and returns it.
  */
 
