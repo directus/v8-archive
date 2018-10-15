@@ -25,7 +25,7 @@ export default {
     },
     ISO() {
       if (!this.value) return;
-      return dt = `${this.date.getFullYear()}-${String(
+      return `${this.date.getFullYear()}-${String(
         this.date.getMonth()+1
       ).padStart(2, "0")}-${String(this.date.getDate()).padStart(
         2,
