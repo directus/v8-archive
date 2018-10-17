@@ -1002,7 +1002,6 @@ class CoreServicesProvider
             $manager = new TransportManager();
 
             $transports = [
-                'simple_file' => SimpleFileTransport::class,
                 'smtp' => \Swift_SmtpTransport::class,
                 'sendmail' => \Swift_SendmailTransport::class
             ];
