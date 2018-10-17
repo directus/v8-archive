@@ -18,6 +18,8 @@ abstract class AbstractTransport implements \Swift_Transport
 
     /**
      * @param string $name
+     *
+     * @deprecated
      */
     public function setName($name)
     {
@@ -26,6 +28,8 @@ abstract class AbstractTransport implements \Swift_Transport
 
     /**
      * @return string
+     *
+     * @deprecated
      */
     public function getName()
     {
