@@ -1,8 +1,11 @@
 {
   "name": "$t:user",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["integer", "user_created", "user_updated"],
   "icon": "account_circle",
+  "recommended": {
+    "length": 10
+  },
   "options": {
     "template": {
       "name": "$t:template",

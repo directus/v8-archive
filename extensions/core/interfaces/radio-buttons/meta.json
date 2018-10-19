@@ -1,9 +1,12 @@
 {
   "name": "$t:radio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["string"],
   "fieldset": true,
   "icon": "radio_button_checked",
+  "recommended": {
+    "length": 100
+  },
   "options": {
     "choices": {
       "name": "$t:choices",

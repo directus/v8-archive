@@ -1,8 +1,11 @@
 {
   "name": "$t:slider",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["integer"],
   "icon": "tune",
+  "recommended": {
+    "length": 10
+  },
   "options": {
     "minimum": {
       "name": "$t:min",

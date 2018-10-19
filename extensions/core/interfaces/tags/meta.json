@@ -1,8 +1,11 @@
 {
   "name": "$t:tags",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["string"],
   "icon": "local_offer",
+  "recommended": {
+    "length": 2000
+  },
   "options": {
     "alphabetize": {
       "name": "$t:alphabetize",

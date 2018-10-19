@@ -1,9 +1,12 @@
 {
   "name": "$t:rating",
-  "version": "1.0.0",
-  "types": ["decimal", "integer"],
+  "version": "1.0.1",
+  "types": ["integer", "decimal"],
   "icon": "star",
   "fieldset": true,
+  "recommended": {
+    "length": 10
+  },
   "options": {
     "active_color": {
       "name": "$t:active_color",

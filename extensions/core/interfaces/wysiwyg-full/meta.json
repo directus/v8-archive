@@ -1,10 +1,10 @@
 {
   "name": "$t:wysiwyg_full",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["string"],
   "icon": "format_quote",
   "recommended": {
-    "length": 2000
+    "length": 10000
   },
   "options": {
     "placeholder": {

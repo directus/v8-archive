@@ -1,8 +1,11 @@
 {
   "name": "$t:collections",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["string"],
   "icon": "category",
+  "recommended": {
+    "length": 100
+  },
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

@@ -1,8 +1,11 @@
 {
   "name": "$t:hashed",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["string"],
   "icon": "security",
+  "recommended": {
+    "length": 100
+  },
   "options": {
     "hide": {
       "name": "$t:hide",

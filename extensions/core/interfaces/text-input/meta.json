@@ -1,14 +1,11 @@
 {
   "name": "$t:input",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icon": "text_fields",
-
   "types": ["string", "lang"],
-
   "recommended": {
-    "length": 100
+    "length": 200
   },
-
   "options": {
     "placeholder": {
       "name": "$t:placeholder",

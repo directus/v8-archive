@@ -1,8 +1,11 @@
 {
   "name": "$t:multiselect",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["array"],
   "icon": "playlist_add_check",
+  "recommended": {
+    "length": 100
+  },
   "options": {
     "choices": {
       "name": "$t:choices",

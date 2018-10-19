@@ -1,8 +1,11 @@
 {
   "name": "$t:dropdown",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["string"],
   "icon": "arrow_drop_down_circle",
+  "recommended": {
+    "length": 100
+  },
   "options": {
     "choices": {
       "name": "$t:choices",

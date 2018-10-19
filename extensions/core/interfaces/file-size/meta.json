@@ -1,8 +1,11 @@
 {
   "name": "$t:file_size",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["integer"],
   "icon": "storage",
+  "recommended": {
+    "length": 10
+  },
   "options": {
     "placeholder": {
       "name": "$t:placeholder",
