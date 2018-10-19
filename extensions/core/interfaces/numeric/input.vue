@@ -6,6 +6,7 @@
     :value="value"
     :icon-left="options.iconLeft"
     :icon-right="options.iconRight"
+    :step="step"
     @input="$emit('input', Number($event))"></v-input>
 </template>
 
@@ -13,7 +14,17 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin]
+  mixins: [mixin],
+  computed: {
+    step() {
+      if (this.type === "decimal") {
+        const decimalPlaces = this.length && this.length.split(",")[1];
+        return `0.${"1".padStart(decimalPlaces, 0)}`;
+      }
+
+      return 1;
+    }
+  }
 };
 </script>
 
