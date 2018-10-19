@@ -20,8 +20,13 @@ import mixin from "../../../mixins/interface";
 export default {
   name: "interface-status",
   mixins: [mixin],
+  data() {
+    return {
+      startStatus: null
+    };
+  },
   computed: {
-    optionValues() {
+    statusMapping() {
       if (typeof this.options.status_mapping === "string") {
         return this.options.status_mapping
           ? JSON.parse(this.status_mapping)
@@ -29,7 +34,39 @@ export default {
       }
 
       return this.options.status_mapping || {};
+    },
+    optionValues() {
+      const allStatuses = Object.keys(this.statusMapping);
+
+      const allowedStatuses = this.$lodash.differenceWith(
+        allStatuses,
+        this.blacklist,
+        this.$lodash.isEqual
+      );
+
+      return this.$lodash.pick(this.statusMapping, allowedStatuses);
+    },
+    blacklist() {
+      if (typeof this.permissions.status_blacklist === "string")
+        return this.permissions.status_blacklist.split(",");
+
+      return this.permissions.status_blacklist;
+    },
+    permissions() {
+      if (this.newItem) {
+        return this.$store.state.permissions[this.collection].$create;
+      }
+
+      return this.$store.state.permissions[this.collection].statuses[
+        this.startStatus
+      ];
+    },
+    collection() {
+      return Object.values(this.fields)[0].collection;
     }
+  },
+  created() {
+    this.startStatus = this.value;
   }
 };
 </script>
