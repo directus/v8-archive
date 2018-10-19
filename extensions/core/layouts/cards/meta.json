@@ -1,13 +1,13 @@
 {
   "name": "$t:cards",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "translation": {
     "en-US": {
       "cards": "Cards",
       "title": "Title",
       "subtitle": "Subtitle",
-      "src": "Image source",
-      "content": "Body content"
+      "src": "Image Source",
+      "content": "Body Content"
     }
   }
 }

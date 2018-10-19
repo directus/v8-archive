@@ -3,33 +3,29 @@
     <label for="title" class="style-3">{{ $t('layouts-cards-title') }}</label>
     <v-select
       id="title"
-      :value="viewOptions.title"
-      :options="fieldOptions"
-      :placeholder="$t('select_field')"
+      :value="viewOptions.title || this.primaryKeyField"
+      :options="titleFieldOptions"
       @input="setOption('title', $event === '__none__' ? null : $event)"></v-select>
 
     <label for="subtitle" class="style-3">{{ $t('layouts-cards-subtitle') }}</label>
     <v-select
       id="subtitle"
-      :value="viewOptions.subtitle"
+      :value="viewOptions.subtitle || '__none__'"
       :options="fieldOptions"
-      :placeholder="$t('select_field')"
       @input="setOption('subtitle', $event === '__none__' ? null : $event)"></v-select>
 
     <label for="src" class="style-3">{{ $t('layouts-cards-src') }}</label>
     <v-select
       id="src"
-      :value="viewOptions.src"
+      :value="viewOptions.src || '__none__'"
       :options="fileOptions"
-      :placeholder="$t('select_field')"
       @input="setOption('src', $event === '__none__' ? null : $event)"></v-select>
 
     <label for="content" class="style-3">{{ $t('layouts-cards-content') }}</label>
     <v-select
       id="content"
-      :value="viewOptions.content"
+      :value="viewOptions.content || '__none__'"
       :options="fieldOptions"
-      :placeholder="$t('select_field')"
       @input="setOption('content', $event === '__none__' ? null : $event)"></v-select>
 
     <label for="icon" class="style-3">Fallback Icon</label>
@@ -45,6 +41,11 @@ import mixin from "../../../mixins/layout";
 export default {
   mixins: [mixin],
   computed: {
+    titleFieldOptions() {
+      return {
+        ...this.$lodash.mapValues(this.fields, info => info.name)
+      };
+    },
     fieldOptions() {
       return {
         __none__: `(${this.$t("dont_show")})`,
