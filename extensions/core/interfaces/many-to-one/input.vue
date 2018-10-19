@@ -38,14 +38,14 @@
           @save="populateDropdown">
           <v-items
             :collection="relation.collection_one.collection"
-            :selection="[newSelected || { [relatedPrimaryKeyField]: valuePK }]"
+            :selection="selection"
             :filters="filters"
             :view-query="viewQuery"
             :view-type="viewType"
             :view-options="viewOptions"
             @options="setViewOptions"
             @query="setViewQuery"
-            @select="newSelected = $event[$event.length - 1]"></v-items>
+            @select="emitValue"></v-items>
         </v-modal>
       </portal>
     </template>
@@ -93,6 +93,19 @@ export default {
     },
     render() {
       return this.$helpers.micromustache.compile(this.options.template);
+    },
+    selection() {
+      if (!this.value) return [];
+
+      if (this.newSelected) {
+        return [this.newSelected];
+      }
+
+      if (this.valuePK) {
+        return [{ [this.relatedPrimaryKeyField]: this.valuePK }];
+      }
+
+      return [];
     },
     selectOptions() {
       if (this.items.length === 0) return {};
@@ -151,6 +164,17 @@ export default {
     }
   },
   methods: {
+    emitValue(selection) {
+      if (selection.length === 1) {
+        this.newSelected = selection[0];
+      } else if (selection.length === 0) {
+        this.newSelected = null;
+      } else {
+        this.newSelected = selection[selection.length - 1];
+      }
+
+      this.$emit("input", this.newSelected);
+    },
     fetchItems() {
       if (this.relation == null) return;
 
