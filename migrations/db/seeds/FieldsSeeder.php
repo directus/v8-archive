@@ -1249,14 +1249,14 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_user_roles',
-                'field' => 'user_id',
+                'field' => 'user',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
                 'locked' => 1
             ],
             [
                 'collection' => 'directus_user_roles',
-                'field' => 'role_id',
+                'field' => 'role',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
                 'locked' => 1
