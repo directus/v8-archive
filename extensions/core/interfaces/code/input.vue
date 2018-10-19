@@ -138,7 +138,7 @@ export default {
       if (this.options.language === "application/json") {
         try {
           return this.$emit("input", JSON.parse(value.replace("\n", "")));
-        } catch(e) {
+        } catch (e) {
           return this.$emit("input", value);
         }
       }

@@ -56,7 +56,8 @@ export default {
     fetchRoles() {
       this.loading = true;
 
-      this.$api.getRoles()
+      this.$api
+        .getRoles()
         .then(res => res.data)
         .then(roles => {
           this.roles = roles;
@@ -69,7 +70,8 @@ export default {
         });
     },
     emitValue(value) {
-      const currentJunctionRecordID = this.value && this.value[0] && this.value[0].id;
+      const currentJunctionRecordID =
+        this.value && this.value[0] && this.value[0].id;
 
       if (currentJunctionRecordID) {
         this.$emit("input", [
@@ -87,7 +89,8 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>
