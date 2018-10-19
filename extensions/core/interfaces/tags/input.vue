@@ -29,18 +29,14 @@ export default {
         return [];
       }
 
-      if (typeof this.value === "string") {
-        const array = this.value.split(",");
+      const array = [...(this.type === "array" ? this.value : this.value.split(","))];
 
-        if (this.options.wrap) {
-          array.pop();
-          array.shift();
-        }
-
-        return array;
+      if (this.options.wrap) {
+        array.pop();
+        array.shift();
       }
 
-      return this.value;
+      return array;
     }
   },
   methods: {
@@ -88,7 +84,11 @@ export default {
         value = `,${value},`;
       }
 
-      this.$emit("input", value);
+      if (this.type === "array") {
+        this.$emit("input", value.split(","));
+      } else {
+        this.$emit("input", value);
+      }
     }
   }
 };

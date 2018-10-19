@@ -16,7 +16,7 @@ export default {
     displayValue() {
       if (!this.value) return "";
 
-      let value = this.value.split(",");
+      let value = this.type === "array" ? this.value : this.value.split(",");
 
       if (this.options.wrap) {
         value.pop();
