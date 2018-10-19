@@ -1068,7 +1068,17 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'password',
                 'locked' => 1,
                 'required' => 1,
-                'sort' => 7
+                'sort' => 7,
+                'width' => 2
+            ],
+            [
+                'collection' => 'directus_users',
+                'field' => 'roles',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
+                'interface' => 'user-roles',
+                'locked' => 1,
+                'sort' => 8,
+                'width' => 2
             ],
             [
                 'collection' => 'directus_users',
@@ -1078,7 +1088,7 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'placeholder' => 'Enter your company or organization name...'
                 ]),
-                'sort' => 8,
+                'sort' => 9,
                 'width' => 2
             ],
             [
@@ -1089,7 +1099,7 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'placeholder' => 'Enter your title or role...'
                 ]),
-                'sort' => 9,
+                'sort' => 10,
                 'width' => 2
             ],
             [
@@ -1111,7 +1121,7 @@ class FieldsSeeder extends AbstractSeed
                     'placeholder' => 'Choose a timezone...'
                 ]),
                 'locked' => 1,
-                'sort' => 10,
+                'sort' => 11,
                 'width' => 2
             ],
             [
@@ -1128,7 +1138,7 @@ class FieldsSeeder extends AbstractSeed
                     'placeholder' => 'Choose a language...'
                 ]),
                 'locked' => 1,
-                'sort' => 11,
+                'sort' => 12,
                 'width' => 2
             ],
             [
@@ -1139,7 +1149,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'hidden_browse' => 1,
                 'hidden_detail' => 1,
-                'sort' => 12
+                'sort' => 13
             ],
             [
                 'collection' => 'directus_users',
@@ -1149,7 +1159,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 13
+                'sort' => 14
             ],
             [
                 'collection' => 'directus_users',
@@ -1158,7 +1168,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'datetime',
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 14,
+                'sort' => 15,
                 'width' => 2
             ],
             [
@@ -1169,7 +1179,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1,
-                'sort' => 15,
+                'sort' => 16,
                 'width' => 2
             ],
             [
@@ -1181,7 +1191,7 @@ class FieldsSeeder extends AbstractSeed
                 'readonly' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 16,
+                'sort' => 17,
                 'width' => 2
             ],
             [
@@ -1190,7 +1200,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
                 'interface' => 'file',
                 'locked' => 1,
-                'sort' => 17
+                'sort' => 18
             ],
             [
                 'collection' => 'directus_users',
@@ -1218,13 +1228,6 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'roles',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
-                'interface' => 'user-roles',
-                'locked' => 1
             ],
             [
                 'collection' => 'directus_users',
