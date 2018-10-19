@@ -7,7 +7,7 @@
     :min="options.min"
     :max="options.max"
     :readonly="readonly"
-    :value="ISO"
+    :value="formattedValue"
     :icon-left="options.iconLeft"
     :icon-right="options.iconRight"
     @input="updateValue"></v-input>
@@ -19,25 +19,13 @@ import mixin from "../../../mixins/interface";
 export default {
   mixins: [mixin],
   computed: {
-    date() {
-      if (!this.value) return;
-      return new Date(this.value);
-    },
-    ISO() {
-      if (!this.value) return;
-      return `${this.date.getFullYear()}-${String(
-        this.date.getMonth()+1
-      ).padStart(2, "0")}-${String(this.date.getDate()).padStart(
-        2,
-        "0"
-      )}T${String(this.date.getHours()).padStart(2, "0")}:${String(
-        this.date.getMinutes()
-      ).padStart(2, "0")}:00`;
+    formattedValue() {
+      return this.value && this.value.substring(0, 16); // yyyy-mm-ddThh:ss
     }
   },
   methods: {
     updateValue(value) {
-      this.$emit("input", this.$helpers.date.dateToSql(new Date(value)));
+      this.$emit("input", value);
     }
   }
 };

@@ -1,10 +1,10 @@
 <template>
   <v-timeago
     v-if="value && options.showRelative"
-    :since="since"
+    :since="date"
     :auto-update="60"
     :locale="$i18n.locale"
-    v-tooltip="ISO"
+    v-tooltip="displayValue"
     class="no-wrap"
   ></v-timeago>
   <div v-else>{{displayValue}}</div>
@@ -16,29 +16,16 @@ import mixin from "../../../mixins/interface";
 export default {
   mixins: [mixin],
   computed: {
-    date() {
-      if (this.value) {
-        return new Date(this.value);
-      }
-      return null;
+    formattedValue() {
+      return this.value && this.value.substring(0, 16); // yyyy-mm-ddThh:ss
     },
-    since() {
-      if (this.value) {
-        return this.date;
-      }
-      return null;
+    date() {
+      if (!this.formattedValue) return null;
+      return new Date(this.formattedValue);
     },
     displayValue() {
-      if (this.value && this.options.localized) {
-        return this.$d(this.date, "long");
-      }
-
-      return this.value;
-    },
-    ISO() {
-      if (!this.value) return;
-      const ISOString = this.date.toISOString();
-      return ISOString.substring(0, ISOString.length - 1);
+      if (!this.date) return;
+      return this.$d(this.date, "long");
     }
   }
 };
