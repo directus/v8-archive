@@ -131,19 +131,18 @@ class TransportManager
         if (is_callable($transport)) {
             $instance = call_user_func($transport);
         } else if (is_string($transport)) {
-            // TODO: Implement a way to add the construction arguments
-            // Thinking about more on the standard object of the configuration
-            // Argument unpacking or Reflection Class
             $instance = new $transport();
         } else {
             $instance = $transport;
         }
 
-        if (!($instance instanceof \Swift_Transport)) {
+        if (!($instance instanceof AbstractTransport)) {
             throw new RuntimeException(
                 sprintf('%s is not an instance of %s', gettype($instance), AbstractTransport::class)
             );
         }
+
+        $instance->replaceConfig($config);
 
         return $instance;
     }

@@ -16,6 +16,11 @@ abstract class AbstractTransport implements \Swift_Transport
 
     protected $name;
 
+    public function __construct(array $config = [])
+    {
+        $this->config = new Collection($config);
+    }
+
     /**
      * @param string $name
      *
@@ -37,11 +42,23 @@ abstract class AbstractTransport implements \Swift_Transport
     }
 
     /**
+     * Returns the configuration object
+     *
      * @return Collection
      */
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * Replaces the configuration with a new configuration dataset
+     *
+     * @param array $config
+     */
+    public function replaceConfig(array $config)
+    {
+        $this->config->replace($config);
     }
 
     /**
