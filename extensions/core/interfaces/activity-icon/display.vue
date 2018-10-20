@@ -40,13 +40,13 @@ export default {
           icon: "lock_open",
           color: "dark-gray"
         },
-        comment: {
-          icon: "chat_bubble_outline",
-          color: "purple"
-        },
         upload: {
           icon: "cloud_done",
           color: "accent"
+        },
+        comment: {
+          icon: "chat_bubble_outline",
+          color: "purple"
         },
         mention: {
           icon: "insert_comment",
@@ -85,6 +85,8 @@ export default {
             return "Authenticated";
           case "upload":
             return "File Uploaded";
+          case "comment":
+            return "Commented";
           case "mention":
             return "Mentioned";
           case "error":
