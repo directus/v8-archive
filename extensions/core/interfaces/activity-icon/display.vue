@@ -40,6 +40,10 @@ export default {
           icon: "lock_open",
           color: "dark-gray"
         },
+        comment: {
+          icon: "chat_bubble_outline",
+          color: "purple"
+        },
         upload: {
           icon: "cloud_done",
           color: "accent"
