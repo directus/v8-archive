@@ -4,16 +4,23 @@ namespace Directus\Services;
 
 abstract class AbstractExtensionsController extends AbstractService
 {
-    protected $basePath = null;
+    protected $paths = [];
 
-    protected function all($basePath, array $params = [])
+    protected function all(array $params = [])
     {
         $addOns = [];
-
-        if (!file_exists($basePath)) {
-            return ['data' => $addOns];
+        foreach ($this->paths as $path) {
+            if ($path && file_exists($path)) {
+                $addOns = array_merge($addOns, $this->findIn($path, $params));
+            }
         }
 
+        return ['data' => $addOns];
+    }
+
+    protected function findIn($basePath, array $params = [])
+    {
+        $addOns = [];
         $directusBasePath = $this->container->get('path_base');
 
         $filePaths = \Directus\find_directories($basePath);
@@ -41,6 +48,6 @@ abstract class AbstractExtensionsController extends AbstractService
             $addOns[] = $data;
         }
 
-        return ['data' => $addOns];
+        return $addOns;
     }
 }

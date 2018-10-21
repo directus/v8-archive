@@ -11,11 +11,14 @@ class PagesService extends AbstractExtensionsController
         parent::__construct($container);
 
         $basePath = $this->container->get('path_base');
-        $this->basePath = $basePath . '/public/extensions/core/pages';
+        $this->paths = [
+            $basePath . '/public/extensions/core/pages',
+            $basePath . '/public/extensions/custom/pages',
+        ];
     }
 
     public function findAll(array $params = [])
     {
-        return $this->all($this->basePath, $params);
+        return $this->all($params);
     }
 }
