@@ -19,6 +19,6 @@ class AdminOnlyMiddleware extends AbstractMiddleware
             return $next($request, $response);
         }
 
-        throw new UnauthorizedException('Permission denied: Only Admins');
+        throw new UnauthorizedException('Permission denied: Admin Only');
     }
 }
