@@ -17,6 +17,7 @@ composer.lock
 # Ignore configuration files
 /config/*
 !/config/migrations.php
+!/config/migrations.upgrades.php
 !/config/api_sample.php
 
 # PHPUnit
