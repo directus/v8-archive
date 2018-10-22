@@ -22,18 +22,18 @@
 
       <!-- Default Toolbar -->
       <div v-if="!editMode" class="original">
-        <a
-          class="file-link"
-          :href="url"
+        <a 
+          class="file-link" 
+          :href="url" 
           target="_blank">
           <i class="material-icons">link</i>
           {{url}}
         </a>
-        <button
-          v-if="isImage && options.edit.includes('image_editor')"
+        <button 
+          v-if="isImage && options.edit.includes('image_editor')" 
           type="button"
           title="Edit image"
-          class="image-edit-start"
+          class="image-edit-start" 
           @click="initImageEdit()">
           <i class="material-icons">crop_rotate</i>
         </button>
@@ -406,3 +406,4 @@ export default {
   }
 }
 </style>
+
