@@ -20,7 +20,9 @@ return [
         'username' => 'root',
         'password' => 'password',
         'engine' => 'InnoDB',
-        'charset' => 'utf8mb4'
+        'charset' => 'utf8mb4',
+        // When using unix socket to connect to the database the host attribute should be removed
+        // 'socket' => '/var/lib/mysql/mysql.sock',
     ],
 
     'cache' => [
