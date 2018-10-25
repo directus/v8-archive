@@ -34,7 +34,7 @@ about: Create a report to help us improve
 
 - Device: [eg: Desktop, iPhone6, etc]
 - OS: [eg: MacOS 10.13.6, Windows 10.1803]
-- Browser: [eg: Chrome 68.0.3440.106]
-- Directus App: [eg: 7.0.0]
-- Directus API: [eg: 2.0.0]
+- Web Server: [eg: Apache 2.4.37]
+- PHP Version: [eg: 7.2.0]
+- Database: [eg: MySQL 8.0.12]
 - Install Method: [eg: cloned `master` branch]
