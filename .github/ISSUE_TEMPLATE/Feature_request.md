@@ -4,14 +4,19 @@ about: Suggest an idea for this project
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+<!--
+1. Do not delete this template or the issue will be closed
+2. Ensure you're using the latest version of Directus
+3. Post to the correct repo:
+    App:  https://github.com/directus/app/issues
+    API:  https://github.com/directus/api/issues (YOU ARE HERE)
+    Docs: https://github.com/directus/docs/issues
+-->
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+# Feature Request
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## What problem does this feature solve?
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## How do you think this should be implemented?
+
+## Would you be willing to work on this?
