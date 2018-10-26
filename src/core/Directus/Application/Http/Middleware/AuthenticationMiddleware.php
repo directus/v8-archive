@@ -52,12 +52,13 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
             $acl->setPublic(true);
 
+            $rolesIpWhitelist = [$publicRoleId => $this->getRoleIPWhitelist($publicRoleId)];
             $permissionsByCollection = $permissionsTable->getRolePermissions($publicRoleId);
         } else {
+            $rolesIpWhitelist = $this->getUserRolesIPWhitelist($user->getId());
             $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());
         }
 
-        $rolesIpWhitelist = $this->getRolesIPWhitelist();
         $acl->setPermissions($permissionsByCollection);
         $acl->setRolesIpWhitelist($rolesIpWhitelist);
 
@@ -169,13 +170,27 @@ class AuthenticationMiddleware extends AbstractMiddleware
      *
      * @return array
      */
-    protected function getRolesIpWhitelist()
+    protected function getUserRolesIpWhitelist($userId)
     {
         $dbConnection = $this->container->get('database');
         $directusGroupsTableGateway = new TableGateway('directus_roles', $dbConnection);
-        $select = new Select($directusGroupsTableGateway->table);
+
+        $select = new Select(['r' => $directusGroupsTableGateway->table]);
         $select->columns(['id', 'ip_whitelist']);
-        $select->limit(1);
+
+        $subSelect = new Select(['ur' => 'directus_user_roles']);
+        $subSelect->where->equalTo('user', $userId);
+        // Only the first role, not supporting multiple roles at the moment
+        $subSelect->limit(1);
+
+        $select->join(
+            ['ur' => $subSelect],
+            'r.id = ur.role',
+            [
+                'role'
+            ],
+            $select::JOIN_RIGHT
+        );
 
         $result = $directusGroupsTableGateway->selectWith($select);
 
@@ -185,5 +200,18 @@ class AuthenticationMiddleware extends AbstractMiddleware
         }
 
         return $list;
+    }
+
+    protected function getRoleIPWhitelist($roleId)
+    {
+        $dbConnection = $this->container->get('database');
+        $directusGroupsTableGateway = new TableGateway('directus_roles', $dbConnection);
+
+        $select = new Select($directusGroupsTableGateway->table);
+        $select->columns(['id', 'ip_whitelist']);
+        $select->where->equalTo('id', $roleId);
+        $result = $directusGroupsTableGateway->selectWith($select)->current();
+
+        return array_filter(preg_split('/,\s*/', $result['ip_whitelist']));
     }
 }
