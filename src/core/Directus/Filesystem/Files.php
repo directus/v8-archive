@@ -519,7 +519,7 @@ class Files
         $name = pathinfo($fileName, PATHINFO_FILENAME);
         $newName = $this->sanitizeName(filename_put_ext($name, $ext));
 
-        if ($this->filesystem->exists($fileName)) {
+        if ($this->filesystem->exists($newName)) {
             $matches = [];
             $format = '/\-(\d)%s$/';
             $withExtension = '';
