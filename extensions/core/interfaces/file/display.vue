@@ -1,9 +1,9 @@
 <template>
   <div class="readonly-single-file no-wrap">
     <img
-      v-if="value && isImage && value.storage && value.storage.full_url && !error"
+      v-if="imageUrl && !error"
       @error="handleImageError"
-      :src="value.storage.full_url" />
+      :src="imageUrl" />
     <i v-else-if="error" class="material-icons">broken_image</i>
     <span v-else-if="!value">--</span>
     <span v-else class="material-icons" v-tooltip.right="value && value.filename">{{ icon }}</span>
@@ -31,6 +31,17 @@ export default {
     },
     icon() {
       return getIcon(this.filetype);
+    },
+    imageUrl() {
+      if (!this.isImage) return null;
+
+      return (
+        this.value &&
+        this.value.data &&
+        this.value.data.thumbnails &&
+        this.value.data.thumbnails[0] &&
+        this.value.data.thumbnails[0].url
+      );
     }
   },
   methods: {
