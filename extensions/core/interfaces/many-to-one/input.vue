@@ -9,7 +9,7 @@
       <v-select
         :name="name"
         :id="name"
-        :placeholder="options.placeholder"
+        :placeholder="options.placeholder || ''"
         :options="selectOptions"
         :value="valuePK"
         :icon="options.icon"
