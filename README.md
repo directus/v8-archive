@@ -47,13 +47,13 @@ Directus is an open-source suite of software for managing content in projects of
 * [Installing the Directus Suite](https://docs.directus.io/install.html)
 * [Extending Directus](https://docs.directus.io/extensions/)
 * Directus App
-  * [App Docs](https://docs.directus.io/app/admin-guide/)
+  * [App Docs](https://docs.directus.io/app/admin/)
   * [User Guide](https://docs.directus.io/app/user-guide.html)
-  * [Install the App](https://docs.directus.io/app/admin-guide/install.html)
+  * [Install the App](https://docs.directus.io/app/admin/install.html)
 * Directus API
-  * [API Docs](https://docs.directus.io/api/admin-guide/)
+  * [API Docs](https://docs.directus.io/api/admin/)
   * [API Reference](https://docs.directus.io/api/reference.html)
-  * [Install the API](https://docs.directus.io/api/admin-guide/install.html)
+  * [Install the API](https://docs.directus.io/api/admin/install.html)
 * Tutorials
   * [Tutorials](https://medium.com/directus)
   * [Videos](https://www.youtube.com/playlist?list=PLD--x9rY3ZL31stRPkA4FdGC4idIM-8-d)
@@ -90,8 +90,8 @@ Feature requests are managed as GitHub issues within the appropriate Directus re
 
 We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `development` branch of our `api` and `app` repositories.
 
-* [Setup API Development Environment](https://docs.directus.io/api/contributor-guide/install-dev.html)
-* [Setup App Development Environment](https://docs.directus.io/app/contributor-guide/install-dev.html)
+* [Setup API Development Environment](https://docs.directus.io/api/contributor/install-dev.html)
+* [Setup App Development Environment](https://docs.directus.io/app/contributor/install-dev.html)
 
 ### Online Demos
 

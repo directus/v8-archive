@@ -131,7 +131,7 @@ class TransportManager
         if (is_callable($transport)) {
             $instance = call_user_func($transport);
         } else if (is_string($transport)) {
-            $instance = new $transport();
+            $instance = new $transport($config);
         } else {
             $instance = $transport;
         }
@@ -141,8 +141,6 @@ class TransportManager
                 sprintf('%s is not an instance of %s', gettype($instance), AbstractTransport::class)
             );
         }
-
-        $instance->replaceConfig($config);
 
         return $instance;
     }

@@ -3,6 +3,7 @@
 namespace Directus\Console\Modules;
 
 use Directus\Util\ArrayUtils;
+use Directus\Util\Installation\InstallerUtils;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
 use Symfony\Component\Console\Input\StringInput;
@@ -40,7 +41,17 @@ class DatabaseModule extends ModuleBase
 
     public function cmdUpgrade($args, $extra)
     {
-        $this->runMigration('upgrades');
+        $project = null;
+
+        foreach ($args as $key => $value) {
+            switch ($key) {
+                case 'N':
+                    $project = $value;
+                    break;
+            }
+        }
+
+        InstallerUtils::updateTables($this->getBasePath(), $project);
     }
 
     protected function runMigration($name)

@@ -671,25 +671,33 @@ class CoreServicesProvider
         return function (Container $container) {
             $config = $container->get('config');
             $dbConfig = $config->get('database');
+            $defaultConfig = [];
 
             // TODO: enforce/check required params
 
             $charset = ArrayUtils::get($dbConfig, 'charset', 'utf8mb4');
+            $type = ArrayUtils::pull($dbConfig, 'type');
 
-            $dbConfig = [
-                'driver' => 'Pdo_' . $dbConfig['type'],
-                'host' => $dbConfig['host'],
-                'port' => $dbConfig['port'],
-                'database' => $dbConfig['name'],
-                'username' => $dbConfig['username'],
-                'password' => $dbConfig['password'],
-                'charset' => $charset,
-                \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-                \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
-            ];
+            // the "database" attribute is named "name"
+            // and the "unix_socket" is named "socket"
+            // in the directus configuration
+            ArrayUtils::renameSome($dbConfig, [
+                'name' => 'database',
+                'socket' => 'unix_socket',
+            ]);
+
+            if (strtolower($type) === 'mysql') {
+                $defaultConfig = [
+                    \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+                ];
+            }
 
             try {
-                $db = new Connection($dbConfig);
+                $db = new Connection(array_merge($defaultConfig, $dbConfig, [
+                    'driver' => $type ? 'Pdo_' . $type : null,
+                    'charset' => $charset
+                ]));
                 $db->connect();
             } catch (\Exception $e) {
                 throw new ConnectionFailedException($e);

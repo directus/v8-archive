@@ -69,7 +69,7 @@ class Mailer
 
         $transportId = get_class($transport);
         if (!array_key_exists($transportId, $this->mailers)) {
-            $this->mailers[$transportId] = new \Swift_Mailer($transport);
+            $this->mailers[$transportId] = new \Swift_Mailer($transport->getSwiftTransport());
         }
 
         $swiftMailer = $this->mailers[$transportId];

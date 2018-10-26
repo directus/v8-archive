@@ -1098,6 +1098,9 @@ class BaseTableGateway extends TableGateway
             case SchemaManager::COLLECTION_ROLES:
                 $field = 'id';
                 break;
+            case SchemaManager::COLLECTION_ACTIVITY:
+                $field = 'action_by';
+                break;
             case SchemaManager::COLLECTION_PERMISSIONS:
                 $field = 'role';
                 break;

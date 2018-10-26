@@ -10,22 +10,14 @@ class SmtpTransport extends AbstractTransport
     protected $smtp;
 
     /**
-     * @inheritdoc
-     */
-    public function send(\Swift_Mime_Message $message, &$failedRecipients = null)
-    {
-        return $this->getSmtp()->send($message, $failedRecipients);
-    }
-
-    /**
      * @return \Swift_SmtpTransport
      */
-    public function getSmtp()
+    public function getSwiftTransport()
     {
         if (!$this->smtp) {
             $transport = \Swift_SmtpTransport::newInstance(
-                $this->config->get('host'),
-                $this->config->get('port')
+                $this->config->get('host', 'localhost'),
+                $this->config->get('port', 25)
             );
 
             if ($this->config->has('username')) {

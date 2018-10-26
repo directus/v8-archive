@@ -11,11 +11,14 @@ class LayoutsService extends AbstractExtensionsController
         parent::__construct($container);
 
         $basePath = $this->container->get('path_base');
-        $this->basePath = $basePath . '/public/extensions/core/layouts';
+        $this->paths = [
+            $basePath . '/public/extensions/core/layouts',
+            $basePath . '/public/extensions/custom/layouts',
+        ];
     }
 
     public function findAll(array $params = [])
     {
-        return $this->all($this->basePath, $params);
+        return $this->all($params);
     }
 }

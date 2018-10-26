@@ -104,6 +104,33 @@ class InstallerUtils
             static::dropTables($basePath, $env);
         }
 
+        static::runMigrationAndSeeder($config);
+    }
+
+    /**
+     * Update Directus Tables from Migrations
+     *
+     * @param string $basePath
+     * @param string $env
+     *
+     * @throws \Exception
+     */
+    public static function updateTables($basePath, $env = null)
+    {
+        $config = static::getMigrationConfig($basePath, $env, 'upgrades');
+
+        static::runMigrationAndSeeder($config);
+    }
+
+    /**
+     * Create Directus Tables from Migrations
+     *
+     * @param Config $config
+     *
+     * @throws \Exception
+     */
+    public static function runMigrationAndSeeder(Config $config)
+    {
         $manager = new Manager($config, new StringInput(''), new NullOutput());
         $manager->migrate('development');
         $manager->seed('development');
@@ -540,20 +567,26 @@ class InstallerUtils
     /**
      * @param string $basePath
      * @param string $projectName
+     * @param string|null $migrationName
      *
      * @return Config
      */
-    private static function getMigrationConfig($basePath, $projectName = null)
+    private static function getMigrationConfig($basePath, $projectName = null, $migrationName = null)
     {
         static::ensureConfigFileExists($basePath, $projectName);
         static::ensureMigrationFileExists($basePath);
 
+        if ($migrationName === null) {
+            $migrationName = 'db';
+        }
+
         $configPath = static::createConfigPath($basePath, $projectName);
+        $migrationPath = $basePath . '/migrations/' . $migrationName;
 
         $apiConfig = require $configPath;
         $configArray = require $basePath . '/config/migrations.php';
-        $configArray['paths']['migrations'] = $basePath . '/migrations/db/schemas';
-        $configArray['paths']['seeds'] = $basePath . '/migrations/db/seeds';
+        $configArray['paths']['migrations'] = $migrationPath . '/schemas';
+        $configArray['paths']['seeds'] = $migrationPath . '/seeds';
         $configArray['environments']['development'] = [
             'adapter' => ArrayUtils::get($apiConfig, 'database.type'),
             'host' => ArrayUtils::get($apiConfig, 'database.host'),

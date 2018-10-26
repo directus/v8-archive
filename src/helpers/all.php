@@ -8,6 +8,7 @@ use Directus\Exception\Exception;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
+use Phinx\Db\Adapter\AdapterInterface;
 
 require __DIR__ . '/constants.php';
 require __DIR__ . '/app.php';
@@ -1519,5 +1520,36 @@ if (!function_exists('env')) {
         }
 
         return $value;
+    }
+}
+
+if (!function_exists('phinx_update')) {
+    /**
+     * @param AdapterInterface $adapter
+     * @param string $table
+     * @param array $data
+     * @param array $conditions
+     *
+     * @return string
+     */
+    function phinx_update(AdapterInterface $adapter, $table, array $data, array $conditions)
+    {
+        $processColumns = function ($data, $glue = ',') use ($adapter) {
+            $list = [];
+            foreach ($data as $column => $value) {
+                if (is_string($value)) {
+                    $value = sprintf('%s', $adapter->getConnection()->quote($value));
+                }
+
+                $list[] = sprintf('%s = %s', $adapter->quoteColumnName($column), $value);
+            }
+
+            return implode($glue, $list);
+        };
+
+        $set = $processColumns($data);
+        $where = $processColumns($conditions, ' AND ');
+
+        return sprintf('UPDATE %s SET %s WHERE %s;', $adapter->quoteTableName($table), $set, $where);
     }
 }

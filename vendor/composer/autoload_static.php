@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a
+class ComposerStaticInit03fd323c8f999d61dfaf5f19e934938c
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -401,6 +401,7 @@ class ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a
         'Directus\\Api\\Routes\\Pages' => __DIR__ . '/../..' . '/src/endpoints/Pages.php',
         'Directus\\Api\\Routes\\Permissions' => __DIR__ . '/../..' . '/src/endpoints/Permissions.php',
         'Directus\\Api\\Routes\\ProjectHome' => __DIR__ . '/../..' . '/src/endpoints/ProjectHome.php',
+        'Directus\\Api\\Routes\\ProjectUpdate' => __DIR__ . '/../..' . '/src/endpoints/ProjectUpdate.php',
         'Directus\\Api\\Routes\\Projects' => __DIR__ . '/../..' . '/src/endpoints/Projects.php',
         'Directus\\Api\\Routes\\Relations' => __DIR__ . '/../..' . '/src/endpoints/Relations.php',
         'Directus\\Api\\Routes\\Revisions' => __DIR__ . '/../..' . '/src/endpoints/Revisions.php',
@@ -421,7 +422,7 @@ class ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a
         'Directus\\Application\\ErrorHandlers\\NotInstalledNotFoundHandler' => __DIR__ . '/../..' . '/src/core/Directus/Application/ErrorHandlers/NotInstalledNotFoundHandler.php',
         'Directus\\Application\\Http\\Middleware\\AbstractMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AbstractMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\AbstractRateLimitMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AbstractRateLimitMiddleware.php',
-        'Directus\\Application\\Http\\Middleware\\AdminMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AdminMiddleware.php',
+        'Directus\\Application\\Http\\Middleware\\AdminOnlyMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AdminOnlyMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\AuthenticatedMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AuthenticatedMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\AuthenticationIgnoreOriginMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AuthenticationIgnoreOriginMiddleware.php',
         'Directus\\Application\\Http\\Middleware\\AuthenticationMiddleware' => __DIR__ . '/../..' . '/src/core/Directus/Application/Http/Middleware/AuthenticationMiddleware.php',
@@ -638,7 +639,6 @@ class ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a
         'Directus\\Mail\\TransportManager' => __DIR__ . '/../..' . '/src/core/Directus/Mail/TransportManager.php',
         'Directus\\Mail\\Transports\\AbstractTransport' => __DIR__ . '/../..' . '/src/core/Directus/Mail/Transports/AbstractTransport.php',
         'Directus\\Mail\\Transports\\SendMailTransport' => __DIR__ . '/../..' . '/src/core/Directus/Mail/Transports/SendMailTransport.php',
-        'Directus\\Mail\\Transports\\SimpleFileTransport' => __DIR__ . '/../..' . '/src/core/Directus/Mail/Transports/SimpleFileTransport.php',
         'Directus\\Mail\\Transports\\SmtpTransport' => __DIR__ . '/../..' . '/src/core/Directus/Mail/Transports/SmtpTransport.php',
         'Directus\\Permissions\\Acl' => __DIR__ . '/../..' . '/src/core/Directus/Permissions/Acl.php',
         'Directus\\Permissions\\Exception\\ForbiddenCollectionAlterException' => __DIR__ . '/../..' . '/src/core/Directus/Permissions/Exception/ForbiddenCollectionAlterException.php',
@@ -2963,10 +2963,10 @@ class ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit2761ab54a513b3db86658dbf9c5ac38a::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit03fd323c8f999d61dfaf5f19e934938c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit03fd323c8f999d61dfaf5f19e934938c::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit03fd323c8f999d61dfaf5f19e934938c::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit03fd323c8f999d61dfaf5f19e934938c::$classMap;
 
         }, null, ClassLoader::class);
     }
