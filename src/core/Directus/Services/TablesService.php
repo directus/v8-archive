@@ -815,8 +815,7 @@ class TablesService extends AbstractService
 
         $collectionObject = $this->getSchemaManager()->getCollection('directus_fields');
 
-        return $this->getFieldsTableGateway()->manageRecordUpdate(
-            'directus_fields',
+        return $this->getFieldsTableGateway()->createRecord(
             ArrayUtils::pick($data, $collectionObject->getFieldsName())
         );
     }
