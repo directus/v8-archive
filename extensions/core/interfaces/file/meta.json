@@ -1,6 +1,6 @@
 {
   "name": "$t:file",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "types": ["file"],
   "icon": "insert_drive_file",
   "recommended": {

@@ -29,7 +29,9 @@ export default {
         return [];
       }
 
-      const array = [...(this.type === "array" ? this.value : this.value.split(","))];
+      const array = [
+        ...(this.type === "array" ? this.value : this.value.split(","))
+      ];
 
       if (this.options.wrap) {
         array.pop();
