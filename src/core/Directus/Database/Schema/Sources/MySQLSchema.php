@@ -136,7 +136,7 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritDoc
      */
-    public function getFields($tableName, $params = null)
+    public function getFields($tableName, array $params = [])
     {
         return $this->getAllFields(array_merge($params, ['collection' => $tableName]));
     }
@@ -300,7 +300,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function getField($tableName, $columnName)
     {
-        return $this->getFields($tableName, ['field' => $columnName]);
+        return $this->getFields($tableName, ['field' => $columnName])->current();
     }
 
     /**
