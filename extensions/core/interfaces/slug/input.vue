@@ -34,7 +34,8 @@ export default {
       this.$emit(
         "input",
         slug(value, {
-          lower: this.options.forceLowercase
+          lower: this.options.forceLowercase,
+          remove: /[$*_+~.()'"!:@]/g
         })
       );
     }

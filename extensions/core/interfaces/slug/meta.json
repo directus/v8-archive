@@ -1,6 +1,6 @@
 {
   "name": "$t:slug",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "types": ["string"],
   "icon": "link",
   "recommended": {
