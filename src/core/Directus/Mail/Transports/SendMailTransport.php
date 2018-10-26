@@ -10,20 +10,18 @@ class SendMailTransport extends AbstractTransport
     protected $sendmail;
 
     /**
-     * @inheritdoc
-     */
-    public function send(\Swift_Mime_Message $message, &$failedRecipients = null)
-    {
-        return $this->getSendmail()->send($message, $failedRecipients);
-    }
-
-    /**
      * @return \Swift_SendmailTransport
      */
-    protected function getSendmail()
+    public function getSwiftTransport()
     {
         if (!$this->sendmail) {
-            $this->sendmail = \Swift_SendmailTransport::newInstance($this->config->get('sendmail'));
+            $command = $this->config->get('sendmail');
+
+            if ($command) {
+                $this->sendmail = \Swift_SendmailTransport::newInstance($command);
+            } else {
+                $this->sendmail = \Swift_SendmailTransport::newInstance();
+            }
         }
 
         return $this->sendmail;
