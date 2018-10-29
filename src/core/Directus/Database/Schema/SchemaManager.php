@@ -559,16 +559,6 @@ class SchemaManager
             $column['length'] = $column['char_length'];
         }
 
-        // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
-        // We reserved the word "NULL" on nullable data type to be actually null
-        if ($column['nullable'] === true && $column['default_value'] == 'NULL') {
-            $column['default_value'] = null;
-        }
-
-        if (DataTypes::isDateTimeType($column['type']) && is_valid_datetime($column['default_value'], $this->source->getDateTimeFormat())) {
-            $column['default_value'] = DateTimeUtils::createFromFormat($this->source->getDateTimeFormat(), $column['default_value'])->toISO8601Format();
-        }
-
         $castAttributesToBool = function (&$array, array $keys) {
             foreach ($keys as $key) {
                 $array[$key] = (bool) ArrayUtils::get($array, $key);
@@ -587,6 +577,16 @@ class SchemaManager
             'nullable',
             'readonly',
         ]);
+
+        // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
+        // We reserved the word "NULL" on nullable data type to be actually null
+        if ($column['nullable'] === true && $column['default_value'] == 'NULL') {
+            $column['default_value'] = null;
+        }
+
+        if (DataTypes::isDateTimeType($column['type']) && is_valid_datetime($column['default_value'], $this->source->getDateTimeFormat())) {
+            $column['default_value'] = DateTimeUtils::createFromFormat($this->source->getDateTimeFormat(), $column['default_value'])->toISO8601Format();
+        }
 
         return new Field($column);
     }
