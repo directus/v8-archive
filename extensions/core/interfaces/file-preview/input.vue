@@ -98,6 +98,12 @@ export default {
           "16:9": "16:9",
           "4:3": "4:3",
           "3:2": "3:2"
+        },
+        initOptions: {
+          background: false,
+          viewMode: 0,
+          autoCropArea: 1,
+          zoomable: false
         }
       }
     };
@@ -156,14 +162,18 @@ export default {
   },
   methods: {
     initImageEdit() {
-      this.editMode = "image";
       let _this = this;
+      this.editMode = "image";
+      this.image.show = false;
       let _image = document.getElementById("image");
       this.image.cropper = new Cropper(_image, {
-        background: false,
-        viewMode: 0,
-        autoCropArea: 1,
-        zoomable: false
+        ...this.image.initOptions
+      });
+      window.addEventListener("keydown", function escapeEditImage(e) {
+        if (_this.editMode == "image" && e.key == "Escape") {
+          _this.cancelImageEdit();
+          window.removeEventListener("keydown", escapeEditImage);
+        }
       });
     },
 
@@ -196,15 +206,28 @@ export default {
 
     rotateImage() {
       this.image.cropper.rotate(-90);
+      //TODO: Fix the image rotation issue
+      /**
+       * White rotating the image, the sides are getting cut of
+       * due to limitations of the cropper.js plugin
+       */
     },
 
     saveImage() {
+      //Running the rabbit
       let isSaving = this.$helpers.shortid.generate();
       this.$store.dispatch("loadingStart", {
         id: isSaving
       });
 
-      let _imageBase64 = this.image.cropper.getCroppedCanvas().toDataURL();
+      //Converting an image to base64
+      let _imageBase64 = this.image.cropper
+        .getCroppedCanvas({
+          imageSmoothingQuality: "high"
+        })
+        .toDataURL(this.values.type);
+
+      //Saving the image via API
       this.$api
         .patch(`/files/${this.values.id}`, {
           data: _imageBase64
@@ -223,7 +246,6 @@ export default {
         .then(() => {
           var _this = this;
           this.image.version++;
-          this.$store.dispatch("loadingFinished", isSaving);
           /**
            * This will wait for new cropped image to load from server
            * & then destroy the cropper instance
@@ -232,6 +254,7 @@ export default {
           const img = new Image();
           img.src = this.vUrl;
           img.onload = function() {
+            _this.$store.dispatch("loadingFinished", isSaving);
             _this.cancelImageEdit();
           };
         });
