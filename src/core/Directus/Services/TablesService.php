@@ -742,8 +742,12 @@ class TablesService extends AbstractService
         }
 
         if ($columnObject->isManaged()) {
-            $this->removeColumnInfo($collectionName, $fieldName);
-        }
+			$this->removeColumnInfo($collectionName, $fieldName);
+		}
+		
+		if ($columnObject->hasRelationship()) {
+			$this->removeRelationship($columnObject->getRelationship());
+		}
     }
 
     /**
@@ -856,6 +860,91 @@ class TablesService extends AbstractService
             'collection' => $collectionName,
             'field' => $fieldName
         ]);
+	}
+	
+	/**
+     * @param $collectionName
+     * @param $fieldName
+     *
+     * @return void
+     */
+    protected function removeRelationship($fieldRelationship)
+    {
+		$collectionOne  = $fieldRelationship->getCollectionOne();
+		$fieldOne       = $fieldRelationship->getFieldOne();
+		$collectionMany = $fieldRelationship->getCollectionMany();
+		$fieldMany      = $fieldRelationship->getFieldMany();
+
+		$relationsTableGateway = $this->createTableGateway('directus_relations');
+
+		if( $fieldRelationship->isOneToMany() ) { 
+
+			$selfOneToManyRecord = $relationsTableGateway->getItems([
+				'filter' => [
+					'collection_many' => $collectionMany,
+					'collection_one' => $collectionOne,
+					'field_one' => $fieldOne
+				]
+			]);
+
+			$selfOneToManyRecordData = ArrayUtils::get($selfOneToManyRecord, 'data');
+
+			if( count($selfOneToManyRecordData) > 0 ) {
+
+				$junctionField = ArrayUtils::get($selfOneToManyRecordData[0], 'junction_field');
+
+				if( $junctionField != null ) {
+					$relationsTableGateway->delete( [
+						'collection_many' => $collectionMany,
+						'field_many' => $junctionField,
+						'junction_field' => $fieldMany
+					] );
+				}
+
+			}
+
+			$relationsTableGateway->delete( [
+				'collection_many' => $collectionMany,
+				'collection_one' => $collectionOne,
+				'field_one' => $fieldOne
+			] );
+		}
+
+
+		if( $fieldRelationship->isManyToOne() ) { 
+
+			$selfOneToManyRecord = $relationsTableGateway->getItems([
+				'filter' => [
+					'collection_many' => $collectionMany,
+					'collection_one' => $collectionOne,
+					'field_many' => $fieldMany
+				]
+			]);
+
+			$selfOneToManyRecordData = ArrayUtils::get($selfOneToManyRecord, 'data');
+
+			if( count($selfOneToManyRecordData) > 0 ) {
+
+				$junctionField = ArrayUtils::get($selfOneToManyRecordData[0], 'junction_field');
+
+				if( $junctionField != null ) {
+					$relationsTableGateway->delete( [
+						'collection_many' => $collectionMany,
+						'field_many' => $junctionField,
+						'junction_field' => $fieldMany
+					] );
+				}
+
+			}
+
+			$relationsTableGateway->delete( [
+				'collection_many' => $collectionMany,
+				'collection_one' => $collectionOne,
+				'field_many' => $fieldMany
+			] );
+		}
+
+        
     }
 
     /**
