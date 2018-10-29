@@ -1570,3 +1570,21 @@ if (!function_exists('is_valid_datetime')) {
         return $datetime && $datetime->format($format) === $value;
     }
 }
+
+if (!function_exists('is_iso8601_datetime')) {
+    /**
+     * Checks if the given datetime string is a ISO 8601 datetime format
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_datetime($value)
+    {
+        $datetimeParts = explode('+', $value);
+
+        return count($datetimeParts) === 2
+            && is_valid_datetime($datetimeParts[0], 'Y-m-d\TH:i:s')
+            && is_valid_datetime($datetimeParts[1], 'H:i');
+    }
+}
