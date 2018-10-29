@@ -433,7 +433,7 @@ class CoreServicesProvider
 
                     if ($decode === true) {
                         $value = is_string($value) ? json_decode($value) : $value;
-                    } else {
+                    } else if ($value !== null) {
                         $value = !is_string($value) ? json_encode($value) : $value;
                     }
 
