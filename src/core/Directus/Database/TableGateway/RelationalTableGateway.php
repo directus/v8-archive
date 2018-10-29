@@ -1545,6 +1545,7 @@ class RelationalTableGateway extends BaseTableGateway
      * @param array $columns
      *
      * @throws Exception\InvalidFieldException
+     * @throws Exception\UnableSortAliasFieldException
      */
     protected function processSort(Builder $query, array $columns)
     {
@@ -1553,8 +1554,13 @@ class RelationalTableGateway extends BaseTableGateway
             $orderBy = key($compact);
             $orderDirection = current($compact);
 
-            if ($orderBy !== '?' && !SchemaService::hasCollectionField($this->table, $orderBy, $this->acl === null)) {
+            $field = SchemaService::getField($this->table, $orderBy, false, $this->acl === null);
+            if ($orderBy !== '?' && !$field) {
                 throw new Exception\InvalidFieldException($column);
+            }
+
+            if ($field->isAlias()) {
+                throw new Exception\UnableSortAliasFieldException($orderBy);
             }
 
             $query->orderBy($orderBy, $orderDirection, $this->shouldNullSortedLast());
