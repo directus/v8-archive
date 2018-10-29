@@ -6,6 +6,7 @@ use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Sources\SchemaInterface;
+use function Directus\is_valid_datetime;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 
@@ -564,8 +565,8 @@ class SchemaManager
             $column['default_value'] = null;
         }
 
-        if (DataTypes::isDateTimeType($column['type']) && $column['default_value'] !== null) {
-            $column['default_value'] = DateTimeUtils::createFromDefaultFormat($column['default_value'], 'UTC')->toISO8601Format();
+        if (DataTypes::isDateTimeType($column['type']) && is_valid_datetime($column['default_value'], $this->source->getDateTimeFormat())) {
+            $column['default_value'] = DateTimeUtils::createFromFormat($this->source->getDateTimeFormat(), $column['default_value'])->toISO8601Format();
         }
 
         $castAttributesToBool = function (&$array, array $keys) {

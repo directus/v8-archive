@@ -1553,3 +1553,20 @@ if (!function_exists('phinx_update')) {
         return sprintf('UPDATE %s SET %s WHERE %s;', $adapter->quoteTableName($table), $set, $where);
     }
 }
+
+if (!function_exists('is_valid_datetime')) {
+    /**
+     * Checks if the given datetime string has the given datetime format
+     *
+     * @param string $value
+     * @param string $format
+     *
+     * @return bool
+     */
+    function is_valid_datetime($value, $format)
+    {
+        $datetime = \DateTime::createFromFormat($format, $value);
+
+        return $datetime && $datetime->format($format) === $value;
+    }
+}
