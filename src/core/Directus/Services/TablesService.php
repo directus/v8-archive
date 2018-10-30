@@ -877,7 +877,7 @@ class TablesService extends AbstractService
 
 		$relationsTableGateway = $this->createTableGateway('directus_relations');
 
-		if( $fieldRelationship->isOneToMany() ) {
+		if($fieldRelationship->isOneToMany()){
 
 			$selfOneToManyRecord = $relationsTableGateway->getItems([
 				'filter' => [
@@ -889,11 +889,11 @@ class TablesService extends AbstractService
 
 			$selfOneToManyRecordData = ArrayUtils::get($selfOneToManyRecord, 'data');
 
-			if( count($selfOneToManyRecordData) > 0 ) {
+			if(count($selfOneToManyRecordData) > 0 ){
 
 				$junctionField = ArrayUtils::get($selfOneToManyRecordData[0], 'junction_field');
 
-				if( $junctionField != null ) {
+				if( $junctionField != null ){
 					$relationsTableGateway->delete( [
 						'collection_many' => $collectionMany,
 						'field_many' => $junctionField,
