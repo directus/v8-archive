@@ -235,11 +235,11 @@ class CoreServicesProvider
 
 
                 if ($dateCreated = $collection->getDateCreatedField()) {
-                    $payload[$dateCreated] = DateTimeUtils::nowInUTC()->toString();
+                    $payload[$dateCreated->getName()] = DateTimeUtils::nowInUTC()->toString();
                 }
 
-                if ($dateCreated = $collection->getDateModifiedField()) {
-                    $payload[$dateCreated] = DateTimeUtils::nowInUTC()->toString();
+                if ($dateModified = $collection->getDateModifiedField()) {
+                    $payload[$dateModified->getName()] = DateTimeUtils::nowInUTC()->toString();
                 }
 
                 // Directus Users created user are themselves (primary key)
