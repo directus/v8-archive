@@ -1581,10 +1581,13 @@ if (!function_exists('is_iso8601_datetime')) {
      */
     function is_iso8601_datetime($value)
     {
-        $datetimeParts = explode('+', $value);
+        $datetime = substr($value, 0, 19);
+        $offset = substr($value, -5, 5);
 
-        return count($datetimeParts) === 2
-            && is_valid_datetime($datetimeParts[0], 'Y-m-d\TH:i:s')
-            && is_valid_datetime($datetimeParts[1], 'H:i');
+        // TODO: It will be ideal to check for all ISO 8601 Formats
+        // NOTE: This only checks for the following format: 2018-10-31T15:01:35+00:00
+        return strlen($value) === 25
+            && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+            && is_valid_datetime($offset, 'H:i');
     }
 }
