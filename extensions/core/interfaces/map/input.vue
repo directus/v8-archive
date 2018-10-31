@@ -10,6 +10,12 @@
 
       <div class="map-actions">
         <!-- TODO: Add Geo Search Here -->
+        <input v-model="placeName" placeholder="Enter address to geocode"/>
+        <button
+          v-if="isInteractive"
+          @click="getCoordinatesforPlaceName(placeName)">
+          <i class="material-icons">add_location</i>
+        </button>
         <button
           v-if="isInteractive"
           class="map-my-location"
@@ -273,7 +279,23 @@ export default {
       }" stroke-width="1" stroke="${
         this.darkAccentColor
       }" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`;
-    }
+    },
+
+
+
+      // Place name for geocode lookup on openstreetmap database via Nominatim, Returns coordinates in [lat,lon]
+    getCoordinatesforPlaceName(placeName) {
+      axios
+        .get(
+          `https://nominatim.openstreetmap.org/search/${placeName}?format=geojson&addressdetails=1&limit=1`
+        )
+        .then(response => {
+          this.setValue(response.features[0].geometry.coordinates)
+        })
+        .catch(err => {
+          console.warn(err);
+        });
+        }
   }
 };
 </script>
