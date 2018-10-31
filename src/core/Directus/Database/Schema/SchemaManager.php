@@ -617,6 +617,13 @@ class SchemaManager
                     'collection_one' => static::COLLECTION_FILES,
                     'field_one' => 'id'
                 ]);
+            } else if (DataTypes::isUsersType($field->getType()) && !$field->getRelationship()) {
+                $field->setRelationship([
+                    'collection_many' => $field->getCollectionName(),
+                    'field_many' => $field->getName(),
+                    'collection_one' => static::COLLECTION_USERS,
+                    'field_one' => 'id'
+                ]);
             }
         }
 
