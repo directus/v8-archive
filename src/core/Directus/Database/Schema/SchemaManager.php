@@ -585,7 +585,7 @@ class SchemaManager
         }
 
         if (DataTypes::isDateTimeType($column['type']) && is_valid_datetime($column['default_value'], $this->source->getDateTimeFormat())) {
-            $column['default_value'] = DateTimeUtils::createFromFormat($this->source->getDateTimeFormat(), $column['default_value'])->toISO8601Format();
+            $column['default_value'] = DateTimeUtils::createDateFromFormat($this->source->getDateTimeFormat(), $column['default_value'])->toISO8601Format();
         }
 
         return new Field($column);
