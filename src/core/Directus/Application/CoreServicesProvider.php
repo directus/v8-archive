@@ -324,11 +324,11 @@ class CoreServicesProvider
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
                 if ($dateModified = $collection->getDateModifiedField()) {
-                    $payload[$dateModified] = DateTimeUtils::nowInUTC()->toString();
+                    $payload[$dateModified->getName()] = DateTimeUtils::nowInUTC()->toString();
                 }
 
                 if ($userModified = $collection->getUserModifiedField()) {
-                    $payload[$userModified] = $acl->getUserId();
+                    $payload[$userModified->getName()] = $acl->getUserId();
                 }
 
                 // NOTE: exclude date_uploaded from updating a file record
