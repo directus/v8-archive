@@ -37,6 +37,12 @@
       "comment": "$t:icon_right_comment",
       "interface": "icon",
       "advanced": true
+    },
+    "utc": {
+      "name": "$t:utc",
+      "comment": "$t:utc_comment",
+      "interface": "toggle",
+      "advanced": true
     }
   },
   "translation": {
@@ -53,7 +59,9 @@
       "icon_left": "Icon Left",
       "icon_left_comment": "Choose an optional icon to display on the left of the input",
       "icon_right": "Icon Right",
-      "icon_right_comment": "Choose an optional icon to display on the right of the input"
+      "icon_right_comment": "Choose an optional icon to display on the right of the input",
+      "utc": "Save as UTC",
+      "utc_comment": "Save to and display from UTC"
     }
   }
 }
