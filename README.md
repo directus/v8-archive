@@ -76,7 +76,7 @@ If you believe you've found a bug in the Directus Core codebase, please submit n
 
 ### Community Discussions
 
-Join us on [Slack](https://slack.directus.io) to talk to hundreds of members of the Directus community.
+Join us on [Slack](https://slack.getdirectus.com) to talk to hundreds of members of the Directus community.
 
 ### Updates & Social
 
@@ -104,7 +104,7 @@ We have two online demos available so you can easily check out Directus in actio
 Directus is a GPLv3-licensed open source project with development made possible by support from our core team, contributors, and sponsors. It's not easy building premium open-source software; if you would like to help ensure Directus stays free, please consider becoming a sponsor.
 
 * [Become a backer or sponsor through Patreon](https://www.patreon.com/directus)
-* [One-time donation through PayPal](https://paypal.com/directus)
+* [One-time donation through PayPal](https://www.paypal.me/supportdirectus)
 * [Other ways to help](https://docs.directus.io/supporting-directus.html)
 
 ### Sponsors
