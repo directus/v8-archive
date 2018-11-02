@@ -1422,42 +1422,6 @@ class RelationalTableGateway extends BaseTableGateway
     }
 
     /**
-     * Process column joins
-     *
-     * @param Builder $query
-     * @param array $joins
-     */
-    protected function processJoins(Builder $query, array $joins = [])
-    {
-        // @TODO allow passing columns
-        $columns = []; // leave as this and won't get any ambiguous columns
-        foreach ($joins as $table => $params) {
-            // TODO: Reduce this into a simpler instructions
-            // by simpler it means remove the duplicate join() line
-            if (isset($params['on'])) {
-                // simple joins style
-                // 'table' => ['on' => ['col1', 'col2'] ]
-                if (!isset($params['type'])) {
-                    $params['type'] = 'INNER';
-                }
-
-                $params['on'] = implode('=', $params['on']);
-
-                $query->join($table, $params['on'], $columns, $params['type']);
-            } else {
-                // many join style
-                // 'table' => [ ['on' => ['col1', 'col2'] ] ]
-                foreach ($params as $method => $options) {
-                    if (! isset($options['type'])) {
-                        $options['type'] = 'INNER';
-                    }
-                    $query->join($table, $options['on'], $columns, $options['type']);
-                }
-            }
-        }
-    }
-
-    /**
      * Process group-by
      *
      * @param Builder $query
