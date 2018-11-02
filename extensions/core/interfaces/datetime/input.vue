@@ -22,8 +22,10 @@ export default {
     formattedValue() {
       if (!this.value) return null;
 
-      if (this.value.includes("T") && this.options.utc) {
-        return this.value.substring(0, 16);
+      if (this.options.utc) {
+        return this.value.includes("T")
+          ? this.value.substring(0, 16)
+          : this.toDatetimeLocal(new Date(this.value.replace(" ", "T") + "Z"));
       }
 
       return this.toDatetimeLocal(new Date(this.value));
