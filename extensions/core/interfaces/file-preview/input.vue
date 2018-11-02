@@ -192,7 +192,7 @@ export default {
           aspectRatio = this.image.cropper.getImageData().aspectRatio;
           break;
         default:
-          let values = value.split(":");
+          const values = value.split(":");
           aspectRatio = values[0] / values[1];
           break;
       }
