@@ -22,18 +22,18 @@
 
       <!-- Default Toolbar -->
       <div v-if="!editMode" class="original">
-        <a 
-          class="file-link" 
-          :href="url" 
+        <a
+          class="file-link"
+          :href="url"
           target="_blank">
           <i class="material-icons">link</i>
           {{url}}
         </a>
-        <button 
-          v-if="isImage && options.edit.includes('image_editor')" 
+        <button
+          v-if="isImage && options.edit.includes('image_editor')"
           type="button"
           title="Edit image"
-          class="image-edit-start" 
+          class="image-edit-start"
           @click="initImageEdit()">
           <i class="material-icons">crop_rotate</i>
         </button>
@@ -162,16 +162,15 @@ export default {
   },
   methods: {
     initImageEdit() {
-      let _this = this;
       this.editMode = "image";
       this.image.show = false;
-      let _image = document.getElementById("image");
-      this.image.cropper = new Cropper(_image, {
+      const image = document.getElementById("image");
+      this.image.cropper = new Cropper(image, {
         ...this.image.initOptions
       });
-      window.addEventListener("keydown", function escapeEditImage(e) {
-        if (_this.editMode == "image" && e.key == "Escape") {
-          _this.cancelImageEdit();
+      window.addEventListener("keydown", e => {
+        if (this.editMode == "image" && e.key == "Escape") {
+          this.cancelImageEdit();
           window.removeEventListener("keydown", escapeEditImage);
         }
       });
@@ -184,20 +183,20 @@ export default {
     },
 
     setAspectRatio(value) {
-      let _aspectRatio;
+      let aspectRatio;
       switch (value) {
         case "free":
-          _aspectRatio = "free";
+          aspectRatio = "free";
           break;
         case "original":
-          _aspectRatio = this.image.cropper.getImageData().aspectRatio;
+          aspectRatio = this.image.cropper.getImageData().aspectRatio;
           break;
         default:
-          let _values = value.split(":");
-          _aspectRatio = _values[0] / _values[1];
+          let values = value.split(":");
+          aspectRatio = values[0] / values[1];
           break;
       }
-      this.image.cropper.setAspectRatio(_aspectRatio);
+      this.image.cropper.setAspectRatio(aspectRatio);
     },
 
     flipImage() {
@@ -215,13 +214,13 @@ export default {
 
     saveImage() {
       //Running the rabbit
-      let isSaving = this.$helpers.shortid.generate();
+      const isSaving = this.$helpers.shortid.generate();
       this.$store.dispatch("loadingStart", {
         id: isSaving
       });
 
       //Converting an image to base64
-      let _imageBase64 = this.image.cropper
+      const imageBase64 = this.image.cropper
         .getCroppedCanvas({
           imageSmoothingQuality: "high"
         })
@@ -230,7 +229,7 @@ export default {
       //Saving the image via API
       this.$api
         .patch(`/files/${this.values.id}`, {
-          data: _imageBase64
+          data: imageBase64
         })
         .then(res => {
           this.$events.emit("success", {
@@ -244,7 +243,6 @@ export default {
           });
         })
         .then(() => {
-          var _this = this;
           this.image.version++;
           /**
            * This will wait for new cropped image to load from server
@@ -253,9 +251,9 @@ export default {
            */
           const img = new Image();
           img.src = this.vUrl;
-          img.onload = function() {
-            _this.$store.dispatch("loadingFinished", isSaving);
-            _this.cancelImageEdit();
+          img.onload = () => {
+            this.$store.dispatch("loadingFinished", isSaving);
+            this.cancelImageEdit();
           };
         });
     }
