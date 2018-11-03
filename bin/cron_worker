@@ -73,7 +73,7 @@ set_error_handler(function(int $errno , string $errstr){
 $task_class_namespace = $config['tasks']['namespace'];
 
 // Check direcory selected for the Tasks
-$class_dir_path = $config['tasks']['path'];
+$class_dir_path = BASE_PATH . DS . $config['tasks']['path'];
 
 if(!file_exists($class_dir_path)){
 	
@@ -108,7 +108,7 @@ foreach($config['tasks']['queues'] as $queue => $tasks){
 
 					try{
 
-						$class_full_path = BASE_PATH . DS . $class_dir_path . DS . $class_path . '.php';
+						$class_full_path = $class_dir_path . DS . $class_path . '.php';
 
 						if(!in_array($class_path, $loaded_class)){
 
