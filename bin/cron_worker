@@ -1,0 +1,200 @@
+#!/usr/bin/env php
+
+<?php
+
+// create show message Function
+function showMessage($text, $exit = false){
+	$now = date('Y-m-d H:i:s');
+	echo "[$now] - $text" . PHP_EOL . PHP_EOL;
+	if($exit){
+		showMessage('Worker done.');
+		exit;
+	}
+}
+
+define('DS', DIRECTORY_SEPARATOR);
+define('BASE_PATH', realpath(__DIR__ . DS . '..' . DS));
+
+// Composer Autoloader
+$loader = require BASE_PATH . DS . 'vendor' . DS . 'autoload.php';
+
+// Load configurations
+$config = require BASE_PATH . DS . 'config' . DS . 'api.php';
+
+// Set database settings
+$context = \Directus\Task\Task::getContext($config['database'], true);
+
+$exit_on_error = true;
+
+$mode = 'Exit-On-First-Error';
+
+// Looking for initialize and mode type requests by command line interface
+if(sizeof($argv) > 1){
+
+	if(strtolower($argv[1]) === 'init'){
+
+		$context->createDataBaseTable();
+
+		showMessage('Worker has been initialized successfully', true);
+	}
+
+	if(strtolower($argv[1]) === 'ignore-errors'){
+
+		$mode = 'Ignore-Errors';
+		$exit_on_error = false;
+	}
+}
+
+showMessage("Worker started with ($mode) mode...");
+
+$loaded_class = [];
+
+$last_message = null;
+$last_consumer = null;
+$class_full_path = null;
+
+// Catch any jobs may fall into fatal error, so requeue them again,
+// hoping they will got fixed later, this preserve the system integrity.
+set_error_handler(function(int $errno , string $errstr){
+
+	global $last_message;
+	global $last_consumer;
+	global $exit_on_error;
+
+	if($last_consumer && $last_message){
+		// Reject and requeue
+		$last_consumer->reject($last_message, true);
+	}
+
+	showMessage("Error($errno): $errstr", $exit_on_error);
+});
+
+// Get namespace for the Tasks
+$task_class_namespace = $config['tasks']['namespace'];
+
+// Check direcory selected for the Tasks
+$class_dir_path = $config['tasks']['path'];
+
+if(!file_exists($class_dir_path)){
+	
+	showMessage("Tasks direcory($class_dir_path) not found!", true);
+}
+
+$last_queue = array_keys($config['tasks']['queues']);
+$last_queue_name = end($last_queue);
+
+foreach($config['tasks']['queues'] as $queue => $tasks){
+
+	$is_last_queue = $queue === $last_queue_name;
+
+	$last_consumer = $consumer = $context->createConsumer(
+		$context->createQueue($queue)
+	);
+
+	showMessage("Search for jobs at ($queue) queue...");
+
+	for(;;){
+
+		$exception = null;
+		$is_consumed = false;
+
+		$last_message = $message = $consumer->receive(1);
+
+		if($message){
+
+			foreach($tasks as $task => $class_path){
+
+				if($task === $message->getBody()){
+
+					try{
+
+						$class_full_path = BASE_PATH . DS . $class_dir_path . DS . $class_path . '.php';
+
+						if(!in_array($class_path, $loaded_class)){
+
+							showMessage("Loading ($class_full_path)...");
+
+							require $class_full_path;
+
+							$loaded_class[] = $class_path;
+							
+						}else{
+
+							showMessage("Reading ($class_full_path)...");
+						}
+
+						$path_sections = explode(DS, $class_path);
+						$class_name = $task_class_namespace . "\\" . end($path_sections);
+
+						// throw exception if class not exists
+						if (!class_exists($class_name)) {
+							throw new \Exception("Task ({$class_name}) not found");
+						}
+
+						if(!$exception){
+
+							$task = new $class_name();
+
+							if($task instanceof \Directus\Task\TaskInterface){
+
+								$task->handle($message, $consumer);
+
+								$is_consumed = true;
+
+							}else{
+
+								throw new \Exception(
+									"Task ({$class_name}) does not implement (\\Directus\\Task\\TaskInterface) interface"
+								);
+							}
+						}
+
+					}catch(\Exception $ex){
+						// Postpone exceptions, to do safe requeue later
+						$exception = $ex;
+					}
+				}
+			}
+		}
+
+		if(!$is_consumed && $message){
+
+			// Reject and requeue
+			$consumer->reject($message, true);
+
+			$task = $message->getBody();
+
+			showMessage("Error: Task ($task) was not consumed in the ($queue) queue.");
+
+			if(!$is_last_queue){
+				break;
+			}
+
+			// Then
+			if($exception){
+				
+				throw $exception;
+
+			}else{
+				
+				if($class_full_path){
+
+					showMessage("Error: Class ($class_full_path) not found.", $exit_on_error);
+					
+				}else{
+
+					showMessage("Error: Task Class for ($task) not specified.", $exit_on_error);
+				}
+			}
+		}
+
+		// No more messages
+		if(!$message){
+			break; // The infinite loop
+		}
+	}
+}
+
+showMessage('Worker done.');
+
+?>
