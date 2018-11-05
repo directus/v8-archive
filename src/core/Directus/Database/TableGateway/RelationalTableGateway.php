@@ -1650,7 +1650,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getCollectionMany();
-            if ($this->acl && !SchemaService::canGroupReadCollection($relatedTableName)) {
+            if ($this->acl && !$this->acl->canReadOnce($relatedTableName)) {
                 continue;
             }
 
@@ -1758,7 +1758,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             // if user doesn't have permission to view the related table
             // fill the data with only the id, which the user has permission to
-            if ($this->acl && !SchemaService::canGroupReadCollection($relatedTable)) {
+            if ($this->acl && !$this->acl->canReadOnce($relatedTable)) {
                 $tableGateway = new RelationalTableGateway($relatedTable, $this->adapter, null);
                 $primaryKeyName = $tableGateway->primaryKeyFieldName;
 
