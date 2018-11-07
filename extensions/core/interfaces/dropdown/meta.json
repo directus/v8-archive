@@ -1,6 +1,6 @@
 {
   "name": "$t:dropdown",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "types": ["string"],
   "icon": "arrow_drop_down_circle",
   "recommended": {
@@ -50,7 +50,8 @@
       "formatting_comment": "Render the values as the display values",
       "placeholder_default": "Choose an option...",
       "icon": "Icon",
-      "icon_comment": "Choose an optional icon to display on the left of the input"
+      "icon_comment": "Choose an optional icon to display on the left of the input",
+      "options_invalid": "The JSON options provided for the dropdown are invalid:"
     }
   }
 }
