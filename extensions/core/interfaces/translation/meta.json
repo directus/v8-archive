@@ -23,9 +23,9 @@
     "en-US": {
       "translation": "Translation",
       "languages_collection": "Languages Collection",
-      "languages_collection_comment": "What collection holds the languages you want to use?",
+      "languages_collection_comment": "Collection that stores the language options",
       "languages_primary": "Language Primary Key Field",
-      "languages_primary_comment": "What field holds the language's primary key?",
+      "languages_primary_comment": "Field that stores the language code on the translation collection",
       "translation_not_setup": "Interface not configured correctly",
       "save_first": "You have to save this item before you can use translations"
     }
