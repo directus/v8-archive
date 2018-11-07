@@ -12,6 +12,7 @@ use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
 use Directus\Permissions\Exception\PermissionException;
 use Directus\Permissions\Exception\UnableFindOwnerItemsException;
@@ -1342,7 +1343,13 @@ class RelationalTableGateway extends BaseTableGateway
             $arguments[] = $logical;
         }
 
-        if (in_array($operator, ['all', 'has']) && $field->isOneToMany()) {
+        if (in_array($operator, ['all', 'has'])) {
+            if (!$field->isOneToMany()) {
+                throw new UnprocessableEntityException(
+                    sprintf('Operator "%s" only works for one-to-many fields', $operator)
+                );
+            }
+
             if ($operator == 'all' && is_string($value)) {
                 $value = array_map(function ($item) {
                     return trim($item);
