@@ -15,6 +15,7 @@ export default {
   mixins: [mixin],
   computed: {
     userID() {
+      if (!this.value) return null;
       if (typeof this.value === "object") return this.value.id;
       return this.value;
     },
