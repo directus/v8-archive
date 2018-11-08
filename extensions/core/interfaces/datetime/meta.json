@@ -2,7 +2,7 @@
   "name": "$t:datetime",
   "version": "1.0.1",
   "types": ["datetime", "datetime_updated", "datetime_created"],
-  "icon": "event",
+  "icon": "access_time",
   "options": {
     "min": {
       "name": "$t:min",
