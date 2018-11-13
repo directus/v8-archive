@@ -2,6 +2,12 @@
   "name": "directus/api",
   "license": "GPL-3.0-only",
   "description": "Directus 7 API wrapper for custom SQL databases",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/wellingguzman/zend-db"
+    }
+  ],
   "require": {
     "php": ">=5.6.0",
     "slim/slim": "^3.0.0",
@@ -51,11 +57,5 @@
     "files": [
       "src/helpers/all.php"
     ]
-  },
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://github.com/wellingguzman/zend-db"
-    }
-  ]
+  }
 }
