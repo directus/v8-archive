@@ -10,7 +10,7 @@ export default {
   computed: {
     displayValue() {
       let value = this.value;
-
+      debugger; //eslint-disable-line
       if (value) {
         const choices =
           typeof this.options.choices === "string"
@@ -21,7 +21,7 @@ export default {
           value = value.slice(1, -1);
         }
 
-        value = value.split(",");
+        // value = value.split(",");
 
         value = value
           .map(val => {

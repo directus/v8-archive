@@ -49,6 +49,7 @@ export default {
         value = `,${value},`;
       }
 
+      value = value.split(",");
       this.$emit("input", value);
     }
   }
