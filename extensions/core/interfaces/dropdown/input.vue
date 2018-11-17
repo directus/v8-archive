@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       parseError: null
-    }
+    };
   },
   computed: {
     choices() {
@@ -36,7 +36,7 @@ export default {
       if (typeof this.options.choices === "string") {
         try {
           choices = JSON.parse(this.options.choices);
-        } catch(error) {
+        } catch (error) {
           this.parseError = error.toString();
         }
       }
