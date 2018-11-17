@@ -310,6 +310,9 @@ export default {
 
       const savedRelatedPKs = (this.value || [])
         .filter(val => !val.$delete)
+        // Filter out non-existing relationships (eg the related item has been
+        // deleted)
+        .filter(val => val[this.junctionRelatedKey])
         .map(val => val[this.junctionRelatedKey][this.relatedKey]);
 
       const selectedPKs = this.selection.map(item => item[this.relatedKey]);
