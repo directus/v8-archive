@@ -245,17 +245,22 @@ class Files
         // @TODO: merge with upload()
         $fileName = $this->getFileName($fileName, $replace !== true);
 
+        //#? This variable is may unnecessary. Here the path to root is added
         $filePath = $this->getConfig('root') . '/' . $fileName;
 
         $this->emitter->run('file.save', ['name' => $fileName, 'size' => strlen($fileData)]);
-        $this->write($fileName, $fileData, $replace);
+        $fileInfo = $this->write($fileName, $fileData, $replace);//fileInfo from custom Adapter
         $this->emitter->run('file.save:after', ['name' => $fileName, 'size' => strlen($fileData)]);
 
-        unset($fileData);
+        if(is_array($fileInfo) && isset($fileInfo['fileName'])) {
+            $fileData = $this->getFileInfo($fileInfo['fileName']);
+            $fileData['filename'] = $fileInfo['fileName'];
+        } else {
+            $fileData = $this->getFileInfo($fileName);
+            $fileData['filename'] = basename($filePath);//#? Here the path is removed
+        }
 
-        $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
-        $fileData['filename'] = basename($filePath);
         $fileData['storage'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
@@ -427,11 +432,13 @@ class Files
      * @param $data
      * @param bool $replace
      *
+     * @return array|null - array if League\Flysystem\Filesystem::write() is overload
+     *
      * @throws \RuntimeException
      */
     public function write($location, $data, $replace = false)
     {
-        $this->filesystem->write($location, $data, $replace);
+        return $this->filesystem->write($location, $data, $replace);
     }
 
     /**

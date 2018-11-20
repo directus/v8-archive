@@ -19,6 +19,9 @@ class FilesystemFactory
             case 's3':
                 return self::createS3Adapter($config, $rootKey);
                 break;
+            case 'custom':
+                return self::createCustomAdapter($config, $rootKey);
+                break;
             case 'local':
             default:
                 return self::createLocalAdapter($config, $rootKey);
@@ -52,5 +55,14 @@ class FilesystemFactory
         ]);
 
         return new Flysystem(new S3Adapter($client, $config['bucket'], array_get($config, $rootKey)));
+    }
+
+    public static function createCustomAdapter(Array $config, $rootKey = 'root')
+    {
+        if(isset($config['class_filesystem']) && class_exists($config['class_filesystem'])) {
+            return new $config['class_filesystem'](new $config['class_adapter']($config, $rootKey));
+        }
+
+        return new Flysystem(new $config['class_adapter']($config, $rootKey));
     }
 }

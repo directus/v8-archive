@@ -49,6 +49,8 @@ class Filesystem
      * @param string $location
      * @param $data
      * @param bool $replace
+     *
+     * @return array|null - array if League\Flysystem\Filesystem::write() is overload
      */
     public function write($location, $data, $replace = false)
     {
@@ -61,12 +63,14 @@ class Filesystem
         }
 
         try {
-            if (!$this->getAdapter()->write($location, $data)) {
+            if (!$fileInfo = $this->getAdapter()->write($location, $data)) {
                 $throwException();
             }
         } catch (\Exception $e) {
             $throwException();
         }
+
+        return is_array($fileInfo) ? $fileInfo : null; //null for a better legacy. In the past method return void.
     }
 
     /**

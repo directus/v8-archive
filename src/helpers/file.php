@@ -84,13 +84,19 @@ if (!function_exists('append_storage_information'))
             explode(',', get_directus_setting('thumbnail', 'dimensions'))
         );
 
-        // Add default size
-        array_unshift($thumbnailDimensions, '200x200');
+        // Add default size. If it is not already set up in the database.
+        if(!in_array('200x200', $thumbnailDimensions)) {
+             array_unshift($thumbnailDimensions, '200x200');
+        }
 
         $config = $container->get('config');
         $fileRootUrl = $config->get('storage.root_url');
         $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
+
         $isLocalStorageAdapter = $config->get('storage.adapter') == 'local';
+        $adapterType = $config->get('storage.adapter');
+        $thumbnailsHook = $config->get('storage.thumbnails_hook');
+
         $list = isset($rows[0]);
 
         if (!$list) {
@@ -108,27 +114,48 @@ if (!function_exists('append_storage_information'))
                 $data['full_url'] = get_url($data['url']);
             }
 
-            // Add Thumbnails
-            foreach (array_unique($thumbnailDimensions) as $dimension) {
-                if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
-                    $thumbnailExtension = Thumbnail::defaultFormat();
-                }
+            // Add Thumbnails if custom storage
+            if($adapterType === 'custom' && $thumbnailsHook instanceof \Closure && !!$hasFileRootUrlHost) {
+                 foreach (array_unique($thumbnailDimensions) as $dimension) {
 
-                if (!is_string($dimension)) {
-                    continue;
-                }
+                    if (!is_string($dimension)) {
+                        continue;
+                    }
 
-                $size = explode('x', $dimension);
-                if (count($size) == 2) {
-                    $thumbnailUrl =  get_thumbnail_url($row['filename'], $size[0], $size[1]);
-                    $thumbnailRelativeUrl = get_thumbnail_path($row['filename'], $size[0], $size[1]);
-                    $data['thumbnails'][] = [
-                        'url' => $thumbnailUrl,
-                        'relative_url' => $thumbnailRelativeUrl,
-                        'dimension' => $dimension,
-                        'width' => (int) $size[0],
-                        'height' => (int) $size[1]
-                    ];
+                    $size = explode('x', $dimension);
+                    if (count($size) == 2) { 
+                        $data['thumbnails'][] = $thumbnailsHook([
+                            'url' => $data['url'],
+                            'relative_url' =>  parse_url($data['url'], PHP_URL_PATH),
+                            'dimension' => $dimension,
+                            'width' => (int) $size[0],
+                            'height' => (int) $size[1]
+                        ]);
+                    }
+                 }
+            } else {
+                // Add Thumbnails
+                foreach (array_unique($thumbnailDimensions) as $dimension) {
+                    if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
+                        $thumbnailExtension = Thumbnail::defaultFormat();
+                    }
+
+                    if (!is_string($dimension)) {
+                        continue;
+                    }
+
+                    $size = explode('x', $dimension);
+                    if (count($size) == 2) {
+                        $thumbnailUrl =  get_thumbnail_url($row['filename'], $size[0], $size[1]);
+                        $thumbnailRelativeUrl = get_thumbnail_path($row['filename'], $size[0], $size[1]);
+                        $data['thumbnails'][] = [
+                            'url' => $thumbnailUrl,
+                            'relative_url' => $thumbnailRelativeUrl,
+                            'dimension' => $dimension,
+                            'width' => (int) $size[0],
+                            'height' => (int) $size[1]
+                        ];
+                    }
                 }
             }
 

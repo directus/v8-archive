@@ -69,7 +69,48 @@ return [
         //   'version' => 's3-version',
         //   'bucket' => 's3-bucket'
     ],
-
+    /*
+    //Custom srorage
+    'storage' => [
+        'adapter' => 'custom',
+        'root' => '/',
+        //If you have on your CDN different paths for images and docs. Can be you use a little tweak.
+        //Remove /img from 'root_url' and 'thumb_root' and modify your adapter response for the method write().
+        //From ['fileName' => image.jpg] to ['fileName' => img/image.jpg]. Directus can handle this. But here 
+        //is one disclaimer. With the tweak, you have to use 'thumbnails_hook' minimally in default form. Because
+        //Thumbnailer can not handle this.
+        'root_url'   => 'https://cdn.example.com/img',
+        'thumb_root' => 'https://cdn.example.com/img',
+        // class_adapter is required. 
+        // The namespace of your Adapter which implements \League\Flysystem\Adapter\AdapterInterface.
+        // This confing is accesible in Adapater in constructor.
+        'class_adapter'  => \Some\Name\Adapter::class,
+        // class_filesystem is optional. 
+        // The namespace of your Filesystem which extends \League\Flysystem\Filesystem
+        // This is needed if your storage(CDN) is changing the file name. Also need when you use the tweak.
+        // You have to overload \League\Flysystem\Filesystem::write() and remove retyping to boolean and return 
+        // ['fileName' => 'image.jpg']
+        'class_filesystem'  => \Some\Name\Filesystem::class,
+        // Domain for uploading is optional. Can be used in your Adapter.
+        'upload_url'  => 'https://upload.cdn.example.com',
+        // Hook for thumbnails is optional. Can be used if your thumbnails are accessible via file name(example)
+        // or you just do not want use Thumbnailer or you have to when use tweak with fileName. The minimal form
+        // is just return $thumbnail with no modification. If 'thumbnails_hook' is comment Directus take control and thumbnails are
+        // made same as for S3.
+        'thumbnails_hook' => function ($thumbnail) {
+            //default
+            return $thumbnail;
+            //Example: https://cdn.example.com/image/123456.jpg -> https://cdn.example.com/image/123456_w200_h200.jpg
+            //return [
+            //    'url' => preg_replace("/(.jpg$|.png$)/", "_rw".$thumbnail['width']."_rh".$thumbnail['height']."$1", $thumbnail['url']),
+            //    'relative_url' =>  preg_replace("/(.jpg$|.png$)/", "_rw".$thumbnail['width']."_rh".$thumbnail['height']."$1", $thumbnail['relative_url']),
+            //    'dimension' =>  $thumbnail['dimension'],
+            //    'width' => $thumbnail['width'],
+            //    'height' => $thumbnail['height'],
+            //];
+        },
+    ],
+    */
     'mail' => [
         'default' => [
             'transport' => 'sendmail',
