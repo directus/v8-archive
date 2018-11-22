@@ -4,7 +4,7 @@
   "types": ["string"],
   "icon": "text_fields",
   "recommended": {
-    "length": 2000
+    "length": 65534
   },
   "options": {
     "rows": {

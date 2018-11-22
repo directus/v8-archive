@@ -4,7 +4,7 @@
   "types": ["string"],
   "icon": "format_quote",
   "recommended": {
-    "length": 10000
+    "length": 65534
   },
   "options": {
     "placeholder": {
