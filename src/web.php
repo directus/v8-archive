@@ -1,5 +1,29 @@
 <?php
 
+// =============================================================================
+// Fast response to OPTIONS requests
+// =============================================================================
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+
+    header("Access-Control-Allow-Origin: *");
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400'); // cache for 1 day
+
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+        header("Access-Control-Allow-Methods: GET,POST,PUT,PATCH,DELETE,HEAD");
+    }
+
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+        header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+    }
+
+    die();
+}
+
+// ----------------------------------------------------------------------------
+
+
 $basePath =  realpath(__DIR__ . '/../');
 $configPath = $basePath . '/config';
 $configFilePath = $configPath . '/api.php';
