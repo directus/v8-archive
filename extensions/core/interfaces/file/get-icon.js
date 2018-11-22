@@ -1,4 +1,9 @@
 export default function getIcon(type) {
+
+  if (type === "application/pdf") {
+    return "picture_as_pdf";
+  }
+
   if (type.startsWith("application")) {
     return "insert_drive_file";
   }

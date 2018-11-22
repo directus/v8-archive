@@ -5,7 +5,9 @@
       class="card"
       :title="value.title"
       :subtitle="subtitle"
-      :src="value.data.full_url"
+      :src="src"
+      :icon="icon"
+      :href="href"
       :options="{
         remove: {
           text: $t('delete'),
@@ -58,6 +60,7 @@
 
 <script>
 import mixin from "../../../mixins/interface";
+import getIcon from "./get-icon";
 
 export default {
   mixins: [mixin],
@@ -81,6 +84,15 @@ export default {
         " • " +
         this.$d(new Date(this.value.uploaded_on), "short")
       );
+    },
+    src() {
+      return this.value.type && this.value.type.startsWith("image") ? this.value.data.full_url : null;
+    },
+    icon() {
+      return this.value.type && !this.value.type.startsWith("image") ? getIcon(this.value.type) : null;
+    },
+    href() { 
+      return this.value.type && this.value.type === "application/pdf" ? this.value.data.full_url : null;
     },
     viewOptions() {
       const viewOptions = this.options.viewOptions;
