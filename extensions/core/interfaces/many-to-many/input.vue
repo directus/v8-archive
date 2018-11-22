@@ -27,7 +27,17 @@
             @click="editExisting = item">
             <div
               v-for="column in columns"
-              :key="column.field">{{ item[junctionRelatedKey][column.field] }}</div>
+              :key="column.field"
+              class="no-wrap">
+              <v-ext-display
+                :interface-type="column.fieldInfo.interface"
+                :name="column.field"
+                :type="column.fieldInfo.type"
+                :datatype="column.fieldInfo.datatype"
+                :options="column.fieldInfo.options"
+                :value="item[junctionRelatedKey][column.field]"
+              />
+            </div>
             <button
               type="button"
               class="remove-item"
@@ -197,7 +207,9 @@ export default {
     },
     columns() {
       if (this.relationSetup === false) return null;
+
       return this.visibleFields.map(field => ({
+        fieldInfo: this.relatedCollectionFields[field],
         field,
         name: this.$helpers.formatTitle(field)
       }));
