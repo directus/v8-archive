@@ -1,6 +1,6 @@
 {
   "name": "$t:input",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "icon": "translate",
   "types": ["string", "lang"],
   "recommended": {
@@ -12,7 +12,7 @@
       "comment": "$t:limit_comment",
       "interface": "toggle",
       "default": false
-    },
+    }
   },
   "translation": {
     "en-US": {
