@@ -1,14 +1,14 @@
 <template>
   <v-popover trigger="hover">
     <div class="readonly-many-to-many">
-      {{ $tc('item_count', (value || []).length, { count: (value || []).length })}}
+      {{
+        $tc("item_count", (value || []).length, { count: (value || []).length })
+      }}
     </div>
 
     <template slot="popover">
       <ul class="list">
-        <li v-for="(val, i) in value" :key="i">
-          {{ render(val) }}
-        </li>
+        <li v-for="(val, i) in value" :key="i">{{ render(val) }}</li>
       </ul>
     </template>
   </v-popover>

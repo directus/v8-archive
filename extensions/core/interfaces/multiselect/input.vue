@@ -2,21 +2,20 @@
   <select
     :disabled="readonly"
     class="select"
-    @change="updateValue($event.target.options)"
+    @change="updateValue($event.target.options);"
     :id="name"
     multiple
   >
-    <option
-      v-if="options.placeholder"
-      value=""
-      :disabled="required"
-    >{{options.placeholder}}</option>
+    <option v-if="options.placeholder" value="" :disabled="required">{{
+      options.placeholder
+    }}</option>
     <option
       v-for="(display, val) in choices"
       :key="val"
       :value="val"
       :selected="value && value.includes(val)"
-    >{{display}}</option>
+      >{{ display }}</option
+    >
   </select>
 </template>
 

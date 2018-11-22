@@ -1,14 +1,20 @@
 <template>
-  <div :class="['rating-stars',{'rating-readonly':readonly},{'rating-small':small}]">
+  <div
+    :class="[
+      'rating-stars',
+      { 'rating-readonly': readonly },
+      { 'rating-small': small }
+    ]"
+  >
     <button
       v-for="n in options.max_stars"
-      @mouseenter="readonly?'':hovered = n"
-      @mouseleave="readonly?'':hovered = null"
-      @click="readonly?'':set(n)"
+      @mouseenter="readonly ? '' : (hovered = n);"
+      @mouseleave="readonly ? '' : (hovered = null);"
+      @click="readonly ? '' : set(n);"
       :class="ratingClass(n)"
       :style="ratingStyle(n)"
-      :key="`star_${n}`">
-    </button>
+      :key="`star_${n}`"
+    ></button>
   </div>
 </template>
 

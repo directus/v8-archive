@@ -16,9 +16,10 @@
     :manual-sort-field="sortField"
     @sort="sort"
     @widths="setWidths"
-    @select="$emit('select', $event)"
-    @scroll-end="$emit('next-page')"
-    @input="$emit('input', $event)"></v-table>
+    @select="$emit('select', $event);"
+    @scroll-end="$emit('next-page');"
+    @input="$emit('input', $event);"
+  ></v-table>
 </template>
 
 <script>
@@ -38,11 +39,13 @@ export default {
           .slice(0, 4)
           .map(field => field.field);
 
-      return queryFields.filter(field => this.fields[field]).map(fieldID => {
-        const fieldInfo = this.fields[fieldID];
-        const name = fieldInfo.name;
-        return { field: fieldID, name, fieldInfo };
-      });
+      return queryFields
+        .filter(field => this.fields[field])
+        .map(fieldID => {
+          const fieldInfo = this.fields[fieldID];
+          const name = fieldInfo.name;
+          return { field: fieldID, name, fieldInfo };
+        });
     },
     rowHeight() {
       if (this.viewOptions.spacing === "comfortable") {

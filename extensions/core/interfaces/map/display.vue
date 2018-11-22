@@ -1,9 +1,8 @@
 <template>
   <div class="readonly-map">
-    <i
-      v-tooltip="location"
-      :class="value?'':'empty'"
-      class="material-icons">place</i>
+    <i v-tooltip="location" :class="value ? '' : 'empty'" class="material-icons"
+      >place</i
+    >
   </div>
 </template>
 

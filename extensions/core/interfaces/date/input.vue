@@ -8,7 +8,8 @@
     :max="options.max"
     :readonly="readonly"
     :value="value"
-    @input="$emit('input', $event)"></v-input>
+    @input="$emit('input', $event);"
+  ></v-input>
 </template>
 
 <script>

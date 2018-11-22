@@ -10,7 +10,8 @@
     :value="formattedValue"
     :icon-left="options.iconLeft"
     :icon-right="options.iconRight"
-    @input="updateValue"></v-input>
+    @input="updateValue"
+  ></v-input>
 </template>
 
 <script>

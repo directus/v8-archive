@@ -1,40 +1,32 @@
 <template>
   <div>
-    <div v-if="isImage" class="image">
-      <img id="image" :src="vUrl">
-    </div>
+    <div v-if="isImage" class="image"><img id="image" :src="vUrl" /></div>
     <div v-else-if="isVideo" class="video">
       <video controls>
-        <source :src="url" :type="values.type">
+        <source :src="url" :type="values.type" />
         I'm sorry; your browser doesn't support HTML5 video in this format.
       </video>
     </div>
     <div v-else-if="isAudio" class="audio">
       <audio controls>
-        <source :src="url" :type="values.type">
+        <source :src="url" :type="values.type" />
         I'm sorry; your browser doesn't support HTML5 audio in this format.
       </audio>
     </div>
-    <div v-else class="file">
-      {{ fileType }}
-    </div>
+    <div v-else class="file">{{ fileType }}</div>
     <div class="toolbar">
-
       <!-- Default Toolbar -->
       <div v-if="!editMode" class="original">
-        <a
-          class="file-link"
-          :href="url"
-          target="_blank">
-          <i class="material-icons">link</i>
-          {{url}}
+        <a class="file-link" :href="url" target="_blank">
+          <i class="material-icons">link</i> {{ url }}
         </a>
         <button
           v-if="isImage && options.edit.includes('image_editor')"
           type="button"
           title="Edit image"
           class="image-edit-start"
-          @click="initImageEdit()">
+          @click="initImageEdit();"
+        >
           <i class="material-icons">crop_rotate</i>
         </button>
       </div>
@@ -44,31 +36,40 @@
         <li>
           <div class="image-aspect-ratio">
             <i class="material-icons">image_aspect_ratio</i>
-            <span>{{image.cropRatioOptions[image.cropRatio]}}</span>
+            <span>{{ image.cropRatioOptions[image.cropRatio] }}</span>
             <i class="material-icons">arrow_drop_down</i>
             <select v-model="image.cropRatio" title="Select aspect ratio">
               <option
-                v-for="(option,value) in image.cropRatioOptions"
+                v-for="(option, value) in image.cropRatioOptions"
                 :key="value"
-                :value="value">
-                {{option}}
+                :value="value"
+              >
+                {{ option }}
               </option>
             </select>
           </div>
         </li>
         <li>
-          <button type="button" title="Discard changes" @click="cancelImageEdit()">
+          <button
+            type="button"
+            title="Discard changes"
+            @click="cancelImageEdit();"
+          >
             <i class="material-icons">not_interested</i>
           </button>
-          <button type="button" title="Save changes" @click="saveImage()">
+          <button type="button" title="Save changes" @click="saveImage();">
             <i class="material-icons">check_circle</i>
           </button>
         </li>
         <li>
-          <button type="button" title="Flip horizontally" @click="flipImage()">
+          <button type="button" title="Flip horizontally" @click="flipImage();">
             <i class="material-icons">flip</i>
           </button>
-          <button type="button" title="Rotate counter-clockwise" @click="rotateImage()">
+          <button
+            type="button"
+            title="Rotate counter-clockwise"
+            @click="rotateImage();"
+          >
             <i class="material-icons">rotate_90_degrees_ccw</i>
           </button>
         </li>

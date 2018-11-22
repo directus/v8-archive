@@ -1,5 +1,4 @@
 export default function getIcon(type) {
-
   if (type === "application/pdf") {
     return "picture_as_pdf";
   }

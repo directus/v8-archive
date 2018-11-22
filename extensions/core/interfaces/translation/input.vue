@@ -1,13 +1,30 @@
 <template>
   <div v-if="error || !relation" class="translation error">
-    <p><i class="material-icons">warning</i> {{ $t('interfaces-translation-translation_not_setup') }}</p>
+    <p>
+      <i class="material-icons">warning</i>
+      {{ $t("interfaces-translation-translation_not_setup") }}
+    </p>
   </div>
-  <div v-else-if="languages && languages.length === 0" class="translation error">
-    <p><i class="material-icons">warning</i> {{ $t('interfaces-translation-translation_no_languages') }}</p>
+  <div
+    v-else-if="languages && languages.length === 0"
+    class="translation error"
+  >
+    <p>
+      <i class="material-icons">warning</i>
+      {{ $t("interfaces-translation-translation_no_languages") }}
+    </p>
   </div>
   <div v-else-if="activeLanguage" class="translation">
-    <v-simple-select class="language-select" v-model="activeLanguage" :placeholder="$t('interfaces-translation-choose_language')">
-      <option v-for="language in languages" :key="language.code" :value="language.code">
+    <v-simple-select
+      class="language-select"
+      v-model="activeLanguage"
+      :placeholder="$t('interfaces-translation-choose_language')"
+    >
+      <option
+        v-for="language in languages"
+        :key="language.code"
+        :value="language.code"
+      >
         {{ language.name }}
       </option>
     </v-simple-select>
@@ -21,7 +38,8 @@
       :values="langValue"
       :collection="relation.collection_many"
       ref="form"
-      @stage-value="stageValue" />
+      @stage-value="stageValue"
+    />
   </div>
 </template>
 

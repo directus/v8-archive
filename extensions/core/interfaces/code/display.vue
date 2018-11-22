@@ -1,8 +1,5 @@
 <template>
-  <i
-    v-tooltip="tooltipCopy"
-    :class="{ empty }"
-    class="material-icons" >code</i>
+  <i v-tooltip="tooltipCopy" :class="{ empty }" class="material-icons">code</i>
 </template>
 
 <script>

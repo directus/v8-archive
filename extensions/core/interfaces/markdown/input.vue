@@ -5,8 +5,9 @@
       :value="value"
       :placeholder="options.placeholder"
       :rows="+options.rows"
-      @input="$emit('input', $event)"
-      :id="name"></v-textarea>
+      @input="$emit('input', $event);"
+      :id="name"
+    ></v-textarea>
     <div class="preview" v-html="compiledMarkdown"></div>
   </div>
 </template>

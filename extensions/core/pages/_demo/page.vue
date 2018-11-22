@@ -2,7 +2,9 @@
   <div class="demo-page">
     <v-header title="Demo Page"></v-header>
     <h1 class="style-0">Just an example..</h1>
-    <p>This is a Directus Page Extension, you can put anything you want in here.</p>
+    <p>
+      This is a Directus Page Extension, you can put anything you want in here.
+    </p>
   </div>
 </template>
 

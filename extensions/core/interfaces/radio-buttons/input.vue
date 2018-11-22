@@ -9,7 +9,8 @@
       :key="val"
       :modelValue="value"
       :label="display"
-      @change="$emit('input', $event)"></v-radio>
+      @change="$emit('input', $event);"
+    ></v-radio>
   </div>
 </template>
 

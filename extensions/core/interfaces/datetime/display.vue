@@ -7,7 +7,7 @@
     v-tooltip="displayValue"
     class="no-wrap"
   ></v-timeago>
-  <div v-else>{{displayValue}}</div>
+  <div v-else>{{ displayValue }}</div>
 </template>
 
 <script>

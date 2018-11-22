@@ -1,7 +1,10 @@
 <template>
   <div class="interface-one-to-many">
     <div v-if="relationSetup === false" class="notice">
-      <p><i class="material-icons">warning</i> {{ $t('interfaces-one-to-many-relation_not_setup') }}</p>
+      <p>
+        <i class="material-icons">warning</i>
+        {{ $t("interfaces-one-to-many-relation_not_setup") }}
+      </p>
     </div>
     <template v-else>
       <div class="table" v-if="items.length">
@@ -11,10 +14,11 @@
               v-for="column in columns"
               type="button"
               :key="column.field"
-              @click="changeSort(column.field)">
+              @click="changeSort(column.field);"
+            >
               {{ column.name }}
               <i v-if="sort.field === column.field" class="material-icons">
-                {{ sort.asc ? 'arrow_downward' : 'arrow_upward' }}
+                {{ sort.asc ? "arrow_downward" : "arrow_upward" }}
               </i>
             </button>
           </div>
@@ -24,28 +28,35 @@
             v-for="item in items"
             class="row"
             :key="item[relatedKey]"
-            @click="editExisting = item">
-            <div
-              v-for="column in columns"
-              :key="column.field">{{ item[column.field] }}</div>
+            @click="editExisting = item;"
+          >
+            <div v-for="column in columns" :key="column.field">
+              {{ item[column.field] }}
+            </div>
             <button
               type="button"
               class="remove-item"
               v-tooltip="$t('remove_related')"
-              @click.stop="removeRelated({
-                relatedKey: item[relatedKey],
-                item
-              })">
+              @click.stop="
+                removeRelated({
+                  relatedKey: item[relatedKey],
+                  item
+                });
+              "
+            >
               <i class="material-icons">close</i>
             </button>
           </div>
         </div>
       </div>
-      <button type="button" class="style-btn select" @click="addNew = true">
-        <i class="material-icons">add</i>
-        {{ $t("add_new") }}
+      <button type="button" class="style-btn select" @click="addNew = true;">
+        <i class="material-icons">add</i> {{ $t("add_new") }}
       </button>
-      <button type="button" class="style-btn select" @click="selectExisting = true">
+      <button
+        type="button"
+        class="style-btn select"
+        @click="selectExisting = true;"
+      >
         <i class="material-icons">playlist_add</i>
         <span>{{ $t("select_existing") }}</span>
       </button>
@@ -62,7 +73,8 @@
           }
         }"
         @close="dismissSelection"
-        @save="saveSelection">
+        @save="saveSelection"
+      >
         <v-items
           :collection="relatedCollection"
           :filters="filters"
@@ -72,7 +84,8 @@
           :selection="selection"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="selection = $event"></v-items>
+          @select="selection = $event;"
+        ></v-items>
       </v-modal>
     </portal>
 
@@ -86,13 +99,15 @@
             loading: selectionSaving
           }
         }"
-        @close="editExisting = false"
-        @save="saveEdits">
+        @close="editExisting = false;"
+        @save="saveEdits"
+      >
         <div class="edit-modal-body">
           <v-form
             :fields="relatedCollectionFields"
             :values="editExisting"
-            @stage-value="stageValue"></v-form>
+            @stage-value="stageValue"
+          ></v-form>
         </div>
       </v-modal>
     </portal>
@@ -107,13 +122,15 @@
             loading: selectionSaving
           }
         }"
-        @close="addNew = null"
-        @save="addNewItem">
+        @close="addNew = null;"
+        @save="addNewItem"
+      >
         <div class="edit-modal-body">
           <v-form
             :fields="relatedCollectionFields"
             :values="relatedDefaultsWithEdits"
-            @stage-value="stageValue"></v-form>
+            @stage-value="stageValue"
+          ></v-form>
         </div>
       </v-modal>
     </portal>

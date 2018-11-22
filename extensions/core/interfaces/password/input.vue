@@ -9,8 +9,9 @@
       :readonly="readonly"
       :icon-right="lockIcon"
       :icon-right-color="iconColor"
-      @input="$emit('input', $event)"></v-input><!--
-
+      @input="$emit('input', $event);"
+    ></v-input
+    ><!--
     --><v-input
       v-if="false"
       id="second"
@@ -19,7 +20,8 @@
       :type="inputType"
       :placeholder="$t('interfaces-password-confirm_placeholder')"
       :icon-right="confirmIcon"
-      :icon-right-color="confirmColor"></v-input>
+      :icon-right-color="confirmColor"
+    ></v-input>
   </div>
 </template>
 

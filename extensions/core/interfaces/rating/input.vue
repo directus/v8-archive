@@ -1,16 +1,19 @@
 <template>
   <div class="rating">
-    <stars :options="options" :rating.sync="rating" :readonly="readonly"></stars>
-    <div 
-      class="rating-value" 
-      v-if="type=='decimal'">
-      <v-input 
-        class="rating-input" 
+    <stars
+      :options="options"
+      :rating.sync="rating"
+      :readonly="readonly"
+    ></stars>
+    <div class="rating-value" v-if="type == 'decimal'">
+      <v-input
+        class="rating-input"
         type="text"
         :maxlength="length"
         :disabled="readonly"
-        v-model="rating"/>
-      <span>out of {{options.max_stars}} stars</span>
+        v-model="rating"
+      />
+      <span>out of {{ options.max_stars }} stars</span>
     </div>
   </div>
 </template>

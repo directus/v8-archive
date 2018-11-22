@@ -7,11 +7,18 @@
       :src="src"
       :alt="displayValue"
       v-tooltip="options.display === 'avatar' ? displayValue : null"
-      color="light-gray"></v-avatar>
-    <span v-if="options.display !== 'avatar'" class="label gray style-3"><div>{{displayValue}}</div></span>
+      color="light-gray"
+    ></v-avatar>
+    <span v-if="options.display !== 'avatar'" class="label gray style-3"
+      ><div>{{ displayValue }}</div></span
+    >
   </div>
-  <div v-else-if="newItem" class="gray style-3">{{ $t("interfaces-user-created-you") }}</div>
-  <div v-else class="gray style-3">{{ $t("interfaces-user-created-unknown") }}</div>
+  <div v-else-if="newItem" class="gray style-3">
+    {{ $t("interfaces-user-created-you") }}
+  </div>
+  <div v-else class="gray style-3">
+    {{ $t("interfaces-user-created-unknown") }}
+  </div>
 </template>
 
 <script>

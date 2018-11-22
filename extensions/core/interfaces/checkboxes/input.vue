@@ -8,7 +8,8 @@
       :disabled="readonly"
       :label="name"
       :checked="selection.includes(val)"
-      @change="updateValue(val, $event)"></v-checkbox>
+      @change="updateValue(val, $event);"
+    ></v-checkbox>
   </div>
 </template>
 

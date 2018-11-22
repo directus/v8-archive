@@ -6,19 +6,21 @@
       :to="item[link]"
       :title="title(item)"
       :subtitle="subtitle(item)"
-      :icon="emptySrc(item) ? (viewOptions.icon || 'photo') : null"
+      :icon="emptySrc(item) ? viewOptions.icon || 'photo' : null"
       :opacity="emptySrc(item) ? 'half' : null"
       :src="src(item)"
       :body="content(item)"
       :selected="selection.includes(item.id)"
       :selection-mode="selection.length > 0"
-      @select="select(item.id)"></v-card>
+      @select="select(item.id);"
+    ></v-card>
     <v-card
       v-if="lazyLoading"
       color="dark-gray"
       icon="hourglass_empty"
       opacity="half"
-      :title="$t('loading_more')"></v-card>
+      :title="$t('loading_more')"
+    ></v-card>
   </div>
 </template>
 

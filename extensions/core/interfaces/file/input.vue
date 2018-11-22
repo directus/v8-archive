@@ -14,19 +14,26 @@
           icon: 'delete'
         }
       }"
-      @remove="$emit('input', null)"></v-card>
-    <v-upload v-else small :disabled="readonly" class="dropzone" @upload="saveUpload" :multiple="false"></v-upload>
+      @remove="$emit('input', null);"
+    ></v-card>
+    <v-upload
+      v-else
+      small
+      :disabled="readonly"
+      class="dropzone"
+      @upload="saveUpload"
+      :multiple="false"
+    ></v-upload>
 
-    <v-button type="button" :disabled="readonly" @click="newFile = true">
-      <i class="material-icons">add</i>{{ $t('new_file') }}
-    </v-button><!--
-
- --><v-button type="button" :disabled="readonly" @click="existing = true">
-      <i class="material-icons">playlist_add</i>{{ $t('existing') }}
+    <v-button type="button" :disabled="readonly" @click="newFile = true;">
+      <i class="material-icons">add</i>{{ $t("new_file") }} </v-button
+    ><!--
+    --><v-button type="button" :disabled="readonly" @click="existing = true;">
+      <i class="material-icons">playlist_add</i>{{ $t("existing") }}
     </v-button>
 
     <portal to="modal" v-if="newFile">
-      <v-modal :title="$t('file_upload')" @close="newFile = false">
+      <v-modal :title="$t('file_upload')" @close="newFile = false;">
         <div class="body">
           <v-upload @upload="saveUpload" :multiple="false"></v-upload>
         </div>
@@ -41,8 +48,9 @@
             text: $t('done')
           }
         }"
-        @close="existing = false"
-        @done="existing = false">
+        @close="existing = false;"
+        @done="existing = false;"
+      >
         <v-items
           collection="directus_files"
           :view-type="viewType"
@@ -52,7 +60,8 @@
           :view-options="viewOptions"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="$emit('input', $event[$event.length - 1])"></v-items>
+          @select="$emit('input', $event[$event.length - 1]);"
+        ></v-items>
       </v-modal>
     </portal>
   </div>
@@ -86,13 +95,19 @@ export default {
       );
     },
     src() {
-      return this.value.type && this.value.type.startsWith("image") ? this.value.data.full_url : null;
+      return this.value.type && this.value.type.startsWith("image")
+        ? this.value.data.full_url
+        : null;
     },
     icon() {
-      return this.value.type && !this.value.type.startsWith("image") ? getIcon(this.value.type) : null;
+      return this.value.type && !this.value.type.startsWith("image")
+        ? getIcon(this.value.type)
+        : null;
     },
-    href() { 
-      return this.value.type && this.value.type === "application/pdf" ? this.value.data.full_url : null;
+    href() {
+      return this.value.type && this.value.type === "application/pdf"
+        ? this.value.data.full_url
+        : null;
     },
     viewOptions() {
       const viewOptions = this.options.viewOptions;

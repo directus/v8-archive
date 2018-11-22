@@ -7,7 +7,8 @@
     :readonly="readonly"
     :maxlength="+length"
     :id="name"
-    @input="updateValue"></v-input>
+    @input="updateValue"
+  ></v-input>
 </template>
 
 <script>

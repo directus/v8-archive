@@ -1,11 +1,12 @@
 <template>
   <div class="interface-map">
-    <div :class="{ 'map-readonly': readonly}" class="map">
+    <div :class="{ 'map-readonly': readonly }" class="map">
       <div
         class="map-container"
         id="directusMap"
-        :style="{ height: options.height + 'px'}">
-      <!-- Map Renders Here -->
+        :style="{ height: options.height + 'px' }"
+      >
+        <!-- Map Renders Here -->
       </div>
 
       <div class="map-actions">
@@ -13,7 +14,8 @@
         <button
           v-if="isInteractive"
           class="map-my-location"
-          @click="locateMe()">
+          @click="locateMe();"
+        >
           <i class="material-icons">my_location</i>
         </button>
       </div>
@@ -21,13 +23,20 @@
 
     <div class="map-details">
       <div class="map-location">
-        <span v-if="latlng">Latitude: <b>{{latlng.lat}}</b></span>
-        <span v-if="latlng">Longitude: <b>{{latlng.lng}}</b></span>
+        <span v-if="latlng"
+          >Latitude: <b>{{ latlng.lat }}</b></span
+        >
+        <span v-if="latlng"
+          >Longitude: <b>{{ latlng.lng }}</b></span
+        >
       </div>
       <button
         v-if="isInteractive && latlng"
         class="map-clear"
-        @click="setValue()">{{ $t('clear') }}</button>
+        @click="setValue();"
+      >
+        {{ $t("clear") }}
+      </button>
     </div>
   </div>
 </template>

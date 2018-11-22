@@ -1,5 +1,9 @@
 <template>
-  <i class="material-icons readonly-password" :style="{color: `var(--${colorChange})`}">{{ icon }}</i>
+  <i
+    class="material-icons readonly-password"
+    :style="{ color: `var(--${colorChange})` }"
+    >{{ icon }}</i
+  >
 </template>
 
 <script>
@@ -19,5 +23,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

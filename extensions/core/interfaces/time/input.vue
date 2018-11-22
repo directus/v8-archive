@@ -3,8 +3,9 @@
     type="time"
     class="input"
     :readonly="readonly"
-    @input="$emit('input', $event)"
-    :value="value"></v-input>
+    @input="$emit('input', $event);"
+    :value="value"
+  ></v-input>
 </template>
 
 <script>

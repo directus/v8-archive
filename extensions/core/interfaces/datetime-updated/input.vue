@@ -8,10 +8,14 @@
       v-tooltip="displayValue"
       class="no-wrap"
     ></v-timeago>
-    <div v-else>{{displayValue}}</div>
+    <div v-else>{{ displayValue }}</div>
   </div>
-  <div v-else-if="newItem" class="gray style-3">{{ $t("interfaces-datetime-updated-now") }}</div>
-  <div v-else class="gray style-3">{{ $t("interfaces-datetime-updated-unknown") }}</div>
+  <div v-else-if="newItem" class="gray style-3">
+    {{ $t("interfaces-datetime-updated-now") }}
+  </div>
+  <div v-else class="gray style-3">
+    {{ $t("interfaces-datetime-updated-unknown") }}
+  </div>
 </template>
 
 <script>

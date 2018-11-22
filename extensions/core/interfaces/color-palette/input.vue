@@ -1,19 +1,21 @@
 <template>
-    <div class="interface-color-picker">
-      <button
-        v-for="color in colors"
-        v-tooltip="$helpers.formatTitle(color)"
-        :key="color"
-        :disabled="readonly"
-        :style="{ backgroundColor: `var(--${color})` }"
-        :class="{ active: value === color }"
-        @click="$emit('input', color)">
-        <template
-          v-if="value === color">
-          <i :class="{ dark: useDarkIconColor(color) }" class="material-icons">check</i>
-        </template>
-      </button>
-    </div>
+  <div class="interface-color-picker">
+    <button
+      v-for="color in colors"
+      v-tooltip="$helpers.formatTitle(color)"
+      :key="color"
+      :disabled="readonly"
+      :style="{ backgroundColor: `var(--${color})` }"
+      :class="{ active: value === color }"
+      @click="$emit('input', color);"
+    >
+      <template v-if="value === color">
+        <i :class="{ dark: useDarkIconColor(color) }" class="material-icons"
+          >check</i
+        >
+      </template>
+    </button>
+  </div>
 </template>
 
 <script>
@@ -36,13 +38,15 @@ export default {
 
       const rgb = hexRgb(hex, { format: "array" });
 
-      const colors = rgb.map(val => val / 255).map(val => {
-        if (val <= 0.03928) {
-          return val / 12.92;
-        }
+      const colors = rgb
+        .map(val => val / 255)
+        .map(val => {
+          if (val <= 0.03928) {
+            return val / 12.92;
+          }
 
-        return Math.pow((val + 0.055) / 1.055, 2.4);
-      });
+          return Math.pow((val + 0.055) / 1.055, 2.4);
+        });
 
       const lightness =
         0.2126 * colors[0] + 0.7152 * colors[1] + 0.0722 * colors[2];

@@ -1,10 +1,11 @@
 <template>
   <div class="interface-color">
-    <div class="input" v-if="
-      !options.paletteOnly &&
-      options.input === 'hex' &&
-      readonly === false
-    ">
+    <div
+      class="input"
+      v-if="
+        !options.paletteOnly && options.input === 'hex' && readonly === false
+      "
+    >
       <v-input
         v-if="options.allowAlpha"
         type="text"
@@ -12,7 +13,8 @@
         pattern="[#0-9a-fA-F]"
         iconLeft="palette"
         :maxlength="9"
-        v-model="rawValue"></v-input>
+        v-model="rawValue"
+      ></v-input>
       <v-input
         v-else
         type="text"
@@ -20,145 +22,165 @@
         pattern="[#0-9a-fA-F]"
         iconLeft="palette"
         :maxlength="7"
-        v-model="rawValue"></v-input>
+        v-model="rawValue"
+      ></v-input>
     </div>
-    <div class="sliders" v-else-if="
-      !options.paletteOnly &&
-      options.input === 'rgb' &&
-      readonly === false
-    ">
+    <div
+      class="sliders"
+      v-else-if="
+        !options.paletteOnly && options.input === 'rgb' && readonly === false
+      "
+    >
       <label class="slider-label">R</label>
       <v-slider
         :min="0"
         :max="256"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[0]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label">G</label>
       <v-slider
         :min="0"
         :max="256"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[1]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label">B</label>
       <v-slider
         :min="0"
         :max="256"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[2]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label" v-if="options.allowAlpha">A</label>
       <v-slider
         v-if="options.allowAlpha"
         :min="0"
         :max="1"
         :step="0.01"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[3]"
       ></v-slider>
     </div>
-    <div class="sliders" v-else-if="
-      !options.paletteOnly &&
-      options.input === 'hsl' &&
-      readonly === false
-    ">
+    <div
+      class="sliders"
+      v-else-if="
+        !options.paletteOnly && options.input === 'hsl' && readonly === false
+      "
+    >
       <label class="slider-label">H</label>
       <v-slider
         :min="0"
         :max="360"
         class="slider"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         v-model="rawValue[0]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label">S</label>
       <v-slider
         :min="0"
         :max="100"
         class="slider"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         v-model="rawValue[1]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label">L</label>
       <v-slider
         :min="0"
         :max="100"
         class="slider"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         v-model="rawValue[2]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label" v-if="options.allowAlpha">A</label>
       <v-slider
         v-if="options.allowAlpha"
         :min="0"
         :max="1"
         :step="0.01"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[3]"
       ></v-slider>
     </div>
-    <div class="sliders" v-else-if="
-      !options.paletteOnly &&
-      options.input === 'cmyk' &&
-      readonly === false
-    ">
+    <div
+      class="sliders"
+      v-else-if="
+        !options.paletteOnly && options.input === 'cmyk' && readonly === false
+      "
+    >
       <label class="slider-label">C</label>
       <v-slider
         :min="0"
         :max="100"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[0]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label">M</label>
       <v-slider
         :min="0"
         :max="100"
         class="slider"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         v-model="rawValue[1]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label">Y</label>
       <v-slider
         :min="0"
         :max="100"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[2]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label">K</label>
       <v-slider
         :min="0"
         :max="100"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[3]"
-      ></v-slider><br>
+      ></v-slider
+      ><br />
       <label class="slider-label" v-if="options.allowAlpha">A</label>
       <v-slider
         v-if="options.allowAlpha"
         :min="0"
         :max="1"
         :step="0.01"
-        :alwaysShowOutput=true
+        :alwaysShowOutput="true"
         class="slider"
         v-model="rawValue[4]"
       ></v-slider>
     </div>
     <div
       class="swatch"
-      :style="`background-color: ${color ? color.hex() : 'transparent'}`"><i class="material-icons">check</i></div>
+      :style="`background-color: ${color ? color.hex() : 'transparent'}`"
+    >
+      <i class="material-icons">check</i>
+    </div>
     <button
       v-if="readonly === false"
       v-for="color in palette"
       :key="color"
       :style="{ borderColor: color, color: color, backgroundColor: color }"
-      @click="setRawValue(color)"><i class="material-icons">colorize</i></button>
+      @click="setRawValue(color);"
+    >
+      <i class="material-icons">colorize</i>
+    </button>
   </div>
 </template>
 

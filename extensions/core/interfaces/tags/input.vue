@@ -7,13 +7,16 @@
       :icon-left="options.iconLeft"
       :icon-right="options.iconRight"
       :icon-right-color="null"
-      @keydown="onInput"></v-input>
+      @keydown="onInput"
+    ></v-input>
     <div class="buttons">
       <button
         v-for="(value, index) in valueArray"
         :key="index"
-        @click.prevent="removeTag(index)"
-        >{{value}}</button>
+        @click.prevent="removeTag(index);"
+      >
+        {{ value }}
+      </button>
     </div>
   </div>
 </template>

@@ -2,7 +2,7 @@
   <small v-if="parseError" class="notice">
     <i class="material-icons">warning</i>
     <span>
-      {{ $t('interfaces-dropdown-options_invalid') }}<br>
+      {{ $t("interfaces-dropdown-options_invalid") }}<br />
       {{ parseError }}
     </span>
   </small>
@@ -14,7 +14,8 @@
     :options="choices"
     :placeholder="options.placeholder"
     :icon="options.icon"
-    @input="$emit('input', $event)"></v-select>
+    @input="$emit('input', $event);"
+  ></v-select>
 </template>
 
 <script>

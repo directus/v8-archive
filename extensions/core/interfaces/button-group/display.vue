@@ -1,6 +1,6 @@
 <template>
   <div class="readonly-button-group no-wrap">
-    {{value ? $helpers.formatTitle(value) : ''}}
+    {{ value ? $helpers.formatTitle(value) : "" }}
   </div>
 </template>
 

@@ -1,23 +1,27 @@
 <template>
-  <div
-    :class="{ inactive: readonly }"
-    class="interface-code">
-
+  <div :class="{ inactive: readonly }" class="interface-code">
     <codemirror
       ref="codemirrorEl"
       :options="cmOptions"
       :value="stringValue"
-      @input="onInput"></codemirror>
+      @input="onInput"
+    ></codemirror>
 
     <button
       v-if="options.template"
       v-tooltip="$t('interfaces-code-fill_template')"
-      @click="fillTemplate">
+      @click="fillTemplate"
+    >
       <i class="material-icons">playlist_add</i>
     </button>
 
     <small class="line-count">
-      {{ $tc('interfaces-code-loc', lineCount, { count: lineCount, lang: language }) }}
+      {{
+        $tc("interfaces-code-loc", lineCount, {
+          count: lineCount,
+          lang: language
+        })
+      }}
     </small>
   </div>
 </template>
