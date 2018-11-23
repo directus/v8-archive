@@ -12,25 +12,19 @@
  * @link https://github.com/thephpleague/oauth2-client GitHub
  */
 
-namespace League\OAuth2\Client\Tool;
-
-use League\OAuth2\Client\Token\AccessTokenInterface;
+namespace League\OAuth2\Client\OptionProvider;
 
 /**
- * Enables `Bearer` header authorization for providers.
- *
- * @link http://tools.ietf.org/html/rfc6750 Bearer Token Usage (RFC 6750)
+ * Interface for access token options provider
  */
-trait BearerAuthorizationTrait
+interface OptionProviderInterface
 {
     /**
-     * Returns authorization headers for the 'bearer' grant.
+     * Builds request options used for requesting an access token.
      *
-     * @param  AccessTokenInterface|string|null $token Either a string or an access token instance
+     * @param string $method
+     * @param  array $params
      * @return array
      */
-    protected function getAuthorizationHeaders($token = null)
-    {
-        return ['Authorization' => 'Bearer ' . $token];
-    }
+    public function getAccessTokenOptions($method, array $params);
 }
