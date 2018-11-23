@@ -556,7 +556,7 @@ VALUES
 	(2,'global','project_name','Directus'),
 	(3,'global','default_limit','200'),
 	(4,'global','logo',''),
-	(5,'global','color','light-blue-400'),
+	(5,'global','color','light-blue-600'),
 	(6,'files','youtube_api_key','');
 
 /*!40000 ALTER TABLE `directus_settings` ENABLE KEYS */;
