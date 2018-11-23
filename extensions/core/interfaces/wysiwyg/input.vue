@@ -173,11 +173,12 @@ button.fullscreen-toggle {
   top: 10px;
   right: 10px;
   background-color: var(--white);
-  color: var(--lighter-gray);
+  color: var(--dark-gray);
+  opacity: 0.4;
   border-radius: 100%;
   padding: 4px;
   &:hover {
-    color: var(--dark-gray);
+    opacity: 1;
   }
 }
 
