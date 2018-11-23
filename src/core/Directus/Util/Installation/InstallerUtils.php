@@ -631,7 +631,7 @@ class InstallerUtils
             [
                 'scope' => 'global',
                 'key' => 'color',
-                'value' => 'light-blue-400'
+                'value' => 'light-blue-600'
             ],
             [
                 'scope' => 'files',
