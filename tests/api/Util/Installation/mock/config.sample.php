@@ -2,7 +2,7 @@
 
 return [
     'app' => [
-        'env' => 'development',
+        'env' => 'production',
         'timezone' => 'America/New_York',
     ],
 
