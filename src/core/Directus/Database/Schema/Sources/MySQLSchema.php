@@ -267,7 +267,7 @@ class MySQLSchema extends AbstractSchema
         $selectUnion = new Select();
         $selectUnion->from(['fields' => $selectOne]);
 
-        $sortNullLast = (bool) get_directus_setting('global', 'sort_null_last', true);
+        $sortNullLast = (bool) get_directus_setting('sort_null_last', true);
         foreach ($sorts as $field) {
             $sort = compact_sort_to_array($field);
             if ($sortNullLast) {
