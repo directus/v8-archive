@@ -6,6 +6,9 @@ git subsplit publish --heads="master" --no-tags --debug src/core/Directus/Collec
 # Config
 git subsplit publish --heads="master" --no-tags --debug src/core/Directus/Config:git@github.com:directus/directus-config.git
 
+# Exception
+git subsplit publish --heads="master" --no-tags --debug src/core/Directus/Exception:git@github.com:directus/directus-php-exception.git
+
 # Permissions
 git subsplit publish --heads="master" --no-tags --debug src/core/Directus/Permissions:git@github.com:directus/directus-permissions.git
 
