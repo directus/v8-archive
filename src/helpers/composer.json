@@ -1,10 +1,10 @@
 {
-  "name": "directus/hook",
-  "description": "Directus Hook Library",
+  "name": "directus/helpers",
+  "description": "Directus helpers functions",
   "keywords": [
     "directus",
-    "hook",
-    "event"
+    "helpers",
+    "functions"
   ],
   "license": "GPL-3.0-only",
   "require": {
@@ -12,7 +12,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Directus\\Hook\\": ""
+      "Directus\\": ""
     }
   },
   "extra": {
