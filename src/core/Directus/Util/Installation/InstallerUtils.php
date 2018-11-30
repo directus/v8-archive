@@ -4,6 +4,7 @@ namespace Directus\Util\Installation;
 
 use Directus\Application\Application;
 use Directus\Database\Connection;
+use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\Schema\Sources\MySQLSchema;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
@@ -150,7 +151,7 @@ class InstallerUtils
         try {
             $db->connect();
         } catch (\Exception $e) {
-            throw new Exception('Cannot connect to the database');
+            throw new ConnectionFailedException($e);
         }
     }
 
