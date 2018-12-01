@@ -52,7 +52,7 @@
       "Directus\\Api\\Routes\\": "src/endpoints/",
       "Directus\\Custom\\Embed\\Provider\\": "public/extensions/custom/embeds/",
       "Directus\\Custom\\Hooks\\": "public/extensions/custom/hooks/",
-      "Directus\\Custom\\Hasher\\": "public/extensions/custom/hashers/"
+      "Directus\\Extensions\\Custom\\": "public/extensions/custom/"
     },
     "files": [
       "src/helpers/all.php"

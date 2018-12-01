@@ -40,7 +40,7 @@ composer.lock
 !/public/extensions/custom/endpoints/_example.php
 
 ##  Hashers
-!/public/extensions/custom/hashers/_CustomHasher.php
+!/public/extensions/custom/hasher/_CustomHasher.php
 
 ##  Hooks
 !/public/extensions/custom/hooks/_products

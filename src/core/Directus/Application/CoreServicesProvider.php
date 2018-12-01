@@ -950,27 +950,35 @@ class CoreServicesProvider
         return function (Container $container) {
             $hashManager = new HashManager();
             $basePath = $container->get('path_base');
+            $extensions = $container->get('config')->get('extensions', []);
 
-            $path = implode(DIRECTORY_SEPARATOR, [
-                $basePath,
-                'custom',
-                'hashers',
-                '*.php'
-            ]);
-
-            $customHashersFiles = glob($path);
             $hashers = [];
 
-            if ($customHashersFiles) {
-                foreach ($customHashersFiles as $filename) {
+            foreach ($extensions as $extension) {
+
+                $path = implode(DIRECTORY_SEPARATOR, [
+                    $basePath, 'public', 'extensions', $extension, 'hasher', '*.php'
+                ]);
+
+                if (empty($hashersFiles = glob($path))) {
+                    continue;
+                }
+
+                $extensionNamespace = '\\Directus\\Extensions\\' . StringUtils::toCamelCase($extension, true, '-');
+
+                foreach ($hashersFiles as $filename) {
+
                     $name = basename($filename, '.php');
+
                     // filename starting with underscore are skipped
                     if (StringUtils::startsWith($name, '_')) {
                         continue;
                     }
 
-                    $hashers[] = '\\Directus\\Custom\\Hasher\\' . $name;
+                    $hashers[] = $extensionNamespace . '\\Hasher\\' . $name;
+
                 }
+
             }
 
             foreach ($hashers as $hasher) {
