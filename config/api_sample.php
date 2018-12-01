@@ -110,6 +110,11 @@ return [
         'filters' => [],
     ],
 
+    // These extensions will be loaded
+    'extensions' => [
+        'custom',
+    ],
+
     'feedback' => [
         'token' => 'a-kind-of-unique-token',
         'login' => true
