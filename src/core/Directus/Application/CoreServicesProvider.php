@@ -1093,11 +1093,21 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $basePath = $container->get('path_base');
+            $extensions = $container->get('config')->get('extensions', []);
 
-            return new Twig([
-                $basePath . '/public/extensions/custom/mail',
-                $basePath . '/src/mail'
-            ]);
+            $paths = [];
+            foreach($extensions as $extension) {
+                $extensionPath = "$basePath/public/extensions/$extension/mail";
+
+                if (!file_exists($extensionPath)) {
+                    continue;
+                }
+
+                $paths[] = $extensionPath;
+            }
+            $paths[] = $basePath . '/src/mail';
+
+            return new Twig($paths);
         };
     }
 
