@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Custom\Hooks\Products;
+namespace Directus\Extensions\Custom\Hooks\Products;
 
 use Directus\Hook\HookInterface;
 use Directus\Hook\Payload;

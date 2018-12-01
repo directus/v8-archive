@@ -2,6 +2,6 @@
 
 return [
     'filters' => [
-        'item.create:before' => new \Directus\Custom\Hooks\Products\BeforeInsertProducts()
+        'item.create:before' => new \Directus\Extensions\Custom\Hooks\Products\BeforeInsertProducts()
     ]
 ];
