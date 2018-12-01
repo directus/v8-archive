@@ -184,12 +184,24 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
 
-    $this->group('/custom', function () {
-        $endpointsList = \Directus\get_custom_endpoints('public/extensions/custom/endpoints');
+    $this->group('/extensions', function () {
 
-        foreach ($endpointsList as $name => $endpoints) {
-            \Directus\create_group_route_from_array($this, $name, $endpoints);
+        $endpointsList = [];
+        $extensions = $this->getConfig()->get('extensions', []);
+
+        foreach ($extensions as $extension) {
+            $endpointsList[$extension] = \Directus\get_custom_endpoints("public/extensions/$extension/endpoints");
         }
+
+        // Add an url group for each extension and register all of the extensions endpoints
+        foreach ($endpointsList as $extensionName => $extensionEndpoints) {
+            $this->group('/' . trim($extensionName, '/'), function () use ($extensionEndpoints) {
+                foreach ($extensionEndpoints as $name => $endpoints) {
+                    \Directus\create_group_route_from_array($this, $name, $endpoints);
+                }
+            });
+        }
+
     })->add($middleware['table_gateway']);
 
     $this->group('/pages', function () {
