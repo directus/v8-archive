@@ -11,11 +11,15 @@ class InterfacesService extends AbstractExtensionsController
         parent::__construct($container);
 
         $basePath = $this->container->get('path_base');
+        $extensions = $this->container->get('config')->get('extensions', []);
 
         $this->paths = [
             $basePath . '/public/extensions/core/interfaces',
-            $basePath . '/public/extensions/custom/interfaces',
         ];
+
+        foreach ($extensions as $extension) {
+            $this->paths[] = "$basePath/public/extensions/$extension/interfaces";
+        }
     }
 
     public function findAll(array $params = [])
