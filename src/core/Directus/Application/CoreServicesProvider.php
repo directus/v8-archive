@@ -737,18 +737,21 @@ class CoreServicesProvider
         return function (Container $container) {
             $config = $container->get('config');
             $providersConfig = $config->get('auth.social_providers', []);
+            $extensions = $config->get('extensions');
 
             $socialAuth = new Social();
 
             $coreSso = \Directus\get_custom_x('auth', 'public/extensions/core/auth', true);
-            $customSso = \Directus\get_custom_x('auth', 'public/extensions/custom/auth', true);
+            $customSso = [];
 
-            // Flag the customs providers in order to choose the correct path for the icons
-            $customSso = array_map(function ($config) {
-                $config['custom'] = true;
+            foreach ($extensions as $extension) {
+                $extensionAuthProviders = \Directus\get_custom_x('auth', "public/extensions/$extension/auth", true);
 
-                return $config;
-            }, $customSso);
+                foreach ($extensionAuthProviders as $authProviderName => $authProviderConfig) {
+                    $authProviderConfig['extensionName'] = $extension;
+                    $customSso[$authProviderName] = $authProviderConfig;
+                }
+            }
 
             $ssoProviders = array_merge($coreSso, $customSso);
             foreach ($providersConfig as $providerName => $providerConfig) {
@@ -763,14 +766,14 @@ class CoreServicesProvider
                 if (array_key_exists($providerName, $ssoProviders) && isset($ssoProviders[$providerName]['provider'])) {
                     $providerInfo = $ssoProviders[$providerName];
                     $class = array_get($providerInfo, 'provider');
-                    $custom = array_get($providerInfo, 'custom');
+                    $extensionName = array_get($providerInfo, 'extensionName', 'core');
 
                     if (!class_exists($class)) {
                         throw new RuntimeException(sprintf('Class %s not found', $class));
                     }
 
                     $socialAuth->register($providerName, new $class($container, array_merge([
-                        'custom' => $custom,
+                        'extensionName' => $extensionName,
                         'callback_url' => \Directus\get_url('/_/auth/sso/' . $providerName . '/callback')
                     ], $providerConfig)));
                 }
