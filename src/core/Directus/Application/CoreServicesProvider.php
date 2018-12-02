@@ -38,6 +38,7 @@ use function Directus\generate_uuid4;
 use function Directus\get_api_project_from_request;
 use function Directus\get_directus_files_settings;
 use function Directus\get_directus_setting;
+use function Directus\get_classes_from_extension_subdirectory;
 use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
@@ -949,37 +950,9 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $hashManager = new HashManager();
-            $basePath = $container->get('path_base');
-            $extensions = $container->get('config')->get('extensions', []);
 
-            $hashers = [];
-
-            foreach ($extensions as $extension) {
-
-                $path = implode(DIRECTORY_SEPARATOR, [
-                    $basePath, 'public', 'extensions', $extension, 'hasher', '*.php'
-                ]);
-
-                if (empty($hashersFiles = glob($path))) {
-                    continue;
-                }
-
-                $extensionNamespace = '\\Directus\\Extensions\\' . StringUtils::toCamelCase($extension, true, '-');
-
-                foreach ($hashersFiles as $filename) {
-
-                    $name = basename($filename, '.php');
-
-                    // filename starting with underscore are skipped
-                    if (StringUtils::startsWith($name, '_')) {
-                        continue;
-                    }
-
-                    $hashers[] = $extensionNamespace . '\\Hasher\\' . $name;
-
-                }
-
-            }
+            // Get custom hashers from extensions
+            $hashers = get_classes_from_extension_subdirectory('hasher');
 
             foreach ($hashers as $hasher) {
                 $hashManager->register(new $hasher());
@@ -1138,8 +1111,6 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $embedManager = new EmbedManager();
-            $basePath = $container->get('path_base');
-            $extensions = $container->get('config')->get('extensions', []);
 
             // Fetch files settings
             try {
@@ -1156,32 +1127,8 @@ class CoreServicesProvider
                 '\Directus\Embed\Provider\YoutubeProvider'
             ];
 
-            foreach ($extensions as $extension) {
-
-                $path = implode(DIRECTORY_SEPARATOR, [
-                    $basePath, 'public', 'extensions', $extension, 'embed', '*.php'
-                ]);
-
-                if (empty($files = glob($path))) {
-                    continue;
-                }
-
-                $extensionNamespace = '\\Directus\\Extensions\\' . StringUtils::toCamelCase($extension, true, '-');
-
-                foreach ($files as $filename) {
-
-                    $name = basename($filename, '.php');
-
-                    // filename starting with underscore are skipped
-                    if (StringUtils::startsWith($name, '_')) {
-                        continue;
-                    }
-
-                    $providers[] = $extensionNamespace . '\\Embed\\' . $name;
-
-                }
-
-            }
+            // Get custom embeds from extensions
+            $providers = array_merge($providers, get_classes_from_extension_subdirectory('embed'));
 
             foreach ($providers as $providerClass) {
                 $provider = new $providerClass($settings);
