@@ -168,7 +168,7 @@ if (!function_exists('get_custom_hooks')) {
     }
 }
 
-if (!function_exists('get_custom_hooks')) {
+if (!function_exists('get_classes_from_extension_subdirectory')) {
     /**
      * Get a list of classes from a given subdirectory of an extension
      *
