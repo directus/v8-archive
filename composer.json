@@ -50,7 +50,6 @@
       "Directus\\": "src/core/Directus/",
       "Directus\\Authentication\\Sso\\Provider\\": "public/extensions/core/auth",
       "Directus\\Api\\Routes\\": "src/endpoints/",
-      "Directus\\Custom\\Embed\\Provider\\": "public/extensions/custom/embeds/",
       "Directus\\Extensions\\Custom\\": "public/extensions/custom/"
     },
     "files": [

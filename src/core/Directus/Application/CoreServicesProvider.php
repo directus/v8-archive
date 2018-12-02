@@ -1137,8 +1137,9 @@ class CoreServicesProvider
     protected function getEmbedManager()
     {
         return function (Container $container) {
-            $app = Application::getInstance();
             $embedManager = new EmbedManager();
+            $basePath = $container->get('path_base');
+            $extensions = $container->get('config')->get('extensions', []);
 
             // Fetch files settings
             try {
@@ -1155,18 +1156,31 @@ class CoreServicesProvider
                 '\Directus\Embed\Provider\YoutubeProvider'
             ];
 
-            $path = implode(DIRECTORY_SEPARATOR, [
-                $app->getContainer()->get('path_base'),
-                'custom',
-                'embeds',
-                '*.php'
-            ]);
+            foreach ($extensions as $extension) {
 
-            $customProvidersFiles = glob($path);
-            if ($customProvidersFiles) {
-                foreach ($customProvidersFiles as $filename) {
-                    $providers[] = '\\Directus\\Embed\\Provider\\' . basename($filename, '.php');
+                $path = implode(DIRECTORY_SEPARATOR, [
+                    $basePath, 'public', 'extensions', $extension, 'embed', '*.php'
+                ]);
+
+                if (empty($files = glob($path))) {
+                    continue;
                 }
+
+                $extensionNamespace = '\\Directus\\Extensions\\' . StringUtils::toCamelCase($extension, true, '-');
+
+                foreach ($files as $filename) {
+
+                    $name = basename($filename, '.php');
+
+                    // filename starting with underscore are skipped
+                    if (StringUtils::startsWith($name, '_')) {
+                        continue;
+                    }
+
+                    $providers[] = $extensionNamespace . '\\Embed\\' . $name;
+
+                }
+
             }
 
             foreach ($providers as $providerClass) {
