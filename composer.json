@@ -48,7 +48,6 @@
   "autoload": {
     "psr-4": {
       "Directus\\": "src/core/Directus/",
-      "Directus\\Authentication\\Sso\\Provider\\": "public/extensions/core/auth",
       "Directus\\Api\\Routes\\": "src/endpoints/",
       "Directus\\Extensions\\": "public/extensions/"
     },

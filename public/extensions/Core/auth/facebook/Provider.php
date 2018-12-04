@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Authentication\Sso\Provider\facebook;
+namespace Directus\Extensions\Core\Auth\Facebook;
 
 use Directus\Authentication\Sso\TwoSocialProvider;
 use League\OAuth2\Client\Provider\Facebook;

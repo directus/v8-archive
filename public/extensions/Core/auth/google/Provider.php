@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Authentication\Sso\Provider\google;
+namespace Directus\Extensions\Core\Auth\Google;
 
 use Directus\Authentication\Sso\TwoSocialProvider;
 use League\OAuth2\Client\Provider\Google;

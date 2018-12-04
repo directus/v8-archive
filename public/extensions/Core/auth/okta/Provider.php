@@ -1,6 +1,6 @@
 <?php
 
-namespace Directus\Authentication\Sso\Provider\okta;
+namespace Directus\Extensions\Core\Auth\Okta;
 
 use Directus\Authentication\Sso\TwoSocialProvider;
 use WellingGuzman\OAuth2\Client\Provider\Okta;
