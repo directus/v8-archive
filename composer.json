@@ -50,7 +50,7 @@
       "Directus\\": "src/core/Directus/",
       "Directus\\Authentication\\Sso\\Provider\\": "public/extensions/core/auth",
       "Directus\\Api\\Routes\\": "src/endpoints/",
-      "Directus\\Extensions\\Custom\\": "public/extensions/custom/"
+      "Directus\\Extensions\\": "public/extensions/"
     },
     "files": [
       "src/helpers/all.php"
