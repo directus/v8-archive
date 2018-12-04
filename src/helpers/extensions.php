@@ -5,6 +5,7 @@ namespace Directus;
 use Directus\Application\Application;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
+use Directus\Util\StringUtils;
 
 if (!function_exists('get_custom_x')) {
     /**
@@ -164,5 +165,51 @@ if (!function_exists('get_custom_hooks')) {
     function get_custom_hooks($path, $onlyDirectories = false)
     {
         return get_custom_x('hooks', $path, $onlyDirectories);
+    }
+}
+
+if (!function_exists('get_classes_from_extension_subdirectory')) {
+    /**
+     * Get a list of classes from a given subdirectory of an extension
+     *
+     * @param string $subdirectory
+     *
+     * @return array
+     */
+    function get_classes_from_extension_subdirectory($subdirectory) {
+        $container = Application::getInstance()->getContainer();
+        $basePath = $container->get('path_base');
+        $extensions = $container->get('config')->get('extensions', []);
+
+        $classes = [];
+
+        foreach ($extensions as $extension) {
+
+            $path = implode(DIRECTORY_SEPARATOR, [
+                $basePath, 'public', 'extensions', $extension, $subdirectory, '*.php'
+            ]);
+
+            if (empty($files = glob($path))) {
+                continue;
+            }
+
+            $extensionNamespace = '\\Directus\\Extensions\\' . StringUtils::toCamelCase($extension, true, '-');
+
+            foreach ($files as $filename) {
+
+                $name = basename($filename, '.php');
+
+                // filename starting with underscore are skipped
+                if (StringUtils::startsWith($name, '_')) {
+                    continue;
+                }
+
+                $classes[] = $extensionNamespace . '\\' . ucfirst($subdirectory) . '\\' . $name;
+
+            }
+
+        }
+
+        return $classes;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/controllers/Home.php';
+use Directus\Extensions\Custom\Endpoints\Directory\Controllers\Home;
 
 return [
     '' => [

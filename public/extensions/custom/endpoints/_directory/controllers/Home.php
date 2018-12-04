@@ -1,5 +1,7 @@
 <?php
 
+namespace Directus\Extensions\Custom\Endpoints\Directory\Controllers;
+
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 

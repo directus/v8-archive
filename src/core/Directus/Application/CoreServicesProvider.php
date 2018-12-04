@@ -38,6 +38,7 @@ use function Directus\generate_uuid4;
 use function Directus\get_api_project_from_request;
 use function Directus\get_directus_files_settings;
 use function Directus\get_directus_setting;
+use function Directus\get_classes_from_extension_subdirectory;
 use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
@@ -737,18 +738,21 @@ class CoreServicesProvider
         return function (Container $container) {
             $config = $container->get('config');
             $providersConfig = $config->get('auth.social_providers', []);
+            $extensions = $config->get('extensions');
 
             $socialAuth = new Social();
 
             $coreSso = \Directus\get_custom_x('auth', 'public/extensions/core/auth', true);
-            $customSso = \Directus\get_custom_x('auth', 'public/extensions/custom/auth', true);
+            $customSso = [];
 
-            // Flag the customs providers in order to choose the correct path for the icons
-            $customSso = array_map(function ($config) {
-                $config['custom'] = true;
+            foreach ($extensions as $extension) {
+                $extensionAuthProviders = \Directus\get_custom_x('auth', "public/extensions/$extension/auth", true);
 
-                return $config;
-            }, $customSso);
+                foreach ($extensionAuthProviders as $authProviderName => $authProviderConfig) {
+                    $authProviderConfig['extensionName'] = $extension;
+                    $customSso[$authProviderName] = $authProviderConfig;
+                }
+            }
 
             $ssoProviders = array_merge($coreSso, $customSso);
             foreach ($providersConfig as $providerName => $providerConfig) {
@@ -763,14 +767,14 @@ class CoreServicesProvider
                 if (array_key_exists($providerName, $ssoProviders) && isset($ssoProviders[$providerName]['provider'])) {
                     $providerInfo = $ssoProviders[$providerName];
                     $class = array_get($providerInfo, 'provider');
-                    $custom = array_get($providerInfo, 'custom');
+                    $extensionName = array_get($providerInfo, 'extensionName', 'core');
 
                     if (!class_exists($class)) {
                         throw new RuntimeException(sprintf('Class %s not found', $class));
                     }
 
                     $socialAuth->register($providerName, new $class($container, array_merge([
-                        'custom' => $custom,
+                        'extensionName' => $extensionName,
                         'callback_url' => \Directus\get_url('/_/auth/sso/' . $providerName . '/callback')
                     ], $providerConfig)));
                 }
@@ -946,29 +950,9 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $hashManager = new HashManager();
-            $basePath = $container->get('path_base');
 
-            $path = implode(DIRECTORY_SEPARATOR, [
-                $basePath,
-                'custom',
-                'hashers',
-                '*.php'
-            ]);
-
-            $customHashersFiles = glob($path);
-            $hashers = [];
-
-            if ($customHashersFiles) {
-                foreach ($customHashersFiles as $filename) {
-                    $name = basename($filename, '.php');
-                    // filename starting with underscore are skipped
-                    if (StringUtils::startsWith($name, '_')) {
-                        continue;
-                    }
-
-                    $hashers[] = '\\Directus\\Custom\\Hasher\\' . $name;
-                }
-            }
+            // Get custom hashers from extensions
+            $hashers = get_classes_from_extension_subdirectory('hasher');
 
             foreach ($hashers as $hasher) {
                 $hashManager->register(new $hasher());
@@ -1082,11 +1066,21 @@ class CoreServicesProvider
     {
         return function (Container $container) {
             $basePath = $container->get('path_base');
+            $extensions = $container->get('config')->get('extensions', []);
 
-            return new Twig([
-                $basePath . '/public/extensions/custom/mail',
-                $basePath . '/src/mail'
-            ]);
+            $paths = [];
+            foreach($extensions as $extension) {
+                $extensionPath = "$basePath/public/extensions/$extension/mail";
+
+                if (!file_exists($extensionPath)) {
+                    continue;
+                }
+
+                $paths[] = $extensionPath;
+            }
+            $paths[] = $basePath . '/src/mail';
+
+            return new Twig($paths);
         };
     }
 
@@ -1116,7 +1110,6 @@ class CoreServicesProvider
     protected function getEmbedManager()
     {
         return function (Container $container) {
-            $app = Application::getInstance();
             $embedManager = new EmbedManager();
 
             // Fetch files settings
@@ -1134,19 +1127,8 @@ class CoreServicesProvider
                 '\Directus\Embed\Provider\YoutubeProvider'
             ];
 
-            $path = implode(DIRECTORY_SEPARATOR, [
-                $app->getContainer()->get('path_base'),
-                'custom',
-                'embeds',
-                '*.php'
-            ]);
-
-            $customProvidersFiles = glob($path);
-            if ($customProvidersFiles) {
-                foreach ($customProvidersFiles as $filename) {
-                    $providers[] = '\\Directus\\Embed\\Provider\\' . basename($filename, '.php');
-                }
-            }
+            // Get custom embeds from extensions
+            $providers = array_merge($providers, get_classes_from_extension_subdirectory('embed'));
 
             foreach ($providers as $providerClass) {
                 $provider = new $providerClass($settings);

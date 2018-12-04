@@ -371,10 +371,14 @@ if (!function_exists('register_extensions_hooks')) {
      */
     function register_extensions_hooks(Application $app)
     {
-        register_hooks_list(
-            $app,
-            get_custom_hooks('public/extensions/custom/hooks')
-        );
+        $extensions = $app->getConfig()->get('extensions', []);
+
+        foreach ($extensions as $extension) {
+            register_hooks_list(
+                $app,
+                get_custom_hooks("public/extensions/$extension/hooks")
+            );
+        }
 
         register_hooks_list(
             $app,
