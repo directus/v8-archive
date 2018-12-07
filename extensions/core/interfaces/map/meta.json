@@ -63,7 +63,7 @@
   },
   "translation": {
     "en-US": {
-      "map": "Map 2",
+      "map": "Map",
       "choices": "choices",
       "choices_comment": "Enter JSON key value pairs with the saved value and text displayed.",
       "theme": "Interface Theme",
