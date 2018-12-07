@@ -39,7 +39,7 @@
       "comment": "$t:address_to_code_comment",
       "interface": "toggle",
       "type": "BOOLEAN",
-      "default": true
+      "default": false
     },
     "theme": {
       "name": "$t:theme",
