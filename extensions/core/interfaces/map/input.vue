@@ -359,9 +359,10 @@ export default {
   position: absolute;
   display: flex;
   justify-content: space-between;
-  width: 90%;
+  width: 100%;
   top: 20px;
-  left: 20px;
+  left: 0px;
+  padding: 0 20px;
   z-index: 2;
 }
 
