@@ -15,13 +15,13 @@
         :options="selectOptions"
         :value="valuePK"
         :icon="options.icon"
-        @input="$emit('input', $event);"
+        @input="$emit('input', $event)"
       ></v-select>
 
       <button
         v-if="count > 10"
         type="button"
-        @click="showListing = true;"
+        @click="showListing = true"
       ></button>
 
       <v-spinner

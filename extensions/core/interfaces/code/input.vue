@@ -139,8 +139,6 @@ export default {
         this.lineCount = codemirror.lineCount();
       }
 
-      console.log(value);
-
       this.$emit("input", value);
     },
     fillTemplate() {

@@ -5,7 +5,7 @@
       id="title"
       :value="viewOptions.title || this.primaryKeyField"
       :options="titleFieldOptions"
-      @input="setOption('title', $event === '__none__' ? null : $event);"
+      @input="setOption('title', $event === '__none__' ? null : $event)"
     ></v-select>
 
     <label for="subtitle" class="style-3">{{
@@ -15,7 +15,7 @@
       id="subtitle"
       :value="viewOptions.subtitle || '__none__'"
       :options="fieldOptions"
-      @input="setOption('subtitle', $event === '__none__' ? null : $event);"
+      @input="setOption('subtitle', $event === '__none__' ? null : $event)"
     ></v-select>
 
     <label for="src" class="style-3">{{ $t("layouts-cards-src") }}</label>
@@ -23,7 +23,7 @@
       id="src"
       :value="viewOptions.src || '__none__'"
       :options="fileOptions"
-      @input="setOption('src', $event === '__none__' ? null : $event);"
+      @input="setOption('src', $event === '__none__' ? null : $event)"
     ></v-select>
 
     <label for="content" class="style-3">{{
@@ -33,13 +33,13 @@
       id="content"
       :value="viewOptions.content || '__none__'"
       :options="fieldOptions"
-      @input="setOption('content', $event === '__none__' ? null : $event);"
+      @input="setOption('content', $event === '__none__' ? null : $event)"
     ></v-select>
 
     <label for="icon" class="style-3">Fallback Icon</label>
     <v-input
       :value="viewOptions.icon || 'photo'"
-      @input="setOption('icon', $event);"
+      @input="setOption('icon', $event)"
     ></v-input>
   </form>
 </template>

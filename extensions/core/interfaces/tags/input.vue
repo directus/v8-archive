@@ -13,7 +13,7 @@
       <button
         v-for="(value, index) in valueArray"
         :key="index"
-        @click.prevent="removeTag(index);"
+        @click.prevent="removeTag(index)"
       >
         {{ value }}
       </button>

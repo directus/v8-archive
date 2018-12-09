@@ -5,7 +5,7 @@
   >
     <div ref="editor" class="interface-wysiwyg"></div>
     <button
-      v-on:click="distractionFree = !distractionFree;"
+      v-on:click="distractionFree = !distractionFree"
       type="button"
       class="fullscreen-toggle"
       v-tooltip="$t('interfaces-wysiwyg-distraction_free_mode')"

@@ -25,7 +25,7 @@
           type="button"
           title="Edit image"
           class="image-edit-start"
-          @click="initImageEdit();"
+          @click="initImageEdit()"
         >
           <i class="material-icons">crop_rotate</i>
         </button>
@@ -53,22 +53,22 @@
           <button
             type="button"
             title="Discard changes"
-            @click="cancelImageEdit();"
+            @click="cancelImageEdit()"
           >
             <i class="material-icons">not_interested</i>
           </button>
-          <button type="button" title="Save changes" @click="saveImage();">
+          <button type="button" title="Save changes" @click="saveImage()">
             <i class="material-icons">check_circle</i>
           </button>
         </li>
         <li>
-          <button type="button" title="Flip horizontally" @click="flipImage();">
+          <button type="button" title="Flip horizontally" @click="flipImage()">
             <i class="material-icons">flip</i>
           </button>
           <button
             type="button"
             title="Rotate counter-clockwise"
-            @click="rotateImage();"
+            @click="rotateImage()"
           >
             <i class="material-icons">rotate_90_degrees_ccw</i>
           </button>
