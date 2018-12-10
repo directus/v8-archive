@@ -139,14 +139,6 @@ export default {
         this.lineCount = codemirror.lineCount();
       }
 
-      if (this.options.language === "application/json") {
-        try {
-          return this.$emit("input", JSON.parse(value.replace("\n", "")));
-        } catch (e) {
-          return this.$emit("input", value);
-        }
-      }
-
       this.$emit("input", value);
     },
     fillTemplate() {

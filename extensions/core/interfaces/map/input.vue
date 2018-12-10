@@ -14,7 +14,7 @@
         <button
           v-if="isInteractive"
           class="map-my-location"
-          @click="locateMe();"
+          @click="locateMe()"
         >
           <i class="material-icons">my_location</i>
         </button>
@@ -33,7 +33,7 @@
       <button
         v-if="isInteractive && latlng"
         class="map-clear"
-        @click="setValue();"
+        @click="setValue()"
       >
         {{ $t("clear") }}
       </button>

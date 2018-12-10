@@ -2,7 +2,7 @@
   <select
     :disabled="readonly"
     class="select"
-    @change="updateValue($event.target.options);"
+    @change="updateValue($event.target.options)"
     :id="name"
     multiple
   >

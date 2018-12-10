@@ -14,7 +14,7 @@
     :options="choices"
     :placeholder="options.placeholder"
     :icon="options.icon"
-    @input="$emit('input', $event);"
+    @input="$emit('input', $event)"
   ></v-select>
 </template>
 
