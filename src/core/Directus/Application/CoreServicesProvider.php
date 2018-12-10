@@ -30,6 +30,7 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\SchemaService;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\MissingStorageConfigurationException;
 use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
@@ -981,10 +982,8 @@ class CoreServicesProvider
     protected function getFileSystem()
     {
         return function (Container $container) {
-            $config = $container->get('config');
-
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('storage'), 'root')
+                FilesystemFactory::createAdapter($this->getStorageConfiguration($container), 'root')
             );
         };
     }
@@ -995,10 +994,8 @@ class CoreServicesProvider
     protected function getThumbFilesystem()
     {
         return function (Container $container) {
-            $config = $container->get('config');
-
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('storage'), 'thumb_root')
+                FilesystemFactory::createAdapter($this->getStorageConfiguration($container), 'thumb_root')
             );
         };
     }
@@ -1194,6 +1191,25 @@ class CoreServicesProvider
         return function () use ($container) {
             return new AuthService($container);
         };
+    }
+
+    /**
+     * @param Container $container
+     *
+     * @return array
+     *
+     * @throws MissingStorageConfigurationException
+     */
+    protected function getStorageConfiguration(Container $container)
+    {
+        $config = $container->get('config');
+        $storageConfig = $config->get('storage');
+
+        if (!$storageConfig) {
+            throw new MissingStorageConfigurationException();
+        }
+
+        return $storageConfig;
     }
 }
 
