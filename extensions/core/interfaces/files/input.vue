@@ -2,7 +2,7 @@
   <div class="input-single-file">
     <div v-if="value" class="preview">
       <v-card
-        v-for="file in files"
+        v-for="(file, index) in files"
         class="card"
         :title="file.title"
         :subtitle="file.subtitle"
@@ -13,9 +13,14 @@
           remove: {
             text: $t('delete'),
             icon: 'delete'
+          },
+          edit: {
+            text: $t('interfaces-files-edit_item'),
+            icon: 'edit'
           }
         }"
         @remove="deleteFile(file[relatedPrimaryKeyField.field])"
+        @edit="editFile(index)"
       ></v-card>
     </div>
     <v-button type="button" :disabled="readonly" @click="newFile = true">
@@ -57,6 +62,31 @@
         ></v-items>
       </v-modal>
     </portal>
+
+    <portal to="modal" v-if="editExisting" class="edit-modal">
+      <v-modal
+        :title="$t('editing_item')"
+        :buttons="{
+          save: {
+            text: 'save',
+            color: 'accent',
+            loading: selectionSaving
+          }
+        }"
+        @close="editExisting = false"
+        @save="saveEdits"
+      >
+
+        <div class="edit-modal-body">
+          <v-form
+            :fields="relatedCollectionFields"
+            :values="editExisting[junctionFieldName]"
+            @stage-value="stageValue"
+          ></v-form>
+        </div>
+      </v-modal>
+    </portal>
+
   </div>
 </template>
 
@@ -70,11 +100,15 @@ export default {
     return {
       newFile: false,
       existing: false,
+      editExisting: false,
+      selectionSaving: false,
 
       viewOptionsOverride: {},
       viewTypeOverride: null,
       viewQueryOverride: {},
-      filtersOverride: []
+      filtersOverride: [],
+      editThisFile: {},
+      edits: {}
     };
   },
   computed: {
@@ -86,6 +120,18 @@ export default {
     junctionFieldName() {
       return this.relation.junction.field_many.field;
     },
+
+    relatedCollectionFields() {
+      console.log(this.relation.junction.collection_one.fields)
+      return this.relation.junction.collection_one.fields;
+    },
+
+    junctionPrimaryKey() {
+      return this.$lodash.find(this.relation.collection_many.fields, {
+        primary_key: true
+      }).field;
+    },
+
 
     /*
      * Converts the junction collection rows into formatted file objects that
@@ -242,6 +288,34 @@ export default {
       this.$emit("input", newValue);
     },
 
+    editFile(index) {
+      this.editExisting = this.value[index]
+    },
+
+    stageValue({ field, value }) {
+      this.$set(this.edits, field, value);
+    },
+
+    saveEdits() {
+      this.$emit("input", [
+        ...(this.value || [] || []).map(val => {
+          if (val.id === this.editExisting[this.junctionPrimaryKey]) {
+            return {
+              ...val,
+              [this.junctionFieldName]: {
+                ...val[this.junctionFieldName],
+                ...this.edits
+              }
+            };
+          }
+          return val;
+        })
+      ]);
+
+      this.edits = {};
+      this.editExisting = false;
+    },
+
     setViewOptions(updates) {
       this.viewOptionsOverride = {
         ...this.viewOptionsOverride,
@@ -281,5 +355,10 @@ button {
 
 .body {
   padding: 20px;
+}
+
+.edit-modal-body {
+  padding: 20px;
+  background-color: var(--body-background);
 }
 </style>
