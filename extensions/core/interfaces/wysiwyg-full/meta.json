@@ -13,6 +13,13 @@
       "interface": "text-input",
       "length": 200
     },
+    "upload_files": {
+      "name": "$t:upload_files",
+      "comment": "$t:upload_files_comment",
+      "interface": "toggle",
+      "type": "BOOLEAN",
+      "default": true
+    },
     "toolbarOptions": {
       "name": "$t:toolbar_options",
       "comment": "$t:toolbar_options_comment",
@@ -55,7 +62,9 @@
       "placeholder": "Placeholder",
       "placeholder_comment": "Enter placeholder text",
       "toolbar_options": "Toolbar Options",
-      "toolbar_options_comment": "[QuillJS](https://quilljs.com/docs/modules/toolbar/) Toolbar options"
+      "toolbar_options_comment": "[QuillJS](https://quilljs.com/docs/modules/toolbar/) Toolbar options",
+      "upload_files": "Upload files",
+      "upload_files_comment": "Upload files to directus instead of using Base64 encoded images. Needs 'image' in toolbar."
     }
   }
 }
