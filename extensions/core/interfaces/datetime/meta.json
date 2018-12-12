@@ -43,6 +43,12 @@
       "comment": "$t:utc_comment",
       "interface": "toggle",
       "advanced": true
+    },
+    "defaultToCurrentDatetime": {
+      "name": "$t:default_to_current_datetime",
+      "comment": "$t:default_to_current_datetime_comment",
+      "interface": "toggle",
+      "advanced": true
     }
   },
   "translation": {
@@ -61,7 +67,9 @@
       "icon_right": "Icon Right",
       "icon_right_comment": "Choose an optional icon to display on the right of the input",
       "utc": "Save as UTC",
-      "utc_comment": "Save to and display from UTC"
+      "utc_comment": "Save to and display from UTC",
+      "default_to_current_datetime": "Default to current datetime",
+      "default_to_current_datetime_comment": "Sets the default value to current datetime"
     }
   }
 }
