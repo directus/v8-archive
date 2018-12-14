@@ -1,0 +1,13 @@
+{
+  "name": "$t:repeater",
+  "version": "1.0.0",
+  "types": ["string"],
+  "icon": "code",
+  "recommended": {
+    "length": 65534
+  },
+  "options": {
+  },
+  "translation": {
+  }
+}
