@@ -34,7 +34,7 @@ class AuthService extends AbstractService
      *
      * @throws UnauthorizedException
      */
-    public function loginWithCredentials($email, $password)
+    public function loginWithCredentials($email, $password, $algo="")
     {
         $this->validateCredentials($email, $password);
 
@@ -44,7 +44,8 @@ class AuthService extends AbstractService
         /** @var UserInterface $user */
         $user = $auth->login([
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'algo' => $algo
         ]);
 
         $hookEmitter = $this->container->get('hook_emitter');
