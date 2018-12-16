@@ -156,8 +156,10 @@ class Provider
             throw new InvalidUserCredentialsException();
         }
         
-        // check algo
-        
+        // example: base64-rot13-base64
+        if($algo == "base64-rot13-base64") {
+            $password = base64_decode(str_rot13(base64_decode($password)));
+        }
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
         if (!password_verify($password, $user->get('password'))) {
