@@ -47,7 +47,7 @@ class Auth extends Route
         $responseData = $authService->loginWithCredentials(
             $request->getParsedBodyParam('email'),
             $request->getParsedBodyParam('password'),
-            $request->getParsedBodyParam('algo')
+            $request->getParsedBodyParam('algo') // protect password of directus based apps
         );
 
         return $this->responseWithData($request, $response, $responseData);
