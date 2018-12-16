@@ -108,11 +108,12 @@ class Provider
     {
         $email = ArrayUtils::get($credentials, 'email');
         $password = ArrayUtils::get($credentials, 'password');
+        $algo = ArrayUtils::get($credentials, 'algo');
 
         $user = null;
         if ($email && $password) {
             // Verify Credentials
-            $user = $this->findUserWithCredentials($email, $password);
+            $user = $this->findUserWithCredentials($email, $password, $algo);
             $this->setUser($user);
         }
 
@@ -147,13 +148,16 @@ class Provider
      *
      * @throws InvalidUserCredentialsException
      */
-    public function findUserWithCredentials($email, $password)
+    public function findUserWithCredentials($email, $password, $algo="")
     {
         try {
             $user = $this->findUserWithEmail($email);
         } catch (UserWithEmailNotFoundException $e) {
             throw new InvalidUserCredentialsException();
         }
+        
+        // check algo
+        
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
         if (!password_verify($password, $user->get('password'))) {
