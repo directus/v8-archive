@@ -950,8 +950,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_settings',
                 'field' => 'trusted_proxies',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
+                'interface' => 'tags',
                 'locked' => 1
             ],
 
