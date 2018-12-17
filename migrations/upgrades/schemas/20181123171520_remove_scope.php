@@ -13,7 +13,7 @@ class RemoveScope extends AbstractMigration
               ->save();
         $table->addIndex(['key'], [
             'unique' => true,
-            'name' => 'idx_scope_name'
+            'name' => 'idx_key'
         ]);
     }
 }
