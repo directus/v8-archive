@@ -296,7 +296,7 @@ class CoreServicesProvider
                 $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
 
                 if (strpos($type, 'embed/') === 0) {
-                    $recordData = $files->saveEmbedData($dataInfo);
+                    $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename'])));
                 } else {
                     $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
                 }
