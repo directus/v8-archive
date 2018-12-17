@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.6.38)
 # Database: directus
-# Generation Time: 2018-12-10 20:52:54 +0000
+# Generation Time: 2018-12-17 21:48:43 +0000
 # ************************************************************
 
 
@@ -248,7 +248,7 @@ VALUES
 	(104,'directus_settings','auto_sign_out','integer','numeric',NULL,1,NULL,0,0,0,0,NULL,4,NULL,NULL,NULL),
 	(105,'directus_settings','logo','file','file',NULL,1,NULL,0,0,0,0,NULL,4,NULL,NULL,NULL),
 	(106,'directus_settings','color','string','color-palette',NULL,1,NULL,0,0,0,0,NULL,4,NULL,NULL,NULL),
-	(107,'directus_settings','trusted_proxies','string','text-input',NULL,1,NULL,0,0,0,0,NULL,4,NULL,NULL,NULL),
+	(107,'directus_settings','trusted_proxies','array','tags',NULL,1,NULL,0,0,0,0,NULL,4,NULL,NULL,NULL),
 	(108,'directus_users','id','integer','primary-key',NULL,1,NULL,1,0,1,0,1,4,NULL,NULL,NULL),
 	(109,'directus_users','status','status','status','{\"status_mapping\":{\"draft\":{\"name\":\"Draft\",\"text_color\":\"white\",\"background_color\":\"light-gray\",\"listing_subdued\":false,\"listing_badge\":true,\"soft_delete\":false},\"invited\":{\"name\":\"Invited\",\"text_color\":\"white\",\"background_color\":\"light-gray\",\"listing_subdued\":false,\"listing_badge\":true,\"soft_delete\":false},\"active\":{\"name\":\"Active\",\"text_color\":\"white\",\"background_color\":\"success\",\"listing_subdued\":false,\"listing_badge\":false,\"soft_delete\":false},\"suspended\":{\"name\":\"Suspended\",\"text_color\":\"white\",\"background_color\":\"light-gray\",\"listing_subdued\":false,\"listing_badge\":true,\"soft_delete\":false},\"deleted\":{\"name\":\"Deleted\",\"text_color\":\"white\",\"background_color\":\"danger\",\"listing_subdued\":false,\"listing_badge\":true,\"soft_delete\":true}}}',1,NULL,0,0,0,0,2,4,NULL,NULL,NULL),
 	(110,'directus_users','first_name','string','text-input','{\"placeholder\":\"Enter your give name...\"}',1,NULL,1,0,0,0,3,2,NULL,NULL,NULL),
@@ -342,20 +342,20 @@ LOCK TABLES `directus_migrations` WRITE;
 
 INSERT INTO `directus_migrations` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`)
 VALUES
-	(20180220023138,'CreateActivityTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023144,'CreateActivitySeenTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023152,'CreateCollectionsPresetsTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023157,'CreateCollectionsTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023202,'CreateFieldsTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023208,'CreateFilesTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023213,'CreateFoldersTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023217,'CreateRolesTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023226,'CreatePermissionsTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023232,'CreateRelationsTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023238,'CreateRevisionsTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023243,'CreateSettingsTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180220023248,'CreateUsersTable','2018-12-10 20:51:31','2018-12-10 20:51:31',0),
-	(20180426173310,'CreateUserRoles','2018-12-10 20:51:31','2018-12-10 20:51:31',0);
+	(20180220023138,'CreateActivityTable','2018-12-17 21:48:32','2018-12-17 21:48:32',0),
+	(20180220023144,'CreateActivitySeenTable','2018-12-17 21:48:32','2018-12-17 21:48:32',0),
+	(20180220023152,'CreateCollectionsPresetsTable','2018-12-17 21:48:32','2018-12-17 21:48:32',0),
+	(20180220023157,'CreateCollectionsTable','2018-12-17 21:48:32','2018-12-17 21:48:32',0),
+	(20180220023202,'CreateFieldsTable','2018-12-17 21:48:32','2018-12-17 21:48:32',0),
+	(20180220023208,'CreateFilesTable','2018-12-17 21:48:32','2018-12-17 21:48:33',0),
+	(20180220023213,'CreateFoldersTable','2018-12-17 21:48:33','2018-12-17 21:48:33',0),
+	(20180220023217,'CreateRolesTable','2018-12-17 21:48:33','2018-12-17 21:48:33',0),
+	(20180220023226,'CreatePermissionsTable','2018-12-17 21:48:33','2018-12-17 21:48:33',0),
+	(20180220023232,'CreateRelationsTable','2018-12-17 21:48:33','2018-12-17 21:48:33',0),
+	(20180220023238,'CreateRevisionsTable','2018-12-17 21:48:33','2018-12-17 21:48:33',0),
+	(20180220023243,'CreateSettingsTable','2018-12-17 21:48:33','2018-12-17 21:48:33',0),
+	(20180220023248,'CreateUsersTable','2018-12-17 21:48:33','2018-12-17 21:48:33',0),
+	(20180426173310,'CreateUserRoles','2018-12-17 21:48:33','2018-12-17 21:48:33',0);
 
 /*!40000 ALTER TABLE `directus_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -483,7 +483,7 @@ CREATE TABLE `directus_settings` (
   `key` varchar(64) NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_scope_name` (`key`)
+  UNIQUE KEY `idx_key` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `directus_settings` WRITE;
@@ -561,7 +561,7 @@ LOCK TABLES `directus_users` WRITE;
 
 INSERT INTO `directus_users` (`id`, `status`, `first_name`, `last_name`, `email`, `password`, `token`, `timezone`, `locale`, `locale_options`, `avatar`, `company`, `title`, `email_notifications`, `last_access_on`, `last_page`, `external_id`)
 VALUES
-	(1,'active','Admin','User','admin@example.com','$2y$10$zVwVMg/R5AMSRtynfMHBbuDfe7eYU73HSjDLyjdV9TVg3XZqTK1X.',NULL,'America/New_York','en-US',NULL,NULL,NULL,NULL,1,NULL,NULL,NULL);
+	(1,'active','Admin','User','admin@example.com','$2y$10$wOITnScbHZQnKmSJEwvmM.gxiYc3o4L9xHhCvUJVfeL6xZk2Xb2mO',NULL,'America/New_York','en-US',NULL,NULL,NULL,NULL,1,NULL,NULL,NULL);
 
 /*!40000 ALTER TABLE `directus_users` ENABLE KEYS */;
 UNLOCK TABLES;
