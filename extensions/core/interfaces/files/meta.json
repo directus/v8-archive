@@ -60,7 +60,8 @@
       "view_query": "View Query",
       "view_query_comment": "Set the view query to use for the files",
       "filters": "Filters",
-      "filters_comment": "What filters to use"
+      "filters_comment": "What filters to use",
+      "edit_item": "Edit"
     }
   }
 }
