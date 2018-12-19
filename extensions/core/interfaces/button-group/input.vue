@@ -21,7 +21,7 @@
           :disabled="readonly"
           :value="subitem.value"
           :checked="value === subitem.value"
-          @change="$emit('input', subitem.value);"
+          @change="$emit('input', subitem.value)"
         />
         <span class="button-group-button">
           <i v-if="subitem.icon" class="material-icons">{{ subitem.icon }}</i>

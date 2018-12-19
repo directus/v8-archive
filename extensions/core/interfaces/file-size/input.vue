@@ -26,7 +26,7 @@
       :readonly="readonly"
       :placeholder="options.placeholder"
       :value="value"
-      @input="$emit('input', $event);"
+      @input="$emit('input', $event)"
     ></v-input>
     <span class="interface-file-size-formatted">
       ({{ formatSize(value, true) }})

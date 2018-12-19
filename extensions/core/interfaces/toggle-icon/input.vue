@@ -4,7 +4,7 @@
       type="checkbox"
       id="icon-toggle"
       :disabled="readonly"
-      @change="updateValue($event.target.checked);"
+      @change="updateValue($event.target.checked)"
     />
     <label for="icon-toggle" :style="{ color: `var(--${colorChange})` }">
       <i class="material-icons">{{ icon }}</i> <span>{{ textChange }}</span>

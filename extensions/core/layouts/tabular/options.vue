@@ -11,7 +11,7 @@
             :label="field.name"
             :value="field.field"
             :checked="fieldsInUse.includes(field.field)"
-            @change="toggleField(field.field);"
+            @change="toggleField(field.field)"
           ></v-checkbox>
           <i class="material-icons">drag_handle</i>
         </div>

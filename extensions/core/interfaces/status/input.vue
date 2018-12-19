@@ -10,7 +10,7 @@
       :model-value="String(value)"
       :label="$t(options.name)"
       :checked="key == value"
-      @change="$emit('input', $event);"
+      @change="$emit('input', $event)"
     ></v-radio>
   </div>
 </template>

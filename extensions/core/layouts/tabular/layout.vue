@@ -16,9 +16,9 @@
     :manual-sort-field="sortField"
     @sort="sort"
     @widths="setWidths"
-    @select="$emit('select', $event);"
-    @scroll-end="$emit('next-page');"
-    @input="$emit('input', $event);"
+    @select="$emit('select', $event)"
+    @scroll-end="$emit('next-page')"
+    @input="$emit('input', $event)"
   ></v-table>
 </template>
 
