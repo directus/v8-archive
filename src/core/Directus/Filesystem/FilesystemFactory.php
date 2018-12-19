@@ -51,7 +51,7 @@ class FilesystemFactory
             'version' => ($config['version'] ?: 'latest'),
         ];
 
-        if ($config['endpoint']) {
+        if (isset($config['endpoint'])) {
           $options['endpoint'] = $config['endpoint'];
           $options['use_path_style_endpoint'] = true;
         }
