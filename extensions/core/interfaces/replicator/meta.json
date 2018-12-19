@@ -7,7 +7,48 @@
     "length": 65534
   },
   "options": {
+    "items": {
+      "name": "$t:items",
+      "comment": "$t:items_comment",
+      "interface": "code",
+      "default": [
+          {
+            "type": "object",
+            "title": "Pet",
+            "properties": {
+              "type": {
+                "format": null,
+                "type": "string",
+                "default": "dog",
+                "enum": [
+                  "cat",
+                  "dog",
+                  "bird",
+                  "reptile",
+                  "other"
+                ]
+              },
+              "name": {
+                "default": "Walter",
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "string",
+            "title": "Names"
+          }
+        ]
+    }
   },
   "translation": {
+    "en-US": {
+      "repeater": "Repeater",
+      "items": "Items",
+      "intems_comment": "Enter JSON as schema for the fields to repeat",
+      "placeholder": "Placeholder",
+      "placeholder_comment": "Enter placeholder text",
+      "item": "Item"
+    }
   }
 }
