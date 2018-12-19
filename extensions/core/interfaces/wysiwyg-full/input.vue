@@ -103,7 +103,11 @@ export default {
             },
             // personalize failed callback
             callbackKO: serverError => {
-              alert(serverError);
+              this.$store.dispatch("loadingFinished", "uploadingFile");
+
+              try {
+                alert(JSON.parse(serverError.body).error.message);
+              } catch(e) {}
             },
             // optional
             // add callback when a image have been chosen
