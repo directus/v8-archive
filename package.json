@@ -1,7 +1,7 @@
 {
   "name": "@directus/api",
   "private": true,
-  "version": "2.0.10",
+  "version": "2.0.12",
   "description": "Directus API",
   "main": "index.js",
   "repository": "directus/api",
