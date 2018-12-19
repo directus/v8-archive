@@ -43,12 +43,7 @@
 <script>
 import mixin from "../../../mixins/interface";
 import leaflet from "leaflet";
-import Bottleneck from "bottleneck/es5";
 import "./leaflet.css";
-
-const limiter = new Bottleneck({
-  minTime: 1000
-});
 
 export default {
   name: "interface-map",
