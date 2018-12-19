@@ -1,21 +1,27 @@
 <template>
   <div class="interface-map">
-    <div :class="{ 'map-readonly': readonly }" class="map">
+    <div :class="{ 'map-readonly': readonly}" class="map">
       <div
         class="map-container"
         id="directusMap"
-        :style="{ height: options.height + 'px' }"
-      >
-        <!-- Map Renders Here -->
+        :style="{ height: options.height + 'px'}">
+      <!-- Map Renders Here -->
       </div>
 
       <div class="map-actions">
-        <!-- TODO: Add Geo Search Here -->
+        <div class="address-input" v-if="options.address_to_code">
+            <v-input v-model="placeName" placeholder="Enter address to geocode"></v-input>
+            <button
+              v-if="isInteractive"
+              @click="findGeoCodes(placeName)">
+              <i class="material-icons">add_location</i>
+            </button>
+        </div>
+
         <button
           v-if="isInteractive"
           class="map-my-location"
-          @click="locateMe()"
-        >
+          @click="locateMe()">
           <i class="material-icons">my_location</i>
         </button>
       </div>
@@ -23,20 +29,13 @@
 
     <div class="map-details">
       <div class="map-location">
-        <span v-if="latlng"
-          >Latitude: <b>{{ latlng.lat }}</b></span
-        >
-        <span v-if="latlng"
-          >Longitude: <b>{{ latlng.lng }}</b></span
-        >
+        <span v-if="latlng">Latitude: <b>{{latlng.lat}}</b></span>
+        <span v-if="latlng">Longitude: <b>{{latlng.lng}}</b></span>
       </div>
       <button
         v-if="isInteractive && latlng"
         class="map-clear"
-        @click="setValue()"
-      >
-        {{ $t("clear") }}
-      </button>
+        @click="setValue()">{{ $t('clear') }}</button>
     </div>
   </div>
 </template>
@@ -44,7 +43,12 @@
 <script>
 import mixin from "../../../mixins/interface";
 import leaflet from "leaflet";
+import Bottleneck from "bottleneck/es5";
 import "./leaflet.css";
+
+const limiter = new Bottleneck({
+  minTime: 1000
+});
 
 export default {
   name: "interface-map",
@@ -56,6 +60,7 @@ export default {
       marker: null,
       latlng: null,
       isLocating: false,
+      placeName: '',
       mapPlaceholder: "directusMap",
       mapInteractions: [
         "boxZoom",
@@ -277,13 +282,55 @@ export default {
     },
 
     markerSVG() {
+      // Replace # with %23 so svg also works in Firefox
       return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="${
-        this.accentColor
+        this.accentColor.replace('#', '%23')
       }" stroke-width="1" stroke="${
-        this.darkAccentColor
+        this.darkAccentColor.replace('#', '%23')
       }" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>`;
+    },
+
+
+
+      // Place name for geocode lookup on openstreetmap database via Nominatim, Returns coordinates in [lat,lon]
+    getCoordinatesforPlaceName(placeName) {
+      this.$store.dispatch("loadingStart", {
+        id: this.isLocating
+      });
+      this.$axios
+        .get(`https://nominatim.openstreetmap.org/search/${this.placeName}?format=geojson&addressdetails=1&limit=1`)
+        .then(response => {
+          if (response.status === 200) {
+            if(!response.data.features[0]) {
+              this.$events.emit("error", {
+                notify: this.$t("interfaces-map-address_to_code_error"),
+                error: 'result'
+              });
+            } else {
+              let coordArray = response.data.features[0].geometry.coordinates;
+              let coordinates = {
+                lat: coordArray[1],
+                lng: coordArray[0]
+              }
+              this.setValue(coordinates);
+              this.map.panTo(new leaflet.LatLng(coordArray[1], coordArray[0]));
+              this.$store.dispatch("loadingFinished", this.isLocating);
+            }
+          }
+        })
+        .catch(err => {
+          this.$events.emit("error", {
+            notify: err,
+            error: 'result'
+          });
+          this.$store.dispatch("loadingFinished", this.isLocating)
+        });
+    },
+
+    findGeoCodes(placeName) {
+      limiter.schedule(() => this.getCoordinatesforPlaceName(placeName))
     }
-  }
+    }
 };
 </script>
 
@@ -310,9 +357,32 @@ export default {
 
 .map-actions {
   position: absolute;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
   top: 20px;
-  left: 20px;
+  left: 0px;
+  padding: 0 20px;
   z-index: 2;
+}
+
+.address-input {
+  display: flex;
+
+  .v-input {
+    width: 250px;
+  }
+
+  button {
+    margin-left: 4px;
+    transition: var(--fast) var(--transition) color;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius);
+    color: var(--light-gray);
+    box-shadow: var(--box-shadow);
+    background: #fff;
+  }
 }
 
 .map-my-location {
@@ -323,6 +393,7 @@ export default {
   color: var(--light-gray);
   box-shadow: var(--box-shadow);
   background: #fff;
+
   &:hover {
     color: var(--accent);
   }

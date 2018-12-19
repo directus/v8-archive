@@ -9,6 +9,7 @@
   "author": "Harsh Kansagara <harsh@7span.com>",
   "license": "GPL-3.0",
   "dependencies": {
+    "bottleneck": "^2.13.2",
     "leaflet": "^1.3.4"
   },
   "devDependencies": {
