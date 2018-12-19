@@ -107,7 +107,7 @@ export default {
 
               try {
                 alert(JSON.parse(serverError.body).error.message);
-              } catch(e) {}
+              } catch (e) {}
             },
             // optional
             // add callback when a image have been chosen

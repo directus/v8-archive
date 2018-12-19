@@ -76,7 +76,6 @@
         @close="editExisting = false"
         @save="saveEdits"
       >
-
         <div class="edit-modal-body">
           <v-form
             :fields="relatedCollectionFields"
@@ -86,7 +85,6 @@
         </div>
       </v-modal>
     </portal>
-
   </div>
 </template>
 
@@ -122,7 +120,7 @@ export default {
     },
 
     relatedCollectionFields() {
-      console.log(this.relation.junction.collection_one.fields)
+      console.log(this.relation.junction.collection_one.fields);
       return this.relation.junction.collection_one.fields;
     },
 
@@ -131,7 +129,6 @@ export default {
         primary_key: true
       }).field;
     },
-
 
     /*
      * Converts the junction collection rows into formatted file objects that
@@ -312,7 +309,7 @@ export default {
     },
 
     editFile(index) {
-      this.editExisting = this.value[index]
+      this.editExisting = this.value[index];
     },
 
     stageValue({ field, value }) {
