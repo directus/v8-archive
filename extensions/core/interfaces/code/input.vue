@@ -81,7 +81,7 @@ export default {
         styleSelectedText: true,
         line: true,
         highlightSelectionMatches: { showToken: /\w/, annotateScrollbar: true },
-        mode: this.options.language,
+        mode: this.mode,
         hintOptions: {
           completeSingle: true
         },
@@ -129,6 +129,12 @@ export default {
       }
 
       return this.value;
+    },
+    mode() {
+      // There is no dedicated mode for JSON in codemirror. Switch to JS mode when JSON is selected
+      return this.options.language === "application/json"
+        ? "text/javascript"
+        : this.options.language;
     }
   },
   methods: {
@@ -139,7 +145,15 @@ export default {
         this.lineCount = codemirror.lineCount();
       }
 
-      this.$emit("input", value);
+      if (this.options.language === "application/json") {
+        try {
+          this.$emit("input", JSON.parse(value));
+        } catch (e) {
+          // silently ignore saving value if it's not valid json
+        }
+      } else {
+        this.$emit("input", value);
+      }
     },
     fillTemplate() {
       if (this.$lodash.isObject(this.options.template)) {
@@ -149,7 +163,15 @@ export default {
         );
       }
 
-      this.$emit("input", this.options.template);
+      if (this.options.language === "application/json") {
+        try {
+          this.$emit("input", JSON.parse(this.options.template));
+        } catch (e) {
+          // silently ignore saving value if it's not valid json
+        }
+      } else {
+        this.$emit("input", this.options.template);
+      }
     }
   }
 };
