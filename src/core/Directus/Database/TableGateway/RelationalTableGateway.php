@@ -1418,13 +1418,19 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $filters = $this->parseDotFilters($query, $filters);
 
-        foreach ($filters as $column => $condition) {
-            if ($condition instanceof Filter) {
-                $column =  $condition->getIdentifier();
-                $condition = $condition->getValue();
+        foreach ($filters as $column => $conditions) {
+            if ($conditions instanceof Filter) {
+                $column =  $conditions->getIdentifier();
+                $conditions = $conditions->getValue();
             }
 
-            $this->doFilter($query, $column, $condition, $this->getTable());
+            if (!is_array($conditions) || !isset($conditions[0])) {
+                $conditions = [$conditions];
+            }
+
+            foreach ($conditions as $condition) {
+                $this->doFilter($query, $column, $condition, $this->getTable());
+            }
         }
     }
 
