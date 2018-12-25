@@ -598,7 +598,7 @@ class RelationalTableGateway extends BaseTableGateway
             // Update/Add foreign record
             if ($this->recordDataContainsNonPrimaryKeyData($foreignRow, $foreignTableSchema->getPrimaryKeyName())) {
                 // NOTE: using manageRecordUpdate instead of addOrUpdateRecordByArray to update related data
-                $foreignRow = $this->manageRecordUpdate($foreignTableName, $foreignRow);
+                $foreignRow = $ForeignTable->manageRecordUpdate($foreignTableName, $foreignRow);
             }
 
             $parentRow[$fieldName] = $foreignRow[$primaryKey];
@@ -665,10 +665,10 @@ class RelationalTableGateway extends BaseTableGateway
 
                 // only add parent id's to items that are lacking the parent column
                 if (!array_key_exists($foreignJoinColumn, $foreignRecord)) {
-                    $foreignRecord[$foreignJoinColumn] = $parentRow['id'];
+                    $foreignRecord[$foreignJoinColumn] = $parentRow[$this->primaryKeyFieldName];
                 }
 
-                $foreignRecord = $this->manageRecordUpdate(
+                $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
                     $foreignRecord,
                     ['activity_mode' => self::ACTIVITY_ENTRY_MODE_CHILD],
