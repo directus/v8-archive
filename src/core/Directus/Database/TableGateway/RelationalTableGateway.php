@@ -981,12 +981,12 @@ class RelationalTableGateway extends BaseTableGateway
 
         $selectedFields = $this->getSelectedNonAliasFields($fields ?: ['*']);
         if (!in_array($collectionObject->getPrimaryKeyName(), $selectedFields)) {
-            $selectedFields = array_unshift($selectedFields, $collectionObject->getPrimaryKeyName());
+            array_unshift($selectedFields, $collectionObject->getPrimaryKeyName());
         }
 
         $statusField = $collectionObject->getStatusField();
         if ($statusField && !in_array($statusField->getName(), $selectedFields) && $this->acl->getCollectionStatuses($this->table)) {
-            $selectedFields = array_unshift($selectedFields, $statusField->getName());
+            array_unshift($selectedFields, $statusField->getName());
         }
 
         $builder->columns($selectedFields);
