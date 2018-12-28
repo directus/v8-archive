@@ -44,7 +44,7 @@
   },
   "suggest": {
     "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes",
-    "aws/aws-sdk-php": "Enables the usage of Amazon S3 adapter for storage"
+    "league/flysystem-aws-s3-v3": "Enables the usage of Amazon S3 adapter for storage"
   },
   "autoload": {
     "psr-4": {
