@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "php": "^5.6 || ^7.0",
+    "php": "^7.1",
     "slim/slim": "^3.0.0",
     "monolog/monolog": "^1.23.0",
     "zendframework/zend-db": "dev-directus",

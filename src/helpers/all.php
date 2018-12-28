@@ -1214,8 +1214,8 @@ if (!function_exists('get_missing_requirements')) {
     {
         $errors = [];
 
-        if (version_compare(PHP_VERSION, '5.6.0', '<')) {
-            $errors[] = 'Your host needs to use PHP 5.6.0 or higher to run this version of Directus!';
+        if (version_compare(PHP_VERSION, '7.1.0', '<')) {
+            $errors[] = 'Your host needs to use PHP 7.1.0 or higher to run this version of Directus!';
         }
 
         if (!defined('PDO::ATTR_DRIVER_NAME')) {
