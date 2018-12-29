@@ -598,7 +598,7 @@ class RelationalTableGateway extends BaseTableGateway
             // Update/Add foreign record
             if ($this->recordDataContainsNonPrimaryKeyData($foreignRow, $foreignTableSchema->getPrimaryKeyName())) {
                 // NOTE: using manageRecordUpdate instead of addOrUpdateRecordByArray to update related data
-                $foreignRow = $this->manageRecordUpdate($foreignTableName, $foreignRow);
+                $foreignRow = $ForeignTable->manageRecordUpdate($foreignTableName, $foreignRow);
             }
 
             $parentRow[$fieldName] = $foreignRow[$primaryKey];
@@ -665,10 +665,10 @@ class RelationalTableGateway extends BaseTableGateway
 
                 // only add parent id's to items that are lacking the parent column
                 if (!array_key_exists($foreignJoinColumn, $foreignRecord)) {
-                    $foreignRecord[$foreignJoinColumn] = $parentRow['id'];
+                    $foreignRecord[$foreignJoinColumn] = $parentRow[$this->primaryKeyFieldName];
                 }
 
-                $foreignRecord = $this->manageRecordUpdate(
+                $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
                     $foreignRecord,
                     ['activity_mode' => self::ACTIVITY_ENTRY_MODE_CHILD],
@@ -979,14 +979,14 @@ class RelationalTableGateway extends BaseTableGateway
         $builder = new Builder($this->getAdapter());
         $builder->from($this->getTable());
 
-        $selectedFields = array_merge(
-            [$collectionObject->getPrimaryKeyName()],
-            $this->getSelectedNonAliasFields($fields ?: ['*'])
-        );
+        $selectedFields = $this->getSelectedNonAliasFields($fields ?: ['*']);
+        if (!in_array($collectionObject->getPrimaryKeyName(), $selectedFields)) {
+            array_unshift($selectedFields, $collectionObject->getPrimaryKeyName());
+        }
 
         $statusField = $collectionObject->getStatusField();
-        if ($statusField && $this->acl->getCollectionStatuses($this->table)) {
-            $selectedFields = array_merge($selectedFields, [$statusField->getName()]);
+        if ($statusField && !in_array($statusField->getName(), $selectedFields) && $this->acl->getCollectionStatuses($this->table)) {
+            array_unshift($selectedFields, $statusField->getName());
         }
 
         $builder->columns($selectedFields);
@@ -1418,13 +1418,19 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $filters = $this->parseDotFilters($query, $filters);
 
-        foreach ($filters as $column => $condition) {
-            if ($condition instanceof Filter) {
-                $column =  $condition->getIdentifier();
-                $condition = $condition->getValue();
+        foreach ($filters as $column => $conditions) {
+            if ($conditions instanceof Filter) {
+                $column =  $conditions->getIdentifier();
+                $conditions = $conditions->getValue();
             }
 
-            $this->doFilter($query, $column, $condition, $this->getTable());
+            if (!is_array($conditions) || !isset($conditions[0])) {
+                $conditions = [$conditions];
+            }
+
+            foreach ($conditions as $condition) {
+                $this->doFilter($query, $column, $condition, $this->getTable());
+            }
         }
     }
 

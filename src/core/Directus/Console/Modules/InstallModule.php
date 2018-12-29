@@ -34,7 +34,6 @@ class InstallModule extends ModuleBase
                 . PHP_EOL . "\t\t-c " . 'CORS Enabled. Default: false'
                 . PHP_EOL . "\t\t-r " . 'Directus root URI. Default: /',
             'database' => '',
-            'migrate' => '',
             'install' => ''
                 . PHP_EOL . "\t\t-e " . 'Administrator e-mail address, used for administration login. Default: admin@directus.com'
                 . PHP_EOL . "\t\t-p " . 'Initial administrator password. Default: directus'
@@ -116,13 +115,6 @@ class InstallModule extends ModuleBase
         }
 
         InstallerUtils::createTables($directus_path, $projectName);
-    }
-
-    public function cmdMigrate($args, $extra)
-    {
-        $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
-
-        InstallerUtils::runMigration($directus_path);
     }
 
     public function cmdSeeder($args, $extra)

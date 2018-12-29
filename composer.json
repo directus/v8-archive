@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "php": "^5.6 || ^7.0",
+    "php": "^7.1",
     "slim/slim": "^3.0.0",
     "monolog/monolog": "^1.23.0",
     "zendframework/zend-db": "dev-directus",
@@ -44,7 +44,7 @@
   },
   "suggest": {
     "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes",
-    "aws/aws-sdk-php": "Enables the usage of Amazon S3 adapter for storage"
+    "league/flysystem-aws-s3-v3": "Enables the usage of Amazon S3 adapter for storage"
   },
   "autoload": {
     "psr-4": {
