@@ -67,7 +67,7 @@ class ProjectService extends AbstractService
         InstallerUtils::createConfig($basePath, $data, $force);
 
         $hasDirectusTables = InstallerUtils::hasSomeDirectusTablesFromData($data);
-        if (!($hasDirectusTables && $ignoreSystemTables)) {
+        if ($force || !($hasDirectusTables && $ignoreSystemTables)) {
             InstallerUtils::createTables($basePath, $projectName, $force);
             InstallerUtils::addDefaultSettings($basePath, $data, $projectName);
             InstallerUtils::addDefaultUser($basePath, $data, $projectName);
