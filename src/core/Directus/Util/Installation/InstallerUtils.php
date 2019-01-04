@@ -641,6 +641,26 @@ class InstallerUtils
                 'key' => 'trusted_proxies',
                 'value' => ''
             ],
+            [
+                'key' => 'thumbnail_dimensions',
+                'value' => '200x200'
+            ],
+            [
+                'key' => 'thumbnail_quality_tags',
+                'value' => '{"poor": 25, "good": 50, "better":  75, "best": 100}'
+            ],
+            [
+                'key' => 'thumbnail_actions',
+                'value' => '{"contain":{"options":{"resizeCanvas":false,"position":"center","resizeRelative":false,"canvasBackground":"ccc"}},"crop":{"options":{"position":"center"}}}'
+            ],
+            [
+                'key' => 'thumbnail_cache_ttl',
+                'value' => '86400'
+            ],
+            [
+                'key' => 'thumbnail_not_found_location',
+                'value' => ''
+            ],
         ];
     }
 
