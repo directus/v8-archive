@@ -61,33 +61,6 @@ class Validator
     }
 
     /**
-     * Creates constraints object from name
-     *
-     * @param array $constraints
-     *
-     * @return Constraint[]
-     */
-    protected function createConstraintFromList(array $constraints)
-    {
-        $constraintsObjects = [];
-
-        foreach ($constraints as $constraint) {
-            $options = null;
-
-            // NOTE: Simple implementation to adapt a new regex validation and its pattern
-            if (strpos($constraint, ':')) {
-                $constraintParts = explode(':', $constraint);
-                $constraint = $constraintParts[0];
-                $options = $constraintParts[1];
-            }
-
-            $constraintsObjects[] = $this->getConstraint($constraint, $options);
-        }
-
-        return $constraintsObjects;
-    }
-
-    /**
      * Gets constraint with the given name
      *
      * @param string $name
@@ -97,7 +70,7 @@ class Validator
      *
      * @throws UnknownConstraintException
      */
-    protected function getConstraint($name, $options = null)
+    public function getConstraint($name, $options = null)
     {
         $constraint = null;
 
@@ -125,5 +98,32 @@ class Validator
         }
 
         return $constraint;
+    }
+
+    /**
+     * Creates constraints object from name
+     *
+     * @param array $constraints
+     *
+     * @return Constraint[]
+     */
+    protected function createConstraintFromList(array $constraints)
+    {
+        $constraintsObjects = [];
+
+        foreach ($constraints as $constraint) {
+            $options = null;
+
+            // NOTE: Simple implementation to adapt a new regex validation and its pattern
+            if (strpos($constraint, ':')) {
+                $constraintParts = explode(':', $constraint);
+                $constraint = $constraintParts[0];
+                $options = $constraintParts[1];
+            }
+
+            $constraintsObjects[] = $this->getConstraint($constraint, $options);
+        }
+
+        return $constraintsObjects;
     }
 }

@@ -1062,6 +1062,7 @@ class FieldsSeeder extends AbstractSeed
                     'placeholder' => 'Enter your email address...'
                 ]),
                 'locked' => 1,
+                'validation' => '$email',
                 'required' => 1,
                 'sort' => 5,
                 'width' => 2

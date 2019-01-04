@@ -1489,6 +1489,36 @@ if (!function_exists('is_valid_regex_pattern')) {
     }
 }
 
+if (!function_exists('is_custom_validation')) {
+    /**
+     * Checks whether the given value is a custom validation
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_custom_validation($value)
+    {
+        return in_array(strtolower($value), [
+            '$email',
+        ]);
+    }
+}
+
+if (!function_exists('get_custom_validation_name')) {
+    /**
+     * Returns the custom validation constraint name
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    function get_custom_validation_name($value)
+    {
+        return strtolower(substr((string)$value, 1));
+    }
+}
+
 if (!function_exists('env')) {
     /**
      * Returns an environment variable
