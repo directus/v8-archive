@@ -156,6 +156,26 @@ class InstallerUtils
     }
 
     /**
+     * Checks whether there's a single Directus collection in the database using the given data
+     *
+     * @param array $data
+     *
+     * @return bool
+     */
+    public static function hasSomeDirectusTablesFromData(array $data)
+    {
+        $exists = false;
+
+        static::getDirectusTablesFromData($data, function () use (&$exists) {
+            $exists = true;
+
+            return false;
+        });
+
+        return $exists;
+    }
+
+    /**
      * Run the migration files
      *
      * @param $directusPath
@@ -742,14 +762,29 @@ class InstallerUtils
      */
     private static function ensureSystemTablesDoesNotExistsFromData(array $data)
     {
+        static::getDirectusTablesFromData($data, function (Connection $db, $name) {
+            throw new Exception(
+                sprintf('Directus seems to has been installed in the "%s" database.', $db->getCurrentSchema())
+            );
+        });
+    }
+
+    /**
+     * Loop through all Directus tables using the given connection data
+     *
+     * @param array $data
+     * @param \Closure $callback
+     */
+    private static function getDirectusTablesFromData(array $data, \Closure $callback)
+    {
         $db = static::createDatabaseConnectionFromData($data);
         $schemaManager = static::createSchemaManagerFromData($data, $db);
 
         foreach (SchemaManager::getSystemCollections() as $table) {
             if ($schemaManager->collectionExists($table)) {
-                throw new Exception(
-                    sprintf('Directus seems to has been installed in the "%s" database.', $db->getCurrentSchema())
-                );
+                if ($callback($db, $table) === false) {
+                    break;
+                }
             }
         }
     }

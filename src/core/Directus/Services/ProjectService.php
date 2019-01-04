@@ -22,6 +22,7 @@ class ProjectService extends AbstractService
             'project' => 'string|regex:/^[0-9a-z_-]+$/i',
 
             'force' => 'bool',
+            'existing' => 'bool',
 
             'db_host' => 'string',
             'db_port' => 'numeric',
@@ -40,6 +41,7 @@ class ProjectService extends AbstractService
 
         $basePath = $this->container->get('path_base');
         $force = ArrayUtils::pull($data, 'force', false);
+        $ignoreSystemTables = ArrayUtils::pull($data, 'existing', false);
         $projectName = ArrayUtils::pull($data, 'project');
         if (empty($projectName)) {
             $projectName = '_';
@@ -54,7 +56,7 @@ class ProjectService extends AbstractService
         }
 
         try {
-            InstallerUtils::ensureCanCreateTables($basePath, $data, $force);
+            InstallerUtils::ensureCanCreateTables($basePath, $data, $ignoreSystemTables ? true : $force);
         } catch (ConnectionFailedException $e) {
             // Throw invalid database connection instead of connection failed
             // At this point the user is providing database credentials
@@ -63,9 +65,13 @@ class ProjectService extends AbstractService
         }
 
         InstallerUtils::createConfig($basePath, $data, $force);
-        InstallerUtils::createTables($basePath, $projectName, $force);
-        InstallerUtils::addDefaultSettings($basePath, $data, $projectName);
-        InstallerUtils::addDefaultUser($basePath, $data, $projectName);
+
+        $hasDirectusTables = InstallerUtils::hasSomeDirectusTablesFromData($data);
+        if (!($hasDirectusTables && $ignoreSystemTables)) {
+            InstallerUtils::createTables($basePath, $projectName, $force);
+            InstallerUtils::addDefaultSettings($basePath, $data, $projectName);
+            InstallerUtils::addDefaultUser($basePath, $data, $projectName);
+        }
     }
 
     /**
