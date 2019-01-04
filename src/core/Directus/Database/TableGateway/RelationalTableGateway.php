@@ -2248,7 +2248,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     protected function getFieldNowValue(Field $field, $value)
     {
-        $isNow = strtolower($value) === 'now';
+        $isNow = is_string($value) && strtolower($value) === 'now';
         $isDateType = DataTypes::isDateType($field->getType());
         $isDateTimeType = DataTypes::isDateTimeType($field->getType());
 
