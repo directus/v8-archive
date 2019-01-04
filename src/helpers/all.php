@@ -1499,7 +1499,7 @@ if (!function_exists('is_custom_validation')) {
      */
     function is_custom_validation($value)
     {
-        return in_array(strtolower($value), [
+        return in_array(strtolower((string)$value), [
             '$email',
         ]);
     }
