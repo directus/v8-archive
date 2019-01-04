@@ -1302,6 +1302,8 @@ class RelationalTableGateway extends BaseTableGateway
             throw new Exception\UnknownFilterException($operator);
         }
 
+        $value = $this->getFieldNowValue($field, $value);
+
         // TODO: if there's more, please add a better way to handle all this
         if ($field->isOneToMany()) {
             // translate some non-x2m relationship filter to x2m equivalent (if exists)
@@ -2234,5 +2236,33 @@ class RelationalTableGateway extends BaseTableGateway
     protected function isFilterSupported($operator)
     {
         return in_array($operator, $this->getSupportedFilters());
+    }
+
+    /**
+     * Returns the value of "now" for a date or datetime field
+     *
+     * @param Field $field
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function getFieldNowValue(Field $field, $value)
+    {
+        $isNow = strtolower($value) === 'now';
+        $isDateType = DataTypes::isDateType($field->getType());
+        $isDateTimeType = DataTypes::isDateTimeType($field->getType());
+
+        if (!$isNow || (!$isDateType && !$isDateTimeType)) {
+            return $value;
+        }
+
+        $isSystemCollection = $this->schemaManager->isSystemCollection($field->getCollectionName());
+        $datetime = DateTimeUtils::now();
+        $format = null;
+        if ($isDateType) {
+            $format = DateTimeUtils::DEFAULT_DATE_FORMAT;
+        }
+
+        return $isSystemCollection ? $datetime->toUTCString($format) : $datetime->toString($format);
     }
 }
