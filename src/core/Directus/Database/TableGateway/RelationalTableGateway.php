@@ -1298,6 +1298,10 @@ class RelationalTableGateway extends BaseTableGateway
         $not = ArrayUtils::get($condition, 'not');
         $logical = ArrayUtils::get($condition, 'logical');
 
+        if (!$this->isFilterSupported($operator)) {
+            throw new Exception\UnknownFilterException($operator);
+        }
+
         // TODO: if there's more, please add a better way to handle all this
         if ($field->isOneToMany()) {
             // translate some non-x2m relationship filter to x2m equivalent (if exists)
@@ -2197,5 +2201,38 @@ class RelationalTableGateway extends BaseTableGateway
                 'parent_changed' => ArrayUtils::get($item, 'parent_changed')
             ]);
         }
+    }
+
+    /**
+     * List of all supported filters
+     *
+     * @return array
+     */
+    protected function getSupportedFilters()
+    {
+        $shorthands = array_keys($this->operatorShorthand);
+
+        $operators = [
+            'like',
+            'null',
+            'all',
+            'has',
+            'between',
+            'empty',
+        ];
+
+        return array_merge($shorthands, $operators);
+    }
+
+    /**
+     * Checks whether a given filter operator is supported
+     *
+     * @param string $operator
+     *
+     * @return bool
+     */
+    protected function isFilterSupported($operator)
+    {
+        return in_array($operator, $this->getSupportedFilters());
     }
 }
