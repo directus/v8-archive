@@ -1302,8 +1302,6 @@ class RelationalTableGateway extends BaseTableGateway
             throw new Exception\UnknownFilterException($operator);
         }
 
-        $value = $this->getFieldNowValue($field, $value);
-
         // TODO: if there's more, please add a better way to handle all this
         if ($field->isOneToMany()) {
             // translate some non-x2m relationship filter to x2m equivalent (if exists)
@@ -1341,6 +1339,9 @@ class RelationalTableGateway extends BaseTableGateway
         if (in_array($operator, $splitOperators) && is_scalar($value)) {
             $value = explode(',', $value);
         }
+
+        // After "between" and "in" to support multiple values of "now"
+        $value = $this->getFieldNowValues($field, $value);
 
         $arguments = [$column, $value];
 
@@ -2264,5 +2265,18 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         return $isSystemCollection ? $datetime->toUTCString($format) : $datetime->toString($format);
+    }
+
+    protected function getFieldNowValues(Field $field, $value)
+    {
+        if (is_array($value)) {
+            foreach ($value as &$v) {
+                $v = $this->getFieldNowValue($field, $v);
+            }
+        } else {
+            $value = $this->getFieldNowValue($field, $value);
+        }
+
+        return $value;
     }
 }
