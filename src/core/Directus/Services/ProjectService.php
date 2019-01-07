@@ -42,6 +42,12 @@ class ProjectService extends AbstractService
         $basePath = $this->container->get('path_base');
         $force = ArrayUtils::pull($data, 'force', false);
         $ignoreSystemTables = ArrayUtils::pull($data, 'existing', false);
+
+        // "existing" must disable forcing installation
+        if ($ignoreSystemTables && $force) {
+            $force = false;
+        }
+
         $projectName = ArrayUtils::pull($data, 'project');
         if (empty($projectName)) {
             $projectName = '_';
