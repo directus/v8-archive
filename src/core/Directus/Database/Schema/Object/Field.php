@@ -172,6 +172,26 @@ class Field extends AbstractObject
     }
 
     /**
+     * Returns the field key name
+     *
+     * @return string
+     */
+    public function getKeyName()
+    {
+        return $this->attributes->get('key_name');
+    }
+
+    /**
+     * Sets the field key name
+     *
+     * @param string $name
+     */
+    public function setKeyName($name)
+    {
+        $this->attributes->set('key_name', $name);
+    }
+
+    /**
      * Gets the field extra
      *
      * @return string

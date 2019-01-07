@@ -65,6 +65,15 @@ interface SchemaInterface
     public function getAllFields(array $params = []);
 
     /**
+     * Returns all the keys name in the given table name
+     *
+     * @param string $tableName
+     *
+     * @return ResultSet
+     */
+    public function getFieldsKeys($tableName);
+
+    /**
      * Checks whether the given table name has a given column name
      *
      * @param string $collectionName

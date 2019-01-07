@@ -271,6 +271,7 @@ class SchemaManager
             }
 
             $this->data['columns'][$tableName] = $this->addFieldsRelationship($tableName, $columnsSchema);
+            $this->data['columns'][$tableName] = $this->addFieldsKeysName($tableName, $columnsSchema);
         }
 
         return $columnsSchema;
@@ -621,6 +622,29 @@ class SchemaManager
         // "file" and "user" must be related to directus_files and directus_users
         foreach ($fields as $field) {
             $this->setSystemTypeRelationship($field);
+        }
+
+        return $fields;
+    }
+
+    public function addFieldsKeysName($collectionName, array $fields)
+    {
+        $result = $this->source->getFieldsKeys($collectionName);
+
+        if ($result->count() > 0) {
+            $fieldsByName = [];
+
+            foreach ($fields as $field) {
+                $fieldsByName[$field->getName()] = $field;
+            }
+
+            foreach ($result as $item) {
+                $field = ArrayUtils::pull($fieldsByName, $item['field']);
+
+                if ($field) {
+                    $field->setKeyName($item['key']);
+                }
+            }
         }
 
         return $fields;

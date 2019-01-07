@@ -292,6 +292,31 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritDoc
      */
+    public function getFieldsKeys($tableName)
+    {
+        $select = new Select();
+
+        $select->columns([
+            'field' => 'COLUMN_NAME',
+            'key' => 'CONSTRAINT_NAME'
+        ]);
+
+        $select->from(new TableIdentifier('KEY_COLUMN_USAGE', 'INFORMATION_SCHEMA'));
+        $select->where([
+            'TABLE_NAME' => $tableName,
+            'TABLE_SCHEMA' => $this->adapter->getCurrentSchema(),
+        ]);
+
+        $sql = new Sql($this->adapter);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        return $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function hasField($tableName, $columnName)
     {
         // TODO: Implement hasColumn() method.

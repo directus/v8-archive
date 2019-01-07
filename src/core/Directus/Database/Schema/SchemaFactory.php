@@ -128,16 +128,21 @@ class SchemaFactory
 
         $toChangeColumnsData = ArrayUtils::get($data, 'change', []);
         $toChangeColumns = $this->createColumns($toChangeColumnsData);
+        $idx = -1;
         foreach ($toChangeColumns as $column) {
+            $columnData = $toChangeColumnsData[++$idx];
             $table->changeColumn($column->getName(), $column);
 
             $options = $column->getOptions();
             if (!is_array($options)) {
-                continue;
+                $options = [];
             }
 
             if (ArrayUtils::get($options, 'primary_key') == true) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
+            } else if (ArrayUtils::get($columnData, 'drop_primary_key') === true) {
+                $table->dropConstraint(ArrayUtils::get($columnData, 'primary_key_name'));
+                $column->setOption('autoincrement', false);
             } if (ArrayUtils::get($options, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
