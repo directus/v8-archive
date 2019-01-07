@@ -102,6 +102,7 @@ $app->add($middleware['rate_limit_ip'])
     ->add($middleware['cors']);
 
 $app->get('/', \Directus\Api\Routes\Home::class)
+    ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
@@ -219,22 +220,26 @@ $app->group('/{project}', function () use ($middleware) {
 
 $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/layouts', \Directus\Api\Routes\Layouts::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/pages', \Directus\Api\Routes\Pages::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
