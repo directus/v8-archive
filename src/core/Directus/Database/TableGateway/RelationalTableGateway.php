@@ -2292,6 +2292,6 @@ class RelationalTableGateway extends BaseTableGateway
             return $value;
         }
 
-        return sprintf('%%%s%%', addcslashes($value, '%'));
+        return sprintf('%%%s%%', addcslashes($value, '%_'));
     }
 }
