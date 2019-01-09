@@ -813,6 +813,11 @@ class InstallerUtils
             \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
         ];
 
+        if (ArrayUtils::get($data, 'db_socket')) {
+            ArrayUtils::remove($dbConfig, 'host');
+            $dbConfig['unix_socket'] = $data['db_socket'];
+        }
+
         return new Connection($dbConfig);
     }
 
@@ -880,6 +885,7 @@ class InstallerUtils
             'db_host' => 'localhost',
             'db_port' => 3306,
             'db_password' => null,
+            'db_socket' => '',
             'mail_from' => 'admin@example.com',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
             'auth_secret' => StringUtils::randomString(32),

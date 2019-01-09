@@ -29,6 +29,7 @@ class ProjectService extends AbstractService
             'db_name' => 'required|string',
             'db_user' => 'required|string',
             'db_password' => 'string',
+            'db_socket' => 'string',
 
             'mail_from' => 'string',
             'cors_enabled' => 'bool',

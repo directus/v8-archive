@@ -87,6 +87,9 @@ class InstallModule extends ModuleBase
                 case 'N': // project Name
                     $data['project'] = (string) $value;
                     break;
+                case 's':
+                    $data['db_socket'] = $value;
+                    break;
             }
         }
 
