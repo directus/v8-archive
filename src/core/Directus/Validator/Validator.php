@@ -6,6 +6,7 @@ use Directus\Validator\Constraints\Required;
 use Directus\Validator\Exception\UnknownConstraintException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -77,6 +78,9 @@ class Validator
         switch ($name) {
             case 'required':
                 $constraint = new Required();
+                break;
+            case 'notnullable':
+                $constraint = new NotNull();
                 break;
             case 'email':
                 $constraint = new Email();
