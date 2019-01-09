@@ -90,6 +90,9 @@ class InstallModule extends ModuleBase
                 case 's':
                     $data['db_socket'] = $value;
                     break;
+                case 'timezone':
+                    $data['timezone'] = $value;
+                    break;
             }
         }
 
@@ -149,6 +152,12 @@ class InstallModule extends ModuleBase
                     break;
                 case 'N':
                     $projectName = $value;
+                    break;
+                case 'timezone':
+                    $data['timezone'] = $value;
+                    break;
+                case 'locale':
+                    $data['locale'] = $value;
                     break;
             }
         }

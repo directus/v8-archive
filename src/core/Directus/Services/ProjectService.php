@@ -34,6 +34,9 @@ class ProjectService extends AbstractService
             'mail_from' => 'string',
             'cors_enabled' => 'bool',
 
+            'timezone' => 'string',
+            'locale' => 'string',
+
             'project_name' => 'string',
             'user_email' => 'required|email',
             'user_password' => 'required|string',

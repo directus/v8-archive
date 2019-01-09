@@ -247,7 +247,9 @@ class InstallerUtils
         $data = ArrayUtils::defaults([
             'user_email' => 'admin@example.com',
             'user_password' => 'password',
-            'user_token' => null
+            'user_token' => null,
+            'timezone' => 'America/New_York',
+            'locale' => 'en-US',
         ], $data);
 
         $hash = $auth->hashPassword($data['user_password']);
@@ -259,7 +261,8 @@ class InstallerUtils
             'email' => $data['user_email'],
             'password' => $hash,
             'token' => $data['user_token'],
-            'locale' => 'en-US'
+            'timezone' => $data['timezone'],
+            'locale' => $data['locale'],
         ]);
 
         $userRolesTableGateway = new TableGateway('directus_user_roles', $db);
@@ -891,7 +894,8 @@ class InstallerUtils
             'auth_secret' => StringUtils::randomString(32),
             'auth_public' => generate_uuid4(),
             'feedback_login' => true,
-            'cors_enabled' => true
+            'cors_enabled' => true,
+            'timezone' => 'America/New_York',
         ], $data);
     }
 }
