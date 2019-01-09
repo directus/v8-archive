@@ -44,6 +44,8 @@ class RelationalTableGateway extends BaseTableGateway
         'status' => null
     ];
 
+    // TODO: Improve this as list of operators
+    // Instead of shorthands, it could be a list of filters that maps to a method
     protected $operatorShorthand = [
         'eq' => ['operator' => 'equal_to', 'not' => false],
         '='  => ['operator' => 'equal_to', 'not' => false],
@@ -64,6 +66,9 @@ class RelationalTableGateway extends BaseTableGateway
         'nlike' => ['operator' => 'like', 'not' => true],
         'contains' => ['operator' => 'like'],
         'ncontains' => ['operator' => 'like', 'not' => true],
+
+        'rlike' => ['operator' => 'like'],
+        'nrlike' => ['operator' => 'like', 'not' => true],
 
         'nnull' => ['operator' => 'null', 'not' => true],
 
@@ -1293,7 +1298,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         $condition = $this->parseCondition($condition);
-        $operator = ArrayUtils::get($condition, 'operator');
+        $operator = $filter = ArrayUtils::get($condition, 'operator');
         $value = ArrayUtils::get($condition, 'value');
         $not = ArrayUtils::get($condition, 'not');
         $logical = ArrayUtils::get($condition, 'logical');
@@ -1342,6 +1347,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         // After "between" and "in" to support multiple values of "now"
         $value = $this->getFieldNowValues($field, $value);
+        $value = $this->getLikeValue($filter, $value);
 
         $arguments = [$column, $value];
 
@@ -2278,5 +2284,14 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         return $value;
+    }
+
+    protected function getLikeValue($filter, $value)
+    {
+        if (in_array($filter, ['rlike', 'nrlike'])) {
+            return $value;
+        }
+
+        return sprintf('%%%s%%', addcslashes($value, '%'));
     }
 }

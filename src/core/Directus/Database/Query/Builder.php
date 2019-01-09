@@ -774,11 +774,9 @@ class Builder
                 $expression = new NotIn($identifier, $value);
                 break;
             case 'like':
-                $value = "%$value%";
                 $expression = new Like($identifier, $value);
                 break;
             case 'nlike':
-                $value = "%$value%";
                 $expression = new NotLike($identifier, $value);
                 break;
             case 'null':
