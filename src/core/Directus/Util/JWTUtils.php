@@ -158,11 +158,15 @@ class JWTUtils
 
         $payload = JWT::jsonDecode(JWT::urlsafeB64Decode($bodyb64));
 
-        if ($attribute && is_string($attribute) && property_exists($payload, $attribute)) {
-            return $payload->{$attribute};
+        if ($attribute === null) {
+            return $payload;
         }
 
-        return $payload;
+        if (!is_string($attribute) || !property_exists($payload, $attribute)) {
+            return null;
+        }
+
+        return $payload->{$attribute};
     }
 
     /**
