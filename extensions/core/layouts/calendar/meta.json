@@ -1,0 +1,23 @@
+{
+  "name": "$t:calendar",
+  "version": "1.0.0",
+  "translation": {
+    "en-US": {
+      "calendar": "Calendar",
+      "fields": "Fields",
+      "today": "today",
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
+  }
+}
