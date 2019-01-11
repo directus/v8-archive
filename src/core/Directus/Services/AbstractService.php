@@ -224,7 +224,7 @@ abstract class AbstractService
 
             if ($isRequired || (!$field->isNullable() && $field->getDefaultValue() == null)) {
                 $columnConstraints[] = 'required';
-            } else if (!$field->isNullable()) {
+            } else if (in_array($field->getName(), $fields) && !$field->isNullable()) {
                 $columnConstraints[] = 'notnullable';
             }
 
