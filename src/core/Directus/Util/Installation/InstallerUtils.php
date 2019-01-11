@@ -645,6 +645,10 @@ class InstallerUtils
                 'value' => ''
             ],
             [
+                'key' => 'app_url',
+                'value' => isset($data['app_url']) ? $data['app_url'] : ''
+            ],
+            [
                 'key' => 'default_limit',
                 'value' => '200'
             ],

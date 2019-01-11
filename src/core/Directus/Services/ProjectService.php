@@ -38,6 +38,7 @@ class ProjectService extends AbstractService
             'locale' => 'string',
 
             'project_name' => 'string',
+            'app_url' => 'string',
             'user_email' => 'required|email',
             'user_password' => 'required|string',
             'user_token' => 'string'

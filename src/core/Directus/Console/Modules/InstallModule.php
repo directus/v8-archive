@@ -164,6 +164,9 @@ class InstallModule extends ModuleBase
                 case 't':
                     $data['project_name'] = $value;
                     break;
+                case 'a':
+                    $data['app_url'] = $value;
+                    break;
                 case 'T':
                     $data['user_token'] = $value;
                     break;
@@ -188,6 +191,10 @@ class InstallModule extends ModuleBase
             } else {
                 if (ArrayUtils::has($data, 'project_name')) {
                     $setting->setSetting('project_name', $data['project_name']);
+                }
+
+                if (ArrayUtils::has($data, 'app_url')) {
+                    $setting->setSetting('app_url', $data['app_url']);
                 }
 
                 // NOTE: Do we really want to change the email when re-run install command?
