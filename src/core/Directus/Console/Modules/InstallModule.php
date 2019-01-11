@@ -50,6 +50,15 @@ class InstallModule extends ModuleBase
             'install' => 'Install Initial Configurations: ' . PHP_EOL . PHP_EOL . "\t\t"
                 . $this->__module_name . ':install -e admin_email -p admin_password -t site_name' . PHP_EOL,
         ];
+
+        $this->options = [
+            'config' => [
+                'f' => 'boolean',
+            ],
+            'database' => [
+                'f' => 'boolean',
+            ]
+        ];
     }
 
     public function cmdConfig($args, $extra)
@@ -57,6 +66,7 @@ class InstallModule extends ModuleBase
         $data = [];
 
         $directusPath = $this->getBasePath();
+        $force = false;
 
         foreach ($args as $key => $value) {
             switch ($key) {
@@ -93,6 +103,9 @@ class InstallModule extends ModuleBase
                 case 'timezone':
                     $data['timezone'] = $value;
                     break;
+                case 'f':
+                    $force = $value;
+                    break;
             }
         }
 
@@ -101,13 +114,14 @@ class InstallModule extends ModuleBase
             throw new \Exception(sprintf('Path "%s" does not exist', $apiPath));
         }
 
-        InstallerUtils::createConfig($directusPath, $data);
+        InstallerUtils::createConfig($directusPath, $data, $force);
     }
 
     public function cmdDatabase($args, $extra)
     {
         $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
         $projectName = null;
+        $force = false;
 
         foreach ($args as $key => $value) {
             switch ($key) {
@@ -117,10 +131,13 @@ class InstallModule extends ModuleBase
                 case 'N':
                     $projectName = $value;
                     break;
+                case 'f':
+                    $force = $value;
+                    break;
             }
         }
 
-        InstallerUtils::createTables($directus_path, $projectName);
+        InstallerUtils::createTables($directus_path, $projectName, $force);
     }
 
     public function cmdSeeder($args, $extra)
