@@ -30,14 +30,22 @@ export default {
   computed: {
     columns() {
       const fieldValues = Object.values(this.fields);
-      const queryFields =
-        (this.viewQuery.fields && this.viewQuery.fields.split(",")) ||
-        fieldValues
-          .filter(
-            field => field.primary_key === false || field.primary_key === "0"
-          )
-          .slice(0, 4)
-          .map(field => field.field);
+
+      let queryFields;
+
+      if (this.viewQuery.fields) {
+        if (Array.isArray(this.viewQuery.fields)) {
+          queryFields = this.viewQuery.fields;
+        } else {
+          queryFields = this.viewQuery.fields.split(",");
+        }
+      } else {
+        queryFields = fieldValues.filter(
+          field => field.primary_key === false || field.primary_key === "0"
+        )
+        .slice(0, 4)
+        .map(field => field.field);
+      }
 
       return queryFields
         .filter(field => this.fields[field])
