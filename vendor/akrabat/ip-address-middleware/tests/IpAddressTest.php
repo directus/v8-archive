@@ -1,15 +1,20 @@
 <?php
 namespace RKA\Middleware\Test;
 
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use RKA\Middleware\IpAddress;
+use RuntimeException;
+use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\ServerRequestFactory;
-use Zend\Diactoros\Uri;
-use Zend\Diactoros\Response;
 use Zend\Diactoros\Stream;
-use RuntimeException;
+use Zend\Diactoros\Uri;
 
-class RendererTest extends \PHPUnit_Framework_TestCase
+class RendererTest extends TestCase
 {
     public function testIpSetByRemoteAddr()
     {
@@ -17,6 +22,24 @@ class RendererTest extends \PHPUnit_Framework_TestCase
 
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.1.1',
+        ]);
+        $response = new Response();
+
+        $response  = $middleware($request, $response, function ($request, $response) use (&$ipAddress) {
+            // simply store the "ip_address" attribute in to the referenced $ipAddress
+            $ipAddress = $request->getAttribute('IP');
+            return $response;
+        });
+
+        $this->assertSame('192.168.1.1', $ipAddress);
+    }
+
+    public function testIpWithPortSetByRemoteAddr()
+    {
+        $middleware = new IPAddress(false, [], 'IP');
+
+        $request = ServerRequestFactory::fromGlobals([
+            'REMOTE_ADDR' => '192.168.1.1:80',
         ]);
         $response = new Response();
 
@@ -48,11 +71,31 @@ class RendererTest extends \PHPUnit_Framework_TestCase
 
     public function testXForwardedForIp()
     {
-        $middleware = new IPAddress(true);
+        $middleware = new IPAddress(true, []);
 
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.1.1',
             'HTTP_X_FORWARDED_FOR' => '192.168.1.3, 192.168.1.2, 192.168.1.1'
+        ]);
+        $response = new Response();
+
+        $ipAddress = '123';
+        $response  = $middleware($request, $response, function ($request, $response) use (&$ipAddress) {
+            // simply store the "ip_address" attribute in to the referenced $ipAddress
+            $ipAddress = $request->getAttribute('ip_address');
+            return $response;
+        });
+
+        $this->assertSame('192.168.1.3', $ipAddress);
+    }
+
+    public function testXForwardedForIpWithPort()
+    {
+        $middleware = new IPAddress(true, ['192.168.1.1']);
+
+        $request = ServerRequestFactory::fromGlobals([
+            'REMOTE_ADDR' => '192.168.1.1:81',
+            'HTTP_X_FORWARDED_FOR' => '192.168.1.3:81, 192.168.1.2:81, 192.168.1.1:81'
         ]);
         $response = new Response();
 
@@ -88,7 +131,7 @@ class RendererTest extends \PHPUnit_Framework_TestCase
 
     public function testHttpClientIp()
     {
-        $middleware = new IPAddress(true);
+        $middleware = new IPAddress(true, []);
 
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.1.1',
@@ -108,7 +151,7 @@ class RendererTest extends \PHPUnit_Framework_TestCase
 
     public function testXForwardedForIpV6()
     {
-        $middleware = new IPAddress(true);
+        $middleware = new IPAddress(true, []);
 
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.1.1',
@@ -128,7 +171,7 @@ class RendererTest extends \PHPUnit_Framework_TestCase
 
     public function testXForwardedForWithInvalidIp()
     {
-        $middleware = new IPAddress(true);
+        $middleware = new IPAddress(true, []);
 
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.1.1',
@@ -188,7 +231,7 @@ class RendererTest extends \PHPUnit_Framework_TestCase
 
     public function testForwardedWithMultipleFor()
     {
-        $middleware = new IPAddress(true);
+        $middleware = new IPAddress(true, []);
 
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.1.1',
@@ -208,7 +251,7 @@ class RendererTest extends \PHPUnit_Framework_TestCase
 
     public function testForwardedWithAllOptions()
     {
-        $middleware = new IPAddress(true);
+        $middleware = new IPAddress(true, []);
 
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.1.1',
@@ -228,7 +271,7 @@ class RendererTest extends \PHPUnit_Framework_TestCase
 
     public function testForwardedWithWithIpV6()
     {
-        $middleware = new IPAddress(true);
+        $middleware = new IPAddress(true, []);
 
         $request = ServerRequestFactory::fromGlobals([
             'REMOTE_ADDR' => '192.168.1.1',
@@ -267,5 +310,33 @@ class RendererTest extends \PHPUnit_Framework_TestCase
         });
 
         $this->assertSame('192.168.1.3', $ipAddress);
+    }
+
+
+    public function testPSR15()
+    {
+        $middleware = new IPAddress();
+        $request = ServerRequestFactory::fromGlobals([
+            'REMOTE_ADDR' => '192.168.0.1',
+        ]);
+
+        $handler = (new class implements RequestHandlerInterface {
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $response = new Response();
+                $response->getBody()->write("Hello World");
+
+                return $response;
+            }
+        });
+        $response = $middleware->process($request, $handler);
+
+        $this->assertSame("Hello World", (string) $response->getBody());
+    }
+
+    public function testNotGivingAProxyListShouldThrowException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new IpAddress(true);
     }
 }

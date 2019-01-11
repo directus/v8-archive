@@ -3,8 +3,10 @@ namespace RKA\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class IpAddress
+class IpAddress implements MiddlewareInterface
 {
     /**
      * Enable checking of proxy headers (X-Forwarded-For to determined client IP.
@@ -56,10 +58,14 @@ class IpAddress
      */
     public function __construct(
         $checkProxyHeaders = false,
-        array $trustedProxies = [],
+        array $trustedProxies = null,
         $attributeName = null,
         array $headersToInspect = []
     ) {
+        if ($checkProxyHeaders && $trustedProxies === null) {
+            throw new \InvalidArgumentException('Use of the forward headers requires an array for trusted proxies.');
+        }
+
         $this->checkProxyHeaders = $checkProxyHeaders;
         $this->trustedProxies = $trustedProxies;
 
@@ -69,6 +75,20 @@ class IpAddress
         if (!empty($headersToInspect)) {
             $this->headersToInspect = $headersToInspect;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Set the "$attributeName" attribute to the client's IP address as determined from
+     * the proxy header (X-Forwarded-For or from $_SERVER['REMOTE_ADDR']
+     */
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        $ipAddress = $this->determineClientIpAddress($request);
+        $request = $request->withAttribute($this->attributeName, $ipAddress);
+
+        return $handler->handle($request);
     }
 
     /**
@@ -92,7 +112,7 @@ class IpAddress
 
         return $response = $next($request, $response);
     }
-    
+
     /**
      * Find out the client's IP address from the headers available to us
      *
@@ -104,8 +124,11 @@ class IpAddress
         $ipAddress = null;
 
         $serverParams = $request->getServerParams();
-        if (isset($serverParams['REMOTE_ADDR']) && $this->isValidIpAddress($serverParams['REMOTE_ADDR'])) {
-            $ipAddress = $serverParams['REMOTE_ADDR'];
+        if (isset($serverParams['REMOTE_ADDR'])) {
+            $remoteAddr = $this->extractIpAddress($serverParams['REMOTE_ADDR']);
+            if ($this->isValidIpAddress($remoteAddr)) {
+                $ipAddress = $remoteAddr;
+            }
         }
 
         $checkProxyHeaders = $this->checkProxyHeaders;
@@ -124,6 +147,26 @@ class IpAddress
                         break;
                     }
                 }
+            }
+        }
+
+        return $ipAddress;
+    }
+
+    /**
+     * Remove port from IPV4 address if it exists
+     *
+     * Note: leaves IPV6 addresses alone
+     *
+     * @param  string $ipAddress
+     * @return string
+     */
+    protected function extractIpAddress($ipAddress)
+    {
+        $parts = explode(':', $ipAddress);
+        if (count($parts) == 2) {
+            if (filter_var($parts[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+                return $parts[0];
             }
         }
 
@@ -167,6 +210,6 @@ class IpAddress
             }
         }
 
-        return $headerValue;
+        return $this->extractIpAddress($headerValue);
     }
 }
