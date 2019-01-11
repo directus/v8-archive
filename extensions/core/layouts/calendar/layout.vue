@@ -39,7 +39,13 @@
     </div>
     <div id="display">
       <transition :name="swipeTo">
-        <Calendar :key="monthDistance" :month="monthDistance" :items="items" @day="openDay"></Calendar>
+        <Calendar
+          :key="monthDistance"
+          :month="monthDistance"
+          :items="items"
+          @day="openDay"
+          @wheel.native="scroll"
+        ></Calendar>
       </transition>
     </div>
     <Popup
@@ -66,6 +72,7 @@ export default {
       monthDistance: 0,
       swipeTo: "left",
       showPopup: false,
+      popupDate: new Date(),
       showMonthSelect: false,
       monthNames: ["january", "february", "march", "april", "may", "june",
         "july", "august", "september", "october", "november", "december"
@@ -128,6 +135,13 @@ export default {
           break;
         default:
           break;
+      }
+    },
+    scroll(event) {
+      if(event.deltaY > 0) {
+        this.increaseMonth();
+      } else {
+        this.decreaseMonth();
       }
     }
   },

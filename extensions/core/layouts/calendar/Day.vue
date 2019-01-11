@@ -39,7 +39,10 @@ export default {
   },
   methods: {
     eventList() {
+      if(!this.events)return;
+      
       var events = this.events;
+
       var height = (window.innerHeight - 120) / 6;
       height -= 32;
       if(this.isWeek) {

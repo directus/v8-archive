@@ -106,8 +106,7 @@ export default {
       } else if(index - this.monthBegin < this.monthLength){
         return "full";
       }
-
-    }
+    },
   }
 
 };

@@ -1,6 +1,6 @@
 <template>
   <transition name="popup">
-  <div v-if="open" id="wrapper">
+  <div v-show="open" id="wrapper">
     <div id="background" @click="close()"></div>
     <div id="popup">
       <div id="header">
@@ -10,7 +10,7 @@
       <div id="sidebar-header">
         {{$parent.monthNames[date.getMonth()]}} {{date.getFullYear()}}
       </div>
-      <div id="sidebar">
+      <div id="sidebar" @wheel="scroll">
         <transition :name="moveSidebar">
           <div :key="days" id="dates-container">
             <div v-for="day in days" class="dates" @click="changeDay(day.index)">
@@ -110,10 +110,20 @@ export default {
       this.date = newDate;
       this.$parent.popupDate = newDate;
     },
+
     close() {
       this.$emit('close');
       this.moveSidebar = "move-0";
     },
+
+    scroll(event) {
+      if(event.deltaY > 0) {
+        this.changeDay(1);
+      } else {
+        this.changeDay(-1);
+      }
+    },
+
     getEventCount(date) {
       var events = 0;
       var dateId = this.$parent.viewOptions.date;
