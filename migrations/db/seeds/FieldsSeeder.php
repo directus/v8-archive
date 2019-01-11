@@ -970,6 +970,14 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_settings',
+                'field' => 'sort_null_last',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle',
+                'locked' => 1,
+                'note' => 'Will sort values with null at the end of the result'
+            ],
+            [
+                'collection' => 'directus_settings',
                 'field' => 'auto_sign_out',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',

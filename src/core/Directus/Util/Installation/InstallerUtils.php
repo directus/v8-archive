@@ -657,6 +657,10 @@ class InstallerUtils
                 'value' => '200'
             ],
             [
+                'key' => 'sort_null_last',
+                'value' => 1
+            ],
+            [
                 'key' => 'auto_sign_out',
                 'value' => '60'
             ],

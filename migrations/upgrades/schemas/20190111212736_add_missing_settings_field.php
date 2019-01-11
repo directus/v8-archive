@@ -15,6 +15,10 @@ class AddMissingSettingsField extends AbstractMigration
                 'type' => 'integer',
                 'interface' => 'numeric',
             ],
+            'sort_null_last' => [
+                'type' => 'boolean',
+                'interface' => 'toggle',
+            ],
             'auto_sign_out' => [
                 'type' => 'integer',
                 'interface' => 'numeric',
