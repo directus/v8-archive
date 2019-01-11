@@ -1347,7 +1347,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         // After "between" and "in" to support multiple values of "now"
         $value = $this->getFieldNowValues($field, $value);
-        $value = $this->getLikeValue($filter, $value);
+        $value = $this->getLikeValue($operator, $filter, $value);
 
         $arguments = [$column, $value];
 
@@ -2286,9 +2286,10 @@ class RelationalTableGateway extends BaseTableGateway
         return $value;
     }
 
-    protected function getLikeValue($filter, $value)
+    protected function getLikeValue($operator, $filter, $value)
     {
-        if (in_array($filter, ['rlike', 'nrlike'])) {
+        // Ignore raw like filter and non-like operators
+        if (in_array($filter, ['rlike', 'nrlike']) || $operator !== 'like') {
             return $value;
         }
 
