@@ -32,8 +32,7 @@ class AddAppUrlSettingField extends AbstractMigration
 
         if (!$result) {
             $insertSqlFormat = 'INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`) VALUES ("%s", "%s", "%s", "%s");';
-            $type = \Directus\Database\Schema\DataTypes::TYPE_STRING;
-            $insertSql = sprintf($insertSqlFormat, $collection, $field, $type, 'text-input');
+            $insertSql = sprintf($insertSqlFormat, $collection, $field, 'string', 'text-input');
             $this->execute($insertSql);
         }
     }
