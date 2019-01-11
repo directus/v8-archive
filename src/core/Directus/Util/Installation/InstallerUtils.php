@@ -633,10 +633,6 @@ class InstallerUtils
     {
         return [
             [
-                'key' => 'auto_sign_out',
-                'value' => '60'
-            ],
-            [
                 'key' => 'project_name',
                 'value' => isset($data['project_name']) ? $data['project_name'] : 'Directus'
             ],
@@ -649,16 +645,20 @@ class InstallerUtils
                 'value' => isset($data['app_url']) ? $data['app_url'] : ''
             ],
             [
-                'key' => 'default_limit',
-                'value' => '200'
-            ],
-            [
                 'key' => 'logo',
                 'value' => ''
             ],
             [
                 'key' => 'color',
                 'value' => 'light-blue-600'
+            ],
+            [
+                'key' => 'default_limit',
+                'value' => '200'
+            ],
+            [
+                'key' => 'auto_sign_out',
+                'value' => '60'
             ],
             [
                 'key' => 'youtube_api_key',
