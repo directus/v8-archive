@@ -50,51 +50,26 @@ export default {
   methods: {
     events(index) {
       var events = [];
-      var currentDay = new Date(this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1);
-      // console.log(`position: ${index}\ncalculated: \n ${currentDay}`);
+      var currentDay = new Date(this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1, 0);
 
-      var dateId = this.$parent.viewOptions.date;
-      var titleId = this.$parent.viewOptions.title;
-      if(!dateId || !titleId)return;
-
-      // console.log(`-----Compare events------`);
-
-      for (var i = 0; i < this.items.length; i++) {
-        var item = this.items[i];
-        var date = new Date(item[dateId]+"T00:00:00");
-
-        if(!date)continue;
-
-        if(this.isSameDay(date, currentDay)){
-          var event = {'id': item.id, 'title': item[titleId], 'to': item.__link__};
-          events.push(event);
-        }
-      }
-      return events;
-    },
-
-    isSameDay(date1, date2){
-      return date1.getFullYear() == date2.getFullYear() &&
-        date1.getMonth() == date2.getMonth() &&
-        date1.getDate() == date2.getDate()
+      return this.$parent.eventsAtDay(currentDay);
     },
 
     renderWeek(index) {
       if(index < 8){
-        return this.$parent.weekNames[index-1];
+        return this.$t("layouts-calendar-weeks." + this.$parent.weekNames[index-1]);
       } else {
         return null;
       }
     },
 
     renderDate(index) {
-
-      var realDate = new Date(this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1);
+      var realDate = new Date(this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1, 0);
       return realDate.getDate();
     },
 
     getDate(index) {
-      var realDate = new Date(this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1);
+      var realDate = new Date(this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1, 0);
       return realDate;
     },
 

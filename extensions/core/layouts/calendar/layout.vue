@@ -3,7 +3,7 @@
     <div id="header">
       <div id="header-start">
         <div id="date" ref="dropdown">
-          {{monthNames[date.getMonth()]}} {{date.getFullYear()}}
+          {{$t("layouts-calendar-months."+monthNames[date.getMonth()])}} {{date.getFullYear()}}
           <transition name="months">
             <div v-show="showMonthSelect" id="date-select">
               <div id="date-header">
@@ -33,7 +33,7 @@
         class="button style-btn"
         :class="{'hidden': monthDistance == 0}"
         @click="resetMonth()">
-          today
+          {{$t("layouts-calendar-today")}}
         </div>
       </div>
     </div>
@@ -67,7 +67,7 @@ export default {
     Calendar,
     Popup
   },
-  data () {
+  data() {
     return {
       monthDistance: 0,
       swipeTo: "left",
@@ -77,7 +77,7 @@ export default {
       monthNames: ["january", "february", "march", "april", "may", "june",
         "july", "august", "september", "october", "november", "december"
       ],
-      weekNames: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+      weekNames: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
     }
   },
   mixins: [mixin],
@@ -86,42 +86,104 @@ export default {
       var date = new Date();
       date = new Date(date.getFullYear(), date.getMonth() + this.monthDistance);
       return date;
-    }
+    },
   },
   methods: {
+
     increaseYear() {
       this.swipeTo = "right";
       this.monthDistance += 12;
     },
+
     decreaseYear() {
       this.swipeTo = "left";
       this.monthDistance -= 12;
     },
+
     increaseMonth() {
       this.swipeTo = "right";
       this.monthDistance++;
     },
+
     decreaseMonth() {
       this.swipeTo = "left";
       this.monthDistance--;
     },
+
     resetMonth() {
       this.swipeTo = this.monthDistance > 0? "left" : "right";
       this.monthDistance = 0;
     },
+
     setMonth(index) {
       this.swipeTo = this.monthDistance - index > 0? "left" : "right";
       this.monthDistance = index;
     },
+
     openDay(date) {
       this.showPopup = true;
       this.popupDate = date;
     },
+
+    eventsAtDay(date) {
+      var events = [];
+      var dateId = this.viewOptions.date;
+      var titleId = this.viewOptions.title;
+      var timeId = this.viewOptions.time;
+      var colorId = this.viewOptions.color;
+
+      if(!dateId || !titleId)return;
+
+      for (var i = 0; i < this.$parent.items.length; i++) {
+        var item = this.$parent.items[i];
+        var eventDate = new Date(item[dateId]+"T00:00:00");
+        var time = item[timeId] && timeId != 0 ? item[timeId] : "";
+        var color = item[colorId];
+
+        if(!eventDate)continue;
+
+        if(!color) color = "accent";
+        color = `background-color: var(--${color})`;
+
+        if(this.isSameDay(date, eventDate)){
+          var event = {'id': item.id, 'title': item[titleId], 'to': item.__link__, time, color};
+          events.push(event);
+        }
+      }
+
+      if(timeId != 0) {
+        events.sort(this.compareTime);
+      }
+      return events;
+    },
+
+    compareTime(time1, time2) {
+      var timeId = this.viewOptions.time;
+
+      if(time1[timeId] == "" && time2[timeId] == "")return  0;
+      if(time1[timeId] != "" && time2[timeId] == "")return -1;
+      if(time1[timeId] == "" && time2[timeId] != "")return 1;
+
+      var timeA = new Date("1970-01-01T"+ time1[timeId], 0);
+      var timeB = new Date("1970-01-01T"+ time2[timeId], 0);
+
+      if(timeA > timeB) return 1;
+      if(timeA < timeB) return -1;
+      return 0;
+    },
+
+    isSameDay(date1, date2){
+      return date1.getFullYear() == date2.getFullYear() &&
+        date1.getMonth() == date2.getMonth() &&
+        date1.getDate() == date2.getDate()
+    },
+
     documentClick(event) {
       var dropdown = this.$refs.dropdown;
       var target = event.target;
       this.showMonthSelect = (target === dropdown && !this.showMonthSelect) || (dropdown.contains(target) && target !== dropdown );
     },
+
     pressEsc(event) {
       switch (event.key) {
         case "Escape":
@@ -137,6 +199,7 @@ export default {
           break;
       }
     },
+
     scroll(event) {
       if(event.deltaY > 0) {
         this.increaseMonth();

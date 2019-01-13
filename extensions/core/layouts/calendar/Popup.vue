@@ -4,17 +4,17 @@
     <div id="background" @click="close()"></div>
     <div id="popup">
       <div id="header">
-        <span> Events</span>
+        <span>{{$t("layouts-calendar-events")}}</span>
         <i class="material-icons" @click="close()">close</i>
       </div>
       <div id="sidebar-header">
-        {{$parent.monthNames[date.getMonth()]}} {{date.getFullYear()}}
+        {{$t("layouts-calendar-months." + $parent.monthNames[date.getMonth()])}} {{date.getFullYear()}}
       </div>
       <div id="sidebar" @wheel="scroll">
         <transition :name="moveSidebar">
           <div :key="days" id="dates-container">
             <div v-for="day in days" class="dates" @click="changeDay(day.index)">
-              <span class="dates-day">{{renderDay(day.date.getDay())}}</span>
+              <span class="dates-day">{{weekname(day.date.getDay())}}</span>
               <span class="dates-date">{{day.date.getDate()}}</span>
               <div :class="getEventCount(day.date) > 0? 'date-counter' : 'date-counter-hidden'">
                 {{getEventCount(day.date)}}
@@ -25,16 +25,17 @@
       </div>
       <div id="events">
         <div
-          v-for="item in items"
+          v-for="event in events"
           class="event"
-          @click="$router.push(item.to)"
+          :style="event.color"
+          @click="$router.push(event.to)"
         >
-          <span>{{item.title}}</span>
-          <span>{{item.time.substr(0, 5)}}</span>
+          <span>{{event.title}}</span>
+          <span>{{event.time.substr(0, 5)}}</span>
         </div>
         <div v-if="getEventCount(date) == 0" id="events-none">
           <span>{{randomEmoji()}}</span><br><br>
-          <span>no events yet!</span>
+          <span>{{$t("layouts-calendar-noEvents")}}</span>
 
         </div>
       </div>
@@ -66,29 +67,8 @@ export default {
       }
       return days;
     },
-    items() {
-      var events = [];
-      var dateId = this.$parent.viewOptions.date;
-      var titleId = this.$parent.viewOptions.title;
-      var timeId = this.$parent.viewOptions.time;
-
-      if(!dateId || !titleId)return;
-
-      for (var i = 0; i < this.$parent.items.length; i++) {
-        var item = this.$parent.items[i];
-        var eventDate = new Date(item[dateId]);
-        var time = item[timeId] && timeId != 0 ? item[timeId] : "";
-
-        if(this.isSameDay(this.date, eventDate)){
-          var event = {'id': item.id, 'title': item[titleId], 'to': item.__link__, 'time': time};
-          events.push(event);
-        }
-      }
-
-      if(timeId != 0) {
-        events.sort(this.compareTime);
-      }
-      return events;
+    events() {
+      return this.$parent.eventsAtDay(this.date);
     },
     addItemURL() {
       var url = this.$root._router.currentRoute.path;
@@ -96,13 +76,8 @@ export default {
     }
   },
   methods: {
-    renderDay(day) {
-      return this.$parent.weekNames[day == 0? 6 : day-1];
-    },
-    isSameDay(date1, date2){
-      return date1.getFullYear() == date2.getFullYear() &&
-        date1.getMonth() == date2.getMonth() &&
-        date1.getDate() == date2.getDate()
+    weekname(day) {
+      return this.$t("layouts-calendar-weeks." + this.$parent.weekNames[day == 0? 6 : day-1]).substr(0, 3);
     },
     changeDay(distance) {
       this.moveSidebar = "move-"+distance;
@@ -134,25 +109,11 @@ export default {
         var item = this.$parent.items[i];
         var eventDate = new Date(item[dateId]);
 
-        if(this.isSameDay(date, eventDate)){
+        if(this.$parent.isSameDay(date, eventDate)){
           events++;
         }
       }
       return events;
-    },
-    compareTime(time1, time2) {
-      var timeId = this.$parent.viewOptions.time;
-
-      if(time1[timeId] == "" && time2[timeId] == "")return  0;
-      if(time1[timeId] != "" && time2[timeId] == "")return -1;
-      if(time1[timeId] == "" && time2[timeId] != "")return 1;
-
-      var timeA = new Date("1970-01-01T"+ time1[timeId]);
-      var timeB = new Date("1970-01-01T"+ time2[timeId]);
-
-      if(timeA > timeB) return 1;
-      if(timeA < timeB) return -1;
-      return 0;
     },
     randomEmoji() {
       switch (Math.round(Math.random()*5)) {
@@ -391,7 +352,6 @@ export default {
   margin: 5px 0;
   padding: 2px 15px;
   color: var(--white);
-  background-color: var(--accent);
 
   font-size: 1.2em;
   font-weight: 400;

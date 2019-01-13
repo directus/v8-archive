@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent>
-    <label for="spacing" class="style-3">Date</label>
+    <label for="spacing" class="style-3 required">{{$t("layouts-calendar-date")}}</label>
     <v-select
       id="spacing"
       :value="viewOptions.date || '__none__'"
@@ -9,7 +9,7 @@
       icon="reorder"
       @input="setOption('date', $event)"
     ></v-select>
-    <label for="spacing" class="style-3">Time</label>
+    <label for="spacing" class="style-3">{{$t("layouts-calendar-time")}}</label>
     <v-select
       id="spacing"
       :value="viewOptions.time || '__none__'"
@@ -18,7 +18,7 @@
       icon="reorder"
       @input="setOption('time', $event)"
     ></v-select>
-    <label for="spacing" class="style-3">Title</label>
+    <label for="spacing" class="style-3 required">{{$t("layouts-calendar-title")}}</label>
     <v-select
       id="spacing"
       :value="viewOptions.title || '__none__'"
@@ -26,6 +26,15 @@
       class="select"
       icon="reorder"
       @input="setOption('title', $event)"
+    ></v-select>
+    <label for="spacing" class="style-3">{{$t("layouts-calendar-color")}}</label>
+    <v-select
+      id="spacing"
+      :value="viewOptions.color || '__none__'"
+      :options="colorOptions"
+      class="select"
+      icon="reorder"
+      @input="setOption('color', $event)"
     ></v-select>
   </form>
 </template>
@@ -53,6 +62,11 @@ export default {
       var options = {__none__: `(${this.$t("dont_show")})`,
         ...this.$lodash.mapValues(this.fields, info => info.type == "time"? info.name : null)};
       return this.$lodash.pickBy(options, _.identity);
+    },
+    colorOptions() {
+      var options = {__none__: `(${this.$t("dont_show")})`,
+        ...this.$lodash.mapValues(this.fields, info => ["color", "color-palette"].includes(info.interface) ? info.name : null)};
+      return this.$lodash.pickBy(options, _.identity);
     }
   },
   methods: {
@@ -71,5 +85,15 @@ export default {
 label {
   margin-bottom: 10px;
   margin-top: 30px;
+}
+
+.required::after {
+  content: 'required';
+  margin: 0 5px;
+  padding: 0px 2px;
+  font-size: 0.7em;
+  color: var(--white);
+  background-color: var(--danger);
+  border-radius: var(--border-radius);
 }
 </style>

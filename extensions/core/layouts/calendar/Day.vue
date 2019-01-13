@@ -1,16 +1,18 @@
 <template>
   <div class="day" :class="{hidden, today}">
     <div class="header">
-      <div v-if="isWeek" class="header-week">{{week}}</div>
+      <div v-if="isWeek" class="header-week">{{week.substr(0, 3)}}</div>
       <div class="header-day">{{date}}</div>
     </div>
     <div class="events">
-      <a v-for="event in eventList()" @click.stop="event.to?$router.push(event.to):''">
+      <a v-for="event in eventList" @click.stop="event.to?$router.push(event.to):''">
         <div class="event"
           :class="event.id==-1?'event-more':''"
+          :style="event.color"
           @click="event.id==-1?$emit('popup') : ''"
         >
-          {{event.title}}
+          <span>{{event.title}}</span>
+          <span>{{event.time.substr(0, 5)}}</span>
         </div>
       </a>
     </div>
@@ -36,11 +38,9 @@ export default {
       return (this.week != null);
     },
 
-  },
-  methods: {
     eventList() {
       if(!this.events)return;
-      
+
       var events = this.events;
 
       var height = (window.innerHeight - 120) / 6;
@@ -58,11 +58,16 @@ export default {
         events = events.slice(0, space - 1);
         events.push({
           'id': -1,
-          'title': `and ${this.events.length - space + 1} more`,
+          'title': this.$t("layouts-calendar-moreEvents", {amount: this.events.length - space + 1}),
+          'time': ""
         })
       }
       return events;
     }
+
+  },
+  methods: {
+
   }
 };
 </script>
@@ -127,7 +132,6 @@ export default {
   padding: 2px 6px;
   color: var(--white);
   cursor: pointer;
-  background-color: var(--accent);
   border-radius: var(--border-radius);
   line-height: 14px;
 }
