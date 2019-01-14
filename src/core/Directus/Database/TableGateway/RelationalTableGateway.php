@@ -44,6 +44,8 @@ class RelationalTableGateway extends BaseTableGateway
         'status' => null
     ];
 
+    // TODO: Improve this as list of operators
+    // Instead of shorthands, it could be a list of filters that maps to a method
     protected $operatorShorthand = [
         'eq' => ['operator' => 'equal_to', 'not' => false],
         '='  => ['operator' => 'equal_to', 'not' => false],
@@ -64,6 +66,9 @@ class RelationalTableGateway extends BaseTableGateway
         'nlike' => ['operator' => 'like', 'not' => true],
         'contains' => ['operator' => 'like'],
         'ncontains' => ['operator' => 'like', 'not' => true],
+
+        'rlike' => ['operator' => 'like'],
+        'nrlike' => ['operator' => 'like', 'not' => true],
 
         'nnull' => ['operator' => 'null', 'not' => true],
 
@@ -1293,10 +1298,14 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         $condition = $this->parseCondition($condition);
-        $operator = ArrayUtils::get($condition, 'operator');
+        $operator = $filter = ArrayUtils::get($condition, 'operator');
         $value = ArrayUtils::get($condition, 'value');
         $not = ArrayUtils::get($condition, 'not');
         $logical = ArrayUtils::get($condition, 'logical');
+
+        if (!$this->isFilterSupported($operator)) {
+            throw new Exception\UnknownFilterException($operator);
+        }
 
         // TODO: if there's more, please add a better way to handle all this
         if ($field->isOneToMany()) {
@@ -1335,6 +1344,10 @@ class RelationalTableGateway extends BaseTableGateway
         if (in_array($operator, $splitOperators) && is_scalar($value)) {
             $value = explode(',', $value);
         }
+
+        // After "between" and "in" to support multiple values of "now"
+        $value = $this->getFieldNowValues($field, $value);
+        $value = $this->getLikeValue($operator, $filter, $value);
 
         $arguments = [$column, $value];
 
@@ -2197,5 +2210,89 @@ class RelationalTableGateway extends BaseTableGateway
                 'parent_changed' => ArrayUtils::get($item, 'parent_changed')
             ]);
         }
+    }
+
+    /**
+     * List of all supported filters
+     *
+     * @return array
+     */
+    protected function getSupportedFilters()
+    {
+        $shorthands = array_keys($this->operatorShorthand);
+
+        $operators = [
+            'like',
+            'null',
+            'all',
+            'has',
+            'between',
+            'empty',
+        ];
+
+        return array_merge($shorthands, $operators);
+    }
+
+    /**
+     * Checks whether a given filter operator is supported
+     *
+     * @param string $operator
+     *
+     * @return bool
+     */
+    protected function isFilterSupported($operator)
+    {
+        return in_array($operator, $this->getSupportedFilters());
+    }
+
+    /**
+     * Returns the value of "now" for a date or datetime field
+     *
+     * @param Field $field
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function getFieldNowValue(Field $field, $value)
+    {
+        $isNow = is_string($value) && strtolower($value) === 'now';
+        $isDateType = DataTypes::isDateType($field->getType());
+        $isDateTimeType = DataTypes::isDateTimeType($field->getType());
+
+        if (!$isNow || (!$isDateType && !$isDateTimeType)) {
+            return $value;
+        }
+
+        $isSystemCollection = $this->schemaManager->isSystemCollection($field->getCollectionName());
+        $datetime = DateTimeUtils::now();
+        $format = null;
+        if ($isDateType) {
+            $format = DateTimeUtils::DEFAULT_DATE_FORMAT;
+        }
+
+        return $isSystemCollection ? $datetime->toUTCString($format) : $datetime->toString($format);
+    }
+
+    protected function getFieldNowValues(Field $field, $value)
+    {
+        if (is_array($value)) {
+            foreach ($value as &$v) {
+                $v = $this->getFieldNowValue($field, $v);
+            }
+        } else {
+            $value = $this->getFieldNowValue($field, $value);
+        }
+
+        return $value;
+    }
+
+    protected function getLikeValue($operator, $filter, $value)
+    {
+        // Ignore raw like filter and non-like operators
+        if (in_array($filter, ['rlike', 'nrlike']) || $operator !== 'like') {
+            return $value;
+        }
+
+        return sprintf('%%%s%%', addcslashes($value, '%_'));
     }
 }

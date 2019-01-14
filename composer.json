@@ -23,7 +23,7 @@
     "wellingguzman/oauth2-okta": "dev-master",
     "wellingguzman/proxy-detection": "^0.5.1",
     "cache/cache": "^1.0",
-    "akrabat/rka-ip-address-middleware": "^0.5.0",
+    "akrabat/ip-address-middleware": "^1.0",
     "firebase/php-jwt": "^5.0",
     "symfony/validator": "^3.3",
     "slim/twig-view": "^2.3",
