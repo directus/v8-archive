@@ -84,7 +84,7 @@ export default {
   computed: {
     date() {
       var date = new Date();
-      date = new Date(date.getFullYear(), date.getMonth() + this.monthDistance);
+      date = new Date(date.getFullYear(), date.getMonth() + this.monthDistance, 0);
       return date;
     },
   },
@@ -136,7 +136,7 @@ export default {
 
       for (var i = 0; i < this.$parent.items.length; i++) {
         var item = this.$parent.items[i];
-        var eventDate = new Date(item[dateId]+"T00:00:00");
+        var eventDate = new Date(item[dateId] + "T00:00:00");
         var time = item[timeId] && timeId != 0 ? item[timeId] : "";
         var color = item[colorId];
 

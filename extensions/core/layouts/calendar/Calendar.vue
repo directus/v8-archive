@@ -28,7 +28,7 @@ export default {
   computed: {
     date() {
       var date = new Date();
-      date = new Date(date.getFullYear(), date.getMonth() + this.month);
+      date = new Date(date.getFullYear(), date.getMonth() + this.month, 0);
       return date;
     },
     monthBegin() {
