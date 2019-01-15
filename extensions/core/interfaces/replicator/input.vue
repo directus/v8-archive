@@ -1,52 +1,40 @@
 <template>
   <div class="interface-repeater-container">
-    <div v-for="(group, o) in localValue" :key="o" class="fields">
-      <div v-for="(field, i) in group" :key="field.id" class="group">
-        <span>{{ field.title }}</span>
-        <div v-if="field.type === 'object'" class="box">
-          <div v-for="(prop, key) in field.properties" :key="key">
-            <span></span>
-            <v-input
-              type="text"
-              v-if="prop.type === 'string'"
-              @input="
-                v => updateValue((localValue[o][field.title][i][key] = v))
-              "
-            ></v-input>
-            <span v-else>Not supported</span>
-          </div>
-        </div>
-        <!-- TEXT input -->
-        <v-input
-          type="text"
-          v-else-if="field.type === 'string'"
-          :value="value[field.title]"
-          @input="v => updateValue({ [field.title]: v })"
-        ></v-input>
-      </div>
-    </div>
-    <div class="controls">
-      <v-button
-        v-for="(item, i) in parsedItems"
-        :key="item.title"
-        type="button"
-        @click="addNewField(i)"
-      >
-        <i class="material-icons">add</i> new field {{ item.title }}
-        {{ item.type }}
-      </v-button>
-    </div>
-    <pre v-text="localValue"></pre>
+    <fieldset
+      class="group"
+      v-for="(value, fieldKey) in localValue"
+      :key="fieldKey"
+    >
+      <ReplicatorField
+        v-for="(item, fieldIndex) in value"
+        :key="`${fieldKey}-${fieldIndex}`"
+        :field="item"
+      />
+    </fieldset>
+    <controls @add-field="addNewField" :config="parsedConfig"></controls>
   </div>
 </template>
 
 <script>
 import mixin from "../../../mixins/interface";
+import Controls from "./controls.vue";
+import ReplicatorField from "./field.vue";
+
+/**
+ * @typedef {Object} ReplicatorConfig
+ * @property {'object'|'text'} type The type of field to use
+ * @property {String} title The label for the field
+ * @property {?String} default Default value
+ * @property {ReplicatorConfig[]} [children] Nested fields
+ */
 
 export default {
+  name: "ReplicatorInput",
   mixins: [mixin],
+  components: { Controls, ReplicatorField },
   computed: {
-    parsedItems() {
+    /** @returns {ReplicatorConfig[]} */
+    parsedConfig() {
       return typeof this.options.items === "string"
         ? JSON.parse(this.options.items)
         : this.options.items;
@@ -56,8 +44,11 @@ export default {
     }
   },
   methods: {
+    /**
+     * @param {number}i The index of the item
+     */
     addNewField(i) {
-      const field = this.parsedItems[i];
+      const field = { ...this.parsedConfig[i] };
       const fieldTitle = field.title;
       const newValue = Object.assign({}, { [fieldTitle]: [] }, this.localValue);
       newValue[fieldTitle].push({ values: [], ...field });
@@ -66,13 +57,6 @@ export default {
     updateValue(newValue) {
       if (!newValue) return;
       const updatedValue = Object.assign({}, this.localValue, newValue);
-      const value = this.value;
-      console.log("actualización localvalue", {
-        value,
-        updatedValue,
-        localValue: this.localValue,
-        newValue
-      });
       this.$nextTick(() => {
         this.$emit("input", JSON.stringify(updatedValue));
       });
@@ -86,13 +70,9 @@ export default {
   width: 100%;
   max-width: var(--width-medium);
 }
-pre {
-  border: 1px solid gray;
-  white-space: pre-wrap;
-  font-family: monospace;
-  background: var(--highlight);
-}
+
 .group {
-  border: 1px solid gray;
+  border-bottom: 1px solid var(--gray);
+  margin-bottom: 1rem;
 }
 </style>

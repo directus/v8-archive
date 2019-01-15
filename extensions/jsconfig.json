@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "strictFunctionTypes": true,
+    "alwaysStrict": true,
+    "baseUrl": "./",
+    "checkJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "target": "es2018",
+    "module": "es2015",
+    "noImplicitAny": true,
+    "noImplicitReturns": true
+  },
+  "types": [
+    "vue-typescript-import-dts"
+  ],
+  "include": [
+    "**/*",
+    "**/*.vue"
+  ],
+  "exclude": ["node_modules", "dist", "_nuxt", "public", ".cache"]
+}

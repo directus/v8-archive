@@ -15,27 +15,22 @@
           {
             "type": "object",
             "title": "Pet",
-            "properties": {
-              "type": {
-                "format": null,
-                "type": "string",
+            "children": [
+              {
+                "title": "Type of pet",
+                "type": "text",
                 "default": "dog",
-                "enum": [
-                  "cat",
-                  "dog",
-                  "bird",
-                  "reptile",
-                  "other"
-                ]
+                "enum": ["cat", "dog", "bird", "reptile", "other"]
               },
-              "name": {
+              {
+                "title": "Name of the pet",
                 "default": "Walter",
-                "type": "string"
+                "type": "text"
               }
-            }
+            ]
           },
           {
-            "type": "string",
+            "type": "text",
             "title": "Names"
           }
         ]
