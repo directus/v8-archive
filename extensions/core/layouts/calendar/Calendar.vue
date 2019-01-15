@@ -22,6 +22,7 @@ export default {
   },
   data() {
     return {
+      innerHeight: window.innerHeight,
     }
   },
 
@@ -70,15 +71,28 @@ export default {
       return realDate;
     },
 
+    /*
+    * calculates the display type for each day (hidden | today | default)
+    */
     display(index) {
       if(index < this.monthBegin || index >= this.monthBegin + this.monthLength) {
         return "hidden";
       } else if(this.month == 0 && index - this.monthBegin + 1 == this.today) {
         return "today";
       } else if(index - this.monthBegin < this.monthLength){
-        return "full";
+        return "default";
       }
     },
+    updateHeight(target) {
+      this.innerHeight = window.innerHeight
+    },
+  },
+  created() {
+    this.updateHeight = _.throttle(this.updateHeight, 100);
+    window.addEventListener('resize',() => {this.updateHeight()})
+  },
+  destroyed() {
+    window.removeEventListener('resize',() => {this.updateHeight()})
   }
 
 };

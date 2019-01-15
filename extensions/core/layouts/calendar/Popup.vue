@@ -3,14 +3,10 @@
   <div v-show="open" id="wrapper">
     <div id="background" @click="close()"></div>
     <div id="popup">
-      <div id="header">
-        <span>{{$t("layouts-calendar-events")}}</span>
-        <i class="material-icons" @click="close()">close</i>
-      </div>
       <div id="sidebar-header">
         {{$t("layouts-calendar-months." + $parent.monthNames[date.getMonth()])}} {{date.getFullYear()}}
       </div>
-      <div id="sidebar" @wheel="scrollThrottle">
+      <div id="sidebar" @wheel="scroll">
         <transition :name="moveSidebar">
           <div :key="days" id="dates-container">
             <div v-for="day in days" class="dates" @click="changeDay(day.index)">
@@ -22,6 +18,10 @@
             </div>
           </div>
         </transition>
+      </div>
+      <div id="header">
+        <span>{{$t("layouts-calendar-events")}}</span>
+        <i class="material-icons" @click="close()">close</i>
       </div>
       <div id="events">
         <div
@@ -54,19 +54,31 @@ export default {
   },
   data() {
     return {
+      // The differend animations for the sidebar.
       moveSidebar: "move-0",
     }
   },
   computed: {
+    /*
+    *   Array of days to display in the sidebar.
+    */
     days() {
       var days = new Array();
 
       for (var i = -4; i <= 4; i++) {
+
         var date = new Date(Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + i));
         days.push({'date': date, 'index': i});
       }
       return days;
     },
+
+    /*
+    *   Events at the current day.
+    *   It is seperated from the list of the events for each day
+    *   because you can change the days in the popup, that they are not
+    *   in the current month anymore.
+    */
     events() {
       return this.$parent.eventsAtDay(this.date);
     },
@@ -76,9 +88,14 @@ export default {
     }
   },
   methods: {
+
+    /*
+    *   Gets the name of the week for a specific position in the sidebar.
+    */
     weekname(day) {
       return this.$t("layouts-calendar-weeks." + this.$parent.weekNames[day == 0? 6 : day-1]).substr(0, 3);
     },
+
     changeDay(distance) {
       this.moveSidebar = "move-"+distance;
       var newDate = new Date(Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + distance));
@@ -107,6 +124,7 @@ export default {
       }
       return events;
     },
+
     randomEmoji() {
       switch (Math.round(Math.random()*5)) {
         case 1:
@@ -134,8 +152,8 @@ export default {
     }
   },
   created() {
-    this.scrollThrottle = _.throttle(this.scroll, 150);
-  }
+    this.scroll = _.throttle(this.scroll, 150);
+  },
 };
 </script>
 

@@ -43,7 +43,7 @@
           :key="monthDistance"
           :month="monthDistance"
           :items="items"
-          @day="openDay"
+          @day="openPopup"
           @wheel.native="scroll"
         ></Calendar>
       </transition>
@@ -69,11 +69,18 @@ export default {
   },
   data() {
     return {
+      //the distance (in months) of the current month
       monthDistance: 0,
+
+      //animates the calendar swipe animation in the right direction
       swipeTo: "left",
+
       showPopup: false,
+
       popupDate: new Date(),
+
       showMonthSelect: false,
+
       monthNames: ["january", "february", "march", "april", "may", "june",
         "july", "august", "september", "october", "november", "december"
       ],
@@ -120,7 +127,7 @@ export default {
       this.monthDistance = index;
     },
 
-    openDay(date) {
+    openPopup(date) {
       this.showPopup = true;
       this.popupDate = date;
     },
@@ -164,8 +171,8 @@ export default {
       if(time1[timeId] != "" && time2[timeId] == "")return -1;
       if(time1[timeId] == "" && time2[timeId] != "")return 1;
 
-      var timeA = new Date("1970-01-01T"+ time1[timeId], 0);
-      var timeB = new Date("1970-01-01T"+ time2[timeId], 0);
+      var timeA = new Date("1970-01-01T"+ time1[timeId]);
+      var timeB = new Date("1970-01-01T"+ time2[timeId]);
 
       if(timeA > timeB) return 1;
       if(timeA < timeB) return -1;
@@ -178,13 +185,14 @@ export default {
         date1.getDate() == date2.getDate()
     },
 
+    //opens or closes the date select dropdown
     documentClick(event) {
       var dropdown = this.$refs.dropdown;
       var target = event.target;
       this.showMonthSelect = (target === dropdown && !this.showMonthSelect) || (dropdown.contains(target) && target !== dropdown );
     },
 
-    pressEsc(event) {
+    keyPress(event) {
       switch (event.key) {
         case "Escape":
           this.showPopup = false;
@@ -209,12 +217,13 @@ export default {
     }
   },
   created() {
+      this.scroll = _.throttle(this.scroll, 200);
       document.addEventListener('click', this.documentClick);
-      document.addEventListener('keypress', this.pressEsc);
+      document.addEventListener('keypress', this.keyPress);
   },
   destroyed() {
       document.removeEventListener('click', this.documentClick);
-      document.removeEventListener('keypress', this.pressEsc);
+      document.removeEventListener('keypress', this.keyPress);
   }
 };
 </script>

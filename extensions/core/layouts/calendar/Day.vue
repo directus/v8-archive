@@ -42,7 +42,7 @@ export default {
 
       var events = this.events;
 
-      var height = (window.innerHeight - 120) / 6;
+      var height = (this.$parent.innerHeight - 120) / 6;
       height -= 32;
       if(this.isWeek) {
         height -= 15;
