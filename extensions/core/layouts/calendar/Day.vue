@@ -37,7 +37,6 @@ export default {
     isWeek() {
       return (this.week != null);
     },
-
     eventList() {
       if(!this.events)return;
 
@@ -64,10 +63,6 @@ export default {
       }
       return events;
     }
-
-  },
-  methods: {
-
   }
 };
 </script>

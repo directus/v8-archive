@@ -10,7 +10,7 @@
       <div id="sidebar-header">
         {{$t("layouts-calendar-months." + $parent.monthNames[date.getMonth()])}} {{date.getFullYear()}}
       </div>
-      <div id="sidebar" @wheel="scroll">
+      <div id="sidebar" @wheel="scrollThrottle">
         <transition :name="moveSidebar">
           <div :key="days" id="dates-container">
             <div v-for="day in days" class="dates" @click="changeDay(day.index)">
@@ -62,7 +62,7 @@ export default {
       var days = new Array();
 
       for (var i = -4; i <= 4; i++) {
-        var date = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + i, 0);
+        var date = new Date(Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + i));
         days.push({'date': date, 'index': i});
       }
       return days;
@@ -81,7 +81,7 @@ export default {
     },
     changeDay(distance) {
       this.moveSidebar = "move-"+distance;
-      var newDate = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + distance);
+      var newDate = new Date(Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + distance));
       this.date = newDate;
       this.$parent.popupDate = newDate;
     },
@@ -89,14 +89,6 @@ export default {
     close() {
       this.$emit('close');
       this.moveSidebar = "move-0";
-    },
-
-    scroll(event) {
-      if(event.deltaY > 0) {
-        this.changeDay(1);
-      } else {
-        this.changeDay(-1);
-      }
     },
 
     getEventCount(date) {
@@ -107,7 +99,7 @@ export default {
 
       for (var i = 0; i < this.$parent.items.length; i++) {
         var item = this.$parent.items[i];
-        var eventDate = new Date(item[dateId] + "T00:00:00");
+        var eventDate = new Date(item[dateId]);
 
         if(this.$parent.isSameDay(date, eventDate)){
           events++;
@@ -132,7 +124,17 @@ export default {
         default:
           return "\\(°Ω°)/"
       }
+    },
+    scroll(event) {
+      if(event.deltaY > 0) {
+        this.changeDay(1);
+      } else {
+        this.changeDay(-1);
+      }
     }
+  },
+  created() {
+    this.scrollThrottle = _.throttle(this.scroll, 150);
   }
 };
 </script>
