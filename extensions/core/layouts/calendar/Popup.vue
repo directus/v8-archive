@@ -1,110 +1,133 @@
 <template>
   <transition name="popup">
-  <div v-show="open" id="wrapper">
-    <div id="background" @click="close()"></div>
-    <div id="popup">
-      <div id="sidebar-header">
-        {{$t("layouts-calendar-months." + $parent.monthNames[date.getMonth()])}} {{date.getFullYear()}}
-      </div>
-      <div id="sidebar" @wheel="scroll">
-        <transition :name="moveSidebar">
-          <div :key="days" id="dates-container">
-            <div v-for="day in days" class="dates" @click="changeDay(day.index)">
-              <span class="dates-day">{{weekname(day.date.getDay())}}</span>
-              <span class="dates-date">{{day.date.getDate()}}</span>
-              <div :class="getEventCount(day.date) > 0? 'date-counter' : 'date-counter-hidden'">
-                {{getEventCount(day.date)}}
+    <div v-show="open" id="wrapper">
+      <div id="background" @click="close()"></div>
+      <div id="popup">
+        <div id="sidebar-header">
+          {{
+            $t("layouts-calendar-months." + $parent.monthNames[date.getMonth()])
+          }}
+          {{ date.getFullYear() }}
+        </div>
+        <div id="sidebar" @wheel="scroll">
+          <transition :name="moveSidebar">
+            <div :key="days" id="dates-container">
+              <div
+                v-for="day in days"
+                class="dates"
+                @click="changeDay(day.index)"
+              >
+                <span class="dates-day">{{ weekname(day.date.getDay()) }}</span>
+                <span class="dates-date">{{ day.date.getDate() }}</span>
+                <div
+                  :class="
+                    getEventCount(day.date) > 0
+                      ? 'date-counter'
+                      : 'date-counter-hidden'
+                  "
+                >
+                  {{ getEventCount(day.date) }}
+                </div>
               </div>
             </div>
+          </transition>
+        </div>
+        <div id="header">
+          <span>{{ $t("layouts-calendar-events") }}</span>
+          <i class="material-icons" @click="close()">close</i>
+        </div>
+        <div id="events">
+          <div
+            v-for="event in events"
+            class="event"
+            :style="event.color"
+            @click="$router.push(event.to)"
+          >
+            <span>{{ event.title }}</span>
+            <span>{{ event.time.substr(0, 5) }}</span>
           </div>
-        </transition>
-      </div>
-      <div id="header">
-        <span>{{$t("layouts-calendar-events")}}</span>
-        <i class="material-icons" @click="close()">close</i>
-      </div>
-      <div id="events">
-        <div
-          v-for="event in events"
-          class="event"
-          :style="event.color"
-          @click="$router.push(event.to)"
-        >
-          <span>{{event.title}}</span>
-          <span>{{event.time.substr(0, 5)}}</span>
+          <div v-if="getEventCount(date) == 0" id="events-none">
+            <span>{{ randomEmoji() }}</span
+            ><br /><br />
+            <span>{{ $t("layouts-calendar-noEvents") }}</span>
+          </div>
         </div>
-        <div v-if="getEventCount(date) == 0" id="events-none">
-          <span>{{randomEmoji()}}</span><br><br>
-          <span>{{$t("layouts-calendar-noEvents")}}</span>
-
-        </div>
+        <a id="add" :href="addItemURL"> <i class="material-icons">add</i> </a>
       </div>
-      <a id="add" :href="addItemURL">
-        <i class="material-icons">add</i>
-      </a>
     </div>
-  </div>
-</transition>
+  </transition>
 </template>
 
 <script>
 export default {
-  props: ['open', 'date'],
-  components: {
-  },
+  props: ["open", "date"],
+  components: {},
   data() {
     return {
       // The differend animations for the sidebar.
-      moveSidebar: "move-0",
-    }
+      moveSidebar: "move-0"
+    };
   },
   computed: {
     /*
-    *   Array of days to display in the sidebar.
-    */
+     *   Array of days to display in the sidebar.
+     */
     days() {
       var days = new Array();
 
       for (var i = -4; i <= 4; i++) {
-
-        var date = new Date(Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + i));
-        days.push({'date': date, 'index': i});
+        var date = new Date(
+          Date.UTC(
+            this.date.getFullYear(),
+            this.date.getMonth(),
+            this.date.getDate() + i
+          )
+        );
+        days.push({ date: date, index: i });
       }
       return days;
     },
 
     /*
-    *   Events at the current day.
-    *   It is seperated from the list of the events for each day
-    *   because you can change the days in the popup, that they are not
-    *   in the current month anymore.
-    */
+     *   Events at the current day.
+     *   It is seperated from the list of the events for each day
+     *   because you can change the days in the popup, that they are not
+     *   in the current month anymore.
+     */
     events() {
       return this.$parent.eventsAtDay(this.date);
     },
     addItemURL() {
       var url = this.$root._router.currentRoute.path;
-      return "#"+url+"/+";
+      return "#" + url + "/+";
     }
   },
   methods: {
-
     /*
-    *   Gets the name of the week for a specific position in the sidebar.
-    */
+     *   Gets the name of the week for a specific position in the sidebar.
+     */
     weekname(day) {
-      return this.$t("layouts-calendar-weeks." + this.$parent.weekNames[day == 0? 6 : day-1]).substr(0, 3);
+      return this.$t(
+        "layouts-calendar-weeks." +
+          this.$parent.weekNames[day == 0 ? 6 : day - 1]
+      ).substr(0, 3);
     },
 
     changeDay(distance) {
-      this.moveSidebar = "move-"+distance;
-      var newDate = new Date(Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + distance));
+      this.moveSidebar = "move-" + distance;
+      var newDate = new Date(
+        Date.UTC(
+          this.date.getFullYear(),
+          this.date.getMonth(),
+          this.date.getDate() + distance
+        )
+      );
       this.date = newDate;
       this.$parent.popupDate = newDate;
     },
 
     close() {
-      this.$emit('close');
+      this.$emit("close");
       this.moveSidebar = "move-0";
     },
 
@@ -112,13 +135,13 @@ export default {
       var events = 0;
       var dateId = this.$parent.viewOptions.date;
 
-      if(!dateId)return;
+      if (!dateId) return;
 
       for (var i = 0; i < this.$parent.items.length; i++) {
         var item = this.$parent.items[i];
         var eventDate = new Date(item[dateId]);
 
-        if(this.$parent.isSameDay(date, eventDate)){
+        if (this.$parent.isSameDay(date, eventDate)) {
           events++;
         }
       }
@@ -126,7 +149,7 @@ export default {
     },
 
     randomEmoji() {
-      switch (Math.round(Math.random()*5)) {
+      switch (Math.round(Math.random() * 5)) {
         case 1:
           return "(≧︿≦)";
         case 2:
@@ -140,11 +163,11 @@ export default {
         case 5:
           return "(·.·)";
         default:
-          return "\\(°Ω°)/"
+          return "\\(°Ω°)/";
       }
     },
     scroll(event) {
-      if(event.deltaY > 0) {
+      if (event.deltaY > 0) {
         this.changeDay(1);
       } else {
         this.changeDay(-1);
@@ -153,12 +176,11 @@ export default {
   },
   created() {
     this.scroll = _.throttle(this.scroll, 150);
-  },
+  }
 };
 </script>
 
 <style type="scss" scoped>
-
 #wrapper {
   display: flex;
   align-items: center;
@@ -207,13 +229,12 @@ export default {
   background-color: var(--white);
   width: 50%;
   height: 75%;
-  border-radius: var(--border-radius)
+  border-radius: var(--border-radius);
 }
 
 #header {
   padding: 20px;
   grid-column: 2 / 3;
-
 }
 
 #header span {
@@ -279,10 +300,14 @@ export default {
   transform: translateY(calc(100% / 9 * 2));
 }
 
-.move-1-enter-active .move-1-leave-active
-.move-2-enter-active .move-2-leave-active
-.move--1-enter-active .move--1-leave-active
-.move--2-enter-active .move--2-leave-active {
+.move-1-enter-active
+  .move-1-leave-active
+  .move-2-enter-active
+  .move-2-leave-active
+  .move--1-enter-active
+  .move--1-leave-active
+  .move--2-enter-active
+  .move--2-leave-active {
   transform: translateY(0);
 }
 
@@ -303,7 +328,7 @@ export default {
 }
 
 .dates::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 60%;
   height: 2px;

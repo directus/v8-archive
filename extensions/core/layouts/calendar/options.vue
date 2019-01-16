@@ -1,6 +1,8 @@
 <template>
   <form @submit.prevent>
-    <label for="spacing" class="style-3 required">{{$t("layouts-calendar-date")}}</label>
+    <label for="spacing" class="style-3 required">{{
+      $t("layouts-calendar-date")
+    }}</label>
     <v-select
       id="spacing"
       :value="viewOptions.date || '__none__'"
@@ -9,7 +11,9 @@
       icon="reorder"
       @input="setOption('date', $event)"
     ></v-select>
-    <label for="spacing" class="style-3">{{$t("layouts-calendar-time")}}</label>
+    <label for="spacing" class="style-3">{{
+      $t("layouts-calendar-time")
+    }}</label>
     <v-select
       id="spacing"
       :value="viewOptions.time || '__none__'"
@@ -18,7 +22,9 @@
       icon="reorder"
       @input="setOption('time', $event)"
     ></v-select>
-    <label for="spacing" class="style-3 required">{{$t("layouts-calendar-title")}}</label>
+    <label for="spacing" class="style-3 required">{{
+      $t("layouts-calendar-title")
+    }}</label>
     <v-select
       id="spacing"
       :value="viewOptions.title || '__none__'"
@@ -27,7 +33,9 @@
       icon="reorder"
       @input="setOption('title', $event)"
     ></v-select>
-    <label for="spacing" class="style-3">{{$t("layouts-calendar-color")}}</label>
+    <label for="spacing" class="style-3">{{
+      $t("layouts-calendar-color")
+    }}</label>
     <v-select
       id="spacing"
       :value="viewOptions.color || '__none__'"
@@ -51,21 +59,33 @@ export default {
   },
   computed: {
     textOptions() {
-      var options = this.$lodash.mapValues(this.fields, info => (info.type == "string" || info.type == "integer")? info.name : null);
+      var options = this.$lodash.mapValues(this.fields, info =>
+        info.type == "string" || info.type == "integer" ? info.name : null
+      );
       return this.$lodash.pickBy(options, _.identity);
     },
     dateOptions() {
-      var options = this.$lodash.mapValues(this.fields, info => info.type == "date"? info.name : null);
+      var options = this.$lodash.mapValues(this.fields, info =>
+        info.type == "date" ? info.name : null
+      );
       return this.$lodash.pickBy(options, _.identity);
     },
     timeOptions() {
-      var options = {__none__: `(${this.$t("dont_show")})`,
-        ...this.$lodash.mapValues(this.fields, info => info.type == "time"? info.name : null)};
+      var options = {
+        __none__: `(${this.$t("dont_show")})`,
+        ...this.$lodash.mapValues(this.fields, info =>
+          info.type == "time" ? info.name : null
+        )
+      };
       return this.$lodash.pickBy(options, _.identity);
     },
     colorOptions() {
-      var options = {__none__: `(${this.$t("dont_show")})`,
-        ...this.$lodash.mapValues(this.fields, info => ["color", "color-palette"].includes(info.interface) ? info.name : null)};
+      var options = {
+        __none__: `(${this.$t("dont_show")})`,
+        ...this.$lodash.mapValues(this.fields, info =>
+          ["color", "color-palette"].includes(info.interface) ? info.name : null
+        )
+      };
       return this.$lodash.pickBy(options, _.identity);
     }
   },
@@ -75,20 +95,19 @@ export default {
         ...this.viewOptions,
         [option]: value
       });
-    },
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-
 label {
   margin-bottom: 10px;
   margin-top: 30px;
 }
 
 .required::after {
-  content: 'required';
+  content: "required";
   margin: 0 5px;
   padding: 0px 2px;
   font-size: 0.7em;

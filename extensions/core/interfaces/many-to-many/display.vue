@@ -1,8 +1,9 @@
 <template>
-  <v-popover trigger="hover" v-if="options.template && options.template.length > 0">
-    <div class="readonly-many-to-many">
-      {{ itemCount }}
-    </div>
+  <v-popover
+    trigger="hover"
+    v-if="options.template && options.template.length > 0"
+  >
+    <div class="readonly-many-to-many">{{ itemCount }}</div>
 
     <template slot="popover">
       <ul class="list">
@@ -11,9 +12,7 @@
     </template>
   </v-popover>
 
-  <div v-else class="readonly-many-to-many">
-    {{ itemCount }}
-  </div>
+  <div v-else class="readonly-many-to-many">{{ itemCount }}</div>
 </template>
 
 <script>
@@ -24,7 +23,9 @@ export default {
   mixins: [mixin],
   computed: {
     itemCount() {
-      return this.$tc("item_count", (this.value || []).length, { count: (this.value || []).length });
+      return this.$tc("item_count", (this.value || []).length, {
+        count: (this.value || []).length
+      });
     }
   },
   methods: {
