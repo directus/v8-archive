@@ -41,6 +41,8 @@ abstract class Route
     {
         $data = $this->getResponseData($request, $response, $data, $options);
 
+        $this->triggerResponseAction($request, $response, $data);
+
         // TODO: Ideally here we should check if the response is a empty response and return 204 not content
         return $response->withJson($data);
     }
@@ -125,6 +127,33 @@ abstract class Route
     }
 
     /**
+     * Trigger a response action
+     * @param  Request  $request
+     * @param  Response $response
+     * @return void
+     */
+    protected function triggerResponseAction(Request $request, Response $response, array $data) {
+        $uri = $request->getUri();
+
+        $responseInfo = [
+            'path' => $uri->getPath(),
+            'query' => $uri->getQuery(),
+            'status' => $response->getStatusCode(),
+            'method' => $request->getMethod(),
+
+            // This will count the total byte length of the data. It isn't
+            // 100% accurate, as it will count the size of the serialized PHP
+            // array instead of the JSON object. Converting it to JSON before
+            // counting would introduce too much latency and the difference in
+            // length between the JSON and PHP array is insignificant
+            'size' => mb_strlen(serialize((array) $data), '8bit')
+        ];
+
+        $hookEmitter = $this->container->get('hook_emitter');
+        $hookEmitter->run("response", [$responseInfo, $data]);
+    }
+
+    /**
      * Parse the output data
      *
      * @param Response $response
@@ -137,6 +166,8 @@ abstract class Route
     {
         // TODO: Event parsing output
         // This event can guess/change the output from json to xml
+
+        $this->triggerResponseAction($request, $response, $data);
 
         return $response->withJson($data);
     }

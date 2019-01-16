@@ -31,7 +31,13 @@
     </v-button>
 
     <portal to="modal" v-if="newFile">
-      <v-modal :title="$t('file_upload')" @close="newFile = false">
+      <v-modal
+      :buttons="{
+        done: {
+          text: $t('done')
+        }
+      }"
+      :title="$t('file_upload')" @close="newFile = false" @done="newFile = false">
         <div class="body">
           <v-upload @upload="saveUpload" :multiple="true"></v-upload>
         </div>
@@ -230,8 +236,6 @@ export default {
           [this.junctionFieldName]: fileInfo.data
         }
       ]);
-
-      this.newFile = false;
     },
 
     /*
