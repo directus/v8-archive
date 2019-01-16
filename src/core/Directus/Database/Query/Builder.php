@@ -81,6 +81,11 @@ class Builder
     protected $havings = null;
 
     /**
+     * @var boolean
+     */
+    protected $hasQuantifier = false;
+
+    /**
      * Builder constructor.
      *
      * @param AdapterInterface $connection
@@ -585,6 +590,26 @@ class Builder
     }
 
     /**
+     * Sets quantifier
+     *
+     * @return true
+     */
+    public function addQuantifier()
+    {
+        $this->hasQuantifier = true;
+    }
+
+    /**
+     * Gets hasQuantifier
+     *
+     * @return array|null
+     */
+    public function getHasQuantifier()
+    {
+        return $this->hasQuantifier;
+    }
+
+    /**
      * Build the Select Object
      *
      * @return \Zend\Db\Sql\Select
@@ -592,6 +617,11 @@ class Builder
     public function buildSelect()
     {
         $select = $this->getSqlObject()->select($this->getFrom());
+
+        if ($this->hasQuantifier) {
+            $select->quantifier(new \Zend\Db\Sql\Expression('SQL_CALC_FOUND_ROWS'));
+        }
+
         $select->columns($this->getColumns());
         $select->order($this->buildOrder());
 

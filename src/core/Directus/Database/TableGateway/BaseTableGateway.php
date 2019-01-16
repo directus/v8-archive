@@ -101,6 +101,12 @@ class BaseTableGateway extends TableGateway
     protected $deleteFlag = '$delete';
 
     /**
+     * Found rows count
+     * @var int
+     */
+    protected $foundRows = 0;
+
+    /**
      * Constructor
      *
      * @param string $table
@@ -695,6 +701,21 @@ class BaseTableGateway extends TableGateway
 
     /**
      * @param Select $select
+     * @param boolean $hasQuantifier
+     * @return ResultSetInterface
+     * @throws \RuntimeException
+     */
+    public function selectWith(Select $select, $hasQuantifier = false)
+    {
+        if (! $this->isInitialized) {
+            $this->initialize();
+        }
+        return $this->executeSelect($select, $hasQuantifier);
+    }
+
+    /**
+     * @param Select $select
+     * @param boolean $hasQuantifier
      *
      * @return ResultSet
      *
@@ -702,7 +723,7 @@ class BaseTableGateway extends TableGateway
      * @throws \Directus\Permissions\Exception\ForbiddenFieldWriteException
      * @throws \Exception
      */
-    protected function executeSelect(Select $select)
+    protected function executeSelect(Select $select, $hasQuantifier = false)
     {
         $useFilter = $this->shouldUseFilter();
         unset($this->options['filter']);
@@ -728,6 +749,18 @@ class BaseTableGateway extends TableGateway
 
         try {
             $result = parent::executeSelect($select);
+
+            if ($hasQuantifier) {
+                $selectFoundRows = new Select();
+                $selectFoundRows->columns([
+                    'foundRows' => new \Zend\Db\Sql\Expression('FOUND_ROWS()')
+                ]);
+                $statementFoundRows = $this->sql->prepareStatementForSqlObject($selectFoundRows);
+                $resultFoundRows = $statementFoundRows->execute();
+                $row = $resultFoundRows->current();
+
+                $this->foundRows = (int) $row['foundRows'];
+            }
         } catch (UnexpectedValueException $e) {
             throw new InvalidQueryException(
                 $this->dumpSql($select),

@@ -935,13 +935,17 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function createEntriesMetadata(array $entries, array $list = [])
     {
-        $allKeys = ['result_count', 'total_count', 'status'];
+        $allKeys = ['filtered_count', 'result_count', 'total_count', 'status'];
         $tableSchema = $this->getTableSchema($this->table);
 
         $metadata = [];
 
         if (empty($list) || in_array('*', $list)) {
             $list = $allKeys;
+        }
+
+        if (in_array('filtered_count', $list)) {
+            $metadata['filtered_count'] = $this->countFilter();
         }
 
         if (in_array('result_count', $list)) {
@@ -1003,6 +1007,15 @@ class RelationalTableGateway extends BaseTableGateway
             array_unshift($selectedFields, $statusField->getName());
         }
 
+        $meta = ArrayUtils::get($params, 'meta', '');
+        $meta = ($meta) ? StringUtils::csv($meta) : [];
+
+        $hasQuantifier = in_array('filtered_count', $meta) || in_array('*', $meta);
+        if ($hasQuantifier)
+        {
+            $builder->addQuantifier();
+        }
+
         $builder->columns($selectedFields);
 
         $builder = $this->applyParamsToTableEntriesSelect(
@@ -1037,7 +1050,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         // Run the builder Select with this tablegateway
         // to run all the hooks against the result
-        $results = $this->selectWith($builder->buildSelect())->toArray();
+        $results = $this->selectWith($builder->buildSelect(), $hasQuantifier)->toArray();
 
         if (!$results && ArrayUtils::has($params, 'single')) {
             $message = null;
@@ -2075,6 +2088,16 @@ class RelationalTableGateway extends BaseTableGateway
         $row = $results->current();
 
         return (int) $row['total'];
+    }
+
+    /**
+     * Get the total entries count
+     *
+     * @return int
+     */
+    public function countFilter()
+    {
+        return $this->foundRows;
     }
 
     /**

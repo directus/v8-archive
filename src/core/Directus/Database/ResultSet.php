@@ -17,17 +17,22 @@ class ResultSet implements \Iterator, ResultInterface
      */
     protected $fieldCount = null;
 
-    public function __construct($dataSource = null)
+    /**
+     * @var int|null
+     */
+    protected $foundRows = null;
+
+    public function __construct($dataSource = null, $foundRows = null)
     {
         if ($dataSource) {
-            $this->initialize($dataSource);
+            $this->initialize($dataSource, $foundRows);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public function initialize($dataSource)
+    public function initialize($dataSource, $foundRows = null)
     {
         if (is_array($dataSource)) {
             $first = current($dataSource);
@@ -38,6 +43,8 @@ class ResultSet implements \Iterator, ResultInterface
             $this->dataSource = $dataSource;
         }
 
+        $this->foundRows = $foundRows;
+
         return $this;
     }
 
@@ -47,6 +54,14 @@ class ResultSet implements \Iterator, ResultInterface
     public function getFieldCount()
     {
         return $this->dataSource->getFieldCount();
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getFoundRows()
+    {
+        return $this->foundRows;
     }
 
     /**
