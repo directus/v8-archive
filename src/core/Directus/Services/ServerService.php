@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Application;
 use Directus\Exception\UnauthorizedException;
+use function Directus\get_project_info;
 
 class ServerService extends AbstractService
 {
@@ -27,6 +28,7 @@ class ServerService extends AbstractService
         if ($global !== true) {
             $config = $this->getContainer()->get('config');
             $data['api']['database'] = $config->get('database.type');
+            $data['api'] = array_merge($data['api'], $this->getPublicInfo());
         }
 
         if ($this->getAcl()->isAdmin()) {
@@ -39,5 +41,15 @@ class ServerService extends AbstractService
         return [
             'data' => $data
         ];
+    }
+
+    /**
+     * Return Project public data
+     *
+     * @return array
+     */
+    public function getPublicInfo()
+    {
+        return get_project_info();
     }
 }

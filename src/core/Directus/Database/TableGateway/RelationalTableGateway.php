@@ -774,18 +774,20 @@ class RelationalTableGateway extends BaseTableGateway
         // ----------------------------------------------------------------------------
         // STATUS VALUES
         // ----------------------------------------------------------------------------
-        $statusField = $this->getTableSchema()->getStatusField();
-        $permissionStatuses = $this->acl->getCollectionStatusesReadPermission($this->getTable());
-        if ($statusField && is_array($permissionStatuses)) {
-            $paramStatuses = ArrayUtils::get($params, 'status');
-            if (is_array($paramStatuses)) {
-                $permissionStatuses = ArrayUtils::intersection(
-                    $permissionStatuses,
-                    $paramStatuses
-                );
-            }
+        if ($this->acl) {
+            $statusField = $this->getTableSchema()->getStatusField();
+            $permissionStatuses = $this->acl->getCollectionStatusesReadPermission($this->getTable());
+            if ($statusField && is_array($permissionStatuses)) {
+                $paramStatuses = ArrayUtils::get($params, 'status');
+                if (is_array($paramStatuses)) {
+                    $permissionStatuses = ArrayUtils::intersection(
+                        $permissionStatuses,
+                        $paramStatuses
+                    );
+                }
 
-            $params['status'] = $permissionStatuses;
+                $params['status'] = $permissionStatuses;
+            }
         }
 
         // @TODO: Query Builder Object

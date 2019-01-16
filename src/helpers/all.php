@@ -1172,38 +1172,6 @@ if (!function_exists('get_request_ip')) {
     }
 }
 
-if (!function_exists('get_project_info')) {
-    function get_project_info()
-    {
-        /** @var \Directus\Database\TableGateway\DirectusSettingsTableGateway $settingsTable */
-        $settingsTable = TableGatewayFactory::create('directus_settings', [
-            'acl' => null
-        ]);
-        $settings = $settingsTable->fetchCollection('global');
-
-        $projectName = isset($settings['project_name']) ? $settings['project_name'] : 'Directus';
-        $defaultProjectLogo = get_directus_path('/assets/imgs/directus-logo-flat.svg');
-        if (isset($settings['cms_thumbnail_url']) && $settings['cms_thumbnail_url']) {
-            $projectLogoURL = $settings['cms_thumbnail_url'];
-            $filesTable = TableGatewayFactory::create('directus_files', [
-                'acl' => null
-            ]);
-            $data = $filesTable->fetchItems([
-                'filter' => ['id' => $projectLogoURL]
-            ]);
-
-            $projectLogoURL = ArrayUtils::get($data, 'url', $defaultProjectLogo);
-        } else {
-            $projectLogoURL = $defaultProjectLogo;
-        }
-
-        return [
-            'project_name' => $projectName,
-            'project_logo_url' => $projectLogoURL
-        ];
-    }
-}
-
 if (!function_exists('get_missing_requirements')) {
     /**
      * Gets an array of errors message when there's a missing requirements
