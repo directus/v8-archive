@@ -119,9 +119,7 @@ export default {
     // has scrolled
     date() {
       var date = new Date();
-      date = new Date(
-        Date.UTC(date.getFullYear(), date.getMonth() + this.monthDistance)
-      );
+      date = new Date(date.getFullYear(), date.getMonth() + this.monthDistance, 1);
       return date;
     }
   },
@@ -171,12 +169,9 @@ export default {
       if (!dateId || !titleId) return;
 
       for (var i = 0; i < this.$parent.items.length; i++) {
+
         var item = this.$parent.items[i];
-
-        var dateArray = item[dateId].split('-');
-        dateArray[1] -= 1; // Make the month 0 indexed
-        var eventDate = new Date(...dateArray);
-
+        var eventDate = new Date(item[dateId] + "T00:00:00");
         var time = item[timeId] && timeId != 0 ? item[timeId] : "";
         var color = item[colorId];
 
