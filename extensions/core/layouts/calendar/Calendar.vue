@@ -1,5 +1,6 @@
 <template>
   <div id="view">
+    <!-- 42 = 6 rows * 7 days -->
     <Day
       v-for="i in 42"
       :display="display(i)"

@@ -115,6 +115,8 @@ export default {
   },
   mixins: [mixin],
   computed: {
+    // Get the date of the view based on the delta of the months that the user
+    // has scrolled
     date() {
       var date = new Date();
       date = new Date(
@@ -170,7 +172,11 @@ export default {
 
       for (var i = 0; i < this.$parent.items.length; i++) {
         var item = this.$parent.items[i];
-        var eventDate = new Date(item[dateId]);
+
+        var dateArray = item[dateId].split('-');
+        dateArray[1] -= 1; // Make the month 0 indexed
+        var eventDate = new Date(...dateArray);
+
         var time = item[timeId] && timeId != 0 ? item[timeId] : "";
         var color = item[colorId];
 
