@@ -557,8 +557,14 @@ class CoreServicesProvider
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
                    $field = $collection->getField($key);
+                   $type = $field->getType();
 
-                   if (DataTypes::isDateTimeType($field->getType())) {
+                   // This value is being populated in another hook
+                   if (DataTypes::isSystemDateTimeType($type)) {
+                       continue;
+                   }
+
+                   if (DataTypes::isDateTimeType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        if ($isSystemCollection || is_iso8601_datetime($value)) {
                            $dateTimeValue = $dateTime->toUTCString();
@@ -567,10 +573,10 @@ class CoreServicesProvider
                        }
 
                        $payload->set($key, $dateTimeValue);
-                   } else if (DataTypes::isDateType($field->getType())) {
+                   } else if (DataTypes::isDateType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_DATE_FORMAT));
-                   } else if (DataTypes::isTimeType($field->getType())) {
+                   } else if (DataTypes::isTimeType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_TIME_FORMAT));
                    }
