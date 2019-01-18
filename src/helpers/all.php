@@ -1640,3 +1640,17 @@ if (!function_exists('normalize_exception')) {
         return implode("\n", $stack);
     }
 }
+
+if (!function_exists('is_empty')) {
+    /**
+     * Checks whether or not the value is empty|null
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    function is_empty($value)
+    {
+        return !$value || empty($value) || (is_object($value) && empty((array) $value));
+    }
+}

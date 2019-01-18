@@ -7,6 +7,7 @@ use Directus\Application\Http\Response;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\InvalidPayloadException;
 use Directus\Hook\Emitter;
+use function Directus\is_empty;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Validator;
 
@@ -37,14 +38,16 @@ abstract class Route
      *
      * @return Response
      */
-    public function responseWithData(Request $request, Response $response, array $data, array $options = [])
+    public function responseWithData(Request $request, Response $response, $data, array $options = [])
     {
-        $data = $this->getResponseData($request, $response, $data, $options);
+        if (!is_array($data) || is_empty($data)) {
+            $data = [];
+        }
 
+        $data = $this->getResponseData($request, $response, $data, $options);
         $this->triggerResponseAction($request, $response, $data);
 
-        // TODO: Ideally here we should check if the response is a empty response and return 204 not content
-        return $response->withJson($data);
+        return $this->respond($response, $data, 'json');
     }
 
     /**
@@ -61,7 +64,7 @@ abstract class Route
     {
         $data = $this->getResponseData($request, $response, $data, $options);
 
-        return $response->withScimJson($data);
+        return $this->respond($response, $data, 'scim+json');
     }
 
     /**
@@ -76,15 +79,32 @@ abstract class Route
      */
     protected function getResponseData(Request $request, Response $response, array $data, array $options = [])
     {
-        $data = $this->triggerResponseFilter($request, $data, (array) $options);
+        return $this->triggerResponseFilter($request, $data, (array) $options);
+    }
 
-        // NOTE: when data is a empty array, the output will be an array
-        // this create problem/confusion as we always return an object
-        if (empty($data)) {
-            $data = new \stdClass();
+    /**
+     * @param Response $response
+     * @param array $data
+     * @param string $type
+     *
+     * @return Response
+     */
+    protected function respond(Response $response, $data, $type = 'json')
+    {
+        if (is_empty($data)) {
+            return $response->withStatus($response::HTTP_NOT_CONTENT);
         }
 
-        return $data;
+        switch ($type) {
+            case 'scim+json':
+                $response = $response->withScimJson($data);
+                break;
+            case 'json':
+            default:
+                $response = $response->withJson($data);
+        }
+
+        return $response;
     }
 
     /**
