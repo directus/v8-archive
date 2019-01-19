@@ -302,15 +302,15 @@ class CoreServicesProvider
                 }
 
                 // NOTE: Use the user input title, tags, description and location when exists.
-                $recordData = array_merge(
-                    $recordData,
-                    ArrayUtils::pick($data, [
-                        'title',
-                        'tags',
-                        'description',
-                        'location',
-                    ])
-                );
+                $recordData = ArrayUtils::defaults($recordData, ArrayUtils::pick($data, [
+                    'type',
+                    'title',
+                    'tags',
+                    'description',
+                    'location',
+                ]), function ($value) {
+                    return !!$value;
+                });
 
                 $payload->replace($recordData);
                 $payload->remove('data');
