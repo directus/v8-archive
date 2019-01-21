@@ -8,20 +8,31 @@ use function Directus\get_project_info;
 
 class ServerService extends AbstractService
 {
+    // Uses php.ini to get configuration values
+    const INFO_SETTINGS_CORE = 1;
+    // Uses runtime configuration instead of php.ini values
+    const INFO_SETTINGS_RUNTIME = 2;
+
     /**
      * @param bool $global
+     * @param int|null $configuration
+     *
      * @return array
      *
      * @throws UnauthorizedException
      */
-    public function findAllInfo($global = true)
+    public function findAllInfo($global = true, $configuration = null)
     {
+        if ($configuration === null) {
+            $configuration = self::INFO_SETTINGS_RUNTIME;
+        }
+
         $data = [
             'api' => [
                 'version' => Application::DIRECTUS_VERSION
             ],
             'server' => [
-                'max_upload_size' => \Directus\get_max_upload_size($global)
+                'max_upload_size' => \Directus\get_max_upload_size($configuration === self::INFO_SETTINGS_CORE),
             ]
         ];
 
