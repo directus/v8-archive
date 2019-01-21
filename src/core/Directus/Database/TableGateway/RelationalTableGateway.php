@@ -14,6 +14,7 @@ use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
+use Directus\Permissions\Exception\ForbiddenFieldReadException;
 use Directus\Permissions\Exception\PermissionException;
 use Directus\Permissions\Exception\UnableFindOwnerItemsException;
 use Directus\Util\ArrayUtils;
@@ -1198,6 +1199,12 @@ class RelationalTableGateway extends BaseTableGateway
             while ($relational) {
                 $nextTable = SchemaService::getRelatedCollectionName($nextTable, $nextColumn);
                 $nextColumn = array_shift($columnList);
+
+                // Confirm the user has permission to all chained (dot) fields
+                if ($this->acl && !$this->acl->canRead($nextTable)) {
+                    throw new Exception\ForbiddenFieldAccessException($nextColumn);
+                }
+
                 $relational = SchemaService::hasRelationship($nextTable, $nextColumn);
                 $columnsTable[] = $nextTable;
             }
