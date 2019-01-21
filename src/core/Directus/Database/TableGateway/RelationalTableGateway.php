@@ -1249,9 +1249,6 @@ class RelationalTableGateway extends BaseTableGateway
                     $column = $collection->getPrimaryField()->getName();
                 }
 
-                if ($field->isManyToMany()) {
-                }
-
                 $query->columns([$selectColumn]);
                 $query->from($table);
                 $query->whereIn($column, $oldQuery);
