@@ -20,6 +20,7 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\Sql\Expression;
+use Zend\Db\Sql\Predicate\In;
 use Zend\Db\Sql\Predicate\PredicateInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
@@ -948,7 +949,13 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         if (in_array('total_count', $list)) {
-            $metadata['total_count'] = $this->countTotal();
+            $condition = null;
+            if ($this->getTableSchema()->hasStatusField()) {
+                $fieldName = $this->getTableSchema()->getStatusField()->getName();
+                $condition = new In($fieldName, $this->getNonSoftDeleteStatuses());
+            }
+
+            $metadata['total_count'] = $this->countTotal($condition);
         }
 
         if ($tableSchema->hasStatusField() && in_array('status', $list)) {
@@ -2097,27 +2104,16 @@ class RelationalTableGateway extends BaseTableGateway
         $statement = $sql->prepareStatementForSqlObject($select);
         $results = $statement->execute();
 
-        $statusMap = $this->getStatusMapping();
         $stats = [];
         foreach ($results as $row) {
-            if (isset($row[$statusFieldName])) {
-                foreach ($statusMap as $status) {
-                    if ($status->getValue() == $row[$statusFieldName]) {
-                        $stats[$status->getValue()] = (int) $row['quantity'];
-                    }
-                }
-            }
+            $stats[$row[$statusFieldName]] = (int) $row['quantity'];
         }
 
-        $vals = [];
+        $statusMap = $this->getStatusMapping();
         foreach ($statusMap as $value) {
-            array_push($vals, $value->getValue());
-        }
-
-        $possibleValues = array_values($vals);
-        $makeMeZero = array_diff($possibleValues, array_keys($stats));
-        foreach ($makeMeZero as $unsetActiveColumn) {
-            $stats[$unsetActiveColumn] = 0;
+            if (!isset($stats[$value->getValue()])) {
+                $stats[$value->getValue()] = 0;
+            }
         }
 
         return $stats;
