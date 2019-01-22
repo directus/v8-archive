@@ -1,7 +1,10 @@
 <template>
   <div class="interface-many-to-many">
     <div v-if="relationSetup === false" class="notice">
-      <p><i class="material-icons">warning</i> {{ $t('interfaces-many-to-many-relation_not_setup') }}</p>
+      <p>
+        <i class="material-icons">warning</i>
+        {{ $t("interfaces-many-to-many-relation_not_setup") }}
+      </p>
     </div>
     <template>
       <div class="table" v-if="items.length">
@@ -11,10 +14,11 @@
               v-for="column in columns"
               type="button"
               :key="column.field"
-              @click="changeSort(column.field)">
+              @click="changeSort(column.field)"
+            >
               {{ column.name }}
               <i v-if="sort.field === column.field" class="material-icons">
-                {{ sort.asc ? 'arrow_downward' : 'arrow_upward' }}
+                {{ sort.asc ? "arrow_downward" : "arrow_upward" }}
               </i>
             </button>
           </div>
@@ -24,29 +28,43 @@
             v-for="item in items"
             class="row"
             :key="item[junctionPrimaryKey]"
-            @click="editExisting = item">
-            <div
-              v-for="column in columns"
-              :key="column.field">{{ item[junctionRelatedKey][column.field] }}</div>
+            @click="editExisting = item"
+          >
+            <div v-for="column in columns" :key="column.field" class="no-wrap">
+              <v-ext-display
+                :interface-type="column.fieldInfo.interface"
+                :name="column.field"
+                :type="column.fieldInfo.type"
+                :datatype="column.fieldInfo.datatype"
+                :options="column.fieldInfo.options"
+                :value="item[junctionRelatedKey][column.field]"
+              />
+            </div>
             <button
               type="button"
               class="remove-item"
               v-tooltip="$t('remove_related')"
-              @click.stop="removeRelated({
-                junctionKey: item[junctionPrimaryKey],
-                relatedKey: item[junctionRelatedKey][relatedKey],
-                item
-              })">
+              @click.stop="
+                removeRelated({
+                  junctionKey: item[junctionPrimaryKey],
+                  relatedKey: item[junctionRelatedKey][relatedKey],
+                  item
+                })
+              "
+            >
               <i class="material-icons">close</i>
             </button>
           </div>
         </div>
       </div>
       <button type="button" class="style-btn select" @click="addNew = true">
-        <i class="material-icons">add</i>
-        {{ $t("add_new") }}
+        <i class="material-icons">add</i> {{ $t("add_new") }}
       </button>
-      <button type="button" class="style-btn select" @click="selectExisting = true">
+      <button
+        type="button"
+        class="style-btn select"
+        @click="selectExisting = true"
+      >
         <i class="material-icons">playlist_add</i>
         <span>{{ $t("select_existing") }}</span>
       </button>
@@ -63,7 +81,8 @@
           }
         }"
         @close="dismissSelection"
-        @save="saveSelection">
+        @save="saveSelection"
+      >
         <v-items
           :collection="relatedCollection"
           :filters="filters"
@@ -73,7 +92,8 @@
           :selection="selection"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="selection = $event"></v-items>
+          @select="selection = $event"
+        ></v-items>
       </v-modal>
     </portal>
 
@@ -88,12 +108,14 @@
           }
         }"
         @close="editExisting = false"
-        @save="saveEdits">
+        @save="saveEdits"
+      >
         <div class="edit-modal-body">
           <v-form
             :fields="relatedCollectionFields"
             :values="editExisting[junctionRelatedKey]"
-            @stage-value="stageValue"></v-form>
+            @stage-value="stageValue"
+          ></v-form>
         </div>
       </v-modal>
     </portal>
@@ -109,12 +131,14 @@
           }
         }"
         @close="addNew = null"
-        @save="addNewItem">
+        @save="addNewItem"
+      >
         <div class="edit-modal-body">
           <v-form
             :fields="relatedCollectionFields"
             :values="relatedDefaultsWithEdits"
-            @stage-value="stageValue"></v-form>
+            @stage-value="stageValue"
+          ></v-form>
         </div>
       </v-modal>
     </portal>
@@ -197,7 +221,9 @@ export default {
     },
     columns() {
       if (this.relationSetup === false) return null;
+
       return this.visibleFields.map(field => ({
+        fieldInfo: this.relatedCollectionFields[field],
         field,
         name: this.$helpers.formatTitle(field)
       }));
@@ -310,6 +336,9 @@ export default {
 
       const savedRelatedPKs = (this.value || [])
         .filter(val => !val.$delete)
+        // Filter out non-existing relationships (eg the related item has been
+        // deleted)
+        .filter(val => val[this.junctionRelatedKey])
         .map(val => val[this.junctionRelatedKey][this.relatedKey]);
 
       const selectedPKs = this.selection.map(item => item[this.relatedKey]);

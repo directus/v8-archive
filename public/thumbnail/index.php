@@ -23,15 +23,15 @@ try {
     exit;
 }
 
-$settings = \Directus\get_kv_directus_settings('thumbnail');
-$timeToLive = \Directus\array_get($settings, 'cache_ttl', 86400);
+$settings = \Directus\get_directus_thumbnail_settings();
+$timeToLive = \Directus\array_get($settings, 'thumbnail_cache_ttl', 86400);
 try {
     // if the thumb already exists, return it
     $thumbnailer = new Thumbnailer(
         $app->getContainer()->get('filesystem'),
         $app->getContainer()->get('filesystem_thumb'),
         $settings,
-        \Directus\get_virtual_path()
+        urldecode(\Directus\get_virtual_path())
     );
 
     $image = $thumbnailer->get();
@@ -61,7 +61,7 @@ try {
 }
 
 catch (Exception $e) {
-    $filePath = ArrayUtils::get($settings, 'not_found_location');
+    $filePath = ArrayUtils::get($settings, 'thumbnail_not_found_location');
     if (is_string($filePath) && !empty($filePath) && $filePath[0] !== '/') {
         $filePath = $basePath . '/' . $filePath;
     }

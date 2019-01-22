@@ -1,10 +1,30 @@
 <template>
   <div v-if="error || !relation" class="translation error">
-    <p><i class="material-icons">warning</i> {{ $t('interfaces-translation-translation_not_setup') }}</p>
+    <p>
+      <i class="material-icons">warning</i>
+      {{ $t("interfaces-translation-translation_not_setup") }}
+    </p>
   </div>
-  <div v-else-if="activeLanguage" class="translation" :class="{ disabled: newItem }">
-    <v-simple-select :disabled="newItem" class="language-select" v-model="activeLanguage">
-      <option v-for="language in languages" :key="language.code" :value="language.code">
+  <div
+    v-else-if="languages && languages.length === 0"
+    class="translation error"
+  >
+    <p>
+      <i class="material-icons">warning</i>
+      {{ $t("interfaces-translation-translation_no_languages") }}
+    </p>
+  </div>
+  <div v-else-if="activeLanguage" class="translation">
+    <v-simple-select
+      class="language-select"
+      v-model="activeLanguage"
+      :placeholder="$t('interfaces-translation-choose_language')"
+    >
+      <option
+        v-for="language in languages"
+        :key="language.code"
+        :value="language.code"
+      >
         {{ language.name }}
       </option>
     </v-simple-select>
@@ -13,15 +33,13 @@
 
     <v-form
       class="form"
-      :readonly="newItem"
       :key="activeLanguage"
       :fields="relatedFields"
       :values="langValue"
       :collection="relation.collection_many"
       ref="form"
-      @stage-value="stageValue" />
-
-    <p v-if="newItem"><i class="material-icons">help_outline</i> {{ $t('interfaces-translation-save_first') }}</p>
+      @stage-value="stageValue"
+    />
   </div>
 </template>
 
@@ -33,14 +51,14 @@ export default {
   data() {
     return {
       activeLanguage: null,
-      languages: []
+      languages: null
     };
   },
   computed: {
     error() {
       if (
         !this.options.languagesCollection ||
-        !this.options.languagePrimaryKeyField
+        !this.options.translationLanguageField
       )
         return true;
       return false;
@@ -70,7 +88,7 @@ export default {
       if (!this.value) return {};
       return this.$lodash.keyBy(
         this.value,
-        this.options.languagePrimaryKeyField
+        this.options.translationLanguageField
       );
     }
   },
@@ -81,15 +99,27 @@ export default {
     fetchLanguages() {
       if (
         !this.options.languagesCollection ||
-        !this.options.languagePrimaryKeyField
+        !this.options.translationLanguageField
       )
         return null;
       this.$api
         .getItems(this.options.languagesCollection, { limit: -1 })
         .then(res => res.data)
         .then(languages => {
-          this.languages = languages;
+          if (languages.length === 0) return;
+
+          const primaryKeyField = this.options.languagesPrimaryKeyField;
+          const nameField = this.options.languagesNameField;
+
+          this.languages = languages.map(language => {
+            return {
+              code: language[primaryKeyField],
+              name: language[nameField]
+            };
+          });
+
           this.activeLanguage =
+            this.options.defaultLanguage ||
             languages[0][
               this.$lodash.find(this.languageFields, {
                 primary_key: true
@@ -99,21 +129,31 @@ export default {
     },
     stageValue({ field, value }) {
       if (!this.valuesByLang[this.activeLanguage]) {
-        return this.$emit("input", [
-          ...(this.value || []),
-          {
-            [this.relation.field_many.field]: this.primaryKey,
-            [this.options.languagePrimaryKeyField]: this.activeLanguage,
-            [field]: value
-          }
-        ]);
+        const newValue = this.newItem
+          ? [
+              ...(this.value || []),
+              {
+                [this.options.translationLanguageField]: this.activeLanguage,
+                [field]: value
+              }
+            ]
+          : [
+              ...(this.value || []),
+              {
+                [this.relation.field_many.field]: this.primaryKey,
+                [this.options.translationLanguageField]: this.activeLanguage,
+                [field]: value
+              }
+            ];
+
+        return this.$emit("input", newValue);
       }
 
       return this.$emit(
         "input",
         this.value.map(translation => {
           if (
-            translation[this.options.languagePrimaryKeyField] ===
+            translation[this.options.translationLanguageField] ===
             this.activeLanguage
           ) {
             return {

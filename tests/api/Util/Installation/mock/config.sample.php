@@ -2,7 +2,7 @@
 
 return [
     'app' => [
-        'env' => 'development',
+        'env' => 'production',
         'timezone' => 'America/New_York',
     ],
 
@@ -68,6 +68,7 @@ return [
         //   'region' => 's3-region',
         //   'version' => 's3-version',
         //   'bucket' => 's3-bucket'
+        //   'options' => ['ACL' => 'public-read', 'Cache-Control' => 'max-age=604800']
     ],
 
     'mail' => [
@@ -139,6 +140,9 @@ return [
             //     'client_id'       => '',
             //     'client_secret'   => '',
             //     'hosted_domain'   => '*',
+            //     // Uses OpenIDConnect to fetch the email instead of using the Google+ API
+            //     // Disabling the OIDC Mode, requires you to enable the Google+ API otherwise it will fail
+            //     'use_oidc_mode'   => true,
             // ],
             // 'twitter' => [
             //     'identifier'   => '',

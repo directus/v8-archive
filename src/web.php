@@ -68,7 +68,7 @@ ini_set('display_errors', $displayErrors);
 // =============================================================================
 // Timezone
 // =============================================================================
-date_default_timezone_set($app->getConfig()->get('timezone', 'America/New_York'));
+date_default_timezone_set($app->getConfig()->get('app.timezone', 'America/New_York'));
 
 $container = $app->getContainer();
 
@@ -87,19 +87,23 @@ $middleware = [
     'table_gateway' => new \Directus\Application\Http\Middleware\TableGatewayMiddleware($app->getContainer()),
     'rate_limit_ip' => new \Directus\Application\Http\Middleware\IpRateLimitMiddleware($app->getContainer()),
     'ip' => new RKA\Middleware\IpAddress(),
+    'proxy' => new \Directus\Application\Http\Middleware\ProxyMiddleware(),
     'cors' => new \Directus\Application\Http\Middleware\CorsMiddleware($app->getContainer()),
     'auth' => new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()),
     'auth_user' => new \Directus\Application\Http\Middleware\AuthenticatedMiddleware($app->getContainer()),
     'auth_admin' => new \Directus\Application\Http\Middleware\AdminOnlyMiddleware($app->getContainer()),
+    'auth_optional' => new \Directus\Application\Http\Middleware\AuthenticationOptionalMiddleware($app->getContainer()),
     'auth_ignore_origin' => new \Directus\Application\Http\Middleware\AuthenticationIgnoreOriginMiddleware($app->getContainer()),
     'rate_limit_user' => new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($app->getContainer()),
 ];
 
 $app->add($middleware['rate_limit_ip'])
+    ->add($middleware['proxy'])
     ->add($middleware['ip'])
     ->add($middleware['cors']);
 
 $app->get('/', \Directus\Api\Routes\Home::class)
+    ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
@@ -113,6 +117,7 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['auth_user'])
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
+        ->add($middleware['auth_optional'])
         ->add($middleware['table_gateway']);
     $this->post('/update', \Directus\Api\Routes\ProjectUpdate::class)
         ->add($middleware['auth_admin'])
@@ -180,6 +185,7 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['table_gateway']);
     $this->group('/mail', \Directus\Api\Routes\Mail::class)
         ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
 
@@ -216,22 +222,26 @@ $app->group('/{project}', function () use ($middleware) {
 
 $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/layouts', \Directus\Api\Routes\Layouts::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/pages', \Directus\Api\Routes\Pages::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);

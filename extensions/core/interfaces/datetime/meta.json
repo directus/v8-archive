@@ -2,7 +2,7 @@
   "name": "$t:datetime",
   "version": "1.0.1",
   "types": ["datetime", "datetime_updated", "datetime_created"],
-  "icon": "event",
+  "icon": "access_time",
   "options": {
     "min": {
       "name": "$t:min",
@@ -37,6 +37,18 @@
       "comment": "$t:icon_right_comment",
       "interface": "icon",
       "advanced": true
+    },
+    "utc": {
+      "name": "$t:utc",
+      "comment": "$t:utc_comment",
+      "interface": "toggle",
+      "advanced": true
+    },
+    "defaultToCurrentDatetime": {
+      "name": "$t:default_to_current_datetime",
+      "comment": "$t:default_to_current_datetime_comment",
+      "interface": "toggle",
+      "advanced": true
     }
   },
   "translation": {
@@ -53,7 +65,11 @@
       "icon_left": "Icon Left",
       "icon_left_comment": "Choose an optional icon to display on the left of the input",
       "icon_right": "Icon Right",
-      "icon_right_comment": "Choose an optional icon to display on the right of the input"
+      "icon_right_comment": "Choose an optional icon to display on the right of the input",
+      "utc": "Save as UTC",
+      "utc_comment": "Save to and display from UTC",
+      "default_to_current_datetime": "Default to current datetime",
+      "default_to_current_datetime_comment": "Sets the default value to current datetime"
     }
   }
 }

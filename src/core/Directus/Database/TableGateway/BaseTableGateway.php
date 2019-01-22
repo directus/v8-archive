@@ -141,9 +141,13 @@ class BaseTableGateway extends TableGateway
             $features = new Feature\FeatureSet($features);
         }
 
-        $rowGatewayPrototype = new BaseRowGateway($this->primaryKeyFieldName, $table, $adapter, $this->acl);
-        $rowGatewayFeature = new RowGatewayFeature($rowGatewayPrototype);
-        $features->addFeature($rowGatewayFeature);
+        // NOTE: This is a hotfix to prevent add a rowgateway feature when there's not primaryKeyFieldName set
+        // BaseRowGateway requires a primary key to works
+        if ($this->primaryKeyFieldName) {
+            $rowGatewayPrototype = new BaseRowGateway($this->primaryKeyFieldName, $table, $adapter, $this->acl);
+            $rowGatewayFeature = new RowGatewayFeature($rowGatewayPrototype);
+            $features->addFeature($rowGatewayFeature);
+        }
 
         parent::__construct($table, $adapter, $features, $resultSetPrototype, $sql);
 
@@ -1095,6 +1099,10 @@ class BaseTableGateway extends TableGateway
      */
     protected function enforceReadPermission(Builder $builder)
     {
+        if (!$this->acl) {
+            return;
+        }
+
         // ----------------------------------------------------------------------------
         // Fixed owner field for system collections
         // ----------------------------------------------------------------------------
@@ -1573,12 +1581,11 @@ class BaseTableGateway extends TableGateway
     /**
      * Gets Directus settings (from DB)
      *
-     * @param null|string $scope
      * @param null|string $key
      *
      * @return mixed
      */
-    public function getSettings($scope, $key = null)
+    public function getSettings($key = null)
     {
         $settings = [];
 
@@ -1587,9 +1594,9 @@ class BaseTableGateway extends TableGateway
         }
 
         if ($key !== null) {
-            $settings = \Directus\get_directus_setting($scope, $key);
+            $settings = \Directus\get_directus_setting($key);
         } else {
-            $settings = \Directus\get_kv_directus_settings($scope);
+            $settings = \Directus\get_kv_directus_settings();
         }
 
         return $settings;
@@ -1786,7 +1793,7 @@ class BaseTableGateway extends TableGateway
      */
     protected function shouldNullSortedLast()
     {
-        return (bool) get_directus_setting('global', 'sort_null_last', true);
+        return (bool) get_directus_setting('sort_null_last', true);
     }
 
     /**

@@ -10,7 +10,8 @@
     :maxlength="length ? +length : null"
     :id="name"
     :charactercount="options.showCharacterCount"
-    @input="updateValue"></v-input>
+    @input="updateValue"
+  ></v-input>
 </template>
 
 <script>
@@ -20,8 +21,6 @@ export default {
   mixins: [mixin],
   methods: {
     updateValue(rawValue) {
-      if (!rawValue) return;
-
       let value = rawValue;
 
       if (this.options.trim) {

@@ -29,10 +29,6 @@ class CreateSettingsTable extends AbstractMigration
     {
         $table = $this->table('directus_settings', ['signed' => false]);
 
-        $table->addColumn('scope', 'string', [
-            'limit' => 64,
-            'default' => null
-        ]);
         $table->addColumn('key', 'string', [
             'limit' => 64,
             'null' => false
@@ -41,9 +37,9 @@ class CreateSettingsTable extends AbstractMigration
             'default' => null
         ]);
 
-        $table->addIndex(['scope', 'key'], [
+        $table->addIndex(['key'], [
             'unique' => true,
-            'name' => 'idx_scope_name'
+            'name' => 'idx_key'
         ]);
 
         $table->create();

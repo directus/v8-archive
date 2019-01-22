@@ -302,16 +302,8 @@ class TablesService extends AbstractService
         $this->enforcePermissions($this->collection, $data, $params);
 
         $data['collection'] = $name;
-        $collectionsCollectionName = 'directus_collections';
-        $collectionsCollectionObject = $this->getSchemaManager()->getCollection($collectionsCollectionName);
-        $constraints = $this->createConstraintFor($collectionsCollectionName, $collectionsCollectionObject->getFieldsName());
 
-        $this->validate($data, array_merge(['fields' => 'required|array'], $constraints));
-        $this->validateFieldsPayload($name, $data['fields'], false, $params);
-
-        if (!$this->isValidName($name)) {
-            throw new InvalidRequestException('Invalid collection name');
-        }
+        $this->validateCollectionPayload($name, $data, null, $params);
 
         $collection = null;
 
@@ -381,7 +373,7 @@ class TablesService extends AbstractService
 
         // ----------------------------------------------------------------------------
 
-        $collectionTableGateway = $this->createTableGateway($collectionsCollectionName);
+        $collectionTableGateway = $this->createTableGateway('directus_collections');
         $tableData = $collectionTableGateway->parseRecord($table->toArray());
 
         return $collectionTableGateway->wrapData($tableData, true, ArrayUtils::get($params, 'meta'));
@@ -416,13 +408,8 @@ class TablesService extends AbstractService
         $this->validate(['collection' => $name], ['collection' => 'required|string']);
 
         // Validates payload data
-        $collectionsCollectionObject = $this->getSchemaManager()->getCollection($this->collection);
-        $constraints = $this->createConstraintFor($this->collection, $collectionsCollectionObject->getFieldsName());
+        $this->validateCollectionPayload($name, $data, array_keys(ArrayUtils::omit($data, 'fields')), true, $params);
         $data['collection'] = $name;
-        $this->validate($data, array_merge(['fields' => 'array'], $constraints));
-        if (ArrayUtils::has($data, 'fields')) {
-            $this->validateFieldsPayload($name, $data['fields'], true, $params);
-        }
 
         $collectionObject = $this->getSchemaManager()->getCollection($name);
         $startManaging = (bool) ArrayUtils::get($data, 'managed', false);
@@ -898,18 +885,36 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Checks whether the given name is a valid clean table name
+     * Checks whether the given name is a valid clean collection name
      *
-     * @param $name
+     * @param string $name
      *
      * @return bool
      */
-    public function isValidName($name)
+    public function isValidCollectionName($name)
     {
         $isTableNameAlphanumeric = preg_match("/[a-z0-9]+/i", $name);
         $zeroOrMoreUnderscoresDashes = preg_match("/[_-]*/i", $name);
 
         return $isTableNameAlphanumeric && $zeroOrMoreUnderscoresDashes;
+    }
+
+    /**
+     * Throws an exception when the collection name is invalid
+     *
+     * @param string $name
+     *
+     * @throws InvalidRequestException
+     */
+    public function enforceValidCollectionName($name)
+    {
+        if (!$this->isValidCollectionName($name)) {
+            throw new InvalidRequestException('Invalid collection name');
+        }
+
+        if (StringUtils::startsWith($name, 'directus_')) {
+            throw new InvalidRequestException('Collection name cannot begin with "directus_"');
+        }
     }
 
     /**
@@ -1076,10 +1081,14 @@ class TablesService extends AbstractService
 
             if ($field) {
                 $fullFieldData = array_merge($field->toArray(), $fieldData);
-                // NOTE: To avoid the table builder to add another primary key constraint
-                //       the primary key flag should be remove if the field already has primary key
+                // NOTE: To avoid the table builder to add another primary or unique key constraint
+                //       the primary_key and unique flag should be remove if the field already has primary or unique key
                 if ($field->hasPrimaryKey() && $fullFieldData['primary_key'] === true) {
                     unset($fullFieldData['primary_key']);
+                }
+
+                if ($field->hasUniqueKey() && $fullFieldData['unique'] === true) {
+                    unset($fullFieldData['unique']);
                 }
 
                 if (!$field->isAlias() && DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
@@ -1160,6 +1169,30 @@ class TablesService extends AbstractService
         }
 
         return $relationsTableGateway->manageRecordUpdate('directus_relations', $data);
+    }
+
+    /**
+     * Validates the collection payload
+     *
+     * @param string $name
+     * @param array $data
+     * @param array|null $fields
+     * @param boolean $update
+     * @param array $params
+     *
+     * @throws InvalidRequestException
+     */
+    protected function validateCollectionPayload($name, array $data, array $fields = null, $update = false, array $params = [])
+    {
+        $this->enforceValidCollectionName($name);
+
+        $collectionsCollectionName = 'directus_collections';
+        $this->validatePayload($collectionsCollectionName, $fields, $data, $params);
+
+        if (ArrayUtils::has($data, 'fields') || !$update) {
+            $this->validate($data, ['fields' => 'required|array']);
+            $this->validateFieldsPayload($name, $data['fields'], $update, $params);
+        }
     }
 
     /**

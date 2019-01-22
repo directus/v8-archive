@@ -6,8 +6,11 @@
       :type="inputType"
       :readonly="!newItem"
       :value="value"
-      @input="$emit('input', $event)"></v-input>
-    <span v-if="!newItem" class="immutable">{{ $t('interfaces-primary-key-immutable') }}</span>
+      @input="$emit('input', $event)"
+    ></v-input>
+    <span v-if="!newItem" class="immutable">{{
+      $t("interfaces-primary-key-immutable")
+    }}</span>
   </div>
 </template>
 

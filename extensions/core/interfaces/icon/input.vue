@@ -1,14 +1,15 @@
 <template>
   <div class="interface-icon">
-    <v-input v-model="searchText" :placeholder="$t('interfaces-icon-search_placeholder')" :readonly="readonly" :icon-right="value" icon-left="search"></v-input>
+    <v-input
+      v-model="searchText"
+      :placeholder="$t('interfaces-icon-search_placeholder')"
+      :readonly="readonly"
+      :icon-right="value"
+      icon-left="search"
+    ></v-input>
     <div class="icons-view" v-show="searchText.length === 0">
-      <details
-        v-for="(icongroup, groupname) in icons"
-        :key="groupname"
-        open>
-        <summary>
-          {{ $helpers.formatTitle(groupname) }}
-        </summary>
+      <details v-for="(icongroup, groupname) in icons" :key="groupname" open>
+        <summary> {{ $helpers.formatTitle(groupname) }} </summary>
         <div>
           <button
             v-for="icon in icongroup"
@@ -16,7 +17,8 @@
             :key="icon"
             :class="{ active: value === icon }"
             :disabled="readonly"
-            @click="$emit('input', value === icon ? null : icon)">
+            @click="$emit('input', value === icon ? null : icon)"
+          >
             <i class="material-icons">{{ icon }}</i>
           </button>
         </div>
@@ -28,9 +30,10 @@
         v-tooltip="$helpers.formatTitle(icon)"
         type="button"
         :key="icon"
-        :class="{ active: value === icon}"
+        :class="{ active: value === icon }"
         :disabled="readonly"
-        @click="$emit('input', value === icon ? null : icon)">
+        @click="$emit('input', value === icon ? null : icon)"
+      >
         <i class="material-icons">{{ icon }}</i>
       </button>
     </div>

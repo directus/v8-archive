@@ -7,7 +7,7 @@
     v-tooltip="displayValue"
     class="no-wrap"
   ></v-timeago>
-  <div v-else>{{displayValue}}</div>
+  <div v-else>{{ displayValue }}</div>
 </template>
 
 <script>
@@ -16,12 +16,9 @@ import mixin from "../../../mixins/interface";
 export default {
   mixins: [mixin],
   computed: {
-    formattedValue() {
-      return this.value && this.value.substring(0, 16); // yyyy-mm-ddThh:ss
-    },
     date() {
-      if (!this.formattedValue) return null;
-      return new Date(this.formattedValue);
+      if (!this.value) return null;
+      return new Date(this.value);
     },
     displayValue() {
       if (!this.date) return;

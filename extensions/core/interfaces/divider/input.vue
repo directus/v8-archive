@@ -1,8 +1,8 @@
 <template>
   <div :class="`${options.style}-style`">
-    <h2 v-if="options.title">{{options.title}}</h2>
-    <hr v-if="options.hr">
-    <p v-if="options.description">{{options.description}}</p>
+    <h2 v-if="options.title">{{ options.title }}</h2>
+    <hr v-if="options.hr" />
+    <p v-if="options.description">{{ options.description }}</p>
   </div>
 </template>
 

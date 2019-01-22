@@ -5,7 +5,8 @@
       :placeholder="placeholder"
       :type="inputType"
       :icon-right="lockIcon"
-      :icon-right-color="iconColor"></v-input>
+      :icon-right-color="iconColor"
+    ></v-input>
   </div>
 </template>
 

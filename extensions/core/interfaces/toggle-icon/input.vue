@@ -1,15 +1,15 @@
 <template>
-	<div class="interface-toggle-icon">
-		<input
-  		type="checkbox"
-  		id="icon-toggle"
+  <div class="interface-toggle-icon">
+    <input
+      type="checkbox"
+      id="icon-toggle"
       :disabled="readonly"
-  		@change="updateValue($event.target.checked)">
-		<label for="icon-toggle" :style="{ color: `var(--${colorChange})` }">
-			<i class="material-icons">{{ icon }}</i>
-      <span>{{ textChange }}</span>
-		</label>
-	</div>
+      @change="updateValue($event.target.checked)"
+    />
+    <label for="icon-toggle" :style="{ color: `var(--${colorChange})` }">
+      <i class="material-icons">{{ icon }}</i> <span>{{ textChange }}</span>
+    </label>
+  </div>
 </template>
 
 <script>

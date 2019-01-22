@@ -2,7 +2,7 @@
   <div class="interface-status">
     <v-radio
       v-for="(options, key) in optionValues"
-      :id="`${fields[name].collection}-${name}-${key}`"
+      :id="`${name}-${key}`"
       :name="name"
       :value="key"
       :key="key"
@@ -10,7 +10,8 @@
       :model-value="String(value)"
       :label="$t(options.name)"
       :checked="key == value"
-      @change="$emit('input', $event)"></v-radio>
+      @change="$emit('input', $event)"
+    ></v-radio>
   </div>
 </template>
 

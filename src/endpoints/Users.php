@@ -99,11 +99,8 @@ class Users extends Route
         $this->validateRequestPayload($request);
         $service = new UsersService($this->container);
 
-        $email = $request->getParsedBodyParam('email');
-        $emails = explode(',', $email);
-
         $responseData = $service->invite(
-            $emails,
+            $request->getParsedBodyParam('email'),
             $request->getQueryParams()
         );
 
@@ -142,8 +139,6 @@ class Users extends Route
             $request->getAttribute('id'),
             $request->getQueryParams()
         );
-
-        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
     }

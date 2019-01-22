@@ -3,12 +3,20 @@
 namespace Directus;
 
 use Directus\Application\Application;
+use Directus\Application\Http\Request;
 use Directus\Database\TableGatewayFactory;
 use Directus\Exception\Exception;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Phinx\Db\Adapter\AdapterInterface;
+use RKA\Middleware\ProxyDetection;
+use Slim\Http\Cookies;
+use Slim\Http\Environment;
+use Slim\Http\Headers;
+use Slim\Http\RequestBody;
+use Slim\Http\UploadedFile;
+use Slim\Http\Uri;
 
 require __DIR__ . '/constants.php';
 require __DIR__ . '/app.php';
@@ -136,86 +144,65 @@ if (!function_exists('get_url')) {
     }
 }
 
+if (!function_exists('create_request_from_global')) {
+    /**
+     * Create a Request object from global variables
+     *
+     * @param array $options
+     *
+     * @return Request
+     */
+    function create_request_from_global($options = [])
+    {
+        $environment = new Environment($_SERVER);
+        $method = $environment['REQUEST_METHOD'];
+        $uri = Uri::createFromEnvironment($environment);
+        $headers = Headers::createFromEnvironment($environment);
+        $cookies = Cookies::parseHeader($headers->get('Cookie', []));
+        $serverParams = $environment->all();
+        $body = new RequestBody();
+        $uploadedFiles = [];
+        $ignorePayload = array_get($options, 'ignore_payload', false) === true;
+
+        if (!$ignorePayload) {
+            $uploadedFiles = UploadedFile::createFromEnvironment($environment);
+        }
+
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+
+        if (
+            !$ignorePayload
+            && $method === 'POST'
+            && in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
+        ) {
+            // parsed body must be $_POST
+            $request = $request->withParsedBody($_POST);
+        }
+
+        return $request;
+    }
+}
+
 if (!function_exists('create_uri_from_global')) {
     /**
      * Creates a uri object based on $_SERVER
      *
      * Snippet copied from Slim URI class
      *
-     * @return \Slim\Http\Uri
+     * @param $checkProxy
+     *
+     * @return \Psr\Http\Message\UriInterface
      */
-    function create_uri_from_global()
+    function create_uri_from_global($checkProxy = true)
     {
-        // Scheme
-        $env = $_SERVER;
-        $isSecure = \Directus\Util\ArrayUtils::get($env, 'HTTPS');
-        $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
+        $request = create_request_from_global(['ignore_payload' => true]);
 
-        // Authority: Username and password
-        $username = \Directus\Util\ArrayUtils::get($env, 'PHP_AUTH_USER', '');
-        $password = \Directus\Util\ArrayUtils::get($env, 'PHP_AUTH_PW', '');
-
-        // Authority: Host
-        if (\Directus\Util\ArrayUtils::has($env, 'HTTP_HOST')) {
-            $host = \Directus\Util\ArrayUtils::get($env, 'HTTP_HOST');
-        } else {
-            $host = \Directus\Util\ArrayUtils::get($env, 'SERVER_NAME');
+        if ($checkProxy) {
+            $proxyDetection = new ProxyDetection(get_trusted_proxies());
+            $request = $proxyDetection->processRequestIfTrusted($request);
         }
 
-        // Authority: Port
-        $port = (int)\Directus\Util\ArrayUtils::get($env, 'SERVER_PORT', 80);
-        if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
-            $host = $matches[1];
-
-            if (isset($matches[2])) {
-                $port = (int)substr($matches[2], 1);
-            }
-        } else {
-            $pos = strpos($host, ':');
-            if ($pos !== false) {
-                $port = (int)substr($host, $pos + 1);
-                $host = strstr($host, ':', true);
-            }
-        }
-
-        // Path
-        $requestScriptName = parse_url(\Directus\Util\ArrayUtils::get($env, 'SCRIPT_NAME'), PHP_URL_PATH);
-        $requestScriptDir = dirname($requestScriptName);
-
-        // parse_url() requires a full URL. As we don't extract the domain name or scheme,
-        // we use a stand-in.
-        $requestUri = parse_url('http://example.com' . \Directus\Util\ArrayUtils::get($env, 'REQUEST_URI'), PHP_URL_PATH);
-
-        $basePath = '';
-        $virtualPath = $requestUri;
-        if ($requestUri == $requestScriptName) {
-            $basePath = $requestScriptDir;
-        } elseif (stripos($requestUri, $requestScriptName) === 0) {
-            $basePath = $requestScriptName;
-        } elseif ($requestScriptDir !== '/' && stripos($requestUri, $requestScriptDir) === 0) {
-            $basePath = $requestScriptDir;
-        }
-
-        if ($basePath) {
-            $virtualPath = ltrim(substr($requestUri, strlen($basePath)), '/');
-        }
-
-        // Query string
-        $queryString = \Directus\Util\ArrayUtils::get($env, 'QUERY_STRING', '');
-        if ($queryString === '') {
-            $queryString = parse_url('http://example.com' . \Directus\Util\ArrayUtils::get($env, 'REQUEST_URI'), PHP_URL_QUERY);
-        }
-
-        // Fragment
-        $fragment = '';
-
-        // Build Uri
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $virtualPath, $queryString, $fragment, $username, $password);
-        if ($basePath) {
-            $uri = $uri->withBasePath($basePath);
-        }
-
-        return $uri;
+        return $request->getUri();
     }
 }
 
@@ -227,7 +214,7 @@ if (!function_exists('get_virtual_path')) {
      */
     function get_virtual_path()
     {
-        return create_uri_from_global()->getPath();
+        return create_uri_from_global(false)->getPath();
     }
 }
 
@@ -1185,38 +1172,6 @@ if (!function_exists('get_request_ip')) {
     }
 }
 
-if (!function_exists('get_project_info')) {
-    function get_project_info()
-    {
-        /** @var \Directus\Database\TableGateway\DirectusSettingsTableGateway $settingsTable */
-        $settingsTable = TableGatewayFactory::create('directus_settings', [
-            'acl' => null
-        ]);
-        $settings = $settingsTable->fetchCollection('global');
-
-        $projectName = isset($settings['project_name']) ? $settings['project_name'] : 'Directus';
-        $defaultProjectLogo = get_directus_path('/assets/imgs/directus-logo-flat.svg');
-        if (isset($settings['cms_thumbnail_url']) && $settings['cms_thumbnail_url']) {
-            $projectLogoURL = $settings['cms_thumbnail_url'];
-            $filesTable = TableGatewayFactory::create('directus_files', [
-                'acl' => null
-            ]);
-            $data = $filesTable->fetchItems([
-                'filter' => ['id' => $projectLogoURL]
-            ]);
-
-            $projectLogoURL = ArrayUtils::get($data, 'url', $defaultProjectLogo);
-        } else {
-            $projectLogoURL = $defaultProjectLogo;
-        }
-
-        return [
-            'project_name' => $projectName,
-            'project_logo_url' => $projectLogoURL
-        ];
-    }
-}
-
 if (!function_exists('get_missing_requirements')) {
     /**
      * Gets an array of errors message when there's a missing requirements
@@ -1227,8 +1182,8 @@ if (!function_exists('get_missing_requirements')) {
     {
         $errors = [];
 
-        if (version_compare(PHP_VERSION, '5.6.0', '<')) {
-            $errors[] = 'Your host needs to use PHP 5.6.0 or higher to run this version of Directus!';
+        if (version_compare(PHP_VERSION, '7.1.0', '<')) {
+            $errors[] = 'Your host needs to use PHP 7.1.0 or higher to run this version of Directus!';
         }
 
         if (!defined('PDO::ATTR_DRIVER_NAME')) {
@@ -1502,6 +1457,36 @@ if (!function_exists('is_valid_regex_pattern')) {
     }
 }
 
+if (!function_exists('is_custom_validation')) {
+    /**
+     * Checks whether the given value is a custom validation
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_custom_validation($value)
+    {
+        return in_array(strtolower((string)$value), [
+            '$email',
+        ]);
+    }
+}
+
+if (!function_exists('get_custom_validation_name')) {
+    /**
+     * Returns the custom validation constraint name
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    function get_custom_validation_name($value)
+    {
+        return strtolower(substr((string)$value, 1));
+    }
+}
+
 if (!function_exists('env')) {
     /**
      * Returns an environment variable
@@ -1581,10 +1566,91 @@ if (!function_exists('is_iso8601_datetime')) {
      */
     function is_iso8601_datetime($value)
     {
-        $datetimeParts = explode('+', $value);
+        // 2019-01-04T16:12:05+00:00
+        $isFormatOne = function ($value) {
+            $datetime = substr($value, 0, 19);
+            $offset = substr($value, -5, 5);
 
-        return count($datetimeParts) === 2
-            && is_valid_datetime($datetimeParts[0], 'Y-m-d\TH:i:s')
-            && is_valid_datetime($datetimeParts[1], 'H:i');
+            return strlen($value) === 25
+                && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+                && is_valid_datetime($offset, 'H:i');
+        };
+
+        // 2019-01-04T16:12:05Z
+        $isFormatTwo = function ($value) {
+            $datetime = substr($value, 0, 19);
+            $offset = strtolower(substr($value, -1, 1));
+
+            return strlen($value) === 20
+                && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+                && $offset === 'z';
+        };
+
+        // 20190104T161205Z
+        $isFormatThree = function ($value) {
+            $datetime = substr($value, 0, 14);
+            $offset = strtolower(substr($value, -1, 1));
+
+            return strlen($value) === 16
+                && is_valid_datetime($datetime, 'Ymd\THis')
+                && $offset === 'z';
+        };
+
+        return $isFormatOne($value) || $isFormatTwo($value) || $isFormatThree($value);
+    }
+}
+
+if (!function_exists('normalize_exception')) {
+    /**
+     * @param \Exception|\Throwable $e
+     *
+     * @return string
+     */
+    function normalize_exception($e)
+    {
+        if (!($e instanceof \Exception) && !($e instanceof \Throwable)) {
+            return '';
+        }
+
+        $stack = [
+            sprintf("%s: %s in %s:%d\nStack trace:", get_class($e), $e->getMessage(), $e->getFile(), $e->getLine())
+        ];
+
+        // format: stack index - filename - line - call
+        $format = '#%d %s%s: %s';
+        foreach ($e->getTrace() as $i => $trace) {
+            $file = isset($trace['file']) ? $trace['file'] : '[internal function]';
+            $line = isset($trace['line']) ? sprintf('(%s)', $trace['line']) : '';
+
+            if (isset($trace['class'])) {
+                $call = $trace['class'] . $trace['type'] . $trace['function'];
+            } else {
+                $call = $trace['function'];
+            }
+
+            $stack[] = sprintf(
+                $format,
+                $i,
+                $file,
+                $line,
+                $call
+            );
+        }
+
+        return implode("\n", $stack);
+    }
+}
+
+if (!function_exists('is_empty')) {
+    /**
+     * Checks whether or not the value is empty|null
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    function is_empty($value)
+    {
+        return !$value || empty($value) || (is_object($value) && empty((array) $value));
     }
 }

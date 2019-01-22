@@ -1,5 +1,5 @@
 <template>
-  <div class="no-wrap">{{displayValue}}</div>
+  <div class="no-wrap">{{ displayValue }}</div>
 </template>
 
 <script>
@@ -10,7 +10,6 @@ export default {
   computed: {
     displayValue() {
       let value = this.value;
-
       if (value) {
         const choices =
           typeof this.options.choices === "string"
@@ -20,8 +19,6 @@ export default {
         if (this.options.wrapWithDelimiter) {
           value = value.slice(1, -1);
         }
-
-        value = value.split(",");
 
         value = value
           .map(val => {

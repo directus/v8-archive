@@ -1,8 +1,10 @@
 <template>
   <div class="interface-many-to-one">
-
     <div v-if="relationSetup === false" class="notice">
-      <p><i class="material-icons">warning</i> {{ $t('interfaces-many-to-many-relation_not_setup') }}</p>
+      <p>
+        <i class="material-icons">warning</i>
+        {{ $t("interfaces-many-to-many-relation_not_setup") }}
+      </p>
     </div>
 
     <template v-else>
@@ -13,15 +15,21 @@
         :options="selectOptions"
         :value="valuePK"
         :icon="options.icon"
-        @input="$emit('input', $event)"></v-select>
+        @input="$emit('input', $event)"
+      ></v-select>
 
-      <button v-if="count > 10" type="button" @click="showListing = true"></button>
+      <button
+        v-if="count > 10"
+        type="button"
+        @click="showListing = true"
+      ></button>
 
       <v-spinner
         v-show="loading"
         line-fg-color="var(--light-gray)"
         line-bg-color="var(--lighter-gray)"
-        class="spinner"></v-spinner>
+        class="spinner"
+      ></v-spinner>
 
       <portal to="modal" v-if="showListing">
         <v-modal
@@ -35,7 +43,8 @@
             }
           }"
           @close="dismissModal"
-          @save="populateDropdown">
+          @save="populateDropdown"
+        >
           <v-items
             :collection="relation.collection_one.collection"
             :selection="selection"
@@ -45,7 +54,8 @@
             :view-options="viewOptions"
             @options="setViewOptions"
             @query="setViewQuery"
-            @select="emitValue"></v-items>
+            @select="emitValue"
+          ></v-items>
         </v-modal>
       </portal>
     </template>

@@ -1,17 +1,19 @@
 <template>
-  <v-popover trigger="hover">
+  <v-popover trigger="hover" v-if="options.template && options.template.length > 0">
     <div class="readonly-many-to-many">
-      {{ $tc('item_count', (value || []).length, { count: (value || []).length })}}
+      {{ itemCount }}
     </div>
 
     <template slot="popover">
       <ul class="list">
-        <li v-for="(val, i) in value" :key="i">
-          {{ render(val) }}
-        </li>
+        <li v-for="(val, i) in value" :key="i">{{ render(val) }}</li>
       </ul>
     </template>
   </v-popover>
+
+  <div v-else class="readonly-many-to-many">
+    {{ itemCount }}
+  </div>
 </template>
 
 <script>
@@ -20,6 +22,11 @@ import mixin from "../../../mixins/interface";
 export default {
   name: "readonly-many-to-many",
   mixins: [mixin],
+  computed: {
+    itemCount() {
+      return this.$tc("item_count", (this.value || []).length, { count: (this.value || []).length });
+    }
+  },
   methods: {
     render(val) {
       return this.$helpers.micromustache.render(this.options.template, val);

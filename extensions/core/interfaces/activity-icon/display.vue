@@ -6,8 +6,11 @@
       :icon="icon"
       :color="color"
       :progress="100"
-      :stroke="2"></v-progress-ring>
-      <span class="label"><div>{{label}}</div></span>
+      :stroke="2"
+    ></v-progress-ring>
+    <span class="label"
+      ><div>{{ label }}</div></span
+    >
   </div>
 </template>
 

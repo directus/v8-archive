@@ -1,29 +1,35 @@
 <template>
-	<div
-		:class="options.theme ? `button-group-${options.theme}` : 'button-group-outline'"
-		class="interface-button-group">
-		<div
-			v-for="(item, index) in choices"
+  <div
+    :class="
+      options.theme ? `button-group-${options.theme}` : 'button-group-outline'
+    "
+    class="interface-button-group"
+  >
+    <div
+      v-for="(item, index) in choices"
       :key="`button-group-subgroup-${index}`"
-			class="button-group-subgroup">
-			<label
-				v-for="(subitem, index) in item"
+      class="button-group-subgroup"
+    >
+      <label
+        v-for="(subitem, index) in item"
         :key="`button-group-item-${index}`"
-				class="button-group-item">
-				<input
-					type="radio"
-					:name="name"
-					:disabled="readonly"
-					:value="subitem.value"
+        class="button-group-item"
+      >
+        <input
+          type="radio"
+          :name="name"
+          :disabled="readonly"
+          :value="subitem.value"
           :checked="value === subitem.value"
-          @change="$emit('input', subitem.value)">
-				<span class="button-group-button">
-					<i v-if="subitem.icon" class="material-icons">{{subitem.icon}}</i>
-					<span v-if="subitem.label">{{subitem.label}}</span>
-				</span>
-			</label>
-		</div>
-	</div>
+          @change="$emit('input', subitem.value)"
+        />
+        <span class="button-group-button">
+          <i v-if="subitem.icon" class="material-icons">{{ subitem.icon }}</i>
+          <span v-if="subitem.label">{{ subitem.label }}</span>
+        </span>
+      </label>
+    </div>
+  </div>
 </template>
 
 <script>

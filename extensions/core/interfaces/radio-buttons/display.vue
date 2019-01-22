@@ -1,5 +1,5 @@
 <template>
-  <div class="no-wrap">{{displayValue}}</div>
+  <div class="no-wrap">{{ displayValue }}</div>
 </template>
 
 <script>

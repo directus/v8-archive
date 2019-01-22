@@ -5,6 +5,7 @@ namespace Directus\Database\Schema;
 use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
+use Directus\Database\Schema\Sources\MySQLSchema;
 use Directus\Database\Schema\Sources\SchemaInterface;
 use function Directus\is_valid_datetime;
 use Directus\Util\ArrayUtils;
@@ -542,8 +543,14 @@ class SchemaManager
             $column['required'] = true;
         }
 
-        $options = json_decode(isset($column['options']) ? $column['options'] : '', true);
-        $column['options'] = $options ? $options : null;
+        $castAttributesToJSON = function (&$array, array $keys) {
+            foreach ($keys as $key) {
+                $value = json_decode(isset($array[$key]) ? $array[$key] : '', true);
+                $array[$key] = $value ? $value : null;
+            }
+        };
+
+        $castAttributesToJSON($column, ['options', 'translation']);
 
         $fieldType = ArrayUtils::get($column, 'type');
         // NOTE: Alias column must are nullable
@@ -578,15 +585,7 @@ class SchemaManager
             'readonly',
         ]);
 
-        // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
-        // We reserved the word "NULL" on nullable data type to be actually null
-        if ($column['nullable'] === true && $column['default_value'] == 'NULL') {
-            $column['default_value'] = null;
-        }
-
-        if (DataTypes::isDateTimeType($column['type']) && is_valid_datetime($column['default_value'], $this->source->getDateTimeFormat())) {
-            $column['default_value'] = DateTimeUtils::createFromFormat($this->source->getDateTimeFormat(), $column['default_value'])->toISO8601Format();
-        }
+        $this->setFieldDataDefaultValue($column);
 
         return new Field($column);
     }
@@ -601,26 +600,91 @@ class SchemaManager
     {
         $fieldsRelation = $this->getRelationshipsData($collectionName);
 
-        foreach ($fields as $field) {
-            foreach ($fieldsRelation as $key => $value) {
-                if (ArrayUtils::get($value, 'field_many') == $field->getName() || ArrayUtils::get($value, 'field_one') == $field->getName()) {
-                    $field->setRelationship(ArrayUtils::pull($fieldsRelation, $key));
-                    break;
-                }
+        if (count($fieldsRelation) > 0) {
+            $fieldsByName = [];
+
+            foreach ($fields as $field) {
+                $fieldsByName[$field->getName()] = $field;
             }
 
-            if (DataTypes::isFilesType($field->getType()) && !$field->getRelationship()) {
-                // Set all FILE data type related to directus files (M2O)
-                $field->setRelationship([
-                    'collection_many' => $field->getCollectionName(),
-                    'field_many' => $field->getName(),
-                    'collection_one' => static::COLLECTION_FILES,
-                    'field_one' => 'id'
-                ]);
+            foreach ($fieldsRelation as $relation) {
+                $fieldManyName = ArrayUtils::get($relation, 'field_many');
+                $fieldOneName = ArrayUtils::get($relation, 'field_one');
+                $fieldMany = $fieldManyName ? ArrayUtils::get($fieldsByName, $fieldManyName) : null;
+                $fieldOne = $fieldOneName ? ArrayUtils::get($fieldsByName, $fieldOneName) : null;
+
+                if ($fieldMany) {
+                    $fieldMany->setRelationship($relation);
+                }
+
+                if ($fieldOne) {
+                    $fieldOne->setRelationship($relation);
+                }
             }
         }
 
+        // At set the relationship to user and file type
+        // "file" and "user" must be related to directus_files and directus_users
+        foreach ($fields as $field) {
+            $this->setSystemTypeRelationship($field);
+        }
+
         return $fields;
+    }
+
+    /**
+     * Sets System Field Type relationship
+     *
+     * @param Field $field
+     */
+    protected function setSystemTypeRelationship(Field $field)
+    {
+        if (DataTypes::isFilesType($field->getType())) {
+            // Set all FILE data type related to directus files (M2O)
+            $field->setRelationship([
+                'collection_many' => $field->getCollectionName(),
+                'field_many' => $field->getName(),
+                'collection_one' => static::COLLECTION_FILES,
+                'field_one' => 'id'
+            ]);
+        } else if (DataTypes::isUsersType($field->getType())) {
+            $field->setRelationship([
+                'collection_many' => $field->getCollectionName(),
+                'field_many' => $field->getName(),
+                'collection_one' => static::COLLECTION_USERS,
+                'field_one' => 'id'
+            ]);
+        }
+    }
+
+    /**
+     * @param array $field
+     */
+    protected function setFieldDataDefaultValue(array &$field)
+    {
+        // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
+        // We reserved the word "NULL" on nullable data type to be actually null
+        if ($field['nullable'] === true && $field['default_value'] == 'NULL') {
+            $field['default_value'] = null;
+        }
+
+        if ($field['default_value'] && (($this->source instanceof MySQLSchema) && $this->source->isMariaDb())) {
+            if ($this->source->isStringType($field['datatype'])) {
+                // When the field datatype is string we should only make sure to remove the first and last character
+                // Those characters are the quote wrapping the default value
+                // As a default string can have quotes as default (defined by the user) We should avoid to remove those
+                $field['default_value'] = substr($field['default_value'], 1, -1);
+            } else if ($this->source->isDateAndTimeTypes($field['datatype'])) {
+                // All date types shouldn't have any quotes
+                // Trim all quotes should be safe as the database doesn't support invalidate values
+                // Unless it's a function such as `current_timestamp()` which again shouldn't have quotes
+                $field['default_value'] = trim($field['default_value'], '\'');
+            }
+        }
+
+        if (DataTypes::isDateTimeType($field['type']) && is_valid_datetime($field['default_value'], $this->source->getDateTimeFormat())) {
+            $field['default_value'] = DateTimeUtils::createDateFromFormat($this->source->getDateTimeFormat(), $field['default_value'])->toISO8601Format();
+        }
     }
 
     /**

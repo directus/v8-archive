@@ -7,7 +7,8 @@
     :placeholder="options.placeholder"
     :maxlength="length"
     :id="name"
-    @input="updateValue"></v-input>
+    @input="updateValue"
+  ></v-input>
 </template>
 
 <script>

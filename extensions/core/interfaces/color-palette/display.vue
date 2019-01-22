@@ -1,7 +1,8 @@
 <template>
-	<div
-  	:style="{ backgroundColor: `var(--${value})`}"
-  	v-tooltip="tooltipValue"></div>
+  <div
+    :style="{ backgroundColor: `var(--${value})` }"
+    v-tooltip="tooltipValue"
+  ></div>
 </template>
 
 <script>

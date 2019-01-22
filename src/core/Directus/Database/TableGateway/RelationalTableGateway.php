@@ -12,13 +12,16 @@ use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
+use Directus\Permissions\Exception\ForbiddenFieldReadException;
 use Directus\Permissions\Exception\PermissionException;
 use Directus\Permissions\Exception\UnableFindOwnerItemsException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\Sql\Expression;
+use Zend\Db\Sql\Predicate\In;
 use Zend\Db\Sql\Predicate\PredicateInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
@@ -43,6 +46,8 @@ class RelationalTableGateway extends BaseTableGateway
         'status' => null
     ];
 
+    // TODO: Improve this as list of operators
+    // Instead of shorthands, it could be a list of filters that maps to a method
     protected $operatorShorthand = [
         'eq' => ['operator' => 'equal_to', 'not' => false],
         '='  => ['operator' => 'equal_to', 'not' => false],
@@ -63,6 +68,9 @@ class RelationalTableGateway extends BaseTableGateway
         'nlike' => ['operator' => 'like', 'not' => true],
         'contains' => ['operator' => 'like'],
         'ncontains' => ['operator' => 'like', 'not' => true],
+
+        'rlike' => ['operator' => 'like'],
+        'nrlike' => ['operator' => 'like', 'not' => true],
 
         'nnull' => ['operator' => 'null', 'not' => true],
 
@@ -597,7 +605,7 @@ class RelationalTableGateway extends BaseTableGateway
             // Update/Add foreign record
             if ($this->recordDataContainsNonPrimaryKeyData($foreignRow, $foreignTableSchema->getPrimaryKeyName())) {
                 // NOTE: using manageRecordUpdate instead of addOrUpdateRecordByArray to update related data
-                $foreignRow = $this->manageRecordUpdate($foreignTableName, $foreignRow);
+                $foreignRow = $ForeignTable->manageRecordUpdate($foreignTableName, $foreignRow);
             }
 
             $parentRow[$fieldName] = $foreignRow[$primaryKey];
@@ -664,10 +672,10 @@ class RelationalTableGateway extends BaseTableGateway
 
                 // only add parent id's to items that are lacking the parent column
                 if (!array_key_exists($foreignJoinColumn, $foreignRecord)) {
-                    $foreignRecord[$foreignJoinColumn] = $parentRow['id'];
+                    $foreignRecord[$foreignJoinColumn] = $parentRow[$this->primaryKeyFieldName];
                 }
 
-                $foreignRecord = $this->manageRecordUpdate(
+                $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
                     $foreignRecord,
                     ['activity_mode' => self::ACTIVITY_ENTRY_MODE_CHILD],
@@ -689,7 +697,7 @@ class RelationalTableGateway extends BaseTableGateway
         // NOTE: Performance spot
         // TODO: Split this, into default and process params
         $defaultParams = $this->defaultEntriesSelectParams;
-        $defaultLimit = $this->getSettings('global', 'default_limit');
+        $defaultLimit = $this->getSettings('default_limit');
 
         // Set default rows limit from db settings
         if ($defaultLimit) {
@@ -768,18 +776,20 @@ class RelationalTableGateway extends BaseTableGateway
         // ----------------------------------------------------------------------------
         // STATUS VALUES
         // ----------------------------------------------------------------------------
-        $statusField = $this->getTableSchema()->getStatusField();
-        $permissionStatuses = $this->acl->getCollectionStatusesReadPermission($this->getTable());
-        if ($statusField && is_array($permissionStatuses)) {
-            $paramStatuses = ArrayUtils::get($params, 'status');
-            if (is_array($paramStatuses)) {
-                $permissionStatuses = ArrayUtils::intersection(
-                    $permissionStatuses,
-                    $paramStatuses
-                );
-            }
+        if ($this->acl) {
+            $statusField = $this->getTableSchema()->getStatusField();
+            $permissionStatuses = $this->acl->getCollectionStatusesReadPermission($this->getTable());
+            if ($statusField && is_array($permissionStatuses)) {
+                $paramStatuses = ArrayUtils::get($params, 'status');
+                if (is_array($paramStatuses)) {
+                    $permissionStatuses = ArrayUtils::intersection(
+                        $permissionStatuses,
+                        $paramStatuses
+                    );
+                }
 
-            $params['status'] = $permissionStatuses;
+                $params['status'] = $permissionStatuses;
+            }
         }
 
         // @TODO: Query Builder Object
@@ -940,7 +950,13 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         if (in_array('total_count', $list)) {
-            $metadata['total_count'] = $this->countTotal();
+            $condition = null;
+            if ($this->getTableSchema()->hasStatusField()) {
+                $fieldName = $this->getTableSchema()->getStatusField()->getName();
+                $condition = new In($fieldName, $this->getNonSoftDeleteStatuses());
+            }
+
+            $metadata['total_count'] = $this->countTotal($condition);
         }
 
         if ($tableSchema->hasStatusField() && in_array('status', $list)) {
@@ -978,14 +994,14 @@ class RelationalTableGateway extends BaseTableGateway
         $builder = new Builder($this->getAdapter());
         $builder->from($this->getTable());
 
-        $selectedFields = array_merge(
-            [$collectionObject->getPrimaryKeyName()],
-            $this->getSelectedNonAliasFields($fields ?: ['*'])
-        );
+        $selectedFields = $this->getSelectedNonAliasFields($fields ?: ['*']);
+        if (!in_array($collectionObject->getPrimaryKeyName(), $selectedFields)) {
+            array_unshift($selectedFields, $collectionObject->getPrimaryKeyName());
+        }
 
         $statusField = $collectionObject->getStatusField();
-        if ($statusField && $this->acl->getCollectionStatuses($this->table)) {
-            $selectedFields = array_merge($selectedFields, [$statusField->getName()]);
+        if ($statusField && !in_array($statusField->getName(), $selectedFields) && $this->acl->getCollectionStatuses($this->table)) {
+            array_unshift($selectedFields, $statusField->getName());
         }
 
         $builder->columns($selectedFields);
@@ -1183,6 +1199,12 @@ class RelationalTableGateway extends BaseTableGateway
             while ($relational) {
                 $nextTable = SchemaService::getRelatedCollectionName($nextTable, $nextColumn);
                 $nextColumn = array_shift($columnList);
+
+                // Confirm the user has permission to all chained (dot) fields
+                if ($this->acl && !$this->acl->canRead($nextTable)) {
+                    throw new Exception\ForbiddenFieldAccessException($nextColumn);
+                }
+
                 $relational = SchemaService::hasRelationship($nextTable, $nextColumn);
                 $columnsTable[] = $nextTable;
             }
@@ -1232,9 +1254,6 @@ class RelationalTableGateway extends BaseTableGateway
 
                 if ($field->isAlias()) {
                     $column = $collection->getPrimaryField()->getName();
-                }
-
-                if ($field->isManyToMany()) {
                 }
 
                 $query->columns([$selectColumn]);
@@ -1292,10 +1311,14 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         $condition = $this->parseCondition($condition);
-        $operator = ArrayUtils::get($condition, 'operator');
+        $operator = $filter = ArrayUtils::get($condition, 'operator');
         $value = ArrayUtils::get($condition, 'value');
         $not = ArrayUtils::get($condition, 'not');
         $logical = ArrayUtils::get($condition, 'logical');
+
+        if (!$this->isFilterSupported($operator)) {
+            throw new Exception\UnknownFilterException($operator);
+        }
 
         // TODO: if there's more, please add a better way to handle all this
         if ($field->isOneToMany()) {
@@ -1335,6 +1358,10 @@ class RelationalTableGateway extends BaseTableGateway
             $value = explode(',', $value);
         }
 
+        // After "between" and "in" to support multiple values of "now"
+        $value = $this->getFieldNowValues($field, $value);
+        $value = $this->getLikeValue($operator, $filter, $value);
+
         $arguments = [$column, $value];
 
         if (isset($logical)) {
@@ -1342,7 +1369,13 @@ class RelationalTableGateway extends BaseTableGateway
             $arguments[] = $logical;
         }
 
-        if (in_array($operator, ['all', 'has']) && $field->isOneToMany()) {
+        if (in_array($operator, ['all', 'has'])) {
+            if (!$field->isOneToMany()) {
+                throw new UnprocessableEntityException(
+                    sprintf('Operator "%s" only works for one-to-many fields', $operator)
+                );
+            }
+
             if ($operator == 'all' && is_string($value)) {
                 $value = array_map(function ($item) {
                     return trim($item);
@@ -1411,48 +1444,18 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $filters = $this->parseDotFilters($query, $filters);
 
-        foreach ($filters as $column => $condition) {
-            if ($condition instanceof Filter) {
-                $column =  $condition->getIdentifier();
-                $condition = $condition->getValue();
+        foreach ($filters as $column => $conditions) {
+            if ($conditions instanceof Filter) {
+                $column =  $conditions->getIdentifier();
+                $conditions = $conditions->getValue();
             }
 
-            $this->doFilter($query, $column, $condition, $this->getTable());
-        }
-    }
+            if (!is_array($conditions) || !isset($conditions[0])) {
+                $conditions = [$conditions];
+            }
 
-    /**
-     * Process column joins
-     *
-     * @param Builder $query
-     * @param array $joins
-     */
-    protected function processJoins(Builder $query, array $joins = [])
-    {
-        // @TODO allow passing columns
-        $columns = []; // leave as this and won't get any ambiguous columns
-        foreach ($joins as $table => $params) {
-            // TODO: Reduce this into a simpler instructions
-            // by simpler it means remove the duplicate join() line
-            if (isset($params['on'])) {
-                // simple joins style
-                // 'table' => ['on' => ['col1', 'col2'] ]
-                if (!isset($params['type'])) {
-                    $params['type'] = 'INNER';
-                }
-
-                $params['on'] = implode('=', $params['on']);
-
-                $query->join($table, $params['on'], $columns, $params['type']);
-            } else {
-                // many join style
-                // 'table' => [ ['on' => ['col1', 'col2'] ] ]
-                foreach ($params as $method => $options) {
-                    if (! isset($options['type'])) {
-                        $options['type'] = 'INNER';
-                    }
-                    $query->join($table, $options['on'], $columns, $options['type']);
-                }
+            foreach ($conditions as $condition) {
+                $this->doFilter($query, $column, $condition, $this->getTable());
             }
         }
     }
@@ -1686,7 +1689,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getCollectionMany();
-            if ($this->acl && !SchemaService::canGroupReadCollection($relatedTableName)) {
+            if ($this->acl && !$this->acl->canReadOnce($relatedTableName)) {
                 continue;
             }
 
@@ -1794,7 +1797,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             // if user doesn't have permission to view the related table
             // fill the data with only the id, which the user has permission to
-            if ($this->acl && !SchemaService::canGroupReadCollection($relatedTable)) {
+            if ($this->acl && !$this->acl->canReadOnce($relatedTable)) {
                 $tableGateway = new RelationalTableGateway($relatedTable, $this->adapter, null);
                 $primaryKeyName = $tableGateway->primaryKeyFieldName;
 
@@ -2105,27 +2108,16 @@ class RelationalTableGateway extends BaseTableGateway
         $statement = $sql->prepareStatementForSqlObject($select);
         $results = $statement->execute();
 
-        $statusMap = $this->getStatusMapping();
         $stats = [];
         foreach ($results as $row) {
-            if (isset($row[$statusFieldName])) {
-                foreach ($statusMap as $status) {
-                    if ($status->getValue() == $row[$statusFieldName]) {
-                        $stats[$status->getValue()] = (int) $row['quantity'];
-                    }
-                }
-            }
+            $stats[$row[$statusFieldName]] = (int) $row['quantity'];
         }
 
-        $vals = [];
+        $statusMap = $this->getStatusMapping();
         foreach ($statusMap as $value) {
-            array_push($vals, $value->getValue());
-        }
-
-        $possibleValues = array_values($vals);
-        $makeMeZero = array_diff($possibleValues, array_keys($stats));
-        foreach ($makeMeZero as $unsetActiveColumn) {
-            $stats[$unsetActiveColumn] = 0;
+            if (!isset($stats[$value->getValue()])) {
+                $stats[$value->getValue()] = 0;
+            }
         }
 
         return $stats;
@@ -2220,5 +2212,89 @@ class RelationalTableGateway extends BaseTableGateway
                 'parent_changed' => ArrayUtils::get($item, 'parent_changed')
             ]);
         }
+    }
+
+    /**
+     * List of all supported filters
+     *
+     * @return array
+     */
+    protected function getSupportedFilters()
+    {
+        $shorthands = array_keys($this->operatorShorthand);
+
+        $operators = [
+            'like',
+            'null',
+            'all',
+            'has',
+            'between',
+            'empty',
+        ];
+
+        return array_merge($shorthands, $operators);
+    }
+
+    /**
+     * Checks whether a given filter operator is supported
+     *
+     * @param string $operator
+     *
+     * @return bool
+     */
+    protected function isFilterSupported($operator)
+    {
+        return in_array($operator, $this->getSupportedFilters());
+    }
+
+    /**
+     * Returns the value of "now" for a date or datetime field
+     *
+     * @param Field $field
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function getFieldNowValue(Field $field, $value)
+    {
+        $isNow = is_string($value) && strtolower($value) === 'now';
+        $isDateType = DataTypes::isDateType($field->getType());
+        $isDateTimeType = DataTypes::isDateTimeType($field->getType());
+
+        if (!$isNow || (!$isDateType && !$isDateTimeType)) {
+            return $value;
+        }
+
+        $isSystemCollection = $this->schemaManager->isSystemCollection($field->getCollectionName());
+        $datetime = DateTimeUtils::now();
+        $format = null;
+        if ($isDateType) {
+            $format = DateTimeUtils::DEFAULT_DATE_FORMAT;
+        }
+
+        return $isSystemCollection ? $datetime->toUTCString($format) : $datetime->toString($format);
+    }
+
+    protected function getFieldNowValues(Field $field, $value)
+    {
+        if (is_array($value)) {
+            foreach ($value as &$v) {
+                $v = $this->getFieldNowValue($field, $v);
+            }
+        } else {
+            $value = $this->getFieldNowValue($field, $value);
+        }
+
+        return $value;
+    }
+
+    protected function getLikeValue($operator, $filter, $value)
+    {
+        // Ignore raw like filter and non-like operators
+        if (in_array($filter, ['rlike', 'nrlike']) || $operator !== 'like') {
+            return $value;
+        }
+
+        return sprintf('%%%s%%', addcslashes($value, '%_'));
     }
 }

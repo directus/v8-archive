@@ -20,8 +20,8 @@ export default {
         this.options.output === "hex"
           ? this.value
           : Array.isArray(this.value)
-            ? this.value
-            : this.value.split(",");
+          ? this.value
+          : this.value.split(",");
 
       if (this.options.formatValue === false) {
         if (Boolean(value) === false) {

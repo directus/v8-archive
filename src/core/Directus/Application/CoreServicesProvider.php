@@ -30,12 +30,15 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\SchemaService;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\MissingStorageConfigurationException;
 use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
 use function Directus\generate_uuid4;
 use function Directus\get_api_project_from_request;
+use function Directus\get_directus_files_settings;
+use function Directus\get_directus_setting;
 use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
@@ -45,6 +48,7 @@ use Directus\Mail\Mailer;
 use Directus\Mail\TransportManager;
 use Directus\Mail\Transports\SendMailTransport;
 use Directus\Mail\Transports\SmtpTransport;
+use function Directus\normalize_exception;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
 use Directus\Session\Session;
@@ -197,7 +201,7 @@ class CoreServicesProvider
                 /** @var Logger $logger */
                 $logger = $container->get('logger');
 
-                $logger->error($e);
+                $logger->error(normalize_exception($e));
             });
             $emitter->addFilter('response', function (Payload $payload) use ($container) {
                 /** @var Acl $acl */
@@ -235,11 +239,11 @@ class CoreServicesProvider
 
 
                 if ($dateCreated = $collection->getDateCreatedField()) {
-                    $payload[$dateCreated] = DateTimeUtils::nowInUTC()->toString();
+                    $payload[$dateCreated->getName()] = DateTimeUtils::nowInUTC()->toString();
                 }
 
-                if ($dateCreated = $collection->getDateModifiedField()) {
-                    $payload[$dateCreated] = DateTimeUtils::nowInUTC()->toString();
+                if ($dateModified = $collection->getDateModifiedField()) {
+                    $payload[$dateModified->getName()] = DateTimeUtils::nowInUTC()->toString();
                 }
 
                 // Directus Users created user are themselves (primary key)
@@ -292,21 +296,21 @@ class CoreServicesProvider
                 $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
 
                 if (strpos($type, 'embed/') === 0) {
-                    $recordData = $files->saveEmbedData($dataInfo);
+                    $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename'])));
                 } else {
                     $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
                 }
 
                 // NOTE: Use the user input title, tags, description and location when exists.
-                $recordData = array_merge(
-                    $recordData,
-                    ArrayUtils::pick($data, [
-                        'title',
-                        'tags',
-                        'description',
-                        'location',
-                    ])
-                );
+                $recordData = ArrayUtils::defaults($recordData, ArrayUtils::pick($data, [
+                    'type',
+                    'title',
+                    'tags',
+                    'description',
+                    'location',
+                ]), function ($value) {
+                    return !!$value;
+                });
 
                 $payload->replace($recordData);
                 $payload->remove('data');
@@ -324,11 +328,11 @@ class CoreServicesProvider
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
                 if ($dateModified = $collection->getDateModifiedField()) {
-                    $payload[$dateModified] = DateTimeUtils::nowInUTC()->toString();
+                    $payload[$dateModified->getName()] = DateTimeUtils::nowInUTC()->toString();
                 }
 
                 if ($userModified = $collection->getUserModifiedField()) {
-                    $payload[$userModified] = $acl->getUserId();
+                    $payload[$userModified->getName()] = $acl->getUserId();
                 }
 
                 // NOTE: exclude date_uploaded from updating a file record
@@ -542,13 +546,6 @@ class CoreServicesProvider
                 $payload->replace($rows);
                 return $payload;
             });
-            $hashUserPassword = function (Payload $payload) use ($container) {
-                if ($payload->has('password')) {
-                    $auth = $container->get('auth');
-                    $payload['password'] = $auth->hashPassword($payload['password']);
-                }
-                return $payload;
-            };
 
             $onInsertOrUpdate = function (Payload $payload) use ($container) {
                 /** @var SchemaManager $schemaManager */
@@ -560,8 +557,14 @@ class CoreServicesProvider
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
                    $field = $collection->getField($key);
+                   $type = $field->getType();
 
-                   if (DataTypes::isDateTimeType($field->getType())) {
+                   // This value is being populated in another hook
+                   if (DataTypes::isSystemDateTimeType($type)) {
+                       continue;
+                   }
+
+                   if (DataTypes::isDateTimeType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        if ($isSystemCollection || is_iso8601_datetime($value)) {
                            $dateTimeValue = $dateTime->toUTCString();
@@ -570,10 +573,10 @@ class CoreServicesProvider
                        }
 
                        $payload->set($key, $dateTimeValue);
-                   } else if (DataTypes::isDateType($field->getType())) {
+                   } else if (DataTypes::isDateType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_DATE_FORMAT));
-                   } else if (DataTypes::isTimeType($field->getType())) {
+                   } else if (DataTypes::isTimeType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_TIME_FORMAT));
                    }
@@ -601,8 +604,6 @@ class CoreServicesProvider
 
                 return $payload;
             };
-            $emitter->addFilter('item.create.directus_users:before', $hashUserPassword);
-            $emitter->addFilter('item.update.directus_users:before', $hashUserPassword);
             $emitter->addFilter('item.create.directus_users:before', $generateExternalId);
             $emitter->addFilter('item.create.directus_roles:before', $generateExternalId);
 
@@ -701,11 +702,19 @@ class CoreServicesProvider
                 ];
             }
 
+            $parameters = array_merge($defaultConfig, $dbConfig, [
+                'driver' => $type ? 'Pdo_' . $type : null,
+                'charset' => $charset
+            ]);
+
+            if (!ArrayUtils::get($parameters, 'unix_socket')) {
+                ArrayUtils::remove($parameters, 'unix_socket');
+            } else {
+                ArrayUtils::remove($parameters, 'host');
+            }
+
             try {
-                $db = new Connection(array_merge($defaultConfig, $dbConfig, [
-                    'driver' => $type ? 'Pdo_' . $type : null,
-                    'charset' => $charset
-                ]));
+                $db = new Connection($parameters);
                 $db->connect();
             } catch (\Exception $e) {
                 throw new ConnectionFailedException($e);
@@ -987,10 +996,8 @@ class CoreServicesProvider
     protected function getFileSystem()
     {
         return function (Container $container) {
-            $config = $container->get('config');
-
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('storage'), 'root')
+                FilesystemFactory::createAdapter($this->getStorageConfiguration($container), 'root')
             );
         };
     }
@@ -1001,10 +1008,8 @@ class CoreServicesProvider
     protected function getThumbFilesystem()
     {
         return function (Container $container) {
-            $config = $container->get('config');
-
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('storage'), 'thumb_root')
+                FilesystemFactory::createAdapter($this->getStorageConfiguration($container), 'thumb_root')
             );
         };
     }
@@ -1067,17 +1072,10 @@ class CoreServicesProvider
     protected function getStatusMapping()
     {
         return function (Container $container) {
-            $settings = $container->get('app_settings');
+            $statusMapping = get_directus_setting('status_mapping');
 
-            $statusMapping = [];
-            foreach ($settings as $setting) {
-                if (
-                    ArrayUtils::get($setting, 'scope') == 'status'
-                    && ArrayUtils::get($setting, 'key') == 'status_mapping'
-                ) {
-                    $statusMapping = json_decode($setting['value'], true);
-                    break;
-                }
+            if (is_string($statusMapping)) {
+                $statusMapping = json_decode($statusMapping, true);
             }
 
             if (!is_array($statusMapping)) {
@@ -1109,15 +1107,8 @@ class CoreServicesProvider
     protected function getFiles()
     {
         return function (Container $container) {
-            $settings = $container->get('app_settings');
-
             // Convert result into a key-value array
-            $filesSettings = [];
-            foreach ($settings as $setting) {
-                if ($setting['scope'] === 'files') {
-                    $filesSettings[$setting['key']] = $setting['value'];
-                }
-            }
+            $filesSettings = get_directus_files_settings();
 
             $filesystem = $container->get('filesystem');
             $config = $container->get('config');
@@ -1138,15 +1129,10 @@ class CoreServicesProvider
         return function (Container $container) {
             $app = Application::getInstance();
             $embedManager = new EmbedManager();
-            $acl = $container->get('acl');
-            $adapter = $container->get('database');
 
             // Fetch files settings
-            $settingsTableGateway = new DirectusSettingsTableGateway($adapter, $acl);
             try {
-                $settings = $settingsTableGateway->fetchItems([
-                    'filter' => ['scope' => 'files']
-                ]);
+                $settings = get_directus_files_settings();
             } catch (\Exception $e) {
                 $settings = [];
                 /** @var Logger $logger */
@@ -1219,6 +1205,25 @@ class CoreServicesProvider
         return function () use ($container) {
             return new AuthService($container);
         };
+    }
+
+    /**
+     * @param Container $container
+     *
+     * @return array
+     *
+     * @throws MissingStorageConfigurationException
+     */
+    protected function getStorageConfiguration(Container $container)
+    {
+        $config = $container->get('config');
+        $storageConfig = $config->get('storage');
+
+        if (!$storageConfig) {
+            throw new MissingStorageConfigurationException();
+        }
+
+        return $storageConfig;
     }
 }
 

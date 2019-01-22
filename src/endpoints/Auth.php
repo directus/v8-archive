@@ -24,10 +24,10 @@ class Auth extends Route
         $app->get('/password/reset/{token}', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
         $app->get('/sso', [$this, 'listSsoAuthServices']);
+        $app->post('/sso/access_token', [$this, 'ssoAccessToken']);
         $app->get('/sso/{service}', [$this, 'ssoService']);
         $app->post('/sso/{service}', [$this, 'ssoAuthenticate']);
         $app->get('/sso/{service}/callback', [$this, 'ssoServiceCallback']);
-        $app->post('/sso/access_token', [$this, 'ssoAccessToken']);
     }
 
     /**
@@ -74,10 +74,7 @@ class Auth extends Route
             $this->container->get('logger')->error($e);
         }
 
-        $responseData = [];
-        $response = $response->withStatus(204);
-
-        return $this->responseWithData($request, $response, $responseData);
+        return $this->responseWithData($request, $response, []);
     }
 
     /**
@@ -95,10 +92,7 @@ class Auth extends Route
             $request->getAttribute('token')
         );
 
-        $responseData = [];
-        $response = $response->withStatus(204);
-
-        return $this->responseWithData($request, $response, $responseData);
+        return $this->responseWithData($request, $response, []);
     }
 
     /**
@@ -230,7 +224,7 @@ class Auth extends Route
                 $urlParams['attributes'] = $e->getAttributes();
             }
 
-            $urlParams['code'] = $e->getErrorCode();
+            $urlParams['code'] = ($e instanceof \Directus\Exception\Exception) ? $e->getErrorCode() : 0;
             $urlParams['error'] = true;
         }
 

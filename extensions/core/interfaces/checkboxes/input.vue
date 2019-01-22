@@ -1,14 +1,15 @@
 <template>
   <div class="interface-checkboxes">
     <v-checkbox
-      v-for="(name, val) in options.choices"
-      :id="name"
-      :key="name"
-      :value="val"
+      v-for="(label, val) in options.choices"
+      :id="label"
+      :key="label"
+      :value="name + '-' + val"
       :disabled="readonly"
-      :label="name"
+      :label="label"
       :checked="selection.includes(val)"
-      @change="updateValue(val, $event)"></v-checkbox>
+      @change="updateValue(val, $event)"
+    ></v-checkbox>
   </div>
 </template>
 

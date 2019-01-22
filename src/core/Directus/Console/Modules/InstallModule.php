@@ -7,6 +7,7 @@ use Directus\Console\Common\Exception\UserUpdateException;
 use Directus\Console\Common\Setting;
 use Directus\Console\Common\User;
 use Directus\Console\Exception\CommandFailedException;
+use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
 
 class InstallModule extends ModuleBase
@@ -33,7 +34,6 @@ class InstallModule extends ModuleBase
                 . PHP_EOL . "\t\t-c " . 'CORS Enabled. Default: false'
                 . PHP_EOL . "\t\t-r " . 'Directus root URI. Default: /',
             'database' => '',
-            'migrate' => '',
             'install' => ''
                 . PHP_EOL . "\t\t-e " . 'Administrator e-mail address, used for administration login. Default: admin@directus.com'
                 . PHP_EOL . "\t\t-p " . 'Initial administrator password. Default: directus'
@@ -50,6 +50,15 @@ class InstallModule extends ModuleBase
             'install' => 'Install Initial Configurations: ' . PHP_EOL . PHP_EOL . "\t\t"
                 . $this->__module_name . ':install -e admin_email -p admin_password -t site_name' . PHP_EOL,
         ];
+
+        $this->options = [
+            'config' => [
+                'f' => 'boolean',
+            ],
+            'database' => [
+                'f' => 'boolean',
+            ]
+        ];
     }
 
     public function cmdConfig($args, $extra)
@@ -57,6 +66,7 @@ class InstallModule extends ModuleBase
         $data = [];
 
         $directusPath = $this->getBasePath();
+        $force = false;
 
         foreach ($args as $key => $value) {
             switch ($key) {
@@ -87,6 +97,15 @@ class InstallModule extends ModuleBase
                 case 'N': // project Name
                     $data['project'] = (string) $value;
                     break;
+                case 's':
+                    $data['db_socket'] = $value;
+                    break;
+                case 'timezone':
+                    $data['timezone'] = $value;
+                    break;
+                case 'f':
+                    $force = $value;
+                    break;
             }
         }
 
@@ -95,13 +114,14 @@ class InstallModule extends ModuleBase
             throw new \Exception(sprintf('Path "%s" does not exist', $apiPath));
         }
 
-        InstallerUtils::createConfig($directusPath, $data);
+        InstallerUtils::createConfig($directusPath, $data, $force);
     }
 
     public function cmdDatabase($args, $extra)
     {
         $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
         $projectName = null;
+        $force = false;
 
         foreach ($args as $key => $value) {
             switch ($key) {
@@ -111,17 +131,13 @@ class InstallModule extends ModuleBase
                 case 'N':
                     $projectName = $value;
                     break;
+                case 'f':
+                    $force = $value;
+                    break;
             }
         }
 
-        InstallerUtils::createTables($directus_path, $projectName);
-    }
-
-    public function cmdMigrate($args, $extra)
-    {
-        $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
-
-        InstallerUtils::runMigration($directus_path);
+        InstallerUtils::createTables($directus_path, $projectName, $force);
     }
 
     public function cmdSeeder($args, $extra)
@@ -140,19 +156,28 @@ class InstallModule extends ModuleBase
         foreach ($args as $key => $value) {
             switch ($key) {
                 case 'e':
-                    $data['directus_email'] = $value;
+                    $data['user_email'] = $value;
                     break;
                 case 'p':
-                    $data['directus_password'] = $value;
+                    $data['user_password'] = $value;
                     break;
                 case 't':
-                    $data['directus_name'] = $value;
+                    $data['project_name'] = $value;
+                    break;
+                case 'a':
+                    $data['app_url'] = $value;
                     break;
                 case 'T':
-                    $data['directus_token'] = $value;
+                    $data['user_token'] = $value;
                     break;
                 case 'N':
                     $projectName = $value;
+                    break;
+                case 'timezone':
+                    $data['timezone'] = $value;
+                    break;
+                case 'locale':
+                    $data['locale'] = $value;
                     break;
             }
         }
@@ -164,17 +189,30 @@ class InstallModule extends ModuleBase
                 InstallerUtils::addDefaultSettings($directus_path, $data, $projectName);
                 InstallerUtils::addDefaultUser($directus_path, $data, $projectName);
             } else {
-                $setting->setSetting('global', 'project_name', $data['directus_name']);
-                 // NOTE: Do we really want to change the email when re-run install command?
-                 $user = new User($directus_path);
-                 try {
-                     $user->changeEmail(1, $data['directus_email']);
-                     $user->changePassword($data['directus_email'], $data['directus_password']);
-                 } catch (UserUpdateException $ex) {
-                     throw new CommandFailedException('Error changing admin e-mail' . ': ' . $ex->getMessage());
-                 } catch (PasswordChangeException $ex) {
-                     throw new CommandFailedException('Error changing user password' . ': ' . $ex->getMessage());
-                 }
+                if (ArrayUtils::has($data, 'project_name')) {
+                    $setting->setSetting('project_name', $data['project_name']);
+                }
+
+                if (ArrayUtils::has($data, 'app_url')) {
+                    $setting->setSetting('app_url', $data['app_url']);
+                }
+
+                // NOTE: Do we really want to change the email when re-run install command?
+                $user = new User($directus_path);
+                try {
+                    $hasEmail = ArrayUtils::has($data, 'user_email');
+                    if ($hasEmail) {
+                        $user->changeEmail(1, $data['user_email']);
+                    }
+
+                    if ($hasEmail && ArrayUtils::has($data, 'user_password')) {
+                        $user->changePassword($data['user_email'], $data['user_password']);
+                    }
+                } catch (UserUpdateException $ex) {
+                    throw new CommandFailedException('Error changing admin e-mail' . ': ' . $ex->getMessage());
+                } catch (PasswordChangeException $ex) {
+                    throw new CommandFailedException('Error changing user password' . ': ' . $ex->getMessage());
+                }
             }
         } catch (\PDOException $e) {
             echo PHP_EOL . "PDO Excetion!!" . PHP_EOL;

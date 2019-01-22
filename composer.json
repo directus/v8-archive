@@ -2,8 +2,14 @@
   "name": "directus/api",
   "license": "GPL-3.0-only",
   "description": "Directus 7 API wrapper for custom SQL databases",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/wellingguzman/zend-db"
+    }
+  ],
   "require": {
-    "php": ">=5.6.0",
+    "php": "^7.1",
     "slim/slim": "^3.0.0",
     "monolog/monolog": "^1.23.0",
     "zendframework/zend-db": "dev-directus",
@@ -15,8 +21,9 @@
     "league/oauth1-client": "^1.7",
     "intervention/image": "^2.4",
     "wellingguzman/oauth2-okta": "dev-master",
+    "wellingguzman/proxy-detection": "^0.5.1",
     "cache/cache": "^1.0",
-    "akrabat/rka-ip-address-middleware": "^0.5.0",
+    "akrabat/ip-address-middleware": "^1.0",
     "firebase/php-jwt": "^5.0",
     "symfony/validator": "^3.3",
     "slim/twig-view": "^2.3",
@@ -36,7 +43,8 @@
     "phpunit/phpunit": "^5.7.25"
   },
   "suggest": {
-    "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes"
+    "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes",
+    "league/flysystem-aws-s3-v3": "Enables the usage of Amazon S3 adapter for storage"
   },
   "autoload": {
     "psr-4": {
@@ -50,11 +58,5 @@
     "files": [
       "src/helpers/all.php"
     ]
-  },
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://github.com/wellingguzman/zend-db"
-    }
-  ]
+  }
 }

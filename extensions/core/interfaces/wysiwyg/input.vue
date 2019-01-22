@@ -1,12 +1,16 @@
 <template>
-  <div ref="input" :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']">
+  <div
+    ref="input"
+    :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']"
+  >
     <div ref="editor" class="interface-wysiwyg"></div>
     <button
-      v-on:click='distractionFree = !distractionFree'
+      v-on:click="distractionFree = !distractionFree"
       type="button"
       class="fullscreen-toggle"
-      v-tooltip="$t('interfaces-wysiwyg-distraction_free_mode')">
-      <i class="material-icons">{{fullscreenIcon}}</i>
+      v-tooltip="$t('interfaces-wysiwyg-distraction_free_mode')"
+    >
+      <i class="material-icons">{{ fullscreenIcon }}</i>
     </button>
   </div>
 </template>
@@ -169,11 +173,12 @@ button.fullscreen-toggle {
   top: 10px;
   right: 10px;
   background-color: var(--white);
-  color: var(--lighter-gray);
+  color: var(--dark-gray);
+  opacity: 0.4;
   border-radius: 100%;
   padding: 4px;
   &:hover {
-    color: var(--dark-gray);
+    opacity: 1;
   }
 }
 

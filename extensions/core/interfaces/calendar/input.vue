@@ -1,10 +1,11 @@
 <template>
-	<div v-bind:class="{ inactive: readonly }">
-		<flat-pickr
+  <div v-bind:class="{ inactive: readonly }">
+    <flat-pickr
       class="form-control"
       :config="configs"
       :value="value"
-      @input="$emit('input', $event)">
+      @input="$emit('input', $event)"
+    >
     </flat-pickr>
   </div>
 </template>

@@ -1,40 +1,32 @@
 <template>
   <div>
-    <div v-if="isImage" class="image">
-      <img id="image" :src="vUrl">
-    </div>
+    <div v-if="isImage" class="image"><img id="image" :src="vUrl" /></div>
     <div v-else-if="isVideo" class="video">
       <video controls>
-        <source :src="url" :type="values.type">
+        <source :src="url" :type="values.type" />
         I'm sorry; your browser doesn't support HTML5 video in this format.
       </video>
     </div>
     <div v-else-if="isAudio" class="audio">
       <audio controls>
-        <source :src="url" :type="values.type">
+        <source :src="url" :type="values.type" />
         I'm sorry; your browser doesn't support HTML5 audio in this format.
       </audio>
     </div>
-    <div v-else class="file">
-      {{ fileType }}
-    </div>
+    <div v-else class="file">{{ fileType }}</div>
     <div class="toolbar">
-
       <!-- Default Toolbar -->
       <div v-if="!editMode" class="original">
-        <a
-          class="file-link"
-          :href="url"
-          target="_blank">
-          <i class="material-icons">link</i>
-          {{url}}
+        <a class="file-link" :href="url" target="_blank">
+          <i class="material-icons">link</i> {{ url }}
         </a>
         <button
           v-if="isImage && options.edit.includes('image_editor')"
           type="button"
           title="Edit image"
           class="image-edit-start"
-          @click="initImageEdit()">
+          @click="initImageEdit()"
+        >
           <i class="material-icons">crop_rotate</i>
         </button>
       </div>
@@ -44,20 +36,25 @@
         <li>
           <div class="image-aspect-ratio">
             <i class="material-icons">image_aspect_ratio</i>
-            <span>{{image.cropRatioOptions[image.cropRatio]}}</span>
+            <span>{{ image.cropRatioOptions[image.cropRatio] }}</span>
             <i class="material-icons">arrow_drop_down</i>
             <select v-model="image.cropRatio" title="Select aspect ratio">
               <option
-                v-for="(option,value) in image.cropRatioOptions"
+                v-for="(option, value) in image.cropRatioOptions"
                 :key="value"
-                :value="value">
-                {{option}}
+                :value="value"
+              >
+                {{ option }}
               </option>
             </select>
           </div>
         </li>
         <li>
-          <button type="button" title="Discard changes" @click="cancelImageEdit()">
+          <button
+            type="button"
+            title="Discard changes"
+            @click="cancelImageEdit()"
+          >
             <i class="material-icons">not_interested</i>
           </button>
           <button type="button" title="Save changes" @click="saveImage()">
@@ -68,7 +65,11 @@
           <button type="button" title="Flip horizontally" @click="flipImage()">
             <i class="material-icons">flip</i>
           </button>
-          <button type="button" title="Rotate counter-clockwise" @click="rotateImage()">
+          <button
+            type="button"
+            title="Rotate counter-clockwise"
+            @click="rotateImage()"
+          >
             <i class="material-icons">rotate_90_degrees_ccw</i>
           </button>
         </li>
@@ -98,6 +99,12 @@ export default {
           "16:9": "16:9",
           "4:3": "4:3",
           "3:2": "3:2"
+        },
+        initOptions: {
+          background: false,
+          viewMode: 0,
+          autoCropArea: 1,
+          zoomable: false
         }
       }
     };
@@ -157,13 +164,16 @@ export default {
   methods: {
     initImageEdit() {
       this.editMode = "image";
-      let _this = this;
-      let _image = document.getElementById("image");
-      this.image.cropper = new Cropper(_image, {
-        background: false,
-        viewMode: 0,
-        autoCropArea: 1,
-        zoomable: false
+      this.image.show = false;
+      const image = document.getElementById("image");
+      this.image.cropper = new Cropper(image, {
+        ...this.image.initOptions
+      });
+      window.addEventListener("keydown", e => {
+        if (this.editMode == "image" && e.key == "Escape") {
+          this.cancelImageEdit();
+          window.removeEventListener("keydown", escapeEditImage);
+        }
       });
     },
 
@@ -174,20 +184,20 @@ export default {
     },
 
     setAspectRatio(value) {
-      let _aspectRatio;
+      let aspectRatio;
       switch (value) {
         case "free":
-          _aspectRatio = "free";
+          aspectRatio = "free";
           break;
         case "original":
-          _aspectRatio = this.image.cropper.getImageData().aspectRatio;
+          aspectRatio = this.image.cropper.getImageData().aspectRatio;
           break;
         default:
-          let _values = value.split(":");
-          _aspectRatio = _values[0] / _values[1];
+          const values = value.split(":");
+          aspectRatio = values[0] / values[1];
           break;
       }
-      this.image.cropper.setAspectRatio(_aspectRatio);
+      this.image.cropper.setAspectRatio(aspectRatio);
     },
 
     flipImage() {
@@ -196,18 +206,31 @@ export default {
 
     rotateImage() {
       this.image.cropper.rotate(-90);
+      //TODO: Fix the image rotation issue
+      /**
+       * White rotating the image, the sides are getting cut of
+       * due to limitations of the cropper.js plugin
+       */
     },
 
     saveImage() {
-      let isSaving = this.$helpers.shortid.generate();
+      //Running the rabbit
+      const isSaving = this.$helpers.shortid.generate();
       this.$store.dispatch("loadingStart", {
         id: isSaving
       });
 
-      let _imageBase64 = this.image.cropper.getCroppedCanvas().toDataURL();
+      //Converting an image to base64
+      const imageBase64 = this.image.cropper
+        .getCroppedCanvas({
+          imageSmoothingQuality: "high"
+        })
+        .toDataURL(this.values.type);
+
+      //Saving the image via API
       this.$api
         .patch(`/files/${this.values.id}`, {
-          data: _imageBase64
+          data: imageBase64
         })
         .then(res => {
           this.$events.emit("success", {
@@ -221,9 +244,7 @@ export default {
           });
         })
         .then(() => {
-          var _this = this;
           this.image.version++;
-          this.$store.dispatch("loadingFinished", isSaving);
           /**
            * This will wait for new cropped image to load from server
            * & then destroy the cropper instance
@@ -231,8 +252,9 @@ export default {
            */
           const img = new Image();
           img.src = this.vUrl;
-          img.onload = function() {
-            _this.cancelImageEdit();
+          img.onload = () => {
+            this.$store.dispatch("loadingFinished", isSaving);
+            this.cancelImageEdit();
           };
         });
     }

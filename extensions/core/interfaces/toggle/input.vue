@@ -4,10 +4,10 @@
       type="checkbox"
       :disabled="readonly"
       :id="name"
-      @change="updateValue($event.target.checked)" />
+      @change="updateValue($event.target.checked)"
+    />
     <label :for="name">
-      <i class="material-icons icon">{{icon}}</i>
-      {{label}}
+      <i class="material-icons icon">{{ icon }}</i> {{ label }}
     </label>
   </div>
 
@@ -17,8 +17,9 @@
       :disabled="readonly"
       :id="name"
       :checked="value"
-      @change="updateValue($event.target.checked)" />
-    <label :for="name"><span></span>{{label}}&nbsp;</label>
+      @change="updateValue($event.target.checked)"
+    />
+    <label :for="name"><span></span>{{ label }}&nbsp;</label>
   </div>
 </template>
 
