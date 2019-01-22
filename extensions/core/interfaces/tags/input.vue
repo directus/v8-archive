@@ -14,9 +14,7 @@
         v-for="(value, index) in valueArray"
         :key="index"
         @click.prevent="removeTag(index)"
-      >
-        {{ value }}
-      </button>
+      >{{ value }}</button>
     </div>
   </div>
 </template>
@@ -32,13 +30,26 @@ export default {
         return [];
       }
 
-      const array = [
-        ...(this.type === "array" ? this.value : this.value.split(","))
-      ];
-
-      if (this.options.wrap) {
-        array.pop();
-        array.shift();
+      /**
+       * In some cases(i.e. Directus Settings),
+       * You'll get 'this.type' as a normal string from API
+       * even if it's type is set to an array.
+       * So you can not rely on it so explicitly checking the type of 'this.value'
+       */
+      let array;
+      if (Array.isArray(this.value)) {
+        array = this.value;
+      } else {
+        /**
+         * When the "Wrap" option is on but the value does not contain
+         * the leading and/or trailing comma.
+         * We've to check values before dropping first and last values
+         */
+        let _value = this.value.trim();
+        if (_value.charAt(0) === ",") _value = _value.slice(1);
+        if (_value.charAt(_value.length - 1) === ",")
+          _value = _value.slice(0, -1);
+        array = _value.split(",");
       }
 
       return array;
