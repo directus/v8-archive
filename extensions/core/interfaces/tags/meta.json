@@ -23,7 +23,7 @@
       "name": "$t:wrap",
       "comment": "$t:wrap_comment",
       "interface": "toggle",
-      "default": true
+      "default": false
     },
     "format": {
       "name": "$t:format",
