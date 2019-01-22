@@ -11,10 +11,12 @@
     ></v-input>
     <div class="buttons">
       <button
-        v-for="(value, index) in valueArray"
-        :key="index"
-        @click.prevent="removeTag(index)"
-      >{{ value }}</button>
+        v-for="value in valueArray"
+        :key="value"
+        @click.prevent="removeTag(value)"
+      >
+        {{ value }}
+      </button>
     </div>
   </div>
 </template>
@@ -24,38 +26,15 @@ import mixin from "../../../mixins/interface";
 
 export default {
   mixins: [mixin],
-  computed: {
-    valueArray() {
-      if (Boolean(this.value) === false) {
-        return [];
-      }
 
-      /**
-       * In some cases(i.e. Directus Settings),
-       * You'll get 'this.type' as a normal string from API
-       * even if it's type is set to an array.
-       * So you can not rely on it so explicitly checking the type of 'this.value'
-       */
-      let array;
-      if (Array.isArray(this.value)) {
-        array = this.value;
-      } else {
-        /**
-         * When the "Wrap" option is on but the value does not contain
-         * the leading and/or trailing comma.
-         * We've to check values before dropping first and last values
-         */
-        let _value = this.value.trim();
-        if (_value.charAt(0) === ",") _value = _value.slice(1);
-        if (_value.charAt(_value.length - 1) === ",")
-          _value = _value.slice(0, -1);
-        array = _value.split(",");
-      }
-
-      return array;
-    }
+  data() {
+    return {
+      valueArray: []
+    };
   },
+
   methods: {
+    // If the user is typing and hits Enter or `,` add the tag
     onInput(event) {
       if ((event.target.value && event.key === "Enter") || event.key === ",") {
         event.preventDefault();
@@ -63,9 +42,12 @@ export default {
         event.target.value = "";
       }
     },
-    addTag(tag) {
-      let tags = [...this.valueArray];
 
+    addTag(tag) {
+      if (!tag) return;
+      let valueArrayCopy = this.valueArray.splice(0);
+
+      // Remove any leading / trailing whitespace from the value
       tag = tag.trim();
 
       if (this.options.lowercase) {
@@ -73,31 +55,39 @@ export default {
       }
 
       if (this.options.sanitize) {
-        tag = tag.replace(/([^a-z0-9]+)/gi, "-").replace(/^-|-$/g, "");
+        tag = tag
+          // Replace all non alphanumeric characters with a hyphen
+          .replace(/([^a-z0-9]+)/gi, "-")
+          // Remove leading / trailing hyphens and remove doubles
+          .replace(/^-|-$/g, "");
       }
 
-      if (tag.length > 0) tags.push(tag);
+      valueArrayCopy.push(tag);
 
       if (this.options.alphabetize) {
-        tags.sort();
+        valueArrayCopy.sort();
       }
 
       // Remove any duplicates
-      tags = [...new Set(tags)];
+      valueArrayCopy = [...new Set(valueArrayCopy)];
 
-      this.emitValue(tags);
-    },
-    removeTag(index) {
-      const tags = this.valueArray.splice(0);
-      tags.splice(index, 1);
+      // Set the local value to reflect it in the interface
+      this.valueArray = valueArrayCopy;
 
-      this.emitValue(tags);
+      this.emitValue();
     },
-    emitValue(tags) {
-      let value = tags.join(",");
+
+    removeTag(tag) {
+      this.valueArray = this.valueArray.filter(savedTag => savedTag !== tag);
+      this.emitValue();
+    },
+
+    emitValue() {
+      // Convert the value array to a CSV
+      let value = this.valueArray.join(",");
 
       if (value && this.options.wrap) {
-        value = `,${value},`;
+        value = "," + value + ",";
       }
 
       if (this.type === "array") {
@@ -105,6 +95,40 @@ export default {
       } else {
         this.$emit("input", value);
       }
+    },
+
+    getLocalValueArray() {
+      let array;
+
+      // If the value is null or empty...
+      if (Boolean(this.value) === false) {
+        this.valueArray = [];
+        return;
+      }
+
+      if (Array.isArray(this.value)) {
+        array = this.value;
+      } else {
+        array = this.value.split(",");
+      }
+
+      // The wrap option will introduce empty values at the beginning and end of
+      // the value. We'll filter out all the empty (falsey) values from the array
+      array = array.filter(value => value);
+
+      this.valueArray = array;
+    }
+  },
+
+  created() {
+    this.getLocalValueArray();
+  },
+
+  // Make sure to re-populate the local state if the value changes from outside
+  // of the interface
+  watch: {
+    value() {
+      this.getLocalValueArray();
     }
   }
 };
