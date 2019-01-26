@@ -3,6 +3,7 @@
     <div v-if="value" class="preview">
       <v-card
         v-for="(file, index) in files"
+        :key="file.id"
         class="card"
         :title="file.title"
         :subtitle="file.subtitle"
@@ -39,7 +40,7 @@
       }"
       :title="$t('file_upload')" @close="newFile = false" @done="newFile = false">
         <div class="body">
-          <v-upload @upload="saveUpload" :multiple="true"></v-upload>
+          <v-upload @upload="saveUpload" :multiple="true" :accept="options.accept"></v-upload>
         </div>
       </v-modal>
     </portal>

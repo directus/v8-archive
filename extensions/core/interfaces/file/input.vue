@@ -22,6 +22,7 @@
       :disabled="readonly"
       class="dropzone"
       @upload="saveUpload"
+      :accept="options.accept"
       :multiple="false"
     ></v-upload>
 
@@ -35,7 +36,7 @@
     <portal to="modal" v-if="newFile">
       <v-modal :title="$t('file_upload')" @close="newFile = false">
         <div class="body">
-          <v-upload @upload="saveUpload" :multiple="false"></v-upload>
+          <v-upload @upload="saveUpload" :accept="options.accept" :multiple="false"></v-upload>
         </div>
       </v-modal>
     </portal>
