@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ inactive: readonly }" class="interface-code">
+  <div class="interface-code">
     <codemirror
       ref="codemirrorEl"
       :options="cmOptions"
