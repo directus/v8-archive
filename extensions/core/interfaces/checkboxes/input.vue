@@ -23,9 +23,18 @@ export default {
     selection() {
       if (this.value == null) return [];
 
-      const selection = [
-        ...(this.type === "string" ? this.value.split(",") : this.value)
-      ];
+      let selection;
+
+      // Conver the value to an array
+      if (this.type === "string") {
+        if (this.value.contains(",")) {
+          selection = selection.split(",");
+        } else {
+          selection = [this.value];
+        }
+      } else {
+        selection = this.value;
+      }
 
       if (this.options.wrap && selection.length > 2) {
         selection.pop();
