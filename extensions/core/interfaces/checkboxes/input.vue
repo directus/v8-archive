@@ -26,8 +26,8 @@ export default {
       let selection;
 
       // Conver the value to an array
-      if (this.type === "string") {
-        if (this.value.contains(",")) {
+      if (typeof this.value === "string") {
+        if (this.value.includes(",")) {
           selection = selection.split(",");
         } else {
           selection = [this.value];
