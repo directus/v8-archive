@@ -1218,6 +1218,11 @@ class TablesService extends AbstractService
                     unset($fullFieldData['unique']);
                 }
 
+                $type = ArrayUtils::get($fullFieldData, 'type');
+                if ($type && !$this->getSchemaManager()->isTypeLengthRequired($type)) {
+                    unset($fullFieldData['length']);
+                }
+
                 if (!$field->isAlias() && DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
                     $toDrop[] = $field->getName();
                 } else if ($field->isAlias() && !DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
