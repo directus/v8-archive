@@ -316,7 +316,7 @@ class CoreServicesProvider
                     /** @var Acl $auth */
                     $acl = $container->get('acl');
                     $payload->set('uploaded_by', $acl->getUserId());
-                    $payload->set('uploaded_on', DateTimeUtils::nowInUTC()->toString());
+                    $payload->set('uploaded_on', DateTimeUtils::now()->toString());
                 }
             };
             $emitter->addFilter('item.update:before', function (Payload $payload) use ($container, $savesFile) {
