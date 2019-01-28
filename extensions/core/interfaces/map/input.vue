@@ -15,7 +15,7 @@
             v-model="placeName"
             placeholder="Enter address to geocode"
           ></v-input>
-          <button v-if="isInteractive" @click="findGeoCodes(placeName)">
+          <button v-if="isInteractive" @click="getCoordinatesforPlaceName(placeName)">
             <i class="material-icons">add_location</i>
           </button>
         </div>
