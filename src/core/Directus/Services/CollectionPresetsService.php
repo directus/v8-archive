@@ -70,7 +70,7 @@ class CollectionPresetsService extends AbstractService
         $tableGateway = $this->createTableGateway($this->collection);
 
         // hotfix: enforce delete permission before checking for the item existence
-        // this avoids an indirect reveal of an item the user are not able to see
+        // this avoids an indirect reveal of an item the user is not allowed to see
         $delete = new Delete($this->collection);
         $delete->where([
             'id' => $id
