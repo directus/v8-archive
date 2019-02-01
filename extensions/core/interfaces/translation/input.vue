@@ -90,6 +90,9 @@ export default {
         this.value,
         this.options.translationLanguageField
       );
+    },
+    fieldManyName() {
+      return this.relation.field_many.field;
     }
   },
   created() {
@@ -128,8 +131,10 @@ export default {
         });
     },
     stageValue({ field, value }) {
+      let newValue;
+
       if (!this.valuesByLang[this.activeLanguage]) {
-        const newValue = this.newItem
+        newValue = this.newItem
           ? [
               ...(this.value || []),
               {
@@ -145,13 +150,8 @@ export default {
                 [field]: value
               }
             ];
-
-        return this.$emit("input", newValue);
-      }
-
-      return this.$emit(
-        "input",
-        this.value.map(translation => {
+      } else {
+        newValue = this.value.map(translation => {
           if (
             translation[this.options.translationLanguageField] ===
             this.activeLanguage
@@ -163,8 +163,16 @@ export default {
           }
 
           return translation;
-        })
-      );
+        });
+      }
+
+      newValue = newValue.map(values => {
+        const valuesCopy = Object.assign({}, values);
+        delete valuesCopy[this.fieldManyName];
+        return valuesCopy;
+      });
+
+      return this.$emit("input", newValue);
     }
   }
 };
