@@ -76,7 +76,6 @@ class Files extends Route
             $data = file_get_contents($uploadedFile->file);
             $payload = array_merge([
                 'filename' => $uploadedFile->getClientFilename(),
-                'type' => $uploadedFile->getClientMediaType(),
                 'data' => base64_encode($data)
             ], $payload);
         }
@@ -148,8 +147,6 @@ class Files extends Route
             $id,
             $request->getQueryParams()
         );
-
-        $response = $response->withStatus(204);
 
         return $this->responseWithData($request, $response, []);
     }
@@ -252,8 +249,6 @@ class Files extends Route
             $request->getQueryParams()
         );
 
-        $response = $response->withStatus(204);
-
         return $this->responseWithData($request, $response, []);
     }
 
@@ -338,11 +333,6 @@ class Files extends Route
         } else if ($request->isDelete()) {
             $ids = explode(',', $request->getAttribute('id'));
             $filesService->batchDeleteWithIds($ids, $params);
-        }
-
-        if (empty($responseData)) {
-            $response = $response->withStatus(204);
-            $responseData = [];
         }
 
         return $this->responseWithData($request, $response, $responseData);

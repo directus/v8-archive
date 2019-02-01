@@ -1172,38 +1172,6 @@ if (!function_exists('get_request_ip')) {
     }
 }
 
-if (!function_exists('get_project_info')) {
-    function get_project_info()
-    {
-        /** @var \Directus\Database\TableGateway\DirectusSettingsTableGateway $settingsTable */
-        $settingsTable = TableGatewayFactory::create('directus_settings', [
-            'acl' => null
-        ]);
-        $settings = $settingsTable->fetchCollection('global');
-
-        $projectName = isset($settings['project_name']) ? $settings['project_name'] : 'Directus';
-        $defaultProjectLogo = get_directus_path('/assets/imgs/directus-logo-flat.svg');
-        if (isset($settings['cms_thumbnail_url']) && $settings['cms_thumbnail_url']) {
-            $projectLogoURL = $settings['cms_thumbnail_url'];
-            $filesTable = TableGatewayFactory::create('directus_files', [
-                'acl' => null
-            ]);
-            $data = $filesTable->fetchItems([
-                'filter' => ['id' => $projectLogoURL]
-            ]);
-
-            $projectLogoURL = ArrayUtils::get($data, 'url', $defaultProjectLogo);
-        } else {
-            $projectLogoURL = $defaultProjectLogo;
-        }
-
-        return [
-            'project_name' => $projectName,
-            'project_logo_url' => $projectLogoURL
-        ];
-    }
-}
-
 if (!function_exists('get_missing_requirements')) {
     /**
      * Gets an array of errors message when there's a missing requirements
@@ -1390,7 +1358,13 @@ if (!function_exists('get_unflat_columns')) {
                     }
 
                     $child = get_unflat_columns($parts[1]);
-                    $names[$parts[0]][key($child)] = current($child);
+                    if (isset($names[$parts[0]][key($child)])) {
+                        $childValue = array_merge($names[$parts[0]][key($child)], current($child));
+                    } else {
+                        $childValue = current($child);
+                    }
+
+                    $names[$parts[0]][key($child)] = $childValue;
                 };
             }
         }
@@ -1670,5 +1644,19 @@ if (!function_exists('normalize_exception')) {
         }
 
         return implode("\n", $stack);
+    }
+}
+
+if (!function_exists('is_empty')) {
+    /**
+     * Checks whether or not the value is empty|null
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    function is_empty($value)
+    {
+        return !$value || empty($value) || (is_object($value) && empty((array) $value));
     }
 }

@@ -32,7 +32,7 @@
           >
             <div v-for="column in columns" :key="column.field" class="no-wrap">
               <v-ext-display
-                :interface-type="column.fieldInfo.interface"
+                :interface-type="(column.fieldInfo || {}).interface || null"
                 :name="column.field"
                 :type="column.fieldInfo.type"
                 :datatype="column.fieldInfo.datatype"

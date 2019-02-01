@@ -7,6 +7,7 @@ use function Directus\filename_put_ext;
 use function Directus\generate_uuid5;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
+use Directus\Util\MimeTypeUtils;
 
 class Files
 {
@@ -241,6 +242,7 @@ class Files
     public function saveData($fileData, $fileName, $replace = false)
     {
         $fileData = base64_decode($this->getDataInfo($fileData)['data']);
+        $checksum = md5($fileData);
 
         // @TODO: merge with upload()
         $fileName = $this->getFileName($fileName, $replace !== true);
@@ -261,7 +263,8 @@ class Files
         $fileData = array_merge($this->defaults, $fileData);
 
         return [
-            'type' => $fileData['type'],
+            // The MIME type will be based on its extension, rather than its content
+            'type' => MimeTypeUtils::getFromFilename($fileData['filename']),
             'filename' => $fileData['filename'],
             'title' => $fileData['title'],
             'tags' => $fileData['tags'],
@@ -271,7 +274,8 @@ class Files
             'filesize' => $fileData['size'],
             'width' => $fileData['width'],
             'height' => $fileData['height'],
-            'storage' => $fileData['storage']
+            'storage' => $fileData['storage'],
+            'checksum' => $checksum,
         ];
     }
 
