@@ -221,7 +221,37 @@ export default {
     },
 
     filters() {
-      return [...this.options.filters, ...this.filtersOverride];
+      return [
+        ...this.options.filters,
+        ...this.fileTypeFilters,
+        ...this.filtersOverride
+      ];
+    },
+
+    fileTypeFilters() {
+      if (
+        !this.options.accept ||
+        this.filtersOverride.length > 0 ||
+        this.options.filters.some(filter => filter.field === "type")
+      ) {
+        return [];
+      }
+
+      const typeFilters = this.options.accept
+        .trim()
+        .split(/,\s*/)
+        .map(type => {
+          if (type.endsWith("/*")) {
+            const value = type.replace(/\*$/, "");
+            return { field: "type", operator: "like", value: value };
+          } else {
+            return { field: "type", operator: "=", value: type };
+          }
+        });
+
+      return typeFilters.concat([
+        { field: "type", operator: "logical", value: "or" }
+      ]);
     }
   },
   methods: {
