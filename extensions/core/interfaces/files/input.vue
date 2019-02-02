@@ -243,7 +243,7 @@ export default {
         .map(type => {
           if (type.endsWith("/*")) {
             const value = type.replace(/\*$/, "");
-            return { field: "type", operator: "like", value: value };
+            return { field: "type", operator: "rlike", value: `${value}%` };
           } else {
             return { field: "type", operator: "=", value: type };
           }
