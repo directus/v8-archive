@@ -247,7 +247,7 @@ if (!function_exists('get_api_project_from_request')) {
             if (JWTUtils::isJWT($authToken)) {
                 $name = JWTUtils::getPayload($authToken, 'project');
             } else {
-                $name = null;
+                $name = get_request_project_name($request);
             }
         }
 
@@ -298,6 +298,27 @@ if (!function_exists('get_request_authorization_token')) {
         }
 
         return $authToken;
+    }
+}
+
+if (!function_exists('get_request_project_name')) {
+    /**
+     * Returns the project name from a request object
+     *
+     * @param Request $request
+     *
+     * @return null|string
+     */
+    function get_request_project_name(Request $request)
+    {
+        $name = null;
+        if ($request->getQueryParam('project')) {
+            $name = $request->getQueryParam('project');
+        } else if ($request->hasHeader('X-Directus-Project')) {
+            $name = $request->getHeader('X-Directus-Project');
+        }
+
+        return is_array($name) ? array_shift($name) : $name;
     }
 }
 
