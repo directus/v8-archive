@@ -8,6 +8,8 @@ use Directus\Database\TableGatewayFactory;
 use Directus\Exception\Exception;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
+use Directus\Util\Installation\InstallerUtils;
+use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
 use Phinx\Db\Adapter\AdapterInterface;
 use RKA\Middleware\ProxyDetection;
@@ -152,7 +154,7 @@ if (!function_exists('create_request_from_global')) {
      *
      * @return Request
      */
-    function create_request_from_global($options = [])
+    function create_request_from_global(array $options = [])
     {
         $environment = new Environment($_SERVER);
         $method = $environment['REQUEST_METHOD'];
@@ -163,6 +165,7 @@ if (!function_exists('create_request_from_global')) {
         $body = new RequestBody();
         $uploadedFiles = [];
         $ignorePayload = array_get($options, 'ignore_payload', false) === true;
+        $checkProxy = array_get($options, 'check_proxy', true) === true;
 
         if (!$ignorePayload) {
             $uploadedFiles = UploadedFile::createFromEnvironment($environment);
@@ -177,6 +180,11 @@ if (!function_exists('create_request_from_global')) {
         ) {
             // parsed body must be $_POST
             $request = $request->withParsedBody($_POST);
+        }
+
+        if ($checkProxy) {
+            $proxyDetection = new ProxyDetection(get_trusted_proxies());
+            $request = $proxyDetection->processRequestIfTrusted($request);
         }
 
         return $request;
@@ -195,12 +203,10 @@ if (!function_exists('create_uri_from_global')) {
      */
     function create_uri_from_global($checkProxy = true)
     {
-        $request = create_request_from_global(['ignore_payload' => true]);
-
-        if ($checkProxy) {
-            $proxyDetection = new ProxyDetection(get_trusted_proxies());
-            $request = $proxyDetection->processRequestIfTrusted($request);
-        }
+        $request = create_request_from_global([
+            'ignore_payload' => true,
+            'check_proxy' => $checkProxy,
+        ]);
 
         return $request->getUri();
     }
@@ -228,8 +234,104 @@ if (!function_exists('get_api_project_from_request')) {
     {
         $path = trim(get_virtual_path(), '/');
         $parts = explode('/', $path);
+        $name = isset($parts[0]) ? $parts[0] : '_';
+        $reservedNames = get_reserved_endpoint_names();
 
-        return isset($parts[0]) ? $parts[0] : '_';
+        if (in_array($name, $reservedNames)) {
+            $request = create_request_from_global([
+                'ignore_payload' => true,
+                'check_proxy' => false,
+            ]);
+
+            $authToken = get_request_authorization_token($request);
+            if (JWTUtils::isJWT($authToken)) {
+                $name = JWTUtils::getPayload($authToken, 'project');
+            } else {
+                $name = null;
+            }
+        }
+
+        return $name;
+    }
+}
+
+if (!function_exists('get_request_authorization_token')) {
+    /**
+     * Returns the authorization token from a request object
+     *
+     * @param Request $request
+     *
+     * @return null|string
+     */
+    function get_request_authorization_token(Request $request)
+    {
+        $authToken = null;
+
+        if ($request->getParam('access_token')) {
+            $authToken = $request->getParam('access_token');
+        } elseif ($request->hasHeader('Php-Auth-User')) {
+            $authUser = $request->getHeader('Php-Auth-User');
+            $authPassword = $request->getHeader('Php-Auth-Pw');
+
+            if (is_array($authUser)) {
+                $authUser = array_shift($authUser);
+            }
+
+            if (is_array($authPassword)) {
+                $authPassword = array_shift($authPassword);
+            }
+
+            if ($authUser && (empty($authPassword) || $authUser === $authPassword)) {
+                $authToken = $authUser;
+            }
+        } elseif ($request->hasHeader('Authorization')) {
+            $authorizationHeader = $request->getHeader('Authorization');
+
+            // If there's multiple Authorization header, pick first, ignore the rest
+            if (is_array($authorizationHeader)) {
+                $authorizationHeader = array_shift($authorizationHeader);
+            }
+
+            if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
+                $authToken = $matches[1];
+            }
+        }
+
+        return $authToken;
+    }
+}
+
+if (!function_exists('create_config_path')) {
+    /**
+     * Creates the configuration path for a project
+     *
+     * @param string $basePath
+     * @param null|string $project
+     *
+     * @return string
+     */
+    function create_config_path($basePath, $project = null)
+    {
+        return InstallerUtils::createConfigPath($basePath, $project);
+    }
+}
+
+if (!function_exists('get_reserved_endpoint_names')) {
+    /**
+     * Returns a list of reserved endpoint names
+     *
+     * @return array
+     */
+    function get_reserved_endpoint_names()
+    {
+        return [
+            'server',
+            'interfaces',
+            'pages',
+            'layouts',
+            'types',
+            'projects'
+        ];
     }
 }
 
