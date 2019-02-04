@@ -237,7 +237,9 @@ if (!function_exists('get_api_project_from_request')) {
         $name = isset($parts[0]) ? $parts[0] : '_';
         $reservedNames = get_reserved_endpoint_names();
 
-        if (in_array($name, $reservedNames)) {
+        // Fetch project name from the request if request path is root
+        // or a reserved name
+        if (!$name || in_array($name, $reservedNames)) {
             $request = create_request_from_global([
                 'ignore_payload' => true,
                 'check_proxy' => false,
