@@ -15,19 +15,11 @@ if (!file_exists($basePath . '/config/api.php')) {
 // Get Environment name
 $projectName = \Directus\get_api_project_from_request();
 
-// All "globals" endpoints need to know the project name beforehand
+// All "globals" endpoints requires the project name beforehand
 // Otherwise there's not way to tell which database to connect to
-// Also it returns a 401 Unauthorized error because only authenticated user can access these endpoints
+// It returns 401 Unauthorized error to any endpoint except /server/ping
 if (!$projectName) {
-    http_response_code(401);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error' => [
-            'error' => \Directus\Exception\UnauthorizedException::ERROR_CODE,
-            'message' => 'Unauthorized request',
-        ]
-    ]);
-    exit;
+    return \Directus\create_unknown_project_app($basePath);
 }
 
 $configFilePath = \Directus\create_config_path($basePath, $projectName);
