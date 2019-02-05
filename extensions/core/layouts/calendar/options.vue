@@ -8,7 +8,7 @@
       :value="viewOptions.date || '__none__'"
       :options="dateOptions"
       class="select"
-      icon="reorder"
+      icon="today"
       @input="setOption('date', $event)"
     ></v-select>
     <label for="spacing" class="style-3">{{
@@ -19,7 +19,7 @@
       :value="viewOptions.time || '__none__'"
       :options="timeOptions"
       class="select"
-      icon="reorder"
+      icon="schedule"
       @input="setOption('time', $event)"
     ></v-select>
     <label for="spacing" class="style-3 required">{{
@@ -30,7 +30,7 @@
       :value="viewOptions.title || '__none__'"
       :options="textOptions"
       class="select"
-      icon="reorder"
+      icon="title"
       @input="setOption('title', $event)"
     ></v-select>
     <label for="spacing" class="style-3">{{
@@ -41,7 +41,7 @@
       :value="viewOptions.color || '__none__'"
       :options="colorOptions"
       class="select"
-      icon="reorder"
+      icon="color_lens"
       @input="setOption('color', $event)"
     ></v-select>
   </form>
@@ -109,10 +109,12 @@ label {
 .required::after {
   content: "required";
   margin: 0 5px;
-  padding: 0px 2px;
-  font-size: 0.7em;
+  padding: 0px 4px 1px;
+  font-size: 10px;
+  font-weight: 600;
   color: var(--white);
-  background-color: var(--danger);
+  background-color: var(--warning);
   border-radius: var(--border-radius);
+  text-transform: uppercase;
 }
 </style>
