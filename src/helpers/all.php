@@ -4,7 +4,6 @@ namespace Directus;
 
 use Directus\Application\Application;
 use Directus\Application\Http\Request;
-use Directus\Database\TableGatewayFactory;
 use Directus\Exception\Exception;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
@@ -20,7 +19,6 @@ use Slim\Http\Headers;
 use Slim\Http\RequestBody;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
-use Zend\Db\Sql\Ddl\Column\Date;
 
 require __DIR__ . '/constants.php';
 require __DIR__ . '/app.php';
