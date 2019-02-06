@@ -1727,7 +1727,17 @@ if (!function_exists('is_iso8601_datetime')) {
                 && $offset === 'z';
         };
 
-        return $isFormatOne($value) || $isFormatTwo($value) || $isFormatThree($value);
+        // 2019-02-06T10:53:31-0500
+        $isFormatFour = function ($value) {
+            $datetime = substr($value, 0, 19);
+            $offset = substr($value, -4, 4);
+
+            return strlen($value) === 24
+                && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+                && is_valid_datetime($offset, 'Hi');
+        };
+
+        return $isFormatOne($value) || $isFormatTwo($value) || $isFormatThree($value) || $isFormatFour($value);
     }
 }
 
