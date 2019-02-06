@@ -33,7 +33,7 @@ export default {
     }
   },
   created() {
-    if (this.options.defaultToCurrentDatetime) {
+    if (this.options.defaultToCurrentDatetime && !this.value) {
       this.$emit("input", new Date());
     }
   },

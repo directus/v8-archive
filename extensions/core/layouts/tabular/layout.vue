@@ -40,11 +40,12 @@ export default {
           queryFields = this.viewQuery.fields.split(",");
         }
       } else {
-        queryFields = fieldValues.filter(
-          field => field.primary_key === false || field.primary_key === "0"
-        )
-        .slice(0, 4)
-        .map(field => field.field);
+        queryFields = fieldValues
+          .filter(
+            field => field.primary_key === false || field.primary_key === "0"
+          )
+          .slice(0, 4)
+          .map(field => field.field);
       }
 
       return queryFields

@@ -36,7 +36,7 @@ export default {
         "input",
         slug(value, {
           lower: this.options.forceLowercase,
-          remove: /[$*_+~.()'"!:@]/g
+          remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g
         })
       );
     }
