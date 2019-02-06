@@ -15,8 +15,8 @@
           :style="event.color"
           @click="event.id == -1 ? $emit('popup') : ''"
         >
-          <span>{{ event.title }}</span>
-          <span>{{ event.time.substr(0, 5) }}</span>
+          <span class="title">{{ event.title }}</span>
+          <span class="time">{{ event.time.substr(0, 5) }}</span>
         </div>
       </a>
     </div>
@@ -71,7 +71,7 @@ export default {
 };
 </script>
 
-<style type="scss" scoped>
+<style lang="scss" type="scss" scoped>
 .today .header {
   padding: 5px 5px;
 }
@@ -82,6 +82,7 @@ export default {
   border-radius: 50%;
   border: 2px solid var(--accent);
   color: var(--accent);
+  line-height: 0;
 }
 
 .day {
@@ -112,25 +113,29 @@ export default {
   width: 100%;
   width: 32px;
   height: 32px;
-
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-right: 1px;
 }
 .events {
-}
-
-.event {
-  display: flex;
-  justify-content: space-between;
-  width: 90%;
-  height: 20px;
-  margin: 1px 5%;
-  padding: 2px 6px;
-  color: var(--white);
-  cursor: pointer;
-  border-radius: var(--border-radius);
-  line-height: 14px;
+  .event {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    height: 20px;
+    margin: 0 5% 2px;
+    padding: 2px 6px;
+    color: var(--white);
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    line-height: 14px;
+    .title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }
 
 .event-more {

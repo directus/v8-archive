@@ -326,7 +326,7 @@ export default {
   width: 180px;
   text-transform: capitalize;
   position: relative;
-  text-align: center;
+  text-align: left;
 }
 
 .months-enter {
