@@ -1,0 +1,40 @@
+{
+  "name": "$t:checkboxes_relational",
+  "version": "1.0.0",
+  "types": ["o2m"],
+  "relation": "m2m",
+  "fieldset": true,
+  "icon": "check_box",
+  "options": {
+    "formatting": {
+      "name": "$t:formatting",
+      "comment": "$t:formatting_comment",
+      "interface": "toggle",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:template_placeholder"
+      }
+    }
+  },
+  "translation": {
+    "en-US": {
+      "checkboxes_relational": "Checkboxes Relational",
+      "wrap": "Wrap with Delimiter",
+      "wrap_comment": "Wrap the saved value in a delimiter (improves searchability).",
+      "formatting": "Show display text",
+      "formatting_comment": "Render the values as the display values",
+      "display_text": "Display Text",
+      "value": "Value",
+      "option": "Option",
+      "template": "Display Template",
+      "template_comment": "Choose how to display values on the item layouts",
+      "template_placeholder": "{{movie.name}} — {{member.first_name}}"
+    }
+  }
+}
