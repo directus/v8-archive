@@ -8,6 +8,7 @@ use Directus\Database\TableGatewayFactory;
 use Directus\Exception\Exception;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
+use Directus\Util\DateTimeUtils;
 use Directus\Util\Installation\InstallerUtils;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
@@ -19,6 +20,7 @@ use Slim\Http\Headers;
 use Slim\Http\RequestBody;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
+use Zend\Db\Sql\Ddl\Column\Date;
 
 require __DIR__ . '/constants.php';
 require __DIR__ . '/app.php';
@@ -1697,47 +1699,124 @@ if (!function_exists('is_iso8601_datetime')) {
      */
     function is_iso8601_datetime($value)
     {
-        // 2019-01-04T16:12:05+00:00
-        $isFormatOne = function ($value) {
-            $datetime = substr($value, 0, 19);
-            $offset = substr($value, -5, 5);
+        return is_iso8601_format_one($value)
+            || is_iso8601_format_two($value)
+            || is_iso8601_format_three($value)
+            || is_iso8601_format_four($value);
+    }
+}
 
-            return strlen($value) === 25
-                && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
-                && is_valid_datetime($offset, 'H:i');
-        };
+if (!function_exists('is_iso8601_format_one')) {
+    /**
+     * Checks whether the given string is a iso format (1)
+     *
+     * Format: 2019-01-04T16:12:05+00:00
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_format_one($value)
+    {
+        $datetime = substr($value, 0, 19);
+        $offset = substr($value, -5, 5);
 
-        // 2019-01-04T16:12:05Z
-        $isFormatTwo = function ($value) {
-            $datetime = substr($value, 0, 19);
-            $offset = strtolower(substr($value, -1, 1));
+        return strlen($value) === 25
+            && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+            && is_valid_datetime($offset, 'H:i');
+    }
+}
 
-            return strlen($value) === 20
-                && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
-                && $offset === 'z';
-        };
+if (!function_exists('is_iso8601_format_two')) {
+    /**
+     * Checks whether the given string is a iso format (2)
+     *
+     * Format: 2019-01-04T16:12:05Z
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_format_two($value)
+    {
+        $datetime = substr($value, 0, 19);
+        $offset = strtolower(substr($value, -1, 1));
 
-        // 20190104T161205Z
-        $isFormatThree = function ($value) {
-            $datetime = substr($value, 0, 14);
-            $offset = strtolower(substr($value, -1, 1));
+        return strlen($value) === 20
+            && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+            && $offset === 'z';
+    }
+}
 
-            return strlen($value) === 16
-                && is_valid_datetime($datetime, 'Ymd\THis')
-                && $offset === 'z';
-        };
+if (!function_exists('is_iso8601_format_three')) {
+    /**
+     * Checks whether the given string is a iso format (3)
+     *
+     * Format: 20190104T161205Z
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_format_three($value)
+    {
+        $datetime = substr($value, 0, 15);
+        $offset = strtolower(substr($value, -1, 1));
 
-        // 2019-02-06T10:53:31-0500
-        $isFormatFour = function ($value) {
-            $datetime = substr($value, 0, 19);
-            $offset = substr($value, -4, 4);
+        return strlen($value) === 16
+            && is_valid_datetime($datetime, 'Ymd\THis')
+            && $offset === 'z';
+    }
+}
 
-            return strlen($value) === 24
-                && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
-                && is_valid_datetime($offset, 'Hi');
-        };
+if (!function_exists('is_iso8601_format_four')) {
+    /**
+     * Checks whether the given string is a iso format (4)
+     *
+     * Format: 2019-02-06T10:53:31-0500
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_format_four($value)
+    {
+        $datetime = substr($value, 0, 19);
+        $offset = substr($value, -4, 4);
 
-        return $isFormatOne($value) || $isFormatTwo($value) || $isFormatThree($value) || $isFormatFour($value);
+        return strlen($value) === 24
+            && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+            && is_valid_datetime($offset, 'Hi');
+    }
+}
+
+if (!function_exists('get_iso8601_format')) {
+    /**
+     * Returns the iso format based on the datetime value
+     *
+     * @param string $value
+     *
+     * @return null|string
+     */
+    function get_iso8601_format($value)
+    {
+        $format = null;
+
+        if (!is_string($value)) {
+            return $format;
+        }
+
+        if (is_iso8601_format_one($value)) {
+            $format = DateTimeUtils::ISO8601_FORMAT_ONE;
+        } else if (is_iso8601_format_two($value)) {
+            $format = DateTimeUtils::ISO8601_FORMAT_TWO;
+        } else if (is_iso8601_format_three($value)) {
+            $format = DateTimeUtils::ISO8601_FORMAT_THREE;
+        } else if (is_iso8601_format_four($value)) {
+            $format = DateTimeUtils::ISO8601;
+        }
+
+        return $format;
     }
 }
 
