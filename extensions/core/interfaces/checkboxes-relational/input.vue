@@ -22,16 +22,10 @@ export default {
   data() {
     return {
       items: [],
-      initiallySelected: [],
-      selection: [],
-      pkMap: {}
+      selection: []
     };
   },
-  watch: {
-    value(newValue) {
-      this.setValues();
-    }
-  },
+
   computed: {
     //The primary key of related table
     relatedPk() {
@@ -62,12 +56,6 @@ export default {
     this.selection = this.value.map(
       item => item[this.junctionFieldOfRelated][this.relatedPk]
     );
-
-    //Copy the initial values to seperate array
-    //To make final list when updating
-    this.initiallySelected = this.selection.slice(0);
-
-    this.setValues();
   },
 
   methods: {
@@ -84,19 +72,6 @@ export default {
       });
     },
 
-    setValues() {
-      //JunctionKeyVsRelatedKey
-      this.value.forEach(item => {
-        if (!item.$delete) {
-          let relatedPk = item[this.junctionFieldOfRelated][this.relatedPk];
-          let junctionPk = item[this.junctionPk];
-          if (junctionPk) {
-            this.pkMap[relatedPk] = junctionPk;
-          }
-        }
-      });
-    },
-
     labelRendered(val) {
       if (this.options.template) {
         return this.$helpers.micromustache.render(this.options.template, {
@@ -109,56 +84,56 @@ export default {
 
     //When checkbox is clicked
     onSelection(val, e) {
+      let item = this.items.filter(item => item[this.relatedPk] == val)[0];
       if (this.selection.includes(val)) {
         let index = this.selection.indexOf(val);
         this.selection.splice(index, 1);
+        this.removeItem(val);
       } else {
         this.selection.push(val);
+        this.addItem(val, item);
       }
-      this.emitValue(val);
     },
 
-    emitValue(val) {
-      let item = this.items.filter(item => item[this.relatedPk] == val)[0];
-      let newValue;
+    /**
+     * Adds a new item to junction table
+     */
+    addItem(val, item) {
+      // let newValue = [];
+      // this.value.forEach(item => {
+      //   if (item[this.junctionFieldOfRelated][this.relatedPk] == val) {
+      //     delete item.$delete;
+      //     newValue.push(item);
+      //   } else {
+      //     newValue.push(item);
+      //   }
+      // });
 
-      //If the item is checked
-      let isSelected = this.selection.includes(item[this.relatedPk]);
-      //If the item is not intitially selected
-      let isInitiallySelected = this.initiallySelected.includes(
-        item[this.relatedPk]
-      );
-
-      //Add New Item
-      if (isSelected && !isInitiallySelected) {
-        newValue = {
+      let newValue = [
+        ...this.value,
+        {
           [this.junctionFieldOfRelated]: item
-        };
-      }
-      //Delete Item
-      else if (!isSelected && isInitiallySelected) {
-        newValue = {
-          [this.junctionPk]: this.pkMap[item[this.junctionPk]],
-          $delete: true
-        };
-      }
-      // //Keep item as it is
-      // else if (isSelected && isInitiallySelected) {
-      //   newValue = {
-      //     [this.junctionPk]: this.pkMap[item[this.junctionPk]],
-      //     [this.junctionFieldOfRelated]: item
-      //   };
-      // }
+        }
+      ];
+      this.$emit("input", newValue);
+    },
 
-      let toEmit = this.value.filter(item => {
-        if (item[this.relatedPk] == val) {
-          return newValue;
+    removeItem(val) {
+      let newValue = [];
+      //Loop through existing value to find an item
+      //Set $delete key to true
+      this.value.forEach(item => {
+        if (item[this.junctionFieldOfRelated][this.relatedPk] == val) {
+          newValue.push({
+            //...item,
+            [this.junctionPk]: item[this.junctionPk],
+            $delete: true
+          });
         } else {
-          return item;
+          newValue.push(item);
         }
       });
-      console.log(toEmit);
-      this.$emit("input", toEmit);
+      this.$emit("input", newValue);
     }
   }
 };
