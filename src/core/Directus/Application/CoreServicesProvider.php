@@ -554,13 +554,13 @@ class CoreServicesProvider
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
                    $field = $collection->getField($key);
-                   $type = $field->getType();
 
                    // This value is being populated in another hook
-                   if (!$value || DataTypes::isSystemDateTimeType($type)) {
+                   if (!$field || !$value || DataTypes::isSystemDateTimeType($field->getType())) {
                        continue;
                    }
 
+                   $type = $field->getType();
                    if (DataTypes::isDateTimeType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        if ($isSystemCollection || is_iso8601_datetime($value)) {
