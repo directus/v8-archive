@@ -83,7 +83,7 @@ export default {
             name: "image",
             withCredentials: false,
             headers: {
-              Authorization: `Bearer ${this.$store.state.auth.token}`
+              Authorization: `Bearer ${this.$api.token}`
             },
             csrf: { token: "token", hash: "" }, // add custom CSRF
             customUploader: null, // add custom uploader
