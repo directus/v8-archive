@@ -247,13 +247,6 @@ if (!function_exists('filename_put_ext')) {
     }
 }
 
-if (!function_exists('filename_get_ext')) {
-    function filename_get_ext($name)
-    {
-
-    }
-}
-
 if (!function_exists('is_a_url')) {
     /**
      * Checks whether or not the given value is a URL

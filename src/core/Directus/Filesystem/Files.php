@@ -629,43 +629,4 @@ class Files
         $len = strpos($string, $end, $ini) - $ini;
         return substr($string, $ini, $len);
     }
-
-    /**
-     * Get URL info
-     *
-     * @param string $link
-     *
-     * @return array
-     */
-    public function getLinkInfo($link)
-    {
-        $fileData = [];
-        $width = 0;
-        $height = 0;
-
-        $urlHeaders = get_headers($link, 1);
-        $contentType = $this->getMimeTypeFromContentType($urlHeaders['Content-Type']);
-
-        if (strpos($contentType, 'image/') === 0) {
-            list($width, $height) = getimagesize($link);
-        }
-
-        $urlInfo = pathinfo($link);
-        $linkContent = file_get_contents($link);
-        $url = 'data:' . $contentType . ';base64,' . base64_encode($linkContent);
-
-        $fileData = array_merge($fileData, [
-            'type' => $contentType,
-            'name' => $urlInfo['basename'],
-            'title' => $urlInfo['filename'],
-            'charset' => 'binary',
-            'size' => isset($urlHeaders['Content-Length']) ? $urlHeaders['Content-Length'] : 0,
-            'width' => $width,
-            'height' => $height,
-            'data' => $url,
-            'url' => ($width) ? $url : ''
-        ]);
-
-        return $fileData;
-    }
 }
