@@ -985,10 +985,6 @@ class RelationalTableGateway extends BaseTableGateway
         $params = $this->applyDefaultEntriesSelectParams($params);
         $fields = ArrayUtils::get($params, 'fields');
 
-        if (is_array($fields)) {
-            $this->validateFields($fields);
-        }
-
         // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
         $builder = new Builder($this->getAdapter());
@@ -1030,6 +1026,11 @@ class RelationalTableGateway extends BaseTableGateway
             } else if ($isUnableFindItems) {
                 return [];
             }
+        }
+
+        // Validate the fields after verifies the user actually has read permission
+        if (is_array($fields)) {
+            $this->validateFields($fields);
         }
 
         if ($queryCallback !== null) {
