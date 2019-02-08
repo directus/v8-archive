@@ -185,7 +185,12 @@ class Files
 
         $info = [];
 
-        $contentType = $this->getMimeTypeFromContentType($urlHeaders['Content-Type']);
+        $contentType = $urlHeaders['Content-Type'];
+        if (is_array($contentType)) {
+            $contentType = array_shift($contentType);
+        }
+
+        $contentType = $this->getMimeTypeFromContentType($contentType);
 
         if (strpos($contentType, 'image/') === false) {
             return $info;
