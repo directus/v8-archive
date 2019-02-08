@@ -36,6 +36,7 @@
         "template": [
           ["bold", "italic", "underline", "strike"],
           ["blockquote", "code-block"],
+          ["image", "choose-existing"],
           [{ "header": 1 }, { "header": 2 }],
           [{ "list": "ordered"}, { "list": "bullet" }],
           [{ "script": "sub"}, { "script": "super" }],
@@ -52,6 +53,7 @@
       "default": [
         ["bold", "italic", "underline", "strike"],
         ["blockquote", "code-block"],
+        ["image", "choose-existing"],
         [{ "header": 1 }, { "header": 2 }],
         [{ "list": "ordered"}, { "list": "bullet" }],
         [{ "script": "sub"}, { "script": "super" }],
