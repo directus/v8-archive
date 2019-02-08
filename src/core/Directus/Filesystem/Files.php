@@ -5,6 +5,7 @@ namespace Directus\Filesystem;
 use Directus\Application\Application;
 use function Directus\filename_put_ext;
 use function Directus\generate_uuid5;
+use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
 use Directus\Util\MimeTypeUtils;
@@ -293,8 +294,14 @@ class Files
         }
 
         $fileName = isset($fileInfo['filename']) ? $fileInfo['filename'] : md5(time()) . '.jpg';
+        $thumbnailData = $this->saveData($fileInfo['data'], $fileName);
 
-        return $this->saveData($fileInfo['data'], $fileName);
+        return array_merge(
+            $fileInfo,
+            ArrayUtils::pick($thumbnailData, [
+                'filename',
+            ])
+        );
     }
 
     /**
