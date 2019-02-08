@@ -114,6 +114,18 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
+     * Returns the default embed title
+     *
+     * @param mixed $id
+     *
+     * @return string
+     */
+    protected function getDefaultTitle($id)
+    {
+        return sprintf('%s - %s', $this->name, $id);
+    }
+
+    /**
      * Get the provider type
      * @return mixed
      */
