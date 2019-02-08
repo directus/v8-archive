@@ -20,6 +20,12 @@
       "length": 200,
       "default": "$t:select_one"
     },
+    "threshold": {
+      "name": "$t:threshold",
+      "comment": "$t:threshold_comment",
+      "interface": "numeric",
+      "default": 20
+    },
     "preferences": {
       "name": "$t:preferences",
       "comment": "$t:preferences_comment",
@@ -61,7 +67,9 @@
       "relationship_not_setup": "The relationship hasn't been configured correctly",
       "icon": "Icon",
       "icon_comment": "Choose an optional icon to display on the left of the input",
-      "select_one": "Select one"
+      "select_one": "Select one",
+      "threshold": "Threshold",
+      "threshold_comment": "The amount of items after which the interface will render a modal instead of a dropdown"
     }
   }
 }

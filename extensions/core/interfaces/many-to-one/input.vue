@@ -19,7 +19,7 @@
       ></v-select>
 
       <button
-        v-if="count > 10"
+        v-if="count > options.threshold"
         type="button"
         @click="showListing = true"
       ></button>
@@ -203,7 +203,7 @@ export default {
 
       this.loading = true;
 
-      const params = { fields: "*.*", meta: "total_count", limit: 10 };
+      const params = { fields: "*.*", meta: "total_count", limit: this.options.threshold };
 
       return Promise.all([
         this.$api.getItems(collection, params),
