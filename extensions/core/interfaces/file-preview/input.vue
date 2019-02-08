@@ -152,10 +152,10 @@ export default {
       return false;
     },
     isYouTube() {
-      return (this.values.type == "embed/youtube") ? true : false;
+      return this.values.type === "embed/youtube";
     },
     isVimeo() {
-      return (this.values.type == "embed/vimeo") ? true : false;
+      return this.values.type === "embed/vimeo";
     },
     fileType() {
       return this.values.type.split("/")[1];
