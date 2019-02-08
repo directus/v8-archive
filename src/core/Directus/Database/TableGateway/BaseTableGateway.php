@@ -1760,7 +1760,7 @@ class BaseTableGateway extends TableGateway
         $hasData = ArrayUtils::has($record, 'data') && is_string($record['data']);
         $isFilesCollection = $this->table == SchemaManager::COLLECTION_FILES;
 
-        if (!static::$container || !$hasData || $isFilesCollection) {
+        if (!static::$container || !$hasData || !$isFilesCollection) {
             return;
         }
 
