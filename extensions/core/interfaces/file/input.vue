@@ -50,6 +50,7 @@
         }"
         @close="existing = false"
         @done="existing = false"
+        action-required
       >
         <div class="search">
           <v-input
@@ -59,6 +60,7 @@
             @input="onSearchInput" />
         </div>
         <v-items
+          class="items"
           collection="directus_files"
           :view-type="viewType"
           :selection="value ? [value] : []"
@@ -203,5 +205,9 @@ button {
       color: var(--light-gray);
     }
   }
+}
+
+.items {
+  height: calc(100% - var(--header-height) - 1px);
 }
 </style>

@@ -74,6 +74,7 @@
         }"
         @close="dismissSelection"
         @save="saveSelection"
+        action-required
       >
         <div class="search">
           <v-input
@@ -83,6 +84,7 @@
             @input="onSearchInput" />
         </div>
         <v-items
+          class="items"
           :collection="relatedCollection"
           :filters="filters"
           :view-query="viewQuery"
@@ -551,5 +553,9 @@ button.select {
       color: var(--light-gray);
     }
   }
+}
+
+.items {
+  height: calc(100% - var(--header-height) - 1px);
 }
 </style>

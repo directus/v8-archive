@@ -44,6 +44,7 @@
           }"
           @close="dismissModal"
           @save="populateDropdown"
+          action-required
         >
           <div class="search">
             <v-input
@@ -53,6 +54,7 @@
               @input="onSearchInput" />
           </div>
           <v-items
+            class="items"
             :collection="relation.collection_one.collection"
             :selection="selection"
             :filters="filters"
@@ -335,5 +337,9 @@ button {
       color: var(--light-gray);
     }
   }
+}
+
+.items {
+  height: calc(100% - var(--header-height) - 1px);
 }
 </style>

@@ -57,6 +57,7 @@
         }"
         @close="existing = false"
         @done="existing = false"
+        action-required
       >
         <div class="search">
           <v-input
@@ -67,6 +68,7 @@
         </div>
 
         <v-items
+          class="items"
           :collection="relation.junction.collection_one.collection"
           :view-type="viewType"
           :selection="selection"
@@ -417,5 +419,9 @@ button {
       color: var(--light-gray);
     }
   }
+}
+
+.items {
+  height: calc(100% - var(--header-height) - 1px);
 }
 </style>
