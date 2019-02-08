@@ -21,6 +21,7 @@ use Directus\Database\TableGatewayFactory;
 use Directus\Database\SchemaService;
 use Directus\Exception\Exception;
 use Directus\Exception\UnprocessableEntityException;
+use function Directus\filename_put_ext;
 use Directus\Filesystem\Files;
 use function Directus\get_directus_setting;
 use Directus\Hook\Emitter;
@@ -1771,12 +1772,12 @@ class BaseTableGateway extends TableGateway
             $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
             $fileId = $record[$this->primaryKeyFieldName];
             // TODO: The left padding should be based on the max length of the primary
-            $newFilename = str_pad(
+            $newFilename = filename_put_ext(str_pad(
                 $fileId,
                 11,
                 '0',
                 STR_PAD_LEFT
-            ) . '.' . $ext;
+            ), $ext);
 
             // overwrite a file with this file content if it already exists
             if (!$replace) {
