@@ -246,3 +246,24 @@ if (!function_exists('filename_put_ext')) {
         return $name;
     }
 }
+
+if (!function_exists('filename_get_ext')) {
+    function filename_get_ext($name)
+    {
+
+    }
+}
+
+if (!function_exists('is_a_url')) {
+    /**
+     * Checks whether or not the given value is a URL
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_a_url($value)
+    {
+        return filter_var($value, FILTER_VALIDATE_URL);
+    }
+}

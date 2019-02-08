@@ -204,7 +204,14 @@ class Files
 
         list($width, $height) = getimagesizefromstring($content);
 
-        $data = 'data:' . $contentType . ';base64,' . base64_encode($content);
+        if (isset($urlInfo['filename']) && !empty($urlInfo['filename'])) {
+            $filename = $urlInfo['filename'];
+        } else {
+            $filename = md5(time() . $url);
+        }
+
+        $data = base64_encode($content);
+        $info['filename'] = filename_put_ext($filename, MimeTypeUtils::getFromMimeType($contentType));
         $info['title'] = $urlInfo['filename'];
         $info['name'] = $urlInfo['basename'];
         $info['size'] = isset($urlHeaders['Content-Length']) ? $urlHeaders['Content-Length'] : 0;

@@ -43,6 +43,7 @@ use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
+use function Directus\is_a_url;
 use function Directus\is_iso8601_datetime;
 use Directus\Mail\Mailer;
 use Directus\Mail\TransportManager;
@@ -287,10 +288,11 @@ class CoreServicesProvider
                 $files = $container->get('files');
 
                 $fileData = ArrayUtils::get($data, 'data');
-                if (filter_var($fileData, FILTER_VALIDATE_URL)) {
+                if (is_a_url($fileData)) {
                     $dataInfo = $files->getLink($fileData);
                     // Set the URL payload data
                     $payload['data'] = ArrayUtils::get($dataInfo, 'data');
+                    $payload['filename'] = ArrayUtils::get($dataInfo, 'filename');
                 } else {
                     $dataInfo = $files->getDataInfo($fileData);
                 }
