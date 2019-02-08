@@ -1,5 +1,5 @@
 <template>
-  <div class="interface-wysiwyg-container">
+  <div class="interface-wysiwyg-container" ref="parent">
     <div ref="editor" class="interface-wysiwyg"></div>
     <portal to="modal" v-if="chooseExisting">
       <v-modal
@@ -128,12 +128,12 @@ export default {
       });
 
       // Make custom icons for image buttons
-      const customButton = document.querySelector(".ql-choose-existing");
+      const customButton = this.$refs.parent.querySelector(".ql-choose-existing");
       if (customButton) {
         customButton.className += " material-icons icon";
         customButton.addEventListener("click", evt => this.openModal());
       }
-      const imageButton = document.querySelector(".ql-image");
+      const imageButton = this.$refs.parent.querySelector(".ql-image");
       if (imageButton) {
         imageButton.innerHTML = "";
         imageButton.className += " material-icons icon";
