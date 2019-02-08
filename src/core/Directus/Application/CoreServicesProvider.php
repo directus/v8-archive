@@ -289,6 +289,8 @@ class CoreServicesProvider
                 $fileData = ArrayUtils::get($data, 'data');
                 if (filter_var($fileData, FILTER_VALIDATE_URL)) {
                     $dataInfo = $files->getLink($fileData);
+                    // Set the URL payload data
+                    $payload['data'] = ArrayUtils::get($dataInfo, 'data');
                 } else {
                     $dataInfo = $files->getDataInfo($fileData);
                 }
