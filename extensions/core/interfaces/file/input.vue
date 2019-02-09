@@ -144,21 +144,13 @@ export default {
         return [];
       }
 
-      const typeFilters = this.options.accept
-        .trim()
-        .split(/,\s*/)
-        .map(type => {
-          if (type.endsWith("/*")) {
-            const value = type.replace(/\*$/, "");
-            return { field: "type", operator: "rlike", value: `${value}%` };
-          } else {
-            return { field: "type", operator: "=", value: type };
-          }
-        });
-
-      return typeFilters.concat([
-        { field: "type", operator: "logical", value: "or" }
-      ]);
+      return [
+        {
+          field: "type",
+          operator: "in",
+          value: this.options.accept.trim().split(/,\s*/)
+        }
+      ];
     }
   },
   methods: {

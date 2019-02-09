@@ -63,7 +63,7 @@
       "filters": "Filters",
       "filters_comment": "What filters to use",
       "accept": "Accept File Types",
-      "accept_comment": "Limit the field to allow only specific file types"
+      "accept_comment": "Set a list of MIME types that can be picked"
     }
   }
 }
