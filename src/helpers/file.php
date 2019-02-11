@@ -296,6 +296,28 @@ if (!function_exists('is_a_url')) {
      */
     function is_a_url($value)
     {
-        return filter_var($value, FILTER_VALIDATE_URL);
+        if (!is_string($value)) {
+            return false;
+        }
+
+        if (preg_match('#^data:.+\/.+;base64,#si', $value)) {
+            return false;
+        }
+
+        // Ported from: https://github.com/segmentio/is-url/blob/master/index.js
+        if (!preg_match('#^(?:\w+:)?\/\/(.+)$#si', $value, $matches)) {
+            return false;
+        }
+
+        $hostAndPath = $matches[1];
+        if (!$hostAndPath) {
+            return false;
+        }
+
+        if (preg_match('#^[^\s\.]+\.\S{2,}$#si', $hostAndPath)) {
+            return true;
+        }
+
+        return false;
     }
 }
