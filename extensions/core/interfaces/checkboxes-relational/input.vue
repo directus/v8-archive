@@ -18,7 +18,7 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  name: "interface-checkbox-relational",
+  name: "interface-checkboxes-relational",
   mixins: [mixin],
   data() {
     return {

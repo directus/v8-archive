@@ -15,7 +15,7 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  name: "display-checkbox-relational",
+  name: "readonly-checkboxes-relational",
   mixins: [mixin],
   computed: {
     itemCount() {
