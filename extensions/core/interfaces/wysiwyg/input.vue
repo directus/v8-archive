@@ -32,11 +32,12 @@ export default {
   computed: {
     editorOptions() {
       return {
+        disableEditing: this.readonly,
         placeholder: {
           text: this.options.placeholder || "",
           hideOnClick: true
         },
-        toolbar: {
+        toolbar: this.readonly ? false : {
           buttons: this.options.buttons
         }
       };
@@ -191,7 +192,6 @@ button.fullscreen-toggle {
   padding: 12px 15px;
   transition: var(--fast) var(--transition);
   transition-property: color, border-color, padding;
-  background-color: var(--white);
   min-height: 200px;
   max-height: 800px;
   overflow: scroll;
@@ -207,20 +207,31 @@ button.fullscreen-toggle {
     color: var(--light-gray);
   }
 
-  &:hover {
-    transition: none;
-    border-color: var(--light-gray);
-  }
+  &[contenteditable="true"] {
+    cursor: default;
+    background-color: var(--white);
+    &:hover {
+      transition: none;
+      border-color: var(--light-gray);
+    }
 
+      &:focus {
+        color: var(--darker-gray);
+        border-color: var(--accent);
+        outline: 0;
+      }
+
+      &:focus + i {
+        color: var(--accent);
+      }
+  }
+// where contenteditable attr is NOT present, then show "disabled" styling
+  background-color: var(--lightest-gray);
+  cursor: not-allowed;
   &:focus {
-    color: var(--darker-gray);
-    border-color: var(--accent);
-    outline: 0;
+    color: var(--gray);
   }
 
-  &:focus + i {
-    color: var(--accent);
-  }
 
   &:-webkit-autofill {
     box-shadow: inset 0 0 0 1000px var(--white) !important;
