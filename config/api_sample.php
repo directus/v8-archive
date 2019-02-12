@@ -23,6 +23,7 @@ return [
         'charset' => 'utf8mb4',
         // When using unix socket to connect to the database the host attribute should be removed
         // 'socket' => '/var/lib/mysql/mysql.sock',
+        'socket' => '',
     ],
 
     'cache' => [
@@ -67,7 +68,10 @@ return [
         //   'secret' => 's3-secret',
         //   'region' => 's3-region',
         //   'version' => 's3-version',
-        //   'bucket' => 's3-bucket'
+        //   'bucket' => 's3-bucket',
+        //   'options' => ['ACL' => 'public-read', 'Cache-Control' => 'max-age=604800']
+        // Set custom S3 endpoint
+        //   'endpoint' => 's3-endpoint',
     ],
 
     'mail' => [
@@ -139,6 +143,9 @@ return [
             //     'client_id'       => '',
             //     'client_secret'   => '',
             //     'hosted_domain'   => '*',
+            //     // Uses OpenIDConnect to fetch the email instead of using the Google+ API
+            //     // Disabling the OIDC Mode, requires you to enable the Google+ API otherwise it will fail
+            //     'use_oidc_mode'   => true,
             // ],
             // 'twitter' => [
             //     'identifier'   => '',

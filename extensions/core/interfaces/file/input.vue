@@ -14,7 +14,7 @@
           icon: 'delete'
         }
       }"
-      @remove="$emit('input', null);"
+      @remove="$emit('input', null)"
     ></v-card>
     <v-upload
       v-else
@@ -25,15 +25,15 @@
       :multiple="false"
     ></v-upload>
 
-    <v-button type="button" :disabled="readonly" @click="newFile = true;">
+    <v-button type="button" :disabled="readonly" @click="newFile = true">
       <i class="material-icons">add</i>{{ $t("new_file") }} </v-button
     ><!--
-    --><v-button type="button" :disabled="readonly" @click="existing = true;">
+    --><v-button type="button" :disabled="readonly" @click="existing = true">
       <i class="material-icons">playlist_add</i>{{ $t("existing") }}
     </v-button>
 
     <portal to="modal" v-if="newFile">
-      <v-modal :title="$t('file_upload')" @close="newFile = false;">
+      <v-modal :title="$t('file_upload')" @close="newFile = false">
         <div class="body">
           <v-upload @upload="saveUpload" :multiple="false"></v-upload>
         </div>
@@ -48,10 +48,19 @@
             text: $t('done')
           }
         }"
-        @close="existing = false;"
-        @done="existing = false;"
+        @close="existing = false"
+        @done="existing = false"
+        action-required
       >
+        <div class="search">
+          <v-input
+            type="search"
+            :placeholder="$t('search')"
+            class="search-input"
+            @input="onSearchInput" />
+        </div>
         <v-items
+          class="items"
           collection="directus_files"
           :view-type="viewType"
           :selection="value ? [value] : []"
@@ -60,7 +69,7 @@
           :view-options="viewOptions"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="$emit('input', $event[$event.length - 1]);"
+          @select="$emit('input', $event[$event.length - 1])"
         ></v-items>
       </v-modal>
     </portal>
@@ -147,7 +156,15 @@ export default {
         ...this.viewQueryOverride,
         ...updates
       };
+    },
+    onSearchInput(value) {
+      this.setViewQuery({
+        q: value
+      });
     }
+  },
+  created() {
+    this.onSearchInput = this.$lodash.debounce(this.onSearchInput, 200);
   }
 };
 </script>
@@ -174,5 +191,23 @@ button {
 
 .body {
   padding: 20px;
+}
+
+.search-input {
+  border-bottom: 1px solid var(--lightest-gray);
+  &/deep/ input {
+    border-radius: 0;
+    border: none;
+    padding-left: var(--page-padding);
+    height: var(--header-height);
+
+    &::placeholder {
+      color: var(--light-gray);
+    }
+  }
+}
+
+.items {
+  height: calc(100% - var(--header-height) - 1px);
 }
 </style>

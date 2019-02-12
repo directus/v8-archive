@@ -1,14 +1,14 @@
 <template>
   <div class="interface-checkboxes">
     <v-checkbox
-      v-for="(name, val) in options.choices"
-      :id="name"
-      :key="name"
-      :value="val"
+      v-for="(label, val) in options.choices"
+      :id="label"
+      :key="label"
+      :value="name + '-' + val"
       :disabled="readonly"
-      :label="name"
+      :label="label"
       :checked="selection.includes(val)"
-      @change="updateValue(val, $event);"
+      @change="updateValue(val, $event)"
     ></v-checkbox>
   </div>
 </template>
@@ -23,9 +23,18 @@ export default {
     selection() {
       if (this.value == null) return [];
 
-      const selection = [
-        ...(this.type === "string" ? this.value.split(",") : this.value)
-      ];
+      let selection;
+
+      // Conver the value to an array
+      if (typeof this.value === "string") {
+        if (this.value.includes(",")) {
+          selection = selection.split(",");
+        } else {
+          selection = [this.value];
+        }
+      } else {
+        selection = this.value;
+      }
 
       if (this.options.wrap && selection.length > 2) {
         selection.pop();

@@ -7,7 +7,7 @@
       :disabled="readonly"
       :style="{ backgroundColor: `var(--${color})` }"
       :class="{ active: value === color }"
-      @click="$emit('input', color);"
+      @click="$emit('input', color)"
     >
       <template v-if="value === color">
         <i :class="{ dark: useDarkIconColor(color) }" class="material-icons"

@@ -4,10 +4,7 @@
     :value="value"
     @input="$emit('input', $event)"
   >
-    <option
-      v-for="name, code in languages"
-      :value="code"
-    >
+    <option v-for="(name, code) in languages" :value="code">
       {{ name }}
     </option>
   </v-simple-select>
@@ -31,6 +28,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

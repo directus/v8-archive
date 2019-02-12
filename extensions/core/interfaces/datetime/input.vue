@@ -32,6 +32,11 @@ export default {
       return this.toDatetimeLocal(new Date(this.value));
     }
   },
+  created() {
+    if (this.options.defaultToCurrentDatetime && !this.value) {
+      this.$emit("input", new Date());
+    }
+  },
   methods: {
     updateValue(value) {
       if (!value) return;

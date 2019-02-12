@@ -18,6 +18,8 @@ use Zend\Db\Sql\Where;
 
 class MySQLSchema extends AbstractSchema
 {
+    protected $isMariaDb = null;
+
     /**
      * Database connection adapter
      *
@@ -645,6 +647,27 @@ class MySQLSchema extends AbstractSchema
     /**
      * @inheritdoc
      */
+    public function getDateAndTimeTypes()
+    {
+        return [
+            'date',
+            'datetime',
+            'time',
+            'timestamp',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isDateAndTimeTypes($type)
+    {
+        return in_array(strtolower($type), $this->getDateAndTimeTypes());
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getTypesRequireLength()
     {
         return [
@@ -680,5 +703,24 @@ class MySQLSchema extends AbstractSchema
     public function isTypeLengthAllowed($type)
     {
         return in_array(strtolower($type), $this->getTypesAllowLength());
+    }
+
+    /**
+     * Checks whether the connection is to a MariaDB server
+     *
+     * @return bool
+     */
+    public function isMariaDb()
+    {
+        if ($this->isMariaDb === null) {
+            $this->isMariaDb = false;
+            $result = $this->adapter->query('SHOW VARIABLES WHERE Variable_Name LIKE "version" OR Variable_Name LIKE "version_comment";')->execute();
+            while ($result->valid() && !$this->isMariaDb) {
+                $this->isMariaDb = $result->current() && strpos(strtolower(ArrayUtils::get($result->current(), 'Value', '')), 'mariadb') !== false;
+                $result->next();
+            }
+        }
+
+        return $this->isMariaDb;
     }
 }

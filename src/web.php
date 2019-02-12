@@ -1,43 +1,38 @@
 <?php
 
 $basePath =  realpath(__DIR__ . '/../');
-$configPath = $basePath . '/config';
-$configFilePath = $configPath . '/api.php';
 
 require $basePath . '/vendor/autoload.php';
 
 // Creates a simple endpoint to test the server rewriting
 // If the server responds "pong" it means the rewriting works
-if (!file_exists($configFilePath)) {
+// NOTE: The API requires the default project to be configured to properly works
+//       It should work without the default project being configured
+if (!file_exists($basePath . '/config/api.php')) {
     return \Directus\create_default_app($basePath);
 }
 
 // Get Environment name
 $projectName = \Directus\get_api_project_from_request();
-$requestUri = trim(\Directus\get_virtual_path(), '/');
 
-$reservedNames = [
-    'server',
-    'interfaces',
-    'pages',
-    'layouts',
-    'types',
-    'projects'
-];
+// All "globals" endpoints requires the project name beforehand
+// Otherwise there's not way to tell which database to connect to
+// It returns 401 Unauthorized error to any endpoint except /server/ping
+if (!$projectName) {
+    return \Directus\create_unknown_project_app($basePath);
+}
 
-if ($requestUri && !empty($projectName) && $projectName !== '_' && !in_array($projectName, $reservedNames)) {
-    $configFilePath = sprintf('%s/api.%s.php', $configPath, $projectName);
-    if (!file_exists($configFilePath)) {
-        http_response_code(404);
-        header('Content-Type: application/json');
-        echo json_encode([
-            'error' => [
-                'error' => 8,
-                'message' => 'API Environment Configuration Not Found: ' . $projectName
-            ]
-        ]);
-        exit;
-    }
+$configFilePath = \Directus\create_config_path($basePath, $projectName);
+if (!file_exists($configFilePath)) {
+    http_response_code(404);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => [
+            'error' => 8,
+            'message' => 'API Environment Configuration Not Found: ' . $projectName
+        ]
+    ]);
+    exit;
 }
 
 $app = \Directus\create_app($basePath, require $configFilePath);
@@ -87,19 +82,23 @@ $middleware = [
     'table_gateway' => new \Directus\Application\Http\Middleware\TableGatewayMiddleware($app->getContainer()),
     'rate_limit_ip' => new \Directus\Application\Http\Middleware\IpRateLimitMiddleware($app->getContainer()),
     'ip' => new RKA\Middleware\IpAddress(),
+    'proxy' => new \Directus\Application\Http\Middleware\ProxyMiddleware(),
     'cors' => new \Directus\Application\Http\Middleware\CorsMiddleware($app->getContainer()),
     'auth' => new \Directus\Application\Http\Middleware\AuthenticationMiddleware($app->getContainer()),
     'auth_user' => new \Directus\Application\Http\Middleware\AuthenticatedMiddleware($app->getContainer()),
     'auth_admin' => new \Directus\Application\Http\Middleware\AdminOnlyMiddleware($app->getContainer()),
+    'auth_optional' => new \Directus\Application\Http\Middleware\AuthenticationOptionalMiddleware($app->getContainer()),
     'auth_ignore_origin' => new \Directus\Application\Http\Middleware\AuthenticationIgnoreOriginMiddleware($app->getContainer()),
     'rate_limit_user' => new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($app->getContainer()),
 ];
 
 $app->add($middleware['rate_limit_ip'])
+    ->add($middleware['proxy'])
     ->add($middleware['ip'])
     ->add($middleware['cors']);
 
 $app->get('/', \Directus\Api\Routes\Home::class)
+    ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
@@ -113,6 +112,7 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['auth_user'])
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
+        ->add($middleware['auth_optional'])
         ->add($middleware['table_gateway']);
     $this->post('/update', \Directus\Api\Routes\ProjectUpdate::class)
         ->add($middleware['auth_admin'])
@@ -217,22 +217,26 @@ $app->group('/{project}', function () use ($middleware) {
 
 $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/layouts', \Directus\Api\Routes\Layouts::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/pages', \Directus\Api\Routes\Pages::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);

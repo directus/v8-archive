@@ -1,7 +1,7 @@
 {
   "name": "$t:code",
   "version": "1.0.0",
-  "types": ["string"],
+  "types": ["string", "json"],
   "icon": "code",
   "recommended": {
     "length": 2000

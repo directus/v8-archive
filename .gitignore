@@ -6,7 +6,7 @@ Icon
 # Ignore dev files
 /.idea
 node_modules
-
+yarn.lock
 package-lock.json
 
 # Don't track composer phar/vendors

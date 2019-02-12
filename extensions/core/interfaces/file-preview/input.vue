@@ -13,6 +13,12 @@
         I'm sorry; your browser doesn't support HTML5 audio in this format.
       </audio>
     </div>
+    <div v-else-if="isYouTube" class="embed">
+      <iframe width="620" height="349" :src="'https://www.youtube.com/embed/'+values.embed" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div v-else-if="isVimeo" class="embed">
+      <iframe width="620" height="349" :src="'https://player.vimeo.com/video/'+values.embed+'?color=039be5&title=0&byline=0&portrait=0'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    </div>
     <div v-else class="file">{{ fileType }}</div>
     <div class="toolbar">
       <!-- Default Toolbar -->
@@ -25,7 +31,7 @@
           type="button"
           title="Edit image"
           class="image-edit-start"
-          @click="initImageEdit();"
+          @click="initImageEdit()"
         >
           <i class="material-icons">crop_rotate</i>
         </button>
@@ -53,22 +59,22 @@
           <button
             type="button"
             title="Discard changes"
-            @click="cancelImageEdit();"
+            @click="cancelImageEdit()"
           >
             <i class="material-icons">not_interested</i>
           </button>
-          <button type="button" title="Save changes" @click="saveImage();">
+          <button type="button" title="Save changes" @click="saveImage()">
             <i class="material-icons">check_circle</i>
           </button>
         </li>
         <li>
-          <button type="button" title="Flip horizontally" @click="flipImage();">
+          <button type="button" title="Flip horizontally" @click="flipImage()">
             <i class="material-icons">flip</i>
           </button>
           <button
             type="button"
             title="Rotate counter-clockwise"
-            @click="rotateImage();"
+            @click="rotateImage()"
           >
             <i class="material-icons">rotate_90_degrees_ccw</i>
           </button>
@@ -144,6 +150,12 @@ export default {
           return true;
       }
       return false;
+    },
+    isYouTube() {
+      return this.values.type === "embed/youtube";
+    },
+    isVimeo() {
+      return this.values.type === "embed/vimeo";
     },
     fileType() {
       return this.values.type.split("/")[1];

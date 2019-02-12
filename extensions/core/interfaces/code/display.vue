@@ -11,7 +11,14 @@ export default {
   computed: {
     lineCount() {
       if (!this.value) return 0;
-      return this.value.split(/\r\n|\r|\n/).length;
+
+      let value = this.value;
+
+      if (typeof this.value === "object") {
+        value = JSON.stringify(this.value);
+      }
+
+      return value.split(/\r\n|\r|\n/).length;
     },
     availableTypes() {
       return {

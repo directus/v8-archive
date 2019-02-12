@@ -30,6 +30,7 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\SchemaService;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\MissingStorageConfigurationException;
 use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
@@ -42,6 +43,7 @@ use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
+use function Directus\is_a_url;
 use function Directus\is_iso8601_datetime;
 use Directus\Mail\Mailer;
 use Directus\Mail\TransportManager;
@@ -286,8 +288,11 @@ class CoreServicesProvider
                 $files = $container->get('files');
 
                 $fileData = ArrayUtils::get($data, 'data');
-                if (filter_var($fileData, FILTER_VALIDATE_URL)) {
+                if (is_a_url($fileData)) {
                     $dataInfo = $files->getLink($fileData);
+                    // Set the URL payload data
+                    $payload['data'] = ArrayUtils::get($dataInfo, 'data');
+                    $payload['filename'] = ArrayUtils::get($dataInfo, 'filename');
                 } else {
                     $dataInfo = $files->getDataInfo($fileData);
                 }
@@ -295,21 +300,18 @@ class CoreServicesProvider
                 $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
 
                 if (strpos($type, 'embed/') === 0) {
-                    $recordData = $files->saveEmbedData($dataInfo);
+                    $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename'])));
                 } else {
                     $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
                 }
 
                 // NOTE: Use the user input title, tags, description and location when exists.
-                $recordData = array_merge(
-                    $recordData,
-                    ArrayUtils::pick($data, [
-                        'title',
-                        'tags',
-                        'description',
-                        'location',
-                    ])
-                );
+                $recordData = ArrayUtils::defaults($recordData, ArrayUtils::pick($data, [
+                    'title',
+                    'tags',
+                    'description',
+                    'location',
+                ]));
 
                 $payload->replace($recordData);
                 $payload->remove('data');
@@ -318,7 +320,7 @@ class CoreServicesProvider
                     /** @var Acl $auth */
                     $acl = $container->get('acl');
                     $payload->set('uploaded_by', $acl->getUserId());
-                    $payload->set('uploaded_on', DateTimeUtils::nowInUTC()->toString());
+                    $payload->set('uploaded_on', DateTimeUtils::now()->toString());
                 }
             };
             $emitter->addFilter('item.update:before', function (Payload $payload) use ($container, $savesFile) {
@@ -557,7 +559,13 @@ class CoreServicesProvider
                 foreach ($data as $key => $value) {
                    $field = $collection->getField($key);
 
-                   if (DataTypes::isDateTimeType($field->getType())) {
+                   // This value is being populated in another hook
+                   if (!$field || !$value || DataTypes::isSystemDateTimeType($field->getType())) {
+                       continue;
+                   }
+
+                   $type = $field->getType();
+                   if (DataTypes::isDateTimeType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        if ($isSystemCollection || is_iso8601_datetime($value)) {
                            $dateTimeValue = $dateTime->toUTCString();
@@ -566,10 +574,10 @@ class CoreServicesProvider
                        }
 
                        $payload->set($key, $dateTimeValue);
-                   } else if (DataTypes::isDateType($field->getType())) {
+                   } else if (DataTypes::isDateType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_DATE_FORMAT));
-                   } else if (DataTypes::isTimeType($field->getType())) {
+                   } else if (DataTypes::isTimeType($type)) {
                        $dateTime = new DateTimeUtils($value);
                        $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_TIME_FORMAT));
                    }
@@ -695,11 +703,19 @@ class CoreServicesProvider
                 ];
             }
 
+            $parameters = array_merge($defaultConfig, $dbConfig, [
+                'driver' => $type ? 'Pdo_' . $type : null,
+                'charset' => $charset
+            ]);
+
+            if (!ArrayUtils::get($parameters, 'unix_socket')) {
+                ArrayUtils::remove($parameters, 'unix_socket');
+            } else {
+                ArrayUtils::remove($parameters, 'host');
+            }
+
             try {
-                $db = new Connection(array_merge($defaultConfig, $dbConfig, [
-                    'driver' => $type ? 'Pdo_' . $type : null,
-                    'charset' => $charset
-                ]));
+                $db = new Connection($parameters);
                 $db->connect();
             } catch (\Exception $e) {
                 throw new ConnectionFailedException($e);
@@ -981,10 +997,8 @@ class CoreServicesProvider
     protected function getFileSystem()
     {
         return function (Container $container) {
-            $config = $container->get('config');
-
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('storage'), 'root')
+                FilesystemFactory::createAdapter($this->getStorageConfiguration($container), 'root')
             );
         };
     }
@@ -995,10 +1009,8 @@ class CoreServicesProvider
     protected function getThumbFilesystem()
     {
         return function (Container $container) {
-            $config = $container->get('config');
-
             return new Filesystem(
-                FilesystemFactory::createAdapter($config->get('storage'), 'thumb_root')
+                FilesystemFactory::createAdapter($this->getStorageConfiguration($container), 'thumb_root')
             );
         };
     }
@@ -1194,6 +1206,25 @@ class CoreServicesProvider
         return function () use ($container) {
             return new AuthService($container);
         };
+    }
+
+    /**
+     * @param Container $container
+     *
+     * @return array
+     *
+     * @throws MissingStorageConfigurationException
+     */
+    protected function getStorageConfiguration(Container $container)
+    {
+        $config = $container->get('config');
+        $storageConfig = $config->get('storage');
+
+        if (!$storageConfig) {
+            throw new MissingStorageConfigurationException();
+        }
+
+        return $storageConfig;
     }
 }
 

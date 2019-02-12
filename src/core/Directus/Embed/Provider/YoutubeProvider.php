@@ -54,7 +54,7 @@ class YoutubeProvider extends AbstractProvider
     {
         $info = [];
 
-        $info['title'] = 'Unable to retrieve YouTube title';
+        $info['title'] = $this->getDefaultTitle($videoID);
         $info['filesize'] = 0;
         $info['height'] = 340;
         $info['width'] = 560;

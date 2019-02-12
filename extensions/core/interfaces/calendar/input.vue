@@ -4,7 +4,7 @@
       class="form-control"
       :config="configs"
       :value="value"
-      @input="$emit('input', $event);"
+      @input="$emit('input', $event)"
     >
     </flat-pickr>
   </div>

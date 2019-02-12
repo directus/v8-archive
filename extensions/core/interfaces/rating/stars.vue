@@ -8,9 +8,9 @@
   >
     <button
       v-for="n in options.max_stars"
-      @mouseenter="readonly ? '' : (hovered = n);"
-      @mouseleave="readonly ? '' : (hovered = null);"
-      @click="readonly ? '' : set(n);"
+      @mouseenter="readonly ? '' : (hovered = n)"
+      @mouseleave="readonly ? '' : (hovered = null)"
+      @click="readonly ? '' : set(n)"
       :class="ratingClass(n)"
       :style="ratingStyle(n)"
       :key="`star_${n}`"

@@ -6,6 +6,7 @@ use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\BatchUploadNotAllowedException;
+use function Directus\is_a_url;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Validator\Exception\InvalidRequestException;
@@ -28,10 +29,20 @@ class FilesServices extends AbstractService
         $this->enforceCreatePermissions($this->collection, $data, $params);
         $tableGateway = $this->createTableGateway($this->collection);
 
+        // These values are going to be set in a hook
+        // These fields should be ignore on validation as these values are automatically filled
+        // These values are set here to avoid validation
+        // FIXME: These values shouldn't not be validated
         $data['uploaded_by'] = $this->getAcl()->getUserId();
-        $data['uploaded_on'] = DateTimeUtils::nowInUTC()->toString();
+        $data['uploaded_on'] = DateTimeUtils::now()->toString();
 
         $validationConstraints = $this->createConstraintFor($this->collection);
+        // Do not validate filename when uploading files using URL
+        // The filename will be generate automatically if not defined
+        if (is_a_url(ArrayUtils::get($data, 'data'))) {
+            unset($validationConstraints['filename']);
+        }
+
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
         $newFile = $tableGateway->createRecord($data, $this->getCRUDParams($params));
 

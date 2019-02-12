@@ -14,7 +14,7 @@
               v-for="column in columns"
               type="button"
               :key="column.field"
-              @click="changeSort(column.field);"
+              @click="changeSort(column.field)"
             >
               {{ column.name }}
               <i v-if="sort.field === column.field" class="material-icons">
@@ -28,11 +28,11 @@
             v-for="item in items"
             class="row"
             :key="item[junctionPrimaryKey]"
-            @click="editExisting = item;"
+            @click="editExisting = item"
           >
             <div v-for="column in columns" :key="column.field" class="no-wrap">
               <v-ext-display
-                :interface-type="column.fieldInfo.interface"
+                :interface-type="(column.fieldInfo || {}).interface || null"
                 :name="column.field"
                 :type="column.fieldInfo.type"
                 :datatype="column.fieldInfo.datatype"
@@ -49,7 +49,7 @@
                   junctionKey: item[junctionPrimaryKey],
                   relatedKey: item[junctionRelatedKey][relatedKey],
                   item
-                });
+                })
               "
             >
               <i class="material-icons">close</i>
@@ -57,13 +57,13 @@
           </div>
         </div>
       </div>
-      <button type="button" class="style-btn select" @click="addNew = true;">
+      <button type="button" class="style-btn select" @click="addNew = true">
         <i class="material-icons">add</i> {{ $t("add_new") }}
       </button>
       <button
         type="button"
         class="style-btn select"
-        @click="selectExisting = true;"
+        @click="selectExisting = true"
       >
         <i class="material-icons">playlist_add</i>
         <span>{{ $t("select_existing") }}</span>
@@ -82,8 +82,17 @@
         }"
         @close="dismissSelection"
         @save="saveSelection"
+        action-required
       >
+        <div class="search">
+          <v-input
+            type="search"
+            :placeholder="$t('search')"
+            class="search-input"
+            @input="onSearchInput" />
+        </div>
         <v-items
+          class="items"
           :collection="relatedCollection"
           :filters="filters"
           :view-query="viewQuery"
@@ -92,7 +101,7 @@
           :selection="selection"
           @options="setViewOptions"
           @query="setViewQuery"
-          @select="selection = $event;"
+          @select="selection = $event"
         ></v-items>
       </v-modal>
     </portal>
@@ -107,7 +116,7 @@
             loading: selectionSaving
           }
         }"
-        @close="editExisting = false;"
+        @close="editExisting = false"
         @save="saveEdits"
       >
         <div class="edit-modal-body">
@@ -130,7 +139,7 @@
             loading: selectionSaving
           }
         }"
-        @close="addNew = null;"
+        @close="addNew = null"
         @save="addNewItem"
       >
         <div class="edit-modal-body">
@@ -288,6 +297,8 @@ export default {
       this.sort.field = this.visibleFields && this.visibleFields[0];
       this.setSelection();
     }
+
+    this.onSearchInput = this.$lodash.debounce(this.onSearchInput, 200);
   },
   watch: {
     value() {
@@ -483,6 +494,11 @@ export default {
           })
         );
       }
+    },
+    onSearchInput(value) {
+      this.setViewQuery({
+        q: value
+      });
     }
   }
 };
@@ -598,5 +614,23 @@ button.select {
 .edit-modal-body {
   padding: 20px;
   background-color: var(--body-background);
+}
+
+.search-input {
+  border-bottom: 1px solid var(--lightest-gray);
+  &/deep/ input {
+    border-radius: 0;
+    border: none;
+    padding-left: var(--page-padding);
+    height: var(--header-height);
+
+    &::placeholder {
+      color: var(--light-gray);
+    }
+  }
+}
+
+.items {
+  height: calc(100% - var(--header-height) - 1px);
 }
 </style>

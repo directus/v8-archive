@@ -1,6 +1,6 @@
 {
   "name": "$t:map",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": ["json"],
   "fieldset": true,
   "icon": "place",
@@ -33,6 +33,13 @@
       "comment": "$t:max_zoom_comment",
       "interface": "text-input",
       "default": 17
+    },
+    "address_to_code": {
+      "name": "$t:address_to_code",
+      "comment": "$t:address_to_code_comment",
+      "interface": "toggle",
+      "type": "BOOLEAN",
+      "default": false
     },
     "theme": {
       "name": "$t:theme",
@@ -73,7 +80,10 @@
       "max_zoom_comment": "Maximum zoom allowed in the map",
       "no_location": "No location found",
       "user_location_error_blocked": "You've disabled the location access. Kindly enable it from the browser addressbar to auto detect your location.",
-      "user_location_error": "There was an error while trying to get your location. Plese try again."
+      "user_location_error": "There was an error while trying to get your location. Plese try again.",
+      "address_to_code": "Address Input",
+      "address_to_code_comment": "Add an input field to automatically get the geocodes from an address. Uses <a href=\"https://wiki.openstreetmap.org/wiki/Nominatim\">Nominatim</a>. Please check their usage policy.",
+      "address_to_code_error": "No geocode found for this address"
     }
   }
 }

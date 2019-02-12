@@ -5,6 +5,7 @@ namespace Directus\Filesystem;
 use Aws\S3\S3Client;
 use Directus\Application\Application;
 use function Directus\array_get;
+use function Directus\array_pick;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 use League\Flysystem\AwsS3v3\AwsS3Adapter as S3Adapter;
 use League\Flysystem\Filesystem as Flysystem;
@@ -42,15 +43,27 @@ class FilesystemFactory
 
     public static function createS3Adapter(Array $config, $rootKey = 'root')
     {
-        $client = S3Client::factory([
-            'credentials' => [
-                'key' => $config['key'],
-                'secret' => $config['secret'],
-            ],
+        $options = [
             'region' => $config['region'],
             'version' => ($config['version'] ?: 'latest'),
-        ]);
+        ];
 
-        return new Flysystem(new S3Adapter($client, $config['bucket'], array_get($config, $rootKey)));
+        if (isset($config['key'])) {
+            if (!array_key_exists('secret', $config)) {
+                throw new \InvalidArgumentException('Filesystem: S3 Adapter missing secret key');
+            }
+
+            $options['credentials'] = array_pick($config, ['key', 'secret']);
+        }
+
+        if (isset($config['endpoint']) && $config['endpoint']) {
+          $options['endpoint'] = $config['endpoint'];
+          $options['use_path_style_endpoint'] = true;
+        }
+
+        $client = S3Client::factory($options);
+        $options = array_get($config, 'options', []);
+
+        return new Flysystem(new S3Adapter($client, $config['bucket'], array_get($config, $rootKey), $options));
     }
 }

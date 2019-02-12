@@ -9,7 +9,9 @@ use Directus\Application\Http\Middleware\CorsMiddleware;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Collection\Collection;
+use Directus\Config\Config;
 use Directus\Exception\Exception;
+use Directus\Exception\UnauthorizedException;
 use Slim\Http\Body;
 
 if (!function_exists('create_app'))  {
@@ -46,18 +48,63 @@ if (!function_exists('create_app_with_project_name')) {
      */
     function create_app_with_project_name($basePath, $name, array $values = [])
     {
+        return create_app($basePath, get_project_config($name, $basePath)->toArray(), $values);
+    }
+}
+
+if (!function_exists('get_project_config')) {
+    /**
+     * Returns the configuration for a given project
+     *
+     * @param string|null $name
+     * @param string|null $basePath
+     *
+     * @return Config
+     *
+     * @throws Exception
+     */
+    function get_project_config($name = null, $basePath = null)
+    {
+        static $configs = [];
+
+        if ($basePath === null) {
+            $basePath = get_app_base_path();
+        }
+
         $configPath = $basePath . '/config';
-        $configFilePath = $configPath . '/api.php';
 
         if (!empty($name) && $name !== '_') {
             $configFilePath = sprintf('%s/api.%s.php', $configPath, $name);
+        } else {
+            $configFilePath = $configPath . '/api.php';
+        }
+
+        if (isset($configs[$configFilePath])) {
+            return $configs[$configFilePath];
         }
 
         if (!file_exists($configFilePath)) {
             throw new Exception('Unknown environment: ' . $name);
         }
 
-        return create_app($basePath, require $configFilePath);
+        $config = new Config(require $configFilePath);
+        $configs[$configFilePath] = $config;
+
+        return $config;
+    }
+}
+
+if (!function_exists('get_app_base_path')) {
+    /**
+     * Returns the application base path
+     *
+     * @return string
+     */
+    function get_app_base_path()
+    {
+        $container = Application::getInstance()->getContainer();
+
+        return $container->get('path_base');
     }
 }
 
@@ -158,14 +205,17 @@ if (!function_exists('create_default_app')) {
      *
      * @param string $basePath
      * @param array $config
+     * @param array $values
      *
      * @return Application
      */
-    function create_default_app($basePath, array $config = [])
+    function create_default_app($basePath, array $config = [], array $values = [])
     {
-        $values['notFoundHandler'] = function () {
-            return new NotInstalledNotFoundHandler();
-        };
+        if (!isset($values['notFoundHandler'])) {
+            $values['notFoundHandler'] = function () {
+                return new NotInstalledNotFoundHandler();
+            };
+        }
 
         $app = create_app($basePath, array_merge([
             'app' => [
@@ -181,6 +231,28 @@ if (!function_exists('create_default_app')) {
         create_install_route($app);
 
         return $app;
+    }
+}
+
+if (!function_exists('create_unknown_project_app')) {
+    /**
+     * Creates a simple Application when the project name is unknown
+     *
+     * @param string $basePath
+     * @param array $config
+     * @param array $values
+     *
+     * @return Application
+     */
+    function create_unknown_project_app($basePath, array $config = [], array $values = [])
+    {
+        return create_default_app($basePath, $config, array_merge($values, [
+            'notFoundHandler' => function () {
+                return function () {
+                    throw new UnauthorizedException('Unauthorized request');
+                };
+            }
+        ]));
     }
 }
 

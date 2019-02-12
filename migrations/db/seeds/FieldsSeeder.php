@@ -628,6 +628,15 @@ class FieldsSeeder extends AbstractSeed
                 'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
+            [
+                'collection' => 'directus_files',
+                'field' => 'checksum',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+                'readonly' => 1,
+                'hidden_detail' => 1,
+            ],
 
 
             // Folders
@@ -922,15 +931,36 @@ class FieldsSeeder extends AbstractSeed
                 'hidden_detail' => 1,
                 'hidden_browse' => 1
             ],
+            [
+                'collection' => 'directus_roles',
+                'field' => 'users',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
+                'interface' => 'many-to-many',
+                'locked' => 1
+            ],
 
 
             // Settings
             // -----------------------------------------------------------------
             [
                 'collection' => 'directus_settings',
-                'field' => 'auto_sign_out',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
-                'interface' => 'numeric',
+                'field' => 'project_name',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'project_url',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'app_url',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
                 'locked' => 1
             ],
             [
@@ -945,6 +975,77 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'color',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'color-palette',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'default_limit',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+                'interface' => 'numeric',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'sort_null_last',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle',
+                'locked' => 1,
+                'note' => 'Will sort values with null at the end of the result'
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'auto_sign_out',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+                'interface' => 'numeric',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'trusted_proxies',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
+                'interface' => 'tags',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'youtube_api',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'thumbnail_dimensions',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
+                'interface' => 'tags',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'thumbnail_quality_tags',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'code',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'thumbnail_actions',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'code',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'thumbnail_cache_ttl',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+                'interface' => 'numeric',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'thumbnail_not_found_location',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
                 'locked' => 1
             ],
 
@@ -1048,6 +1149,7 @@ class FieldsSeeder extends AbstractSeed
                     'placeholder' => 'Enter your email address...'
                 ]),
                 'locked' => 1,
+                'validation' => '$email',
                 'required' => 1,
                 'sort' => 5,
                 'width' => 2

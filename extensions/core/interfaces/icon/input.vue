@@ -17,7 +17,7 @@
             :key="icon"
             :class="{ active: value === icon }"
             :disabled="readonly"
-            @click="$emit('input', value === icon ? null : icon);"
+            @click="$emit('input', value === icon ? null : icon)"
           >
             <i class="material-icons">{{ icon }}</i>
           </button>
@@ -32,7 +32,7 @@
         :key="icon"
         :class="{ active: value === icon }"
         :disabled="readonly"
-        @click="$emit('input', value === icon ? null : icon);"
+        @click="$emit('input', value === icon ? null : icon)"
       >
         <i class="material-icons">{{ icon }}</i>
       </button>

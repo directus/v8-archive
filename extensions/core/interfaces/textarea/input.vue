@@ -6,7 +6,7 @@
     :value="value"
     :placeholder="options.placeholder"
     :rows="+options.rows"
-    @input="$emit('input', $event);"
+    @input="$emit('input', $event)"
   ></v-textarea>
 </template>
 

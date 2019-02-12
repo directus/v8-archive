@@ -48,6 +48,11 @@ class TablesService extends AbstractService
      */
     protected $collectionsTableGateway;
 
+    /**
+     * @var RelationalTableGateway
+     */
+    protected $relationsTableGateway;
+
     public function __construct(Container $container)
     {
         parent::__construct($container);
@@ -302,16 +307,8 @@ class TablesService extends AbstractService
         $this->enforcePermissions($this->collection, $data, $params);
 
         $data['collection'] = $name;
-        $collectionsCollectionName = 'directus_collections';
-        $collectionsCollectionObject = $this->getSchemaManager()->getCollection($collectionsCollectionName);
-        $constraints = $this->createConstraintFor($collectionsCollectionName, $collectionsCollectionObject->getFieldsName());
 
-        $this->validate($data, array_merge(['fields' => 'required|array'], $constraints));
-        $this->validateFieldsPayload($name, $data['fields'], false, $params);
-
-        if (!$this->isValidName($name)) {
-            throw new InvalidRequestException('Invalid collection name');
-        }
+        $this->validateCollectionPayload($name, $data, null, $params);
 
         $collection = null;
 
@@ -381,7 +378,7 @@ class TablesService extends AbstractService
 
         // ----------------------------------------------------------------------------
 
-        $collectionTableGateway = $this->createTableGateway($collectionsCollectionName);
+        $collectionTableGateway = $this->createTableGateway('directus_collections');
         $tableData = $collectionTableGateway->parseRecord($table->toArray());
 
         return $collectionTableGateway->wrapData($tableData, true, ArrayUtils::get($params, 'meta'));
@@ -416,13 +413,8 @@ class TablesService extends AbstractService
         $this->validate(['collection' => $name], ['collection' => 'required|string']);
 
         // Validates payload data
-        $collectionsCollectionObject = $this->getSchemaManager()->getCollection($this->collection);
-        $constraints = $this->createConstraintFor($this->collection, $collectionsCollectionObject->getFieldsName());
+        $this->validateCollectionPayload($name, $data, array_keys(ArrayUtils::omit($data, 'fields')), true, $params);
         $data['collection'] = $name;
-        $this->validate($data, array_merge(['fields' => 'array'], $constraints));
-        if (ArrayUtils::has($data, 'fields')) {
-            $this->validateFieldsPayload($name, $data['fields'], true, $params);
-        }
 
         $collectionObject = $this->getSchemaManager()->getCollection($name);
         $startManaging = (bool) ArrayUtils::get($data, 'managed', false);
@@ -741,6 +733,10 @@ class TablesService extends AbstractService
             }
         }
 
+        if ($columnObject->hasRelationship()) {
+            $this->removeColumnRelationship($columnObject);
+        }
+
         if ($columnObject->isManaged()) {
             $this->removeColumnInfo($collectionName, $fieldName);
         }
@@ -859,6 +855,124 @@ class TablesService extends AbstractService
     }
 
     /**
+     * Removes the relationship of a given field
+     *
+     * @param Field $field
+     *
+     * @return bool|int
+     */
+    public function removeColumnRelationship(Field $field)
+    {
+        if (!$field->hasRelationship()) {
+            return false;
+        }
+
+        if ($this->shouldRemoveRelationshipRecord($field)) {
+            $result = $this->removeRelationshipRecord($field);
+        } else {
+            $result = $this->removeRelationshipFromRecord($field);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Checks whether or not the relationship record should be removed
+     *
+     * @param Field $field
+     *
+     * @return bool
+     */
+    protected function shouldRemoveRelationshipRecord(Field $field)
+    {
+        $relationship = $field->getRelationship();
+        $isOne = ($field->getName() === $relationship->getFieldOne());
+
+        return ($isOne && !$relationship->getFieldMany())
+            || (!$isOne && !$relationship->getFieldOne());
+    }
+
+    /**
+     * Removes the relationship record of a given field
+     *
+     * @param Field $field
+     *
+     * @return int
+     */
+    protected function removeRelationshipRecord(Field $field)
+    {
+        $tableGateway = $this->getRelationsTableGateway();
+        $conditions = $this->getRemoveRelationshipConditions($field);
+
+        return $tableGateway->delete($conditions['values']);
+    }
+
+    /**
+     * Removes the relationship data of a given field
+     *
+     * @param Field $field
+     *
+     * @return int
+     */
+    protected function removeRelationshipFromRecord(Field $field)
+    {
+        $tableGateway = $this->getRelationsTableGateway();
+        $conditions = $this->getRemoveRelationshipConditions($field);
+
+        $data = [
+            $conditions['field'] => null
+        ];
+
+        return $tableGateway->update($data, $conditions['values']);
+    }
+
+    /**
+     * Returns the conditions values to remove a given field relationship
+     *
+     * @param Field $field
+     *
+     * @return array
+     */
+    protected function getRemoveRelationshipConditions(Field $field)
+    {
+        $fieldName = $field->getName();
+        $collectionName = $field->getCollectionName();
+        $fieldAttr = 'field_';
+        $collectionAttr = 'collection_';
+
+        $suffix = $this->getRelationshipAttributeSuffix($field);
+        $collectionAttr .= $suffix;
+        $fieldAttr .= $suffix;
+
+        return [
+            'field' => $fieldAttr,
+            'collection' => $collectionAttr,
+            'values' => [
+                $collectionAttr => $collectionName,
+                $fieldAttr => $fieldName,
+            ],
+        ];
+    }
+
+    /**
+     * Returns the relationship attribute suffix
+     *
+     * @param Field $field
+     *
+     * @return string
+     */
+    protected function getRelationshipAttributeSuffix(Field $field)
+    {
+        if ($field->getName() === $field->getRelationship()->getFieldOne()) {
+            $suffix = 'one';
+        } else {
+            $suffix = 'many';
+        }
+
+        return $suffix;
+    }
+
+    /**
      * @param $collectionName
      * @param $fieldName
      *
@@ -898,18 +1012,36 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Checks whether the given name is a valid clean table name
+     * Checks whether the given name is a valid clean collection name
      *
-     * @param $name
+     * @param string $name
      *
      * @return bool
      */
-    public function isValidName($name)
+    public function isValidCollectionName($name)
     {
         $isTableNameAlphanumeric = preg_match("/[a-z0-9]+/i", $name);
         $zeroOrMoreUnderscoresDashes = preg_match("/[_-]*/i", $name);
 
         return $isTableNameAlphanumeric && $zeroOrMoreUnderscoresDashes;
+    }
+
+    /**
+     * Throws an exception when the collection name is invalid
+     *
+     * @param string $name
+     *
+     * @throws InvalidRequestException
+     */
+    public function enforceValidCollectionName($name)
+    {
+        if (!$this->isValidCollectionName($name)) {
+            throw new InvalidRequestException('Invalid collection name');
+        }
+
+        if (StringUtils::startsWith($name, 'directus_')) {
+            throw new InvalidRequestException('Collection name cannot begin with "directus_"');
+        }
     }
 
     /**
@@ -1086,6 +1218,11 @@ class TablesService extends AbstractService
                     unset($fullFieldData['unique']);
                 }
 
+                $dataType = ArrayUtils::get($fullFieldData, 'datatype');
+                if ($dataType && !$this->getSchemaManager()->isTypeLengthRequired($dataType)) {
+                    unset($fullFieldData['length']);
+                }
+
                 if (!$field->isAlias() && DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
                     $toDrop[] = $field->getName();
                 } else if ($field->isAlias() && !DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
@@ -1164,6 +1301,30 @@ class TablesService extends AbstractService
         }
 
         return $relationsTableGateway->manageRecordUpdate('directus_relations', $data);
+    }
+
+    /**
+     * Validates the collection payload
+     *
+     * @param string $name
+     * @param array $data
+     * @param array|null $fields
+     * @param boolean $update
+     * @param array $params
+     *
+     * @throws InvalidRequestException
+     */
+    protected function validateCollectionPayload($name, array $data, array $fields = null, $update = false, array $params = [])
+    {
+        $this->enforceValidCollectionName($name);
+
+        $collectionsCollectionName = 'directus_collections';
+        $this->validatePayload($collectionsCollectionName, $fields, $data, $params);
+
+        if (ArrayUtils::has($data, 'fields') || !$update) {
+            $this->validate($data, ['fields' => 'required|array']);
+            $this->validateFieldsPayload($name, $data['fields'], $update, $params);
+        }
     }
 
     /**
@@ -1480,7 +1641,7 @@ class TablesService extends AbstractService
     protected function getFieldsTableGateway()
     {
         if (!$this->fieldsTableGateway) {
-            $this->fieldsTableGateway = $this->createTableGateway('directus_fields');
+            $this->fieldsTableGateway = $this->createTableGateway(SchemaManager::COLLECTION_FIELDS);
         }
 
         return $this->fieldsTableGateway;
@@ -1492,10 +1653,22 @@ class TablesService extends AbstractService
     protected function getCollectionsTableGateway()
     {
         if (!$this->collectionsTableGateway) {
-            $this->collectionsTableGateway = $this->createTableGateway('directus_collections');
+            $this->collectionsTableGateway = $this->createTableGateway(SchemaManager::COLLECTION_COLLECTIONS);
         }
 
         return $this->collectionsTableGateway;
+    }
+
+    /**
+     * @return RelationalTableGateway
+     */
+    protected function getRelationsTableGateway()
+    {
+        if (!$this->relationsTableGateway) {
+            $this->relationsTableGateway = $this->createTableGateway(SchemaManager::COLLECTION_RELATIONS);
+        }
+
+        return $this->relationsTableGateway;
     }
 
     protected function getAllFieldsParams(array $params)

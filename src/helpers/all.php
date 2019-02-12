@@ -3,12 +3,22 @@
 namespace Directus;
 
 use Directus\Application\Application;
-use Directus\Database\TableGatewayFactory;
+use Directus\Application\Http\Request;
 use Directus\Exception\Exception;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
+use Directus\Util\DateTimeUtils;
+use Directus\Util\Installation\InstallerUtils;
+use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
 use Phinx\Db\Adapter\AdapterInterface;
+use RKA\Middleware\ProxyDetection;
+use Slim\Http\Cookies;
+use Slim\Http\Environment;
+use Slim\Http\Headers;
+use Slim\Http\RequestBody;
+use Slim\Http\UploadedFile;
+use Slim\Http\Uri;
 
 require __DIR__ . '/constants.php';
 require __DIR__ . '/app.php';
@@ -136,90 +146,69 @@ if (!function_exists('get_url')) {
     }
 }
 
+if (!function_exists('create_request_from_global')) {
+    /**
+     * Create a Request object from global variables
+     *
+     * @param array $options
+     *
+     * @return Request
+     */
+    function create_request_from_global(array $options = [])
+    {
+        $environment = new Environment($_SERVER);
+        $method = $environment['REQUEST_METHOD'];
+        $uri = Uri::createFromEnvironment($environment);
+        $headers = Headers::createFromEnvironment($environment);
+        $cookies = Cookies::parseHeader($headers->get('Cookie', []));
+        $serverParams = $environment->all();
+        $body = new RequestBody();
+        $uploadedFiles = [];
+        $ignorePayload = array_get($options, 'ignore_payload', false) === true;
+        $checkProxy = array_get($options, 'check_proxy', true) === true;
+
+        if (!$ignorePayload) {
+            $uploadedFiles = UploadedFile::createFromEnvironment($environment);
+        }
+
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+
+        if (
+            !$ignorePayload
+            && $method === 'POST'
+            && in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
+        ) {
+            // parsed body must be $_POST
+            $request = $request->withParsedBody($_POST);
+        }
+
+        if ($checkProxy) {
+            $proxyDetection = new ProxyDetection(get_trusted_proxies());
+            $request = $proxyDetection->processRequestIfTrusted($request);
+        }
+
+        return $request;
+    }
+}
+
 if (!function_exists('create_uri_from_global')) {
     /**
      * Creates a uri object based on $_SERVER
      *
      * Snippet copied from Slim URI class
      *
-     * @return \Slim\Http\Uri
+     * @param $checkProxy
+     *
+     * @return \Psr\Http\Message\UriInterface
      */
-    function create_uri_from_global()
+    function create_uri_from_global($checkProxy = true)
     {
-        // Scheme
-        $env = $_SERVER;
-        $isSecure = \Directus\Util\ArrayUtils::get($env, 'HTTPS');
-        $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
+        $request = create_request_from_global([
+            'ignore_payload' => true,
+            'check_proxy' => $checkProxy,
+        ]);
 
-        // Authority: Username and password
-        $username = \Directus\Util\ArrayUtils::get($env, 'PHP_AUTH_USER', '');
-        $password = \Directus\Util\ArrayUtils::get($env, 'PHP_AUTH_PW', '');
-
-        // Authority: Host
-        if (\Directus\Util\ArrayUtils::has($env, 'HTTP_HOST')) {
-            $host = \Directus\Util\ArrayUtils::get($env, 'HTTP_HOST');
-        } else {
-            $host = \Directus\Util\ArrayUtils::get($env, 'SERVER_NAME');
-        }
-
-        // Authority: Port
-        $port = (int)\Directus\Util\ArrayUtils::get($env, 'SERVER_PORT', 80);
-        if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
-            $host = $matches[1];
-
-            if (isset($matches[2])) {
-                $port = (int)substr($matches[2], 1);
-            } else {
-                $port = $isSecure ? 443 : 80;
-            }
-        } else {
-            $pos = strpos($host, ':');
-            if ($pos !== false) {
-                $port = (int)substr($host, $pos + 1);
-                $host = strstr($host, ':', true);
-            } else {
-                $port = $isSecure ? 443 : 80;
-            }
-        }
-
-        // Path
-        $requestScriptName = parse_url(\Directus\Util\ArrayUtils::get($env, 'SCRIPT_NAME'), PHP_URL_PATH);
-        $requestScriptDir = dirname($requestScriptName);
-
-        // parse_url() requires a full URL. As we don't extract the domain name or scheme,
-        // we use a stand-in.
-        $requestUri = parse_url('http://example.com' . \Directus\Util\ArrayUtils::get($env, 'REQUEST_URI'), PHP_URL_PATH);
-
-        $basePath = '';
-        $virtualPath = $requestUri;
-        if ($requestUri == $requestScriptName) {
-            $basePath = $requestScriptDir;
-        } elseif (stripos($requestUri, $requestScriptName) === 0) {
-            $basePath = $requestScriptName;
-        } elseif ($requestScriptDir !== '/' && stripos($requestUri, $requestScriptDir) === 0) {
-            $basePath = $requestScriptDir;
-        }
-
-        if ($basePath) {
-            $virtualPath = ltrim(substr($requestUri, strlen($basePath)), '/');
-        }
-
-        // Query string
-        $queryString = \Directus\Util\ArrayUtils::get($env, 'QUERY_STRING', '');
-        if ($queryString === '') {
-            $queryString = parse_url('http://example.com' . \Directus\Util\ArrayUtils::get($env, 'REQUEST_URI'), PHP_URL_QUERY);
-        }
-
-        // Fragment
-        $fragment = '';
-
-        // Build Uri
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $virtualPath, $queryString, $fragment, $username, $password);
-        if ($basePath) {
-            $uri = $uri->withBasePath($basePath);
-        }
-
-        return $uri;
+        return $request->getUri();
     }
 }
 
@@ -231,7 +220,7 @@ if (!function_exists('get_virtual_path')) {
      */
     function get_virtual_path()
     {
-        return create_uri_from_global()->getPath();
+        return create_uri_from_global(false)->getPath();
     }
 }
 
@@ -245,8 +234,127 @@ if (!function_exists('get_api_project_from_request')) {
     {
         $path = trim(get_virtual_path(), '/');
         $parts = explode('/', $path);
+        $name = isset($parts[0]) ? $parts[0] : '_';
+        $reservedNames = get_reserved_endpoint_names();
 
-        return isset($parts[0]) ? $parts[0] : '_';
+        // Fetch project name from the request if request path is root
+        // or a reserved name
+        if (!$name || in_array($name, $reservedNames)) {
+            $request = create_request_from_global([
+                'ignore_payload' => true,
+                'check_proxy' => false,
+            ]);
+
+            $authToken = get_request_authorization_token($request);
+            if (JWTUtils::isJWT($authToken)) {
+                $name = JWTUtils::getPayload($authToken, 'project');
+            } else {
+                $name = get_request_project_name($request);
+            }
+        }
+
+        return $name;
+    }
+}
+
+if (!function_exists('get_request_authorization_token')) {
+    /**
+     * Returns the authorization token from a request object
+     *
+     * @param Request $request
+     *
+     * @return null|string
+     */
+    function get_request_authorization_token(Request $request)
+    {
+        $authToken = null;
+
+        if ($request->getParam('access_token')) {
+            $authToken = $request->getParam('access_token');
+        } elseif ($request->hasHeader('Php-Auth-User')) {
+            $authUser = $request->getHeader('Php-Auth-User');
+            $authPassword = $request->getHeader('Php-Auth-Pw');
+
+            if (is_array($authUser)) {
+                $authUser = array_shift($authUser);
+            }
+
+            if (is_array($authPassword)) {
+                $authPassword = array_shift($authPassword);
+            }
+
+            if ($authUser && (empty($authPassword) || $authUser === $authPassword)) {
+                $authToken = $authUser;
+            }
+        } elseif ($request->hasHeader('Authorization')) {
+            $authorizationHeader = $request->getHeader('Authorization');
+
+            // If there's multiple Authorization header, pick first, ignore the rest
+            if (is_array($authorizationHeader)) {
+                $authorizationHeader = array_shift($authorizationHeader);
+            }
+
+            if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
+                $authToken = $matches[1];
+            }
+        }
+
+        return $authToken;
+    }
+}
+
+if (!function_exists('get_request_project_name')) {
+    /**
+     * Returns the project name from a request object
+     *
+     * @param Request $request
+     *
+     * @return null|string
+     */
+    function get_request_project_name(Request $request)
+    {
+        $name = null;
+        if ($request->getQueryParam('project')) {
+            $name = $request->getQueryParam('project');
+        } else if ($request->hasHeader('X-Directus-Project')) {
+            $name = $request->getHeader('X-Directus-Project');
+        }
+
+        return is_array($name) ? array_shift($name) : $name;
+    }
+}
+
+if (!function_exists('create_config_path')) {
+    /**
+     * Creates the configuration path for a project
+     *
+     * @param string $basePath
+     * @param null|string $project
+     *
+     * @return string
+     */
+    function create_config_path($basePath, $project = null)
+    {
+        return InstallerUtils::createConfigPath($basePath, $project);
+    }
+}
+
+if (!function_exists('get_reserved_endpoint_names')) {
+    /**
+     * Returns a list of reserved endpoint names
+     *
+     * @return array
+     */
+    function get_reserved_endpoint_names()
+    {
+        return [
+            'server',
+            'interfaces',
+            'pages',
+            'layouts',
+            'types',
+            'projects'
+        ];
     }
 }
 
@@ -1189,38 +1297,6 @@ if (!function_exists('get_request_ip')) {
     }
 }
 
-if (!function_exists('get_project_info')) {
-    function get_project_info()
-    {
-        /** @var \Directus\Database\TableGateway\DirectusSettingsTableGateway $settingsTable */
-        $settingsTable = TableGatewayFactory::create('directus_settings', [
-            'acl' => null
-        ]);
-        $settings = $settingsTable->fetchCollection('global');
-
-        $projectName = isset($settings['project_name']) ? $settings['project_name'] : 'Directus';
-        $defaultProjectLogo = get_directus_path('/assets/imgs/directus-logo-flat.svg');
-        if (isset($settings['cms_thumbnail_url']) && $settings['cms_thumbnail_url']) {
-            $projectLogoURL = $settings['cms_thumbnail_url'];
-            $filesTable = TableGatewayFactory::create('directus_files', [
-                'acl' => null
-            ]);
-            $data = $filesTable->fetchItems([
-                'filter' => ['id' => $projectLogoURL]
-            ]);
-
-            $projectLogoURL = ArrayUtils::get($data, 'url', $defaultProjectLogo);
-        } else {
-            $projectLogoURL = $defaultProjectLogo;
-        }
-
-        return [
-            'project_name' => $projectName,
-            'project_logo_url' => $projectLogoURL
-        ];
-    }
-}
-
 if (!function_exists('get_missing_requirements')) {
     /**
      * Gets an array of errors message when there's a missing requirements
@@ -1231,8 +1307,8 @@ if (!function_exists('get_missing_requirements')) {
     {
         $errors = [];
 
-        if (version_compare(PHP_VERSION, '5.6.0', '<')) {
-            $errors[] = 'Your host needs to use PHP 5.6.0 or higher to run this version of Directus!';
+        if (version_compare(PHP_VERSION, '7.1.0', '<')) {
+            $errors[] = 'Your host needs to use PHP 7.1.0 or higher to run this version of Directus!';
         }
 
         if (!defined('PDO::ATTR_DRIVER_NAME')) {
@@ -1407,7 +1483,13 @@ if (!function_exists('get_unflat_columns')) {
                     }
 
                     $child = get_unflat_columns($parts[1]);
-                    $names[$parts[0]][key($child)] = current($child);
+                    if (isset($names[$parts[0]][key($child)])) {
+                        $childValue = array_merge($names[$parts[0]][key($child)], current($child));
+                    } else {
+                        $childValue = current($child);
+                    }
+
+                    $names[$parts[0]][key($child)] = $childValue;
                 };
             }
         }
@@ -1506,6 +1588,36 @@ if (!function_exists('is_valid_regex_pattern')) {
     }
 }
 
+if (!function_exists('is_custom_validation')) {
+    /**
+     * Checks whether the given value is a custom validation
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_custom_validation($value)
+    {
+        return in_array(strtolower((string)$value), [
+            '$email',
+        ]);
+    }
+}
+
+if (!function_exists('get_custom_validation_name')) {
+    /**
+     * Returns the custom validation constraint name
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    function get_custom_validation_name($value)
+    {
+        return strtolower(substr((string)$value, 1));
+    }
+}
+
 if (!function_exists('env')) {
     /**
      * Returns an environment variable
@@ -1585,14 +1697,124 @@ if (!function_exists('is_iso8601_datetime')) {
      */
     function is_iso8601_datetime($value)
     {
+        return is_iso8601_format_one($value)
+            || is_iso8601_format_two($value)
+            || is_iso8601_format_three($value)
+            || is_iso8601_format_four($value);
+    }
+}
+
+if (!function_exists('is_iso8601_format_one')) {
+    /**
+     * Checks whether the given string is a iso format (1)
+     *
+     * Format: 2019-01-04T16:12:05+00:00
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_format_one($value)
+    {
         $datetime = substr($value, 0, 19);
         $offset = substr($value, -5, 5);
 
-        // TODO: It will be ideal to check for all ISO 8601 Formats
-        // NOTE: This only checks for the following format: 2018-10-31T15:01:35+00:00
         return strlen($value) === 25
             && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
             && is_valid_datetime($offset, 'H:i');
+    }
+}
+
+if (!function_exists('is_iso8601_format_two')) {
+    /**
+     * Checks whether the given string is a iso format (2)
+     *
+     * Format: 2019-01-04T16:12:05Z
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_format_two($value)
+    {
+        $datetime = substr($value, 0, 19);
+        $offset = strtolower(substr($value, -1, 1));
+
+        return strlen($value) === 20
+            && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+            && $offset === 'z';
+    }
+}
+
+if (!function_exists('is_iso8601_format_three')) {
+    /**
+     * Checks whether the given string is a iso format (3)
+     *
+     * Format: 20190104T161205Z
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_format_three($value)
+    {
+        $datetime = substr($value, 0, 15);
+        $offset = strtolower(substr($value, -1, 1));
+
+        return strlen($value) === 16
+            && is_valid_datetime($datetime, 'Ymd\THis')
+            && $offset === 'z';
+    }
+}
+
+if (!function_exists('is_iso8601_format_four')) {
+    /**
+     * Checks whether the given string is a iso format (4)
+     *
+     * Format: 2019-02-06T10:53:31-0500
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    function is_iso8601_format_four($value)
+    {
+        $datetime = substr($value, 0, 19);
+        $offset = substr($value, -4, 4);
+
+        return strlen($value) === 24
+            && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
+            && is_valid_datetime($offset, 'Hi');
+    }
+}
+
+if (!function_exists('get_iso8601_format')) {
+    /**
+     * Returns the iso format based on the datetime value
+     *
+     * @param string $value
+     *
+     * @return null|string
+     */
+    function get_iso8601_format($value)
+    {
+        $format = null;
+
+        if (!is_string($value)) {
+            return $format;
+        }
+
+        if (is_iso8601_format_one($value)) {
+            $format = DateTimeUtils::ISO8601_FORMAT_ONE;
+        } else if (is_iso8601_format_two($value)) {
+            $format = DateTimeUtils::ISO8601_FORMAT_TWO;
+        } else if (is_iso8601_format_three($value)) {
+            $format = DateTimeUtils::ISO8601_FORMAT_THREE;
+        } else if (is_iso8601_format_four($value)) {
+            $format = DateTimeUtils::ISO8601;
+        }
+
+        return $format;
     }
 }
 
@@ -1634,5 +1856,19 @@ if (!function_exists('normalize_exception')) {
         }
 
         return implode("\n", $stack);
+    }
+}
+
+if (!function_exists('is_empty')) {
+    /**
+     * Checks whether or not the value is empty|null
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    function is_empty($value)
+    {
+        return !$value || empty($value) || (is_object($value) && empty((array) $value));
     }
 }
