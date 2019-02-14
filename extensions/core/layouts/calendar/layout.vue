@@ -374,6 +374,7 @@ export default {
   grid-template: repeat(4, 1fr) / repeat(3, 1fr);
   font-size: 0.8em;
   line-height: 1.6em;
+  text-align: center;
 }
 
 #date-months div {
