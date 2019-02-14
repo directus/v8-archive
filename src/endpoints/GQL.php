@@ -11,8 +11,10 @@ use Directus\Services\GraphQLService;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
-use Directus\GraphQL\CustomResolver;
-use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Error\Debug;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use Directus\GraphQL\Types;
 
 class GQL extends Route
 {
@@ -38,21 +40,21 @@ class GQL extends Route
     public function index(Request $request, Response $response)
     {
 
-        $contents = file_get_contents('GraphQL/_/schema.graphql');
-        $schema = BuildSchema::build($contents);
+        $schema = new Schema([
+            'query' => Types::query()
+        ]);
 
         $rawInput = $request->getBody();
         $input = json_decode($rawInput, true);
         $query = $input['query'];
         $variableValues = isset($input['variables']) ? $input['variables'] : null;
 
-        $this->container->get('logger')->info($source);
-
         try {
-            $customResolver = new CustomResolver();
-            $rootValue = [];
-            $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues, null, $customResolver($source, $args, $context, $info), null);
-            $responseData = $result->toArray();
+            $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::RETHROW_INTERNAL_EXCEPTIONS;
+
+            $rootValue = null;
+            $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
+            $responseData = $result->toArray($debug);
         } catch (\Exception $e) {
             $responseData = [
                 'errors' => [
@@ -63,8 +65,8 @@ class GQL extends Route
             ];
         }
         //header('Content-Type: application/json');
+        //echo json_encode($responseData);
         return $this->responseWithData($request, $response, $responseData);
-
     }
 
     /**
