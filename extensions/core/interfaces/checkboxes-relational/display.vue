@@ -1,5 +1,8 @@
 <template>
-  <v-popover trigger="hover" v-if="options.listing_template && this.value && this.value.length > 0">
+  <v-popover
+    trigger="hover"
+    v-if="options.listing_template && this.value && this.value.length > 0"
+  >
     <div class="display-checkbox-relational">{{ itemCount }}</div>
     <template slot="popover">
       <ul class="list">

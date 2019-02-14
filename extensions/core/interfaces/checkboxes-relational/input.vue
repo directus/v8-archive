@@ -1,7 +1,7 @@
 <template>
   <div class="interface-checkbox-relational">
     <v-checkbox
-      :style="{flexBasis:100/(options.grid||1)+'%'}"
+      :style="{ flexBasis: 100 / (options.grid || 1) + '%' }"
       v-for="item in items"
       :id="uid(item)"
       :key="`checkbox_relational_${item.id}`"
@@ -9,7 +9,7 @@
       :disabled="readonly"
       :label="labelRendered(item)"
       :checked="selection.includes(item[relatedPk])"
-      @change="onSelection(item.id,$event)"
+      @change="onSelection(item.id, $event)"
     ></v-checkbox>
   </div>
 </template>
@@ -116,7 +116,6 @@ export default {
           //Restore the value from unchecked array
           if (item.$delete) {
             let uncheckedItem = this.unchecked[item[this.junctionPk]];
-            console.log("UNCHECKED>", uncheckedItem);
             let itemId =
               uncheckedItem[this.junctionFieldOfRelated][this.relatedPk];
             if (itemId == val) {
@@ -178,5 +177,3 @@ export default {
   }
 }
 </style>
-
-
