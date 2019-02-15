@@ -222,7 +222,7 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
 
-    $this->group('/gql', \Directus\Api\Routes\GQL::class)
+    $this->group('/gql', \Directus\Api\Routes\GraphQL::class)
         ->add($middleware['auth_admin'])
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
