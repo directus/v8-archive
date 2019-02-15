@@ -4,6 +4,9 @@ namespace Directus\GraphQL;
 use Directus\GraphQL\Type\DirectusFileType;
 use Directus\GraphQL\Type\QueryType;
 use Directus\GraphQL\Type\NodeType;
+use Directus\GraphQL\Type\Scalar\DateType;
+use Directus\GraphQL\Type\Scalar\DateTimeType;
+use Directus\GraphQL\Type\Scalar\JSONType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
@@ -25,6 +28,27 @@ class Types
     public static function query()
     {
         return self::$query ?: (self::$query = new QueryType());
+    }
+
+    // Custom scalar type Date
+    private static $date;
+    public static function date()
+    {
+        return self::$date ?: (self::$date = new DateType());
+    }
+
+    // Custom scalar type DateTime
+    private static $datetime;
+    public static function datetime()
+    {
+        return self::$datetime ?: (self::$datetime = new DateTimeType());
+    }
+
+    // Custom scalar type JSON
+    private static $json;
+    public static function json()
+    {
+        return self::$json ?: (self::$json = new JSONType());
     }
 
     // Interface types
