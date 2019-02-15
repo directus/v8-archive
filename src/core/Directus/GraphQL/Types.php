@@ -87,5 +87,4 @@ class Types
     {
         return new NonNull($type);
     }
-
 }

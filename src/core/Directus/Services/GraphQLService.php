@@ -2,41 +2,41 @@
 
 namespace Directus\Services;
 
-use Directus\Application\Application;
-use Directus\Util\StringUtils;
+use GraphQL\Utils\BuildSchema;
+use GraphQL\GraphQL;
+use GraphQL\Type\Schema;
+use GraphQL\Error\Debug;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use Directus\GraphQL\Types;
 
 
 class GraphQLService extends AbstractService
 {
-    /**
-     * @param array $types
-     *
-     * @return array
-     */
-    public function generateSchema(array $types)
+    public function index($inputs)
     {
+        $schema = new Schema([
+            'query' => Types::query()
+        ]);
 
-        //TODO: Use the config from api.php
-        $graphQLFile = 'GraphQL/_/schema.graphql';
+        $inputs = json_decode($inputs, true);
+        $query = $inputs['query'];
+        $variableValues = isset($inputs['variables']) ? $inputs['variables'] : null;
 
-        $schemaFile = fopen($graphQLFile, "w");
-
-        $queryTxt = "type Query {\n";
-        foreach($types as $type){
-            $typeTxt = "type ".StringUtils::underscoreToCamelCase(strtolower($type['collection']), true) ." { \n";
-            foreach($type['fields'] as $fieldName => $fieldType){
-                $typeTxt .= "\t".$fieldName.": ".$fieldType."\n";
-            }
-            $typeTxt .="}\n";
-            fwrite($schemaFile, $typeTxt);
-
-            $queryTxt .= "\t".strtolower($type['collection']).": [".StringUtils::underscoreToCamelCase(strtolower($type['collection']), true)."!]!\n";
-            $queryTxt .= "\t".strtolower($type['collection'])."Item: ".StringUtils::underscoreToCamelCase(strtolower($type['collection']), true)."\n";
+        try {
+            $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::RETHROW_INTERNAL_EXCEPTIONS;
+            $rootValue = null;
+            $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
+            $responseData = $result->toArray($debug);
+        } catch (\Exception $e) {
+            $responseData = [
+                'errors' => [
+                    [
+                        'message' => $e->getMessage()
+                    ]
+                ]
+            ];
         }
-        $queryTxt .= "}\n";
-        fwrite($schemaFile, $queryTxt);
-        fclose($schemaFile);
-
-        return ['schemaPath' => $graphQLFile];
+        return $responseData;
     }
 }
