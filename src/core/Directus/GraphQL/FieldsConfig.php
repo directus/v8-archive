@@ -25,7 +25,36 @@ class FieldsConfig
         $collectionFields = $collectionData['data']['fields'];
 
         foreach($collectionFields as $k => $v){
-            $fields[$k] = Types::string();
+
+            switch ($v['type']){
+                case 'integer':
+                    $fields[$k] = ($v['interface'] == 'primary-key') ? $fields[$k] = Types::id() : Types::int();
+                break;
+                case 'decimal':
+                    $fields[$k] = Types::float();
+                break;
+                case 'sort':
+                    $fields[$k] = Types::int();
+                break;
+                case 'boolean':
+                    $fields[$k] = Types::boolean();
+                break;
+                case 'date':
+                    $fields[$k] = Types::date();
+                break;
+                case 'datetime':
+                case 'datetime_created':
+                    $fields[$k] = Types::datetime();
+                break;
+                case 'json':
+                    $fields[$k] = Types::json();
+                break;
+                default:
+                    $fields[$k] = Types::string();
+            }
+            if($v['required']){
+                $fields[$k] = Types::NonNull($fields[$k]);
+            }
         }
 
         return $fields;
