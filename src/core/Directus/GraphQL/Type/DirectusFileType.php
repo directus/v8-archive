@@ -29,12 +29,12 @@ class DirectusFileType extends ObjectType
                 'storage' => Types::string(),
                 'full_url' => Types::string(),
                 'url' => Types::string(),
-                'thumbnails' => Types::string()
+                'thumbnails' => Types::listOf(Types::fileThumbnail())
             ],
             'interfaces' => [
                 Types::node()
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+            'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
                 $method = 'resolve' . ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($value, $args, $context, $info);
@@ -55,7 +55,4 @@ class DirectusFileType extends ObjectType
     {
         return $value['data']['url'];
     }
-
-
-
 }
