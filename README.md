@@ -34,9 +34,9 @@
 
 Directus is an open-source suite of software that provides an instant API wrapper for SQL databases and an intuitive Admin App for non-technical users to manage that content. It's like a safe, friendly, and super-powered "database client" (eg: _PHP-my-Admin_ or _Sequel Pro_). Created in 2004, our premium platform powers hundreds-of-thousands of data-driven applications around the world. With our JSON API, webhooks, and complete control over where and how your content is used — what will you build with Directus?
 
-* The **[Directus API](https://github.com/directus/api)** wraps any new or existing SQL database with RESTful JSON endpoints for connecting content anywhere: websites, native apps, wearables, IoT devices, kiosks, or anything else! ([API Reference](https://docs.directus.io/api/reference.html))
-* The **[Directus Admin App](https://github.com/directus/app)** is a friendly admin interface built with Vue.js that works in conjunction with our API to allow non-technical users to manage database content and digital assets. ([User Guide](https://docs.directus.io/guides/user-guide.html))
-* The **[Directus Suite](https://github.com/directus/directus)** is a package that combines our API, Admin App, and all dependencies for quick and easy installation on most servers. ([Docs](https://docs.directus.io))
+* **[Directus API](https://github.com/directus/api)** — Wraps any new or existing SQL database with RESTful JSON endpoints for connecting content anywhere: websites, native apps, wearables, IoT devices, kiosks, or anything else! ([API Reference](https://docs.directus.io/api/reference.html))
+* **[Directus Admin App](https://github.com/directus/app)** — A friendly admin interface built with Vue.js that works in conjunction with our API to allow non-technical users to manage database content and digital assets. ([User Guide](https://docs.directus.io/guides/user-guide.html))
+* **[Directus Suite](https://github.com/directus/directus)** A package that combines our API, Admin App, and all dependencies for quick and easy installation on most servers. ([Docs](https://docs.directus.io))
 
 <p>&nbsp;</p>
 
@@ -45,10 +45,6 @@ Directus is an open-source suite of software that provides an instant API wrappe
 ### Database-First
 
 Directus follows a database-first approach, storing all of your data _unaltered_ in pure SQL databases with that can be completely cusotmized.
-
-#### Portability and Transparency
-
-Directus is _not_ a black-box system. There is nothing proprietary or opinionated about how Directus stores your content so you're never locked-in or locked out. Import existing SQL to get started quickly, and rest assured that you can also export your unaltered content as vanilla SQL at any point. You can also self-host the entire suite on your own servers if needed or use our hosted Cloud service.
 
 #### Access and Optimization
 
@@ -59,7 +55,13 @@ Directus mirrors _your_ actual database so it will automatically stay in sync wi
 3. Update your database schema at any point and Directus will instantly reflect changes
 4. Create, update, and delete content directly from the database
 
-This database-first approach means that you have the option to completely bypass Directus as needed. Connecting your application directly to the database means Directus is completely bypassed, removing even the slightest possiblility of a bottleneck, and giving you the unbridled power of SQL.
+#### Direct Access
+
+This database-first approach means that you have the option to completely bypass Directus if needed. Connecting your application _directly_ to the database means Directus is completely bypassed, removing even the slightest possiblility of a bottleneck, and giving you the unbridled power of complex SQL queries.
+
+#### Portability and Transparency
+
+Directus is _not_ a black-box system. There is nothing proprietary or opinionated about how Directus stores your content so you're never locked-in or locked out. Import existing SQL to get started quickly, and rest assured that you can also export your unaltered content as vanilla SQL at any point. You can also self-host the entire suite on your own servers if needed or use our hosted Cloud service.
 
 #### Complex Relationships
 
@@ -101,6 +103,11 @@ Directus allows you to manage multilingual content in as many languages as your 
 * **Community Support** — For help with open-source instances please post questions with the `directus` tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/directus) or chat with members of our online community.
 * **Premium Support** — Directus Cloud customers, Patreon Sponsors, and those paying for hourly support all have access to our Live support over our [Live Chat](https://directus.io) or [Email](mailto:support@directus.io).
 
+### Community
+
+* **[Slack](https://slack.directus.io)** — Come join almost a thousand members discussing the future of Directus. Our helpful members are also quick to offer advice for simple questions you may have while getting started.
+* **[Twitter](https://twitter.com/directus)** — Follow us on Twitter to be the first to hear about product updates, see sneak peeks of new features, and vote on polls regarding the future of our platform.
+
 ### Reporting Bugs
 
 If you believe you've found a bug in the Directus Core codebase, please submit new tickets to either the [App](https://github.com/directus/app/issues/new?template=Bug_report.md) or the [API](https://github.com/directus/api/issues/new?template=Bug_report.md). **For all security related issues, please chat with us directly through [directus.io](https://directus.io/).**
@@ -108,11 +115,6 @@ If you believe you've found a bug in the Directus Core codebase, please submit n
 ### Feature Requests
 
 Feature requests are managed as GitHub issues within the appropriate Directus repository. Before making a new submission, first [browse existing feature requests](https://github.com/directus/app/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc+label%3Aenhancement) using the `enhancement` label. If you find a similar request, simply vote for it using the :+1: or :-1: reactions and add any additional context in the comments. If _not_, [add a new feature request](https://github.com/directus/app/issues/new?template=Feature_request.md) by completing the provided template.
-
-### Community
-
-* **[Slack](https://slack.directus.io)** — Our growing Slack community is quickly approaching a thousand members! Come join us and be a part of the internal discussion. Our helpful members are also quick to offer advice for simple questions you may have along the way.
-* **[Twitter](https://twitter.com/directus)** — Follow us on Twitter to be the first to hear about product updates, see sneak peeks, and vote on the future of the platform.
 
 ### Online Demos
 
