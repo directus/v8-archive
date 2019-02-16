@@ -96,36 +96,23 @@ Directus allows you to manage multilingual content in as many languages as your 
 
 ## 🤲 Help & Resources
 
-### Open-Source Support
+### Technical Support
 
-For help with open-source instances please post questions with the `directus` tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/directus).
-
-### Premium Support
-
-[Premium Support](https://directus.io) is only available to Directus Cloud customers, Patreon Sponsors, and Contracted Clients.
+* **Community Support** — For help with open-source instances please post questions with the `directus` tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/directus) or chat with members of our online community.
+* **Premium Support** — Directus Cloud customers, Patreon Sponsors, and those paying for hourly support all have access to our Live support over our [Live Chat](https://directus.io) or [Email](mailto:support@directus.io).
 
 ### Reporting Bugs
 
 If you believe you've found a bug in the Directus Core codebase, please submit new tickets to either the [App](https://github.com/directus/app/issues/new?template=Bug_report.md) or the [API](https://github.com/directus/api/issues/new?template=Bug_report.md). **For all security related issues, please chat with us directly through [directus.io](https://directus.io/).**
 
-### Community Discussions
-
-Join us on [Slack](https://slack.directus.io) to talk to hundreds of members of the Directus community.
-
-### Updates & Social
-
-Follow us on [Twitter](https://twitter.com/directus) to be the first to hear about product updates and sneak peeks.
-
 ### Feature Requests
 
 Feature requests are managed as GitHub issues within the appropriate Directus repository. Before making a new submission, first [browse existing feature requests](https://github.com/directus/app/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc+label%3Aenhancement) using the `enhancement` label. If you find a similar request, simply vote for it using the :+1: or :-1: reactions and add any additional context in the comments. If _not_, [add a new feature request](https://github.com/directus/app/issues/new?template=Feature_request.md) by completing the provided template.
 
-### Contributing
+### Community
 
-We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `master` branch of our `api` and `app` repositories.
-
-* [Setup API Development Environment](https://docs.directus.io/advanced/source.html#api-source)
-* [Setup App Development Environment](https://docs.directus.io/advanced/source.html#application-source)
+* **[Slack](https://slack.directus.io)** — Our growing Slack community is quickly approaching a thousand members! Come join us and be a part of the internal discussion. Our helpful members are also quick to offer advice for simple questions you may have along the way.
+* **[Twitter](https://twitter.com/directus)** — Follow us on Twitter to be the first to hear about product updates, see sneak peeks, and vote on the future of the platform.
 
 ### Online Demos
 
@@ -140,6 +127,14 @@ Directus is a GPLv3-licensed open source project with development made possible 
 * [Become a backer or sponsor through Patreon](https://www.patreon.com/directus)
 * [One-time donation through PayPal](https://www.paypal.me/supportdirectus)
 * [Other ways to help](https://docs.directus.io/getting-started/supporting-directus.html)
+
+
+### Contributing
+
+We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `master` branch of our `api` and `app` repositories.
+
+* [Setup API Development Environment](https://docs.directus.io/advanced/source.html#api-source)
+* [Setup App Development Environment](https://docs.directus.io/advanced/source.html#application-source)
 
 ### Sponsors
 
