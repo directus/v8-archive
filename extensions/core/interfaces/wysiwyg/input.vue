@@ -79,7 +79,13 @@ export default {
       }
 
       this.editor.origElements.addEventListener("input", () => {
-        this.$emit("input", this.editor.getContent());
+        const content = this.editor.getContent();
+
+        if (content === "<p><br></p>") {
+          return this.$emit("input", null);
+        }
+
+        this.$emit("input", content);
       });
     },
     destroy() {
