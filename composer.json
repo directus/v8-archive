@@ -30,6 +30,7 @@
     "robmorgan/phinx": "^0.9.2",
     "ramsey/uuid": "^3.7",
     "wellingguzman/rate-limit": "dev-master",
+    "cocur/slugify": "^3.2",
     "ext-json": "*",
     "ext-curl": "*",
     "ext-fileinfo": "*",
