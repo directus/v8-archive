@@ -34,8 +34,15 @@ class ProjectService extends AbstractService
             'db_password' => 'string',
             'db_socket' => 'string',
 
+            'cache' => 'array',
+            'storage' => 'array',
+            'auth' => 'array',
+            'rate_limit' => 'array',
+
             'mail_from' => 'string',
+            'mail' => 'array',
             'cors_enabled' => 'bool',
+            'cors' => 'array',
 
             'timezone' => 'string',
             'locale' => 'string',

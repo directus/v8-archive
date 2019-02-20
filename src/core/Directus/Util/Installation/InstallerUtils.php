@@ -51,7 +51,10 @@ class InstallerUtils
     {
         $configStub = file_get_contents(__DIR__ . '/stubs/config.stub');
 
-        return static::replacePlaceholderValues($configStub, $data);
+        $configStub = static::replacePlaceholderValues($configStub, $data);
+
+        // Users are allowed to sent {{project}} to be replaced with the project name
+        return static::replacePlaceholderValues($configStub, ArrayUtils::pick($data, 'project'));
     }
 
     /**
@@ -928,6 +931,10 @@ class InstallerUtils
      */
     private static function createConfigData(array $data)
     {
+        $corsEnabled = ArrayUtils::get($data, 'cors_enabled', true);
+        $authSecret = ArrayUtils::get($data, 'auth_secret', StringUtils::randomString(32));
+        $authPublic = ArrayUtils::get($data, 'auth_public', generate_uuid4());
+
         return ArrayUtils::defaults([
             'project' => '_',
             'db_type' => 'mysql',
@@ -937,11 +944,50 @@ class InstallerUtils
             'db_socket' => '',
             'mail_from' => 'admin@example.com',
             'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
-            'auth_secret' => StringUtils::randomString(32),
-            'auth_public' => generate_uuid4(),
             'feedback_login' => true,
-            'cors_enabled' => true,
             'timezone' => get_default_timezone(),
+            'cache' => [
+                'enabled' => false,
+                'response_ttl' => 3600,
+            ],
+            'storage' => [
+                'adapter' => 'local',
+                'root' => 'public/uploads/{{project}}/originals',
+                'root_url' => '/uploads/{{project}}/originals',
+                'thumb_root' => 'public/uploads/{{project}}/thumbnails',
+            ],
+            'mail' => [
+                'transport' => 'sendmail',
+            ],
+            'cors' => [
+                'enabled' => $corsEnabled,
+                'origin' => ['*'],
+                'methods' => [
+                    'GET',
+                    'POST',
+                    'PUT',
+                    'PATCH',
+                    'DELETE',
+                    'HEAD',
+                ],
+                'headers' => [],
+                'exposed_headers' => [],
+                'max_age' => null,
+                'credentials' => false,
+            ],
+            'rate_limit' => [
+                'enabled' => false,
+                'limit' => 100,
+                'interval' => 60,
+                'adapter' => 'redis',
+                'host' => '127.0.0.1',
+                'port' => 6379,
+                'timeout' => 10,
+            ],
+            'auth' => [
+                'secret' => $authSecret,
+                'public' => $authPublic,
+            ]
         ], $data);
     }
 }
