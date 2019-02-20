@@ -6,7 +6,10 @@ use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\InvalidConfigPathException;
 use Directus\Exception\InvalidDatabaseConnectionException;
+use Directus\Exception\InvalidPathException;
+use Directus\Exception\NotFoundException;
 use Directus\Exception\ProjectAlreadyExistException;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
 
@@ -83,6 +86,35 @@ class ProjectService extends AbstractService
             InstallerUtils::addDefaultSettings($basePath, $data, $projectName);
             InstallerUtils::addDefaultUser($basePath, $data, $projectName);
         }
+    }
+
+    /**
+     * Deletes a project with the given name
+     *
+     * @param string $name
+     *
+     * @throws NotFoundException
+     * @throws UnprocessableEntityException
+     */
+    public function delete($name)
+    {
+        if (!is_string($name) || !$name) {
+            throw new UnprocessableEntityException('Invalid project name');
+        }
+
+        $basePath = $this->container->get('path_base');
+
+        // Avoid throwing error showing the path where config files are stored
+        try {
+            InstallerUtils::ensureConfigFileExists($basePath, $name);
+        } catch (InvalidPathException $e) {
+            throw new NotFoundException(
+                'Unknown Project: ' . $name
+            );
+        }
+
+        InstallerUtils::cleanDatabase($basePath, $name);
+        InstallerUtils::deleteConfigFile($basePath, $name);
     }
 
     /**

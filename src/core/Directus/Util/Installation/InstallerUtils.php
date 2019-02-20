@@ -109,6 +109,11 @@ class InstallerUtils
         static::runMigrationAndSeeder($config);
     }
 
+    public static function cleanDatabase($basePath, $projectName = null)
+    {
+        static::dropTables($basePath, $projectName);
+    }
+
     /**
      * Update Directus Tables from Migrations
      *
@@ -391,6 +396,22 @@ class InstallerUtils
     }
 
     /**
+    * Deletes the given config file
+    *
+    * @param string $path
+    * @param string|null $projectName
+    */
+    public static function deleteConfigFile($path, $projectName = null)
+    {
+        $filePath = static::createConfigPath($path, $projectName);
+
+        static::ensureConfigFileExists($path, $projectName);
+        static::ensureFileCanBeDeleted($filePath);
+
+        @unlink($filePath);
+    }
+
+    /**
      * Creates a config path for the given environment
      *
      * @param string $path
@@ -560,6 +581,27 @@ class InstallerUtils
     }
 
     /**
+     * Check if the api configuration file exists
+     *
+     * @param string $basePath
+     * @param null $projectName
+     *
+     * @throws \Exception
+     */
+    public static function ensureConfigFileExists($basePath, $projectName = null)
+    {
+        $basePath = rtrim($basePath, '/');
+        $configName = static::getConfigName($projectName);
+        $configPath = static::createConfigPath($basePath, $projectName);
+
+        if (!file_exists($configPath)) {
+            throw new InvalidPathException(
+                sprintf('Config file for "%s" does not exist at: "%s"', $configName, $basePath)
+            );
+        }
+    }
+
+    /**
      * Creates a config path from data
      *
      * @param string $path
@@ -697,27 +739,6 @@ class InstallerUtils
     }
 
     /**
-     * Check if the api configuration file exists
-     *
-     * @param string $basePath
-     * @param null $projectName
-     *
-     * @throws \Exception
-     */
-    private static function ensureConfigFileExists($basePath, $projectName = null)
-    {
-        $basePath = rtrim($basePath, '/');
-        $configName = static::getConfigName($projectName);
-        $configPath = static::createConfigPath($basePath, $projectName);
-
-        if (!file_exists($configPath)) {
-            throw new InvalidPathException(
-                sprintf('Config file for "%s" does not exist at: "%s"', $configName, $basePath)
-            );
-        }
-    }
-
-    /**
      * Checks if the migration configuration file exists
      *
      * @param string $basePath
@@ -752,11 +773,27 @@ class InstallerUtils
     }
 
     /**
+    * Throws an exception when the given file path cannot be deleted
+    *
+    * @param string $path
+    *
+    * @throws InvalidPathException
+    */
+    private static function ensureFileCanBeDeleted($path)
+    {
+        if (!is_writable($path) || !is_file($path)) {
+            throw new InvalidPathException(
+                sprintf('Unable to delete the config file at "%s"', $path)
+            );
+        }
+    }
+
+    /**
      * Throws an exception when file exists
      *
      * @param string $path
      *
-     * @throws InvalidPathException
+     * @throws InvalidConfigPathException
      */
     private static function ensureFileDoesNotExists($path)
     {
