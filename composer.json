@@ -5,7 +5,7 @@
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/wellingguzman/zend-db"
+      "url": "https://github.com/directus/zend-db"
     }
   ],
   "require": {
