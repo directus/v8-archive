@@ -16,20 +16,15 @@
 
 <script>
 import mixin from "../../../mixins/interface";
+import format from "date-fns/format";
+import parse from "date-fns/parse";
 
 export default {
   mixins: [mixin],
   computed: {
     formattedValue() {
       if (!this.value) return null;
-
-      if (this.options.utc) {
-        return this.value.includes("T")
-          ? this.value.substring(0, 16)
-          : this.toDatetimeLocal(new Date(this.value.replace(" ", "T") + "Z"));
-      }
-
-      return this.toDatetimeLocal(new Date(this.value));
+      return format(new Date(this.value), "YYYY-MM-DDTHH:mm:ss");
     }
   },
   created() {
@@ -41,34 +36,10 @@ export default {
     updateValue(value) {
       if (!value) return;
 
-      if (this.options.utc) {
-        const timezoneOffset = new Date(value).getTimezoneOffset();
-        const offsetHours = this.ten(Math.abs(timezoneOffset / 60));
-        const offsetMinutes = this.ten(Math.abs(timezoneOffset % 60));
-
-        return this.$emit(
-          "input",
-          value +
-            (timezoneOffset < 0 ? "-" : "+") +
-            offsetHours +
-            ":" +
-            offsetMinutes
-        );
-      }
-
-      return this.$emit("input", value);
-    },
-    toDatetimeLocal(date) {
-      const yyyy = date.getFullYear();
-      const mm = this.ten(date.getMonth() + 1);
-      const dd = this.ten(date.getDate());
-      const hh = this.ten(date.getHours());
-      const ii = this.ten(date.getMinutes());
-      const ss = this.ten(date.getSeconds());
-      return `${yyyy}-${mm}-${dd}T${hh}:${ii}:${ss}`;
-    },
-    ten(num) {
-      return String(num).padStart(2, 0);
+      return this.$emit(
+        "input",
+        format(parse(value), "YYYY-MM-DD HH:mm:ss")
+      );
     }
   }
 };
