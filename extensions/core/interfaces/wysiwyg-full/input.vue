@@ -1,6 +1,6 @@
 <template>
   <div class="interface-wysiwyg-container" ref="parent">
-    <div ref="editor" class="interface-wysiwyg"></div>
+    <div ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]"></div>
     <portal to="modal" v-if="chooseExisting">
       <v-modal
         :title="$t('choose_one')"
@@ -70,6 +70,7 @@ export default {
 
       this.editor = new Quill(this.$refs.editor, {
         theme: "snow",
+        readOnly: this.readonly,
         modules: {
           toolbar:
             typeof this.options.toolbarOptions === "string"
@@ -183,6 +184,16 @@ export default {
   &:after {
     content: "add_photo_alternate";
     font-size: 20px;
+  }
+}
+
+.ql-editor {
+  &.readonly{
+    background-color: var(--lightest-gray) !important;
+    cursor: not-allowed;
+    &:focus {
+      color: var(--gray);
+    }
   }
 }
 </style>
