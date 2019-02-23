@@ -3,7 +3,7 @@
     ref="input"
     :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']"
   >
-    <div ref="editor" class="interface-wysiwyg"></div>
+    <div ref="editor" :class="['interface-wysiwyg', (readonly? 'readonly' : '')]"></div>
     <button
       v-on:click="distractionFree = !distractionFree"
       type="button"
@@ -231,13 +231,14 @@ button.fullscreen-toggle {
         color: var(--accent);
       }
   }
-// where contenteditable attr is NOT present, then show "disabled" styling
-  background-color: var(--lightest-gray);
-  cursor: not-allowed;
-  &:focus {
-    color: var(--gray);
-  }
 
+  &.readonly {
+    background-color: var(--lightest-gray);
+    cursor: not-allowed;
+    &:focus {
+      color: var(--gray);
+    }
+  }
 
   &:-webkit-autofill {
     box-shadow: inset 0 0 0 1000px var(--white) !important;
