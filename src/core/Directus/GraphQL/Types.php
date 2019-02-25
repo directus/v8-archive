@@ -1,7 +1,10 @@
 <?php
 namespace Directus\GraphQL;
 
-use Directus\GraphQL\Type\DirectusFileType;
+use Directus\GraphQL\Type\Directus\FilesType;
+use Directus\GraphQL\Type\Directus\FileThumbnailType;
+use Directus\GraphQL\Type\Directus\UsersType;
+use Directus\GraphQL\Type\FieldsType;
 use Directus\GraphQL\Type\QueryType;
 use Directus\GraphQL\Type\NodeType;
 use Directus\GraphQL\Type\Scalar\DateType;
@@ -10,16 +13,48 @@ use Directus\GraphQL\Type\Scalar\JSONType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
+use Directus\Application\Application;
 
 class Types
 {
     // Object types:
-    private static $directusFile;
+    private static $files;
+    private static $fileThumbnail;
+    private static $users;
     private static $query;
+    private static $userCollection;
+    //Used to save the reference of the already created user collection.
+    private static $userCollections = [];
 
     public static function directusFile()
     {
-        return self::$directusFile ?: (self::$directusFile = new DirectusFileType());
+        return self::$files ?: (self::$files = new FilesType());
+    }
+
+    public static function fileThumbnail()
+    {
+        return self::$fileThumbnail ?: (self::$fileThumbnail = new FileThumbnailType());
+    }
+
+    public static function users()
+    {
+        return self::$users ?: (self::$users = new UsersType());
+    }
+
+    /**
+     * This function creates run-time GraphQL type according to user created collections.
+     * If the type is already created, we'll return existing object.
+     * Else create a new type and add it to array.
+     */
+    public static function userCollection($query)
+    {
+        if (!array_key_exists($query, self::$userCollections)) {
+            $fieldsType =  new FieldsType($query);
+            self::$userCollections[$query] = $fieldsType;
+            return $fieldsType;
+        } else {
+            return self::$userCollections[$query];
+        }
     }
 
     /**

@@ -15,14 +15,17 @@ class UserCollectionList {
     public function __construct(){
 
         $container = Application::getInstance()->getContainer();
+
+        //List all the collection
         $service = new TablesService($container);
         $collectionData = $service->findAll();
+
         $itemsService = new ItemsService($container);
 
         foreach($collectionData['data'] as  $value){
             if( ! $value['single'] && $value['managed']){
 
-                $type = Types::fields($value['collection']);
+                $type = Types::userCollection($value['collection']);
 
                 //Add the individual collection item
                 $this->list[$value['collection'].'Item'] = [

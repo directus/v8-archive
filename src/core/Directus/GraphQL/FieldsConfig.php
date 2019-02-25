@@ -4,20 +4,24 @@ namespace Directus\GraphQL;
 use Directus\GraphQL\Types;
 use Directus\Application\Application;
 use Directus\Services\TablesService;
+use Directus\Services\RelationsService;
+use Directus\GraphQL\Type\FieldsType;
 
 class FieldsConfig
 {
     private  $collection;
+    private  $container;
     public function __construct($collection)
     {
+        $this->container = Application::getInstance()->getContainer();
         $this->collection = $collection;
     }
 
     public function getFields(){
         $fields = [];
 
-        $container = Application::getInstance()->getContainer();
-        $service = new TablesService($container);
+
+        $service = new TablesService($this->container);
         $collectionData = $service->findByIds(
             $this->collection
         );
@@ -49,6 +53,11 @@ class FieldsConfig
                 case 'json':
                     $fields[$k] = Types::json();
                 break;
+                case 'm2o':
+                    $relation = $this->getRelation($v['collection'] , $v['field']);
+                    $collectionOne = $relation['collection_one'];
+                    $fields[$k] = Types::userCollection($collectionOne);
+                break;
                 default:
                     $fields[$k] = Types::string();
             }
@@ -56,7 +65,21 @@ class FieldsConfig
                 $fields[$k] = Types::NonNull($fields[$k]);
             }
         }
-
         return $fields;
+    }
+
+    private function getRelation($collection , $field){
+        //List all the relation
+        $relationsService = new RelationsService($this->container);
+        $relationsData = $relationsService->findAll();
+        $relation = [];
+        foreach($relationsData['data'] as $k => $v){
+            if($v['collection_many'] == $collection && $v['field_many'] == $field){
+                $relation = $v;
+                break;
+            }
+        }
+        return $relation;
+
     }
 }
