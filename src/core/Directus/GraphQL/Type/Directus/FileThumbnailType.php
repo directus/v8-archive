@@ -1,5 +1,5 @@
 <?php
-namespace Directus\GraphQL\Type;
+namespace Directus\GraphQL\Type\Directus;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
