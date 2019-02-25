@@ -15,7 +15,9 @@ class FieldsType extends ObjectType
         $config = [
             'name' => $inputFromQuery,
             'description' => 'Collection Fields.',
-            'fields' => $fieldConfig->getFields(),
+            'fields' => function() use ($fieldConfig) {
+                return $fieldConfig->getFields();
+            },
             'interfaces' => [
                 Types::node()
             ],
