@@ -1,5 +1,11 @@
 <template>
-    <div class="interface-wysiwyg-container editor">
+    <div class="interface-wysiwyg-container editor"
+         :id="name"
+         :name="name"
+         :readonly="readonly"
+         :value="value"
+         @input="$emit('input', $event)"
+    >
         <editor-menu-bar :editor="editor">
             <div class="menubar" slot-scope="{ commands, isActive }">
 
@@ -135,6 +141,7 @@
 </template>
 
 <script>
+    import vue from '../../../node_modules/vue'
     import Icon from './components/icon'
     import {Editor, EditorContent, EditorMenuBar} from 'tiptap'
     import {
@@ -164,10 +171,10 @@
         mixins: [mixin],
         watch: {
             value(newVal) {
-                if (newVal !== this.editor.root.innerHTML) {
-                    this.editor.clipboard.dangerouslyPasteHTML(this.value);
+                if (newVal !== this.editor.view.dom.innerHTML) {
+                   console.log(this.editor.view.dom.innerHTML)
                 }
-            }
+            },
         },
 
         methods: {
@@ -193,20 +200,12 @@
                         new Underline(),
                         new History(),
                     ],
-                    content: `<h2>Hi there,</h2>
-                          <blockquote>
-                            ... it's amazing 👏
-                          </blockquote>
-                            `,
+                    content: "",
                 });
 
                 if (this.value) {
                     this.editor.setContent(this.value);
                 }
-
-                console.log(this.editor);
-                console.log(this.editor.element);
-
             },
             destroy() {
                 this.editor.destroy();
@@ -227,19 +226,6 @@
 
         mounted() {
             this.init();
-            this.editor.element.addEventListener("input", () => {
-                const content = this.editor.getHTML();
-
-                console.log('dsfesfdf')
-                console.log(content)
-
-
-                if (content === "<p><br></p>") {
-                    return this.$emit("input", null);
-                }
-
-                this.$emit("input", content);
-            });
         },
         beforeDestroy() {
             this.editor.destroy()

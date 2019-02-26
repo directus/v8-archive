@@ -2,12 +2,20 @@
   "name": "@directus/wysiwyg",
   "version": "1.0.0",
   "description": "",
-  "keywords": ["prose-mirror", "directus", "wysiwyg", "vue", "tiptap"],
+  "keywords": [
+    "prose-mirror",
+    "directus",
+    "wysiwyg",
+    "vue",
+    "tiptap"
+  ],
   "author": "Silvan Hahn <silvan@dev7.ch>",
   "license": "GPL-3.0",
   "dependencies": {
+    "prosemirror-utils": "^0.7.6",
     "tiptap": "^1.13.0",
-    "tiptap-extensions": "^1.13.0"
+    "tiptap-extensions": "^1.13.0",
+    "vue": "^2.6.7"
   },
   "devDependencies": {
     "babel-core": "^6.26.3"
