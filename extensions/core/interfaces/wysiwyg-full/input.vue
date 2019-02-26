@@ -1,199 +1,252 @@
 <template>
-  <div class="interface-wysiwyg-container" ref="parent">
-    <div ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]"></div>
-    <portal to="modal" v-if="chooseExisting">
-      <v-modal
-        :title="$t('choose_one')"
-        :buttons="{
-          done: {
-            text: $t('done')
-          }
-        }"
-        @close="chooseExisting = false"
-        @done="chooseExisting = false"
-      >
-        <v-items
-          collection="directus_files"
-          view-type="cards"
-          :selection="[]"
-          :view-options="viewOptions"
-          @select="insertItem($event[0])"
-        ></v-items>
-      </v-modal>
-    </portal>
-  </div>
+    <div class="interface-wysiwyg-container editor">
+        <editor-menu-bar :editor="editor">
+            <div class="menubar" slot-scope="{ commands, isActive }">
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.bold() }"
+                        @click="commands.bold"
+                >
+                    <icon name="bold"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.italic() }"
+                        @click="commands.italic"
+                >
+                    <icon name="italic"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.strike() }"
+                        @click="commands.strike"
+                >
+                    <icon name="strike"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.underline() }"
+                        @click="commands.underline"
+                >
+                    <icon name="underline"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.code() }"
+                        @click="commands.code"
+                >
+                    <icon name="code"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.paragraph() }"
+                        @click="commands.paragraph"
+                >
+                    <icon name="paragraph"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.heading({ level: 1 }) }"
+                        @click="commands.heading({ level: 1 })"
+                >
+                    H1
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.heading({ level: 2 }) }"
+                        @click="commands.heading({ level: 2 })"
+                >
+                    H2
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.heading({ level: 3 }) }"
+                        @click="commands.heading({ level: 3 })"
+                >
+                    H3
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.bullet_list() }"
+                        @click="commands.bullet_list"
+                >
+                    <icon name="ul"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.ordered_list() }"
+                        @click="commands.ordered_list"
+                >
+                    <icon name="ol"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.blockquote() }"
+                        @click="commands.blockquote"
+                >
+                    <icon name="quote"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        :class="{ 'is-active': isActive.code_block() }"
+                        @click="commands.code_block"
+                >
+                    <icon name="code"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        @click="commands.horizontal_rule"
+                >
+                    <icon name="hr"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        @click="commands.undo"
+                >
+                    <icon name="undo"/>
+                </button>
+
+                <button
+                        class="menubar__button"
+                        @click="commands.redo"
+                >
+                    <icon name="redo"/>
+                </button>
+
+            </div>
+        </editor-menu-bar>
+        <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" class="editor__content" :editor="editor"/>
+    </div>
 </template>
 
 <script>
-import Quill from "quill";
-import "quill/dist/quill.core.css";
-import "./quill.theme.css";
-import { ImageUpload } from "quill-image-upload";
+    import Icon from './components/icon'
+    import {Editor, EditorContent, EditorMenuBar} from 'tiptap'
+    import {
+        Blockquote,
+        CodeBlock,
+        HardBreak,
+        Heading,
+        HorizontalRule,
+        OrderedList,
+        BulletList,
+        ListItem,
+        TodoItem,
+        TodoList,
+        Bold,
+        Code,
+        Italic,
+        Link,
+        Strike,
+        Underline,
+        History,
+    } from 'tiptap-extensions'
 
-Quill.register("modules/imageUpload", ImageUpload);
+    import mixin from "../../../mixins/interface";
 
-import mixin from "../../../mixins/interface";
-
-export default {
-  name: "interface-wysiwyg",
-  mixins: [mixin],
-  mounted() {
-    this.init();
-  },
-  watch: {
-    value(newVal) {
-      if (newVal !== this.editor.root.innerHTML) {
-        this.editor.clipboard.dangerouslyPasteHTML(this.value);
-      }
-    }
-  },
-  data() {
-    return {
-      chooseExisting: false,
-      viewOptions: {
-        title: "title",
-        subtitle: "type",
-        content: "description",
-        src: "data"
-      }
-    };
-  },
-  methods: {
-    init() {
-      let uploadURL = null;
-
-      if (this.options.upload_files) {
-        uploadURL = `${this.$store.state.auth.url}/${
-          this.$store.state.auth.project
-        }/files`;
-      }
-
-      this.editor = new Quill(this.$refs.editor, {
-        theme: "snow",
-        readOnly: this.readonly,
-        modules: {
-          toolbar:
-            typeof this.options.toolbarOptions === "string"
-              ? JSON.parse(this.options.toolbarOptions)
-              : this.options.toolbarOptions,
-          imageUpload: {
-            // server url. If the url is empty then the base64 returns
-            url: uploadURL,
-
-            // custom form name
-            name: "image",
-            withCredentials: false,
-            headers: {
-              Authorization: `Bearer ${this.$api.token}`
-            },
-            csrf: { token: "token", hash: "" }, // add custom CSRF
-            customUploader: null, // add custom uploader
-            // personalize successful callback and call next function to insert new url to the editor
-            callbackOK: (serverResponse, next) => {
-              this.$store.dispatch("loadingFinished", "uploadingFile");
-              // pass image url to editor
-              if (typeof serverResponse === "string") {
-                return next(serverResponse);
-              } else if (this.options.custom_url) {
-                return next(
-                  `${this.options.custom_url}${serverResponse.data.filename}`
-                );
-              }
-
-              return next(serverResponse.data.data.full_url);
-            },
-            // personalize failed callback
-            callbackKO: serverError => {
-              this.$store.dispatch("loadingFinished", "uploadingFile");
-
-              try {
-                alert(JSON.parse(serverError.body).error.message);
-              } catch (e) {}
-            },
-            // optional
-            // add callback when a image have been chosen
-            checkBeforeSend: (file, next) => {
-              this.$store.dispatch("loadingStart", {
-                id: "uploadingFile"
-              });
-              next(file); // go back to component and send to the server
+    export default {
+        name: "interface-wysiwyg",
+        mixins: [mixin],
+        watch: {
+            value(newVal) {
+                if (newVal !== this.editor.root.innerHTML) {
+                    this.editor.clipboard.dangerouslyPasteHTML(this.value);
+                }
             }
-          }
-        }
-      });
+        },
 
-      this.editor.clipboard.dangerouslyPasteHTML(this.value);
+        methods: {
 
-      this.editor.on("text-change", () => {
-        this.$emit("input", this.editor.root.innerHTML);
-      });
+            init() {
+                this.editor = new Editor({
+                    extensions: [
+                        new Blockquote(),
+                        new BulletList(),
+                        new CodeBlock(),
+                        new HardBreak(),
+                        new Heading({levels: [1, 2, 3]}),
+                        new HorizontalRule(),
+                        new ListItem(),
+                        new OrderedList(),
+                        new TodoItem(),
+                        new TodoList(),
+                        new Bold(),
+                        new Code(),
+                        new Italic(),
+                        new Link(),
+                        new Strike(),
+                        new Underline(),
+                        new History(),
+                    ],
+                    content: `<h2>Hi there,</h2>
+                          <blockquote>
+                            ... it's amazing 👏
+                          </blockquote>
+                            `,
+                });
 
-      // Make custom icons for image buttons
-      const customButton = this.$refs.parent.querySelector(".ql-choose-existing");
-      if (customButton) {
-        customButton.className += " material-icons icon";
-        customButton.addEventListener("click", evt => this.openModal());
-      }
-      const imageButton = this.$refs.parent.querySelector(".ql-image");
-      if (imageButton) {
-        imageButton.innerHTML = "";
-        imageButton.className += " material-icons icon";
-      }
-    },
-    openModal() {
-      this.chooseExisting = true;
-    },
-    insertItem(image) {
-      let url = image.data.full_url;
-      if (this.options.custom_url)
-        url = `${this.options.custom_url}${image.filename}`;
-      const index =
-        (this.editor.getSelection() || {}).index || this.editor.getLength();
-      this.editor.insertEmbed(index, "image", url, "user");
-      this.chooseExisting = false;
+                if (this.value) {
+                    this.editor.setContent(this.value);
+                }
+
+                console.log(this.editor);
+                console.log(this.editor.element);
+
+            },
+            destroy() {
+                this.editor.destroy();
+            },
+
+        },
+        components: {
+            EditorContent,
+            EditorMenuBar,
+            Icon
+        },
+
+        data() {
+            return {
+                editor: null,
+            }
+        },
+
+        mounted() {
+            this.init();
+            this.editor.element.addEventListener("input", () => {
+                const content = this.editor.getHTML();
+
+                console.log('dsfesfdf')
+                console.log(content)
+
+
+                if (content === "<p><br></p>") {
+                    return this.$emit("input", null);
+                }
+
+                this.$emit("input", content);
+            });
+        },
+        beforeDestroy() {
+            this.editor.destroy()
+        },
     }
-  }
-};
 </script>
 
 <style lang="scss">
-.interface-wysiwyg-container {
-  max-width: var(--width-x-large);
-}
-.material-icons {
-  font-size: 20px;
-}
-.ql-choose-existing {
-  padding: 3px 5px;
-  color: var(--light-gray);
-  &:hover {
-    color: var(--accent);
-  }
-  &:after {
-    content: "collections";
-    font-size: 20px;
-  }
-}
 
-.ql-image {
-  padding: 3px 5px;
-  color: var(--light-gray);
-  &:hover {
-    color: var(--accent);
-  }
-  &:after {
-    content: "add_photo_alternate";
-    font-size: 20px;
-  }
-}
-
-.ql-editor {
-  &.readonly{
-    background-color: var(--lightest-gray) !important;
-    cursor: not-allowed;
-    &:focus {
-      color: var(--gray);
-    }
-  }
-}
 </style>
