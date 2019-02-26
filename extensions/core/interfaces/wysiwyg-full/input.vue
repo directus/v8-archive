@@ -2,9 +2,7 @@
     <div class="interface-wysiwyg-container editor"
          :id="name"
          :name="name"
-         :readonly="readonly"
-         :value="value"
-         @input="$emit('input', $event)"
+         @input="$emit('input', $event.target.innerHTML)"
     >
         <editor-menu-bar :editor="editor">
             <div class="menubar" slot-scope="{ commands, isActive }">
@@ -136,12 +134,11 @@
 
             </div>
         </editor-menu-bar>
-        <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" class="editor__content" :editor="editor"/>
+            <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" :value="value" class="editor__content" :editor="editor"/>
     </div>
 </template>
 
 <script>
-    import vue from '../../../node_modules/vue'
     import Icon from './components/icon'
     import {Editor, EditorContent, EditorMenuBar} from 'tiptap'
     import {
@@ -171,8 +168,11 @@
         mixins: [mixin],
         watch: {
             value(newVal) {
-                if (newVal !== this.editor.view.dom.innerHTML) {
+                if (newVal) {
                    console.log(this.editor.view.dom.innerHTML)
+                    console.log(this)
+                    console.log(this.value)
+                    //return this.value.target.innerHTML
                 }
             },
         },
