@@ -114,6 +114,12 @@
                 </button>
                 <button
                         class="menubar__button"
+                        @click="showImagePrompt(commands.image)"
+                >
+                    <icon name="image" />
+                </button>
+                <button
+                        class="menubar__button"
                         @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
                 >
                     <icon name="table_chart" />
@@ -203,6 +209,7 @@
         Strike,
         Underline,
         History,
+        Image,
         Table,
         TableHeader,
         TableRow,
@@ -226,7 +233,6 @@
         },
 
         methods: {
-
             init() {
                 this.editor = new Editor({
                     extensions: [
@@ -241,6 +247,7 @@
                         new TodoItem(),
                         new TodoList(),
                         new Bold(),
+                        new Image(),
                         new Code(),
                         new Italic(),
                         new Link(),
@@ -259,6 +266,14 @@
                     this.editor.setContent(this.value);
                 }
             },
+
+            showImagePrompt(command) {
+                const src = prompt('Enter the url of your image here')
+                if (src !== null) {
+                    command({ src })
+                }
+            },
+            
             destroy() {
                 this.editor.destroy();
             },
