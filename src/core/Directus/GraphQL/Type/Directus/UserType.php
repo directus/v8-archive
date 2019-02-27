@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\Type;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class UsersType extends ObjectType
+class UserType extends ObjectType
 {
     public function __construct()
     {
@@ -34,7 +34,7 @@ class UsersType extends ObjectType
                     'last_page' => Types::string(),
                     'token' => Types::string(),
                     'external_id' => Types::string(),
-                    'avatar' => Types::files()
+                    'avatar' => Types::file()
                 ];
             },
             'interfaces' => [

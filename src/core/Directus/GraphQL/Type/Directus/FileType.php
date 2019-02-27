@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class FilesType extends ObjectType
+class FileType extends ObjectType
 {
     private $container;
     public function __construct()
@@ -27,6 +27,7 @@ class FilesType extends ObjectType
                         'title' => Types::string(),
                         'description' => Types::string(),
                         'location' => Types::string(),
+                        'tags' => Types::listOf(Types::string()),
                         'width' => Types::int(),
                         'height' => Types::int(),
                         'filesize' => Types::int(),
@@ -34,12 +35,14 @@ class FilesType extends ObjectType
                         'metadata' => Types::string(),
                         'type' => Types::string(),
                         'charset' => Types::string(),
+                        'embed' => Types::string(),
                         'storage' => Types::string(),
                         'full_url' => Types::string(),
                         'url' => Types::string(),
                         'thumbnails' => Types::listOf(Types::fileThumbnail()),
                         'uploaded_on' => Types::datetime(),
-                        'uploaded_by' => Types::users(),
+                        'uploaded_by' => Types::user(),
+                        'checksum' => Types::string(),
                 ];
             },
             'interfaces' => [
