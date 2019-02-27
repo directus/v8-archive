@@ -5,7 +5,7 @@
          @input="$emit('input', $event.target.innerHTML)"
     >
         <editor-menu-bar :editor="editor">
-            <div class="menubar" slot-scope="{ commands, isActive }">
+            <div class="menubar" slot-scope="{ commands, isActive }" :class="{'options-is-open':isActive.table()}">
                 <button
                         class="menubar__button"
                         :class="{ 'is-active': isActive.bold() }"
@@ -116,65 +116,90 @@
                         class="menubar__button"
                         @click="showImagePrompt(commands.image)"
                 >
-                    <icon name="image" />
+                    <icon name="image"/>
                 </button>
                 <button
                         class="menubar__button"
                         @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
                 >
-                    <icon name="table_chart" />
+                    <icon name="table_chart"/>
                 </button>
 
-                <span v-if="isActive.table()">
-						<button
-                                class="menubar__button"
-                                @click="commands.deleteTable"
-                        >
-							<icon name="delete_table" />
-						</button>
-						<button
-                                class="menubar__button"
-                                @click="commands.addColumnBefore"
-                        >
-							<icon name="add_col_before" />
-						</button>
-						<button
-                                class="menubar__button"
-                                @click="commands.addColumnAfter"
-                        >
-							<icon name="add_col_after" />
-						</button>
-						<button
-                                class="menubar__button"
-                                @click="commands.deleteColumn"
-                        >
-							<icon name="delete_col" />
-						</button>
-						<button
-                                class="menubar__button"
-                                @click="commands.addRowBefore"
-                        >
-							<icon name="add_row_before" />
-						</button>
-						<button
-                                class="menubar__button"
-                                @click="commands.addRowAfter"
-                        >
-							<icon name="add_row_after" />
-						</button>
-						<button
-                                class="menubar__button"
-                                @click="commands.deleteRow"
-                        >
-							<icon name="delete_row" />
-						</button>
-						<button
-                                class="menubar__button"
-                                @click="commands.toggleCellMerge"
-                        >
-							<icon name="combine_cells" />
-						</button>
-					</span>
+                <div class="options-fixed" :class="{'is-open':isActive.table()}" v-if="isActive.table()">
+                    <button
+                            class="menubar__button"
+                            @click="commands.deleteTable"
+                    >
+                      <span class="sup remove">
+                            <icon name="remove_circle"/>
+                        </span>
+                        <icon name="table_chart"/>
+                    </button>
+                    <button
+                            title="Insert before column"
+                            class="menubar__button"
+                            @click="commands.addColumnBefore"
+                    >
+                        <span class="sup add">
+                            <icon name="add_circle"/>
+                        </span>
+                        <icon name="tab"/>
+                    </button>
+                    <button
+                            title="Insert after column"
+                            class="menubar__button"
+                            @click="commands.addColumnAfter"
+                    >
+                         <span class="sup add">
+                            <icon name="add_circle"/>
+                        </span>
+                        <icon name="tab"/>
+                    </button>
+                    <button
+                            title="Delete column"
+                            class="menubar__button"
+                            @click="commands.deleteColumn"
+                    >
+                         <span class="sup remove">
+                            <icon name="remove_circle"/>
+                        </span>
+                        <icon name="tab"/>
+                    </button>
+                    <button
+                            title="Add row before"
+                            class="menubar__button"
+                            @click="commands.addRowBefore"
+                    >
+                         <span class="sup add">
+                            <icon name="add_circle"/>
+                        </span>
+                        <icon name="border_top"/>
+                    </button>
+                    <button
+                            class="menubar__button"
+                            @click="commands.addRowAfter"
+                    >
+                        <span class="sup add">
+                            <icon name="add_circle"/>
+                        </span>
+                        <icon name="border_bottom"/>
+                    </button>
+                    <button
+                            class="menubar__button"
+                            @click="commands.deleteRow"
+                    >
+                           <span class="sup remove">
+                            <icon name="remove_circle"/>
+                        </span>
+                        <icon name="border_horizontal"/>
+                    </button>
+                    <button
+                            class="menubar__button"
+                            @click="commands.toggleCellMerge"
+                    >
+                        <icon name="merge_type"/>
+                    </button>
+                </div>
 
                 <button
                         class="menubar__button"
@@ -184,7 +209,8 @@
                 </button>
             </div>
         </editor-menu-bar>
-            <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" class="editor__content" :editor="editor"/>
+        <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]"
+                        class="editor__content" :editor="editor"/>
     </div>
 </template>
 
@@ -224,10 +250,9 @@
         watch: {
             value(newVal) {
                 if (newVal) {
-                   console.log(this.editor.view.dom.innerHTML)
+                    console.log(this.editor.view.dom.innerHTML)
                     console.log(this)
                     console.log(this.value)
-                    //return this.value.target.innerHTML
                 }
             },
         },
@@ -270,7 +295,7 @@
             showImagePrompt(command) {
                 const src = prompt('Enter the url of your image here')
                 if (src !== null) {
-                    command({ src })
+                    command({src})
                 }
             },
 
@@ -302,6 +327,13 @@
 
 <style lang="scss">
     .editor {
+        position: relative;
+
+        .menubar {
+            &.options-is-open {
+                margin-bottom: 5px;
+            }
+        }
         .menubar__button {
             position: relative;
             span, i {
@@ -310,7 +342,7 @@
                 top: 50%;
                 transform: translate(-50%, -50%);
             }
-             .label {
+            .label {
                 top: calc(50% - 4px);
                 left: calc(50% + 2px);
                 transform: translate(-50%, -50%);
@@ -331,6 +363,60 @@
                         border: 1px solid var(--gray);
                     }
                 }
+            }
+        }
+
+        .options-fixed {
+            position: absolute;
+            top: 0;
+            opacity: 0;
+            transition: opacity .3s ease-in-out;
+            z-index: 1;
+            background-color: var(--lightest-gray);
+            width: 100%;
+
+            .menubar__button {
+                margin-left: 1px;
+                position: relative;
+
+                i {
+                    top: calc(50% + 4px);
+                    left: calc(50% + 2px);
+                    color: inherit;
+                    position: absolute;
+                    transform: translate(-50%, -50%);
+                }
+
+                .sup {
+                    height: 12px;
+                    width: 12px;
+                    position: absolute;
+                    color: var(--warning);
+                    z-index: 1;
+                    font-size: 12px;
+                    top: 50%;
+                    left: 0;
+                    transform: translate(-50%, calc(-50% - 10px));
+
+                    &.add {
+                        color: var(--success)
+                    }
+
+                    &.remove {
+                        color: var(--danger)
+                    }
+
+                    i {
+                        height: 12px;
+                        width: 12px;
+                        font-size: 16px;
+                    }
+                }
+            }
+            border-radius: 4px;
+
+            &.is-open {
+                opacity: 1;
             }
         }
     }
