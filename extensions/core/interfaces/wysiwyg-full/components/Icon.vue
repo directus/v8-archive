@@ -1,8 +1,6 @@
 <template>
     <div class="icon" :class="[`icon--${name}`, `icon--${size}`, { 'has-align-fix': fixAlign }]">
-        <svg class="icon__svg">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" :xlink:href="'#icon--' + name"></use>
-        </svg>
+        <i class="material-icons icon">{{name}}</i>
     </div>
 </template>
 
@@ -28,8 +26,8 @@
         position: relative;
         display: inline-block;
         vertical-align: middle;
-        width: 0.8rem;
-        height: 0.8rem;
+        width: 30px;
+        height: 30px;
         margin: 0 .3rem;
         top: -.05rem;
         fill: currentColor;

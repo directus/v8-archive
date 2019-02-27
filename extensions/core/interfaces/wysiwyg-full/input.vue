@@ -6,13 +6,12 @@
     >
         <editor-menu-bar :editor="editor">
             <div class="menubar" slot-scope="{ commands, isActive }">
-
                 <button
                         class="menubar__button"
                         :class="{ 'is-active': isActive.bold() }"
                         @click="commands.bold"
                 >
-                    <icon name="bold"/>
+                    <icon name="format_bold"/>
                 </button>
 
                 <button
@@ -20,7 +19,7 @@
                         :class="{ 'is-active': isActive.italic() }"
                         @click="commands.italic"
                 >
-                    <icon name="italic"/>
+                    <icon name="format_italic"/>
                 </button>
 
                 <button
@@ -28,7 +27,7 @@
                         :class="{ 'is-active': isActive.strike() }"
                         @click="commands.strike"
                 >
-                    <icon name="strike"/>
+                    <icon name="format_strikethrough"/>
                 </button>
 
                 <button
@@ -36,7 +35,7 @@
                         :class="{ 'is-active': isActive.underline() }"
                         @click="commands.underline"
                 >
-                    <icon name="underline"/>
+                    <icon name="format_underline"/>
                 </button>
 
                 <button
@@ -52,7 +51,7 @@
                         :class="{ 'is-active': isActive.paragraph() }"
                         @click="commands.paragraph"
                 >
-                    <icon name="paragraph"/>
+                    <icon name="subject"/>
                 </button>
 
                 <button
@@ -60,7 +59,8 @@
                         :class="{ 'is-active': isActive.heading({ level: 1 }) }"
                         @click="commands.heading({ level: 1 })"
                 >
-                    H1
+                    <span>H1</span>
+                    <icon name="crop_square"/>
                 </button>
 
                 <button
@@ -68,7 +68,8 @@
                         :class="{ 'is-active': isActive.heading({ level: 2 }) }"
                         @click="commands.heading({ level: 2 })"
                 >
-                    H2
+                    <span>H2</span>
+                    <icon name="crop_square"/>
                 </button>
 
                 <button
@@ -76,7 +77,8 @@
                         :class="{ 'is-active': isActive.heading({ level: 3 }) }"
                         @click="commands.heading({ level: 3 })"
                 >
-                    H3
+                    <span>H3</span>
+                    <icon name="crop_square"/>
                 </button>
 
                 <button
@@ -84,7 +86,7 @@
                         :class="{ 'is-active': isActive.bullet_list() }"
                         @click="commands.bullet_list"
                 >
-                    <icon name="ul"/>
+                    <icon name="format_list_bulleted"/>
                 </button>
 
                 <button
@@ -92,7 +94,7 @@
                         :class="{ 'is-active': isActive.ordered_list() }"
                         @click="commands.ordered_list"
                 >
-                    <icon name="ol"/>
+                    <icon name="format_list_numbered"/>
                 </button>
 
                 <button
@@ -100,7 +102,7 @@
                         :class="{ 'is-active': isActive.blockquote() }"
                         @click="commands.blockquote"
                 >
-                    <icon name="quote"/>
+                    <icon name="format_quote"/>
                 </button>
 
                 <button
@@ -110,6 +112,63 @@
                 >
                     <icon name="code"/>
                 </button>
+                <button
+                        class="menubar__button"
+                        @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
+                >
+                    <icon name="table_chart" />
+                </button>
+
+                <span v-if="isActive.table()">
+						<button
+                                class="menubar__button"
+                                @click="commands.deleteTable"
+                        >
+							<icon name="delete_table" />
+						</button>
+						<button
+                                class="menubar__button"
+                                @click="commands.addColumnBefore"
+                        >
+							<icon name="add_col_before" />
+						</button>
+						<button
+                                class="menubar__button"
+                                @click="commands.addColumnAfter"
+                        >
+							<icon name="add_col_after" />
+						</button>
+						<button
+                                class="menubar__button"
+                                @click="commands.deleteColumn"
+                        >
+							<icon name="delete_col" />
+						</button>
+						<button
+                                class="menubar__button"
+                                @click="commands.addRowBefore"
+                        >
+							<icon name="add_row_before" />
+						</button>
+						<button
+                                class="menubar__button"
+                                @click="commands.addRowAfter"
+                        >
+							<icon name="add_row_after" />
+						</button>
+						<button
+                                class="menubar__button"
+                                @click="commands.deleteRow"
+                        >
+							<icon name="delete_row" />
+						</button>
+						<button
+                                class="menubar__button"
+                                @click="commands.toggleCellMerge"
+                        >
+							<icon name="combine_cells" />
+						</button>
+					</span>
 
                 <button
                         class="menubar__button"
@@ -117,21 +176,6 @@
                 >
                     <icon name="hr"/>
                 </button>
-
-                <button
-                        class="menubar__button"
-                        @click="commands.undo"
-                >
-                    <icon name="undo"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        @click="commands.redo"
-                >
-                    <icon name="redo"/>
-                </button>
-
             </div>
         </editor-menu-bar>
             <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" :value="value" class="editor__content" :editor="editor"/>
@@ -159,6 +203,10 @@
         Strike,
         Underline,
         History,
+        Table,
+        TableHeader,
+        TableRow,
+        TableCell
     } from 'tiptap-extensions'
 
     import mixin from "../../../mixins/interface";
@@ -199,6 +247,10 @@
                         new Strike(),
                         new Underline(),
                         new History(),
+                        new Table(),
+                        new TableHeader(),
+                        new TableCell(),
+                        new TableRow(),
                     ],
                     content: "",
                 });
@@ -234,5 +286,37 @@
 </script>
 
 <style lang="scss">
+    .editor {
+        .menubar__button {
+            position: relative;
+            span, i {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            }
+            span {
+                top: calc(50% + 1px);
+                left: calc(50% + 4px);
+                font-size: 8px;
+                letter-spacing: -1px;
+            }
+        }
+        .tableWrapper {
+            max-width: 100%;
+            overflow-x: auto;
+            table {
+                background-color: solid var(--lightest-gray) 1px;
+                border: solid var(--gray) 1px;
+                width: 100%;
+                tbody {
+                    tr, td {
+                        min-width: 70px;
+                        border: 1px solid var(--gray);
+                    }
+                }
+            }
+        }
+    }
 
 </style>

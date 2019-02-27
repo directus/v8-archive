@@ -265,6 +265,10 @@ button.fullscreen-toggle {
 
   p {
     margin-top: 20px;
+
+    &:first-of-type {
+      margin-top: 0;
+    }
   }
 
   blockquote {
