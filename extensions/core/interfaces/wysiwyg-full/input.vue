@@ -59,7 +59,7 @@
                         :class="{ 'is-active': isActive.heading({ level: 1 }) }"
                         @click="commands.heading({ level: 1 })"
                 >
-                    <span>H1</span>
+                    <span class="label">H1</span>
                     <icon name="crop_square"/>
                 </button>
 
@@ -68,7 +68,7 @@
                         :class="{ 'is-active': isActive.heading({ level: 2 }) }"
                         @click="commands.heading({ level: 2 })"
                 >
-                    <span>H2</span>
+                    <span class="label">H2</span>
                     <icon name="crop_square"/>
                 </button>
 
@@ -77,7 +77,7 @@
                         :class="{ 'is-active': isActive.heading({ level: 3 }) }"
                         @click="commands.heading({ level: 3 })"
                 >
-                    <span>H3</span>
+                    <span class="label">H3</span>
                     <icon name="crop_square"/>
                 </button>
 
@@ -180,11 +180,11 @@
                         class="menubar__button"
                         @click="commands.horizontal_rule"
                 >
-                    <icon name="hr"/>
+                    <icon name="maximize"/>
                 </button>
             </div>
         </editor-menu-bar>
-            <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" :value="value" class="editor__content" :editor="editor"/>
+            <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" class="editor__content" :editor="editor"/>
     </div>
 </template>
 
@@ -273,7 +273,7 @@
                     command({ src })
                 }
             },
-            
+
             destroy() {
                 this.editor.destroy();
             },
@@ -310,9 +310,10 @@
                 top: 50%;
                 transform: translate(-50%, -50%);
             }
-            span {
-                top: calc(50% + 1px);
-                left: calc(50% + 4px);
+             .label {
+                top: calc(50% - 4px);
+                left: calc(50% + 2px);
+                transform: translate(-50%, -50%);
                 font-size: 8px;
                 letter-spacing: -1px;
             }
