@@ -15,7 +15,7 @@ class DirectusCollectionList {
         $container = Application::getInstance()->getContainer();
         $this->list = [
             'filesItem' => [
-                'type' => Types::files(),
+                'type' => Types::file(),
                 'description' => 'Return single file.',
                 'args' => [
                     'id' => Types::nonNull(Types::id()),
@@ -29,7 +29,7 @@ class DirectusCollectionList {
                 }
             ],
             'files' => [
-                'type' => Types::listOf(Types::files()),
+                'type' => Types::listOf(Types::file()),
                 'description' => 'Return list of files.',
                 'resolve' => function($val, $args, $context, ResolveInfo $info) use($container) {
                     $service = new FilesServices($container);
@@ -41,7 +41,7 @@ class DirectusCollectionList {
                 'description' => 'Return single file thumbnail.',
             ],
             'usersItem' => [
-                'type' => Types::users(),
+                'type' => Types::user(),
                 'description' => 'Return single user.',
                 'args' => [
                     'id' => Types::nonNull(Types::id()),
@@ -55,7 +55,7 @@ class DirectusCollectionList {
                 }
             ],
             'users' => [
-                'type' => Types::listOf(Types::users()),
+                'type' => Types::listOf(Types::user()),
                 'description' => 'Return list of users.',
                 'resolve' => function($val, $args, $context, ResolveInfo $info) use($container) {
                     $service = new UsersService($container);

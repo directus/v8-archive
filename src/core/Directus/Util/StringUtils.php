@@ -291,4 +291,16 @@ class StringUtils
 
         return $result;
     }
+
+     /**
+     *  Replace underscore with space.
+     *
+     * @param $string
+     *
+     * @return string
+     */
+    public static function underscoreToSpace($string)
+    {
+        return str_replace("_", " ", $string);
+    }
 }
