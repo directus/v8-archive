@@ -34,8 +34,13 @@ export default {
   },
   methods: {
     updateValue(value) {
-      if (!value) return;
-      this.$emit("input", this.toDirectusFormat(value));
+      //The datetime-local field does not emit change event untill full value is specified
+      //So if user keeps value 2019-02-28 --:--:--:-- it will be saved as NULL
+      if (value) {
+        this.$emit("input", this.toDirectusFormat(value));
+      } else {
+        this.$emit("input", null);
+      }
     },
     toDirectusFormat(value) {
       if (!value) return null;
