@@ -1887,7 +1887,8 @@ class RelationalTableGateway extends BaseTableGateway
             foreach ($entries as &$parentRow) {
                 if (array_key_exists($relationalColumnName, $parentRow)) {
                     // @NOTE: Not always will be a integer
-                    $foreign_id = (int)$parentRow[$relationalColumnName];
+                    // @NOTE: But what about UUIDS and slugs?
+                    $foreign_id = (string)$parentRow[$relationalColumnName];
                     $parentRow[$relationalColumnName] = null;
                     // "Did we retrieve the foreign row with this foreign ID in our recent query of the foreign table"?
                     if (array_key_exists($foreign_id, $relatedEntries)) {
