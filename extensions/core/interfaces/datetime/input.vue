@@ -16,30 +16,39 @@
 
 <script>
 import mixin from "../../../mixins/interface";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
 
 export default {
   mixins: [mixin],
   computed: {
     formattedValue() {
       if (!this.value) return null;
-      return format(new Date(this.value), "YYYY-MM-DDTHH:mm:ss");
+      return this.toDateTimeFormat(this.value);
     }
   },
   created() {
     if (this.options.defaultToCurrentDatetime && !this.value) {
-      this.$emit("input", new Date());
+      //The default datetime-local accepts the value without milliseconds
+      //The ISO String has milliseconds sepreated by '.'
+      this.$emit("input", new Date().toISOString().split(".")[0]);
     }
   },
   methods: {
     updateValue(value) {
       if (!value) return;
-
-      return this.$emit(
-        "input",
-        format(parse(value), "YYYY-MM-DD HH:mm:ss")
-      );
+      this.$emit("input", this.toDirectusFormat(value));
+    },
+    toDirectusFormat(value) {
+      if (!value) return null;
+      //The diffrence between Directus format and Value emmited by datetime-local field
+      //Is only a seperator " " & "T" respectively.
+      //The problem with date-fns is it accepts the year range inbeteen 1900-2099
+      //So when use starts writing a year, suppose "2019", the year would be "0002" at first key stroke
+      //This breaks date-fns function and returns random year from the range above.
+      return value.trim().replace("T", " ");
+    },
+    toDateTimeFormat(value) {
+      if (!value) return null;
+      return value.trim().replace(" ", "T");
     }
   }
 };
