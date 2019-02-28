@@ -7,223 +7,225 @@
          @foucs="$emit('input', $event.target.innerHTML)"
     >
         <div class="editor__inner">
-        <editor-menu-bar v-show="!viewSource" :editor="editor">
-            <div class="menubar" slot-scope="{ commands, isActive }" :class="{'options-is-open':isActive.table()}">
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.bold() }"
-                        @click="commands.bold"
-                >
-                    <icon name="format_bold"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.italic() }"
-                        @click="commands.italic"
-                >
-                    <icon name="format_italic"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.strike() }"
-                        @click="commands.strike"
-                >
-                    <icon name="format_strikethrough"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.underline() }"
-                        @click="commands.underline"
-                >
-                    <icon name="format_underline"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.code() }"
-                        @click="commands.code"
-                >
-                    <icon name="code"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.paragraph() }"
-                        @click="commands.paragraph"
-                >
-                    <icon name="subject"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.heading({ level: 1 }) }"
-                        @click="commands.heading({ level: 1 })"
-                >
-                    <span class="label">H1</span>
-                    <icon name="crop_square"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.heading({ level: 2 }) }"
-                        @click="commands.heading({ level: 2 })"
-                >
-                    <span class="label">H2</span>
-                    <icon name="crop_square"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.heading({ level: 3 }) }"
-                        @click="commands.heading({ level: 3 })"
-                >
-                    <span class="label">H3</span>
-                    <icon name="crop_square"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.bullet_list() }"
-                        @click="commands.bullet_list"
-                >
-                    <icon name="format_list_bulleted"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.ordered_list() }"
-                        @click="commands.ordered_list"
-                >
-                    <icon name="format_list_numbered"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.blockquote() }"
-                        @click="commands.blockquote"
-                >
-                    <icon name="format_quote"/>
-                </button>
-
-                <button
-                        class="menubar__button"
-                        :class="{ 'is-active': isActive.code_block() }"
-                        @click="commands.code_block"
-                >
-                    <icon name="code"/>
-                </button>
-                <button
-                        class="menubar__button"
-                        @click="showImagePrompt(commands.image)"
-                >
-                    <icon name="image"/>
-                </button>
-                <button
-                        class="menubar__button"
-                        @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
-                >
-                    <icon name="table_chart"/>
-                </button>
-
-                <div class="options-fixed" :class="{'is-open':isActive.table()}" v-if="isActive.table()">
+            <editor-menu-bar v-show="!showSource" :editor="editor">
+                <div class="menubar" slot-scope="{ commands, isActive }" :class="{'options-is-open':isActive.table()}">
                     <button
                             class="menubar__button"
-                            @click="commands.deleteTable"
+                            :class="{ 'is-active': isActive.bold() }"
+                            @click="commands.bold"
                     >
+                        <icon name="format_bold"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.italic() }"
+                            @click="commands.italic"
+                    >
+                        <icon name="format_italic"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.strike() }"
+                            @click="commands.strike"
+                    >
+                        <icon name="format_strikethrough"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.underline() }"
+                            @click="commands.underline"
+                    >
+                        <icon name="format_underline"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.code() }"
+                            @click="commands.code"
+                    >
+                        <icon name="code"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.paragraph() }"
+                            @click="commands.paragraph"
+                    >
+                        <icon name="subject"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.heading({ level: 1 }) }"
+                            @click="commands.heading({ level: 1 })"
+                    >
+                        <span class="label">H1</span>
+                        <icon name="crop_square"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.heading({ level: 2 }) }"
+                            @click="commands.heading({ level: 2 })"
+                    >
+                        <span class="label">H2</span>
+                        <icon name="crop_square"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.heading({ level: 3 }) }"
+                            @click="commands.heading({ level: 3 })"
+                    >
+                        <span class="label">H3</span>
+                        <icon name="crop_square"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.bullet_list() }"
+                            @click="commands.bullet_list"
+                    >
+                        <icon name="format_list_bulleted"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.ordered_list() }"
+                            @click="commands.ordered_list"
+                    >
+                        <icon name="format_list_numbered"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.blockquote() }"
+                            @click="commands.blockquote"
+                    >
+                        <icon name="format_quote"/>
+                    </button>
+
+                    <button
+                            class="menubar__button"
+                            :class="{ 'is-active': isActive.code_block() }"
+                            @click="commands.code_block"
+                    >
+                        <icon name="code"/>
+                    </button>
+                    <button
+                            class="menubar__button"
+                            @click="showImagePrompt(commands.image)"
+                    >
+                        <icon name="image"/>
+                    </button>
+                    <button
+                            class="menubar__button"
+                            @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
+                    >
+                        <icon name="table_chart"/>
+                    </button>
+
+                    <div class="options-fixed" v-if="isActive.table()" :class="{'is-open':isActive.table()}">
+                        <button
+                                class="menubar__button"
+                                @click="commands.deleteTable"
+                        >
                       <span class="sup remove">
                             <icon name="remove_circle"/>
                         </span>
-                        <icon name="table_chart"/>
-                    </button>
-                    <button
-                            title="Insert before column"
-                            class="menubar__button"
-                            @click="commands.addColumnBefore"
-                    >
+                            <icon name="table_chart"/>
+                        </button>
+                        <button
+                                title="Insert before column"
+                                class="menubar__button"
+                                @click="commands.addColumnBefore"
+                        >
                         <span class="sup add">
                             <icon name="add_circle"/>
                         </span>
-                        <icon name="tab"/>
-                    </button>
-                    <button
-                            title="Insert after column"
-                            class="menubar__button"
-                            @click="commands.addColumnAfter"
-                    >
+                            <icon name="tab"/>
+                        </button>
+                        <button
+                                title="Insert after column"
+                                class="menubar__button"
+                                @click="commands.addColumnAfter"
+                        >
                          <span class="sup add">
                             <icon name="add_circle"/>
                         </span>
-                        <icon name="tab"/>
-                    </button>
-                    <button
-                            title="Delete column"
-                            class="menubar__button"
-                            @click="commands.deleteColumn"
-                    >
+                            <icon name="tab"/>
+                        </button>
+                        <button
+                                title="Delete column"
+                                class="menubar__button"
+                                @click="commands.deleteColumn"
+                        >
                          <span class="sup remove">
                             <icon name="remove_circle"/>
                         </span>
-                        <icon name="tab"/>
-                    </button>
-                    <button
-                            title="Add row before"
-                            class="menubar__button"
-                            @click="commands.addRowBefore"
-                    >
+                            <icon name="tab"/>
+                        </button>
+                        <button
+                                title="Add row before"
+                                class="menubar__button"
+                                @click="commands.addRowBefore"
+                        >
                          <span class="sup add">
                             <icon name="add_circle"/>
                         </span>
-                        <icon name="border_top"/>
-                    </button>
-                    <button
-                            class="menubar__button"
-                            @click="commands.addRowAfter"
-                    >
+                            <icon name="border_top"/>
+                        </button>
+                        <button
+                                class="menubar__button"
+                                @click="commands.addRowAfter"
+                        >
                         <span class="sup add">
                             <icon name="add_circle"/>
                         </span>
-                        <icon name="border_bottom"/>
-                    </button>
-                    <button
-                            class="menubar__button"
-                            @click="commands.deleteRow"
-                    >
+                            <icon name="border_bottom"/>
+                        </button>
+                        <button
+                                class="menubar__button"
+                                @click="commands.deleteRow"
+                        >
                            <span class="sup remove">
                             <icon name="remove_circle"/>
                         </span>
-                        <icon name="border_horizontal"/>
-                    </button>
+                            <icon name="border_horizontal"/>
+                        </button>
+                        <button
+                                class="menubar__button"
+                                @click="commands.toggleCellMerge"
+                        >
+                            <icon name="merge_type"/>
+                        </button>
+                    </div>
+
                     <button
                             class="menubar__button"
-                            @click="commands.toggleCellMerge"
+                            @click="commands.horizontal_rule"
                     >
-                        <icon name="merge_type"/>
+                        <icon name="maximize"/>
                     </button>
                 </div>
-
-                <button
-                        class="menubar__button"
-                        @click="commands.horizontal_rule"
-                >
-                    <icon name="maximize"/>
-                </button>
-            </div>
-        </editor-menu-bar>
-        <editor-content v-show="!viewSource" ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" class="editor__content" :editor="editor"/>
+            </editor-menu-bar>
+            <editor-content v-show="!showSource" ref="editor"
+                            :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" class="editor__content"
+                            :editor="editor"/>
         </div>
         <div class="editor__raw">
-            <v-textarea v-if="viewSource"
-                    class="textarea"
-                    :id="name"
-                    :value="editor.view.dom.innerHTML"
-                    :placeholder="options.placeholder"
-                    :rows="options.rows ? +options.rows : 10"
-                    @input="updateText($event)"
+            <v-textarea v-if="showSource"
+                        class="textarea"
+                        :id="name"
+                        :value="editor.view.dom.innerHTML"
+                        :placeholder="options.placeholder"
+                        :rows="options.rows ? +options.rows : 10"
+                        @input="updateText($event)"
             ></v-textarea>
-            <button @click="viewSource = !viewSource" v-html="viewSource ? 'Show WYSIWYG' : 'Source Code'"></button>
+            <button @click="showSource = !showSource" v-html="showSource ? 'Show WYSIWYG' : 'Source Code'"></button>
         </div>
     </div>
 </template>
@@ -263,9 +265,9 @@
         watch: {
             value(newVal) {
                 if (newVal) {
-                    return newVal;
+                    return newVal
                 }
-            },
+            }
         },
 
         methods: {
@@ -299,9 +301,7 @@
                 });
 
                 if (this.value) {
-                    if (!this.viewSource) {
-                        this.editor.setContent(this.value);
-                    }
+                    this.editor.setContent(this.value);
 
                 }
             },
@@ -331,8 +331,8 @@
         data() {
             return {
                 editor: null,
-                viewSource: false,
-                rawContent: '',
+                showSource: false,
+                showTableOptions: false,
             }
         },
 
@@ -352,7 +352,7 @@
         .menubar {
             &.options-is-open {
                 + .editor__content {
-                    padding-top: 42px;
+                    //padding-top: 42px;
                 }
             }
         }
@@ -390,7 +390,8 @@
 
         .options-fixed {
             position: absolute;
-            top: 45px;
+            top: -5px;
+            transform: translateY(-100%);
             opacity: 0;
             transition: opacity .3s ease-in-out;
             z-index: 1;
