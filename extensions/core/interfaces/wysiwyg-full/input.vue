@@ -2,9 +2,12 @@
     <div class="interface-wysiwyg-container editor"
          :id="name"
          :name="name"
+         @keyup="$emit('input', $event.target.innerHTML)"
          @input="$emit('input', $event.target.innerHTML)"
+         @foucs="$emit('input', $event.target.innerHTML)"
     >
-        <editor-menu-bar :editor="editor">
+        <div class="editor__inner">
+        <editor-menu-bar v-show="!viewSource" :editor="editor">
             <div class="menubar" slot-scope="{ commands, isActive }" :class="{'options-is-open':isActive.table()}">
                 <button
                         class="menubar__button"
@@ -209,11 +212,21 @@
                 </button>
             </div>
         </editor-menu-bar>
-        <editor-content ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]"
-                        class="editor__content" :editor="editor"/>
+        <editor-content v-show="!viewSource" ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]" class="editor__content" :editor="editor"/>
+        </div>
+        <div class="editor__raw">
+            <v-textarea v-if="viewSource"
+                    class="textarea"
+                    :id="name"
+                    :value="editor.view.dom.innerHTML"
+                    :placeholder="options.placeholder"
+                    :rows="options.rows ? +options.rows : 10"
+                    @input="updateText($event)"
+            ></v-textarea>
+            <button @click="viewSource = !viewSource" v-html="viewSource ? 'Show WYSIWYG' : 'Source Code'"></button>
+        </div>
     </div>
 </template>
-
 <script>
     import Icon from './components/icon'
     import {Editor, EditorContent, EditorMenuBar} from 'tiptap'
@@ -250,9 +263,7 @@
         watch: {
             value(newVal) {
                 if (newVal) {
-                    console.log(this.editor.view.dom.innerHTML)
-                    console.log(this)
-                    console.log(this.value)
+                    return newVal;
                 }
             },
         },
@@ -288,8 +299,15 @@
                 });
 
                 if (this.value) {
-                    this.editor.setContent(this.value);
+                    if (!this.viewSource) {
+                        this.editor.setContent(this.value);
+                    }
+
                 }
+            },
+
+            updateText($event) {
+                this.editor.setContent($event)
             },
 
             showImagePrompt(command) {
@@ -313,6 +331,8 @@
         data() {
             return {
                 editor: null,
+                viewSource: false,
+                rawContent: '',
             }
         },
 
@@ -331,7 +351,9 @@
 
         .menubar {
             &.options-is-open {
-                margin-bottom: 5px;
+                + .editor__content {
+                    padding-top: 42px;
+                }
             }
         }
         .menubar__button {
@@ -368,7 +390,7 @@
 
         .options-fixed {
             position: absolute;
-            top: 0;
+            top: 45px;
             opacity: 0;
             transition: opacity .3s ease-in-out;
             z-index: 1;
