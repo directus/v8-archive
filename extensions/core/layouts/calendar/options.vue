@@ -83,7 +83,7 @@ export default {
       var options = {
         __none__: `(${this.$t("dont_show")})`,
         ...this.$lodash.mapValues(this.fields, info =>
-          ["color", "color-palette"].includes(info.interface) ? info.name : null
+          info.type == "string" ? info.name : null
         )
       };
       return this.$lodash.pickBy(options, _.identity);

@@ -38,12 +38,6 @@
       "interface": "icon",
       "advanced": true
     },
-    "utc": {
-      "name": "$t:utc",
-      "comment": "$t:utc_comment",
-      "interface": "toggle",
-      "advanced": true
-    },
     "defaultToCurrentDatetime": {
       "name": "$t:default_to_current_datetime",
       "comment": "$t:default_to_current_datetime_comment",

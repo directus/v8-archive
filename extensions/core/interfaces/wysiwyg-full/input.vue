@@ -1,6 +1,6 @@
 <template>
-  <div class="interface-wysiwyg-container">
-    <div ref="editor" class="interface-wysiwyg"></div>
+  <div class="interface-wysiwyg-container" ref="parent">
+    <div ref="editor" :class="['interface-wysiwyg', (readonly ? 'readonly' : '')]"></div>
     <portal to="modal" v-if="chooseExisting">
       <v-modal
         :title="$t('choose_one')"
@@ -70,6 +70,7 @@ export default {
 
       this.editor = new Quill(this.$refs.editor, {
         theme: "snow",
+        readOnly: this.readonly,
         modules: {
           toolbar:
             typeof this.options.toolbarOptions === "string"
@@ -83,7 +84,7 @@ export default {
             name: "image",
             withCredentials: false,
             headers: {
-              Authorization: `Bearer ${this.$store.state.auth.token}`
+              Authorization: `Bearer ${this.$api.token}`
             },
             csrf: { token: "token", hash: "" }, // add custom CSRF
             customUploader: null, // add custom uploader
@@ -128,12 +129,12 @@ export default {
       });
 
       // Make custom icons for image buttons
-      const customButton = document.querySelector(".ql-choose-existing");
+      const customButton = this.$refs.parent.querySelector(".ql-choose-existing");
       if (customButton) {
         customButton.className += " material-icons icon";
         customButton.addEventListener("click", evt => this.openModal());
       }
-      const imageButton = document.querySelector(".ql-image");
+      const imageButton = this.$refs.parent.querySelector(".ql-image");
       if (imageButton) {
         imageButton.innerHTML = "";
         imageButton.className += " material-icons icon";
@@ -183,6 +184,16 @@ export default {
   &:after {
     content: "add_photo_alternate";
     font-size: 20px;
+  }
+}
+
+.ql-editor {
+  &.readonly{
+    background-color: var(--lightest-gray) !important;
+    cursor: not-allowed;
+    &:focus {
+      color: var(--gray);
+    }
   }
 }
 </style>

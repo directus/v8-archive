@@ -19,7 +19,7 @@
       ></v-select>
 
       <button
-        v-if="count > 10"
+        v-if="count > options.threshold"
         type="button"
         @click="showListing = true"
       ></button>
@@ -44,8 +44,17 @@
           }"
           @close="dismissModal"
           @save="populateDropdown"
+          action-required
         >
+          <div class="search">
+            <v-input
+              type="search"
+              :placeholder="$t('search')"
+              class="search-input"
+              @input="onSearchInput" />
+          </div>
           <v-items
+            class="items"
             :collection="relation.collection_one.collection"
             :selection="selection"
             :filters="filters"
@@ -165,6 +174,8 @@ export default {
     if (this.relationSetup) {
       this.fetchItems();
     }
+
+    this.onSearchInput = this.$lodash.debounce(this.onSearchInput, 200);
   },
   watch: {
     relation() {
@@ -192,7 +203,7 @@ export default {
 
       this.loading = true;
 
-      const params = { fields: "*.*", meta: "total_count", limit: 10 };
+      const params = { fields: "*.*", meta: "total_count", limit: this.options.threshold };
 
       return Promise.all([
         this.$api.getItems(collection, params),
@@ -269,6 +280,11 @@ export default {
         ...this.viewQueryOverride,
         ...updates
       };
+    },
+    onSearchInput(value) {
+      this.setViewQuery({
+        q: value
+      });
     }
   }
 };
@@ -306,5 +322,24 @@ button {
   right: -50px;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.search-input {
+  border-bottom: 1px solid var(--lightest-gray);
+
+  &/deep/ input {
+    border-radius: 0;
+    border: none;
+    padding-left: var(--page-padding);
+    height: var(--header-height);
+
+    &::placeholder {
+      color: var(--light-gray);
+    }
+  }
+}
+
+.items {
+  height: calc(100% - var(--header-height) - 1px);
 }
 </style>

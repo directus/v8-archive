@@ -3,7 +3,7 @@
     ref="input"
     :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']"
   >
-    <div ref="editor" class="interface-wysiwyg"></div>
+    <div ref="editor" :class="['interface-wysiwyg', (readonly? 'readonly' : '')]"></div>
     <button
       v-on:click="distractionFree = !distractionFree"
       type="button"
@@ -32,11 +32,12 @@ export default {
   computed: {
     editorOptions() {
       return {
+        disableEditing: this.readonly,
         placeholder: {
           text: this.options.placeholder || "",
           hideOnClick: true
         },
-        toolbar: {
+        toolbar: this.readonly ? false : {
           buttons: this.options.buttons
         }
       };
@@ -78,7 +79,13 @@ export default {
       }
 
       this.editor.origElements.addEventListener("input", () => {
-        this.$emit("input", this.editor.getContent());
+        const content = this.editor.getContent();
+
+        if (content === "<p><br></p>") {
+          return this.$emit("input", null);
+        }
+
+        this.$emit("input", content);
       });
     },
     destroy() {
@@ -191,7 +198,6 @@ button.fullscreen-toggle {
   padding: 12px 15px;
   transition: var(--fast) var(--transition);
   transition-property: color, border-color, padding;
-  background-color: var(--white);
   min-height: 200px;
   max-height: 800px;
   overflow: scroll;
@@ -207,19 +213,31 @@ button.fullscreen-toggle {
     color: var(--light-gray);
   }
 
-  &:hover {
-    transition: none;
-    border-color: var(--light-gray);
+  &[contenteditable="true"] {
+    cursor: default;
+    background-color: var(--white);
+    &:hover {
+      transition: none;
+      border-color: var(--light-gray);
+    }
+
+      &:focus {
+        color: var(--darker-gray);
+        border-color: var(--accent);
+        outline: 0;
+      }
+
+      &:focus + i {
+        color: var(--accent);
+      }
   }
 
-  &:focus {
-    color: var(--darker-gray);
-    border-color: var(--accent);
-    outline: 0;
-  }
-
-  &:focus + i {
-    color: var(--accent);
+  &.readonly {
+    background-color: var(--lightest-gray);
+    cursor: not-allowed;
+    &:focus {
+      color: var(--gray);
+    }
   }
 
   &:-webkit-autofill {

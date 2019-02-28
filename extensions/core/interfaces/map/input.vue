@@ -304,9 +304,9 @@ export default {
       });
       this.$axios
         .get(
-          `https://nominatim.openstreetmap.org/search/${
-            this.placeName
-          }?format=geojson&addressdetails=1&limit=1`
+          `https://nominatim.openstreetmap.org/search?q=${
+            encodeURI(this.placeName)
+          }&format=geojson&addressdetails=1&limit=1`
         )
         .then(response => {
           if (response.status === 200) {

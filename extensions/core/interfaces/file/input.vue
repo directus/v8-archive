@@ -50,8 +50,17 @@
         }"
         @close="existing = false"
         @done="existing = false"
+        action-required
       >
+        <div class="search">
+          <v-input
+            type="search"
+            :placeholder="$t('search')"
+            class="search-input"
+            @input="onSearchInput" />
+        </div>
         <v-items
+          class="items"
           collection="directus_files"
           :view-type="viewType"
           :selection="value ? [value] : []"
@@ -147,7 +156,15 @@ export default {
         ...this.viewQueryOverride,
         ...updates
       };
+    },
+    onSearchInput(value) {
+      this.setViewQuery({
+        q: value
+      });
     }
+  },
+  created() {
+    this.onSearchInput = this.$lodash.debounce(this.onSearchInput, 200);
   }
 };
 </script>
@@ -174,5 +191,23 @@ button {
 
 .body {
   padding: 20px;
+}
+
+.search-input {
+  border-bottom: 1px solid var(--lightest-gray);
+  &/deep/ input {
+    border-radius: 0;
+    border: none;
+    padding-left: var(--page-padding);
+    height: var(--header-height);
+
+    &::placeholder {
+      color: var(--light-gray);
+    }
+  }
+}
+
+.items {
+  height: calc(100% - var(--header-height) - 1px);
 }
 </style>
