@@ -29,7 +29,7 @@ export default {
   },
   created() {
     if (this.options.defaultToCurrentDatetime && !this.value) {
-      this.$emit("input", new Date());
+      this.$emit("input", format(new Date(), "YYYY-MM-DD HH:mm:ss"));
     }
   },
   methods: {
