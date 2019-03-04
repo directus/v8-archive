@@ -1,6 +1,6 @@
 <template>
   <v-input
-    type="datetime-local"
+    type="text"
     class="interface-datetime"
     :id="name"
     :name="name"
@@ -10,6 +10,8 @@
     :value="formattedValue"
     :icon-left="options.iconLeft"
     :icon-right="options.iconRight"
+    :placeholder="placeholder"
+    :mask="mask"
     @input="updateValue"
   ></v-input>
 </template>
@@ -24,7 +26,28 @@ export default {
   computed: {
     formattedValue() {
       if (!this.value) return null;
-      return format(new Date(this.value), "YYYY-MM-DDTHH:mm:ss");
+      return format(parse(this.value, "YYYY-MM-DD HH:mm:ss"), this.format);
+    },
+    placeholder() {
+      switch(this.options.format) {
+        case "dmy": return "dd/mm/yyyy hh:mm:ss";
+        case "mdy": return "mm/dd/yyyy hh:mm:ss";
+        case "ymd": return "yyyy-mm-dd hh:mm:ss";
+      }
+    },
+    mask() {
+      switch(this.options.format) {
+        case "dmy":
+        case "mdy": return "##/##/#### ##:##:##";
+        case "ymd": return "####-##-## ##:##:##";
+      }
+    },
+    format() {
+      switch(this.options.format) {
+        case "dmy": return "DD/MM/YYYY HH:mm:ss";
+        case "mdy": return "MM/DD/YYYY HH:mm:ss";
+        case "ymd": return "YYYY-MM-DD HH:mm:ss";
+      }
     }
   },
   created() {
@@ -36,10 +59,14 @@ export default {
     updateValue(value) {
       if (!value) return;
 
-      return this.$emit(
-        "input",
-        format(parse(value), "YYYY-MM-DD HH:mm:ss")
-      );
+      if (value.length === 0) return this.$emit("input", null);
+
+      if (value.length === 19) {
+        const dbValue = format(parse(value, this.format), "YYYY-MM-DD HH:mm:ss");
+
+        if (dbValue !== "Invalid Date")
+          return this.$emit("input", dbValue);
+      }
     }
   }
 };

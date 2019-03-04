@@ -43,6 +43,20 @@
       "comment": "$t:default_to_current_datetime_comment",
       "interface": "toggle",
       "advanced": true
+    },
+    "format": {
+      "name": "$t:format",
+      "comment": "$t:format_comment",
+      "interface": "dropdown",
+      "advanced": true,
+      "default": "mdy",
+      "options": {
+        "choices": {
+          "mdy": "mm/dd/yyyy hh:mm:ss",
+          "dmy": "dd/mm/yyyy hh:mm:ss",
+          "ymd": "yyyy-mm-dd hh:mm:ss"
+        }
+      }
     }
   },
   "translation": {
@@ -63,7 +77,9 @@
       "utc": "Save as UTC",
       "utc_comment": "Save to and display from UTC",
       "default_to_current_datetime": "Default to current datetime",
-      "default_to_current_datetime_comment": "Sets the default value to current datetime"
+      "default_to_current_datetime_comment": "Sets the default value to current datetime",
+      "format": "Format",
+      "format_comment": "The DateTime format to use for the input"
     }
   }
 }
