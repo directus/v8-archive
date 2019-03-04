@@ -10,10 +10,11 @@
         class="rating-input"
         type="number"
         min="0"
+        :max="options.max_stars"
         icon-left="star"
-        :maxlength="length"
         :disabled="readonly"
-        v-model="rating"
+        :value="String(value) || '0'"
+        @input="updateValue"
       ></v-input>
       <span>/ {{ options.max_stars }}</span>
     </div>
@@ -22,25 +23,22 @@
 
 <script>
 import mixin from "../../../mixins/interface";
+import Stars from "./stars.vue";
 
 export default {
   name: "interface-rating",
   mixins: [mixin],
   components: {
-    Stars: require("./stars.vue").default
+    Stars
   },
-  computed: {
-    rating: {
-      get() {
-        return Number(this.value) || 0;
-      },
-      set(value) {
-        //? How to stop user from entering value, larger than number of stars
-        if (Number(value) > this.options.max_stars) {
-          value = this.options.max_stars;
-        }
-        this.$emit("input", value);
+  methods: {
+    updateValue(value) {
+      if (value > this.options.max_stars) {
+        event.target.value = String(this.options.max_stars);
+        return this.$emit("input", this.options.max_stars);
       }
+
+      this.$emit("input", +value);
     }
   }
 };
