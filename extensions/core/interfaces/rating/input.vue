@@ -48,8 +48,6 @@ export default {
 .rating-input {
   display: inline-block;
   margin-right: 5px;
-}
-.v-input {
   width: 100%;
   max-width: var(--width-small);
 }
