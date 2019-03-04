@@ -24,7 +24,7 @@ export default {
     },
     displayValue() {
       if (this.options.formatting) {
-        return this.selection.map(val => this.options.choices[val]).join(", ");
+        return this.selection.filter(val => val).map(val => this.options.choices[val]).join(", ");
       }
 
       return this.selection.join(", ");
