@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\Type;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class UserType extends ObjectType
+class DirectusUserType extends ObjectType
 {
     public function __construct()
     {
@@ -34,7 +34,8 @@ class UserType extends ObjectType
                     'last_page' => Types::string(),
                     'token' => Types::string(),
                     'external_id' => Types::string(),
-                    'avatar' => Types::file()
+                    'avatar' => Types::directusFile(),
+                    'roles' => Types::listOf(Types::directusRole()),
                 ];
             },
             'interfaces' => [
@@ -50,6 +51,15 @@ class UserType extends ObjectType
             }
         ];
         parent::__construct($config);
+    }
+
+    public function resolveRoles($value)
+    {
+        $data = [];
+        foreach($value['roles'] as $role){
+            $data[] = $role['role'];
+        }
+        return  $data;
     }
 
 

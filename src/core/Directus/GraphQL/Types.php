@@ -1,9 +1,10 @@
 <?php
 namespace Directus\GraphQL;
 
-use Directus\GraphQL\Type\Directus\FileType;
-use Directus\GraphQL\Type\Directus\FileThumbnailType;
-use Directus\GraphQL\Type\Directus\UserType;
+use Directus\GraphQL\Type\Directus\DirectusFileType;
+use Directus\GraphQL\Type\Directus\DirectusFileThumbnailType;
+use Directus\GraphQL\Type\Directus\DirectusUserType;
+use Directus\GraphQL\Type\Directus\DirectusRoleType;
 use Directus\GraphQL\Type\FieldsType;
 use Directus\GraphQL\Type\QueryType;
 use Directus\GraphQL\Type\NodeType;
@@ -18,9 +19,10 @@ use Directus\Application\Application;
 class Types
 {
     // Object types:
-    private static $file;
-    private static $fileThumbnail;
-    private static $user;
+    private static $directusFile;
+    private static $directusFileThumbnail;
+    private static $directusUser;
+    private static $directusRole;
     private static $query;
     private static $userCollection;
     //Used to save the reference of the already created user collection.
@@ -28,17 +30,22 @@ class Types
 
     public static function directusFile()
     {
-        return self::$file ?: (self::$file = new FileType());
+        return self::$directusFile ?: (self::$directusFile = new DirectusFileType());
     }
 
-    public static function fileThumbnail()
+    public static function directusFileThumbnail()
     {
-        return self::$fileThumbnail ?: (self::$fileThumbnail = new FileThumbnailType());
+        return self::$directusFileThumbnail ?: (self::$directusFileThumbnail = new DirectusFileThumbnailType());
     }
 
-    public static function user()
+    public static function directusUser()
     {
-        return self::$user ?: (self::$user = new UserType());
+        return self::$directusUser ?: (self::$directusUser = new DirectusUserType());
+    }
+
+    public static function directusRole()
+    {
+        return self::$directusRole ?: (self::$directusRole = new DirectusRoleType());
     }
 
     /**

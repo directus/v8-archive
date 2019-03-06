@@ -16,7 +16,7 @@ class UserCollectionList {
 
     public function __construct(){
 
-        $this->param = ['fields' => '*.*.*.*'];
+        $this->param = ['fields' => '*.*.*.*.*.*'];
         $container = Application::getInstance()->getContainer();
         //List all the collection
         $service = new TablesService($container);
@@ -37,13 +37,14 @@ class UserCollectionList {
                         'id' => Types::nonNull(Types::id()),
                     ],
                     'resolve' => function($val, $args, $context, ResolveInfo $info)  use($value , $itemsService ) {
-                        //We are supporting up to 3 level of nesting
+
                         $itemsService->throwErrorIfSystemTable($value['collection']);
-                        return $itemsService->find(
+                        $data =  $itemsService->find(
                             $value['collection'],
                             $args['id'],
                             $this->param
                         )['data'];
+                        return $data;
 
                     }
                 ];
