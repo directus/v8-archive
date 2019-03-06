@@ -18,7 +18,7 @@ class GraphQLService extends AbstractService
     public function index($inputs)
     {
 
-        //$rule = new QueryDepth($maxDepth = 3);
+        //$rule = new QueryDepth($maxDepth = 2);
         //DocumentValidator::addRule($rule);
 
         $schema = new Schema([
