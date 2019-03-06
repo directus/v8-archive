@@ -20,7 +20,6 @@ class FieldsConfig
     public function getFields(){
         $fields = [];
 
-
         $service = new TablesService($this->container);
         $collectionData = $service->findByIds(
             $this->collection
@@ -57,21 +56,30 @@ class FieldsConfig
                     $relation = $this->getRelation('m2o', $v['collection'] , $v['field']);
                     $fields[$k] = Types::userCollection($relation['collection_one']);
                 break;
-                // case 'o2m':
-                //     $relation = $this->getRelation('o2m' , $v['collection'] , $v['field']);
-                //     $fields[$k] = Types::userCollection($relation['collection_many']);
-                // break;
+                case 'o2m':
+                    $relation = $this->getRelation('o2m' , $v['collection'] , $v['field']);
+                    $temp = [];
+                    $temp['type'] = Types::listOf(Types::userCollection($relation['collection_one']));
+                    $temp['resolve'] = function($value) use($relation) {
+                        $data = [];
+                        foreach ($value[$relation['collection_one']] as  $v) {
+                            $data[] = $v[$relation['field_many']];
+                        }
+                        return $data;
+                    };
+                    $fields[$k] = $temp;
+                break;
                 case 'status':
                     $fields[$k] = Types::string();
                 break;
                 case 'file':
-                    $fields[$k] = Types::file();
+                    $fields[$k] = Types::directusFile();
                 break;
                 case 'user_created':
-                    $fields[$k] = Types::user();
+                    $fields[$k] = Types::directusUser();
                 break;
                 case 'user_updated':
-                    $fields[$k] = Types::user();
+                    $fields[$k] = Types::directusUser();
                 break;
                 case 'array':
                     $fields[$k] = Types::listOf(Types::string());
@@ -101,12 +109,27 @@ class FieldsConfig
                 }
             break;
             case 'o2m':
+
+                $firstRelation;
+
+                //1. Find the collection_many
                 foreach($relationsData['data'] as $k => $v){
                     if($v['collection_one'] == $collection && $v['field_one'] == $field){
+                        $firstRelation = $v;
+                        break;
+                    }
+                }
+                $collectionMany = $firstRelation['collection_many'];
+                $collection1Id = $firstRelation['id'];
+
+                //2. Find the 2nd collection_one
+                foreach($relationsData['data'] as $k => $v){
+                    if($v['collection_many'] == $collectionMany && $v['id'] != $collection1Id){
                         $relation = $v;
                         break;
                     }
                 }
+
             break;
         }
 

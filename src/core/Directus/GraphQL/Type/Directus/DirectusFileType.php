@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class FileType extends ObjectType
+class DirectusFileType extends ObjectType
 {
     private $container;
     public function __construct()
@@ -39,9 +39,9 @@ class FileType extends ObjectType
                         'storage' => Types::string(),
                         'full_url' => Types::string(),
                         'url' => Types::string(),
-                        'thumbnails' => Types::listOf(Types::fileThumbnail()),
+                        'thumbnails' => Types::listOf(Types::directusFileThumbnail()),
                         'uploaded_on' => Types::datetime(),
-                        'uploaded_by' => Types::user(),
+                        'uploaded_by' => Types::directusUser(),
                         'checksum' => Types::string(),
                 ];
             },
@@ -77,10 +77,7 @@ class FileType extends ObjectType
 
     public function resolveUploaded_by($value)
     {
-        $service = new UsersService($this->container);
-        return  $service->findByIds(
-            $value['uploaded_by']
-        )['data'];
+        return $value['uploaded_by'];
     }
 
 

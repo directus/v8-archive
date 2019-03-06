@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\Type;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class FileThumbnailType extends ObjectType
+class DirectusFileThumbnailType extends ObjectType
 {
     public function __construct()
     {
