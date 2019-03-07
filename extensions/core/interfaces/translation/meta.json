@@ -21,8 +21,8 @@
       }
     },
     "languagesNameField": {
-      "name": "$tlanguages_name",
-      "comment": "$tlanguages_name_comment",
+      "name": "$t:languages_name",
+      "comment": "$t:languages_name_comment",
       "interface": "text-input",
       "required": true,
       "options": {
