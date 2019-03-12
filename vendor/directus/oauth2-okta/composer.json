@@ -1,5 +1,5 @@
 {
-    "name": "wellingguzman/oauth2-okta",
+    "name": "directus/oauth2-okta",
     "description": "Okta OAuth 2.0 Client Provider for The PHP League OAuth2-Client",
     "license": "MIT",
     "authors": [

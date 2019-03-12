@@ -1,5 +1,5 @@
 {
-    "name": "wellingguzman/rate-limit",
+    "name": "directus/rate-limit",
     "description": "Standalone component that facilitates rate-limiting functionality. Also provides a middleware designed for API and/or other application endpoints.",
     "type": "library",
     "license": "MIT",
