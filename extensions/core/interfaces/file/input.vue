@@ -22,6 +22,7 @@
       :disabled="readonly"
       class="dropzone"
       @upload="saveUpload"
+      :accept="options.accept"
       :multiple="false"
     ></v-upload>
 
@@ -35,7 +36,7 @@
     <portal to="modal" v-if="newFile">
       <v-modal :title="$t('file_upload')" @close="newFile = false">
         <div class="body">
-          <v-upload @upload="saveUpload" :multiple="false"></v-upload>
+          <v-upload @upload="saveUpload" :accept="options.accept" :multiple="false"></v-upload>
         </div>
       </v-modal>
     </portal>
@@ -137,7 +138,28 @@ export default {
       };
     },
     filters() {
-      return [...this.options.filters, ...this.filtersOverride];
+      return [
+        ...this.options.filters,
+        ...this.fileTypeFilters,
+        ...this.filtersOverride
+      ];
+    },
+    fileTypeFilters() {
+      if (
+        !this.options.accept ||
+        this.filtersOverride.length > 0 ||
+        this.options.filters.some(filter => filter.field === "type")
+      ) {
+        return [];
+      }
+
+      return [
+        {
+          field: "type",
+          operator: "in",
+          value: this.options.accept.trim().split(/,\s*/)
+        }
+      ];
     }
   },
   methods: {
@@ -195,7 +217,7 @@ button {
 
 .search-input {
   border-bottom: 1px solid var(--lightest-gray);
-  &/deep/ input {
+  &>>> input {
     border-radius: 0;
     border: none;
     padding-left: var(--page-padding);

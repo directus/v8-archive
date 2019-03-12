@@ -3,6 +3,7 @@
     <div v-if="value" class="preview">
       <v-card
         v-for="(file, index) in files"
+        :key="file.id"
         class="card"
         :title="file.title"
         :subtitle="file.subtitle"
@@ -42,7 +43,7 @@
         @done="newFile = false"
       >
         <div class="body">
-          <v-upload @upload="saveUpload" :multiple="true"></v-upload>
+          <v-upload @upload="saveUpload" :multiple="true" :accept="options.accept"></v-upload>
         </div>
       </v-modal>
     </portal>
@@ -233,7 +234,29 @@ export default {
     },
 
     filters() {
-      return [...this.options.filters, ...this.filtersOverride];
+      return [
+        ...this.options.filters,
+        ...this.fileTypeFilters,
+        ...this.filtersOverride
+      ];
+    },
+
+    fileTypeFilters() {
+      if (
+        !this.options.accept ||
+        this.filtersOverride.length > 0 ||
+        this.options.filters.some(filter => filter.field === "type")
+      ) {
+        return [];
+      }
+
+      return [
+        {
+          field: "type",
+          operator: "in",
+          value: this.options.accept.trim().split(/,\s*/)
+        }
+      ];
     }
   },
   methods: {
@@ -409,7 +432,7 @@ button {
 
 .search-input {
   border-bottom: 1px solid var(--lightest-gray);
-  &/deep/ input {
+  &>>> input {
     border-radius: 0;
     border: none;
     padding-left: var(--page-padding);

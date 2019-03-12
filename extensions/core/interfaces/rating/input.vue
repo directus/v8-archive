@@ -1,64 +1,54 @@
 <template>
   <div class="rating">
-    <stars
+    <stars v-if="options.display == 'star'"
       :options="options"
       :rating.sync="rating"
       :readonly="readonly"
     ></stars>
-    <div class="rating-value" v-if="type == 'decimal'">
+    <div class="rating-value" v-if="options.display == 'number'">
       <v-input
         class="rating-input"
-        type="text"
-        :maxlength="length"
+        type="number"
+        min="0"
+        :max="options.max_stars"
+        icon-left="star"
         :disabled="readonly"
-        v-model="rating"
-      />
-      <span>out of {{ options.max_stars }} stars</span>
+        :value="String(value) || '0'"
+        @input="updateValue"
+      ></v-input>
+      <span>/ {{ options.max_stars }}</span>
     </div>
   </div>
 </template>
 
 <script>
 import mixin from "../../../mixins/interface";
+import Stars from "./stars.vue";
 
 export default {
   name: "interface-rating",
   mixins: [mixin],
   components: {
-    Stars: require("./stars.vue").default
+    Stars
   },
-  computed: {
-    rating: {
-      get() {
-        return this.value || 0;
-      },
-      set(value) {
-        //? How to stop user from entering value, larger than number of stars
-        if (value > this.options.max_stars) {
-          value = this.options.max_stars;
-        }
-        this.$emit("input", value);
+  methods: {
+    updateValue(value) {
+      if (value > this.options.max_stars) {
+        event.target.value = String(this.options.max_stars);
+        return this.$emit("input", this.options.max_stars);
       }
+
+      this.$emit("input", +value);
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.rating {
-  display: flex;
-  align-items: center;
-}
-.rating-value {
-  margin-left: 20px;
-  display: flex;
-  align-items: center;
-  color: var(--gray);
-}
 .rating-input {
-  //? v-input does not accept 'length' so we need to fix width with CSS
-  //? Better option would be to pass length to decide width of textbox
-  width: 50px;
-  margin-right: 10px;
+  display: inline-block;
+  margin-right: 5px;
+  width: 100%;
+  max-width: var(--width-small);
 }
 </style>

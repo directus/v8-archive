@@ -618,7 +618,7 @@ button.select {
 
 .search-input {
   border-bottom: 1px solid var(--lightest-gray);
-  &/deep/ input {
+  &>>> input {
     border-radius: 0;
     border: none;
     padding-left: var(--page-padding);

@@ -48,6 +48,11 @@
         "language": "application/json"
       },
       "default": []
+    },
+    "accept": {
+      "name": "$t:accept",
+      "comment": "$t:accept_comment",
+      "interface": "text-input"
     }
   },
   "translation": {
@@ -61,6 +66,8 @@
       "view_query_comment": "Set the view query to use for the files",
       "filters": "Filters",
       "filters_comment": "What filters to use",
+      "accept": "Accept File Types",
+      "accept_comment": "Set a list of MIME types that can be picked",
       "edit_item": "Edit"
     }
   }
