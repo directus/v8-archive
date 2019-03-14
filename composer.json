@@ -41,7 +41,10 @@
     "ext-gd": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^5.7.25"
+    "phpunit/phpunit": "^5.7.27",
+    "phpunit/php-code-coverage": "^4.0.8",
+    "phpunit/php-token-stream": "^2.0.2",
+    "ext-tokenizer": "*"
   },
   "suggest": {
     "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes",
