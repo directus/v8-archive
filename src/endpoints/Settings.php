@@ -62,6 +62,42 @@ class Settings extends Route
             $request->getQueryParams()
         );
 
+        /**
+         * Get all the fields of settings table to check the interface
+         * 
+         */
+
+        $fieldData = $service->findAllFields(
+            $request->getQueryParams()
+        );
+
+        /**
+         * Get the 'field' from fields table which contains the file interface for check 
+         * from settings table to get the file object ID
+         * 
+         */
+        $fileObject = array_filter($fieldData['data'], function ($value) {
+           return $value['interface'] == 'file';
+        });
+
+        $fileField = array_column($fileObject, 'field');
+
+        /**
+         * Track the setting object and compare the 'key' with 'field'(fileField variable here)
+         * which is return by fields table (contains file interface) and if compare successfully 
+         * then get the value (which is the ID of files table) to fetch the file object then replace 
+         * the "value" of that "key"with this file object.
+         * 
+         */
+
+        foreach($fileField as $key => $value){
+            $result = array_search($value, array_column($responseData['data'], 'key'));
+            if($result){
+                $fileInstence = $service->findFile($responseData['data'][$result]['value']);
+                $responseData['data'][$result]['value'] = !empty($fileInstence['data']) ? $fileInstence['data'] : null;
+            }
+         }
+
         return $this->responseWithData($request, $response, $responseData);
     }
 
@@ -115,12 +151,64 @@ class Settings extends Route
             return $this->batch($request, $response);
         }
 
+        $inputData = $request->getParsedBody();
         $service = new SettingsService($this->container);
-        $responseData = $service->update(
+
+        /**
+         * Get the object of current setting from its setting to check the interface.
+         * We need to check the interface because for file component (logo); 
+         * the request has an array instead of string. So we need to interface of the 
+         * given setting object.
+         */        
+        $isFileRequest = false;
+        $serviceData = $service->findByIds(
             $request->getAttribute('id'),
-            $request->getParsedBody(),
             $request->getQueryParams()
         );
+
+
+        /**
+         * If the current settinghas the file interface then get the id from array
+         * for that first get all the fields of settings table to check the interface
+         * to get all the file object. 
+         * 
+         */
+       
+
+        $fieldData = $service->findAllFields(
+            $request->getQueryParams()
+        );
+
+        /**
+         * Get the field which contains the file interface
+         * 
+         */
+        $fileObject = array_filter($fieldData['data'], function ($value) use ($serviceData) {
+           return $value['interface'] == 'file' && $value['field'] == $serviceData['data']['key'];
+        });
+
+        $fileField = array_column($fileObject, 'field');
+
+        $isFileRequest = false;
+        if($fileField){
+            $isFileRequest =  $inputData['value'];
+            $inputData['value'] = isset($inputData['value']['id']) ? $inputData['value']['id'] : $inputData['value'];
+        }
+        
+        $responseData = $service->update(
+            $request->getAttribute('id'),
+            $inputData,
+            $request->getQueryParams()
+        );
+
+        /**
+         * If the updated setting is a file component then return the object of file 
+         * instead of only value.
+         */
+
+         if($isFileRequest){
+            $responseData['data']['value'] = $isFileRequest;
+         }
 
         return $this->responseWithData($request, $response, $responseData);
     }
