@@ -667,7 +667,11 @@ class Acl
      */
     public function canUpdateAll($collection, $status = null)
     {
-        return $this->canUpdateAt(static::LEVEL_FULL, $collection, $status);
+        /**
+         * Edited By : Binal Gajjar
+         * Added condition if user have "mine" access or "full" access.
+         */
+        return $this->canUpdateAt(static::LEVEL_FULL, $collection, $status) || $this->canUpdateAt(static::LEVEL_MINE, $collection, $status);
     }
 
     /**
