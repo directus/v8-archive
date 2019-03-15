@@ -40,11 +40,18 @@ class Settings extends Route
             return $this->batch($request, $response);
         }
 
+        /**
+         * Get interface based input
+         */
+        $inputData = $this->getInterfaceBasedInput($request,$payload['key']);
+        
         $service = new SettingsService($this->container);
         $responseData = $service->create(
-            $request->getParsedBody(),
+            $inputData,
             $request->getQueryParams()
         );
+
+        $responseData['data']['value'] = $payload['value'];
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -61,6 +68,34 @@ class Settings extends Route
         $responseData = $service->findAll(
             $request->getQueryParams()
         );
+
+        /**
+         * Get all the fields of settings table to check the interface
+         * 
+         */
+
+        $fieldData = $service->findAllFields(
+            $request->getQueryParams()
+        );
+
+        /**
+         * Generate the response object based on interface
+         * 
+         */
+        foreach($fieldData['data'] as $key => $value){
+            switch ($value['interface']) {
+                case 'file':
+                    $result = array_search($value['field'], array_column($responseData['data'], 'key'));
+                    if($result){
+                        $fileInstence = $service->findFile($responseData['data'][$result]['value']);
+                        $responseData['data'][$result]['value'] = !empty($fileInstence['data']) ? $fileInstence['data'] : null;
+                    }
+                    break;
+                case 'tags':
+                    $inputData['value'] = !empty($responseData['data'][$result]['value']) ? explode($responseData['data'][$result]['value']) : null;
+                    break;
+            }
+        }
 
         return $this->responseWithData($request, $response, $responseData);
     }
@@ -98,6 +133,36 @@ class Settings extends Route
         return $this->responseWithData($request, $response, $responseData);
     }
 
+    
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function getInterfaceBasedInput($request,$setting)
+    {
+        $service = new SettingsService($this->container);
+        $fieldData = $service->findAllFields(
+            $request->getQueryParams()
+        );
+        
+        $inputData = $request->getParsedBody();
+        foreach($fieldData['data'] as $key => $value){
+            if($value['field'] == $setting){
+                switch ($value['interface']) {
+                    case 'file':
+                        $inputData['value'] = isset($inputData['value']['id']) ? $inputData['value']['id'] : $inputData['value'];
+                        break;
+                    case 'tags':
+                        $inputData['value'] = is_array($inputData['value']) ? implode(",",$inputData['value']) : $inputData['value'];
+                        break;
+                }
+            }
+        }
+        return $inputData;
+    }
+
     /**
      * @param Request $request
      * @param Response $response
@@ -116,11 +181,30 @@ class Settings extends Route
         }
 
         $service = new SettingsService($this->container);
-        $responseData = $service->update(
+
+        /**
+         * Get the object of current setting from its setting to check the interface.
+         * 
+         */        
+        $serviceData = $service->findByIds(
             $request->getAttribute('id'),
-            $request->getParsedBody(),
             $request->getQueryParams()
         );
+
+
+        /**
+         * Get the interface based input
+         * 
+         */
+        $inputData = $this->getInterfaceBasedInput($request,$serviceData['data']['key']);
+        $responseData = $service->update(
+            $request->getAttribute('id'),
+            $inputData,
+            $request->getQueryParams()
+        );
+        
+        $responseData['data']['value'] = $payload['value'];
+       
 
         return $this->responseWithData($request, $response, $responseData);
     }
