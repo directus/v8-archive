@@ -484,6 +484,8 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
+            $data = is_array($data) ? implode($data, ',') : $data;
+            $recordData[$key] = $data;
             $parentRecordWithoutAlias[$key] = $data;
         }
 
