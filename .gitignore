@@ -8,6 +8,7 @@ Icon
 node_modules
 yarn.lock
 package-lock.json
+/nbproject/
 
 # Don't track composer phar/vendors
 composer.phar
