@@ -1272,6 +1272,14 @@ class BaseTableGateway extends TableGateway
         // User Created Interface not found, item cannot be updated
         $itemOwnerField = $this->getTableSchema()->getUserCreatedField();
         if (!$itemOwnerField) {
+
+            /** User object dont have a created_by field so we cant get the owner and not able to update
+             * the profile. Thus we need to check manually that whether its update profile or not.
+             */
+            if($updateState['table'] == "directus_users" && $updateState['set']['id'] == $this->acl->getUserId()){
+                $this->acl->enforceUpdate($updateTable, $statusId);
+                return;
+            }
             $this->acl->enforceUpdateAll($updateTable, $statusId);
             return;
         }
