@@ -7,6 +7,15 @@ class AddNavOverride extends AbstractMigration
 {
     public function up()
     {
+        $table = $this->table('directus_roles');
+        if (!$table->hasColumn('nav_override')) {
+            $table->addColumn('nav_override', 'text', [
+                'null' => true
+            ]);
+
+            $table->save();
+        }
+
         $checkSql = 'SELECT 1 FROM `directus_fields` WHERE `field` = "nav_override" AND `collection` = "directus_roles";';
         $result = $this->query($checkSql)->fetch();
 
