@@ -4,7 +4,7 @@
       v-if="value"
       class="card"
       :title="value.title"
-      :subtitle="subtitle"
+      :subtitle="subtitle + subtitleExtra"
       :src="src"
       :icon="icon"
       :href="href"
@@ -79,6 +79,7 @@
 
 <script>
 import mixin from "../../../mixins/interface";
+import formatSize from "../file-size/format-size";
 import getIcon from "./get-icon";
 
 export default {
@@ -103,6 +104,12 @@ export default {
         " • " +
         this.$d(new Date(this.value.uploaded_on), "short")
       );
+    },
+    subtitleExtra() {
+      // Image ? -> display dimensions and formatted filesize
+      return this.value.type && this.value.type.startsWith("image")
+        ?  " • " + this.value.width + " x " + this.value.height + " (" + formatSize(this.value.filesize) + ")"
+        : null;
     },
     src() {
       return this.value.type && this.value.type.startsWith("image")
