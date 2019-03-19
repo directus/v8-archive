@@ -169,6 +169,35 @@ class Settings extends Route
      *
      * @return Response
      */
+    public function getInterfaceBasedInput($request,$setting)
+    {
+        $service = new SettingsService($this->container);
+        $fieldData = $service->findAllFields(
+            $request->getQueryParams()
+        );
+        
+        $inputData = $request->getParsedBody();
+        foreach($fieldData['data'] as $key => $value){
+            if($value['field'] == $setting){
+                switch ($value['interface']) {
+                    case 'file':
+                        $inputData['value'] = isset($inputData['value']['id']) ? $inputData['value']['id'] : $inputData['value'];
+                        break;
+                    case 'tags':
+                        $inputData['value'] = is_array($inputData['value']) ? implode(",",$inputData['value']) : $inputData['value'];
+                        break;
+                }
+            }
+        }
+        return $inputData;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
     public function update(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
@@ -180,8 +209,8 @@ class Settings extends Route
             return $this->batch($request, $response);
         }
 
-        $inputData = $request->getParsedBody();
         $service = new SettingsService($this->container);
+
 
         /**
          * Get the object of current setting from its setting to check the interface.
