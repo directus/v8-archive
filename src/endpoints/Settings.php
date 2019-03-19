@@ -87,8 +87,12 @@ class Settings extends Route
                 case 'file':
                     $result = array_search($value['field'], array_column($responseData['data'], 'key'));
                     if($result){
-                        $fileInstence = $service->findFile($responseData['data'][$result]['value']);
-                        $responseData['data'][$result]['value'] = !empty($fileInstence['data']) ? $fileInstence['data'] : null;
+			if (!empty($responseData['data'][$result]['value'])) {
+                            $fileInstence = $service->findFile($responseData['data'][$result]['value']);
+                            $responseData['data'][$result]['value'] = !empty($fileInstence['data']) ? $fileInstence['data'] : null;
+                        } else {
+                            $responseData['data'][$result]['value'] = null;
+                        }
                     }
                     break;
                 case 'tags':
