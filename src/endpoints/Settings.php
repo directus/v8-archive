@@ -133,7 +133,6 @@ class Settings extends Route
         return $this->responseWithData($request, $response, $responseData);
     }
 
-    
     /**
      * @param Request $request
      * @param Response $response
@@ -182,6 +181,7 @@ class Settings extends Route
 
         $service = new SettingsService($this->container);
 
+
         /**
          * Get the object of current setting from its setting to check the interface.
          * 
@@ -205,7 +205,6 @@ class Settings extends Route
         
         $responseData['data']['value'] = $payload['value'];
        
-
         return $this->responseWithData($request, $response, $responseData);
     }
 
