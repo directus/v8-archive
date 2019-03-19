@@ -92,7 +92,7 @@ class Settings extends Route
                     }
                     break;
                 case 'tags':
-                    $inputData['value'] = !empty($responseData['data'][$result]['value']) ? explode($responseData['data'][$result]['value']) : null;
+                    $inputData['value'] = !empty($responseData['data'][$result]['value']) ? $responseData['data'][$result]['value'] : null;
                     break;
             }
         }
