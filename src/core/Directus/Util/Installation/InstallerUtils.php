@@ -276,8 +276,9 @@ class InstallerUtils
 
         $userRolesTableGateway = new TableGateway('directus_user_roles', $db);
 
+        $schemaManager = $app->getContainer()->get('schema_manager');
         $userRolesTableGateway->insert([
-            'user' => $tableGateway->getLastInsertValue(),
+            'user' => $schemaManager->getSource()->getLastGeneratedId($tableGateway, 'directus_users', 'id'),
             'role' => 1
         ]);
 

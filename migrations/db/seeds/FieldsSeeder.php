@@ -23,18 +23,18 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'readonly' => 1,
-                'required' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'readonly' => true,
+                'required' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'action',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'activity-icon',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 1
             ],
             [
@@ -42,8 +42,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'collections',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 2,
                 'width' => 2
             ],
@@ -52,8 +52,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'item',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 3,
                 'width' => 2
             ],
@@ -62,8 +62,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'action_by',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 4,
                 'width' => 2
             ],
@@ -75,8 +75,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'showRelative' => true
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 5,
                 'width' => 2
             ],
@@ -88,8 +88,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'showRelative' => true
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 6,
                 'width' => 2
             ],
@@ -101,8 +101,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'showRelative' => true
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 7,
                 'width' => 2
             ],
@@ -111,8 +111,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'ip',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 8,
                 'width' => 2
             ],
@@ -121,8 +121,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'user_agent',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 9,
                 'width' => 2
             ],
@@ -131,8 +131,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'comment',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 10
             ],
 
@@ -144,70 +144,70 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'title',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'user',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'role',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'search_query',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'filters',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'view_options',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'view_type',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_collection_presets',
                 'field' => 'view_query',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
 
             // Collections
@@ -217,9 +217,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'fields',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
                 'interface' => 'one-to-many',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1,
+                'locked' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true,
                 'sort' => 1
             ],
             [
@@ -227,9 +227,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'readonly' => 1,
-                'required' => 1,
+                'locked' => true,
+                'readonly' => true,
+                'required' => true,
                 'sort' => 2,
                 'width' => 2
             ],
@@ -238,7 +238,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'note',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 3,
                 'width' => 2
             ],
@@ -247,7 +247,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'managed',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 4,
                 'width' => 1
             ],
@@ -256,7 +256,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'hidden',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 5,
                 'width' => 1
             ],
@@ -265,7 +265,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'single',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 6,
                 'width' => 1
             ],
@@ -274,16 +274,16 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'translation',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 7,
-                'hidden_detail' => 1
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_collections',
                 'field' => 'icon',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'icon',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 8
             ],
 
@@ -295,121 +295,121 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'required' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'required' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'field',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'type',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'primary-key',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'interface',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'primary-key',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'options',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'locked',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'translation',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'readonly',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'validation',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
+                'locked' => true,
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'required',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'sort',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_SORT,
                 'interface' => 'sort',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'note',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'hidden_detail',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'hidden_browse',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'width',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'group',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
 
 
@@ -420,8 +420,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'data',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
                 'interface' => 'file',
-                'locked' => 1,
-                'hidden_detail' => 1,
+                'locked' => true,
+                'hidden_detail' => true,
                 'sort' => 0
             ],
             [
@@ -429,9 +429,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'required' => 1,
-                'hidden_detail' => 1,
+                'locked' => true,
+                'required' => true,
+                'hidden_detail' => true,
                 'sort' => 1
             ],
             [
@@ -439,7 +439,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'preview',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
                 'interface' => 'file-preview',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 2
             ],
             [
@@ -451,7 +451,7 @@ class FieldsSeeder extends AbstractSeed
                     'placeholder' => 'Enter a descriptive title...',
                     'iconRight' => 'title'
                 ]),
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 3,
                 'width' => 2
             ],
@@ -464,8 +464,8 @@ class FieldsSeeder extends AbstractSeed
                     'placeholder' => 'Enter a unique file name...',
                     'iconRight' => 'insert_drive_file'
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 4,
                 'width' => 2
             ],
@@ -507,8 +507,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'iconRight' => 'straighten'
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 8,
                 'width' => 1
             ],
@@ -520,8 +520,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'iconRight' => 'straighten'
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 9,
                 'width' => 1
             ],
@@ -533,8 +533,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'iconRight' => 'timer'
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 10,
                 'width' => 1
             ],
@@ -546,8 +546,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'iconRight' => 'storage'
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 11,
                 'width' => 1
             ],
@@ -559,8 +559,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'iconRight' => 'today'
                 ]),
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 12,
                 'width' => 2
             ],
@@ -569,8 +569,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'uploaded_by',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 13,
                 'width' => 2
             ],
@@ -579,7 +579,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'metadata',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 14,
                 'width' => 4
             ],
@@ -588,54 +588,54 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'type',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'charset',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'embed',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'folder',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'storage',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'locked' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true
             ],
             [
                 'collection' => 'directus_files',
                 'field' => 'checksum',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1,
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true,
             ],
 
 
@@ -646,23 +646,23 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'required' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'required' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_folders',
                 'field' => 'name',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_folders',
                 'field' => 'parent_folder',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
 
 
@@ -673,93 +673,93 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'required' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'required' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'role',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'status',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'create',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'read',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'update',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'delete',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'primary-key',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'comment',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'explain',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'status_blacklist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'read_field_blacklist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_permissions',
                 'field' => 'write_field_blacklist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
-                'locked' => 1
+                'locked' => true
             ],
 
 
@@ -770,42 +770,42 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'collection_many',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'collections',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'field_many',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'collection_one',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'collections',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'field_one',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_relations',
                 'field' => 'junction_field',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
 
 
@@ -816,63 +816,63 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'activity',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'item',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'data',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'delta',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'parent_item',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'parent_collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'collections',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_revisions',
                 'field' => 'parent_changed',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1
+                'locked' => true
             ],
 
 
@@ -883,26 +883,26 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'required' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'required' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'external_id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'name',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 1,
                 'width' => 2
             ],
@@ -911,7 +911,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'description',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 2,
                 'width' => 2
             ],
@@ -920,23 +920,58 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'ip_whitelist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'nav_blacklist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'textarea',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'locked' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'users',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
                 'interface' => 'many-to-many',
-                'locked' => 1
+                'locked' => true
+            ],
+            [
+                'collection' => 'directus_roles',
+                'field' => 'nav_override',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'code',
+                'locked' => 1,
+                'options' => '[
+                    {
+                        "title": "$t:collections",
+                        "include": "collections"
+                    },
+                    {
+                        "title": "$t:bookmarks",
+                        "include": "bookmarks"
+                    },
+                    {
+                        "title": "$t:extensions",
+                        "include": "extensions"
+                    },
+                    {
+                        "title": "Custom Links",
+                        "links": [
+                            {
+                                "name": "RANGER Studio",
+                                "path": "https://rangerstudio.com",
+                                "icon": "star"
+                            },
+                            {
+                                "name": "Movies",
+                                "path": "/collections/movies"
+                            }
+                        ]
+                    }
+                ]'
             ],
             [
                 'collection' => 'directus_roles',
@@ -981,49 +1016,49 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'project_name',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'project_url',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'app_url',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'logo',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
                 'interface' => 'file',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'color',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'color-palette',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'default_limit',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'sort_null_last',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1,
+                'locked' => true,
                 'note' => 'Will sort values with null at the end of the result'
             ],
             [
@@ -1031,56 +1066,56 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'auto_sign_out',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'trusted_proxies',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'youtube_api',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_dimensions',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_quality_tags',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_actions',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_cache_ttl',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_not_found_location',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => true
             ],
 
 
@@ -1091,9 +1126,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'required' => 1,
-                'hidden_detail' => 1,
+                'locked' => true,
+                'required' => true,
+                'hidden_detail' => true,
                 'sort' => 1
             ],
             [
@@ -1145,7 +1180,7 @@ class FieldsSeeder extends AbstractSeed
                       ]
                    ]
                 ]),
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 2,
             ],
             [
@@ -1156,8 +1191,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'placeholder' => 'Enter your give name...'
                 ]),
-                'locked' => 1,
-                'required' => 1,
+                'locked' => true,
+                'required' => true,
                 'sort' => 3,
                 'width' => 2
             ],
@@ -1169,8 +1204,8 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'placeholder' => 'Enter your surname...'
                 ]),
-                'locked' => 1,
-                'required' => 1,
+                'locked' => true,
+                'required' => true,
                 'sort' => 4,
                 'width' => 2
             ],
@@ -1182,9 +1217,9 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'placeholder' => 'Enter your email address...'
                 ]),
-                'locked' => 1,
+                'locked' => true,
                 'validation' => '$email',
-                'required' => 1,
+                'required' => true,
                 'sort' => 5,
                 'width' => 2
             ],
@@ -1193,7 +1228,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'email_notifications',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 6,
                 'width' => 2
             ],
@@ -1202,8 +1237,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'password',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'password',
-                'locked' => 1,
-                'required' => 1,
+                'locked' => true,
+                'required' => true,
                 'sort' => 7,
                 'width' => 2
             ],
@@ -1212,7 +1247,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'roles',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
                 'interface' => 'user-roles',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 8,
                 'width' => 2
             ],
@@ -1393,7 +1428,7 @@ class FieldsSeeder extends AbstractSeed
                     ],
                     'placeholder' => 'Choose a timezone...'
                 ]),
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 11,
                 'width' => 2
             ],
@@ -1405,7 +1440,7 @@ class FieldsSeeder extends AbstractSeed
                 'options' => json_encode([
                     'limit' => true
                 ]),
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 12,
                 'width' => 2
             ],
@@ -1414,9 +1449,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'locale_options',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1,
-                'hidden_browse' => 1,
-                'hidden_detail' => 1,
+                'locked' => true,
+                'hidden_browse' => true,
+                'hidden_detail' => true,
                 'sort' => 13
             ],
             [
@@ -1424,9 +1459,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'token',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1,
+                'locked' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true,
                 'sort' => 14
             ],
             [
@@ -1434,8 +1469,8 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'last_login',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime',
-                'locked' => 1,
-                'readonly' => 1,
+                'locked' => true,
+                'readonly' => true,
                 'sort' => 15,
                 'width' => 2
             ],
@@ -1444,9 +1479,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'last_access_on',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1,
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true,
                 'sort' => 16,
                 'width' => 2
             ],
@@ -1455,10 +1490,10 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'last_page',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1,
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true,
                 'sort' => 17,
                 'width' => 2
             ],
@@ -1467,7 +1502,7 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'avatar',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
                 'interface' => 'file',
-                'locked' => 1,
+                'locked' => true,
                 'sort' => 18
             ],
             [
@@ -1475,36 +1510,36 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'invite_token',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'locked' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'invite_accepted',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'locked' => true,
+                'hidden_detail' => true,
+                'hidden_browse' => true
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'last_ip',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_users',
                 'field' => 'external_id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'readonly' => true,
+                'hidden_detail' => true
             ],
 
             // User Roles Junction
@@ -1514,23 +1549,23 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'id',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
-                'locked' => 1,
-                'required' => 1,
-                'hidden_detail' => 1
+                'locked' => true,
+                'required' => true,
+                'hidden_detail' => true
             ],
             [
                 'collection' => 'directus_user_roles',
                 'field' => 'user',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ],
             [
                 'collection' => 'directus_user_roles',
                 'field' => 'role',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
-                'locked' => 1
+                'locked' => true
             ]
         ];
 

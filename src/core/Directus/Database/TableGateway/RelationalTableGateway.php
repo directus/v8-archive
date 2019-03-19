@@ -248,7 +248,7 @@ class RelationalTableGateway extends BaseTableGateway
         $statusField = $tableSchema->getStatusField();
         if ($recordIsNew) {
             $logEntryAction = DirectusActivityTableGateway::ACTION_CREATE;
-        } else if (ArrayUtils::get($params, 'revert') === true) {
+        } elseif (ArrayUtils::get($params, 'revert') === true) {
             $logEntryAction = DirectusActivityTableGateway::ACTION_REVERT;
         } else {
             $logEntryAction = DirectusActivityTableGateway::ACTION_UPDATE;
@@ -327,6 +327,10 @@ class RelationalTableGateway extends BaseTableGateway
                             'item' => $rowId,
                             'comment' => ArrayUtils::get($params, 'activity_comment')
                         ];
+                        $id = $this->getSchemaManager()->getSource()->getNextGeneratedId($this, 'directus_activity', 'id');
+                        if ($id) {
+                            $logData['id'] = $id;
+                        }
                         $parentLogEntry->populate($logData, false);
                         $parentLogEntry->save();
 
@@ -731,7 +735,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         if (!$this->getTableSchema()->hasStatusField() || $allStatus) {
             $statusList = null;
-        } else if (empty($statusList)){
+        } elseif (empty($statusList)) {
             $statusList = $this->getNonSoftDeleteStatuses();
         }
 
@@ -793,7 +797,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         // @TODO: Query Builder Object
-        foreach($params as $type => $argument) {
+        foreach ($params as $type => $argument) {
             $method = 'process' . ucfirst($type);
             if (method_exists($this, $method)) {
                 call_user_func_array([$this, $method], [$builder, $argument]);
@@ -1026,9 +1030,9 @@ class RelationalTableGateway extends BaseTableGateway
 
             if (ArrayUtils::has($params, 'single')) {
                 throw new Exception\ItemNotFoundException();
-            } else if ($isForbiddenRead) {
+            } elseif ($isForbiddenRead) {
                 throw $e;
-            } else if ($isUnableFindItems) {
+            } elseif ($isUnableFindItems) {
                 return [];
             }
         }
@@ -1386,7 +1390,7 @@ class RelationalTableGateway extends BaseTableGateway
                 $value = array_map(function ($item) {
                     return trim($item);
                 }, explode(',', $value));
-            } else if ($operator == 'has') {
+            } elseif ($operator == 'has') {
                 $value = (int) $value;
             }
 
@@ -1522,7 +1526,7 @@ class RelationalTableGateway extends BaseTableGateway
                             }
                         });
                     });
-                } else if ($column->isOneToMany()) {
+                } elseif ($column->isOneToMany()) {
                     $relationship = $column->getRelationship();
                     $relatedTable = $relationship->getCollectionMany();
                     $relatedRightColumn = $relationship->getFieldMany();
@@ -1531,7 +1535,7 @@ class RelationalTableGateway extends BaseTableGateway
                     $query->from($table);
                     // TODO: Test here it may be not setting the proper primary key name
                     // TODO: Only make this condition if it actually have conditions in the sub query
-                    $query->orWhereRelational($this->primaryKeyFieldName, $relatedTable, null, $relatedRightColumn, function(Builder $query) use ($column, $relatedTable, $relatedTableColumns, $search) {
+                    $query->orWhereRelational($this->primaryKeyFieldName, $relatedTable, null, $relatedRightColumn, function (Builder $query) use ($column, $relatedTable, $relatedTableColumns, $search) {
                         foreach ($relatedTableColumns as $column) {
                             // NOTE: Only search numeric or string type columns
                             $isNumeric = $this->getSchemaManager()->getSource()->isNumericType($column->getType());
@@ -1541,7 +1545,7 @@ class RelationalTableGateway extends BaseTableGateway
                             }
                         }
                     });
-                } else if (!$column->isAlias()) {
+                } elseif (!$column->isAlias()) {
                     $query->orWhereLike($column->getName(), $search);
                 }
             }
@@ -1613,7 +1617,7 @@ class RelationalTableGateway extends BaseTableGateway
         if (ArrayUtils::get($params, 'status') && SchemaService::hasStatusField($this->getTable(), $skipAcl)) {
             $statuses = $params['status'];
             if (!is_array($statuses)) {
-                $statuses = array_map(function($item) {
+                $statuses = array_map(function ($item) {
                     return trim($item);
                 }, explode(',', $params['status']));
             }
@@ -1701,7 +1705,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $primaryKey = $this->primaryKeyFieldName;
-            $callback = function($row) use ($primaryKey) {
+            $callback = function ($row) use ($primaryKey) {
                 return ArrayUtils::get($row, $primaryKey, null);
             };
 
@@ -2179,6 +2183,10 @@ class RelationalTableGateway extends BaseTableGateway
             'item' => ArrayUtils::get($record, $this->primaryKeyFieldName),
             'comment' => ArrayUtils::get($params, 'activity_comment')
         ];
+        $id = $this->getSchemaManager()->getSource()->getNextGeneratedId($this, 'directus_activity', 'id');
+        if ($id) {
+            $logData['id'] = $id;
+        }
         $parentLogEntry->populate($logData, false);
         $parentLogEntry->save();
 

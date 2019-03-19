@@ -15,6 +15,23 @@ use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\TableIdentifier;
 use Zend\Db\Sql\Where;
+use Zend\Db\Sql\Ddl\Column\AbstractLengthColumn;
+use Zend\Db\Sql\Ddl\Column\AbstractPrecisionColumn;
+use Zend\Db\Sql\Ddl\Column\BigInteger;
+use Zend\Db\Sql\Ddl\Column\Binary;
+use Zend\Db\Sql\Ddl\Column\Blob;
+use Zend\Db\Sql\Ddl\Column\Char;
+use Zend\Db\Sql\Ddl\Column\Column;
+use Zend\Db\Sql\Ddl\Column\Date;
+use Zend\Db\Sql\Ddl\Column\Datetime;
+use Zend\Db\Sql\Ddl\Column\Decimal;
+use Zend\Db\Sql\Ddl\Column\Floating;
+use Zend\Db\Sql\Ddl\Column\Integer;
+use Zend\Db\Sql\Ddl\Column\Text;
+use Zend\Db\Sql\Ddl\Column\Time;
+use Zend\Db\Sql\Ddl\Column\Timestamp;
+use Zend\Db\Sql\Ddl\Column\Varbinary;
+use Zend\Db\Sql\Ddl\Column\Varchar;
 
 class MySQLSchema extends AbstractSchema
 {
@@ -723,4 +740,141 @@ class MySQLSchema extends AbstractSchema
 
         return $this->isMariaDb;
     }
+
+    /**
+     * Creates column based on type
+     *
+     * @param $name
+     * @param $type
+     *
+     * @return Column
+     *
+     * @throws UnknownTypeException
+     */
+    public function createColumnFromDataType($name, $type)
+    {
+        // TODO: Move this to the Schema Source
+        switch (strtolower($type)) {
+            case 'char':
+                $column = new Char($name);
+                break;
+            case 'varchar':
+                $column = new Varchar($name);
+                break;
+            case 'tinytext':
+                $column = new TinyText($name);
+                break;
+            case 'text':
+                $column = new Text($name);
+                break;
+            case 'mediumtext':
+                $column = new MediumText($name);
+                break;
+            case 'longtext':
+                $column = new LongText($name);
+                break;
+            case 'time':
+                $column = new Time($name);
+                break;
+            case 'date':
+                $column = new Date($name);
+                break;
+            case 'datetime':
+                $column = new Datetime($name);
+                break;
+            case 'timestamp':
+                $column = new Timestamp($name);
+                break;
+            case 'tinyint':
+                $column = new TinyInteger($name);
+                break;
+            case 'smallint':
+                $column = new SmallInteger($name);
+                break;
+            case 'integer':
+            case 'int':
+                $column = new Integer($name);
+                break;
+            case 'mediumint':
+                $column = new MediumInteger($name);
+                break;
+            case 'serial':
+            case 'bigint':
+                $column = new BigInteger($name);
+                break;
+            case 'float':
+                $column = new Floating($name);
+                break;
+            case 'double':
+                $column = new Double($name);
+                break;
+            case 'decimal':
+                $column = new Decimal($name);
+                break;
+            case 'real':
+                $column = new Real($name);
+                break;
+            case 'numeric':
+                $column = new Numeric($name);
+                break;
+            case 'bit':
+                $column = new Bit($name);
+                break;
+            case 'binary':
+                $column = new Binary($name);
+                break;
+            case 'varbinary':
+                $column = new Varbinary($name);
+                break;
+            case 'tinyblob':
+                $column = new TinyBlob($name);
+                break;
+            case 'blob':
+                $column = new Blob($name);
+                break;
+            case 'mediumblob':
+                $column = new MediumBlob($name);
+                break;
+            case 'longblob':
+                $column = new LongBlob($name);
+                break;
+            case 'set':
+                $column = new Set($name);
+                break;
+            case 'enum':
+                $column = new Enum($name);
+                break;
+            default:
+                $column = new Custom($type, $name);
+                break;
+        }
+
+        return $column;
+    }
+
+    /**
+     * Transform if needed the default value of a field
+     * @param array $field
+     * 
+     * @return array $field
+     */
+    public function transformField(array $field)
+    {        
+        $transformedField = parent::transformField($field);
+        if ($transformedField['default_value'] && $this->isMariaDb()) {
+            if ($this->isStringType($transformedField['datatype'])) {
+                // When the field datatype is string we should only make sure to remove the first and last character
+                // Those characters are the quote wrapping the default value
+                // As a default string can have quotes as default (defined by the user) We should avoid to remove those
+                $transformedField['default_value'] = substr($transformedField['default_value'], 1, -1);
+            } else if ($this->isDateAndTimeTypes($transformedField['datatype'])) {
+                // All date types shouldn't have any quotes
+                // Trim all quotes should be safe as the database doesn't support invalidate values
+                // Unless it's a function such as `current_timestamp()` which again shouldn't have quotes
+                $transformedField['default_value'] = trim($transformedField['default_value'], '\'');
+            }
+        }
+        return $transformedField;
+    }
+
 }

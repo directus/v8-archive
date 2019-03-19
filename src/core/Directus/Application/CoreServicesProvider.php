@@ -976,8 +976,8 @@ class CoreServicesProvider
                 //    return new SQLServerSchema($adapter);
                 // case 'SQLite':
                 //     return new \Directus\Database\Schemas\Sources\SQLiteSchema($adapter);
-                // case 'PostgreSQL':
-                //     return new PostgresSchema($adapter);
+                case 'PostgreSQL':
+                    return new \Directus\Database\Schema\Sources\PostgresSchema($adapter);
             }
 
             throw new \Exception('Unknown/Unsupported database: ' . $databaseName);

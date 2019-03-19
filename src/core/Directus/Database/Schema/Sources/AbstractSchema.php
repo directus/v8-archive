@@ -5,6 +5,7 @@ namespace Directus\Database\Schema\Sources;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Util\ArrayUtils;
+use function Directus\is_valid_datetime;
 
 abstract class AbstractSchema implements SchemaInterface
 {
@@ -179,5 +180,65 @@ abstract class AbstractSchema implements SchemaInterface
     public function getDateTimeFormat()
     {
         return $this->datetimeFormat;
+    }
+
+    /**
+     * Does the RDBMS handle sequences?
+     * 
+     * @return boolean
+     */
+    public function hasSequences()
+    {
+        return false;
+    }
+
+    /**
+     * Get the last generated value for this field, if it's based on a sequence or auto-incremented
+     * Do not use along with SequenceFeature
+     * 
+     * @return boolean
+     */
+    public function getLastGeneratedId($abstractTableGateway, $table, $field)
+    {
+        return (int)$abstractTableGateway->getLastInsertValue();
+    }
+    public function getNextGeneratedId($abstractTableGateway, $table, $field)
+    {
+        //Not handled
+        return null;
+    }
+
+    /**
+     * Fix defaultZendDB choices if applicable
+     *
+     * @param AbstractSql|AlterTable|CreateTable $table
+     * @param Sql $sql
+     *
+     * @return String
+     */
+    public function buildSql($table, $sql)
+    {
+        //Do nothing
+        return $sql->buildSqlString($table);
+    }
+
+    /**
+     * Transform if needed the default value of a field
+     * @param array $field
+     * 
+     * @return array $field
+     */
+    public function transformField(array $field)
+    {
+        $transformedField = $field;
+        // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
+        // We reserved the word "NULL" on nullable data type to be actually null
+        if ($field['nullable'] === true && $field['default_value'] == 'NULL') {
+            $transformedField['default_value'] = null;
+        }
+        if (DataTypes::isDateTimeType($field['type']) && is_valid_datetime($field['default_value'], $this->getDateTimeFormat())) {
+            $transformedField['default_value'] = DateTimeUtils::createDateFromFormat($this->getDateTimeFormat(), $field['default_value'])->toISO8601Format();
+        }
+        return $transformedField;
     }
 }

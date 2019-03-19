@@ -2,11 +2,12 @@ Icon
 .DS_Store
 *.log
 .cache
+.github
 
 # Ignore dev files
 /.idea
+/.vscode
 node_modules
-yarn.lock
 package-lock.json
 /nbproject/
 
