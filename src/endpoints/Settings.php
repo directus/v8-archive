@@ -180,6 +180,7 @@ class Settings extends Route
             return $this->batch($request, $response);
         }
 
+        $inputData = $request->getParsedBody();
         $service = new SettingsService($this->container);
 
         /**
@@ -205,7 +206,6 @@ class Settings extends Route
         
         $responseData['data']['value'] = $payload['value'];
        
-
         return $this->responseWithData($request, $response, $responseData);
     }
 
