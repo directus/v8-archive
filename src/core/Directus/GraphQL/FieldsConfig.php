@@ -30,24 +30,28 @@ class FieldsConfig
         foreach($collectionFields as $k => $v){
 
             switch (strtolower($v['type'])){
+                case 'array':
+                    $fields[$k] = Types::listOf(Types::string());
+                break;
+                case 'boolean':
+                    $fields[$k] = Types::boolean();
+                break;
+                case 'datetime':
+                case 'datetime_created':
+                case 'datetime_updated':
+                    $fields[$k] = Types::datetime();
+                break;
+                case 'date':
+                    $fields[$k] = Types::date();
+                break;
+                case 'file':
+                    $fields[$k] = Types::directusFile();
+                break;
                 case 'integer':
                     $fields[$k] = ($v['interface'] == 'primary-key') ? $fields[$k] = Types::id() : Types::int();
                 break;
                 case 'decimal':
                     $fields[$k] = Types::float();
-                break;
-                case 'sort':
-                    $fields[$k] = Types::int();
-                break;
-                case 'boolean':
-                    $fields[$k] = Types::boolean();
-                break;
-                case 'date':
-                    $fields[$k] = Types::date();
-                break;
-                case 'datetime':
-                case 'datetime_created':
-                    $fields[$k] = Types::datetime();
                 break;
                 case 'json':
                     $fields[$k] = Types::json();
@@ -69,27 +73,22 @@ class FieldsConfig
                     };
                     $fields[$k] = $temp;
                 break;
+                case 'sort':
+                    $fields[$k] = Types::int();
+                break;
                 case 'status':
                     $fields[$k] = Types::string();
                 break;
-                case 'file':
-                    $fields[$k] = Types::directusFile();
-                break;
                 case 'user_created':
-                    $fields[$k] = Types::directusUser();
-                break;
                 case 'user_updated':
                     $fields[$k] = Types::directusUser();
-                break;
-                case 'array':
-                    $fields[$k] = Types::listOf(Types::string());
                 break;
                 default:
                     $fields[$k] = Types::string();
             }
-            // if($v['required']){
-            //     $fields[$k] = Types::NonNull($fields[$k]);
-            // }
+            if($v['required']){
+                $fields[$k] = Types::NonNull($fields[$k]);
+            }
         }
         return $fields;
     }
