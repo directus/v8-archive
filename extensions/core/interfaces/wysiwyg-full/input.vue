@@ -357,13 +357,24 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .interface-wysiwyg-container {
   .interface-wysiwyg.editor__content {
     > *[contenteditable="true"],
     > *[contenteditable] {
       min-height: inherit;
     }
+  }
+
+  .editor__content {
+    width: 100%;
+    border: var(--input-border-width) solid var(--lighter-gray);
+    border-radius: var(--border-radius);
+    color: var(--gray);
+    padding: 10px;
+    line-height: 1.5;
+    transition: var(--fast) var(--transition);
+    transition-property: color, border-color
   }
 
   &.editor {
