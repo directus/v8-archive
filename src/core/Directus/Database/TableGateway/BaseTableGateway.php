@@ -799,11 +799,23 @@ class BaseTableGateway extends TableGateway
         try {
             $result = parent::executeInsert($insert);
         } catch (UnexpectedValueException $e) {
+            //MySQL
             if (
                 strtolower($this->adapter->platform->getName()) === 'mysql'
                 && strpos(strtolower($e->getMessage()), 'duplicate entry') !== false
             ) {
                 preg_match("/Duplicate entry '([^']+)' for key '([^']+)'/i", $e->getMessage(), $output);
+
+                if ($output) {
+                    throw new DuplicateItemException($this->table, $output[1]);
+                }
+            }
+            //PostgreSQL
+            else if (
+                strtolower($this->adapter->platform->getName()) === 'postgresql'
+                && strpos(strtolower($e->getMessage()), '(23505 ') !== false
+            ) {
+                preg_match("/\(([^']+)\)=\(([^']+)\)/i", $e->getMessage(), $output);
 
                 if ($output) {
                     throw new DuplicateItemException($this->table, $output[1]);
