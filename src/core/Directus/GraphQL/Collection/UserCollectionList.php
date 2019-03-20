@@ -3,26 +3,24 @@ namespace Directus\GraphQL\Collection;
 
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
-use Directus\Application\Application;
 use Directus\Services\FilesServices;
 use Directus\Services\ItemsService;
 use Directus\Services\TablesService;
 use Directus\Util\StringUtils;
+use Directus\GraphQL\Collection\CollectionList;
 
-class UserCollectionList {
+class UserCollectionList extends CollectionList {
 
     public $list;
-    private $param;
 
     public function __construct(){
+        parent::__construct();
 
-        $this->param = ['fields' => '*.*.*.*.*.*'];
-        $container = Application::getInstance()->getContainer();
         //List all the collection
-        $service = new TablesService($container);
+        $service = new TablesService($this->container);
         $collectionData = $service->findAll();
 
-        $itemsService = new ItemsService($container);
+        $itemsService = new ItemsService($this->container);
 
         foreach($collectionData['data'] as  $value){
             if( $value['managed']){
@@ -33,17 +31,10 @@ class UserCollectionList {
                 $this->list[$value['collection'].'Item'] = [
                     'type' => $type,
                     'description' => 'Return a single '.StringUtils::underscoreToSpace($value['collection']).' item.',
-                    'args' => [
-                        'id' => Types::nonNull(Types::id()),
-                    ],
+                    'args' => ['id' => Types::nonNull(Types::id())],
                     'resolve' => function($val, $args, $context, ResolveInfo $info)  use($value , $itemsService ) {
-
                         $itemsService->throwErrorIfSystemTable($value['collection']);
-                        $data =  $itemsService->find(
-                            $value['collection'],
-                            $args['id'],
-                            $this->param
-                        )['data'];
+                        $data =  $itemsService->find($value['collection'], $args['id'], $this->param)['data'];
                         return $data;
 
                     }
@@ -53,10 +44,11 @@ class UserCollectionList {
                 $this->list[$value['collection']] = [
                     'type' => Types::listOf($type),
                     'description' => 'Return list of '.StringUtils::underscoreToSpace($value['collection']).' items.',
+                    'args' => array_merge($this->limit , $this->offset),
                     'resolve' => function($val, $args, $context, ResolveInfo $info) use($value , $itemsService ) {
-
+                        $this->param = (isset($args)) ? array_merge($this->param , $args) : $this->param;
                         $itemsService->throwErrorIfSystemTable($value['collection']);
-                        return $itemsService->findAll($value['collection'] ,$this->param)['data'];
+                        return $itemsService->findAll($value['collection'], $this->param)['data'];
 
                     }
                 ];
