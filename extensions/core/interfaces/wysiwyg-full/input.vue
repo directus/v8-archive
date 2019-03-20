@@ -273,9 +273,7 @@ import {
   Table,
   TableHeader,
   TableRow,
-  TableCell,
-  Redo,
-  Undo
+  TableCell
 } from "tiptap-extensions";
 
 import mixin from "../../../mixins/interface";
@@ -318,9 +316,7 @@ export default {
           new Table(),
           new TableHeader(),
           new TableCell(),
-          new TableRow(),
-          new Redo(),
-          new Undo()
+          new TableRow()
         ],
         content: ""
       });
