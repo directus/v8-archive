@@ -203,10 +203,23 @@
             <button class="menubar__button" @click="commands.toggleCellMerge">
               <icon name="merge_type" />
             </button>
+            <button class="menubar__button" @click="commands.horizontal_rule">
+              <icon name="maximize" />
+            </button>
           </div>
 
-          <button class="menubar__button" @click="commands.horizontal_rule">
-            <icon name="maximize" />
+          <button
+              class="menubar__button"
+              @click="commands.undo"
+          >
+            <icon name="undo" />
+          </button>
+
+          <button
+              class="menubar__button"
+              @click="commands.redo"
+          >
+            <icon name="redo" />
           </button>
         </div>
       </editor-menu-bar>
@@ -260,7 +273,9 @@ import {
   Table,
   TableHeader,
   TableRow,
-  TableCell
+  TableCell,
+  Redo,
+  Undo
 } from "tiptap-extensions";
 
 import mixin from "../../../mixins/interface";
@@ -303,7 +318,9 @@ export default {
           new Table(),
           new TableHeader(),
           new TableCell(),
-          new TableRow()
+          new TableRow(),
+          new Redo(),
+          new Undo()
         ],
         content: ""
       });
