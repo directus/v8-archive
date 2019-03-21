@@ -1,5 +1,8 @@
 .interface-wysiwyg-container {
   .interface-wysiwyg.editor__content {
+    width: 100%;
+    min-height: inherit;
+
     > *[contenteditable="true"],
     > *[contenteditable] {
       code {
@@ -9,8 +12,6 @@
         color: var(--gray);
         border-radius: var(--border-radius);
         border: 1px solid var(--lighter-gray);
-        //max-width: 100%;
-        //overflow-x: auto;
       }
 
       strong {
@@ -31,10 +32,6 @@
       transition: var(--fast) var(--transition);
       transition-property: color, border-color;
     }
-  }
-
-  .editor__content {
-    width: 100%;
   }
 
   &.editor {
