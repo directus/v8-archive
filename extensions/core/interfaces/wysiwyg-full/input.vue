@@ -287,6 +287,14 @@
                @close="chooseImage = false"
                @done="chooseImage = false"
       >
+
+        <div class="body">
+          <v-input
+              v-model="imageUrlRaw"
+              placeholder="Paste url to image"
+          ></v-input>
+        </div>
+
         <v-items
             collection="directus_files"
             view-type="cards"
@@ -295,7 +303,6 @@
             @select="insertItem($event[0])"
         >
         </v-items>
-        <!--<v-upload @upload="saveUpload" :accept="options.accept" :multiple="false"></v-upload>-->
       </v-modal>
     </portal>
   </div>
@@ -408,9 +415,11 @@
         this.addImageCommand(url)
       },
 
-      showImagePrompt() {
-        const src = prompt('Enter the url of your image here')
-        this.addImageCommand(src)
+      insertImageUrl() {
+        const src = this.imageUrlRaw
+        if (src !== "") {
+          this.addImageCommand(src)
+        }
       },
 
       showLinkMenu(attrs) {
@@ -473,5 +482,5 @@
 </script>
 
 <style lang="scss">
-  @import "./assests/scss/editor";
+  @import "assets/scss/editor";
 </style>
