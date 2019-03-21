@@ -359,7 +359,7 @@ class RelationalTableGateway extends BaseTableGateway
                                 'parent_changed',
                             ]));
                             $revisionTableGateway->insert([
-                                'activity' => $ActivityGateway->lastInsertValue,
+                                'activity' => $this->getSchemaManager()->getSource()->getLastGeneratedId($ActivityGateway, $ActivityGateway->getTable(), $ActivityGateway->primaryKeyFieldName),
                                 'collection' => ArrayUtils::get($entry, 'collection'),
                                 'item' => ArrayUtils::get($entry, 'item'),
                                 'data' => ArrayUtils::get($entry, 'data'),
@@ -2217,7 +2217,7 @@ class RelationalTableGateway extends BaseTableGateway
                 'parent_changed',
             ]));
             $revisionTableGateway->insert([
-                'activity' => $ActivityGateway->lastInsertValue,
+                'activity' => $this->getSchemaManager()->getSource()->getLastGeneratedId($ActivityGateway, $ActivityGateway->getTable(), $ActivityGateway->primaryKeyFieldName),
                 'collection' => ArrayUtils::get($item, 'collection'),
                 'item' => ArrayUtils::get($item, 'item'),
                 'data' => ArrayUtils::get($item, 'data'),
