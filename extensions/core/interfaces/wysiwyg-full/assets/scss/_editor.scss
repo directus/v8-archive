@@ -194,6 +194,32 @@
   }
 }
 
-.modal-container .interface-wysiwyg-modal-url-input {
-  margin: 20px;
+.modal-container {
+  .interface-wysiwyg-modal-url-input {
+    margin: 20px;
+
+    &.is-active {
+      height: 100%;
+    }
+
+  }
+
+  .interface-wysiwyg-modal-url-preview {
+    height: inherit;
+    padding-top: 20px;
+    max-height: 100%;
+    img {
+      max-width: 100%;
+    }
+
+    .error {
+      margin: auto;
+      position: relative;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      font-size: 90px;
+      color: var(--lightest-gray);
+    }
+  }
 }

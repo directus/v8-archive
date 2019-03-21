@@ -282,18 +282,23 @@
                :buttons="{
           done: {
             text: $t('done'),
-            disabled: !imageUrlRaw
+            disabled: !imageUrlRaw || imageUrlRaw && imageUrlRawBroken
           }
         }"
                @close="chooseImage = false"
                @done="insertImageUrl(imageUrlRaw)"
       >
 
-        <div class="interface-wysiwyg-modal-url-input">
+        <div class="interface-wysiwyg-modal-url-input" :class="{'is-active':imageUrlRaw}">
           <v-input
               v-model="imageUrlRaw"
               placeholder="Paste url to image or select an existing"
+              @input="imageUrlRawBroken = false"
           ></v-input>
+          <div class="interface-wysiwyg-modal-url-preview" v-if="imageUrlRaw" >
+            <i v-if="imageUrlRawBroken" class="material-icons error icon">broken_image</i>
+            <img v-else :src="imageUrlRaw" alt="preview-url-image" class="image" @error="imageUrlRawBroken = true">
+          </div>
         </div>
         <v-items
             v-if="imageUrlRaw === ''"
@@ -301,6 +306,7 @@
             view-type="cards"
             :selection="[]"
             :view-options="viewOptions"
+            @click="insertItem($event[0])"
             @select="insertItem($event[0])"
         >
         </v-items>
@@ -405,11 +411,10 @@
         }
       },
 
-      insertItem(image) {
-        let url = image.data.full_url;
-        console.log(url)
+      insertItem(item) {
+        let url = item.data.full_url;
         if (this.options.custom_url) {
-          url = `${this.options.custom_url}${image.filename}`;
+          url = `${this.options.custom_url}${item.filename}`;
         }
         // const index =
         //   (this.editor.getSelection() || {}).index || this.editor.getLength();
@@ -421,6 +426,13 @@
           this.chooseImage = false
           this.addImageCommand(src)
         }
+      },
+
+      checkImage($url) {
+          let tester = new Image();
+          tester.onload =  this.imageUrlRawBroken = false;
+          tester.onerror =  this.imageUrlRawBroken = true;
+          this.imageUrlRawBroken=$url;
       },
 
       showLinkMenu(attrs) {
@@ -464,6 +476,7 @@
         linkUrl: null,
         linkMenuIsActive: false,
         imageUrlRaw: "",
+        imageUrlRawBroken: false,
         viewOptions: {
           title: "title",
           subtitle: "type",
