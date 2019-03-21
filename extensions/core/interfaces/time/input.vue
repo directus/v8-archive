@@ -3,7 +3,7 @@
     type="time"
     class="input"
     :readonly="readonly"
-    @input="$emit('input', $event)"
+    @input="emitValue"
     :value="value"
   ></v-input>
 </template>
@@ -12,7 +12,14 @@
 import mixin from "../../../mixins/interface";
 
 export default {
-  mixins: [mixin]
+  mixins: [mixin],
+  methods: {
+    emitValue(value) {
+      if (value.length !== 8) value = value + ":00";
+
+      this.$emit('input', value);
+    }
+  }
 };
 </script>
 
