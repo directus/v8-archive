@@ -41,6 +41,11 @@
     .editor__inner {
       min-height: inherit;
 
+      &.hidden {
+        min-height: 0;
+        display: none;
+      }
+
       img {
         max-width: 100%;
       }
@@ -49,6 +54,7 @@
         position: absolute;
         background-color: var(--lightest-gray);
         padding: 3px 5px;
+        height: 25px;
         visibility: hidden;
         opacity: 0;
         transition: top .2s ease-in-out, bottom .2s ease-in-out, left .2s ease-in-out, opacity .3s ease-in-out;
@@ -58,8 +64,10 @@
           visibility: visible;
           opacity: 1;
         }
+      }
 
-        .menububble__button {
+      .menububble__button {
+        .icon {
           margin-bottom: -5px;
         }
       }

@@ -5,7 +5,7 @@
       :name="name"
       @input="$emit('input', $event.target.innerHTML)"
   >
-    <div class="editor__inner">
+  <div class="editor__inner" :class="{'hidden':showSource}">
       <editor-menu-bar v-show="!showSource" :editor="editor">
         <div
             class="menubar"
@@ -16,6 +16,7 @@
               class="menubar__button"
               :class="{ 'is-active': isActive.bold() }"
               @click="commands.bold"
+
           >
             <icon name="format_bold"/>
           </button>
@@ -252,7 +253,6 @@
       </editor-menu-bubble>
 
       <editor-content
-          v-show="!showSource"
           ref="editor"
           :class="['interface-wysiwyg', readonly ? 'readonly' : '']"
           class="editor__content"
