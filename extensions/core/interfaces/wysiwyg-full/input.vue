@@ -113,8 +113,8 @@
 
           <button
               class="menubar__button"
-              :class="{ 'is-active': isActive.link() }"
-              @click="commands.link"
+              :class="{ 'is-active': linkBubble }"
+              @click="linkBubble = !linkBubble"
           >
             <icon name="link"/>
           </button>
@@ -223,15 +223,14 @@
         </div>
       </editor-menu-bar>
 
-
-      <editor-menu-bubble class="menububble" :editor="editor" @hide="hideLinkMenu">
+      <editor-menu-bubble class="menububble" :class="{'visible':linkBubble }" :editor="editor" @hide="hideLinkMenu">
         <div
             slot-scope="{ commands, isActive, getMarkAttrs, menu }"
-            class="menububble"
+            class="menububble__item"
             :class="{ 'is-active': menu.isActive }"
             :style="`left: ${menu.left}px; bottom: ${menu.bottom}px;`"
         >
-          <form class="menububble__form" v-if="linkMenuIsActive" @submit.prevent="setLinkUrl(commands.link, linkUrl)">
+          <form linkBubbleclass="menububble__form" v-if="linkMenuIsActive" @submit.prevent="setLinkUrl(commands.link, linkUrl)">
             <input class="menububble__input" type="text" v-model="linkUrl" placeholder="https://" ref="linkInput"
                    @keydown.esc="hideLinkMenu"/>
             <button class="menububble__button" @click="setLinkUrl(commands.link, null)" type="button">
@@ -455,6 +454,7 @@
         chooseExisting: false,
         chooseImage: false,
         newFile: false,
+        linkBubble: false,
         linkUrl: null,
         linkMenuIsActive: false,
         imageUrlRaw: "",

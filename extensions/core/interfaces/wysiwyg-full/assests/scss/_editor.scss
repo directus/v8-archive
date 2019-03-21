@@ -2,9 +2,6 @@
   .interface-wysiwyg.editor__content {
     > *[contenteditable="true"],
     > *[contenteditable] {
-      min-height: inherit;
-      font-size: unset;
-
       code {
         display: inline-block;
         padding: 3px 5px;
@@ -20,17 +17,21 @@
         font-weight: bolder;
       }
     }
-  }
 
-  .editor__content {
-    width: 100%;
+    min-height: inherit;
+    font-size: unset;
     border: var(--input-border-width) solid var(--lighter-gray);
     border-radius: var(--border-radius);
     color: var(--gray);
     padding: 10px;
     line-height: 1.5;
     transition: var(--fast) var(--transition);
-    transition-property: color, border-color
+    transition-property: color, border-color;
+  }
+
+  .editor__content {
+    width: 100%;
+
   }
 
   &.editor {
@@ -38,12 +39,28 @@
     min-height: inherit;
 
     .editor__inner {
+
       img {
         max-width: 100%;
       }
 
       .menububble {
         position: absolute;
+        background-color: var(--lightest-gray);
+        padding: 3px 5px;
+        visibility: hidden;
+        opacity: 0;
+        transition: top .2s ease-in-out, bottom .2s ease-in-out, left .2s ease-in-out, opacity .3s ease-in-out;
+        border-radius: var(--border-radius);
+
+        &.visible {
+          visibility: visible;
+          opacity: 1;
+        }
+
+        .menububble__button {
+          margin-bottom: -5px;
+        }
       }
 
       .menubar {
@@ -51,10 +68,6 @@
           + .editor__content {
             //padding-top: 42px;
           }
-        }
-
-        .bottom__actions {
-          position: absolute;
         }
       }
 
@@ -152,7 +165,7 @@
             }
           }
         }
-        border-radius: 4px;
+        border-radius: var(--border-radius);
 
         &.is-open {
           opacity: 1;
