@@ -65,8 +65,7 @@
       .menububble {
         position: absolute;
         background-color: var(--lightest-gray);
-        padding: 3px 5px;
-        height: 25px;
+        padding: 3px 5px 0 5px;
         visibility: hidden;
         opacity: 0;
         transition: top .2s ease-in-out, bottom .2s ease-in-out, left .2s ease-in-out, opacity .3s ease-in-out;
@@ -193,4 +192,8 @@
       }
     }
   }
+}
+
+.modal-container .interface-wysiwyg-modal-url-input {
+  margin: 20px;
 }

@@ -245,7 +245,7 @@
                 @click="showLinkMenu(getMarkAttrs('link'))"
                 :class="{ 'is-active': isActive.link() }"
             >
-              <span>{{ isActive.link() ? 'Update Link' : 'Add Link'}}</span>
+              <span>{{ isActive.link() ? $t('edit_link') : $t('add_link')}}</span>
               <icon name="link"/>
             </button>
           </template>
@@ -281,21 +281,22 @@
                :title="$t('choose_one')"
                :buttons="{
           done: {
-            text: $t('done')
+            text: $t('done'),
+            disabled: !imageUrlRaw
           }
         }"
                @close="chooseImage = false"
-               @done="chooseImage = false"
+               @done="insertImageUrl(imageUrlRaw)"
       >
 
-        <div class="body">
+        <div class="interface-wysiwyg-modal-url-input">
           <v-input
               v-model="imageUrlRaw"
-              placeholder="Paste url to image"
+              placeholder="Paste url to image or select an existing"
           ></v-input>
         </div>
-
         <v-items
+            v-if="imageUrlRaw === ''"
             collection="directus_files"
             view-type="cards"
             :selection="[]"
@@ -415,9 +416,9 @@
         this.addImageCommand(url)
       },
 
-      insertImageUrl() {
-        const src = this.imageUrlRaw
-        if (src !== "") {
+      insertImageUrl(url) {
+        if (url !== "") {
+          this.chooseImage = false
           this.addImageCommand(src)
         }
       },
