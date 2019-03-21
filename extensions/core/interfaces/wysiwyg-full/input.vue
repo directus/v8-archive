@@ -287,10 +287,6 @@
                @close="chooseImage = false"
                @done="chooseImage = false"
       >
-
-        <div class="body">
-          <v-upload @upload="saveUpload" :accept="options.accept" :multiple="false"></v-upload>
-        </div>
         <v-items
             collection="directus_files"
             view-type="cards"
@@ -298,8 +294,8 @@
             :view-options="viewOptions"
             @select="insertItem($event[0])"
         >
-
         </v-items>
+        <!--<v-upload @upload="saveUpload" :accept="options.accept" :multiple="false"></v-upload>-->
       </v-modal>
     </portal>
   </div>
