@@ -328,4 +328,44 @@ interface SchemaInterface
      * @return string
      */
     public function getDateTimeFormat();
+
+    /**
+     * Get the last generated value for this field, if it's based on a sequence or auto-incremented
+     * Do not use along with SequenceFeature
+     * 
+     * @return boolean
+     */
+    public function getLastGeneratedId($abstractTableGateway, $table, $field);
+
+    public function getNextGeneratedId($abstractTableGateway, $table, $field);
+
+    /**
+     * Creates column based on type
+     *
+     * @param $name
+     * @param $type
+     *
+     * @return Column
+     *
+     * @throws UnknownTypeException
+     */
+    public function createColumnFromDataType($name, $type);
+
+    /**
+     * Fix defaultZendDB choices if applicable
+     *
+     * @param AbstractSql|AlterTable|CreateTable $table
+     * @param Sql $sql
+     *
+     * @return String
+     */
+    public function buildSql($table, $sql);
+
+    /**
+     * Transform if needed the default value of a field
+     * @param array $field
+     * 
+     * @return array $field
+     */
+    public function transformField(array $field);
 }

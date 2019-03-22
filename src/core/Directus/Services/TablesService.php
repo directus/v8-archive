@@ -799,8 +799,8 @@ class TablesService extends AbstractService
             'required' => false,
             'sort' => 0,
             'note' => null,
-            'hidden_detail' => 0,
-            'hidden_browse' => 0,
+            'hidden_detail' => false,
+            'hidden_browse' => false,
             'options' => null
         ];
 
@@ -1147,9 +1147,9 @@ class TablesService extends AbstractService
 
         if ($ignoreMax && $ignoreMin) {
             $result = $count >= 1;
-        } else if ($ignoreMax) {
+        } elseif ($ignoreMax) {
             $result = $count >= $min;
-        } else if ($ignoreMin) {
+        } elseif ($ignoreMin) {
             $result = $count <= $max;
         } else {
             $result = $count >= $min && $count <= $max;
@@ -1225,7 +1225,7 @@ class TablesService extends AbstractService
 
                 if (!$field->isAlias() && DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
                     $toDrop[] = $field->getName();
-                } else if ($field->isAlias() && !DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
+                } elseif ($field->isAlias() && !DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
                     $toAdd[] = $fullFieldData;
                 } else {
                     $toChange[] = $fullFieldData;
@@ -1235,11 +1235,16 @@ class TablesService extends AbstractService
             }
         }
 
+        //BUGFIX: Do nothing if there's nothing to do
+        if (empty($toAdd) && empty($toChange) && empty($toDrop)) {
+            return true;
+        }
+
         $table = $schemaFactory->alterTable($name, [
-            'add' => $toAdd,
-            'change' => $toChange,
-            'drop' => $toDrop
-        ]);
+                'add' => $toAdd,
+                'change' => $toChange,
+                'drop' => $toDrop
+            ]);
 
         $result = $schemaFactory->buildTable($table);
         $this->updateColumnsRelation($name, array_merge($toAdd, $toChange));

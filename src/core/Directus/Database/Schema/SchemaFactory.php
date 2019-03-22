@@ -27,23 +27,6 @@ use Directus\Validator\Validator;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Zend\Db\Sql\AbstractSql;
 use Zend\Db\Sql\Ddl\AlterTable;
-use Zend\Db\Sql\Ddl\Column\AbstractLengthColumn;
-use Zend\Db\Sql\Ddl\Column\AbstractPrecisionColumn;
-use Zend\Db\Sql\Ddl\Column\BigInteger;
-use Zend\Db\Sql\Ddl\Column\Binary;
-use Zend\Db\Sql\Ddl\Column\Blob;
-use Zend\Db\Sql\Ddl\Column\Char;
-use Zend\Db\Sql\Ddl\Column\Column;
-use Zend\Db\Sql\Ddl\Column\Date;
-use Zend\Db\Sql\Ddl\Column\Datetime;
-use Zend\Db\Sql\Ddl\Column\Decimal;
-use Zend\Db\Sql\Ddl\Column\Floating;
-use Zend\Db\Sql\Ddl\Column\Integer;
-use Zend\Db\Sql\Ddl\Column\Text;
-use Zend\Db\Sql\Ddl\Column\Time;
-use Zend\Db\Sql\Ddl\Column\Timestamp;
-use Zend\Db\Sql\Ddl\Column\Varbinary;
-use Zend\Db\Sql\Ddl\Column\Varchar;
 use Zend\Db\Sql\Ddl\Constraint\PrimaryKey;
 use Zend\Db\Sql\Ddl\Constraint\UniqueKey;
 use Zend\Db\Sql\Ddl\CreateTable;
@@ -189,7 +172,7 @@ class SchemaFactory
         $note = ArrayUtils::get($data, 'note');
         // ZendDB doesn't support encoding nor collation
 
-        $column = $this->createColumnFromType($name, $dataType);
+        $column = $this->schemaManager->getSource()->createColumnFromDataType($name, $dataType);
         $column->setNullable($nullable);
         $column->setDefault($default);
         $column->setOption('comment', $note);
@@ -214,8 +197,8 @@ class SchemaFactory
         }
 
         // Only works for integers
-        if ($column instanceof Integer) {
-            $column->setOption('autoincrement', $autoincrement);
+        if ($column instanceof \Zend\Db\Sql\Ddl\Column\Integer) {
+            $column->setOption('identity', $autoincrement);
             $column->setOption('unsigned', $unsigned);
         }
 
@@ -234,122 +217,15 @@ class SchemaFactory
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
 
+        //WORKAROUND ZendDB doesn't know anything about PostgreSQL for instance, we might need to override some of the table specifications depending on the RDBMS used
+        //We monkey-path Zend-DB behaviour here and not through its own source repository with a decorator
+        $sqlFixed = $this->schemaManager->getSource()->buildSql($table, $sql);
+        $connection = $this->schemaManager->getSource()->getConnection();
         // TODO: Allow charset and comment
         return $connection->query(
-            $sql->buildSqlString($table),
+            $sqlFixed,
             $connection::QUERY_MODE_EXECUTE
         );
-    }
-
-    /**
-     * Creates column based on type
-     *
-     * @param $name
-     * @param $type
-     *
-     * @return Column
-     *
-     * @throws UnknownTypeException
-     */
-    protected function createColumnFromType($name, $type)
-    {
-        // TODO: Move this to the Schema Source
-        switch (strtolower($type)) {
-            case 'char':
-                $column = new Char($name);
-                break;
-            case 'varchar':
-                $column = new Varchar($name);
-                break;
-            case 'tinytext':
-                $column = new TinyText($name);
-                break;
-            case 'text':
-                $column = new Text($name);
-                break;
-            case 'mediumtext':
-                $column = new MediumText($name);
-                break;
-            case 'longtext':
-                $column = new LongText($name);
-                break;
-            case 'time':
-                $column = new Time($name);
-                break;
-            case 'date':
-                $column = new Date($name);
-                break;
-            case 'datetime':
-                $column = new Datetime($name);
-                break;
-            case 'timestamp':
-                $column = new Timestamp($name);
-                break;
-            case 'tinyint':
-                $column = new TinyInteger($name);
-                break;
-            case 'smallint':
-                $column = new SmallInteger($name);
-                break;
-            case 'integer':
-            case 'int':
-                $column = new Integer($name);
-                break;
-            case 'mediumint':
-                $column = new MediumInteger($name);
-                break;
-            case 'serial':
-            case 'bigint':
-                $column = new BigInteger($name);
-                break;
-            case 'float':
-                $column = new Floating($name);
-                break;
-            case 'double':
-                $column = new Double($name);
-                break;
-            case 'decimal':
-                $column = new Decimal($name);
-                break;
-            case 'real':
-                $column = new Real($name);
-                break;
-            case 'numeric':
-                $column = new Numeric($name);
-                break;
-            case 'bit':
-                $column = new Bit($name);
-                break;
-            case 'binary':
-                $column = new Binary($name);
-                break;
-            case 'varbinary':
-                $column = new Varbinary($name);
-                break;
-            case 'tinyblob':
-                $column = new TinyBlob($name);
-                break;
-            case 'blob':
-                $column = new Blob($name);
-                break;
-            case 'mediumblob':
-                $column = new MediumBlob($name);
-                break;
-            case 'longblob':
-                $column = new LongBlob($name);
-                break;
-            case 'set':
-                $column = new Set($name);
-                break;
-            case 'enum':
-                $column = new Enum($name);
-                break;
-            default:
-                $column = new Custom($type, $name);
-                break;
-        }
-
-        return $column;
     }
 
     /**

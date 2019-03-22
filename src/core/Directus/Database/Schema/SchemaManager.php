@@ -7,7 +7,6 @@ use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Sources\MySQLSchema;
 use Directus\Database\Schema\Sources\SchemaInterface;
-use function Directus\is_valid_datetime;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 
@@ -453,8 +452,12 @@ class SchemaManager
         return [
             'mysql' => [
                 'id' => 'mysql',
-                'name' => 'MySQL/Percona'
+                'name' => 'MySQL/Percona/MariaDB'
             ],
+            'pgsql' => [
+                'id' => 'pgsql',
+                'name' => 'PostgreSQL 10+'
+            ]
         ];
     }
 
@@ -585,9 +588,10 @@ class SchemaManager
             'readonly',
         ]);
 
-        $this->setFieldDataDefaultValue($column);
+        //Adapt field data according to the source specificities
+        $transformedColumn = $this->source->transformField($column);
 
-        return new Field($column);
+        return new Field($transformedColumn);
     }
 
     /**
@@ -654,36 +658,6 @@ class SchemaManager
                 'collection_one' => static::COLLECTION_USERS,
                 'field_one' => 'id'
             ]);
-        }
-    }
-
-    /**
-     * @param array $field
-     */
-    protected function setFieldDataDefaultValue(array &$field)
-    {
-        // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
-        // We reserved the word "NULL" on nullable data type to be actually null
-        if ($field['nullable'] === true && $field['default_value'] == 'NULL') {
-            $field['default_value'] = null;
-        }
-
-        if ($field['default_value'] && (($this->source instanceof MySQLSchema) && $this->source->isMariaDb())) {
-            if ($this->source->isStringType($field['datatype'])) {
-                // When the field datatype is string we should only make sure to remove the first and last character
-                // Those characters are the quote wrapping the default value
-                // As a default string can have quotes as default (defined by the user) We should avoid to remove those
-                $field['default_value'] = substr($field['default_value'], 1, -1);
-            } else if ($this->source->isDateAndTimeTypes($field['datatype'])) {
-                // All date types shouldn't have any quotes
-                // Trim all quotes should be safe as the database doesn't support invalidate values
-                // Unless it's a function such as `current_timestamp()` which again shouldn't have quotes
-                $field['default_value'] = trim($field['default_value'], '\'');
-            }
-        }
-
-        if (DataTypes::isDateTimeType($field['type']) && is_valid_datetime($field['default_value'], $this->source->getDateTimeFormat())) {
-            $field['default_value'] = DateTimeUtils::createDateFromFormat($this->source->getDateTimeFormat(), $field['default_value'])->toISO8601Format();
         }
     }
 

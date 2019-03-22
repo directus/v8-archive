@@ -134,6 +134,7 @@ class BaseTableGateway extends TableGateway
 
         // @NOTE: This will be substituted by a new Cache wrapper class
         // $this->memcache = new MemcacheProvider();
+
         if ($features === null) {
             $features = new Feature\FeatureSet();
         } else if ($features instanceof Feature\AbstractFeature) {
@@ -396,7 +397,7 @@ class BaseTableGateway extends TableGateway
         // Only get the last inserted id, if the column has auto increment value
         $columnObject = $this->getTableSchema()->getField($primaryKey);
         if ($columnObject->hasAutoIncrement()) {
-            $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
+            $recordData[$primaryKey] = $this->schemaManager->getSource()->getLastGeneratedId($TableGateway, $this->table, $primaryKey);
         }
 
         $this->afterAddOrUpdate($recordData);
@@ -798,11 +799,23 @@ class BaseTableGateway extends TableGateway
         try {
             $result = parent::executeInsert($insert);
         } catch (UnexpectedValueException $e) {
+            //MySQL
             if (
                 strtolower($this->adapter->platform->getName()) === 'mysql'
                 && strpos(strtolower($e->getMessage()), 'duplicate entry') !== false
             ) {
                 preg_match("/Duplicate entry '([^']+)' for key '([^']+)'/i", $e->getMessage(), $output);
+
+                if ($output) {
+                    throw new DuplicateItemException($this->table, $output[1]);
+                }
+            }
+            //PostgreSQL
+            else if (
+                strtolower($this->adapter->platform->getName()) === 'postgresql'
+                && strpos(strtolower($e->getMessage()), '(23505 ') !== false
+            ) {
+                preg_match("/\(([^']+)\)=\(([^']+)\)/i", $e->getMessage(), $output);
 
                 if ($output) {
                     throw new DuplicateItemException($this->table, $output[1]);
@@ -821,7 +834,7 @@ class BaseTableGateway extends TableGateway
         if ($this->getTable() === SchemaManager::COLLECTION_COLLECTIONS) {
             $generatedValue = ArrayUtils::get($insertDataAssoc, $this->primaryKeyFieldName, 'table_name');
         } else {
-            $generatedValue = $this->getLastInsertValue();
+            $generatedValue = $this->schemaManager->getSource()->getLastGeneratedId($this, $this->table, $this->primaryKeyFieldName);
         }
 
         $resultData = $insertTableGateway->find($generatedValue);
@@ -1833,4 +1846,5 @@ class BaseTableGateway extends TableGateway
     {
         return !is_array($this->options) || ArrayUtils::get($this->options, 'filter', true) !== false;
     }
+
 }
