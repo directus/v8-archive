@@ -5,6 +5,8 @@ use Directus\GraphQL\Type\Directus\DirectusFileType;
 use Directus\GraphQL\Type\Directus\DirectusFileThumbnailType;
 use Directus\GraphQL\Type\Directus\DirectusUserType;
 use Directus\GraphQL\Type\Directus\DirectusRoleType;
+use Directus\GraphQL\Type\MetaType;
+use Directus\GraphQL\Type\CollectionType;
 use Directus\GraphQL\Type\FieldsType;
 use Directus\GraphQL\Type\QueryType;
 use Directus\GraphQL\Type\NodeType;
@@ -25,9 +27,21 @@ class Types
     private static $directusUser;
     private static $directusRole;
     private static $query;
-    private static $userCollection;
-    //Used to save the reference of the already created user collection.
+    private static $meta;
+
+    //Used to save the reference of the created user collection.
     private static $userCollections = [];
+
+    //Used to save the reference of the created list of collection.
+    private static $collections = [];
+
+    // Custom scalar types
+    private static $date;
+    private static $time;
+    private static $datetime;
+    private static $json;
+
+    private static $node;
 
     public static function directusFile()
     {
@@ -47,6 +61,23 @@ class Types
     public static function directusRole()
     {
         return self::$directusRole ?: (self::$directusRole = new DirectusRoleType());
+    }
+
+    public static function meta()
+    {
+        return self::$meta ?: (self::$meta = new MetaType());
+    }
+
+    public static function collections($type)
+    {
+        if( ! array_key_exists($type , self::$collections) ) {
+            $collectionType =  new CollectionType($type);
+            self::$collections[$type] = $collectionType;
+            return $collectionType;
+        }else{
+            return self::$collections[$type];
+        }
+
     }
 
     /**
@@ -74,35 +105,30 @@ class Types
     }
 
     // Custom scalar type Date
-    private static $date;
     public static function date()
     {
         return self::$date ?: (self::$date = new DateType());
     }
 
     // Custom scalar type Time
-    private static $time;
     public static function time()
     {
         return self::$time ?: (self::$time = new TimeType());
     }
 
     // Custom scalar type DateTime
-    private static $datetime;
     public static function datetime()
     {
         return self::$datetime ?: (self::$datetime = new DateTimeType());
     }
 
     // Custom scalar type JSON
-    private static $json;
     public static function json()
     {
         return self::$json ?: (self::$json = new JSONType());
     }
 
     // Interface types
-    private static $node;
     /**
      * @return NodeType
      */

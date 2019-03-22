@@ -27,13 +27,13 @@ class DirectusCollectionList extends CollectionList {
                 }
             ],
             'directusFiles' => [
-                'type' => Types::listOf(Types::directusFile()),
+                'type' => Types::collections(Types::directusFile()),
                 'description' => 'Return list of files.',
                 'args' => array_merge($this->limit , $this->offset),
                 'resolve' => function($val, $args, $context, ResolveInfo $info)  {
                     $this->param = (isset($args)) ? array_merge($this->param , $args) : $this->param;
                     $service = new FilesServices($this->container);
-                    return $service->findAll($this->param)['data'];
+                    return $service->findAll($this->param);
                 }
             ],
             'directusFileThumbnail' => [
@@ -50,13 +50,13 @@ class DirectusCollectionList extends CollectionList {
                 }
             ],
             'directusUsers' => [
-                'type' => Types::listOf(Types::directusUser()),
+                'type' => Types::collections(Types::directusUser()),
                 'description' => 'Return list of users.',
                 'args' => array_merge($this->limit , $this->offset),
                 'resolve' => function($val, $args, $context, ResolveInfo $info)  {
                     $this->param = (isset($args)) ? array_merge($this->param , $args) : $this->param;
                     $service = new UsersService($this->container);
-                    return $service->findAll($this->param)['data'];
+                    return $service->findAll($this->param);
                 }
             ],
             'directusRoleItem' => [
@@ -70,13 +70,13 @@ class DirectusCollectionList extends CollectionList {
                 }
             ],
             'directusRole' => [
-                'type' => Types::listOf(Types::directusRole()),
+                'type' => Types::collections(Types::directusRole()),
                 'description' => 'Return list of directus roles.',
                 'args' => array_merge($this->limit , $this->offset),
                 'resolve' => function($val, $args, $context, ResolveInfo $info)  {
                     $this->param = (isset($args)) ? array_merge($this->param , $args) : $this->param;
                     $service = new RolesService($this->container);
-                    return $service->findAll($this->param)['data'];
+                    return $service->findAll($this->param);
                 }
             ],
         ];

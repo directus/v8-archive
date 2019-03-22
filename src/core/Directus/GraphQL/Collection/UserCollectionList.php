@@ -42,13 +42,13 @@ class UserCollectionList extends CollectionList {
 
                 //Add the list of collection
                 $this->list[$value['collection']] = [
-                    'type' => Types::listOf($type),
+                    'type' => Types::collections($type),
                     'description' => 'Return list of '.StringUtils::underscoreToSpace($value['collection']).' items.',
                     'args' => array_merge($this->limit , $this->offset),
                     'resolve' => function($val, $args, $context, ResolveInfo $info) use($value , $itemsService ) {
                         $this->param = (isset($args)) ? array_merge($this->param , $args) : $this->param;
                         $itemsService->throwErrorIfSystemTable($value['collection']);
-                        return $itemsService->findAll($value['collection'], $this->param)['data'];
+                        return $itemsService->findAll($value['collection'], $this->param);
 
                     }
                 ];
