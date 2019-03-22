@@ -9,6 +9,7 @@ use Directus\GraphQL\Type\FieldsType;
 use Directus\GraphQL\Type\QueryType;
 use Directus\GraphQL\Type\NodeType;
 use Directus\GraphQL\Type\Scalar\DateType;
+use Directus\GraphQL\Type\Scalar\TimeType;
 use Directus\GraphQL\Type\Scalar\DateTimeType;
 use Directus\GraphQL\Type\Scalar\JSONType;
 use GraphQL\Type\Definition\ListOfType;
@@ -77,6 +78,13 @@ class Types
     public static function date()
     {
         return self::$date ?: (self::$date = new DateType());
+    }
+
+    // Custom scalar type Time
+    private static $time;
+    public static function time()
+    {
+        return self::$time ?: (self::$time = new TimeType());
     }
 
     // Custom scalar type DateTime

@@ -79,6 +79,9 @@ class FieldsConfig
                 case 'status':
                     $fields[$k] = Types::string();
                 break;
+                case 'time':
+                    $fields[$k] = Types::time();
+                break;
                 case 'user_created':
                 case 'user_updated':
                     $fields[$k] = Types::directusUser();
