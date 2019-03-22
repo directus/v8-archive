@@ -7,11 +7,18 @@
     > *[contenteditable] {
       code {
         display: inline-block;
-        padding: 3px 5px;
+        padding: 0 3px;
+        font-family: monospace;
         background-color: var(--lightest-gray);
         color: var(--gray);
         border-radius: var(--border-radius);
         border: 1px solid var(--lighter-gray);
+      }
+
+      pre {
+        max-width: 100%;
+        overflow-x: scroll;
+        margin: 3px auto;
       }
 
       strong {
@@ -203,14 +210,20 @@
 
     .editor__raw {
       .CodeMirror {
-        margin-bottom: 0;
-        .CodeMirror-scroll {
-          padding-bottom: 0;
-        }
+        margin-bottom: 5px;
+        min-height: 220px;
         .line-count {
           visibility: hidden;
         }
       }
+
+      .CodeMirror-scroll {
+        min-height: 220px;
+        padding-bottom: 0;
+      }
+      //.CodeMirror pre { display:inline-block; padding-left: 7px; line-height: 1.25; }
+      //#drawing { border: 1px solid #555555; float:left; display:inline-block; width:480px; height: 380px; }
+
       small.line-count {
         display: none;
       }

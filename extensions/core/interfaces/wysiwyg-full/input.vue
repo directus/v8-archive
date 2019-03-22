@@ -332,7 +332,7 @@
         :placeholder="options.placeholder"
         class="textarea"
         v-if="showSource && !showRaw"
-        :alt-options="cmOptions"
+        :alt-options="options.codeMirrorOptions"
         :value="editor.view.dom.innerHTML"
         v-model.lazy="editorText"
         :name="'htmlmixed'"
@@ -572,40 +572,13 @@ export default {
         src: "data"
       },
       lineCount: 0,
-      cmOptions: {
-        tabSize: 2,
-        autoRefresh: true,
-        indentUnit: 2,
-        styleActiveLine: true,
-        readOnly: this.readonly ? "nocursor" : false,
-        styleSelectedText: true,
-        line: false,
-        inline: false,
-        highlightSelectionMatches: { showToken: /\w/, annotateScrollbar: true },
-        hintOptions: {
-          completeSingle: false
-        },
-        lineNumbers: true,
-        lineWrapping: true,
-        mode: "text/html",
-        matchBrackets: false,
-        showCursorWhenSelecting: true,
-        theme: "default",
-        extraKeys: { Ctrl: "autocomplete" },
-        tags: {
-          style: [
-            ["type", /^text\/(x-)?scss$/, "text/x-scss"],
-            [null, null, "css"],
-          ],
-          custom: [[null, null, "customMode"]]
-        }
-      }
+      codeMirrorOptions: {}
     };
   },
 
   mounted() {
     this.init();
-    console.log(this.options.toolbarOptions);
+    console.log(this.options);
   },
   beforeDestroy() {
     this.editor.destroy();
