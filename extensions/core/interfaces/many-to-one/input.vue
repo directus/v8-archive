@@ -51,7 +51,8 @@
               type="search"
               :placeholder="$t('search')"
               class="search-input"
-              @input="onSearchInput" />
+              @input="onSearchInput"
+            />
           </div>
           <v-items
             class="items"
@@ -203,7 +204,11 @@ export default {
 
       this.loading = true;
 
-      const params = { fields: "*.*", meta: "total_count", limit: this.options.threshold };
+      const params = {
+        fields: "*.*",
+        meta: "total_count",
+        limit: this.options.threshold
+      };
 
       return Promise.all([
         this.$api.getItems(collection, params),
@@ -327,7 +332,7 @@ button {
 .search-input {
   border-bottom: 1px solid var(--lightest-gray);
 
-  &>>> input {
+  & >>> input {
     border-radius: 0;
     border: none;
     padding-left: var(--page-padding);

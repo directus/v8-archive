@@ -5,13 +5,21 @@
 
       <div class="sort-select">
         <select @input="setSort($event.target.value)" :value="sortedOn">
-          <option v-for="(fieldInfo, name) in fields" :key="name" :value="name">{{ $helpers.formatTitle(name) }}</option>
+          <option
+            v-for="(fieldInfo, name) in fields"
+            :key="name"
+            :value="name"
+            >{{ $helpers.formatTitle(name) }}</option
+          >
         </select>
         <i class="material-icons">arrow_drop_down</i>
       </div>
 
       <div class="sort-select">
-        <select @input="setSortDirection($event.target.value)" :value="sortDirection">
+        <select
+          @input="setSortDirection($event.target.value)"
+          :value="sortDirection"
+        >
           <option value="asc">ASC</option>
           <option value="desc">DESC</option>
         </select>

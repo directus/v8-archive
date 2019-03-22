@@ -1,6 +1,7 @@
 <template>
   <div class="rating">
-    <stars v-if="options.display == 'star'"
+    <stars
+      v-if="options.display == 'star'"
       :options="options"
       :rating.sync="rating"
       :readonly="readonly"

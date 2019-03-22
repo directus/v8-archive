@@ -89,7 +89,8 @@
             type="search"
             :placeholder="$t('search')"
             class="search-input"
-            @input="onSearchInput" />
+            @input="onSearchInput"
+          />
         </div>
         <v-items
           class="items"
@@ -618,7 +619,7 @@ button.select {
 
 .search-input {
   border-bottom: 1px solid var(--lightest-gray);
-  &>>> input {
+  & >>> input {
     border-radius: 0;
     border: none;
     padding-left: var(--page-padding);

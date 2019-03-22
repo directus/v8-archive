@@ -328,6 +328,7 @@
         :rows="options.rows ? +options.rows : 10"
       ></v-textarea>
 
+      <!--- show formatted raw html in CodeMirror --->
       <CodeMirror
         :placeholder="options.placeholder"
         class="textarea"
@@ -338,24 +339,32 @@
         :name="'htmlmixed'"
         type="textarea"
       >
-      <!--- formatted raw html --->
       </CodeMirror>
 
       <div
-          class="editor__rawformat"
-          v-if="showSource"
-          @click="showRaw = !showRaw"
+        class="editor__rawformat"
+        v-if="showSource"
+        @click="showRaw = !showRaw"
       >
-        <span :style="{color:!showRaw ? 'var(--accent)' : 'var(--light-gray)'}">formatted</span> |  <span :style="{color:showRaw ? 'var(--accent)' : 'var(--light-gray)'}">unformatted</span>
+        <span
+          :style="{ color: !showRaw ? 'var(--accent)' : 'var(--light-gray)' }"
+          >formatted</span
+        >
+        |
+        <span
+          :style="{ color: showRaw ? 'var(--accent)' : 'var(--light-gray)' }"
+          >unformatted</span
+        >
       </div>
     </div>
     <p
-        class="editor__button"
-        @click="updateText(editor.view.dom.innerHTML)"
-        v-html="showSource ? 'Show WYSIWYG' : 'Source Code'"
+      class="editor__button"
+      @click="updateText(editor.view.dom.innerHTML)"
+      v-html="showSource ? 'Show WYSIWYG' : 'Source Code'"
     ></p>
 
     <!--- modal for image selection --->
+
     <portal to="modal" v-if="chooseImage">
       <v-modal
         ref="imageModal"

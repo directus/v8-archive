@@ -15,7 +15,10 @@
             v-model="placeName"
             placeholder="Enter address to geocode"
           ></v-input>
-          <button v-if="isInteractive" @click="getCoordinatesforPlaceName(placeName)">
+          <button
+            v-if="isInteractive"
+            @click="getCoordinatesforPlaceName(placeName)"
+          >
             <i class="material-icons">add_location</i>
           </button>
         </div>
@@ -304,9 +307,9 @@ export default {
       });
       this.$axios
         .get(
-          `https://nominatim.openstreetmap.org/search?q=${
-            encodeURI(this.placeName)
-          }&format=geojson&addressdetails=1&limit=1`
+          `https://nominatim.openstreetmap.org/search?q=${encodeURI(
+            this.placeName
+          )}&format=geojson&addressdetails=1&limit=1`
         )
         .then(response => {
           if (response.status === 200) {

@@ -14,10 +14,29 @@
       </audio>
     </div>
     <div v-else-if="isYouTube" class="embed">
-      <iframe width="620" height="349" :src="'https://www.youtube.com/embed/'+values.embed" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe
+        width="620"
+        height="349"
+        :src="'https://www.youtube.com/embed/' + values.embed"
+        frameborder="0"
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe>
     </div>
     <div v-else-if="isVimeo" class="embed">
-      <iframe width="620" height="349" :src="'https://player.vimeo.com/video/'+values.embed+'?color=039be5&title=0&byline=0&portrait=0'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      <iframe
+        width="620"
+        height="349"
+        :src="
+          'https://player.vimeo.com/video/' +
+            values.embed +
+            '?color=039be5&title=0&byline=0&portrait=0'
+        "
+        frameborder="0"
+        webkitallowfullscreen
+        mozallowfullscreen
+        allowfullscreen
+      ></iframe>
     </div>
     <div v-else class="file">{{ fileType }}</div>
     <div class="toolbar">

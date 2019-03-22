@@ -34,11 +34,19 @@ export default {
       return date;
     },
     monthBegin() {
-      var date = new Date(this.date.getFullYear(), this.date.getMonth(), 1).getDay();
+      var date = new Date(
+        this.date.getFullYear(),
+        this.date.getMonth(),
+        1
+      ).getDay();
       return date == 0 ? 7 : date;
     },
     monthLength() {
-      return new Date(this.date.getFullYear(), this.date.getMonth() + 1, 0).getDate();
+      return new Date(
+        this.date.getFullYear(),
+        this.date.getMonth() + 1,
+        0
+      ).getDate();
     },
     today() {
       var date = new Date();
@@ -49,7 +57,11 @@ export default {
   methods: {
     events(index) {
       var events = [];
-      var currentDay = new Date(this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1);
+      var currentDay = new Date(
+        this.date.getFullYear(),
+        this.date.getMonth(),
+        index - this.monthBegin + 1
+      );
 
       return this.$parent.eventsAtDay(currentDay);
     },
@@ -65,12 +77,20 @@ export default {
     },
 
     renderDate(index) {
-      var realDate = new Date( this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1);
+      var realDate = new Date(
+        this.date.getFullYear(),
+        this.date.getMonth(),
+        index - this.monthBegin + 1
+      );
       return realDate.getDate();
     },
 
     getDate(index) {
-      var realDate = new Date(this.date.getFullYear(), this.date.getMonth(), index - this.monthBegin + 1);
+      var realDate = new Date(
+        this.date.getFullYear(),
+        this.date.getMonth(),
+        index - this.monthBegin + 1
+      );
       return realDate;
     },
 

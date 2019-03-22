@@ -76,7 +76,11 @@ export default {
       var days = new Array();
 
       for (var i = -4; i <= 4; i++) {
-        var date = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + i);
+        var date = new Date(
+          this.date.getFullYear(),
+          this.date.getMonth(),
+          this.date.getDate() + i
+        );
         days.push({ date: date, index: i });
       }
       return days;
@@ -109,7 +113,11 @@ export default {
 
     changeDay(distance) {
       this.moveSidebar = "move-" + distance;
-      var newDate = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate() + distance);
+      var newDate = new Date(
+        this.date.getFullYear(),
+        this.date.getMonth(),
+        this.date.getDate() + distance
+      );
       this.date = newDate;
       this.$parent.popupDate = newDate;
     },
@@ -127,7 +135,7 @@ export default {
 
       for (var i = 0; i < this.$parent.items.length; i++) {
         var item = this.$parent.items[i];
-        var eventDate = new Date(item[dateId]+"T00:00:00");
+        var eventDate = new Date(item[dateId] + "T00:00:00");
 
         if (this.$parent.isSameDay(date, eventDate)) {
           events++;

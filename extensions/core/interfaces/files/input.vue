@@ -43,7 +43,11 @@
         @done="newFile = false"
       >
         <div class="body">
-          <v-upload @upload="saveUpload" :multiple="true" :accept="options.accept"></v-upload>
+          <v-upload
+            @upload="saveUpload"
+            :multiple="true"
+            :accept="options.accept"
+          ></v-upload>
         </div>
       </v-modal>
     </portal>
@@ -65,7 +69,8 @@
             type="search"
             :placeholder="$t('search')"
             class="search-input"
-            @input="onSearchInput" />
+            @input="onSearchInput"
+          />
         </div>
 
         <v-items
@@ -432,7 +437,7 @@ button {
 
 .search-input {
   border-bottom: 1px solid var(--lightest-gray);
-  &>>> input {
+  & >>> input {
     border-radius: 0;
     border: none;
     padding-left: var(--page-padding);

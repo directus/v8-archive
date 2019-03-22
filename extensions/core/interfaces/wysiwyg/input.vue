@@ -3,7 +3,10 @@
     ref="input"
     :class="[{ fullscreen: distractionFree }, 'interface-wysiwyg-container']"
   >
-    <div ref="editor" :class="['interface-wysiwyg', (readonly? 'readonly' : '')]"></div>
+    <div
+      ref="editor"
+      :class="['interface-wysiwyg', readonly ? 'readonly' : '']"
+    ></div>
     <button
       v-on:click="distractionFree = !distractionFree"
       type="button"
@@ -37,9 +40,11 @@ export default {
           text: this.options.placeholder || "",
           hideOnClick: true
         },
-        toolbar: this.readonly ? false : {
-          buttons: this.options.buttons
-        }
+        toolbar: this.readonly
+          ? false
+          : {
+              buttons: this.options.buttons
+            }
       };
     },
     fullscreenIcon() {
@@ -221,15 +226,15 @@ button.fullscreen-toggle {
       border-color: var(--light-gray);
     }
 
-      &:focus {
-        color: var(--darker-gray);
-        border-color: var(--accent);
-        outline: 0;
-      }
+    &:focus {
+      color: var(--darker-gray);
+      border-color: var(--accent);
+      outline: 0;
+    }
 
-      &:focus + i {
-        color: var(--accent);
-      }
+    &:focus + i {
+      color: var(--accent);
+    }
   }
 
   &.readonly {

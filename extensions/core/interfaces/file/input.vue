@@ -36,7 +36,11 @@
     <portal to="modal" v-if="newFile">
       <v-modal :title="$t('file_upload')" @close="newFile = false">
         <div class="body">
-          <v-upload @upload="saveUpload" :accept="options.accept" :multiple="false"></v-upload>
+          <v-upload
+            @upload="saveUpload"
+            :accept="options.accept"
+            :multiple="false"
+          ></v-upload>
         </div>
       </v-modal>
     </portal>
@@ -58,7 +62,8 @@
             type="search"
             :placeholder="$t('search')"
             class="search-input"
-            @input="onSearchInput" />
+            @input="onSearchInput"
+          />
         </div>
         <v-items
           class="items"
@@ -108,7 +113,13 @@ export default {
     subtitleExtra() {
       // Image ? -> display dimensions and formatted filesize
       return this.value.type && this.value.type.startsWith("image")
-        ?  " • " + this.value.width + " x " + this.value.height + " (" + formatSize(this.value.filesize) + ")"
+        ? " • " +
+            this.value.width +
+            " x " +
+            this.value.height +
+            " (" +
+            formatSize(this.value.filesize) +
+            ")"
         : null;
     },
     src() {
@@ -224,7 +235,7 @@ button {
 
 .search-input {
   border-bottom: 1px solid var(--lightest-gray);
-  &>>> input {
+  & >>> input {
     border-radius: 0;
     border: none;
     padding-left: var(--page-padding);

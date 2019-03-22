@@ -17,7 +17,7 @@ export default {
     emitValue(value) {
       if (value.length !== 8) value = value + ":00";
 
-      this.$emit('input', value);
+      this.$emit("input", value);
     }
   }
 };

@@ -29,24 +29,32 @@ export default {
       return format(parse(this.value, "YYYY-MM-DD HH:mm:ss"), this.format);
     },
     placeholder() {
-      switch(this.options.format) {
-        case "dmy": return "dd/mm/yyyy hh:mm:ss";
-        case "mdy": return "mm/dd/yyyy hh:mm:ss";
-        case "ymd": return "yyyy-mm-dd hh:mm:ss";
+      switch (this.options.format) {
+        case "dmy":
+          return "dd/mm/yyyy hh:mm:ss";
+        case "mdy":
+          return "mm/dd/yyyy hh:mm:ss";
+        case "ymd":
+          return "yyyy-mm-dd hh:mm:ss";
       }
     },
     mask() {
-      switch(this.options.format) {
+      switch (this.options.format) {
         case "dmy":
-        case "mdy": return "##/##/#### ##:##:##";
-        case "ymd": return "####-##-## ##:##:##";
+        case "mdy":
+          return "##/##/#### ##:##:##";
+        case "ymd":
+          return "####-##-## ##:##:##";
       }
     },
     format() {
-      switch(this.options.format) {
-        case "dmy": return "DD/MM/YYYY HH:mm:ss";
-        case "mdy": return "MM/DD/YYYY HH:mm:ss";
-        case "ymd": return "YYYY-MM-DD HH:mm:ss";
+      switch (this.options.format) {
+        case "dmy":
+          return "DD/MM/YYYY HH:mm:ss";
+        case "mdy":
+          return "MM/DD/YYYY HH:mm:ss";
+        case "ymd":
+          return "YYYY-MM-DD HH:mm:ss";
       }
     }
   },
@@ -62,10 +70,12 @@ export default {
       if (value.length === 0) return this.$emit("input", null);
 
       if (value.length === 19) {
-        const dbValue = format(parse(value, this.format), "YYYY-MM-DD HH:mm:ss");
+        const dbValue = format(
+          parse(value, this.format),
+          "YYYY-MM-DD HH:mm:ss"
+        );
 
-        if (dbValue !== "Invalid Date")
-          return this.$emit("input", dbValue);
+        if (dbValue !== "Invalid Date") return this.$emit("input", dbValue);
       }
     }
   }
