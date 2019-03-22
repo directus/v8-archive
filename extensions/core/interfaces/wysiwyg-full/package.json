@@ -1,10 +1,10 @@
 {
   "name": "@directus/wysiwyg",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "keywords": [
+    "directusr",
     "prose-mirror",
-    "directus",
     "wysiwyg",
     "vue",
     "tiptap"
@@ -14,11 +14,9 @@
   "dependencies": {
     "prosemirror-utils": "^0.7.6",
     "tiptap": "^1.14.0",
-    "tiptap-extensions": "^1.14.0",
-    "vue": "^2.6.7"
+    "tiptap-extensions": "^1.14.0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "vue-template-compiler": "^2.5.17"
+    "babel-core": "^6.26.3"
   }
 }

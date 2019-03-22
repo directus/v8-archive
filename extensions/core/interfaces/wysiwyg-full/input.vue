@@ -414,7 +414,7 @@
   </div>
 </template>
 <script>
-import Icon from "./components/Icon";
+import Icon from "./components/icon";
 import mixin from "../../../mixins/interface";
 import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from "tiptap";
 import {
@@ -442,7 +442,6 @@ import {
   TableCell
 } from "tiptap-extensions";
 
-// Code Mirror
 import CodeMirror from "../code/input";
 
 export default {
@@ -519,6 +518,7 @@ export default {
       if (this.options.custom_url) {
         url = `${this.options.custom_url}${item.filename}`;
       }
+      // @todo implement image surce base url
       // const index = (this.editor.getSelection() || {}).index || this.editor.getLength();
       this.addImageCommand(url);
     },
