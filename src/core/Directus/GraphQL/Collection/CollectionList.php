@@ -13,7 +13,7 @@ class CollectionList {
   protected $container;
 
   public function __construct(){
-    $this->param = ['fields' => '*.*.*.*.*.*'];
+    $this->param = ['fields' => '*.*.*.*.*.*' , 'meta' => '*'];
     $this->limit = ['limit' => Types::int()];
     $this->offset = ['offset' => Types::int()];
     $this->container = Application::getInstance()->getContainer();
