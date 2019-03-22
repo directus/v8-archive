@@ -77,7 +77,7 @@
           </button>
 
           <button
-            v-if="options.toolbarOptions.includes('h1')"
+            v-show="options.toolbarOptions.includes('h1')"
             class="menubar__button"
             :class="{ 'is-active': isActive.heading({ level: 1 }) }"
             @click="commands.heading({ level: 1 })"
@@ -88,7 +88,7 @@
           </button>
 
           <button
-            v-if="options.toolbarOptions.includes('h2')"
+            v-show="options.toolbarOptions.includes('h2')"
             class="menubar__button"
             :class="{ 'is-active': isActive.heading({ level: 2 }) }"
             @click="commands.heading({ level: 2 })"
@@ -99,7 +99,7 @@
           </button>
 
           <button
-            v-if="options.toolbarOptions.includes('h3')"
+            v-show="options.toolbarOptions.includes('h3')"
             class="menubar__button"
             :class="{ 'is-active': isActive.heading({ level: 3 }) }"
             @click="commands.heading({ level: 3 })"
@@ -525,8 +525,9 @@ export default {
 
     insertImageUrl(url) {
       if (url !== "") {
+        console.log(url);
         this.chooseImage = false;
-        this.addImageCommand(src);
+        this.addImageCommand(url);
       }
     },
 

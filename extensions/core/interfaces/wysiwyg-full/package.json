@@ -14,7 +14,8 @@
   "dependencies": {
     "prosemirror-utils": "^0.7.6",
     "tiptap": "^1.14.0",
-    "tiptap-extensions": "^1.14.0"
+    "tiptap-extensions": "^1.14.0",
+    "vue": "^2.6.7"
   },
   "devDependencies": {
     "babel-core": "^6.26.3"
