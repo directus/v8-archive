@@ -136,6 +136,7 @@
       >
         <div class="edit-modal-body">
           <v-form
+            new-item
             :fields="relatedCollectionFields"
             :values="relatedDefaultsWithEdits"
             @stage-value="stageValue"
