@@ -34,34 +34,57 @@
       "options": {
         "language": "application/json",
         "template": [
-          ["bold", "italic", "underline", "strike"],
-          ["blockquote", "code-block"],
-          ["image", "choose-existing"],
-          [{ "header": 1 }, { "header": 2 }],
-          [{ "list": "ordered"}, { "list": "bullet" }],
-          [{ "script": "sub"}, { "script": "super" }],
-          [{ "indent": "-1"}, { "indent": "+1" }],
-          [{ "direction": "rtl" }],
-          [{ "size": ["small", false, "large", "huge"] }],
-          [{ "header": [1, 2, 3, 4, 5, 6, false] }],
-          [{ "color": [] }, { "background": [] }],
-          [{ "font": [] }],
-          [{ "align": [] }],
-          ["clean"]
+          "Paragraph",
+          "Bold",
+          "Strike",
+          "Underline",
+          "Italic",
+          "h1","h2", "h3",
+          "Blockquote",
+          "BulletList",
+          "OrderedList",
+          "ListItem",
+          "CodeBlock",
+          "HardBreak",
+          "HorizontalRule",
+          "Image",
+          "Link",
+          "Code",
+          "Table",
+          "TableHeader",
+          "TableCell",
+          "TableRow",
+          "TodoItem",
+          "TodoList",
+          "History"
         ]
       },
       "default": [
-        ["bold", "italic", "underline", "strike"],
-        ["blockquote", "code-block"],
-        ["image", "choose-existing"],
-        [{ "header": 1 }, { "header": 2 }],
-        [{ "list": "ordered"}, { "list": "bullet" }],
-        [{ "script": "sub"}, { "script": "super" }],
-        [{ "indent": "-1"}, { "indent": "+1" }],
-        [{ "header": [1, 2, 3, 4, 5, 6, false] }],
-        [{ "color": [] }, { "background": [] }],
-        [{ "align": [] }],
-        ["clean"]
+        [
+          "Paragraph",
+          "Bold",
+          "Strike",
+          "Underline",
+          "Italic",
+          "h1","h2", "h3",
+          "Blockquote",
+          "BulletList",
+          "OrderedList",
+          "ListItem",
+          "CodeBlock",
+          "HardBreak",
+          "HorizontalRule",
+          "Image",
+          "Link",
+          "Code",
+          "Table",
+          "TableHeader",
+          "TableCell",
+          "TableRow",
+          "TodoItem",
+          "TodoList",
+          "History"
+        ]
       ]
     }
   },
@@ -75,7 +98,9 @@
       "upload_files": "Upload files",
       "upload_files_comment": "Upload files to directus instead of using Base64 encoded images. Needs 'image' in toolbar.",
       "custom_url": "URL base for images",
-      "custom_url_comment": "Optional custom URL base for images including last '/'"
+      "custom_url_comment": "Optional custom URL base for images including last '/'",
+      "add_url": "Add hyperlink",
+      "edit_url": "Edit hyperlink"
     }
   }
 }

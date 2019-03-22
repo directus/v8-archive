@@ -34,6 +34,13 @@
         font-size: 22px;
       }
 
+      p + p {
+        margin-bottom: 0;
+        &:last-of-type {
+          margin-bottom: 15px;
+        }
+      }
+
       min-height: inherit;
       border: var(--input-border-width) solid var(--lighter-gray);
       border-radius: var(--border-radius);
@@ -84,6 +91,8 @@
       }
 
       .menubar {
+        display: flex;
+        flex-flow: row wrap;
         &.options-is-open {
           + .editor__content {
             //padding-top: 42px;
@@ -191,6 +200,27 @@
         }
       }
     }
+
+    .editor__raw {
+      .CodeMirror {
+        margin-bottom: 0;
+        .CodeMirror-scroll {
+          padding-bottom: 0;
+        }
+        .line-count {
+          visibility: hidden;
+        }
+      }
+      small.line-count {
+        display: none;
+      }
+    }
+
+    .editor__rawformat {
+      position: absolute;
+      top:-20px;
+      right: 0;
+    }
   }
 }
 
@@ -222,4 +252,5 @@
       color: var(--lightest-gray);
     }
   }
+
 }
