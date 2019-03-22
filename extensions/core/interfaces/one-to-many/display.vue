@@ -1,5 +1,5 @@
 <template>
-  <v-popover trigger="hover">
+  <v-popover v-if="value && value.length > 0 && options.template" trigger="hover">
     <div class="readonly-many-to-many">
       {{
         $tc("item_count", (value || []).length, { count: (value || []).length })
@@ -12,6 +12,12 @@
       </ul>
     </template>
   </v-popover>
+
+  <div v-else class="readonly-many-to-many">
+    {{
+      $tc("item_count", (value || []).length, { count: (value || []).length })
+    }}
+  </div>
 </template>
 
 <script>
