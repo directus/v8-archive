@@ -185,7 +185,6 @@ class Settings extends Route
 
         $service = new SettingsService($this->container);
 
-
         /**
          * Get the object of current setting from its setting to check the interface.
          * 
