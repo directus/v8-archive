@@ -56,3 +56,8 @@ composer.lock
 # This will make sure empty directories has at least one file so it can be tracked by git
 !**/.gitkeep
 /docs/
+
+#Override the PHP internal server rules for static files
+#See https://github.com/slimphp/Slim/issues/1829
+#php -S localhost:8000 cliserver.php
+public/cliserver.php
