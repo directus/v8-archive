@@ -17,7 +17,7 @@ use Directus\GraphQL\Type\Scalar\JSONType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use Directus\Application\Application;
+use Directus\GraphQL\Type\FiltersType;
 
 class Types
 {
@@ -34,6 +34,8 @@ class Types
 
     //Used to save the reference of the created list of collection.
     private static $collections = [];
+
+    private static $filters = [];
 
     // Custom scalar types
     private static $date;
@@ -70,14 +72,13 @@ class Types
 
     public static function collections($type)
     {
-        if( ! array_key_exists($type , self::$collections) ) {
+        if (!array_key_exists($type, self::$collections)) {
             $collectionType =  new CollectionType($type);
             self::$collections[$type] = $collectionType;
             return $collectionType;
-        }else{
+        } else {
             return self::$collections[$type];
         }
-
     }
 
     /**
@@ -93,6 +94,17 @@ class Types
             return $fieldsType;
         } else {
             return self::$userCollections[$query];
+        }
+    }
+
+    public static function filters($collection)
+    {
+        if (!array_key_exists($collection, self::$filters)) {
+            $filter =  new FiltersType($collection);
+            self::$filters[$collection] = $filter;
+            return $filter;
+        } else {
+            return self::$filters[$collection];
         }
     }
 

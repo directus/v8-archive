@@ -7,7 +7,6 @@ use Directus\Services\ItemsService;
 use Directus\Services\TablesService;
 use Directus\Util\StringUtils;
 use Directus\GraphQL\Collection\CollectionList;
-use Directus\GraphQL\Type\FiltersType;
 
 class UserCollectionList extends CollectionList
 {
@@ -45,9 +44,9 @@ class UserCollectionList extends CollectionList
                 $this->list[$value['collection']] = [
                     'type' => Types::collections($type),
                     'description' => 'Return list of ' . StringUtils::underscoreToSpace($value['collection']) . ' items.',
-                    'args' => array_merge($this->limit, $this->offset, ['filters' => new FiltersType($value['collection'])]),
+                    'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters($value['collection'])]),
                     'resolve' => function ($val, $args, $context, ResolveInfo $info) use ($value, $itemsService) {
-                        $this->param = (isset($args)) ? array_merge($this->param, $args) : $this->param;
+                        $this->parseArgs($args);
                         $itemsService->throwErrorIfSystemTable($value['collection']);
                         return $itemsService->findAll($value['collection'], $this->param);
                     }
