@@ -1,7 +1,6 @@
 <?php
 namespace Directus\GraphQL\Type;
 
-use Directus\GraphQL\Types;
 use Directus\GraphQL\FieldsConfig;
 use GraphQL\Type\Definition\InputObjectType;
 
@@ -12,7 +11,9 @@ class FiltersType extends InputObjectType
         $fieldConfig = new FieldsConfig($inputFromQuery);
         $config =  [
             'name' => $inputFromQuery . 'Filter',
-            'fields' =>  $fieldConfig->getFilters()
+            'fields' =>   function () use ($fieldConfig) {
+                return $fieldConfig->getFilters();
+            }
         ];
         parent::__construct($config);
     }
