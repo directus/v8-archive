@@ -106,13 +106,46 @@ class FieldsConfig
 
             switch (strtolower($v['type'])) {
                 case 'boolean':
-                    $filters[$k . '_eq'] = Types::string();
+                    $filters[$k . '_eq'] = Types::boolean();
                     break;
                 case 'datetime':
                 case 'datetime_created':
                 case 'datetime_updated':
+                    $filters[$k . '_eq'] = Types::datetime();
+                    $filters[$k . '_neq'] = Types::datetime();
+                    $filters[$k . '_lt'] = Types::datetime();
+                    $filters[$k . '_lte'] = Types::datetime();
+                    $filters[$k . '_gt'] = Types::datetime();
+                    $filters[$k . '_gte'] = Types::datetime();
+                    $filters[$k . '_in'] = Types::datetime();
+                    $filters[$k . '_nin'] = Types::datetime();
+                    $filters[$k . '_between'] = Types::string();
+                    $filters[$k . '_nbetween'] = Types::string();
+                    break;
                 case 'integer':
+                    $filters[$k . '_eq'] = Types::int();
+                    $filters[$k . '_neq'] = Types::int();
+                    $filters[$k . '_lt'] = Types::int();
+                    $filters[$k . '_lte'] = Types::int();
+                    $filters[$k . '_gt'] = Types::int();
+                    $filters[$k . '_gte'] = Types::int();
+                    $filters[$k . '_in'] = Types::int();
+                    $filters[$k . '_nin'] = Types::int();
+                    $filters[$k . '_between'] = Types::string();
+                    $filters[$k . '_nbetween'] = Types::string();
+                    break;
                 case 'decimal':
+                    $filters[$k . '_eq'] = Types::float();
+                    $filters[$k . '_neq'] = Types::float();
+                    $filters[$k . '_lt'] = Types::float();
+                    $filters[$k . '_lte'] = Types::float();
+                    $filters[$k . '_gt'] = Types::float();
+                    $filters[$k . '_gte'] = Types::float();
+                    $filters[$k . '_in'] = Types::float();
+                    $filters[$k . '_nin'] = Types::float();
+                    $filters[$k . '_between'] = Types::string();
+                    $filters[$k . '_nbetween'] = Types::string();
+                    break;
                 case 'time':
                     $filters[$k . '_eq'] = Types::string();
                     $filters[$k . '_neq'] = Types::string();
@@ -125,17 +158,15 @@ class FieldsConfig
                     $filters[$k . '_between'] = Types::string();
                     $filters[$k . '_nbetween'] = Types::string();
                     break;
-
                 case 'status':
                     $filters[$k . '_eq'] = Types::string();
                     $filters[$k . '_neq'] = Types::string();
                     $filters[$k . '_in'] = Types::string();
                     $filters[$k . '_nin'] = Types::string();
                     break;
-
                 case 'string':
-                    $filters[$k . '_contain'] = Types::string();
-                    $filters[$k . '_ncontain'] = Types::string();
+                    $filters[$k . '_contains'] = Types::string();
+                    $filters[$k . '_ncontains'] = Types::string();
                     $filters[$k . '_rlike'] = Types::string();
                     $filters[$k . '_nrlike'] = Types::string();
                     $filters[$k . '_empty'] = Types::string();
@@ -170,7 +201,6 @@ class FieldsConfig
                 }
                 break;
             case 'o2m':
-
                 $firstRelation;
 
                 //1. Find the collection_many
