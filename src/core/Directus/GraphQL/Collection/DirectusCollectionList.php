@@ -34,7 +34,7 @@ class DirectusCollectionList extends CollectionList
                 'description' => 'Return list of files.',
                 'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_files')]),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                    $this->parseArgs($args);
+                    $this->convertArgsToFilter($args);
                     $service = new FilesServices($this->container);
                     return $service->findAll($this->param);
                 }
@@ -57,7 +57,7 @@ class DirectusCollectionList extends CollectionList
                 'description' => 'Return list of users.',
                 'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_users')]),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                    $this->parseArgs($args);
+                    $this->convertArgsToFilter($args);
                     $service = new UsersService($this->container);
                     return $service->findAll($this->param);
                 }
@@ -77,7 +77,7 @@ class DirectusCollectionList extends CollectionList
                 'description' => 'Return list of directus roles.',
                 'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_roles')]),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                    $this->parseArgs($args);
+                    $this->convertArgsToFilter($args);
                     $service = new RolesService($this->container);
                     return $service->findAll($this->param);
                 }
