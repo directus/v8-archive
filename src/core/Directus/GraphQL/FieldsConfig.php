@@ -5,7 +5,6 @@ use Directus\GraphQL\Types;
 use Directus\Application\Application;
 use Directus\Services\TablesService;
 use Directus\Services\RelationsService;
-use Directus\GraphQL\Type\FiltersType;
 
 class FieldsConfig
 {
@@ -181,6 +180,8 @@ class FieldsConfig
                     // $filters[$k . '_has'] = Types::nonNull(Types::string());
             }
         }
+        $filters['or'] = Types::listOf(Types::filters($this->collection));
+        $filters['and'] = Types::listOf(Types::filters($this->collection));
 
         return $filters;
     }

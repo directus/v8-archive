@@ -46,7 +46,7 @@ class UserCollectionList extends CollectionList
                     'description' => 'Return list of ' . StringUtils::underscoreToSpace($value['collection']) . ' items.',
                     'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters($value['collection'])]),
                     'resolve' => function ($val, $args, $context, ResolveInfo $info) use ($value, $itemsService) {
-                        $this->parseArgs($args);
+                        $this->convertArgsToFilter($args);
                         $itemsService->throwErrorIfSystemTable($value['collection']);
                         return $itemsService->findAll($value['collection'], $this->param);
                     }
