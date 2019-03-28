@@ -7,7 +7,7 @@ use Directus\Services\FilesServices;
 use Directus\Services\UsersService;
 use Directus\Services\RolesService;
 use Directus\GraphQL\Collection\CollectionList;
-use Directus\GraphQL\Type\FiltersType;
+
 
 class DirectusCollectionList extends CollectionList
 {
@@ -32,9 +32,9 @@ class DirectusCollectionList extends CollectionList
             'directusFiles' => [
                 'type' => Types::collections(Types::directusFile()),
                 'description' => 'Return list of files.',
-                'args' => array_merge($this->limit, $this->offset, ['filters' => new FiltersType('directus_files')]),
+                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_files')]),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                    $this->param = (isset($args)) ? array_merge($this->param, $args) : $this->param;
+                    $this->parseArgs($args);
                     $service = new FilesServices($this->container);
                     return $service->findAll($this->param);
                 }
@@ -55,9 +55,9 @@ class DirectusCollectionList extends CollectionList
             'directusUsers' => [
                 'type' => Types::collections(Types::directusUser()),
                 'description' => 'Return list of users.',
-                'args' => array_merge($this->limit, $this->offset, ['filters' => new FiltersType('directus_users')]),
+                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_users')]),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                    $this->param = (isset($args)) ? array_merge($this->param, $args) : $this->param;
+                    $this->parseArgs($args);
                     $service = new UsersService($this->container);
                     return $service->findAll($this->param);
                 }
@@ -75,9 +75,9 @@ class DirectusCollectionList extends CollectionList
             'directusRole' => [
                 'type' => Types::collections(Types::directusRole()),
                 'description' => 'Return list of directus roles.',
-                'args' => array_merge($this->limit, $this->offset, ['filters' => new FiltersType('directus_roles')]),
+                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_roles')]),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                    $this->param = (isset($args)) ? array_merge($this->param, $args) : $this->param;
+                    $this->parseArgs($args);
                     $service = new RolesService($this->container);
                     return $service->findAll($this->param);
                 }
