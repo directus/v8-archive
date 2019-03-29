@@ -2,6 +2,7 @@
 
 namespace Directus\Database\Schema\Sources;
 
+use Directus\Database\Query\Builder;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Util\ArrayUtils;
@@ -240,5 +241,16 @@ abstract class AbstractSchema implements SchemaInterface
             $transformedField['default_value'] = DateTimeUtils::createDateFromFormat($this->getDateTimeFormat(), $field['default_value'])->toISO8601Format();
         }
         return $transformedField;
+    }
+
+    /**
+     * get a new SQL Builder
+     * @param AdapterInterface $adapter
+     * 
+     * @return Builder
+     */
+    public function getBuilder($adapter)
+    {
+        return new Builder($adapter);
     }
 }

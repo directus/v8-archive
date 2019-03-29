@@ -20,6 +20,7 @@ use Directus\Database\Schema\DataTypes;
 use function Directus\get_directus_setting;
 use function Directus\compact_sort_to_array;
 use Directus\Database\Schema\Sources\AbstractSchema;
+use Directus\Database\Schema\Sources\Query\PostgresBuilder;
 use Directus\Database\Schema\Sources\Expression\PostgresChangeColumn;
 use Directus\Database\Schema\Sources\Expression\PostgresAddIntegerColumn;
 
@@ -975,5 +976,16 @@ class PostgresSchema extends AbstractSchema
             }
         }
         return $transformedField;
+    }
+
+    /**
+     * get a new SQL Builder
+     * @param AdapterInterface $adapter
+     * 
+     * @return Builder
+     */
+    public function getBuilder($adapter)
+    {
+        return new PostgresBuilder($adapter);
     }
 }

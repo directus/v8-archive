@@ -991,7 +991,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
-        $builder = new Builder($this->getAdapter());
+        $builder = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
         $builder->from($this->getTable());
 
         $selectedFields = $this->getSelectedNonAliasFields($fields ?: ['*']);
@@ -1243,7 +1243,7 @@ class RelationalTableGateway extends BaseTableGateway
             $column = array_shift($columns);
             $table = array_shift($columnsTable);
 
-            $query = new Builder($this->getAdapter());
+            $query = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
             $mainTableObject = $this->getTableSchema($table);
             $query->columns([$mainTableObject->getPrimaryField()->getName()]);
             $query->from($table);
@@ -1255,7 +1255,7 @@ class RelationalTableGateway extends BaseTableGateway
                 ++$index;
 
                 $oldQuery = $query;
-                $query = new Builder($this->getAdapter());
+                $query = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
                 $collection = $this->getTableSchema($columnsTable[$key]);
                 $field = $collection->getField($column);
 
@@ -1281,7 +1281,7 @@ class RelationalTableGateway extends BaseTableGateway
             if ($field->isOneToMany()) {
                 $mainColumn = $collection->getPrimaryField()->getName();
                 $oldQuery = $query;
-                $query = new Builder($this->getAdapter());
+                $query = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
                 $selectColumn = $column = $relationship->getFieldOne();
                 $table = $relationship->getCollectionOne();
 

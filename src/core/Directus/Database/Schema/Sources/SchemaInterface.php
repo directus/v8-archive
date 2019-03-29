@@ -368,4 +368,12 @@ interface SchemaInterface
      * @return array $field
      */
     public function transformField(array $field);
+
+    /**
+     * get a new SQL Builder
+     * @param AdapterInterface $adapter
+     * 
+     * @return Builder
+     */
+    public function getBuilder($adapter);
 }
