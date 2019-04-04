@@ -2,7 +2,6 @@
 namespace Directus\GraphQL\Type\Directus;
 
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
 
@@ -13,7 +12,7 @@ class DirectusUserType extends ObjectType
         $config = [
             'name' => 'Directus user',
             'description' => 'Directus user.',
-            'fields' => function() {
+            'fields' => function () {
                 /* Create a callable function to support Recurring and circular types like avatar
                 *  More info https://webonyx.github.io/graphql-php/type-system/object-types/#recurring-and-circular-types
                 */
@@ -41,7 +40,7 @@ class DirectusUserType extends ObjectType
             'interfaces' => [
                 Types::node()
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+            'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
                 $method = 'resolve' . ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($value, $args, $context, $info);
@@ -56,11 +55,9 @@ class DirectusUserType extends ObjectType
     public function resolveRoles($value)
     {
         $data = [];
-        foreach($value['roles'] as $role){
+        foreach ($value['roles'] as $role) {
             $data[] = $role['role'];
         }
         return  $data;
     }
-
-
 }

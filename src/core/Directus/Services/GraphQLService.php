@@ -3,15 +3,9 @@
 namespace Directus\Services;
 
 use Directus\GraphQL\Types;
-use GraphQL\Utils\BuildSchema;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 use GraphQL\Error\Debug;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
-use GraphQL\Validator\Rules\QueryDepth;
-use GraphQL\Validator\DocumentValidator;
-
 
 class GraphQLService extends AbstractService
 {

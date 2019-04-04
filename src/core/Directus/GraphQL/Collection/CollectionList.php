@@ -4,7 +4,6 @@ namespace Directus\GraphQL\Collection;
 
 use Directus\GraphQL\Types;
 use Directus\Application\Application;
-use function GuzzleHttp\json_encode;
 
 class CollectionList
 {
