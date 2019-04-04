@@ -2,7 +2,6 @@
 namespace Directus\GraphQL\Type\Scalar;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
@@ -22,7 +21,7 @@ class DateTimeType extends ScalarType
 
     public function parseValue($value)
     {
-        if(DateTimeUtils::isValidDate($value)){
+        if (DateTimeUtils::isValidDate($value)) {
             throw new Error("Cannot represent following value as datetime: " . Utils::printSafeJson($value));
         }
         return $value;
@@ -37,5 +36,4 @@ class DateTimeType extends ScalarType
         }
         return $valueNode->value;
     }
-
 }
