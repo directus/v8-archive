@@ -23,7 +23,7 @@ class DirectusCollectionList extends CollectionList
             'directusFilesItem' => [
                 'type' => Types::directusFile(),
                 'description' => 'Return single file.',
-                'args' => ['id' => Types::nonNull(Types::id()), ],
+                'args' => ['id' => Types::nonNull(Types::id())],
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                     $service = new FilesServices($this->container);
                     return $service->findByIds($args['id'], $this->param)['data'];
