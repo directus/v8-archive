@@ -2,7 +2,6 @@
 namespace Directus\GraphQL\Type\Directus;
 
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
 
@@ -13,7 +12,7 @@ class DirectusRoleType extends ObjectType
         $config = [
             'name' => 'Directus role',
             'description' => 'Directus role.',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'id' => Types::id(),
                     'external_id' => Types::string(),
@@ -27,7 +26,7 @@ class DirectusRoleType extends ObjectType
             'interfaces' => [
                 Types::node()
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+            'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
                 $method = 'resolve' . ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($value, $args, $context, $info);
@@ -43,10 +42,9 @@ class DirectusRoleType extends ObjectType
     public function resolveUsers($value)
     {
         $data = [];
-        foreach($value['users'] as $user){
+        foreach ($value['users'] as $user) {
             $data[] = $user['user'];
         }
         return  $data;
     }
-
 }

@@ -22,7 +22,6 @@ class UserCollectionList extends CollectionList
         $collectionData = $service->findAll();
 
         $itemsService = new ItemsService($this->container);
-
         foreach ($collectionData['data'] as  $value) {
             if ($value['managed']) {
 

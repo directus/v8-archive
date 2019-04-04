@@ -1,10 +1,8 @@
 <?php
 namespace Directus\GraphQL\Type\Directus;
 
-use Directus\Services\UsersService;
 use Directus\Application\Application;
 use Directus\GraphQL\Types;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
@@ -17,38 +15,38 @@ class DirectusFileType extends ObjectType
         $config = [
             'name' => 'Directus file',
             'description' => 'Directus file.',
-            'fields' =>  function() {
+            'fields' =>  function () {
                 /* Create a callable function to support Recurring and circular types like uploaded_by
                 *  More info https://webonyx.github.io/graphql-php/type-system/object-types/#recurring-and-circular-types
                 */
                 return [
-                        'id' => Types::id(),
-                        'filename' => Types::string(),
-                        'title' => Types::string(),
-                        'description' => Types::string(),
-                        'location' => Types::string(),
-                        'tags' => Types::listOf(Types::string()),
-                        'width' => Types::int(),
-                        'height' => Types::int(),
-                        'filesize' => Types::int(),
-                        'duration' => Types::string(),
-                        'metadata' => Types::string(),
-                        'type' => Types::string(),
-                        'charset' => Types::string(),
-                        'embed' => Types::string(),
-                        'storage' => Types::string(),
-                        'full_url' => Types::string(),
-                        'url' => Types::string(),
-                        'thumbnails' => Types::listOf(Types::directusFileThumbnail()),
-                        'uploaded_on' => Types::datetime(),
-                        'uploaded_by' => Types::directusUser(),
-                        'checksum' => Types::string(),
+                    'id' => Types::id(),
+                    'filename' => Types::string(),
+                    'title' => Types::string(),
+                    'description' => Types::string(),
+                    'location' => Types::string(),
+                    'tags' => Types::listOf(Types::string()),
+                    'width' => Types::int(),
+                    'height' => Types::int(),
+                    'filesize' => Types::int(),
+                    'duration' => Types::string(),
+                    'metadata' => Types::string(),
+                    'type' => Types::string(),
+                    'charset' => Types::string(),
+                    'embed' => Types::string(),
+                    'storage' => Types::string(),
+                    'full_url' => Types::string(),
+                    'url' => Types::string(),
+                    'thumbnails' => Types::listOf(Types::directusFileThumbnail()),
+                    'uploaded_on' => Types::datetime(),
+                    'uploaded_by' => Types::directusUser(),
+                    'checksum' => Types::string(),
                 ];
             },
             'interfaces' => [
                 Types::node()
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+            'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
                 $method = 'resolve' . ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($value, $args, $context, $info);
@@ -79,6 +77,4 @@ class DirectusFileType extends ObjectType
     {
         return $value['uploaded_by'];
     }
-
-
 }
