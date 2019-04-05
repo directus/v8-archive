@@ -5,7 +5,6 @@ use Directus\Application\Application;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use Directus\Util\StringUtils;
 
 class DirectusCollectionPresetType extends ObjectType
 {
@@ -14,7 +13,7 @@ class DirectusCollectionPresetType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => StringUtils::toPascalCase('directusCollectionPresets'),
+            'name' => 'DirectusCollectionPresets',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),

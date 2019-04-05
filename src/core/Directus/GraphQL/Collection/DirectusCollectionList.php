@@ -9,6 +9,7 @@ use Directus\Services\CollectionPresetsService;
 use Directus\Services\FilesServices;
 use Directus\Services\UsersService;
 use Directus\Services\RolesService;
+use Directus\Services\SettingsService;
 use Directus\GraphQL\Collection\CollectionList;
 
 
@@ -157,6 +158,24 @@ class DirectusCollectionList extends CollectionList
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                     $this->convertArgsToFilter($args);
                     $service = new RolesService($this->container);
+                    return $service->findAll($this->param);
+                }
+            ],
+            'directusSettings' => [
+                'type' => Types::directusSetting(),
+                'args' => ['id' => Types::nonNull(Types::id())],
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $service = new SettingsService($this->container);
+                    $data =  $service->findByIds($args['id'], $this->param)['data'];
+                    return $data;
+                }
+            ],
+            'directusSettingsCollection' => [
+                'type' => Types::collections(Types::directusSetting()),
+                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_settings')]),
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $this->convertArgsToFilter($args);
+                    $service = new SettingsService($this->container);
                     return $service->findAll($this->param);
                 }
             ],
