@@ -14,7 +14,7 @@ class DirectusFieldType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => StringUtils::toPascalCase('directusFields'),
+            'name' => 'DirectusFields',
             'fields' =>  function () {
                 return [
                     'collection' => Types::directusCollection(),
