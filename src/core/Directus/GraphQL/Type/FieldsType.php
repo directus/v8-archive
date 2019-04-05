@@ -5,15 +5,15 @@ use GraphQL\Type\Definition\ObjectType;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
 use Directus\GraphQL\FieldsConfig;
+use Directus\Util\StringUtils;
 
 class FieldsType extends ObjectType
 {
-    public function __construct($inputFromQuery = null)
+    public function __construct($collectionName)
     {
-        $fieldConfig = new FieldsConfig($inputFromQuery);
+        $fieldConfig = new FieldsConfig($collectionName);
         $config = [
-            'name' => $inputFromQuery,
-            'description' => 'Collection Fields.',
+            'name' => StringUtils::toPascalCase($collectionName),
             'fields' => function () use ($fieldConfig) {
                 return $fieldConfig->getFields();
             },

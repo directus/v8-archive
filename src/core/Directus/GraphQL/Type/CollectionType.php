@@ -4,14 +4,14 @@ namespace Directus\GraphQL\Type;
 use GraphQL\Type\Definition\ObjectType;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
+use Directus\Util\StringUtils;
 
 class CollectionType extends ObjectType
 {
     public function __construct($type)
     {
         $config = [
-            'name' => 'Collection of ' . $type,
-            'description' => 'Collection with data and meta',
+            'name' => StringUtils::toPascalCase($type . 'Collection'),
             'fields' => [
                 'data' => Types::listOf($type),
                 'meta' => Types::meta()
