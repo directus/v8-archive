@@ -303,4 +303,16 @@ class StringUtils
     {
         return str_replace("_", " ", $string);
     }
+
+    /**
+     *  Convert string to pascal case.
+     *
+     * @param $string
+     *
+     * @return string
+     */
+     public static function toPascalCase($string)
+     {
+         return str_replace('_', '', ucwords($string, '_'));
+     }
 }

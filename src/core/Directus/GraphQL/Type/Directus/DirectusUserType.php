@@ -4,14 +4,14 @@ namespace Directus\GraphQL\Type\Directus;
 use GraphQL\Type\Definition\ObjectType;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
+use Directus\Util\StringUtils;
 
 class DirectusUserType extends ObjectType
 {
     public function __construct()
     {
         $config = [
-            'name' => 'Directus user',
-            'description' => 'Directus user.',
+            'name' => StringUtils::toPascalCase('directusUsers'),
             'fields' => function () {
                 /* Create a callable function to support Recurring and circular types like avatar
                 *  More info https://webonyx.github.io/graphql-php/type-system/object-types/#recurring-and-circular-types
