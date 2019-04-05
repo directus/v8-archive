@@ -850,7 +850,14 @@ class PostgresSchema extends AbstractSchema
                 break;
             case 'bool':
             case 'boolean':
-                $column = new \Zend\Db\Sql\Ddl\Column\Boolean($name);
+                //For unknown reasons, Zend-db decided that boolean must be non-null; we break this rule and let the application choose
+                $column = new class($name) extends \Zend\Db\Sql\Ddl\Column\Boolean {
+                    public function setNullable($nullable)
+                    {
+                        $this->isNullable = (bool) $nullable;
+                        return $this;
+                    }
+                };
                 break;
             case 'smallserial':
             case 'serial2': //alias
