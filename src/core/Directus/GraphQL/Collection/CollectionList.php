@@ -27,7 +27,9 @@ class CollectionList
         if (isset($this->param['filter'])) {
             $filters = [];
             foreach ($this->param['filter'] as $filter => $value) {
-
+                /**
+                * TODO :: Need to rewrite the code for better readiablity.
+                */
                 if ($filter == 'or' || $filter == 'and') {
                     $c = 0;
                     foreach ($value as $innerFilters) {

@@ -4,14 +4,14 @@ namespace Directus\GraphQL\Type\Directus;
 use GraphQL\Type\Definition\ObjectType;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
+use Directus\Util\StringUtils;
 
 class DirectusFileThumbnailType extends ObjectType
 {
     public function __construct()
     {
         $config = [
-            'name' => 'Directus file thumbnail',
-            'description' => 'Directus thumbnail of the file.',
+            'name' => StringUtils::toPascalCase('directusFileThumbnail'),
             'fields' => [
                 'url' => Types::string(),
                 'relative_url' => Types::string(),

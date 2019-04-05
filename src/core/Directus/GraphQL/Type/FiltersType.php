@@ -3,6 +3,7 @@ namespace Directus\GraphQL\Type;
 
 use Directus\GraphQL\FieldsConfig;
 use GraphQL\Type\Definition\InputObjectType;
+use Directus\Util\StringUtils;
 
 class FiltersType extends InputObjectType
 {
@@ -10,7 +11,7 @@ class FiltersType extends InputObjectType
     {
         $fieldConfig = new FieldsConfig($inputFromQuery);
         $config =  [
-            'name' => $inputFromQuery . 'Filter',
+            'name' => StringUtils::toPascalCase($inputFromQuery . 'Filter'),
             'fields' =>   function () use ($fieldConfig) {
                 return $fieldConfig->getFilters();
             }

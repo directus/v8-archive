@@ -10,8 +10,7 @@ class MetaType extends ObjectType
     public function __construct()
     {
         $config = [
-            'name' => 'Collection metadata',
-            'description' => 'Contain collection meta data like total_count, collection, etc.',
+            'name' => 'Metadata',
             'fields' => [
                 'collection' => Types::string(),
                 'type' => Types::string(),

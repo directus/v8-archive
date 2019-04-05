@@ -1,26 +1,30 @@
 <?php
 namespace Directus\GraphQL\Type\Directus;
 
-use GraphQL\Type\Definition\ObjectType;
+use Directus\Application\Application;
 use Directus\GraphQL\Types;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use Directus\Util\StringUtils;
 
-class DirectusRoleType extends ObjectType
+class DirectusCollectionType extends ObjectType
 {
+    private $container;
     public function __construct()
     {
+        $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => StringUtils::toPascalCase('directusRoles'),
-            'fields' => function () {
+            'name' => StringUtils::toPascalCase('directusCollections'),
+            'fields' =>  function () {
                 return [
-                    'id' => Types::id(),
-                    'external_id' => Types::string(),
-                    'name' => Types::string(),
-                    'description' => Types::string(),
-                    'ip_whitelist' => Types::string(),
-                    'nav_blacklist' => Types::boolean(),
-                    'users' => Types::listOf(Types::directusUser()),
+                    'collection' => Types::string(),
+                    'fields' => Types::listOf(Types::directusField()),
+                    'note' => Types::string(),
+                    'managed' => Types::boolean(),
+                    'hidden' => Types::boolean(),
+                    'single' => Types::boolean(),
+                    'translation' => Types::string(),
+                    'icon' => Types::string()
                 ];
             },
             'interfaces' => [
@@ -36,15 +40,5 @@ class DirectusRoleType extends ObjectType
             }
         ];
         parent::__construct($config);
-    }
-
-
-    public function resolveUsers($value)
-    {
-        $data = [];
-        foreach ($value['users'] as $user) {
-            $data[] = $user['user'];
-        }
-        return  $data;
     }
 }
