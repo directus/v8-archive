@@ -1,6 +1,10 @@
 <?php
 namespace Directus\GraphQL;
 
+use Directus\GraphQL\Type\Directus\DirectusActivityType;
+use Directus\GraphQL\Type\Directus\DirectusCollectionType;
+use Directus\GraphQL\Type\Directus\DirectusCollectionPresetType;
+use Directus\GraphQL\Type\Directus\DirectusFieldType;
 use Directus\GraphQL\Type\Directus\DirectusFileType;
 use Directus\GraphQL\Type\Directus\DirectusFileThumbnailType;
 use Directus\GraphQL\Type\Directus\DirectusUserType;
@@ -22,6 +26,10 @@ use Directus\GraphQL\Type\FiltersType;
 class Types
 {
     // Object types:
+    private static $directusActivity;
+    private static $directusCollection;
+    private static $directusCollectionPreset;
+    private static $directusField;
     private static $directusFile;
     private static $directusFileThumbnail;
     private static $directusUser;
@@ -44,6 +52,26 @@ class Types
     private static $json;
 
     private static $node;
+
+    public static function directusActivity()
+    {
+        return self::$directusActivity ?: (self::$directusActivity = new DirectusActivityType());
+    }
+
+    public static function directusCollection()
+    {
+        return self::$directusCollection ?: (self::$directusCollection = new DirectusCollectionType());
+    }
+
+    public static function directusCollectionPreset()
+    {
+        return self::$directusCollectionPreset ?: (self::$directusCollectionPreset = new DirectusCollectionPresetType());
+    }
+
+    public static function directusField()
+    {
+        return self::$directusField ?: (self::$directusField = new DirectusFieldType());
+    }
 
     public static function directusFile()
     {
@@ -86,14 +114,14 @@ class Types
      * If the type is already created, we'll return existing object.
      * Else create a new type and add it to array.
      */
-    public static function userCollection($query)
+    public static function userCollection($collection)
     {
-        if (!array_key_exists($query, self::$userCollections)) {
-            $fieldsType =  new FieldsType($query);
-            self::$userCollections[$query] = $fieldsType;
+        if (!array_key_exists($collection, self::$userCollections)) {
+            $fieldsType =  new FieldsType($collection);
+            self::$userCollections[$collection] = $fieldsType;
             return $fieldsType;
         } else {
-            return self::$userCollections[$query];
+            return self::$userCollections[$collection];
         }
     }
 

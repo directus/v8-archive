@@ -5,8 +5,8 @@ use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ResolveInfo;
 use Directus\Services\ItemsService;
 use Directus\Services\TablesService;
-use Directus\Util\StringUtils;
 use Directus\GraphQL\Collection\CollectionList;
+use Directus\Util\StringUtils;
 
 class UserCollectionList extends CollectionList
 {
@@ -28,9 +28,8 @@ class UserCollectionList extends CollectionList
                 $type = Types::userCollection($value['collection']);
 
                 //Add the individual collection item
-                $this->list[$value['collection'] . 'Item'] = [
+                $this->list[StringUtils::toCamelCase($value['collection'])] = [
                     'type' => $type,
-                    'description' => 'Return a single ' . StringUtils::underscoreToSpace($value['collection']) . ' item.',
                     'args' => ['id' => Types::nonNull(Types::id())],
                     'resolve' => function ($val, $args, $context, ResolveInfo $info)  use ($value, $itemsService) {
                         $itemsService->throwErrorIfSystemTable($value['collection']);
@@ -40,9 +39,8 @@ class UserCollectionList extends CollectionList
                 ];
 
                 //Add the list of collection
-                $this->list[$value['collection']] = [
+                $this->list[StringUtils::toCamelCase($value['collection'] . 'Collection')] = [
                     'type' => Types::collections($type),
-                    'description' => 'Return list of ' . StringUtils::underscoreToSpace($value['collection']) . ' items.',
                     'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters($value['collection'])]),
                     'resolve' => function ($val, $args, $context, ResolveInfo $info) use ($value, $itemsService) {
                         $this->convertArgsToFilter($args);
