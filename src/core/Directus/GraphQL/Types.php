@@ -9,6 +9,7 @@ use Directus\GraphQL\Type\Directus\DirectusFileType;
 use Directus\GraphQL\Type\Directus\DirectusFileThumbnailType;
 use Directus\GraphQL\Type\Directus\DirectusUserType;
 use Directus\GraphQL\Type\Directus\DirectusRoleType;
+use Directus\GraphQL\Type\Directus\DirectusSettingType;
 use Directus\GraphQL\Type\MetaType;
 use Directus\GraphQL\Type\CollectionType;
 use Directus\GraphQL\Type\FieldsType;
@@ -34,6 +35,8 @@ class Types
     private static $directusFileThumbnail;
     private static $directusUser;
     private static $directusRole;
+    private static $directusSetting;
+
     private static $query;
     private static $meta;
 
@@ -91,6 +94,11 @@ class Types
     public static function directusRole()
     {
         return self::$directusRole ?: (self::$directusRole = new DirectusRoleType());
+    }
+
+    public static function directusSetting()
+    {
+        return self::$directusSetting ?: (self::$directusSetting = new DirectusSettingType());
     }
 
     public static function meta()
