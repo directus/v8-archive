@@ -5,7 +5,6 @@ use Directus\Application\Application;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use Directus\Util\StringUtils;
 
 class DirectusFileType extends ObjectType
 {
@@ -14,7 +13,7 @@ class DirectusFileType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => StringUtils::toPascalCase('directusFiles'),
+            'name' => 'DirectusFiles',
             'fields' =>  function () {
                 /* Create a callable function to support Recurring and circular types like uploaded_by
                 *  More info https://webonyx.github.io/graphql-php/type-system/object-types/#recurring-and-circular-types

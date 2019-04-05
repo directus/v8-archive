@@ -6,24 +6,19 @@ use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class DirectusCollectionType extends ObjectType
+class DirectusSettingType extends ObjectType
 {
     private $container;
     public function __construct()
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusCollections',
+            'name' => 'DirectusSetting',
             'fields' =>  function () {
                 return [
-                    'collection' => Types::string(),
-                    'fields' => Types::listOf(Types::directusField()),
-                    'note' => Types::string(),
-                    'managed' => Types::boolean(),
-                    'hidden' => Types::boolean(),
-                    'single' => Types::boolean(),
-                    'translation' => Types::string(),
-                    'icon' => Types::string()
+                    'id' => Types::id(),
+                    'key' => Types::string(),
+                    'value' => Types::string()
                 ];
             },
             'interfaces' => [
