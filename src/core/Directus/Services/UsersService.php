@@ -43,8 +43,21 @@ class UsersService extends AbstractService
         $this->itemsService = new ItemsService($this->container);
     }
 
+    /**
+     * Hash text
+     */
+    private function hash($password)
+    {        
+        /** @var Provider $auth */
+        $auth = $this->container->get('auth');
+        return $auth->hashPassword($password);
+    }
+
     public function create(array $data, array $params = [])
     {
+        //BUGFIX hash the password reset from the GUI
+        if (array_key_exists('password', $data))
+            $data['password'] = $this->hash($data['password']);
         return $this->itemsService->createItem($this->collection, $data, $params);
     }
 
@@ -61,6 +74,10 @@ class UsersService extends AbstractService
         if (ArrayUtils::has($payload, $status->getName()) && (string) ArrayUtils::get($payload, $status->getName()) != DirectusUsersTableGateway::STATUS_ACTIVE) {
             $this->enforceLastAdmin($id);
         }
+
+        //BUGFIX hash the password reset from the GUI
+        if (array_key_exists('password', $payload))
+            $payload['password'] = $this->hash($payload['password']);
 
         // Fetch the entry even if it's not "published"
         $params['status'] = '*';
