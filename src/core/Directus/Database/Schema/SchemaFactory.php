@@ -222,7 +222,6 @@ class SchemaFactory
         //WORKAROUND ZendDB doesn't know anything about PostgreSQL for instance, we might need to override some of the table specifications depending on the RDBMS used
         //We monkey-path Zend-DB behaviour here and not through its own source repository with a decorator
         $sqlFixed = $this->schemaManager->getSource()->buildSql($table, $sql);
-        $connection = $this->schemaManager->getSource()->getConnection();
         // TODO: Allow charset and comment
         return $connection->query(
             $sqlFixed,
