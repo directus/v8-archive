@@ -233,12 +233,13 @@ if (!function_exists('get_thumbnail_url'))
      * @param int $height
      * @param string $mode
      * @param string $quality
+     * @param string $format
      *
      * @return string
      */
-    function get_thumbnail_url($name, $width, $height, $mode = 'crop', $quality = 'good')
+    function get_thumbnail_url($name, $width, $height, $mode = 'crop', $quality = 'good', $format = 'original')
     {
-        return get_url(get_thumbnail_path($name, $width, $height, $mode, $quality));
+        return get_url(get_thumbnail_path($name, $width, $height, $mode, $quality, $format));
     }
 }
 
@@ -252,17 +253,18 @@ if (!function_exists('get_thumbnail_path'))
      * @param int $height
      * @param string $mode
      * @param string $quality
+     * @param string $format
      *
      * @return string
      */
-    function get_thumbnail_path($name, $width, $height, $mode = 'crop', $quality = 'good')
+    function get_thumbnail_path($name, $width, $height, $mode = 'crop', $quality = 'good', $format = 'jpeg')
     {
         $projectName = get_api_project_from_request();
 
         // env/width/height/mode/quality/name
         return sprintf(
-            '/thumbnail/%s/%d/%d/%s/%s/%s',
-            $projectName, $width, $height, $mode, $quality, $name
+            '/thumbnail/%s/%d/%d/%s/%s/%s/%s',
+            $projectName, $width, $height, $mode, $format, $quality, $name
         );
     }
 }
