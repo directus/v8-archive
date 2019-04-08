@@ -80,7 +80,7 @@ class Thumbnailer {
             }
 
             // relative to configuration['storage']['thumb_root']
-            $this->thumbnailDir = $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '');
+            $this->thumbnailDir = $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '') . ($this->format ? '/' . $this->format : '');
         } catch (Exception $e) {
             throw $e;
         }
@@ -128,6 +128,9 @@ class Thumbnailer {
     {
         try {
             if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->fileName) ) {
+                if( strpos($this->thumbnailDir, 'webp') !== false ) {
+                    return 'image/webp';
+                }
                 $img = Image::make($this->filesystemThumb->read($this->thumbnailDir . '/' . $this->fileName));
                 return $img->mime();
             }
@@ -166,7 +169,7 @@ class Thumbnailer {
                 $img->resizeCanvas($this->width, $this->height, ArrayUtils::get($options, 'position', 'center'), ArrayUtils::get($options, 'resizeRelative', false), ArrayUtils::get($options, 'canvasBackground', [255, 255, 255, 0]));
             }
 
-            $encodedImg = (string) $img->encode(ArrayUtils::get($this->thumbnailParams, 'fileExt'), ($this->quality ? $this->translateQuality($this->quality) : null));
+            $encodedImg = (string) $img->encode(ArrayUtils::get($this->thumbnailParams, 'format'), ($this->quality ? $this->translateQuality($this->quality) : null));
             $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->fileName, $encodedImg);
 
             return $encodedImg;
@@ -197,7 +200,7 @@ class Thumbnailer {
             // resize/crop image
             $img->fit($this->width, $this->height, function($constraint){}, ArrayUtils::get($options, 'position', 'center'));
 
-            $encodedImg = (string) $img->encode(ArrayUtils::get($this->thumbnailParams, 'fileExt'), ($this->quality ? $this->translateQuality($this->quality) : null));
+            $encodedImg = (string) $img->encode(ArrayUtils::get($this->thumbnailParams, 'format'), ($this->quality ? $this->translateQuality($this->quality) : null));
             $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->fileName, $encodedImg);
 
             return $encodedImg;
@@ -261,10 +264,16 @@ class Thumbnailer {
                     }
                 }
 
-                // extract action and quality
+                // extract action, quality, and format
                 else {
                     if (!ArrayUtils::get($thumbnailParams, 'action')) {
                         ArrayUtils::set($thumbnailParams, 'action', $segment);
+                    } else if (!ArrayUtils::get($thumbnailParams, 'format')) {
+                        if(ArrayUtils::has($this->getSupportedQualityTags(), $segment)) {
+                            ArrayUtils::set($thumbnailParams, 'quality', $segment);
+                        } else {
+                            ArrayUtils::set($thumbnailParams, 'format', $segment);
+                        }
                     } else if (!ArrayUtils::get($thumbnailParams, 'quality')) {
                         ArrayUtils::set($thumbnailParams, 'quality', $segment);
                     }
@@ -287,6 +296,11 @@ class Thumbnailer {
             // set quality to null, if needed
             if (! ArrayUtils::exists($thumbnailParams, 'quality')) {
                 ArrayUtils::set($thumbnailParams, 'quality', null);
+            }
+
+            // set format to null, if needed
+            if (! ArrayUtils::exists($thumbnailParams, 'format')) {
+                ArrayUtils::set($thumbnailParams, 'format', ArrayUtils::get($thumbnailParams, 'fileExt'));
             }
 
             return $thumbnailParams;
