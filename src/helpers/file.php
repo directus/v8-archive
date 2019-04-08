@@ -237,7 +237,7 @@ if (!function_exists('get_thumbnail_url'))
      *
      * @return string
      */
-    function get_thumbnail_url($name, $width, $height, $mode = 'crop', $quality = 'good', $format = 'original')
+    function get_thumbnail_url($name, $width, $height, $mode = 'crop', $quality = 'good', $format = 'jpeg')
     {
         return get_url(get_thumbnail_path($name, $width, $height, $mode, $quality, $format));
     }
