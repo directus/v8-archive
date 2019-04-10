@@ -12,9 +12,6 @@ class GraphQLService extends AbstractService
     public function index($inputs)
     {
 
-        //$rule = new QueryDepth($maxDepth = 2);
-        //DocumentValidator::addRule($rule);
-
         $schema = new Schema([
             'query' => Types::query()
         ]);
@@ -24,10 +21,9 @@ class GraphQLService extends AbstractService
         $variableValues = isset($inputs['variables']) ? $inputs['variables'] : null;
 
         try {
-            $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::RETHROW_INTERNAL_EXCEPTIONS;
             $rootValue = null;
             $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
-            $responseData = $result->toArray($debug);
+            $responseData = $result->toArray();
         } catch (\Exception $e) {
             $responseData = [
                 'errors' => [

@@ -11,7 +11,6 @@ use GraphQL\Type\Definition\ScalarType;
 
 class JSONType extends ScalarType
 {
-
     public $name = 'JSON';
     public $description =
     'The `JSON` scalar type represents JSON values as specified by
@@ -35,8 +34,9 @@ class JSONType extends ScalarType
         return $this->identity($value);
     }
 
-    public function parseLiteral($valueNode)
+    public function parseLiteral($valueNode, array $variables = null)
     {
+
         switch ($valueNode) {
             case ($valueNode instanceof StringValueNode):
             case ($valueNode instanceof BooleanValueNode):
