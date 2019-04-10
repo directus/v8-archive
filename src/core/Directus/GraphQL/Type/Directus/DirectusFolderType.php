@@ -6,27 +6,19 @@ use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class DirectusCollectionPresetType extends ObjectType
+class DirectusFolderType extends ObjectType
 {
     private $container;
     public function __construct()
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusCollectionPresets',
+            'name' => 'DirectusFolder',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),
-                    'title' => Types::string(),
-                    'user' => Types::int(), //TODO:: Change the relation with DirectusUserType
-                    'role' => Types::int(), //TODO:: Change the relation with DirectusRoleType.
-                    'collection' => Types::string(), //TODO:: change to m2o relation with DirectusCollectionType.
-                    'search_query' => Types::string(),
-                    'filters' => Types::json(),
-                    'view_options' => Types::json(),
-                    'view_type' => Types::string(),
-                    'view_query' => Types::json(),
-                    'translation' => Types::string(),
+                    'name' => Types::string(),
+                    'parent_folder' => Types::string()
                 ];
             },
             'interfaces' => [
@@ -42,5 +34,25 @@ class DirectusCollectionPresetType extends ObjectType
             }
         ];
         parent::__construct($config);
+    }
+
+    public function resolveFull_url($value)
+    {
+        return $value['data']['full_url'];
+    }
+
+    public function resolveUrl($value)
+    {
+        return $value['data']['url'];
+    }
+
+    public function resolveThumbnails($value)
+    {
+        return $value['data']['thumbnails'];
+    }
+
+    public function resolveUploaded_by($value)
+    {
+        return $value['uploaded_by'];
     }
 }

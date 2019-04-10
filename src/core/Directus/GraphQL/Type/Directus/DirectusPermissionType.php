@@ -6,27 +6,29 @@ use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class DirectusCollectionPresetType extends ObjectType
+class DirectusPermissionType extends ObjectType
 {
     private $container;
     public function __construct()
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusCollectionPresets',
+            'name' => 'DirectusPermission',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),
-                    'title' => Types::string(),
-                    'user' => Types::int(), //TODO:: Change the relation with DirectusUserType
-                    'role' => Types::int(), //TODO:: Change the relation with DirectusRoleType.
                     'collection' => Types::string(), //TODO:: change to m2o relation with DirectusCollectionType.
-                    'search_query' => Types::string(),
-                    'filters' => Types::json(),
-                    'view_options' => Types::json(),
-                    'view_type' => Types::string(),
-                    'view_query' => Types::json(),
-                    'translation' => Types::string(),
+                    'role' => Types::int(), //TODO:: Change to m2o relation with DirectusRoleType.
+                    'status' => Types::string(),
+                    'create' => Types::string(),
+                    'read' => Types::string(),
+                    'update' => Types::string(),
+                    'delete' => Types::string(),
+                    'comment' => Types::string(),
+                    'explain' => Types::string(),
+                    'status_blacklist' => Types::listOf(Types::string()),
+                    'read_field_blacklist' => Types::listOf(Types::string()),
+                    'write_field_blacklist' => Types::listOf(Types::string())
                 ];
             },
             'interfaces' => [
