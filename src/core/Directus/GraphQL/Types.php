@@ -7,6 +7,10 @@ use Directus\GraphQL\Type\Directus\DirectusCollectionPresetType;
 use Directus\GraphQL\Type\Directus\DirectusFieldType;
 use Directus\GraphQL\Type\Directus\DirectusFileType;
 use Directus\GraphQL\Type\Directus\DirectusFileThumbnailType;
+use Directus\GraphQL\Type\Directus\DirectusFolderType;
+use Directus\GraphQL\Type\Directus\DirectusPermissionType;
+use Directus\GraphQL\Type\Directus\DirectusRelationType;
+use Directus\GraphQL\Type\Directus\DirectusRevisionType;
 use Directus\GraphQL\Type\Directus\DirectusUserType;
 use Directus\GraphQL\Type\Directus\DirectusRoleType;
 use Directus\GraphQL\Type\Directus\DirectusSettingType;
@@ -26,26 +30,32 @@ use Directus\GraphQL\Type\FiltersType;
 
 class Types
 {
-    // Object types:
+    // Directus types.
     private static $directusActivity;
     private static $directusCollection;
     private static $directusCollectionPreset;
     private static $directusField;
     private static $directusFile;
     private static $directusFileThumbnail;
+    private static $directusFolder;
+    private static $directusPermission;
+    private static $directusRelation;
+    private static $directusRevision;
     private static $directusUser;
     private static $directusRole;
     private static $directusSetting;
 
     private static $query;
     private static $meta;
+    private static $node;
 
-    //Used to save the reference of the created user collection.
+    //Reference for the list of the user created collection.
     private static $userCollections = [];
 
-    //Used to save the reference of the created list of collection.
+    //Reference for the list of the collection.
     private static $collections = [];
 
+    //Reference for the list of the collection.
     private static $filters = [];
 
     // Custom scalar types
@@ -53,8 +63,6 @@ class Types
     private static $time;
     private static $datetime;
     private static $json;
-
-    private static $node;
 
     public static function directusActivity()
     {
@@ -84,6 +92,26 @@ class Types
     public static function directusFileThumbnail()
     {
         return self::$directusFileThumbnail ?: (self::$directusFileThumbnail = new DirectusFileThumbnailType());
+    }
+
+    public static function directusFolder()
+    {
+        return self::$directusFolder ?: (self::$directusFolder = new DirectusFolderType());
+    }
+
+    public static function directusPermission()
+    {
+        return self::$directusPermission ?: (self::$directusPermission = new DirectusPermissionType());
+    }
+
+    public static function directusRelation()
+    {
+        return self::$directusRelation ?: (self::$directusRelation = new DirectusRelationType());
+    }
+
+    public static function directusRevision()
+    {
+        return self::$directusRevision ?: (self::$directusRevision = new DirectusRevisionType());
     }
 
     public static function directusUser()

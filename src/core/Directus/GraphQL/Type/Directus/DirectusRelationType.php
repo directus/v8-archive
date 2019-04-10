@@ -6,27 +6,22 @@ use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class DirectusCollectionPresetType extends ObjectType
+class DirectusRelationType extends ObjectType
 {
     private $container;
     public function __construct()
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusCollectionPresets',
+            'name' => 'DirectusRelation',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),
-                    'title' => Types::string(),
-                    'user' => Types::int(), //TODO:: Change the relation with DirectusUserType
-                    'role' => Types::int(), //TODO:: Change the relation with DirectusRoleType.
-                    'collection' => Types::string(), //TODO:: change to m2o relation with DirectusCollectionType.
-                    'search_query' => Types::string(),
-                    'filters' => Types::json(),
-                    'view_options' => Types::json(),
-                    'view_type' => Types::string(),
-                    'view_query' => Types::json(),
-                    'translation' => Types::string(),
+                    'collection_many' => Types::string(),
+                    'field_many' => Types::string(),
+                    'collection_one' => Types::string(),
+                    'field_one' => Types::string(),
+                    'junction_field' => Types::string()
                 ];
             },
             'interfaces' => [

@@ -7,6 +7,9 @@ use Directus\Services\ActivityService;
 use Directus\Services\TablesService;
 use Directus\Services\CollectionPresetsService;
 use Directus\Services\FilesServices;
+use Directus\Services\PermissionsService;
+use Directus\Services\RelationsService;
+use Directus\Services\RevisionsService;
 use Directus\Services\UsersService;
 use Directus\Services\RolesService;
 use Directus\Services\SettingsService;
@@ -57,7 +60,7 @@ class DirectusCollectionList extends CollectionList
             ],
             'directusCollectionsCollection' => [
                 'type' => Types::collections(Types::directusCollection()),
-                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_collections')]),
+                'args' => array_merge($this->limit, $this->offset),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                     $this->convertArgsToFilter($args);
                     $service = new TablesService($this->container);
@@ -86,24 +89,32 @@ class DirectusCollectionList extends CollectionList
             ],
             'directusFields' => [
                 'type' => Types::directusField(),
-                'args' => ['name' => Types::nonNull(Types::string())],
+                'args' => ['collection' => Types::nonNull(Types::string()), 'field' => Types::nonNull(Types::string())],
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                     $service = new TablesService($this->container);
-                    return $service->findByIds(
-                        $args['name'],
+                    return $service->findField(
+                        $args['collection'],
+                        $args['field'],
                         $this->param
                     )['data'];
                 }
             ],
             'directusFieldsCollection' => [
                 'type' => Types::collections(Types::directusField()),
-                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_fields')]),
+                'args' => ['collection' => Types::string()],
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                     $this->convertArgsToFilter($args);
                     $service = new TablesService($this->container);
-                    return $service->findAllFields(
-                        $this->param
-                    );
+                    if (isset($args['collection'])) {
+                        return $service->findAllFieldsByCollection(
+                            $args['collection'],
+                            $this->param
+                        );
+                    } else {
+                        return $service->findAllFields(
+                            $this->param
+                        );
+                    }
                 }
             ],
             'directusFiles' => [
@@ -126,20 +137,71 @@ class DirectusCollectionList extends CollectionList
             'directusFileThumbnail' => [
                 'type' => Types::directusFileThumbnail(),
             ],
-            'directusUsers' => [
-                'type' => Types::directusUser(),
+            'directusFolders' => [
+                'type' => Types::directusFolder(),
                 'args' => ['id' => Types::nonNull(Types::id())],
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                    $service = new UsersService($this->container);
+                    $service = new FilesServices($this->container);
+                    return $service->findFolderByIds($args['id'], $this->param)['data'];
+                }
+            ],
+            'directusFoldersCollection' => [
+                'type' => Types::collections(Types::directusFolder()),
+                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_folders')]),
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $this->convertArgsToFilter($args);
+                    $service = new FilesServices($this->container);
+                    return $service->findAllFolders($this->param);
+                }
+            ],
+            'directusPermissions' => [
+                'type' => Types::directusPermission(),
+                'args' => ['id' => Types::nonNull(Types::id())],
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $service = new PermissionsService($this->container);
                     return $service->findByIds($args['id'], $this->param)['data'];
                 }
             ],
-            'directusUsersCollection' => [
-                'type' => Types::collections(Types::directusUser()),
-                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_users')]),
+            'directusPermissionsCollection' => [
+                'type' => Types::collections(Types::directusPermission()),
+                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_permissions')]),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                     $this->convertArgsToFilter($args);
-                    $service = new UsersService($this->container);
+                    $service = new PermissionsService($this->container);
+                    return $service->findAll($this->param);
+                }
+            ],
+            'directusRelations' => [
+                'type' => Types::directusRelation(),
+                'args' => ['id' => Types::nonNull(Types::id())],
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $service = new RelationsService($this->container);
+                    return $service->findByIds($args['id'], $this->param)['data'];
+                }
+            ],
+            'directusRelationsCollection' => [
+                'type' => Types::collections(Types::directusRelation()),
+                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_permissions')]),
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $this->convertArgsToFilter($args);
+                    $service = new RelationsService($this->container);
+                    return $service->findAll($this->param);
+                }
+            ],
+            'directusRevisions' => [
+                'type' => Types::directusRevision(),
+                'args' => ['id' => Types::nonNull(Types::id())],
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $service = new RevisionsService($this->container);
+                    return $service->findByIds($args['id'], $this->param)['data'];
+                }
+            ],
+            'directusRevisionsCollection' => [
+                'type' => Types::collections(Types::directusRevision()),
+                'args' => array_merge($this->limit, $this->offset),
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $this->convertArgsToFilter($args);
+                    $service = new RevisionsService($this->container);
                     return $service->findAll($this->param);
                 }
             ],
@@ -154,7 +216,7 @@ class DirectusCollectionList extends CollectionList
             ],
             'directusRolesCollection' => [
                 'type' => Types::collections(Types::directusRole()),
-                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_roles')]),
+                'args' => array_merge($this->limit, $this->offset),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                     $this->convertArgsToFilter($args);
                     $service = new RolesService($this->container);
@@ -172,13 +234,30 @@ class DirectusCollectionList extends CollectionList
             ],
             'directusSettingsCollection' => [
                 'type' => Types::collections(Types::directusSetting()),
-                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_settings')]),
+                'args' => array_merge($this->limit, $this->offset),
                 'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                     $this->convertArgsToFilter($args);
                     $service = new SettingsService($this->container);
                     return $service->findAll($this->param);
                 }
             ],
+            'directusUsers' => [
+                'type' => Types::directusUser(),
+                'args' => ['id' => Types::nonNull(Types::id())],
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $service = new UsersService($this->container);
+                    return $service->findByIds($args['id'], $this->param)['data'];
+                }
+            ],
+            'directusUsersCollection' => [
+                'type' => Types::collections(Types::directusUser()),
+                'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters('directus_users')]),
+                'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                    $this->convertArgsToFilter($args);
+                    $service = new UsersService($this->container);
+                    return $service->findAll($this->param);
+                }
+            ]
         ];
     }
 }

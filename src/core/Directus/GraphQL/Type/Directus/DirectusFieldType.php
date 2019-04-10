@@ -17,13 +17,13 @@ class DirectusFieldType extends ObjectType
             'name' => 'DirectusFields',
             'fields' =>  function () {
                 return [
-                    'collection' => Types::directusCollection(),
+                    'collection' => Types::string(), //TODO:: change to m2o relation with DirectusCollectionType.
                     'field' => Types::string(),
                     'type' => Types::string(),
                     'interface' => Types::string(),
-                    //'options' => Types::json(),
+                    'options' => Types::json(),
                     'locked' => Types::boolean(),
-                    //'translation' => Types::json(),
+                    'translation' => Types::json(),
                     'readonly' => Types::boolean(),
                     'required' => Types::boolean(),
                     'sort' => Types::int(),
