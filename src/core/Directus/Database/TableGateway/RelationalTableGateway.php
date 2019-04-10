@@ -1755,7 +1755,7 @@ class RelationalTableGateway extends BaseTableGateway
                 // $row->getId(); RowGateway perhaps?
                 $relationalColumnId = $row[$relationalColumnName];
                 if (is_array($relationalColumnId) && !empty($relationalColumnId)) {
-                    $relationalColumnId = $relationalColumnId[$tableGateway->primaryKeyFieldName];
+                    $relationalColumnId = $relationalColumnId[$primaryKey];
                 }
 
                 if ($filterFields && !in_array('*', $filterFields)) {
