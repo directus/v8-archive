@@ -900,11 +900,12 @@ class BaseTableGateway extends TableGateway
         if ($pk = $this->primaryKeyFieldName) {
             $select = $this->sql->select();
             $select->where($deleteState['where']);
-            $select->columns([$pk]);
             $results = parent::executeSelect($select);
 
+            $deletedObject = [];
             foreach($results as $result) {
                 $ids[] = $result['id'];
+                $deletedObject[$result['id']] = $result->toArray();
             }
         }
 
@@ -930,7 +931,7 @@ class BaseTableGateway extends TableGateway
             }
 
             foreach ($ids as $id) {
-                $deleteData = ['id' => $id];
+                $deleteData = $deletedObject[$id];
                 $this->runHook('item.delete', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete:after', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete.' . $deleteTable, [$deleteData]);
