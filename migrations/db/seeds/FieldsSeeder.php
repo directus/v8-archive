@@ -1200,7 +1200,7 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_users',
                 'field' => 'password',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_HASH,
                 'interface' => 'password',
                 'locked' => 1,
                 'required' => 1,
