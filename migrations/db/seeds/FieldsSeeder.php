@@ -936,7 +936,10 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'users',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
                 'interface' => 'many-to-many',
-                'locked' => 1
+                'locked' => 1,
+                'options' => json_encode([
+                  'fields' => "first_name,last_name"
+                ])
             ],
             [
                 'collection' => 'directus_roles',
