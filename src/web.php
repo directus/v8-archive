@@ -35,6 +35,19 @@ if (!file_exists($configFilePath)) {
     exit;
 }
 
+$maintenanceFlagPath = \Directus\create_maintenanceflag_path($basePath);
+if (file_exists($maintenanceFlagPath)) {
+    http_response_code(503);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => [
+            'error' => 21,
+            'message' => 'API is currently under maintenance.'
+        ]
+    ]);
+    exit;
+}
+
 $app = \Directus\create_app($basePath, require $configFilePath);
 
 // ----------------------------------------------------------------------------
