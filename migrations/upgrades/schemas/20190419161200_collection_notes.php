@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class SettingsFields extends AbstractMigration
+class CollectionNotes extends AbstractMigration
 {
     public function up()
     {
