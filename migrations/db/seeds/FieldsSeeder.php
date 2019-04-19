@@ -1018,7 +1018,7 @@ class FieldsSeeder extends AbstractSeed
                 'required' => 1,
                 'width' => 'half-space',
                 'note' => 'The URL where your app is hosted. The API will use this to direct your users to the correct login page.',
-                'sort' => 3
+                'sort' => 4
             ],
             [
                 'collection' => 'directus_settings',
@@ -1029,7 +1029,7 @@ class FieldsSeeder extends AbstractSeed
                 'required' => 1,
                 'width' => 'half',
                 'note' => 'Default max amount of items that\'s returned at a time in the API.',
-                'sort' => 4
+                'sort' => 5
             ],
             [
                 'collection' => 'directus_settings',
@@ -1040,7 +1040,7 @@ class FieldsSeeder extends AbstractSeed
                 'note' => 'Will sort values with null at the end of the result',
                 'width' => 'half',
                 'note' => 'Put items with `null` for the value last when sorting.',
-                'sort' => 5
+                'sort' => 6
             ],
             [
                 'collection' => 'directus_settings',
@@ -1051,7 +1051,7 @@ class FieldsSeeder extends AbstractSeed
                 'required' => 1,
                 'width' => 'half',
                 'note' => 'How many minutes before an idle user is signed out.',
-                'sort' => 6
+                'sort' => 7
             ],
             [
                 'collection' => 'directus_settings',
@@ -1061,7 +1061,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'When provided, this allows more information to be collected for YouTube embeds.',
-                'sort' => 7
+                'sort' => 8
             ],
             [
                 'collection' => 'directus_settings',
@@ -1070,7 +1070,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'tags',
                 'locked' => 1,
                 'note' => 'Allowed dimensions for thumbnails.',
-                'sort' => 8
+                'sort' => 9
             ],
             [
                 'collection' => 'directus_settings',
@@ -1080,7 +1080,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Allowed quality for thumbnails.',
-                'sort' => 9
+                'sort' => 10
             ],
             [
                 'collection' => 'directus_settings',
@@ -1090,7 +1090,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Defines how the thumbnail will be generated based on the requested dimensions.',
-                'sort' => 10
+                'sort' => 11
             ],
             [
                 'collection' => 'directus_settings',
@@ -1101,7 +1101,7 @@ class FieldsSeeder extends AbstractSeed
                 'width' => 'half',
                 'required' => 1,
                 'note' => '`max-age` HTTP header of the thumbnail.',
-                'sort' => 11
+                'sort' => 12
             ],
             [
                 'collection' => 'directus_settings',
@@ -1111,7 +1111,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'This image will be used when trying to generate a thumbnail with invalid options or an error happens on the server when creating the image.',
-                'sort' => 12
+                'sort' => 13
             ],
 
 
