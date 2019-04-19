@@ -240,7 +240,8 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'sort' => 3,
-                'width' => 'half'
+                'width' => 'half',
+                'note' => 'An internal description.'
             ],
             [
                 'collection' => 'directus_collections',
@@ -250,7 +251,8 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'sort' => 4,
                 'width' => 'half',
-                'hidden_detail' => 1
+                'hidden_detail' => 1,
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#managing-collections).'
             ],
             [
                 'collection' => 'directus_collections',
@@ -259,7 +261,8 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1,
                 'sort' => 5,
-                'width' => 'half'
+                'width' => 'half',
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#hidden).'
             ],
             [
                 'collection' => 'directus_collections',
@@ -268,7 +271,8 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1,
                 'sort' => 6,
-                'width' => 'half'
+                'width' => 'half',
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#single).'
             ],
             [
                 'collection' => 'directus_collections',
@@ -285,7 +289,8 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'icon',
                 'locked' => 1,
-                'sort' => 8
+                'sort' => 8,
+                'note' => 'The icon shown in the App\'s navigation sidebar.'
             ],
 
 
