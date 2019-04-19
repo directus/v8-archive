@@ -249,7 +249,8 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1,
                 'sort' => 4,
-                'width' => 'half'
+                'width' => 'half',
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_collections',
@@ -983,42 +984,52 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'project_name',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'project_url',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'app_url',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'logo',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
-                'interface' => 'file',
-                'locked' => 1
+                'locked' => 1,
+                'required' => 1,
+                'width' => 'half-space',
+                'sort' => 1
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'color',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'color-palette',
-                'locked' => 1
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'The color that best fits your brand.',
+                'sort' => 2
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'logo',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
+                'interface' => 'file',
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'Your brand\'s logo.',
+                'sort' => 3
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'app_url',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+                'required' => 1,
+                'width' => 'half-space',
+                'note' => 'The URL where your app is hosted. The API will use this to direct your users to the correct login page.',
+                'sort' => 3
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'default_limit',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
-                'locked' => 1
+                'locked' => 1,
+                'required' => 1,
+                'width' => 'half',
+                'note' => 'Default max amount of items that\'s returned at a time in the API.',
+                'sort' => 4
             ],
             [
                 'collection' => 'directus_settings',
@@ -1026,63 +1037,81 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
                 'locked' => 1,
-                'note' => 'Will sort values with null at the end of the result'
+                'note' => 'Will sort values with null at the end of the result',
+                'width' => 'half',
+                'note' => 'Put items with `null` for the value last when sorting.',
+                'sort' => 5
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'auto_sign_out',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'trusted_proxies',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
-                'interface' => 'tags',
-                'locked' => 1
+                'locked' => 1,
+                'required' => 1,
+                'width' => 'half',
+                'note' => 'How many minutes before an idle user is signed out.',
+                'sort' => 6
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'youtube_api',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'When provided, this allows more information to be collected for YouTube embeds.',
+                'sort' => 7
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_dimensions',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
-                'locked' => 1
+                'locked' => 1,
+                'note' => 'Allowed dimensions for thumbnails.',
+                'sort' => 8
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_quality_tags',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'Allowed quality for thumbnails.',
+                'sort' => 9
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_actions',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'code',
-                'locked' => 1
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'Defines how the thumbnail will be generated based on the requested dimensions.',
+                'sort' => 10
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_cache_ttl',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
-                'locked' => 1
+                'locked' => 1,
+                'width' => 'half',
+                'required' => 1,
+                'note' => '`max-age` HTTP header of the thumbnail.',
+                'sort' => 11
             ],
             [
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_not_found_location',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'This image will be used when trying to generate a thumbnail with invalid options or an error happens on the server when creating the image.',
+                'sort' => 12
             ],
 
 
