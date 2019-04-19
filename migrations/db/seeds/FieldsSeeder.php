@@ -473,7 +473,8 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 4,
-                'width' => 'half'
+                'width' => 'half',
+                'required' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -515,7 +516,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 8,
+                'sort' => 10,
                 'width' => 'half'
             ],
             [
@@ -528,7 +529,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 9,
+                'sort' => 11,
                 'width' => 'half'
             ],
             [
@@ -541,7 +542,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 10,
+                'sort' => 12,
                 'width' => 'half'
             ],
             [
@@ -554,7 +555,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 11,
+                'sort' => 13,
                 'width' => 'half'
             ],
             [
@@ -567,8 +568,9 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 12,
-                'width' => 'half'
+                'sort' => 8,
+                'width' => 'half',
+                'required' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -577,8 +579,9 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'user',
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 13,
-                'width' => 'half'
+                'sort' => 9,
+                'width' => 'half',
+                'required' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -641,6 +644,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1,
+                'hidden_browse' => 1
             ],
 
 
@@ -909,7 +913,8 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'sort' => 1,
-                'width' => 'half'
+                'width' => 'half',
+                'required' => 1
             ],
             [
                 'collection' => 'directus_roles',
@@ -1183,6 +1188,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'sort' => 2,
+                'required' => 1
             ],
             [
                 'collection' => 'directus_users',
@@ -1250,7 +1256,8 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'user-roles',
                 'locked' => 1,
                 'sort' => 8,
-                'width' => 'half'
+                'width' => 'half',
+                'required' => 1
             ],
             [
                 'collection' => 'directus_users',
@@ -1431,7 +1438,8 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'sort' => 11,
-                'width' => 'half'
+                'width' => 'half',
+                'required' => 1
             ],
             [
                 'collection' => 'directus_users',
@@ -1443,7 +1451,8 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'sort' => 12,
-                'width' => 'half'
+                'width' => 'half',
+                'required' => 1
             ],
             [
                 'collection' => 'directus_users',
