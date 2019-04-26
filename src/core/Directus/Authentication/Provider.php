@@ -370,7 +370,7 @@ class Provider
             'type' => 'request_token',
             'id' => (int) $user->getId(),
             // 'group' => (int) $user->getGroupId(),
-            'exp' => time() + (5 * DateTimeUtils::MINUTE_IN_SECONDS),
+            'exp' => time() + (20 * DateTimeUtils::MINUTE_IN_SECONDS),
             'url' => \Directus\get_url(),
             'project' => \Directus\get_api_project_from_request()
         ];
