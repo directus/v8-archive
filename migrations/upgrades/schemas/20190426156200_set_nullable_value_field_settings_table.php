@@ -8,7 +8,7 @@ class SetNullableValueFieldSettingsTable extends AbstractMigration
     {
         $table = $this->table('directus_settings');
 
-        $table->changeColumn('value', 'string', [
+        $table->changeColumn('value', 'text', [
             'null' => true
         ]);
     }
