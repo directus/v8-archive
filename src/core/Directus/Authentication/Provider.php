@@ -71,7 +71,7 @@ class Provider
             throw new Exception('auth: secret key is required and it must be a string');
         }
 
-        $ttl = ArrayUtils::get($options, 'ttl', 5);
+        $ttl = ArrayUtils::get($options, 'ttl', 20);
         if (!is_numeric($ttl)) {
             throw new Exception('ttl must be a number');
         }
