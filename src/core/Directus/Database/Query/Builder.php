@@ -741,7 +741,7 @@ class Builder
         $platform = $this->getConnection()->getPlatform();
         $table = $this->getFrom();
 
-        if (strpos($column, $platform->getIdentifierSeparator()) === false) {
+        if (is_string ($column) && strpos($column, $platform->getIdentifierSeparator()) === false) {
             $column = implode($platform->getIdentifierSeparator(), [$table, $column]);
         }
 
