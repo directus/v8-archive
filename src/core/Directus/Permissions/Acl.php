@@ -1245,11 +1245,26 @@ class Acl
         if ($this->isAdmin()) {
             return true;
         }
+        if($status){
+            $permission = $this->getPermission($collection, $status);
+            $permissionLevel = ArrayUtils::get($permission, $action);
+            return $this->can($permissionLevel, $level);
+        }else{
+            $statuses = $this->getCollectionStatuses($collection);
+           
+            $allowed = false;
+            foreach ($statuses as $status) {
+                $permission = $this->getPermission($collection, $status);
+                $permissionLevel = ArrayUtils::get($permission, $action);
 
-        $permission = $this->getPermission($collection, $status);
-        $permissionLevel = ArrayUtils::get($permission, $action);
+                if ($this->can($permissionLevel, $level)) {
+                    $allowed = true;
+                    break;
+                }
+            }
 
-        return $this->can($permissionLevel, $level);
+            return $allowed;
+        }
     }
 
     public function allowToOnce($action, $collection)
