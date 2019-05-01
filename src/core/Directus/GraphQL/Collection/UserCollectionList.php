@@ -28,7 +28,7 @@ class UserCollectionList extends CollectionList
                 $type = Types::userCollection($value['collection']);
 
                 //Add the individual collection item
-                $this->list[StringUtils::toCamelCase($value['collection'])] = [
+                $this->list[$value['collection']] = [
                     'type' => $type,
                     'args' => ['id' => Types::nonNull(Types::id())],
                     'resolve' => function ($val, $args, $context, ResolveInfo $info)  use ($value, $itemsService) {
@@ -39,7 +39,7 @@ class UserCollectionList extends CollectionList
                 ];
 
                 //Add the list of collection
-                $this->list[StringUtils::toCamelCase($value['collection'] . 'Collection')] = [
+                $this->list[$value['collection'] . '_collection'] = [
                     'type' => Types::collections($type),
                     'args' => array_merge($this->limit, $this->offset, ['filter' => Types::filters($value['collection'])]),
                     'resolve' => function ($val, $args, $context, ResolveInfo $info) use ($value, $itemsService) {
