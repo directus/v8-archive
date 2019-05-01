@@ -175,7 +175,10 @@ class FieldsConfig
                     break;
 
                 default:
-
+                    /* As the _has and _all not working properly
+                    *  https://github.com/directus/api/issues/576
+                    *  We will fix once the issue in the REST endpoint will fix.
+                    */
                     // $filters[$v['field'] . '_all'] = Types::nonNull(Types::string());
                     // $filters[$v['field'] . '_has'] = Types::nonNull(Types::string());
             }
@@ -203,8 +206,8 @@ class FieldsConfig
                 break;
             case 'o2m':
                 /**
-                * TODO :: Need to rewrite the code for better readiablity.
-                */
+                 * TODO :: Need to rewrite the code for better readiablity.
+                 */
                 $firstRelation;
 
                 //1. Find the collection_many
