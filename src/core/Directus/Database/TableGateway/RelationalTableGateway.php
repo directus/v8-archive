@@ -1246,7 +1246,28 @@ class RelationalTableGateway extends BaseTableGateway
 
             $query = new Builder($this->getAdapter());
             $mainTableObject = $this->getTableSchema($table);
-            $query->columns([$mainTableObject->getPrimaryField()->getName()]);
+            $selectColumn = $mainTableObject->getPrimaryField()->getName();
+            
+            //check if column type is alias and relationship is O2M
+            $collection = $this->getTableSchema($mainTable);
+            $field = $collection->getField($mainColumn);
+            
+            if ($field->isAlias() && $field->getRelationship()->getType() == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {
+                $mainColumn = $mainTableObject->getPrimaryField()->getName();
+                //$column = $collection->getPrimaryField()->getName();
+                $relationalTable = $field->getRelationship()->getCollectionMany();
+                $relationalCollection = $this->getTableSchema($relationalTable);
+                $relationFields = $relationalCollection->getRelationalFieldsName();
+                foreach($relationFields as $relationField){
+                    $fieldObject = $relationalCollection->getField($relationField);
+                    if($fieldObject->getRelationship()->getType() == \Directus\Database\Schema\Object\FieldRelationship::MANY_TO_ONE && $fieldObject->getRelationship()->getCollectionOne() == $mainTable){
+                        $selectColumn = $relationField;
+                    }
+                }
+            }
+            
+            $query->columns([$selectColumn]);
+            
             $query->from($table);
 
             $this->doFilter($query, $column, $condition, $table);
@@ -1279,7 +1300,7 @@ class RelationalTableGateway extends BaseTableGateway
             // TODO: Make all this whereIn duplication into a function
             // TODO: Can we make the O2M simpler getting the parent id from itself
             //       right now is creating one unnecessary select
-            if ($field->isOneToMany()) {
+            /*if ($field->isOneToMany()) {
                 $mainColumn = $collection->getPrimaryField()->getName();
                 $oldQuery = $query;
                 $query = new Builder($this->getAdapter());
@@ -1292,7 +1313,7 @@ class RelationalTableGateway extends BaseTableGateway
                     $column,
                     $oldQuery
                 );
-            }
+            }*/
 
             $this->doFilter(
                 $mainQuery,
