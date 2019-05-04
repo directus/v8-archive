@@ -163,7 +163,7 @@ class MailService extends AbstractService
         /** @var Acl $acl */
         $acl = $this->container->get('acl');
         if ($defaultEmail) {
-            $config = get_project_config();
+            $config = $this->container->get('config');
             return  [
                  $config->get('mail.default.from') => $acl->getUserFullName()
             ];
