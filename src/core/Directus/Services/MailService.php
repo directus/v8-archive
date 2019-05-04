@@ -11,7 +11,6 @@ use function Directus\send_mail_with_layout;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Validator;
 use Zend\Db\Sql\Predicate\In;
-use function Directus\get_project_config;
 
 class MailService extends AbstractService
 {
