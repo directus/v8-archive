@@ -1272,8 +1272,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
             
             //get last relationship
-            $lastRelationShip = !empty($columns) ? end($columns) : $column;
-            if ($lastRelationShip && $columnRelationalData[$lastRelationShip]['type'] == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {
+            if ($mainColumn && !empty($mainColumn) && $columnRelationalData[$mainColumn]['type'] == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {
                 $mainColumn = $mainTableObject->getPrimaryField()->getName();
             }
             $query->columns([$selectColumn]);
