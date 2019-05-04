@@ -1117,7 +1117,6 @@ class RelationalTableGateway extends BaseTableGateway
         if (ArrayUtils::get($params, 'single')) {
             $results = reset($results);
         }
-
         return $results ? $results : [];
     }
 
@@ -1198,7 +1197,7 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
-            $columnList = $columns = explode('.', $column);
+            $columnList = $filterColumns = explode('.', $column);
             $columnsTable = [
                 $this->getTable()
             ];
@@ -1206,11 +1205,13 @@ class RelationalTableGateway extends BaseTableGateway
             $nextColumn = array_shift($columnList);
             $nextTable = $this->getTable();
             $relational = SchemaService::hasRelationship($nextTable, $nextColumn);
-
+            $relationalTables = [];
             while ($relational) {
+                $relationalTables[$nextColumn] = $nextTable;
                 $nextTable = SchemaService::getRelatedCollectionName($nextTable, $nextColumn);
                 $nextColumn = array_shift($columnList);
-
+                if(empty($nextColumn))
+                    break;
                 // Confirm the user has permission to all chained (dot) fields
                 if ($this->acl && !$this->acl->canRead($nextTable)) {
                     throw new Exception\ForbiddenFieldAccessException($nextColumn);
@@ -1219,7 +1220,7 @@ class RelationalTableGateway extends BaseTableGateway
                 $relational = SchemaService::hasRelationship($nextTable, $nextColumn);
                 $columnsTable[] = $nextTable;
             }
-
+            
             // if one of the column in the list has not relationship
             // it will break the loop before going over all the columns
             // which we will call this as column not found
@@ -1230,7 +1231,23 @@ class RelationalTableGateway extends BaseTableGateway
 
             // Remove the original filter column with dot-notation
             unset($filters[$column]);
-
+            
+            //Prepare relational data for all the fields
+            $columnRelationalData = [];
+            foreach($filterColumns as $filterColumn){
+                if(isset($relationalTables[$filterColumn])){
+                    $collection = $this->getTableSchema($relationalTables[$filterColumn]);
+                    $fieldRelation = $collection->getField($filterColumn)->getRelationship();
+                    $columnRelationalData[$filterColumn] = [
+                        "type" => $fieldRelation->getType(),
+                        "collection_many" => $fieldRelation->getCollectionMany(),
+                        "field_many" => $fieldRelation->getFieldMany(),
+                        "collection_one" => $fieldRelation->getCollectionOne(),
+                        "field_one" => $fieldRelation->getFieldOne()
+                    ];
+                }
+            }
+            
             // Reverse all the columns from comments.author.id to id.author.comments
             // To filter from the most deep relationship to their parents
             $columns = explode('.', \Directus\column_identifier_reverse($column));
@@ -1249,29 +1266,21 @@ class RelationalTableGateway extends BaseTableGateway
             $selectColumn = $mainTableObject->getPrimaryField()->getName();
             
             //check if column type is alias and relationship is O2M
-            $collection = $this->getTableSchema($mainTable);
-            $field = $collection->getField($mainColumn);
-            
-            if ($field->isAlias() && $field->getRelationship()->getType() == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {
-                $mainColumn = $mainTableObject->getPrimaryField()->getName();
-                //$column = $collection->getPrimaryField()->getName();
-                $relationalTable = $field->getRelationship()->getCollectionMany();
-                $relationalCollection = $this->getTableSchema($relationalTable);
-                $relationFields = $relationalCollection->getRelationalFieldsName();
-                foreach($relationFields as $relationField){
-                    $fieldObject = $relationalCollection->getField($relationField);
-                    if($fieldObject->getRelationship()->getType() == \Directus\Database\Schema\Object\FieldRelationship::MANY_TO_ONE && $fieldObject->getRelationship()->getCollectionOne() == $mainTable){
-                        $selectColumn = $relationField;
-                    }
-                }
+            $previousRelation = isset($filterColumns[array_search($column, $filterColumns)-1])?$filterColumns[array_search($column, $filterColumns)-1]:'';
+            if ($previousRelation && $columnRelationalData[$previousRelation]['type'] == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {                
+                $selectColumn = $columnRelationalData[$previousRelation]['field_many'];
             }
             
+            //get last relationship
+            $lastRelationShip = !empty($columns) ? end($columns) : $column;
+            if ($lastRelationShip && $columnRelationalData[$lastRelationShip]['type'] == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {
+                $mainColumn = $mainTableObject->getPrimaryField()->getName();
+            }
             $query->columns([$selectColumn]);
             
             $query->from($table);
 
             $this->doFilter($query, $column, $condition, $table);
-
             $index = 0;
             foreach ($columns as $key => $column) {
                 ++$index;
@@ -1282,6 +1291,11 @@ class RelationalTableGateway extends BaseTableGateway
                 $field = $collection->getField($column);
 
                 $selectColumn = $collection->getPrimaryField()->getName();
+                //check if column type is alias and relationship is O2M
+                $previousRelation = isset($filterColumns[array_search($column, $filterColumns)-1])?$filterColumns[array_search($column, $filterColumns)-1]:'';
+                if ($previousRelation && $columnRelationalData[$previousRelation]['type'] == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {
+                    $selectColumn = $columnRelationalData[$previousRelation]['field_many'];
+                }
                 $table = $columnsTable[$key];
 
                 if ($field->isAlias()) {
