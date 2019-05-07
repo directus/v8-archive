@@ -14,7 +14,7 @@ use Directus\Services\UsersService;
 use Directus\Services\RolesService;
 use Directus\Services\SettingsService;
 use Directus\GraphQL\Collection\CollectionList;
-use function GuzzleHttp\json_encode;
+
 
 class DirectusCollectionList extends CollectionList
 {
