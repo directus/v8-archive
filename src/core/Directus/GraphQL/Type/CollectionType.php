@@ -11,7 +11,7 @@ class CollectionType extends ObjectType
     public function __construct($type)
     {
         $config = [
-            'name' => StringUtils::toPascalCase($type . 'Collection'),
+            'name' => StringUtils::toPascalCase(substr_replace($type, "", -4)), //Remove the 'item' word from type.
             'fields' => [
                 'data' => Types::listOf($type),
                 'meta' => Types::meta()

@@ -5,7 +5,6 @@ use Directus\Application\Application;
 use Directus\GraphQL\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use Directus\Util\StringUtils;
 
 class DirectusFieldType extends ObjectType
 {
@@ -14,10 +13,10 @@ class DirectusFieldType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusFields',
+            'name' => 'DirectusFieldItem',
             'fields' =>  function () {
                 return [
-                    'collection' => Types::string(), //TODO:: change to m2o relation with DirectusCollectionType.
+                    'collection' => Types::directusCollection(),
                     'field' => Types::string(),
                     'type' => Types::string(),
                     'interface' => Types::string(),
