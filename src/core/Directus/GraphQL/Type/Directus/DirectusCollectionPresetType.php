@@ -13,7 +13,7 @@ class DirectusCollectionPresetType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusCollectionPresets',
+            'name' => 'DirectusCollectionPresetItem',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),

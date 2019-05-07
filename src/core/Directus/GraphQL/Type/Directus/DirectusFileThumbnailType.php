@@ -10,7 +10,7 @@ class DirectusFileThumbnailType extends ObjectType
     public function __construct()
     {
         $config = [
-            'name' => 'DirectusFileThumbnail',
+            'name' => 'DirectusFileThumbnailItem',
             'fields' => [
                 'url' => Types::string(),
                 'relative_url' => Types::string(),

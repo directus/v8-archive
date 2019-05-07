@@ -13,7 +13,7 @@ class DirectusActivityType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusActivity',
+            'name' => 'DirectusActivityItem',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),

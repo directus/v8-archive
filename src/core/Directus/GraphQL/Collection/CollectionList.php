@@ -16,6 +16,7 @@ class CollectionList
     public function __construct()
     {
         $this->param = ['fields' => '*.*.*.*.*.*', 'meta' => '*'];
+        $this->id = ['id' => Types::int()];
         $this->limit = ['limit' => Types::int()];
         $this->offset = ['offset' => Types::int()];
         $this->container = Application::getInstance()->getContainer();
@@ -28,8 +29,8 @@ class CollectionList
             $filters = [];
             foreach ($this->param['filter'] as $filter => $value) {
                 /**
-                * TODO :: Need to rewrite the code for better readiablity.
-                */
+                 * TODO :: Need to rewrite the code for better readiablity.
+                 */
                 if ($filter == 'or' || $filter == 'and') {
                     $c = 0;
                     foreach ($value as $innerFilters) {

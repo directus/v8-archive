@@ -13,7 +13,7 @@ class DirectusRelationType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusRelation',
+            'name' => 'DirectusRelationItem',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),

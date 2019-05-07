@@ -13,7 +13,7 @@ class DirectusFileType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusFiles',
+            'name' => 'DirectusFileItem',
             'fields' =>  function () {
                 /* Create a callable function to support Recurring and circular types like uploaded_by
                 *  More info https://webonyx.github.io/graphql-php/type-system/object-types/#recurring-and-circular-types

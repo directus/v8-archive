@@ -13,7 +13,7 @@ class DirectusRevisionType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusRevision',
+            'name' => 'DirectusRevisionItem',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),

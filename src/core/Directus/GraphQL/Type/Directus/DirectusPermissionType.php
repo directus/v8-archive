@@ -13,7 +13,7 @@ class DirectusPermissionType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusPermission',
+            'name' => 'DirectusPermissionItem',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),
