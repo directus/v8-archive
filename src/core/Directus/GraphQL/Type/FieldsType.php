@@ -13,7 +13,7 @@ class FieldsType extends ObjectType
     {
         $fieldConfig = new FieldsConfig($collectionName);
         $config = [
-            'name' => StringUtils::toPascalCase($collectionName),
+            'name' => StringUtils::toPascalCase($collectionName . 'Item'),
             'fields' => function () use ($fieldConfig) {
                 return $fieldConfig->getFields();
             },

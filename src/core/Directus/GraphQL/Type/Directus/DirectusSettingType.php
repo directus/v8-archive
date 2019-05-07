@@ -13,7 +13,7 @@ class DirectusSettingType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusSetting',
+            'name' => 'DirectusSettingItem',
             'fields' =>  function () {
                 return [
                     'id' => Types::id(),

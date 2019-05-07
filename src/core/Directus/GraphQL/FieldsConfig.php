@@ -128,8 +128,8 @@ class FieldsConfig
                     $filters[$v['field'] . '_lte'] = Types::int();
                     $filters[$v['field'] . '_gt'] = Types::int();
                     $filters[$v['field'] . '_gte'] = Types::int();
-                    $filters[$v['field'] . '_in'] = Types::int();
-                    $filters[$v['field'] . '_nin'] = Types::int();
+                    $filters[$v['field'] . '_in'] = Types::string();
+                    $filters[$v['field'] . '_nin'] = Types::string();
                     $filters[$v['field'] . '_between'] = Types::string();
                     $filters[$v['field'] . '_nbetween'] = Types::string();
                     break;
@@ -140,8 +140,8 @@ class FieldsConfig
                     $filters[$v['field'] . '_lte'] = Types::float();
                     $filters[$v['field'] . '_gt'] = Types::float();
                     $filters[$v['field'] . '_gte'] = Types::float();
-                    $filters[$v['field'] . '_in'] = Types::float();
-                    $filters[$v['field'] . '_nin'] = Types::float();
+                    $filters[$v['field'] . '_in'] = Types::string();
+                    $filters[$v['field'] . '_nin'] = Types::string();
                     $filters[$v['field'] . '_between'] = Types::string();
                     $filters[$v['field'] . '_nbetween'] = Types::string();
                     break;
@@ -226,6 +226,10 @@ class FieldsConfig
                         $relation = $v;
                         break;
                     }
+                }
+
+                if (count($relation) == 0) {
+                    $relation = $firstRelation;
                 }
 
                 break;

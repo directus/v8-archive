@@ -10,7 +10,7 @@ class DirectusRoleType extends ObjectType
     public function __construct()
     {
         $config = [
-            'name' => 'DirectusRoles',
+            'name' => 'DirectusRoleItem',
             'fields' => function () {
                 return [
                     'id' => Types::id(),

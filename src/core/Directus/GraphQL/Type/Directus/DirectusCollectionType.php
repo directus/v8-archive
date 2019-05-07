@@ -13,7 +13,7 @@ class DirectusCollectionType extends ObjectType
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
-            'name' => 'DirectusCollections',
+            'name' => 'DirectusCollectionItem',
             'fields' =>  function () {
                 return [
                     'collection' => Types::string(),
