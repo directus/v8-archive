@@ -77,7 +77,7 @@ class FilesystemFactory
     public static function createAliyunOSSAdapter(Array $config, $rootKey = 'root')
     {
        try {
-            $ossClient = new OssClient($config['OSS_ACCESS_KEY_ID'], $config['OSS_ACCESS_KEY_SECRET'], $config['OSS_ENDPOINT'], false);
+            $ossClient = new OssClient($config['OSS_ACCESS_ID'], $config['OSS_ACCESS_KEY'], $config['OSS_ENDPOINT'], false);
         } catch (OssException $e) {
             $app = Application::getInstance();
             $app->getContainer()->get('logger')->error($e->getMessage());
@@ -85,7 +85,7 @@ class FilesystemFactory
         }
         
         $adapter = new AliyunOssAdapter($ossClient, $config['OSS_BUCKET']);
-        $adapter->setPathPrefix($rootKey);
+        $adapter->setPathPrefix(array_get($config, $rootKey));
 
         $flysystem = new Flysystem($adapter);
         $flysystem->addPlugin(new PutFile());
