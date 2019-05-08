@@ -45,7 +45,8 @@
   },
   "suggest": {
     "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes",
-    "league/flysystem-aws-s3-v3": "Enables the usage of Amazon S3 adapter for storage"
+    "league/flysystem-aws-s3-v3": "Enables the usage of Amazon S3 adapter for storage",
+    "aliyuncs/aliyun-oss-flysystem": "Enables the usage of Aliyun OSS adapter for storage"
   },
   "autoload": {
     "psr-4": {
