@@ -941,7 +941,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function createEntriesMetadata(array $entries, array $list = [])
     {
-        $allKeys = ['result_count', 'total_count', 'status'];
+        $allKeys = ['result_count', 'total_count', 'status', 'paging'];
         $tableSchema = $this->getTableSchema($this->table);
 
         $metadata = [];
@@ -969,6 +969,74 @@ class RelationalTableGateway extends BaseTableGateway
             $metadata['status_count'] = $statusCount;
         }
 
+        if (in_array('paging', $list)) {
+	        $metadata = $this->createMetadataPagination($metadata, $_GET);
+        }
+
+        return $metadata;
+    }
+    
+    /**
+     * Updates Metadata Object with Pagination
+     *
+     * @param $metadata - Existing metadata object
+     * @param $params - GET Parameters
+     *
+     * @return array
+     */
+    public function createMetadataPagination(array $metadata = [], array $params = [])
+    {
+	    // Is there a better way to get the normalized parameters - is it a property of $this?
+	    if (empty($params)) $params = $_GET;
+	    
+	    $filtered = ArrayUtils::get($params, 'filter') || ArrayUtils::get($params, 'q');
+	    
+	    $offset = intval( ArrayUtils::get($params, 'offset', 0) );
+        $limit = intval( ArrayUtils::get($params, 'limit', 0) );
+        $total = ArrayUtils::get($metadata, 'Published') ?: ArrayUtils::get($metadata, 'total_count');
+        $rows = count(ArrayUtils::get($metadata, 'result_count'));
+        $pathname = explode('?', ArrayUtils::get($_SERVER, 'REQUEST_URI'));
+        $url = trim(\Directus\get_url(), '/') . reset($pathname);
+        
+        if (!$rows) return $metadata;
+	    
+	    if ($filtered) {
+		    $filteredparams = array_merge($params, [
+		       "depth" => 0,
+		       "fields" => $this->primaryKeyFieldName,
+		       "limit" => -1
+	        ]);
+	        
+	        $entries = $this->fetchItems($filteredparams);
+	        $total = count($entries);
+	        
+	        $metadata['filter_count'] = $total;
+	    }
+		        
+        $limit = $limit < 1 ? $rows : $limit;
+        $pages = $total ? ceil($total / $limit) : 1;
+        $page = $offset ? floor($offset / $limit) + 1 : 1;
+        $next = $pages > $page ? $offset + $limit : 0;
+        $previous = $page > 0 ? $offset - $limit : $limit * ( $pages - 1 );
+        
+        $previous = $previous < 0 ? null : [
+	        "offset" => $previous,
+	        "link" => "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $previous])) )
+        ];
+        
+        $next = $next < 0 ? null : [
+	        "offset" => $next,
+			"link" => "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $next])) )
+        ];
+	    
+	    $metadata['paging'] = [
+		    "limit" => $limit,
+		    "page" => $page,
+		    "pages" => $pages,
+		    "previous" => $previous,
+		    "next" => $next
+	    ];
+	    
         return $metadata;
     }
 
