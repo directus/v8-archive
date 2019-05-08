@@ -72,6 +72,10 @@ return [
         //   'options' => ['ACL' => 'public-read', 'Cache-Control' => 'max-age=604800']
         // Set custom S3 endpoint
         //   'endpoint' => 's3-endpoint',
+        //   'OSS_ACCESS_ID' => 'aliyun-oss-id',
+        //   'OSS_ACCESS_KEY' => 'aliyun-oss-key',
+        //   'OSS_ENDPOINT' => 'aliyun-oss-endpoint',
+        //   'OSS_BUCKET' => 'aliyun-oss-bucket'
     ],
 
     'mail' => [
