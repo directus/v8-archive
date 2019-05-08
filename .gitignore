@@ -2,6 +2,7 @@ Icon
 .DS_Store
 *.log
 .cache
+.vscode
 
 # Ignore dev files
 /.idea
