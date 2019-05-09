@@ -154,9 +154,7 @@ class TablesService extends AbstractService
             $collectionNames = StringUtils::csv((string) $name);
             $result['data'] = $this->mergeMissingSchemaCollections($collectionNames, $result['data']);
         } catch (ItemNotFoundException $e) {
-            $data = $this->mergeSchemaCollection($name, []);
-
-            $result = $tableGateway->wrapData($data, true, ArrayUtils::get($params, 'meta'));
+            throw $e;
         }
 
         if ($result['data'] === null) {
@@ -1704,5 +1702,12 @@ class TablesService extends AbstractService
         }
 
         return $newParams;
+    }
+
+    public function getFieldObject($collection,$field)
+    {
+        $collectionObject = $this->getSchemaManager()->getCollection($collection);
+        $fieldObject = $collectionObject->getField($field);
+        return $fieldObject;
     }
 }
