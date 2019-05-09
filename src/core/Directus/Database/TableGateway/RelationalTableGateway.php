@@ -1469,9 +1469,21 @@ class RelationalTableGateway extends BaseTableGateway
      */
     protected function processFilter(Builder $query, array $filters = [])
     {
-        $filters = $this->parseDotFilters($query, $filters);
-
-        foreach ($filters as $column => $conditions) {
+        //Logic for blacklisted fields
+        $blackListStatuses = [];
+        foreach($filters as $column => $conditions){
+            $column = explode('.', $column);
+            $column = array_shift($column);
+            $fieldReadBlackListDetails = $this->acl->getStatusesOnReadFieldBlacklist($this->getTable(),$column);
+            if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
+                throw new Exception\ForbiddenFieldAccessException($column);
+            }else if(isset($fieldReadBlackListDetails['statuses']) && !empty ($fieldReadBlackListDetails['statuses'])){
+                $blackListStatuses = array_merge($blackListStatuses,array_values($fieldReadBlackListDetails['statuses']));                
+            }
+        }
+        $filters = $this->parseDotFilters($query, $filters);        
+        
+        foreach ($filters as $column => $conditions) {                        
             if ($conditions instanceof Filter) {
                 $column =  $conditions->getIdentifier();
                 $conditions = $conditions->getValue();
@@ -1484,6 +1496,14 @@ class RelationalTableGateway extends BaseTableGateway
             foreach ($conditions as $condition) {
                 $this->doFilter($query, $column, $condition, $this->getTable());
             }
+        }
+        //Condition for blacklisted statuses
+        if(!empty($blackListStatuses)){
+            $statusCondition = [
+                'nin' => array_unique($blackListStatuses)
+            ];
+            $statusFieldName = SchemaService::getStatusFieldName($this->getTable());
+            $this->doFilter($query, $statusFieldName, $statusCondition, $this->getTable());
         }
     }
 
