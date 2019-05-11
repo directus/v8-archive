@@ -1655,7 +1655,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             //$query->whereIn($this->primaryKeyFieldName, $entriesIds);
-            $query->whereIn(new Expression('CAST('.$this->primaryKeyFieldName.' as CHAR)'), $entriesIds);
+            $query->whereIn(new Expression('CAST(`'.$this->getTable().'`.`'.$this->primaryKeyFieldName.'` as CHAR)'), $entriesIds);
         }
 
         if (!ArrayUtils::has($params, 'q')) {
