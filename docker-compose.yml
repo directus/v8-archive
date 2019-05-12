@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  adminer:
+    depends_on:
+      - db
+    image: adminer
+    labels:
+      traefik.frontend.rule: "Host:adminer.${DIRECTUS_API_FQDN:-api.directus.localhost}"
+      traefik.port: "8080"
+    restart: always
+
+  api:
+    build: .
+    command: ['php', '-S', '0.0.0.0:8000', '-t', '/var/www/html/public']
+    depends_on:
+      - db
+    entrypoint: ['/var/www/html/docker-entrypoint.sh']
+    environment:
+      WAIT_HOSTS: "db:3306"
+      WAIT_HOSTS_TIMEOUT: "180"
+    labels:
+      traefik.frontend.rule: "Host:${DIRECTUS_API_FQDN:-api.directus.localhost}"
+      traefik.port: "8000"
+    volumes:
+      - .:/var/www/html/
+
+  db:
+    environment:
+      MYSQL_DATABASE: ${DIRECTUS_API_DB_NAME:-directus}
+      MYSQL_ROOT_PASSWORD: ${DIRECTUS_API_DB_PASSWORD:-root}
+    image: ${DIRECTUS_API_DB_IMAGE:-mariadb:10.4}
+    volumes:
+      - ./var/db:/var/lib/mysql
+
+  traefik:
+    command: --api --docker
+    image: traefik:1.7
+    labels:
+      traefik.frontend.rule: "Host:traefik.${DIRECTUS_API_FQDN:-api.directus.localhost}"
+      traefik.port: "8080"
+    ports:
+      - ${DIRECTUS_API_TRAEFIK_HOST_PORT:-8080}:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
