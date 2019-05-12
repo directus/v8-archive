@@ -52,7 +52,7 @@ COPY . /var/www/html
 # Install Composer packages
 RUN composer install --prefer-dist --optimize-autoloader
 
-# This entrypoint is used by docker-compose.yml
+# Make Docker Compose entrypoint script executable
 RUN chmod 755 /var/www/html/docker-entrypoint.sh
 
 # Install the wait utility. It is required for the initial Docker Compose run to succeed
