@@ -9,6 +9,9 @@ if [ -f "./.env" ]; then
     . "./.env"
 fi
 
+# Install Composer packages
+composer install
+
 # Configure Directus API
 # https://docs.directus.io/advanced/api/configuration.html#configure-with-script
 bin/directus install:config -n ${DIRECTUS_API_DB_NAME:-directus} -u root -p ${DIRECTUS_API_DB_PASSWORD:-root} -h db -c "${DIRECTUS_API_ENABLE_CORS:-true}"
