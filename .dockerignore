@@ -1,4 +1,5 @@
 .git
+.semaphore-cache
 /logs/*
 /var
 /vendor
