@@ -15,7 +15,6 @@ services:
     command: ['php', '-S', '0.0.0.0:8000', '-t', '/var/www/html/public']
     depends_on:
       - db
-    entrypoint: ['/var/www/html/docker-entrypoint.sh']
     environment:
       WAIT_HOSTS: "db:3306"
       WAIT_HOSTS_TIMEOUT: "180"

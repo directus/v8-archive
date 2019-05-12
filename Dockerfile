@@ -52,9 +52,12 @@ COPY . /var/www/html
 # Install Composer packages
 RUN composer install --prefer-dist --optimize-autoloader
 
-# Make Docker Compose entrypoint script executable
+# Make entrypoint script executable
 RUN chmod 755 /var/www/html/docker-entrypoint.sh
 
 # Install the docker-compose-wait utility. It is required for the initial Docker Compose run to succeed
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /usr/local/bin/docker-compose-wait
 RUN chmod 755 /usr/local/bin/docker-compose-wait
+
+# Define default startup command
+CMD ["/var/www/html/docker-entrypoint.sh"]

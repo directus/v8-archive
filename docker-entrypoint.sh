@@ -18,5 +18,5 @@ bin/directus install:config -n ${DIRECTUS_API_DB_NAME:-directus} -u root -p ${DI
 bin/directus install:database
 bin/directus install:install -e "${DIRECTUS_ADMIN_EMAIL:-admin@directus.localhost}" -p "${DIRECTUS_ADMIN_PASSWORD:-admin}" -t "${DIRECTUS_ADMIN_PASSWORD:-admin}"
 
-# Execute CMD
+# Execute requested command
 exec "$@"
