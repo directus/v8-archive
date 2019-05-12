@@ -59,5 +59,5 @@ RUN chmod 755 /var/www/html/docker-entrypoint.sh
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /usr/local/bin/docker-compose-wait
 RUN chmod 755 /usr/local/bin/docker-compose-wait
 
-# Define default startup command
-CMD ["/var/www/html/docker-entrypoint.sh"]
+# Set custom entrypoint
+ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
