@@ -2,16 +2,22 @@
 
 ## Directus API Docker image
 
-This image is based on the Alpine Linux flavors of the official [PHP Docker images](https://hub.docker.com/_/php). It exposes the Directus API application via PHP-FPM on port 9000.
+This image is based on the Alpine Linux flavors of the official [PHP Docker images](https://hub.docker.com/_/php).
 
 ### Building the image
 
-The image can be built using the regular `docker build` command.
+The image can be built using Docker's [build command](https://docs.docker.com/engine/reference/commandline/build/).
 
 Build's default configuration can be altered using the following build arguments :
 
 - **`PHP_VERSION=7`** : Version de l'image [PHP](https://hub.docker.com/_/php)
 - **`COMPOSER_VERSION=1`** : Version de l'image [Composer](https://hub.docker.com/_/composer)
+
+### Running containers
+
+It is possible to run Directus API containers using the image built previously built using Docker's [run command](https://docs.docker.com/engine/reference/commandline/run/).
+
+Containers expose the Directus API application via the PHP-FPM interface on port 9000.
 
 ## Setting up a development environment
 
