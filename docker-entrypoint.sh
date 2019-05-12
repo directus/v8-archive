@@ -2,7 +2,7 @@
 
 # Wait for database server to be available
 # https://github.com/ufoscout/docker-compose-wait
-/usr/local/bin/wait
+docker-compose-wait
 
 # Source environment
 if [ -f "./.env" ]; then

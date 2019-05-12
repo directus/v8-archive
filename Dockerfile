@@ -56,5 +56,5 @@ RUN composer install --prefer-dist --optimize-autoloader
 RUN chmod 755 /var/www/html/docker-entrypoint.sh
 
 # Install the wait utility. It is required for the initial Docker Compose run to succeed
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /usr/local/bin/wait
-RUN chmod 755 /usr/local/bin/wait
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /usr/local/bin/docker-compose-wait
+RUN chmod 755 /usr/local/bin/docker-compose-wait
