@@ -21,7 +21,7 @@ Default configuration can be altered by tweaking the variables in the [.env](.en
 
 [Docker Compose](https://docs.docker.com/compose/) can be used to setup a local development environment.
 
-Running the command `docker-compose up` from the root of the Directus API directory will setup a working application instance and related tools :
+Running the command `docker-compose up` from the root of the Directus API directory will setup a working application instance :
 
 - <http://api.directus.localhost:8080> : The Directus API application instance root URL
 
