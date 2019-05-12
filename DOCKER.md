@@ -1,21 +1,21 @@
 # Directus API : Docker documentation
 
-## Docker image
+## Directus API Docker image
 
-This image is based on the Alpine Linux flavors the official [PHP Docker images](https://hub.docker.com/_/php). It exposes the Directus API application via PHP-FPM on port 9000.
+This image is based on the Alpine Linux flavors of the official [PHP Docker images](https://hub.docker.com/_/php). It exposes the Directus API application via PHP-FPM on port 9000.
 
 ### Building the image
 
 The image can be built using the regular `docker build` command.
 
-Builds default configuration can be altered using the following build arguments :
+Build's default configuration can be altered using the following build arguments :
 
 - **`PHP_VERSION=7`** : Version de l'image [PHP](https://hub.docker.com/_/php)
 - **`COMPOSER_VERSION=1`** : Version de l'image [Composer](https://hub.docker.com/_/composer)
 
-## Directus API development
+## Setting up a development environment
 
-Default configuration can be altered by tweaking the variables in the [.env](.env) file.
+Environment's default configuration can be altered by tweaking the variables in the [.env](.env) file.
 
 ### Docker Compose
 
