@@ -1,3 +1,8 @@
+#!/bin/sh
+
+# Fail early
+set -e
+
 git subsplit init git@github.com:directus/api.git
 
 # Collection

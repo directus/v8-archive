@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Fail early
+set -e
+
 #
 # Command line runner for unit tests for composer projects
 # (c) Del 2015 http://www.babel.com.au/
@@ -22,4 +25,3 @@ if [ -d documents/coverage-html-new ]; then
   rm -rf documents/coverage-html
   mv documents/coverage-html-new documents/coverage-html
 fi
-
