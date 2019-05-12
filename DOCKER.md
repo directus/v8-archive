@@ -33,10 +33,24 @@ Running the command `docker-compose up` from the root of the Directus API direct
 
 ### Database
 
-It can be managed using the [Adminer](https://www.adminer.org/) instance available at <http://adminer.api.directus.localhost:8080>.
+A dedicated database is created when `docker-compose up` is called for the first time.
+
+Data can be queried and manipulated using the [Adminer](https://www.adminer.org/) instance available at <http://adminer.api.directus.localhost:8080>.
 
 Database data is persisted in the `var/db` directory.
 
 ### Router
 
 [Traefik](https://traefik.io/) Router dashboard is available at <http://traefik.api.directus.localhost:8080>.
+
+## Resetting a development environment
+
+The following commands will reset a development environment to its initial state by **erasing all data and custom configuration** :
+
+```sh
+docker-compose rm -f
+docker rmi -f directus-api_api
+sudo rm -rf var/db
+rm -rf config/api.php
+docker-compose up
+```
