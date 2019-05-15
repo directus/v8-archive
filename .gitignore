@@ -58,3 +58,4 @@ composer.lock
 /docs/
 /tests/*
 /var/db
+/.env
