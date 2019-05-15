@@ -1174,7 +1174,7 @@ class TablesService extends AbstractService
         /** @var Emitter $hookEmitter */
         $hookEmitter = $this->container->get('hook_emitter');
         $hookEmitter->run('collection.create:before', $name);
-        $charset = $this->container->get('config')->get('database.charset','utf8mb4');
+        $charset = $this->container->get('config')->get('database.charset');
         $result = $schemaFactory->buildTable($table,$charset);
 
         return $result ? true : false;
