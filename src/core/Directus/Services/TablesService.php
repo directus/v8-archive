@@ -1683,7 +1683,7 @@ class TablesService extends AbstractService
             foreach ($sort as $field) {
                 $field = (string)$field;
                 if (!$collection->hasField($field)) {
-                    throw new InvalidFieldException($field);
+                    throw new InvalidFieldException($field, $collection->getName());
                 }
             }
         }
