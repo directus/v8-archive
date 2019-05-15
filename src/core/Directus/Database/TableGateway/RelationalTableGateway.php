@@ -1352,7 +1352,7 @@ class RelationalTableGateway extends BaseTableGateway
         );
 
         if (!$field) {
-            throw new Exception\InvalidFieldException($fieldName);
+            throw new Exception\InvalidFieldException($fieldName, $table);
         }
 
         $condition = $this->parseCondition($condition);
@@ -1641,7 +1641,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $field = SchemaService::getField($this->table, $orderBy, false, $this->acl === null);
             if ($orderBy !== '?' && !$field) {
-                throw new Exception\InvalidFieldException($column);
+                throw new Exception\InvalidFieldException($column, $this->table);
             }
 
             if ($field && $field->isAlias()) {
@@ -2102,7 +2102,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         foreach ($selectedFields as $field) {
             if (!$collection->hasField($field)) {
-                throw new Exception\InvalidFieldException($field);
+                throw new Exception\InvalidFieldException($field, $collection->getName());
             }
         }
     }
