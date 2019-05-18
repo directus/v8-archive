@@ -41,7 +41,8 @@
     "ext-gd": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^5.7.25"
+    "phpunit/phpunit": "^5.7.25",
+    "phpbench/phpbench": "@dev"
   },
   "suggest": {
     "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes",
