@@ -113,6 +113,22 @@ return [
         'filters' => [],
     ],
 
+    'tasks' => [
+        'namespace' => '\\Directus\\Customs\\Tasks',
+        // base path
+        'path' => 'public/extensions/custom/tasks',
+        'queues' => [
+            // the queue name
+            'default' => [
+                // task_name => Class target which implements TaskInterface
+                // 'HelloWorld' => 'default/Greeting',
+            ],
+            // 'report' => [
+            //     'General' => 'GenerateGeneralReport',
+            // ],
+        ],
+    ],
+
     'feedback' => [
         'token' => 'a-kind-of-unique-token',
         'login' => true
