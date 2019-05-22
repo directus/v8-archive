@@ -222,14 +222,14 @@ class SchemaFactory
      *
      * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
      */
-    public function buildTable(AbstractSql $table)
+    public function buildTable(AbstractSql $table,$charset="")
     {
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
 
         //WORKAROUND ZendDB doesn't know anything about PostgreSQL for instance, we might need to override some of the table specifications depending on the RDBMS used
         //We monkey-path Zend-DB behaviour here and not through its own source repository with a decorator
-        $sqlFixed = $this->schemaManager->getSource()->buildSql($table, $sql);
+        $sqlFixed = $this->schemaManager->getSource()->buildSql($table, $sql, $charset);
         // TODO: Allow charset and comment
         return $connection->query(
             $sqlFixed,

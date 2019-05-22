@@ -214,10 +214,11 @@ abstract class AbstractSchema implements SchemaInterface
      *
      * @param AbstractSql|AlterTable|CreateTable $table
      * @param Sql $sql
+     * @param String $charset
      *
      * @return String
      */
-    public function buildSql($table, $sql)
+    public function buildSql($table, $sql, $charset)
     {
         //Do nothing
         return $sql->buildSqlString($table);

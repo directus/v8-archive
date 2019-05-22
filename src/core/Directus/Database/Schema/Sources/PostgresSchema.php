@@ -904,10 +904,11 @@ class PostgresSchema extends AbstractSchema
      *
      * @param AbstractSql|AlterTable|CreateTable|DropTable $table
      * @param Sql $sql
+     * @param String $charset
      *
      * @return String
      */
-    public function buildSql($table, $sql)
+    public function buildSql($table, $sql, $charset)
     {
         if ($table instanceof AlterTable) {
             //Zend-Db Specifications are protected :(
@@ -942,7 +943,7 @@ class PostgresSchema extends AbstractSchema
             };
             $sealBreaker->call($table);
         }
-        return parent::buildSql($table, $sql);
+        return parent::buildSql($table, $sql, $charset);
     }
 
     /**

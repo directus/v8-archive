@@ -1121,7 +1121,6 @@ class RelationalTableGateway extends BaseTableGateway
         if (ArrayUtils::get($params, 'single')) {
             $results = reset($results);
         }
-
         return $results ? $results : [];
     }
 
@@ -1202,7 +1201,7 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
-            $columnList = $columns = explode('.', $column);
+            $columnList = $filterColumns = explode('.', $column);
             $columnsTable = [
                 $this->getTable()
             ];
@@ -1210,11 +1209,13 @@ class RelationalTableGateway extends BaseTableGateway
             $nextColumn = array_shift($columnList);
             $nextTable = $this->getTable();
             $relational = SchemaService::hasRelationship($nextTable, $nextColumn);
-
+            $relationalTables = [];
             while ($relational) {
+                $relationalTables[$nextColumn] = $nextTable;
                 $nextTable = SchemaService::getRelatedCollectionName($nextTable, $nextColumn);
                 $nextColumn = array_shift($columnList);
-
+                if(empty($nextColumn))
+                    break;
                 // Confirm the user has permission to all chained (dot) fields
                 if ($this->acl && !$this->acl->canRead($nextTable)) {
                     throw new Exception\ForbiddenFieldAccessException($nextColumn);
@@ -1223,7 +1224,7 @@ class RelationalTableGateway extends BaseTableGateway
                 $relational = SchemaService::hasRelationship($nextTable, $nextColumn);
                 $columnsTable[] = $nextTable;
             }
-
+            
             // if one of the column in the list has not relationship
             // it will break the loop before going over all the columns
             // which we will call this as column not found
@@ -1234,7 +1235,23 @@ class RelationalTableGateway extends BaseTableGateway
 
             // Remove the original filter column with dot-notation
             unset($filters[$column]);
-
+            
+            //Prepare relational data for all the fields
+            $columnRelationalData = [];
+            foreach($filterColumns as $filterColumn){
+                if(isset($relationalTables[$filterColumn])){
+                    $collection = $this->getTableSchema($relationalTables[$filterColumn]);
+                    $fieldRelation = $collection->getField($filterColumn)->getRelationship();
+                    $columnRelationalData[$filterColumn] = [
+                        "type" => $fieldRelation->getType(),
+                        "collection_many" => $fieldRelation->getCollectionMany(),
+                        "field_many" => $fieldRelation->getFieldMany(),
+                        "collection_one" => $fieldRelation->getCollectionOne(),
+                        "field_one" => $fieldRelation->getFieldOne()
+                    ];
+                }
+            }
+            
             // Reverse all the columns from comments.author.id to id.author.comments
             // To filter from the most deep relationship to their parents
             $columns = explode('.', \Directus\column_identifier_reverse($column));
@@ -1250,11 +1267,23 @@ class RelationalTableGateway extends BaseTableGateway
 
             $query = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
             $mainTableObject = $this->getTableSchema($table);
-            $query->columns([$mainTableObject->getPrimaryField()->getName()]);
+            $selectColumn = $mainTableObject->getPrimaryField()->getName();
+            
+            //check if column type is alias and relationship is O2M
+            $previousRelation = isset($filterColumns[array_search($column, $filterColumns)-1])?$filterColumns[array_search($column, $filterColumns)-1]:'';
+            if ($previousRelation && $columnRelationalData[$previousRelation]['type'] == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {                
+                $selectColumn = $columnRelationalData[$previousRelation]['field_many'];
+            }
+            
+            //get last relationship
+            if ($mainColumn && !empty($mainColumn) && $columnRelationalData[$mainColumn]['type'] == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {
+                $mainColumn = $mainTableObject->getPrimaryField()->getName();
+            }
+            $query->columns([$selectColumn]);
+            
             $query->from($table);
 
             $this->doFilter($query, $column, $condition, $table);
-
             $index = 0;
             foreach ($columns as $key => $column) {
                 ++$index;
@@ -1265,6 +1294,11 @@ class RelationalTableGateway extends BaseTableGateway
                 $field = $collection->getField($column);
 
                 $selectColumn = $collection->getPrimaryField()->getName();
+                //check if column type is alias and relationship is O2M
+                $previousRelation = isset($filterColumns[array_search($column, $filterColumns)-1])?$filterColumns[array_search($column, $filterColumns)-1]:'';
+                if ($previousRelation && $columnRelationalData[$previousRelation]['type'] == \Directus\Database\Schema\Object\FieldRelationship::ONE_TO_MANY) {
+                    $selectColumn = $columnRelationalData[$previousRelation]['field_many'];
+                }
                 $table = $columnsTable[$key];
 
                 if ($field->isAlias()) {
@@ -1283,7 +1317,7 @@ class RelationalTableGateway extends BaseTableGateway
             // TODO: Make all this whereIn duplication into a function
             // TODO: Can we make the O2M simpler getting the parent id from itself
             //       right now is creating one unnecessary select
-            if ($field->isOneToMany()) {
+            /*if ($field->isOneToMany()) {
                 $mainColumn = $collection->getPrimaryField()->getName();
                 $oldQuery = $query;
                 $query = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
@@ -1296,7 +1330,7 @@ class RelationalTableGateway extends BaseTableGateway
                     $column,
                     $oldQuery
                 );
-            }
+            }*/
 
             $this->doFilter(
                 $mainQuery,
@@ -1322,7 +1356,7 @@ class RelationalTableGateway extends BaseTableGateway
         );
 
         if (!$field) {
-            throw new Exception\InvalidFieldException($fieldName);
+            throw new Exception\InvalidFieldException($fieldName, $table);
         }
 
         $condition = $this->parseCondition($condition);
@@ -1473,9 +1507,21 @@ class RelationalTableGateway extends BaseTableGateway
      */
     protected function processFilter(Builder $query, array $filters = [])
     {
-        $filters = $this->parseDotFilters($query, $filters);
-
-        foreach ($filters as $column => $conditions) {
+        //Logic for blacklisted fields
+        $blackListStatuses = [];
+        foreach($filters as $column => $conditions){
+            $column = explode('.', $column);
+            $column = array_shift($column);
+            $fieldReadBlackListDetails = $this->acl->getStatusesOnReadFieldBlacklist($this->getTable(),$column);
+            if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
+                throw new Exception\ForbiddenFieldAccessException($column);
+            }else if(isset($fieldReadBlackListDetails['statuses']) && !empty ($fieldReadBlackListDetails['statuses'])){
+                $blackListStatuses = array_merge($blackListStatuses,array_values($fieldReadBlackListDetails['statuses']));                
+            }
+        }
+        $filters = $this->parseDotFilters($query, $filters);        
+        
+        foreach ($filters as $column => $conditions) {                        
             if ($conditions instanceof Filter) {
                 $column =  $conditions->getIdentifier();
                 $conditions = $conditions->getValue();
@@ -1488,6 +1534,14 @@ class RelationalTableGateway extends BaseTableGateway
             foreach ($conditions as $condition) {
                 $this->doFilter($query, $column, $condition, $this->getTable());
             }
+        }
+        //Condition for blacklisted statuses
+        if(!empty($blackListStatuses)){
+            $statusCondition = [
+                'nin' => array_unique($blackListStatuses)
+            ];
+            $statusFieldName = SchemaService::getStatusFieldName($this->getTable());
+            $this->doFilter($query, $statusFieldName, $statusCondition, $this->getTable());
         }
     }
 
@@ -1591,7 +1645,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $field = SchemaService::getField($this->table, $orderBy, false, $this->acl === null);
             if ($orderBy !== '?' && !$field) {
-                throw new Exception\InvalidFieldException($column);
+                throw new Exception\InvalidFieldException($column, $this->table);
             }
 
             if ($field && $field->isAlias()) {
@@ -1658,8 +1712,9 @@ class RelationalTableGateway extends BaseTableGateway
                 $entriesIds = [$entriesIds];
             }
 
-            //$query->whereIn($this->primaryKeyFieldName, $entriesIds);
-            $query->whereIn(new Expression('CAST('.$this->primaryKeyFieldName.' as CHAR)'), $entriesIds);
+            $query->whereIn($this->primaryKeyFieldName, $entriesIds);
+            //TODO add the following change to MySQL only as-is; must be transformed for other RDBMS
+            //$query->whereIn(new Expression('CAST(`'.$this->getTable().'`.`'.$this->primaryKeyFieldName.'` as CHAR)'), $entriesIds);
         }
 
         if (!ArrayUtils::has($params, 'q')) {
@@ -1669,7 +1724,8 @@ class RelationalTableGateway extends BaseTableGateway
                 $columns = SchemaService::getAllNonAliasCollectionFields($this->getTable());
                 $query->nestWhere(function (Builder $query) use ($columns, $search) {
                     foreach ($columns as $column) {
-                        if ($column->getType() === 'VARCHAR' || $column->getType()) {
+                        //TODO check if still O.K. for MySQL
+                        if (DataTypes::isStringType($column->getType()) || $column->getType()) {
                             $query->whereLike($column->getName(), $search);
                         }
                     }
@@ -2052,7 +2108,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         foreach ($selectedFields as $field) {
             if (!$collection->hasField($field)) {
-                throw new Exception\InvalidFieldException($field);
+                throw new Exception\InvalidFieldException($field, $collection->getName());
             }
         }
     }
