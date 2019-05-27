@@ -651,6 +651,13 @@ class RelationalTableGateway extends BaseTableGateway
             $foreignTableName = $relationship->getCollectionMany();
             $foreignJoinColumn = $relationship->getFieldMany();
 
+            // If directus_user_roles is joined, stop relational update here.
+            if (in_array($foreignTableName, ['directus_user_roles'])) {
+                // Once they're managed, remove the foreign collections from the record array
+                unset($parentRow[$fieldName]);
+                continue;
+            }
+
             $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
             foreach ($foreignDataSet as &$foreignRecord) {
                 if (empty($foreignRecord)) {
