@@ -76,12 +76,6 @@ class TablesService extends AbstractService
 
     public function findAllFieldsByCollection($collectionName, array $params = [])
     {
-        if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Permission denied');
-        }
-
-        // $this->tagResponseCache('tableColumnsSchema_'.$tableName);
-
         $this->validate(['collection' => $collectionName], ['collection' => 'required|string']);
 
         /** @var SchemaManager $schemaManager */
