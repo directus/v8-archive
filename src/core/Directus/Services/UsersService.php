@@ -217,7 +217,7 @@ class UsersService extends AbstractService
             $datetime = DateTimeUtils::nowInUTC();
             $invitationToken = $auth->generateInvitationToken([
                 'date' => $datetime->toString(),
-                'exp' => $datetime->inDays(30)->toString(),
+                'exp' => $datetime->inDays(30)->getTimestamp(),
                 'email' => $email,
                 'sender' => $this->getAcl()->getUserId()
             ]);
