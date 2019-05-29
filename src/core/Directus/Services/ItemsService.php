@@ -101,6 +101,8 @@ class ItemsService extends AbstractService
         $ids = StringUtils::safeCvs($ids, false, false);
 
         try {
+            // if acl check is disabled (e.g. fetching the logo from the settings endpoint/service) do not
+            // enforce permissions here!
             if (false !== $acl) {
                 $this->getAcl()->enforceRead($collection, $statusValue);
             }
