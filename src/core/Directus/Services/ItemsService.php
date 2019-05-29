@@ -101,7 +101,9 @@ class ItemsService extends AbstractService
         $ids = StringUtils::safeCvs($ids, false, false);
 
         try {
-            $this->getAcl()->enforceRead($collection, $statusValue);
+            if (false !== $acl) {
+                $this->getAcl()->enforceRead($collection, $statusValue);
+            }
         } catch (ForbiddenCollectionReadException $e) {
             if (is_array($ids) && count($ids) > 1) {
                 throw $e;
