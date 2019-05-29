@@ -25,7 +25,7 @@ class Users extends Route
         $app->post('', [$this, 'create']);
         $app->get('/{id}', [$this, 'read']);
         $app->post('/invite', [$this, 'invite']);
-        $app->post('/invite/{token}', [$this, 'acceptInvitation']);
+        $app->map(['GET', 'POST'], '/invite/{token}', [$this, 'acceptInvitation']);
         $app->patch('/{id}', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
 
