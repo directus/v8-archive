@@ -207,11 +207,9 @@ class Users extends Route
      */
     public function acceptInvitation(Request $request, Response $response)
     {
-        $this->validateRequestPayload($request);
-
         $service = new UsersService($this->container);
         $responseData = $service->enableUserWithInvitation(
-            $request->getParsedBodyParam('token')
+            $request->getAttribute('token')
         );
 
         return $this->responseWithData($request, $response, $responseData);
