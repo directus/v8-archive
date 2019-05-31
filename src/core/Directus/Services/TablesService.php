@@ -112,6 +112,8 @@ class TablesService extends AbstractService
 
     public function findAllFields(array $params = [])
     {
+        $this->getAcl()->enforceReadOnce('directus_fields');
+        
         /** @var SchemaManager $schemaManager */
         $schemaManager = $this->container->get('schema_manager');
 
@@ -181,7 +183,7 @@ class TablesService extends AbstractService
 
     public function findField($collection, $field, array $params = [])
     {
-        
+        $this->getAcl()->enforceReadOnce('directus_fields');
         $this->getAcl()->enforceReadOnce($collection);        
         $fieldReadBlackListDetails = $this->getAcl()->getStatusesOnReadFieldBlacklist($collection,$field);
         if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
@@ -239,6 +241,7 @@ class TablesService extends AbstractService
 
     public function findFields($collectionName, array $fieldsName, array $params = [])
     {
+        $this->getAcl()->enforceReadOnce('directus_fields');
         $this->getAcl()->enforceReadOnce($collectionName);
         foreach($fieldsName as $field){
             $fieldReadBlackListDetails = $this->getAcl()->getStatusesOnReadFieldBlacklist($collectionName,$field);
