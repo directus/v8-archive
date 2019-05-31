@@ -1020,7 +1020,11 @@ class RelationalTableGateway extends BaseTableGateway
         $builder->orderBy($this->primaryKeyFieldName);
 
         try {
-            $this->enforceReadPermission($builder);
+            $this->enforceReadPermission($builder);            
+        
+            //If collection is directus_fields, also check permission of actual collection of which fields are retrieving        
+            if($this->getTable() == SchemaManager::COLLECTION_FIELDS && ArrayUtils::has($params['filter'], 'collection'))
+                $this->acl->enforceReadOnce(ArrayUtils::get($params['filter'], 'collection'));
         } catch (PermissionException $e) {
             $isForbiddenRead = $e instanceof ForbiddenCollectionReadException;
             $isUnableFindItems = $e instanceof UnableFindOwnerItemsException;
