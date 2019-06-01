@@ -941,7 +941,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function createEntriesMetadata(array $entries, array $list = [])
     {
-        $allKeys = ['result_count', 'total_count', 'status', 'paging'];
+        $allKeys = ['result_count', 'total_count', 'status', 'page'];
         $tableSchema = $this->getTableSchema($this->table);
 
         $metadata = [];
@@ -969,7 +969,7 @@ class RelationalTableGateway extends BaseTableGateway
             $metadata['status_count'] = $statusCount;
         }
 
-        if (in_array('paging', $list)) {
+        if (in_array('page', $list)) {
 	        $metadata = $this->createMetadataPagination($metadata, $_GET);
         }
 
@@ -986,19 +986,19 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function createMetadataPagination(array $metadata = [], array $params = [])
     {
-	    // Is there a better way to get the normalized parameters - is it a property of $this?
 	    if (empty($params)) $params = $_GET;
 	    
 	    $filtered = ArrayUtils::get($params, 'filter') || ArrayUtils::get($params, 'q');
 	    
-	    $offset = intval( ArrayUtils::get($params, 'offset', 0) );
         $limit = intval( ArrayUtils::get($params, 'limit', 0) );
+        $page = intval( ArrayUtils::get($params, 'page', 0) );            
+        
         $total = ArrayUtils::get($metadata, 'Published') ?: ArrayUtils::get($metadata, 'total_count');
         $rows = count(ArrayUtils::get($metadata, 'result_count'));
         $pathname = explode('?', ArrayUtils::get($_SERVER, 'REQUEST_URI'));
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
         
-        if (!$rows) return $metadata;
+        if (!$rows || !$total) return $metadata;
 	    
 	    if ($filtered) {
 		    $filteredparams = array_merge($params, [
@@ -1014,28 +1014,27 @@ class RelationalTableGateway extends BaseTableGateway
 	    }
 		        
         $limit = $limit < 1 ? $rows : $limit;
+        $offset = intval( ArrayUtils::get($params, 'offset', ( $page * $limit )) );
+        
         $pages = $total ? ceil($total / $limit) : 1;
         $page = $offset ? floor($offset / $limit) + 1 : 1;
         $next = $pages > $page ? $offset + $limit : 0;
         $previous = $page > 0 ? $offset - $limit : $limit * ( $pages - 1 );
-        
-        $previous = $previous < 0 ? null : [
-	        "offset" => $previous,
-	        "link" => "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $previous])) )
-        ];
-        
-        $next = $next < 0 ? null : [
-	        "offset" => $next,
-			"link" => "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $next])) )
-        ];
 	    
-	    $metadata['paging'] = [
+	    $metadata = array_merge($metadata, [
 		    "limit" => $limit,
+		    "offset" => $offset,
 		    "page" => $page,
-		    "pages" => $pages,
-		    "previous" => $previous,
-		    "next" => $next
-	    ];
+		    "page_count" => $pages,
+		    "links" => [
+			    "self" => $url,
+			    "current" => "{$url}?" . urldecode( http_build_query($params)), 
+			    "first" => $limit < 1 ? null : "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $limit, "page" => 1])) ), 
+			    "last" => $limit < 1 ? null : "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => ($pages - 1) * $limit, "page" => $pages])) ), 
+			    "next" => $next < 0 ? null : "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $next, "page" => ($next / $limit) + 1])) ),
+			    "previous" => $previous < 0 ? null : "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $previous, "page" => ($next / $limit) - 1])) )
+		    ]
+	    ]);
 	    
         return $metadata;
     }
