@@ -473,8 +473,12 @@ abstract class AbstractService
     }
 
     /**
+     * To validate the length of input with the DB.
+     * 
      * @param array $field
      * @param string $value
+     * 
+     * @throws UnprocessableEntityException
      */
     protected function validateFieldLength($field, $value)
     {
@@ -493,9 +497,9 @@ abstract class AbstractService
                 );
             }
         }else{
-            if($field['length'] < strlen($value) ){
+            if(!is_null($field['length']) && $field['length'] < strlen($value) ){
                 throw new UnprocessableEntityException(
-                    sprintf("The value submitted (%s) for '%s' is longer than the field's supported length (%s). Please submit a shorter value or ask an Admin to increase the length.",$value,$field->getFormatisedName(),$field->getLength())
+                    sprintf("The value submitted (%s) for '%s' is longer than the field's supported length (%s). Please submit a shorter value or ask an Admin to increase the length.",$value,$field->getFormatisedName(),$field['length'])
                 );
             }
         }
