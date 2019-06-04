@@ -446,6 +446,8 @@ abstract class AbstractService
                 continue;
             }
 
+            $this->validateFieldLength($field, $value);
+            
             if ($validation = $field->getValidation()) {
                 $isCustomValidation = \Directus\is_custom_validation($validation);
 
@@ -468,6 +470,35 @@ abstract class AbstractService
         }
 
         $this->throwErrorIfAny($violations);
+    }
+
+    /**
+     * @param array $field
+     * @param string $value
+     */
+    protected function validateFieldLength($field, $value)
+    {
+        if($field->getType() == "decimal"){
+            $precision = $field->getPrecision();
+            $scale = $field->getScale();
+            $number = $precision - $scale;
+            $input = explode(".",$value);
+            $inputLengthScale = isset($input[1]) ? strlen($input[1]) : 0;
+            $inputLengthNumber = isset($input[0]) ? strlen($input[0]) : 0;
+            $inputLengthPrecision = $inputLengthScale+$inputLengthNumber;
+
+            if($inputLengthNumber > $number || $inputLengthScale > $scale){
+                throw new UnprocessableEntityException(
+                    sprintf("The value submitted (%s) for '%s' is longer than the field's supported length (%s). Please submit a shorter value or ask an Admin to increase the length.",$value,$field->getFormatisedName(),$field['length'])
+                );
+            }
+        }else{
+            if($field['length'] < strlen($value) ){
+                throw new UnprocessableEntityException(
+                    sprintf("The value submitted (%s) for '%s' is longer than the field's supported length (%s). Please submit a shorter value or ask an Admin to increase the length.",$value,$field->getFormatisedName(),$field->getLength())
+                );
+            }
+        }
     }
 
     /**
