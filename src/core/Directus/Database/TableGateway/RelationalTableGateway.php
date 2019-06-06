@@ -994,7 +994,7 @@ class RelationalTableGateway extends BaseTableGateway
         $page = intval( ArrayUtils::get($params, 'page', 1) ); 
         $offset = intval( ArrayUtils::get($params, 'offset', -1) );            
         
-        $total = ArrayUtils::get($metadata, 'Published') ?: ArrayUtils::get($metadata, 'total_count');
+        $total = intval(ArrayUtils::get($metadata, 'Published') ?: ArrayUtils::get($metadata, 'total_count'));
         $rows = intval(ArrayUtils::get($metadata, 'result_count'));
         $pathname = explode('?', ArrayUtils::get($_SERVER, 'REQUEST_URI'));
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
@@ -1034,8 +1034,8 @@ class RelationalTableGateway extends BaseTableGateway
 		    "links" => [
 			    "self" => $url,
 			    "current" => "{$url}?" . urldecode( http_build_query(array_merge($params, ["page" => $page]))), 
-			    "next" => $next > 0 ? ( "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $next, "page" => ($next / $limit) + 1])) ) ) : null, 
-			    "previous" => $previous >= 0 ? ( "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $previous, "page" => ($next / $limit) - 1])) ) ) : null,
+			    "next" => $next > 0 && $page < $pages ? ( "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $next, "page" => $page + 1])) ) ) : null, 
+			    "previous" => $previous >= 0 && $page > 1 ? ( "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $previous, "page" => $page - 1])) ) ) : null,
 			    "first" => $first >= 0 ? ( "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $first, "page" => 1])) ) ) : null, 
 			    "last" => $last > 0 ? ( "{$url}?" . urldecode( http_build_query(array_merge($params, ["offset" => $last, "page" => $pages])) ) ) : null
 		    ]
