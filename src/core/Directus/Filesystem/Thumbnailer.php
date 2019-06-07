@@ -270,7 +270,7 @@ class Thumbnailer {
         }
 
         if($format !== NULL && strtolower($ext) !== strtolower($format)) {
-            $thumbnailParams['thumbnailFileName'] = $filename . '.' . 'webp';
+            $thumbnailParams['thumbnailFileName'] = $filename . '.' . $format;
         } else {
             $thumbnailParams['thumbnailFileName'] = $filename;
         }
