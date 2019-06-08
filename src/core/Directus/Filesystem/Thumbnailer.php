@@ -269,7 +269,15 @@ class Thumbnailer {
             throw new Exception('Invalid file format.');
         }
 
-        if($format !== NULL && strtolower($ext) !== strtolower($format)) {
+        // Check format against image extension
+        if(
+            $format !== NULL &&
+            strtolower($ext) !== strtolower($format) &&
+            !(
+                (strtolower($format) === 'jpeg' || strtolower($format) === 'jpg') &&
+                (strtolower($ext) === 'jpeg' || strtolower($ext) === 'jpg')
+            )
+        ) {
             $thumbnailParams['thumbnailFileName'] = $filename . '.' . $format;
         } else {
             $thumbnailParams['thumbnailFileName'] = $filename;
