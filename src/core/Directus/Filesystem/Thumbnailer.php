@@ -263,7 +263,7 @@ class Thumbnailer {
         // Set thumbnail filename parameters
         $thumbnailParams['fileExt'] = $ext;
         $thumbnailParams['fileName'] = $filename;
-        $format = ArrayUtils::get($this->params, 'format') ?: $ext;
+        $format = strtolower(ArrayUtils::get($this->params, 'format') ?: $ext);
 
         if (! $this->isSupportedFileExtension($format)) {
             throw new Exception('Invalid file format.');
@@ -272,9 +272,9 @@ class Thumbnailer {
         // Check format against image extension
         if(
             $format !== NULL &&
-            strtolower($ext) !== strtolower($format) &&
+            strtolower($ext) !== $format &&
             !(
-                (strtolower($format) === 'jpeg' || strtolower($format) === 'jpg') &&
+                ($format === 'jpeg' || $format === 'jpg') &&
                 (strtolower($ext) === 'jpeg' || strtolower($ext) === 'jpg')
             )
         ) {
