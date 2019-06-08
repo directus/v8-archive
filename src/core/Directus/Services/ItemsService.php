@@ -11,6 +11,7 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
+use Directus\Database\SchemaService;
 
 class ItemsService extends AbstractService
 {
@@ -24,7 +25,42 @@ class ItemsService extends AbstractService
     {
         $this->enforceCreatePermissions($collection, $payload, $params);
         $this->validatePayload($collection, null, $payload, $params);
-
+        
+        //Validate nested payload
+        $tableSchema = SchemaService::getCollection($collection);
+        $collectionAliasColumns = $tableSchema->getAliasFields();
+        
+        foreach ($collectionAliasColumns as $aliasColumnDetails) {
+            $colName = $aliasColumnDetails->getName();
+            $relationalCollectionName = "";
+            
+            if($aliasColumnDetails->isManyToMany()){
+                $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
+                
+                if($relationalCollectionName && isset($payload[$colName])){
+                    foreach($payload[$colName] as $individual){     
+                        if(!isset($individual['$delete'])){                        
+                            $validatePayload = $individual[$aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField()];
+                            $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
+                        }
+                    }
+                }                
+            }else{
+                if($aliasColumnDetails->isOneToMany()){
+                    $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionMany();
+                }else if($aliasColumnDetails->isManyToOne()){
+                    $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionOne();
+                }
+                if($relationalCollectionName && isset($payload[$colName])){
+                    foreach($payload[$colName] as $individual){     
+                        if(!isset($individual['$delete'])){                        
+                            $this->validatePayload($relationalCollectionName, null, $individual,$params,$collection);
+                        }
+                    }
+                }
+            }            
+        }
+        
         $tableGateway = $this->createTableGateway($collection);
         $newRecord = $tableGateway->createRecord($payload, $this->getCRUDParams($params));
 
@@ -152,6 +188,42 @@ class ItemsService extends AbstractService
     {
         $this->enforceUpdatePermissions($collection, $payload, $params);
         $this->validatePayload($collection, array_keys($payload), $payload, $params);
+          
+        //Validate alias field payload
+        $tableSchema = SchemaService::getCollection($collection);
+        $collectionAliasColumns = $tableSchema->getAliasFields();
+        
+        foreach ($collectionAliasColumns as $aliasColumnDetails) {
+            $colName = $aliasColumnDetails->getName();
+            $relationalCollectionName = "";
+            
+            if($aliasColumnDetails->isManyToMany()){
+                $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
+                
+                if($relationalCollectionName && isset($payload[$colName])){
+                    foreach($payload[$colName] as $individual){     
+                        if(!isset($individual['$delete'])){                        
+                            $validatePayload = $individual[$aliasColumnDetails->getRelationship()->getJunctionOtherField()];
+                            $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
+                        }
+                    }
+                }                
+            }else{
+                if($aliasColumnDetails->isOneToMany()){
+                    $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionMany();
+                }else if($aliasColumnDetails->isManyToOne()){
+                    $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionOne();
+                }
+                if($relationalCollectionName && isset($payload[$colName])){
+                    foreach($payload[$colName] as $individual){     
+                        if(!isset($individual['$delete'])){                        
+                            $this->validatePayload($relationalCollectionName, null, $individual,$params,$collection);
+                        }
+                    }
+                }
+            }            
+        }
+        
         $this->checkItemExists($collection, $id);
 
         $tableGateway = $this->createTableGateway($collection);
