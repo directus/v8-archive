@@ -758,7 +758,7 @@ class TablesService extends AbstractService
 
         if ($columnObject->isManaged()) {
             /**
-             * Remove O2M field if M2O interface deleted as O2M will only work if M2O exist and delete the junction table if M2M field deleted
+             * Remove O2M field if M2O interface deleted as O2M will only work if M2O exist
              */
             $this->removeRelatedColumnInfo($columnObject);
 
