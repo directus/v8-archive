@@ -775,13 +775,9 @@ class TablesService extends AbstractService
     public function removeRelatedColumnInfo(Field $field)
     {
         $relationship = $field->getRelationship();
-        switch ($field->getInterface()) {
-            case "many-to-one":
-                $this->removeColumnInfo($relationship->getCollectionOne(), $relationship->getFieldOne());
-                break;
-            case "many-to-many":
-                $this->dropTable($relationship->getCollectionMany());
-                break;
+
+        if ($field->getName() === $relationship->getFieldMany() && !is_null($relationship->getFieldOne())) {
+            $this->removeColumnInfo($relationship->getCollectionOne(), $relationship->getFieldOne());
         }
     }
     /**
@@ -929,7 +925,7 @@ class TablesService extends AbstractService
     {
         $relationship = $field->getRelationship();
 
-        return ($field->getInterface() == "many-to-one" || $field->getInterface() == "many-to-many");
+        return ($field->getName() === $relationship->getFieldMany());
     }
 
     /**
@@ -942,34 +938,8 @@ class TablesService extends AbstractService
     protected function removeRelationshipRecord(Field $field)
     {
         $tableGateway = $this->getRelationsTableGateway();
-
-        /**
-         * If M2M field deleted then the relations table will have 2 entries with both the tables so need to remove the other one too.
-         */
-        if ($field->getInterface() == "many-to-many") {
-            $junctionConditions = $this->getRemoveJunctionRelationshipConditions($field);
-            $tableGateway->delete($junctionConditions);
-        }
-
         $conditions = $this->getRemoveRelationshipConditions($field);
-
         return $tableGateway->delete($conditions['values']);
-    }
-
-    /**
-     * Get the condition for remove the junction field from relation table
-     *
-     * @param Field $field
-     *
-     * @return int
-     */
-    protected function getRemoveJunctionRelationshipConditions(Field $field)
-    {
-        $relationship = $field->getRelationship();
-        return [
-            'junction_field' => $relationship->getFieldMany(),
-            'collection_many' => $relationship->getCollectionMany(),
-        ];
     }
 
     /**
@@ -982,13 +952,35 @@ class TablesService extends AbstractService
     protected function removeRelationshipFromRecord(Field $field)
     {
         $tableGateway = $this->getRelationsTableGateway();
+
+        $relationship = $field->getRelationship();
+
+        /**
+         * Remove the junction fields
+         */
+        $junctionConditions = [
+            'junction_field' => $relationship->getFieldMany(),
+            'collection_many' => $relationship->getCollectionMany(),
+        ];
+        $junctionEntries = $tableGateway->getItems(['filter' => $junctionConditions]);
         $conditions = $this->getRemoveRelationshipConditions($field);
 
         $data = [
             $conditions['field'] => null,
         ];
 
-        return $tableGateway->update($data, $conditions['values']);
+        /**
+         * Delete the junction entries(For M2M) and update the values for (O2M)
+         */
+        if (!empty($junctionEntries['data'])) {
+            $tableGateway->delete($junctionConditions);
+            $this->dropTable($relationship->getCollectionMany());
+
+            return $tableGateway->delete($conditions['values']);
+        } else {
+            return $tableGateway->update($data, $conditions['values']);
+        }
+
     }
 
     /**
