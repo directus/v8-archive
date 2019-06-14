@@ -592,11 +592,10 @@ class RelationalTableGateway extends BaseTableGateway
             $primaryKey = $foreignTableSchema->getPrimaryKeyName();
             $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
 
-            // If a system table is joined, stop relational update here.
-            if (strpos($foreignTableName, 'directus_') === 0) {
-                // Once they're managed, remove the foreign collections from the record array
-                unset($parentRow[$fieldName]);
-                continue;
+            // TODO : Need to redevelop this logic.
+            if ($field->getType() == "file" && isset($parentRow[$fieldName][$primaryKey])) {
+                $parentRow[$fieldName] = $parentRow[$fieldName][$primaryKey];
+                return $parentRow;
             }
 
             if ($primaryKey && ArrayUtils::get($foreignRow, $this->deleteFlag) === true) {
