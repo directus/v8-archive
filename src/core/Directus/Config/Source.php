@@ -23,6 +23,13 @@ class Source
     {
         $segment = array_shift($path);
         if (sizeof($path) === 0) { // leaf
+            if (!is_array($target)) {
+                // TODO: raise warning - overwriting value
+                $target = [];
+            }
+            if (array_key_exists($segment, $target)) {
+                // TODO: raise warning - overwriting group
+            }
             $target[$segment] = $value;
             return;
         }
@@ -59,6 +66,8 @@ class Source
      */
     public static function map($source) {
         $target = [];
+        ksort($source);
+        //array_multisort(array_map("strlen", array_keys($source)), SORT_ASC, $source);
         foreach ($source as $key => $value) {
             Source::expand($target, explode('_', strtolower($key)), $value);
         }
@@ -73,7 +82,7 @@ class Source
     {
         $context = $_ENV;
         if (empty($context)) {
-            throw new \Error('No environment variables available because of "variables_order" value.');
+            throw new \Error('No environment variables available. Check php_ini "variables_order" value.');
         }
         return Source::map($context);
     }

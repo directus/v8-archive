@@ -38,6 +38,31 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $source);
     }
 
+    public function testOverwrites()
+    {
+        $source = Source::map([
+            "HELLO" => "value1",
+            "HELLO_WORLD" => "value2",
+        ]);
+
+        $expected = [
+            "hello" => [
+                "world" => "value2",
+            ],
+        ];
+
+        // Bigger keys wins the trade
+        $this->assertEquals($expected, $source);
+
+        $source = Source::map([
+            "HELLO_WORLD" => "value2",
+            "HELLO" => "value1",
+        ]);
+
+        // Array order should not be a problem
+        $this->assertEquals($expected, $source);
+    }
+
     public function testSourceEnv()
     {
         $_ENV['HELLO_WORLD_A'] = "1";
