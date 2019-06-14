@@ -39,6 +39,7 @@
     "ext-mbstring": "*",
     "ext-openssl": "*",
     "ext-gd": "*",
+    "phpgangsta/googleauthenticator": " dev-master",
     "webonyx/graphql-php": "^0.13.0"
   },
   "require-dev": {
