@@ -67,7 +67,6 @@ class Source
     public static function map($source) {
         $target = [];
         ksort($source);
-        //array_multisort(array_map("strlen", array_keys($source)), SORT_ASC, $source);
         foreach ($source as $key => $value) {
             Source::expand($target, explode('_', strtolower($key)), $value);
         }

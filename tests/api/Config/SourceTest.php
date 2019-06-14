@@ -8,7 +8,7 @@ use Directus\Config\Schema\Group;
 use Directus\Config\Schema\Value;
 use Directus\Config\Schema\Types;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class SourceTest extends \PHPUnit_Framework_TestCase
 {
     public function testItem()
     {
@@ -111,26 +111,4 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $context);
     }
-
-    /*
-    public function testSchemaNodes()
-    {
-        putenv("PREFIX_SOME_DEEP_BOOL=true");
-        putenv("PREFIX_SOME_SUPER_DEEP_INT=1234");
-
-        $context = Context::from_env("PREFIX");
-
-        $schema = new Group('some', [
-            new Group('deep', [
-                new Value('bool', Types::BOOLEAN),
-            ]),
-            new Group('super', [
-                new Group('deep', [
-                    new Value('int', Types::INTEGER),
-                ]),
-            ]),
-        ]);
-    }
-    */
-
 }
