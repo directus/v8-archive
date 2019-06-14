@@ -1567,6 +1567,14 @@ class FieldsSeeder extends AbstractSeed
                 'readonly' => 1,
                 'hidden_detail' => 1
             ],
+            [
+                'collection' => 'directus_users',
+                'field' => '2fa_secret',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+                'readonly' => 1
+            ],
 
             // User Roles Junction
             // -----------------------------------------------------------------
