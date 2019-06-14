@@ -209,7 +209,9 @@ $app->group('/{project}', function () use ($middleware) {
         foreach ($endpointsList as $name => $endpoints) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
-    })->add($middleware['table_gateway']);
+    })
+    ->add($middleware['auth'])
+    ->add($middleware['table_gateway']);
 
     $this->group('/pages', function () {
         $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/pages', true);
@@ -229,6 +231,12 @@ $app->group('/{project}', function () use ($middleware) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
     })
+        ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
+
+    $this->group('/gql', \Directus\Api\Routes\GraphQL::class)
+        ->add($middleware['auth_admin'])
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);

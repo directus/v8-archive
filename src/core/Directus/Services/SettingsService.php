@@ -57,12 +57,13 @@ class SettingsService extends AbstractService
 
     public function findFile($id,array $params = [])
     {
-        return (new ItemsService($this->container))->findByIds(SchemaManager::COLLECTION_FILES, $id,$params);
+        $noAcl = false;
+        return $this->itemsService->findByIds(SchemaManager::COLLECTION_FILES, $id,$params, $noAcl);
     }
 
     public function findAllFields(array $params = [])
     {
-        return (new ItemsService($this->container))->findAll(SchemaManager::COLLECTION_FIELDS, array_merge($params, [
+        return $this->itemsService->findAll(SchemaManager::COLLECTION_FIELDS, array_merge($params, [
             'filter' => [
                 'collection' => $this->collection
             ]

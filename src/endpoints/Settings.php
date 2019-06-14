@@ -79,21 +79,28 @@ class Settings extends Route
         );
 
         /**
-         * Generate the response object based on interface
-         * 
+         * Generate the response object based on interface/type
+         *
          */
-        foreach($fieldData['data'] as $key => $value){
-            switch ($value['interface']) {
-                case 'file':
-                    $result = array_search($value['field'], array_column($responseData['data'], 'key'));
-                    if($result){
-                        $fileInstence = $service->findFile($responseData['data'][$result]['value']);
-                        $responseData['data'][$result]['value'] = !empty($fileInstence['data']) ? $fileInstence['data'] : null;
-                    }
-                    break;
-                case 'tags':
-                    $inputData['value'] = !empty($responseData['data'][$result]['value']) ? $responseData['data'][$result]['value'] : null;
-                    break;
+        foreach($fieldData['data'] as $fieldDefinition){
+            // find position of field in $response['data']
+            $index = array_search($fieldDefinition['field'], array_column($responseData['data'], 'key'));
+            if (false !== $index) {
+
+                switch ($fieldDefinition['type']) {
+                    case 'file':
+                        if (!empty($responseData['data'][$index]['value'])) {
+                            $fileInstance = $service->findFile($responseData['data'][$index]['value']);
+                            $responseData['data'][$index]['value'] = null;
+
+                            if (!empty($fileInstance['data'])) {
+                                $responseData['data'][$index]['value'] = $fileInstance['data'];
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -133,7 +140,6 @@ class Settings extends Route
         return $this->responseWithData($request, $response, $responseData);
     }
 
-    
     /**
      * @param Request $request
      * @param Response $response
@@ -150,13 +156,21 @@ class Settings extends Route
         $inputData = $request->getParsedBody();
         foreach($fieldData['data'] as $key => $value){
             if($value['field'] == $setting){
-                switch ($value['interface']) {
-                    case 'file':
-                        $inputData['value'] = isset($inputData['value']['id']) ? $inputData['value']['id'] : $inputData['value'];
-                        break;
-                    case 'tags':
-                        $inputData['value'] = is_array($inputData['value']) ? implode(",",$inputData['value']) : $inputData['value'];
-                        break;
+                if($inputData['value'] != null){
+                    switch ($value['type']) {
+                        case 'file':
+                            $inputData['value'] = isset($inputData['value']['id']) ? $inputData['value']['id'] : $inputData['value'];
+                            break;
+                        case 'array':
+                            $inputData['value'] = is_array($inputData['value']) ? implode(",",$inputData['value']) : $inputData['value'];
+                            break;
+                        case 'json':
+                            $inputData['value'] = json_encode($inputData['value']);
+                            break;
+                    }
+                }else{
+                    // To convert blank string in null
+                    $inputData['value'] = null;
                 }
             }
         }
@@ -171,8 +185,6 @@ class Settings extends Route
      */
     public function update(Request $request, Response $response)
     {
-        $this->validateRequestPayload($request);
-
         $payload = $request->getParsedBody();
         $id = $request->getAttribute('id');
 
@@ -196,6 +208,7 @@ class Settings extends Route
          * Get the interface based input
          * 
          */
+    
         $inputData = $this->getInterfaceBasedInput($request,$serviceData['data']['key']);
         $responseData = $service->update(
             $request->getAttribute('id'),
@@ -205,7 +218,6 @@ class Settings extends Route
         
         $responseData['data']['value'] = $payload['value'];
        
-
         return $this->responseWithData($request, $response, $responseData);
     }
 

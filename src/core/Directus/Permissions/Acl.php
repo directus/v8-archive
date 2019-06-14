@@ -1240,16 +1240,33 @@ class Acl
      *
      * @return boolean
      */
-    public function allowTo($action, $level, $collection, $status = null)
+   public function allowTo($action, $level, $collection, $status = null)
     {
         if ($this->isAdmin()) {
             return true;
         }
 
         $permission = $this->getPermission($collection, $status);
-        $permissionLevel = ArrayUtils::get($permission, $action);
 
-        return $this->can($permissionLevel, $level);
+        if (count($permission) === 0) {
+            $statuses = $this->getCollectionStatuses($collection);
+
+            $allowed = false;
+            if($statuses){
+                foreach ($statuses as $status) {
+                    $permission = $this->getPermission($collection, $status);
+                    $permissionLevel = ArrayUtils::get($permission, $action);
+                    if ($this->can($permissionLevel, $level)) {
+                        $allowed = true;
+                        break;
+                    }
+                }
+            }
+            return $allowed;
+        } else {
+            $permissionLevel = ArrayUtils::get($permission, $action);
+            return $this->can($permissionLevel, $level);
+        }
     }
 
     public function allowToOnce($action, $collection)
@@ -1277,7 +1294,73 @@ class Acl
 
         return $allowed;
     }
-
+    
+    /**
+     * Gets the statuses on which field has been blacklisted
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return array
+     */
+    public function getStatusesOnReadFieldBlacklist($collection, $field)
+    {
+        $blackListStatuses = [];
+        $collectionPermission = $this->getCollectionPermissions($collection);
+        $statuses = $this->getCollectionStatuses($collection);
+        if($statuses){
+            foreach($statuses as $status){
+                $readFieldBlackList = isset($collectionPermission[$status]['read_field_blacklist']) ? $collectionPermission[$status]['read_field_blacklist'] : [];
+                if($readFieldBlackList && in_array($field, $readFieldBlackList)){                    
+                    $blackListStatuses['statuses'][] = $status;
+                }
+            }
+            //Set flag for field which is blacklist for all statuses
+            if(isset($blackListStatuses['statuses']) && count($blackListStatuses['statuses']) == count($statuses)){
+                $blackListStatuses['isReadBlackList'] = true;
+            }
+        }else{
+            $readFieldBlackList = isset($collectionPermission['read_field_blacklist']) ? $collectionPermission['read_field_blacklist'] : [];
+            if($readFieldBlackList && in_array($field, $readFieldBlackList)){
+                $blackListStatuses['isReadBlackList'] = true;
+            }
+        }
+        return $blackListStatuses;
+    }
+    
+    /**
+     * Gets the statuses on which field has been write blacklisted
+     *
+     * @param string $collection
+     * @param mixed $status
+     *
+     * @return array
+     */
+    public function getStatusesOnWriteFieldBlacklist($collection, $field)
+    {
+        $blackListStatuses = [];
+        $collectionPermission = $this->getCollectionPermissions($collection);
+        $statuses = $this->getCollectionStatuses($collection);
+        if($statuses){
+            foreach($statuses as $status){
+                $writeFieldBlackList = isset($collectionPermission[$status]['write_field_blacklist']) ? $collectionPermission[$status]['write_field_blacklist'] : [];
+                if($writeFieldBlackList && in_array($field, $writeFieldBlackList)){                    
+                    $blackListStatuses['statuses'][] = $status;
+                }
+            }
+            //Set flag for field which is blacklist for all statuses
+            if(isset($blackListStatuses['statuses']) && count($blackListStatuses['statuses']) == count($statuses)){
+                $blackListStatuses['isWriteBlackList'] = true;
+            }
+        }else{
+            $writeFieldBlackList = isset($collectionPermission['write_field_blacklist']) ? $collectionPermission['write_field_blacklist'] : [];
+            if($writeFieldBlackList && in_array($field, $writeFieldBlackList)){
+                $blackListStatuses['isWriteBlackList'] = true;
+            }
+        }
+        return $blackListStatuses;
+    }
+    
     /**
      * Returns a list of status the given collection has permission to read
      *
