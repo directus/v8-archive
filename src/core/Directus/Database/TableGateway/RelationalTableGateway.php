@@ -592,7 +592,7 @@ class RelationalTableGateway extends BaseTableGateway
             $primaryKey = $foreignTableSchema->getPrimaryKeyName();
             $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
 
-            // TODO : It is temporary fix. Need to make it better.
+            // TODO : Need to redevelop this logic.
             if ($field->getType() == "file" && isset($parentRow[$fieldName][$primaryKey])) {
                 $parentRow[$fieldName] = $parentRow[$fieldName][$primaryKey];
                 return $parentRow;
