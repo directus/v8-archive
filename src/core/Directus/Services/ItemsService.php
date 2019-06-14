@@ -34,7 +34,7 @@ class ItemsService extends AbstractService
             $colName = $aliasColumnDetails->getName();
             $relationalCollectionName = "";
             
-            if($aliasColumnDetails->isManyToMany()){
+            if($this->isManyToManyField($aliasColumnDetails)){
                 $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
                 
                 if($relationalCollectionName && isset($payload[$colName])){
@@ -197,13 +197,13 @@ class ItemsService extends AbstractService
             $colName = $aliasColumnDetails->getName();
             $relationalCollectionName = "";
             
-            if($aliasColumnDetails->isManyToMany()){
+            if($this->isManyToManyField($aliasColumnDetails)){
                 $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
                 
                 if($relationalCollectionName && isset($payload[$colName])){
                     foreach($payload[$colName] as $individual){     
                         if(!isset($individual['$delete'])){                        
-                            $validatePayload = $individual[$aliasColumnDetails->getRelationship()->getJunctionOtherField()];
+                            $validatePayload = $individual[$aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField()];
                             $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
                         }
                     }
@@ -424,5 +424,27 @@ class ItemsService extends AbstractService
         $row = $tableGateway->selectWith($select)->current();
 
         return $row[$collectionObject->getStatusField()->getName()];
+    }
+    
+    /**
+     * Checks whether the relationship is MANY TO MANY
+     * 
+     * @param $fieldMany
+     * @param $collectionMany
+     *
+     * @return bool
+     */
+    protected function isManyToManyField($field){
+        if($field->hasRelationship() && $field->getRelationship()->isOneToMany()){
+            $relationship = $field->getRelationship();
+            $junctionConditions = [
+                'junction_field' => $relationship->getFieldMany(),
+                'collection_many' => $relationship->getCollectionMany(),
+            ];
+            $tableGateway = $this->createTableGateway(SchemaManager::COLLECTION_RELATIONS);
+            $junctionEntries = $tableGateway->getItems(['filter' => $junctionConditions]);	
+            return !empty($junctionEntries['data']) ? true : false;
+        }
+        return false;
     }
 }

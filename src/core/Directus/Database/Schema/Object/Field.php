@@ -491,16 +491,6 @@ class Field extends AbstractObject
     {
         return $this->hasRelationship() ? $this->getRelationship()->isOneToMany() : false;
     }
-    
-    /**
-     * Checks whether the relationship is MANY TO MANY
-     *
-     * @return bool
-     */
-    public function isManyToMany()
-    {
-        return $this->hasRelationship() && $this->getRelationship()->isOneToMany() && $this->getInterface() == "many-to-many" ? true : false;        
-    }
 
     /**
      * Is the field being managed by Directus
