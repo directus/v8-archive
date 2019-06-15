@@ -2,26 +2,13 @@
 
 namespace Directus\Tests\Config;
 
-use Directus\Config\Config;
-use Directus\Config\Source;
-use Directus\Config\Schema\Group;
-use Directus\Config\Schema\Value;
-use Directus\Config\Schema\Types;
+use Directus\Config\Context;
 
-class SourceTest extends \PHPUnit_Framework_TestCase
+class ContextTest extends \PHPUnit_Framework_TestCase
 {
-    public function testItem()
-    {
-        $config = new Config([
-            'option' => 1
-        ]);
-
-        $this->assertSame(1, $config->get('option'));
-    }
-
     public function testSourceMap()
     {
-        $source = Source::map([
+        $source = Context::from_map([
             "HELLO_WORLD_1" => "value1",
             "HELLO_WORLD_2" => "value2",
         ]);
@@ -35,12 +22,13 @@ class SourceTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
+        // Should map keys to complex objects
         $this->assertEquals($expected, $source);
     }
 
     public function testOverwrites()
     {
-        $source = Source::map([
+        $source = Context::from_map([
             "HELLO" => "value1",
             "HELLO_WORLD" => "value2",
         ]);
@@ -51,10 +39,10 @@ class SourceTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
-        // Bigger keys wins the trade
+        // Bigger keys wins the trade and should overwrite already set values
         $this->assertEquals($expected, $source);
 
-        $source = Source::map([
+        $source = Context::from_map([
             "HELLO_WORLD" => "value2",
             "HELLO" => "value1",
         ]);
@@ -72,7 +60,7 @@ class SourceTest extends \PHPUnit_Framework_TestCase
         $_ENV['HELLO_ARRAY_15_A'] = "5";
         $_ENV['HELLO_ARRAY_15_B'] = "6";
 
-        $source = Source::from_env();
+        $source = Context::from_env();
 
         $expected = [
             "hello" => [
@@ -93,12 +81,20 @@ class SourceTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
+        // Should read values from environment variables
         $this->assertArraySubset($expected, $source);
     }
 
-    public function testContextFile()
+    public function testArray()
     {
-        $context = Source::from_php(__DIR__ . "/sources/source.php");
+        $context = Context::from_array([
+            "hello" => [
+                "world" => [
+                    "a" => "1",
+                    "b" => "2"
+                ],
+            ],
+        ]);
 
         $expected = [
             "hello" => [
@@ -109,6 +105,24 @@ class SourceTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
+        // Should load values from php associative array
+        $this->assertEquals($expected, $context);
+    }
+
+    public function testContextFile()
+    {
+        $context = Context::from_php(__DIR__ . "/sources/source.php");
+
+        $expected = [
+            "hello" => [
+                "world" => [
+                    "a" => "1",
+                    "b" => "2"
+                ],
+            ],
+        ];
+
+        // Should load values from php source file
         $this->assertEquals($expected, $context);
     }
 }

@@ -5,12 +5,12 @@ namespace Directus\Config;
 /**
  * Config context interface
  */
-class Source
+class Context
 {
     /**
      * Transforms an array of strings into a complex object
      * @example
-     *  $obj = Source::expand(['a', 'b', 'c'], 12345);
+     *  $obj = Context::expand(['a', 'b', 'c'], 12345);
      *  $obj == [
      *    'a' => [
      *      'b' => [
@@ -36,7 +36,7 @@ class Source
         if (!isset($target[$segment])) {
             $target[$segment] = [];
         }
-        Source::expand($target[$segment], $path, $value);
+        Context::expand($target[$segment], $path, $value);
     }
 
     /**
@@ -49,7 +49,7 @@ class Source
 
         $sort = false;
         foreach ($target as $key => $value) {
-            Source::normalize($target[$key]);
+            Context::normalize($target[$key]);
             $sort |= is_numeric($key);
         }
 
@@ -64,13 +64,13 @@ class Source
     /**
      * Source
      */
-    public static function map($source) {
+    public static function from_map($source) {
         $target = [];
         ksort($source);
         foreach ($source as $key => $value) {
-            Source::expand($target, explode('_', strtolower($key)), $value);
+            Context::expand($target, explode('_', strtolower($key)), $value);
         }
-        Source::normalize($target);
+        Context::normalize($target);
         return $target;
     }
 
@@ -79,11 +79,10 @@ class Source
      */
     public static function from_env()
     {
-        $context = $_ENV;
-        if (empty($context)) {
+        if (empty($_ENV)) {
             throw new \Error('No environment variables available. Check php_ini "variables_order" value.');
         }
-        return Source::map($context);
+        return Context::from_map($_ENV);
     }
 
     /**
@@ -91,6 +90,13 @@ class Source
      */
     public static function from_php($file) {
         return require $file;
+    }
+
+    /**
+     * Loads variables from PHP file
+     */
+    public static function from_array($array) {
+        return $array;
     }
 
     /**

@@ -14,7 +14,7 @@ class SourceBench
         $_ENV = [
             "A" => 1
         ];
-        Source::from_env();
+        Context::from_env();
     }
 
     /**
@@ -23,7 +23,7 @@ class SourceBench
      */
     public function benchPhp()
     {
-        Source::from_php(__DIR__ . "/../../../tests/api/Config/sources/source.php");
+        Context::from_php(__DIR__ . "/../../../tests/api/Config/sources/source.php");
     }
 
     /**
@@ -32,6 +32,6 @@ class SourceBench
      */
     public function benchJson()
     {
-        Source::from_json(__DIR__ . "/../../../tests/api/Config/sources/source.json");
+        Context::from_json(__DIR__ . "/../../../tests/api/Config/sources/source.json");
     }
 }
