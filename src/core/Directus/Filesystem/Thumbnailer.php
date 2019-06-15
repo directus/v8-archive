@@ -278,7 +278,7 @@ class Thumbnailer {
                 (strtolower($ext) === 'jpeg' || strtolower($ext) === 'jpg')
             )
         ) {
-            $thumbnailParams['thumbnailFileName'] = $filename . '.' . $format;
+            $thumbnailParams['thumbnailFileName'] = $name . '.' . $format;
         } else {
             $thumbnailParams['thumbnailFileName'] = $filename;
         }
