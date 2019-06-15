@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e;
+
+# Inject nginx environment variables into the default nginx config.
+sed -i "s/\${NGINX_PORT}/${PORT:-80}/g" /etc/nginx/conf.d/default.conf
+sed -i "s/\${NGINX_MAX_BODY_SIZE}/${NGINX_MAX_BODY_SIZE:-32m}/g" /etc/nginx/conf.d/default.conf
+sed -i "s/\${NGINX_BODY_BUFFER_SIZE}/${NGINX_BODY_BUFFER_SIZE:-128k}/g" /etc/nginx/conf.d/default.conf
+
+# Inject php environment variables into the php ini config file.
+sed -i "s/\${PHP_MEMORY_LIMIT}/${PHP_MEMORY_LIMIT:-256M}/g" /etc/php7/conf.d/90_directus.ini
+sed -i "s/\${PHP_UPLOAD_MAX_FILESIZE}/${PHP_UPLOAD_MAX_FILESIZE:-32M}/g" /etc/php7/conf.d/90_directus.ini
+sed -i "s/\${PHP_POST_MAXSIZE}/${PHP_POST_MAXSIZE:-35M}/g" /etc/php7/conf.d/90_directus.ini
+sed -i "s/\${PHP_MAX_EXECUTION_TIME}/${PHP_MAX_EXECUTION_TIME:-1800}/g" /etc/php7/conf.d/90_directus.ini
+
+# Start services.
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

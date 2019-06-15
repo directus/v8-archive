@@ -1,0 +1,75 @@
+#!/bin/sh
+set -e;
+
+is_fpm_up() {
+    # stat /var/run/php-fpm7.sock &> /dev/null
+    if echo /dev/null | socat UNIX:/var/run/php-fpm7.sock - ; then
+        true
+    else
+        false
+    fi
+}
+
+is_db_up() {
+    if [ -z "$DATABASE_SOCKET" ]
+    then
+        nc -z "${DATABASE_HOST:-localhost}" "${DATABASE_PORT:-3306}" >/dev/null 2>&1
+    else
+        if echo /dev/null | socat $(echo $DATABASE_SOCKET | sed 's/[:]/\\:/g') - ; then
+            true
+        else
+            false
+        fi
+    fi
+}
+
+#
+# Nginx
+#
+
+echo "directus-init: waiting for fpm..."
+
+RETRY_COUNT=0
+RETRIES=${FPM_WAIT_TIMEOUT:-120}
+until is_fpm_up || [ $RETRY_COUNT -eq $RETRIES ]
+do
+    sleep 1s
+    RETRY_COUNT=$((RETRY_COUNT+1))
+done
+
+if [ $RETRY_COUNT -eq $RETRIES ]
+then
+    echo "directus-init: fpm timeout"
+    exit 1
+fi
+
+echo "directus-init: fpm up and running!"
+
+#
+# Database
+#
+
+echo "directus-init: waiting for database..."
+
+RETRY_COUNT=0
+RETRIES=${DATABASE_WAIT_TIMEOUT:-120}
+until is_db_up || [ $RETRY_COUNT -eq $RETRIES ]
+do
+    sleep 1s
+    RETRY_COUNT=$((RETRY_COUNT+1))
+done
+
+if [ $RETRY_COUNT -eq $RETRIES ]
+then
+    echo "directus-init: fpm timeout"
+    exit 1
+fi
+
+echo "directus-init: database up and running!"
+
+#
+# Bootstrap
+#
+
+echo "directus-init: running bootstrap..."
+php /scripts/bootstrap.php
