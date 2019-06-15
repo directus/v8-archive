@@ -42,7 +42,7 @@ if (file_exists($maintenanceFlagPath)) {
     echo json_encode([
         'error' => [
             'error' => 21,
-            'message' => 'API is currently under maintenance.'
+            'message' => 'This API instance is currently down for maintenance. Please try again later.'
         ]
     ]);
     exit;
