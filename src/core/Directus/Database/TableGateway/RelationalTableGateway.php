@@ -680,6 +680,21 @@ class RelationalTableGateway extends BaseTableGateway
                 if (!array_key_exists($foreignJoinColumn, $foreignRecord)) {
                     $foreignRecord[$foreignJoinColumn] = $parentRow[$this->primaryKeyFieldName];
                 }
+                
+                //To avoid duplicate entries for translation interface
+                if(strtolower($field->getType()) == DataTypes::TYPE_TRANSLATION && !$hasPrimaryKey){ 
+                    $translationLanguageField = $field->getOptions('translationLanguageField');
+                    $translationRecordExistCondition = [
+                        $foreignJoinColumn => $foreignRecord[$foreignJoinColumn],
+                        $translationLanguageField => $foreignRecord[$translationLanguageField]
+                    ];
+                    $translationTableGateway = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
+                    $translationRecordExist = $translationTableGateway->getItems(['filter' => $translationRecordExistCondition]);	
+                    if(!empty($translationRecordExist['data'])){
+                        $translationRecordExist = array_shift($translationRecordExist['data']);
+                        $foreignRecord[$ForeignTable->primaryKeyFieldName] = $translationRecordExist[$ForeignTable->primaryKeyFieldName];
+                    }
+                }
 
                 $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
