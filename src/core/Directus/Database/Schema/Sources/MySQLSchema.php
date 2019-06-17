@@ -15,6 +15,7 @@ use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\TableIdentifier;
 use Zend\Db\Sql\Where;
+use Zend\Db\Sql\Ddl\CreateTable;
 use Zend\Db\Sql\Ddl\Column\AbstractLengthColumn;
 use Zend\Db\Sql\Ddl\Column\AbstractPrecisionColumn;
 use Zend\Db\Sql\Ddl\Column\BigInteger;
@@ -216,9 +217,9 @@ class MySQLSchema extends AbstractSchema
         ]);
 
         if (isset($params['collection'])) {
-            $selectOne->where([
-                'SF.TABLE_NAME' => $params['collection']
-            ]);
+            $where = $selectOne->where->nest();
+            $where->equalTo(new Expression('BINARY SF.TABLE_NAME'), $params['collection']);
+            $where->unnest();
         }
 
         if (isset($params['field'])) {
@@ -692,6 +693,8 @@ class MySQLSchema extends AbstractSchema
             'varbinary',
             'enum',
             'set',
+            'decimal',
+            'char'
         ];
     }
 
@@ -850,6 +853,24 @@ class MySQLSchema extends AbstractSchema
         }
 
         return $column;
+    }
+
+    /**
+     * Fix defaultZendDB choices if applicable
+     *
+     * @param AbstractSql|AlterTable|CreateTable|DropTable $table
+     * @param Sql $sql
+     * @param String $charset
+     *
+     * @return String
+     */
+    public function buildSql($table, $sql, $charset)
+    {
+        $query = parent::buildSql($table, $sql, $charset);
+        if ($table instanceof CreateTable) {
+            $query = !empty($charset) ? $query."charset = ".$charset: $query;
+        }
+        return $query;
     }
 
     /**

@@ -20,6 +20,7 @@ use Directus\Database\Schema\DataTypes;
 use function Directus\get_directus_setting;
 use function Directus\compact_sort_to_array;
 use Directus\Database\Schema\Sources\AbstractSchema;
+use Directus\Database\Schema\Sources\Query\PostgresBuilder;
 use Directus\Database\Schema\Sources\Expression\PostgresChangeColumn;
 use Directus\Database\Schema\Sources\Expression\PostgresAddIntegerColumn;
 
@@ -849,7 +850,14 @@ class PostgresSchema extends AbstractSchema
                 break;
             case 'bool':
             case 'boolean':
-                $column = new \Zend\Db\Sql\Ddl\Column\Boolean($name);
+                //For unknown reasons, Zend-db decided that boolean must be non-null; we break this rule and let the application choose
+                $column = new class($name) extends \Zend\Db\Sql\Ddl\Column\Boolean {
+                    public function setNullable($nullable)
+                    {
+                        $this->isNullable = (bool) $nullable;
+                        return $this;
+                    }
+                };
                 break;
             case 'smallserial':
             case 'serial2': //alias
@@ -896,10 +904,11 @@ class PostgresSchema extends AbstractSchema
      *
      * @param AbstractSql|AlterTable|CreateTable|DropTable $table
      * @param Sql $sql
+     * @param String $charset
      *
      * @return String
      */
-    public function buildSql($table, $sql)
+    public function buildSql($table, $sql, $charset)
     {
         if ($table instanceof AlterTable) {
             //Zend-Db Specifications are protected :(
@@ -934,7 +943,7 @@ class PostgresSchema extends AbstractSchema
             };
             $sealBreaker->call($table);
         }
-        return parent::buildSql($table, $sql);
+        return parent::buildSql($table, $sql, $charset);
     }
 
     /**
@@ -975,5 +984,16 @@ class PostgresSchema extends AbstractSchema
             }
         }
         return $transformedField;
+    }
+
+    /**
+     * get a new SQL Builder
+     * @param AdapterInterface $adapter
+     * 
+     * @return Builder
+     */
+    public function getBuilder($adapter)
+    {
+        return new PostgresBuilder($adapter);
     }
 }

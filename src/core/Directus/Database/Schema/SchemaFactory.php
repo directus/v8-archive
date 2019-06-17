@@ -31,6 +31,8 @@ use Zend\Db\Sql\Ddl\Constraint\PrimaryKey;
 use Zend\Db\Sql\Ddl\Constraint\UniqueKey;
 use Zend\Db\Sql\Ddl\CreateTable;
 use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Ddl\Column\AbstractLengthColumn;
+use Zend\Db\Sql\Ddl\Column\AbstractPrecisionColumn;
 
 class SchemaFactory
 {
@@ -66,7 +68,7 @@ class SchemaFactory
         foreach ($columnsData as $column) {
             if (ArrayUtils::get($column, 'primary_key', false)) {
                 $table->addConstraint(new PrimaryKey($column['field']));
-            } else if (ArrayUtils::get($column, 'unique') == true) {
+            } elseif (ArrayUtils::get($column, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column['field']));
             }
         }
@@ -104,7 +106,8 @@ class SchemaFactory
 
             if (ArrayUtils::get($options, 'primary_key') == true) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
-            } if (ArrayUtils::get($options, 'unique') == true) {
+            }
+            if (ArrayUtils::get($options, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -121,7 +124,8 @@ class SchemaFactory
 
             if (ArrayUtils::get($options, 'primary_key') == true) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
-            } if (ArrayUtils::get($options, 'unique') == true) {
+            }
+            if (ArrayUtils::get($options, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -131,7 +135,13 @@ class SchemaFactory
             $table->dropColumn($column);
         }
 
-        return $table;
+        //BUGFIX: Do nothing if there's nothing to do
+        return !empty($table->getRawState(AlterTable::ADD_COLUMNS))
+            || !empty($table->getRawState(AlterTable::ADD_CONSTRAINTS))
+            || !empty($table->getRawState(AlterTable::CHANGE_COLUMNS))
+            || !empty($table->getRawState(AlterTable::DROP_COLUMNS))
+            || !empty($table->getRawState(AlterTable::DROP_CONSTRAINTS))
+        ? $table : false;
     }
 
     /**
@@ -190,7 +200,7 @@ class SchemaFactory
             $parts = !is_array($length) ? explode(',', $length) : $length;
             $column->setDigits($parts[0]);
             $column->setDecimal(isset($parts[1]) ? $parts[1] : 0);
-        } else if ($column instanceof AbstractLengthColumn || $column instanceof CollectionLength) {
+        } elseif ($column instanceof AbstractLengthColumn || $column instanceof CollectionLength) {
             $column->setLength($length);
         } else {
             $column->setOption('length', $length);
@@ -212,15 +222,14 @@ class SchemaFactory
      *
      * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
      */
-    public function buildTable(AbstractSql $table)
+    public function buildTable(AbstractSql $table,$charset="")
     {
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
 
         //WORKAROUND ZendDB doesn't know anything about PostgreSQL for instance, we might need to override some of the table specifications depending on the RDBMS used
         //We monkey-path Zend-DB behaviour here and not through its own source repository with a decorator
-        $sqlFixed = $this->schemaManager->getSource()->buildSql($table, $sql);
-        $connection = $this->schemaManager->getSource()->getConnection();
+        $sqlFixed = $this->schemaManager->getSource()->buildSql($table, $sql, $charset);
         // TODO: Allow charset and comment
         return $connection->query(
             $sqlFixed,

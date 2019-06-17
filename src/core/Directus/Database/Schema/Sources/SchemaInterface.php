@@ -356,10 +356,11 @@ interface SchemaInterface
      *
      * @param AbstractSql|AlterTable|CreateTable $table
      * @param Sql $sql
+     * @param String $charset
      *
      * @return String
      */
-    public function buildSql($table, $sql);
+    public function buildSql($table, $sql, $charset);
 
     /**
      * Transform if needed the default value of a field
@@ -368,4 +369,12 @@ interface SchemaInterface
      * @return array $field
      */
     public function transformField(array $field);
+
+    /**
+     * get a new SQL Builder
+     * @param AdapterInterface $adapter
+     * 
+     * @return Builder
+     */
+    public function getBuilder($adapter);
 }
