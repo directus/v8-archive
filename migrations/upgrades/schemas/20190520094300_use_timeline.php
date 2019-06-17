@@ -19,7 +19,7 @@ class UseTimeline extends AbstractMigration
               'view_options' => json_encode([
                 'timeline' => [
                     'date' => 'action_on',
-                    'title' => '{{ action_by.first_name }} {{ action_by.last_name }} {{ action }}d',
+                    'title' => '{{ action_by.first_name }} {{ action_by.last_name }} {{ action }}',
                     'content' => 'action_by',
                     'color' => 'action'
                 ]
