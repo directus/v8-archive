@@ -27,7 +27,7 @@ class CollectionPresetsSeeder extends AbstractSeed
                 'view_options' => json_encode([
                     'timeline' => [
                         'date' => 'action_on',
-                        'title' => '{{ action_by.first_name }} {{ action_by.last_name }} {{ action }}',
+                        'title' => '{{ action_by.first_name }} {{ action_by.last_name }} ({{ action }})',
                         'content' => 'action_by',
                         'color' => 'action'
                     ]
