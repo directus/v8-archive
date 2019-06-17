@@ -29,14 +29,15 @@ class AuthService extends AbstractService
      *
      * @param string $email
      * @param string $password
+     * @param string $otp
      *
      * @return array
      *
      * @throws UnauthorizedException
      */
-    public function loginWithCredentials($email, $password)
+    public function loginWithCredentials($email, $password, $otp=null)
     {
-        $this->validateCredentials($email, $password);
+        $this->validateCredentials($email, $password, $otp);
 
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
@@ -44,7 +45,8 @@ class AuthService extends AbstractService
         /** @var UserInterface $user */
         $user = $auth->login([
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'otp' => $otp
         ]);
 
         $hookEmitter = $this->container->get('hook_emitter');
@@ -386,22 +388,24 @@ class AuthService extends AbstractService
     }
 
     /**
-     * Validates email+password credentials
+     * Validates email+password+otp credentials
      *
      * @param $email
      * @param $password
+     * @param $otp
      *
      * @throws UnprocessableEntityException
      */
-    protected function validateCredentials($email, $password)
+    protected function validateCredentials($email, $password, $otp)
     {
         $payload = [
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'otp' => $otp
         ];
         $constraints = [
             'email' => 'required|string|email',
-            'password' => 'required|string'
+            'password' => 'required|string',
         ];
 
         // throws an exception if the constraints are not met

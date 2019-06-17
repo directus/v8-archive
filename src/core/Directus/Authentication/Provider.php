@@ -5,6 +5,7 @@ namespace Directus\Authentication;
 use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
+use Directus\Authentication\Exception\Missing2FAPasswordException;
 use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\Exception\UserNotFoundException;
@@ -23,6 +24,7 @@ use function Directus\get_directus_setting;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
+use PHPGangsta_GoogleAuthenticator;
 
 class Provider
 {
@@ -109,17 +111,19 @@ class Provider
      * @return UserInterface
      *
      * @throws InvalidUserCredentialsException
+     * @throws Missing2FAPasswordException
      * @throws UserInactiveException
      */
     public function login(array $credentials)
     {
         $email = ArrayUtils::get($credentials, 'email');
         $password = ArrayUtils::get($credentials, 'password');
+        $otp = ArrayUtils::get($credentials, 'otp');
 
         $user = null;
         if ($email && $password) {
             // Verify Credentials
-            $user = $this->findUserWithCredentials($email, $password);
+            $user = $this->findUserWithCredentials($email, $password, $otp);
             $this->setUser($user);
         }
 
@@ -153,8 +157,9 @@ class Provider
      * @return UserInterface
      *
      * @throws InvalidUserCredentialsException
+     * @throws Missing2FAPasswordException
      */
-    public function findUserWithCredentials($email, $password)
+    public function findUserWithCredentials($email, $password, $otp=null)
     {
         try {
             $user = $this->findUserWithEmail($email);
@@ -167,6 +172,20 @@ class Provider
             
             $this->recordActivityAndCheckLoginAttempt($user);
             throw new InvalidUserCredentialsException();
+        }
+
+        $tfa_secret = $user->get2FASecret();
+
+        if ($tfa_secret) {
+            $ga = new PHPGangsta_GoogleAuthenticator();
+
+            if ($otp == null) {
+                throw new Missing2FAPasswordException();
+            }
+
+            if (!$ga->verifyCode($tfa_secret, $otp, 2)){
+                throw new InvalidUserCredentialsException();
+            }
         }
 
         $this->user = $user;
