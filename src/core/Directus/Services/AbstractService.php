@@ -504,7 +504,7 @@ abstract class AbstractService
                 );
             }
         }else{
-            if(!is_null($field['length']) && ((is_array($value) && $field['length'] < strlen(json_encode($value))) || (!is_array($value) && $field['length'] < strlen($value)))){
+            if(!is_null($field['length']) && $field->getType() !== "file" && ((is_array($value) && $field['length'] < strlen(json_encode($value))) || (!is_array($value) && $field['length'] < strlen($value)))){
                 throw new UnprocessableEntityException(
                     sprintf("The value submitted (%s) for '%s' is longer than the field's supported length (%s). Please submit a shorter value or ask an Admin to increase the length.",!is_array($value) ? $value : 'Json / Array',$field->getFormatisedName(),$field['length'])
                 );
