@@ -489,6 +489,10 @@ abstract class AbstractService
      */
     protected function validateFieldLength($field, $value)
     {
+        if ($field->hasRelationship()) {
+            return;
+        }
+
         if($field->getType() == "decimal"){
             $precision = $field->getPrecision();
             $scale = $field->getScale();
