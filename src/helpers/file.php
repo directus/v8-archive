@@ -4,6 +4,7 @@ namespace Directus;
 
 use Directus\Application\Application;
 use Directus\Filesystem\Thumbnail;
+use Directus\Util\ArrayUtils;
 
 if (!function_exists('is_uploaded_file_okay')) {
     /**
@@ -96,8 +97,7 @@ if (!function_exists('get_uploaded_file_status')) {
     }
 }
 
-if (!function_exists('append_storage_information'))
-{
+if (!function_exists('append_storage_information')) {
     /**
      * append storage information to one or multiple file items
      *
@@ -105,11 +105,14 @@ if (!function_exists('append_storage_information'))
      *
      * @return array
      */
-    function append_storage_information(array $rows)
+    function append_storage_information(array $rows, array $params = [])
     {
+
         if (empty($rows)) {
             return $rows;
         }
+
+        $fields =  get_files_fields($params['fields']);
 
         $container = Application::getInstance()->getContainer();
 
@@ -155,6 +158,11 @@ if (!function_exists('append_storage_information'))
             }
 
             $data['embed'] = $embed;
+
+            if (!empty($fields) && !in_array('*', $fields)) {
+                $data = ArrayUtils::pick($data, $fields);
+            }
+
             $row['data'] = $data;
         }
 
@@ -220,8 +228,8 @@ if (!function_exists('get_thumbnails')) {
                     'url' => $thumbnailUrl,
                     'relative_url' => $thumbnailRelativeUrl,
                     'dimension' => $dimension,
-                    'width' => (int) $size[0],
-                    'height' => (int) $size[1]
+                    'width' => (int)$size[0],
+                    'height' => (int)$size[1]
                 ];
             }
         }
@@ -230,8 +238,7 @@ if (!function_exists('get_thumbnails')) {
     }
 }
 
-if (!function_exists('get_thumbnail_url'))
-{
+if (!function_exists('get_thumbnail_url')) {
     /**
      * Returns a url for the given file pointing to the thumbnailer
      *
@@ -249,8 +256,7 @@ if (!function_exists('get_thumbnail_url'))
     }
 }
 
-if (!function_exists('get_thumbnail_path'))
-{
+if (!function_exists('get_thumbnail_path')) {
     /**
      * Returns a relative url for the given file pointing to the thumbnailer
      *
@@ -269,7 +275,12 @@ if (!function_exists('get_thumbnail_path'))
         // env/width/height/mode/quality/name
         return sprintf(
             '/thumbnail/%s/%d/%d/%s/%s/%s',
-            $projectName, $width, $height, $mode, $quality, $name
+            $projectName,
+            $width,
+            $height,
+            $mode,
+            $quality,
+            $name
         );
     }
 }
@@ -347,5 +358,26 @@ if (!function_exists('is_a_url')) {
         }
 
         return false;
+    }
+}
+
+if (!function_exists('get_files_fields')) {
+    /**
+     * This function return only fields related to files.
+     *
+     * @param array $params
+     *
+     * @return array|null
+     */
+    function get_files_fields($params)
+    {
+        $fileParams = [];
+        foreach ($params as $param) {
+            $paramAry = \explode('.', $param);
+            if ($paramAry[0] === 'data') {
+                $fileParams[] = $paramAry[1];
+            }
+        }
+        return $fileParams;
     }
 }
