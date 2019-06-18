@@ -1600,6 +1600,12 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'many-to-one',
                 'locked' => 1
+            ],
+            [
+                'collection' => 'directus_user_roles',
+                'field' => 'enforce_2fa',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle'
             ]
         ];
 
