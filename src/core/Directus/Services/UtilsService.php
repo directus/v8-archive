@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Hash\HashManager;
 use Directus\Util\StringUtils;
+use PHPGangsta_GoogleAuthenticator;
 
 class UtilsService extends AbstractService
 {
@@ -61,5 +62,12 @@ class UtilsService extends AbstractService
                 'random' => $randomString
             ]
         ];
+    }
+
+    public function generate2FASecret()
+    {
+        $ga = new PHPGangsta_GoogleAuthenticator();
+        $tfa_secret = $ga->createSecret();
+        return ['2fa_secret' => $tfa_secret];
     }
 }
