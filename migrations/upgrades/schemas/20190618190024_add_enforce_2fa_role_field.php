@@ -3,7 +3,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class AddEnforce2FASettingField extends AbstractMigration
+class AddEnforce2FARoleField extends AbstractMigration
 {
     public function up()
     {
@@ -13,19 +13,20 @@ class AddEnforce2FASettingField extends AbstractMigration
 
     protected function addSetting()
     {
-        $key = 'enforce_2fa';
-        $checkSql = sprintf('SELECT 1 FROM `directus_settings` WHERE `key` = "%s";', $key);
-        $result = $this->query($checkSql)->fetch();
+        $table = $this->table('directus_roles');
+        if (!$table->hasColumn('enforce_2fa')) {
+            $table->addColumn('enforce_2fa', 'boolean', [
+                'null' => true,
+                'default' => null
+            ]);
 
-        if (!$result) {
-            $insertSql = sprintf('INSERT INTO `directus_settings` (`key`, `value`) VALUES ("%s", "");', $key);
-            $this->execute($insertSql);
+            $table->save();
         }
     }
 
     protected function addField()
     {
-        $collection = 'directus_settings';
+        $collection = 'directus_roles';
         $field = 'enforce_2fa';
         $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
         $result = $this->query($checkSql)->fetch();
