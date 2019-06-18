@@ -490,7 +490,7 @@ abstract class AbstractService
     protected function validateFieldLength($field, $value)
     {
         if ($field->hasRelationship()) {
-            return true;
+            return;
         }
 
         if($field->getType() == "decimal"){
