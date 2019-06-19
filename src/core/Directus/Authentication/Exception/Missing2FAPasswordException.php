@@ -6,7 +6,7 @@ use Directus\Exception\NotFoundException;
 
 class Missing2FAPasswordException extends NotFoundException
 {
-    const ERROR_CODE = 100;
+    const ERROR_CODE = 111;
 
     public function __construct()
     {
