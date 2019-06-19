@@ -1571,7 +1571,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_users',
                 'field' => '2fa_secret',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
+                'interface' => '2fa-secret',
                 'locked' => 1,
                 'readonly' => 1
             ],
