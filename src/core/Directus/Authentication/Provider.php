@@ -3,6 +3,7 @@
 namespace Directus\Authentication;
 
 use Directus\Authentication\Exception\ExpiredTokenException;
+use Directus\Authentication\Exception\InvalidOTPException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
 use Directus\Authentication\Exception\Missing2FAPasswordException;
@@ -157,6 +158,7 @@ class Provider
      * @return UserInterface
      *
      * @throws InvalidUserCredentialsException
+     * @throws InvalidOTPException
      * @throws Missing2FAPasswordException
      */
     public function findUserWithCredentials($email, $password, $otp=null)
@@ -184,7 +186,7 @@ class Provider
             }
 
             if (!$ga->verifyKey($tfa_secret, $otp, 2)){
-                throw new InvalidUserCredentialsException();
+                throw new InvalidOTPException();
             }
         }
 
