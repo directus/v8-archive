@@ -1429,7 +1429,8 @@ class RelationalTableGateway extends BaseTableGateway
                 $mainQuery,
                 $mainColumn,
                 [
-                    'in' => $query
+                    'in' => $query,
+                    'logical' => isset($condition['logical']) ? $condition['logical'] : 'and'
                 ],
                 $mainTable
             );
