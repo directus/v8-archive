@@ -4,7 +4,8 @@ namespace Directus\Services;
 
 use Directus\Hash\HashManager;
 use Directus\Util\StringUtils;
-use PHPGangsta_GoogleAuthenticator;
+use League\OAuth2\Client\Provider\Google;
+use PragmaRX\Google2FA\Google2FA;
 
 class UtilsService extends AbstractService
 {
@@ -66,8 +67,8 @@ class UtilsService extends AbstractService
 
     public function generate2FASecret()
     {
-        $ga = new PHPGangsta_GoogleAuthenticator();
-        $tfa_secret = $ga->createSecret();
+        $ga = new Google2FA();
+        $tfa_secret = $ga->generateSecretKey();
         return ['2fa_secret' => $tfa_secret];
     }
 }

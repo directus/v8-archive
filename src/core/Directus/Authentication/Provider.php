@@ -24,7 +24,7 @@ use function Directus\get_directus_setting;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
-use PHPGangsta_GoogleAuthenticator;
+use PragmaRX\Google2FA\Google2FA;
 
 class Provider
 {
@@ -177,13 +177,13 @@ class Provider
         $tfa_secret = $user->get2FASecret();
 
         if ($tfa_secret) {
-            $ga = new PHPGangsta_GoogleAuthenticator();
+            $ga = new Google2FA();
 
             if ($otp == null) {
                 throw new Missing2FAPasswordException();
             }
 
-            if (!$ga->verifyCode($tfa_secret, $otp, 2)){
+            if (!$ga->verifyKey($tfa_secret, $otp, 2)){
                 throw new InvalidUserCredentialsException();
             }
         }
