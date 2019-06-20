@@ -760,8 +760,9 @@ class TablesService extends AbstractService
             /**
              * Remove O2M field if M2O interface deleted as O2M will only work if M2O exist
              */
-            $this->removeRelatedColumnInfo($columnObject);
-
+            if($columnObject->isManyToOne()){
+              $this->removeRelatedColumnInfo($columnObject);
+            }
             $this->removeColumnInfo($collectionName, $fieldName);
         }
     }
