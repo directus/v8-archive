@@ -367,6 +367,33 @@ class UsersService extends AbstractService
     }
 
     /**
+     * Checks whether the given ID has 2FA enforced, as set by their role.
+     * When 2FA is enforced, the column enforce_2fa is set to 1.
+     * Otherwise, it is either set to null or 0.
+     *
+     * @param $id
+     *
+     * @return bool
+     */
+    public function has2FAEnforced($id)
+    {
+        $result = $this->createTableGateway(SchemaManager::COLLECTION_ROLES, false)->fetchAll(function (Select $select) use ($id) {
+            $select->columns(['enforce_2fa']);
+            $select->where(['user' => $id]);
+            $on = sprintf('%s.role = %s.id', SchemaManager::COLLECTION_USER_ROLES, SchemaManager::COLLECTION_ROLES);
+            $select->join(SchemaManager::COLLECTION_USER_ROLES, $on, ['id' => 'role']);
+        });
+
+        $enforce_2fa = $result->current()['enforce_2fa'];
+
+        if ($enforce_2fa == null || $enforce_2fa == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Throws an exception if the user is the last admin
      *
      * @param int $id
