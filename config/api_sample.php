@@ -73,7 +73,7 @@ return [
         // Set custom S3 endpoint
         //   'endpoint' => 's3-endpoint',
         // Use an internal proxy for downloading all files
-        'proxy_downloads' => false,
+        //'proxy_downloads' => false,
     ],
 
     'mail' => [
