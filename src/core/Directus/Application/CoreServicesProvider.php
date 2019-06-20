@@ -356,8 +356,8 @@ class CoreServicesProvider
 
                 return $payload;
             });
-            $addFilesUrl = function ($rows) {
-                return \Directus\append_storage_information($rows);
+            $addFilesUrl = function ($rows, $params = []) {
+                return \Directus\append_storage_information($rows, $params);
             };
             $emitter->addFilter('item.read.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
@@ -524,7 +524,8 @@ class CoreServicesProvider
             // -------------------------------------------------------------------------------------------
             // Add file url and thumb url
             $emitter->addFilter('item.read.directus_files', function (Payload $payload) use ($addFilesUrl, $container) {
-                $rows = $addFilesUrl($payload->getData());
+
+                $rows = $addFilesUrl($payload->getData(), $payload->attribute('params'));
 
                 $payload->replace($rows);
 
@@ -640,7 +641,7 @@ class CoreServicesProvider
 
                 return $payload;
             };
-            
+
             $generateExternalId = function (Payload $payload) {
                 // generate an external id if none is passed
                 if (!$payload->get('external_id')) {
@@ -963,12 +964,12 @@ class CoreServicesProvider
             switch ($databaseName) {
                 case 'MySQL':
                     return new \Directus\Database\Schema\Sources\MySQLSchema($adapter);
-                // case 'SQLServer':
-                //    return new SQLServerSchema($adapter);
-                // case 'SQLite':
-                //     return new \Directus\Database\Schemas\Sources\SQLiteSchema($adapter);
-                // case 'PostgreSQL':
-                //     return new PostgresSchema($adapter);
+                    // case 'SQLServer':
+                    //    return new SQLServerSchema($adapter);
+                    // case 'SQLite':
+                    //     return new \Directus\Database\Schemas\Sources\SQLiteSchema($adapter);
+                    // case 'PostgreSQL':
+                    //     return new PostgresSchema($adapter);
             }
 
             throw new \Exception('Unknown/Unsupported database: ' . $databaseName);
@@ -1281,4 +1282,3 @@ class CoreServicesProvider
         return $storageConfig;
     }
 }
-
