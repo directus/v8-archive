@@ -112,11 +112,7 @@ if (!function_exists('append_storage_information')) {
             return $rows;
         }
 
-        if (empty($params['fields'])) {
-            $params['fields'] = '';
-        }
-
-        $fields =  get_files_fields($params['fields']) || '';
+        $fields = !empty($params['fields']) ? get_files_fields($params['fields']) : '';
 
         $container = Application::getInstance()->getContainer();
 
