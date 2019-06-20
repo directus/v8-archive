@@ -41,9 +41,16 @@ return [
         // ],
         // 'pool' => [
         //    'adapter'   => 'memcached',
+        //    //'url' => 'localhost:11211;localhost:11212'
         //    'host'      => 'localhost',
         //    'port'      => 11211
         // ],
+        // 'pool' => [
+        //    'adapter'   => 'memcache',
+        //    'url' => 'localhost:11211;localhost:11212'
+        //    //'host'      => 'localhost',
+        //    //'port'      => 11211
+        //],        
         // 'pool' => [
         //    'adapter'   => 'redis',
         //    'host'      => 'localhost',
