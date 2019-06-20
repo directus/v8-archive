@@ -72,6 +72,8 @@ return [
         //   'options' => ['ACL' => 'public-read', 'Cache-Control' => 'max-age=604800']
         // Set custom S3 endpoint
         //   'endpoint' => 's3-endpoint',
+        // Use an internal proxy for downloading all files
+        //'proxy_downloads' => false,
     ],
 
     'mail' => [
