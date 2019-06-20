@@ -117,6 +117,7 @@ if (!function_exists('append_storage_information')) {
         $container = Application::getInstance()->getContainer();
 
         $config = $container->get('config');
+        $proxyDownloads = $config->get('storage.proxy_downloads');
         $fileRootUrl = $config->get('storage.root_url');
         $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
         $isLocalStorageAdapter = $config->get('storage.adapter') == 'local';
@@ -128,11 +129,17 @@ if (!function_exists('append_storage_information')) {
 
         foreach ($rows as &$row) {
             $data = [];
-            $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['filename'];
 
-            // Add Full url
-            if ($isLocalStorageAdapter && !$hasFileRootUrlHost) {
+            if ($proxyDownloads) {
+                $data['url'] = get_proxy_path($row['filename']);
                 $data['full_url'] = get_url($data['url']);
+            } else {
+                $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['filename'];
+
+                // Add Full url
+                if ($isLocalStorageAdapter && !$hasFileRootUrlHost) {
+                    $data['full_url'] = get_url($data['url']);
+                }
             }
 
             // Add Thumbnails
@@ -274,6 +281,27 @@ if (!function_exists('get_thumbnail_path')) {
             $mode,
             $quality,
             $name
+        );
+    }
+}
+
+if (!function_exists('get_proxy_path'))
+{
+    /**
+     * Returns a relative url for the given file pointing to the proxy
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    function get_proxy_path($path)
+    {
+        $projectName = get_api_project_from_request();
+
+        // env/width/height/mode/quality/name
+        return sprintf(
+            '/downloads/%s/%s',
+            $projectName, $path
         );
     }
 }
