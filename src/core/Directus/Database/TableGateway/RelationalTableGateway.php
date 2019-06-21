@@ -1546,14 +1546,13 @@ class RelationalTableGateway extends BaseTableGateway
             $tableSchema = SchemaService::getCollection($relatedTable);
             $relatedTableColumns = $tableSchema->getFields();
 
-            $query->orWhereRelational($this->primaryKeyFieldName, $relatedTable, null, $relatedRightColumn, function (Builder $query) use ($column, $relatedTable, $relatedTableColumns, $value) {
-                foreach ($relatedTableColumns as $column) {
-                    $isNumeric = $this->getSchemaManager()->isNumericType($column->getType());
-                    $isString = $this->getSchemaManager()->isStringType($column->getType());
-                    if (!$column->isAlias() && ($isNumeric || $isString)) {
-                        $query->orWhereLike($column->getName(), $value);
-                    }
-                }
+            $query->orWhereRelational($this->primaryKeyFieldName, $relatedTable, null, $relatedRightColumn, function (Builder $query) use ($column, $relatedTable, $value) {
+                // orWhereRelational() automatically selects the related column.
+                // Without the next statement, 2 columns are returned by the nested query,
+                // which leads to an SQL error: Operand should contain 1 column(s)
+                $query->columns([]);
+                $query->groupBy($this->table . '.' . $this->primaryKeyFieldName);
+                $query->having(new Expression("COUNT({$this->table}.{$this->primaryKeyFieldName})"), '>=', $value);
             });
         } else if (in_array($operator, ['like']) && $field->isManyToOne()) {
             $relatedTable = $field->getRelationship()->getCollectionOne();
