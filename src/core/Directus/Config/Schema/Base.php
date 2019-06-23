@@ -46,7 +46,7 @@ abstract class Base implements Node
         if ($this->_optional) {
             $name = substr($name, 0, -1);
         }
-        $this->_key = str_replace('_', '', strtoupper($name));
+        $this->_key = str_replace('_', '', strtolower($name));
         $this->_name = strtolower($name);
         $this->_children = $children;
         $this->_parent = null;

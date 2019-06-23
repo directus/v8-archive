@@ -15,7 +15,7 @@ class GroupTest extends \PHPUnit_Framework_TestCase
         $group = new Group("GrOuP", []);
 
         // Key should be upper cased
-        $this->assertEquals("GROUP", $group->key());
+        $this->assertEquals("group", $group->key());
 
         // Name should be lower cased
         $this->assertEquals("group", $group->name());
@@ -26,7 +26,7 @@ class GroupTest extends \PHPUnit_Framework_TestCase
         $group = new Group("Some_Group?", []);
 
         // Key should remove underscores
-        $this->assertEquals("SOMEGROUP", $group->key());
+        $this->assertEquals("somegroup", $group->key());
 
         // Name should be lower cased and doesn't remove underscores
         $this->assertEquals("some_group", $group->name());

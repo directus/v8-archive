@@ -12,39 +12,18 @@ class ValueTest extends \PHPUnit_Framework_TestCase
 {
     public function testValue()
     {
+        $context = Context::from_array([
+            "group" => [
+                "value" => "12345"
+            ]
+        ]);
+
         $group = new Group("group", [
             new Value("value", Types::INTEGER)
         ]);
 
-        $values = $group->value(Context::from_array([
-            "group" => [
-                "value" => "12345"
-            ]
-        ]));
+        $value = $group->value($context);
 
-        print_r($values);
-    }
-
-    public function testGroupChildren()
-    {
-        $group = new Group("parent", [
-            new Group("child", [])
-        ]);
-
-        // Should contain a child
-        $this->assertCount(1, $group->children());
-    }
-
-    public function testGroupParent()
-    {
-        $group = new Group("parent", [
-            new Group("child", [])
-        ]);
-
-        $children = $group->children();
-
-        // Should contain a child
-        $this->assertEquals("child", $children[0]->name());
-        $this->assertEquals("parent", $children[0]->parent()->name());
+        $this->assertInternalType("int", $value["value"]);
     }
 }
