@@ -4,7 +4,7 @@ namespace Directus\Tests\Config;
 
 use Directus\Config\Config;
 
-class ConfigTest extends  \PHPUnit_Framework_TestCase
+class ConfigTest extends \PHPUnit_Framework_TestCase
 {
     public function testItem()
     {
