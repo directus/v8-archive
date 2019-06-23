@@ -21,9 +21,9 @@ class SourceBench
      * @Revs(10000)
      * @Iterations(3)
      */
-    public function benchPhp()
+    public function benchFile()
     {
-        Context::from_php(__DIR__ . "/../../../tests/api/Config/sources/source.php");
+        Context::from_file(__DIR__ . "/../../../tests/api/Config/sources/source.php");
     }
 
     /**

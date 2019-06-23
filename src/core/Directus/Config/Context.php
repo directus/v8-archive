@@ -88,7 +88,7 @@ class Context
     /**
      * Loads variables from PHP file
      */
-    public static function from_php($file) {
+    public static function from_file($file) {
         return require $file;
     }
 

@@ -111,7 +111,7 @@ class ContextTest extends \PHPUnit_Framework_TestCase
 
     public function testContextFile()
     {
-        $context = Context::from_php(__DIR__ . "/sources/source.php");
+        $context = Context::from_file(__DIR__ . "/sources/source.php");
 
         $expected = [
             "hello" => [
