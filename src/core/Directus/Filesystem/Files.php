@@ -256,11 +256,12 @@ class Files
     {
         // When file is uploaded via multipart form data then We will get object of Slim\Http\UploadFile
         // When file is uploaded via URL (Youtube, Vimeo, or image link) then we will get base64 encode string.
-        if (!is_object($fileData)) {
+        if (is_object($fileData)) {
+
+            $checksum = hash_file('md5', $fileData->file);
+        } else {
             $fileData = base64_decode($this->getDataInfo($fileData)['data']);
             $checksum = md5($fileData);
-        } else {
-            $checksum = hash_file('md5', $fileData->file);
         }
         // @TODO: merge with upload()
         $fileName = $this->getFileName($fileName, $replace !== true);
