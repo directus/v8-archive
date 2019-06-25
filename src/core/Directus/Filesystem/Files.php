@@ -103,7 +103,7 @@ class Files
             'height' => $fileData['height'],
             //    @TODO: Returns date in ISO 8601 Ex: 2016-06-06T17:18:20Z
             //    see: https://en.wikipedia.org/wiki/ISO_8601
-            'date_uploaded' => $fileData['date_uploaded'],// . ' UTC',
+            'date_uploaded' => $fileData['date_uploaded'], // . ' UTC',
             'storage' => $fileData['storage']
         ];
     }
@@ -254,13 +254,13 @@ class Files
      */
     public function saveData($fileData, $fileName, $replace = false)
     {
-        $fileData = base64_decode($this->getDataInfo($fileData)['data']);
-        $checksum = md5($fileData);
 
         // @TODO: merge with upload()
         $fileName = $this->getFileName($fileName, $replace !== true);
 
         $filePath = $this->getConfig('root') . '/' . $fileName;
+
+        $checksum = hash_file('md5', $fileData->file);
 
         $this->emitter->run('file.save', ['name' => $fileName, 'size' => strlen($fileData)]);
         $this->write($fileName, $fileData, $replace);
@@ -330,11 +330,36 @@ class Files
     {
         if ($outside === true) {
             $buffer = file_get_contents($path);
+            $fileData = $this->getFileInfoFromData($buffer);
         } else {
-            $buffer = $this->filesystem->getAdapter()->read($path);
+            $fileData = $this->getFileInfoFromPath($path);
         }
 
-        return $this->getFileInfoFromData($buffer);
+        return $fileData;
+    }
+
+    public function getFileInfoFromPath($path)
+    {
+        $mime = $this->filesystem->getAdapter()->getMimetype($path);
+
+        $typeTokens = explode('/', $mime);
+
+        if ($typeTokens[0] == 'image') {
+            $buffer = $this->filesystem->getAdapter()->read($path);
+            $info = $this->getFileInfoFromData($buffer);
+        } else {
+            $size = $this->filesystem->getAdapter()->getSize($path);
+            $info = [
+                'type' => $mime,
+                'format' => $typeTokens[1],
+                'charset' => $charset,
+                'size' => $size,
+                'width' => null,
+                'height' => null
+            ];
+        }
+
+        return $info;
     }
 
     public function getFileInfoFromData($data)

@@ -400,13 +400,13 @@ class BaseTableGateway extends TableGateway
         // photos, which are the only usecase for the thumbnailer.
         // TODO: Move this somewhere more sensible, and don't read the whole file contents into memory
         // in the first place.
-        if (
-            array_key_exists('filename', $recordData) &&
-            array_key_exists('data', $recordData) &&
-            strlen($recordData['data']) > 25000000
-        ) {
-            $recordData = ['filename' => $recordData['filename']];
-        }
+        // if (
+        //     array_key_exists('filename', $recordData) &&
+        //     array_key_exists('data', $recordData) &&
+        //     strlen($recordData['data']) > 25000000
+        // ) {
+        //     $recordData = ['filename' => $recordData['filename']];
+        // }
 
         $TableGateway->insert($recordData);
 

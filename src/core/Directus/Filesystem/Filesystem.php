@@ -52,6 +52,7 @@ class Filesystem
      */
     public function write($location, $data, $replace = false)
     {
+
         $throwException = function () use ($location) {
             throw new ForbiddenException(sprintf('No permission to write: %s', $location));
         };
@@ -61,8 +62,18 @@ class Filesystem
         }
 
         try {
-            if (!$this->getAdapter()->write($location, $data)) {
-                $throwException();
+            if (isset($data->file)) { // Uploaded file is in resource formate. Used when file uploaded in multipart form data.
+                $handle = fopen($data->file, 'rb');
+                if (!$this->getAdapter()->writeStream($location, $handle)) {
+                    $throwException();
+                }
+                if (is_resource($handle)) {
+                    fclose($handle);
+                }
+            } else { // Uploaded file is base64 formate. Used when file uploaded as base64.
+                if (!$this->getAdapter()->write($location, $data)) {
+                    $throwException();
+                }
             }
         } catch (\Exception $e) {
             $throwException();
