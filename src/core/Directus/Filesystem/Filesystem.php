@@ -62,7 +62,7 @@ class Filesystem
         }
 
         try {
-            if (isset($data->file)) { // Uploaded file is in resource formate. Used when file uploaded in multipart form data.
+            if (isset($data->file)) { // Uploaded file is in resource format. Used when file uploaded in multipart form data.
                 $handle = fopen($data->file, 'rb');
                 if (!$this->getAdapter()->writeStream($location, $handle)) {
                     $throwException();
@@ -70,7 +70,7 @@ class Filesystem
                 if (is_resource($handle)) {
                     fclose($handle);
                 }
-            } else { // Uploaded file is base64 formate. Used when file uploaded as base64.
+            } else { // Uploaded file is base64 format. Used when file uploaded as base64.
                 if (!$this->getAdapter()->write($location, $data)) {
                     $throwException();
                 }
