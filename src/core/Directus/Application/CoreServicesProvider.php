@@ -357,8 +357,8 @@ class CoreServicesProvider
 
                 return $payload;
             });
-            $addFilesUrl = function ($rows, $params = []) {
-                return \Directus\append_storage_information($rows, $params);
+            $addFilesUrl = function ($rows) {
+                return \Directus\append_storage_information($rows);
             };
             $emitter->addFilter('item.read.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
@@ -526,7 +526,7 @@ class CoreServicesProvider
             // Add file url and thumb url
             $emitter->addFilter('item.read.directus_files', function (Payload $payload) use ($addFilesUrl, $container) {
 
-                $rows = $addFilesUrl($payload->getData(), $payload->attribute('params'));
+                $rows = $addFilesUrl($payload->getData());
 
                 $payload->replace($rows);
 

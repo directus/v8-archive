@@ -1146,7 +1146,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         // Run the builder Select with this tablegateway
         // to run all the hooks against the result
-        $results = $this->selectWith($builder->buildSelect(), $params)->toArray();
+        $results = $this->selectWith($builder->buildSelect())->toArray();
 
         if (!$results && ArrayUtils::has($params, 'single')) {
             $message = null;
