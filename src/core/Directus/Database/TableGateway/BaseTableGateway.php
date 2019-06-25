@@ -729,7 +729,7 @@ class BaseTableGateway extends TableGateway
      * @throws \Directus\Permissions\Exception\ForbiddenFieldWriteException
      * @throws \Exception
      */
-    protected function executeSelect(Select $select, array $params = [])
+    protected function executeSelect(Select $select)
     {
 
 
@@ -771,8 +771,7 @@ class BaseTableGateway extends TableGateway
                 'item.read.' . $selectCollectionName
             ], $result, [
                 'selectState' => $selectState,
-                'collection_name' => $selectCollectionName,
-                'params' => $params
+                'collection_name' => $selectCollectionName
             ]);
         }
 
