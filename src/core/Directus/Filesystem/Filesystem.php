@@ -52,7 +52,6 @@ class Filesystem
      */
     public function write($location, $data, $replace = false)
     {
-
         $throwException = function () use ($location) {
             throw new ForbiddenException(sprintf('No permission to write: %s', $location));
         };
@@ -62,7 +61,7 @@ class Filesystem
         }
 
         try {
-            if (isset($data->file)) { // Uploaded file is in resource format. Used when file uploaded in multipart form data.
+            if (is_object($data)) { // Uploaded file is in resource format. Used when file uploaded in multipart form data.
                 $handle = fopen($data->file, 'rb');
                 if (!$this->getAdapter()->writeStream($location, $handle)) {
                     $throwException();
