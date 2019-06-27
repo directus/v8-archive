@@ -1131,7 +1131,13 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'width' => 'full',
                 'note' => 'The file-system naming convention for uploads.',
-                'sort' => 14
+                'sort' => 14,
+                'options' => json_encode([
+                    'choices' => [
+                        'uuid' => 'File Hash (Obfuscated)',
+                        'file_name' => 'File Name (Readable)'
+                    ]
+                ])
             ],
 
 

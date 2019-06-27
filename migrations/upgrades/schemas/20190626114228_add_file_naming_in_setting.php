@@ -10,7 +10,7 @@ class AddFileNamingInSetting extends AbstractMigration
       'field' => 'file_naming',
       'type' => 'string',
       'interface' => 'dropdown',
-      'options'   => ['choices' => ['file_name' => 'File Name (Readable)', 'uuid' => 'File hash (Obfuscate)']]
+      'options'   => ['choices' => ['uuid' => 'File Hash (Obfuscated)', 'file_name' => 'File Name (Readable)']]
     ];
     $collection = 'directus_settings';
     $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $fieldObject['field']);
