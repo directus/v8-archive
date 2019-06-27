@@ -26,7 +26,7 @@ class PostgresChangeColumn extends Column
         $this->column = $originalColumn;
         $sealBreaker = function () {
             return $this->type;
-        };        
+        };
         $this->type = $sealBreaker->call($originalColumn);
         parent::__construct($originalColumn->getName(), $originalColumn->isNullable(), $originalColumn->getDefault(), $originalColumn->getOptions());
     }
@@ -35,13 +35,12 @@ class PostgresChangeColumn extends Column
      * Override the generated SQL for PostgreSQL.
      * ALTER TABLE for PotgreSQL doesn't work with a single CHANGE COLUMN
      * but multiple calls to ALTER COLUMN for each piece of data to change
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function getExpressionData()
     {
-
         $options = $this->column->getOptions();
 
         $length = null;
@@ -51,7 +50,7 @@ class PostgresChangeColumn extends Column
                 return $this->getLengthExpression();
             };
             $length = $lengthExpressionSealBreaker->call($this->column);
-        }                
+        }
         if (isset($options['length'])) {
             $length = $options['length'];
         }
@@ -85,7 +84,7 @@ class PostgresChangeColumn extends Column
         }
 
         //Do not change default values for auto-incremented fields
-        if ($options["identity"]!==true) {
+        if (!isset($options["identity"]) || $options["identity"]!==true) {
             $spec .= ', ALTER COLUMN %s ';
             $params[] = $this->name;
             $types[]  = self::TYPE_IDENTIFIER;
