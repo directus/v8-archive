@@ -545,9 +545,17 @@ class Files
      */
     private function sanitizeName($fileName)
     {
-        // do not start with dot
-        $fileName = preg_replace('/^\./', 'dot-', $fileName);
-        $fileName = str_replace(' ', '_', $fileName);
+        // Swap out Non "Letters" with a -
+        $fileName = preg_replace('/[^\\pL\d^\.]+/u', '-', $fileName);
+
+        // Trim out extra -'s
+        $fileName = trim($fileName, '-');
+
+        // Make text lowercase
+        $fileName = strtolower($fileName);
+
+        // Strip out anything we haven't been able to convert
+        $fileName = preg_replace('/[^-\w\.]+/', '', $fileName);
 
         return $fileName;
     }
