@@ -947,7 +947,7 @@ class CoreServicesProvider
                     } else {
                         $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
                         $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 11211;
-                        
+
                         $client->addServer($host, $port);
                     }
                     $pool = $adapter == 'memcached' ? new MemcachedCachePool($client) : new MemcacheCachePool($client);
@@ -956,9 +956,16 @@ class CoreServicesProvider
                 if ($adapter == 'redis') {
                     $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
                     $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 6379;
+                    $socket = (isset($poolConfig['socket'])) ? $poolConfig['socket'] : null;
 
                     $client = new \Redis();
-                    $client->connect($host, $port);
+
+                    if ($socket) {
+                        $client->connect($socket);
+                    } else {
+                        $client->connect($host, $port);
+                    }
+
                     $pool = new RedisCachePool($client);
                 }
             }
