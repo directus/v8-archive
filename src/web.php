@@ -1,4 +1,5 @@
 <?php
+use Directus\Exception\ErrorException;
 
 $basePath =  realpath(__DIR__ . '/../');
 
@@ -22,18 +23,6 @@ if (!$projectName) {
     return \Directus\create_unknown_project_app($basePath);
 }
 
-$configFilePath = \Directus\create_config_path($basePath, $projectName);
-if (!file_exists($configFilePath)) {
-    http_response_code(404);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error' => [
-            'error' => 8,
-            'message' => 'API Environment Configuration Not Found: ' . $projectName
-        ]
-    ]);
-    exit;
-}
 
 $maintenanceFlagPath = \Directus\create_maintenanceflag_path($basePath);
 if (file_exists($maintenanceFlagPath)) {
@@ -41,14 +30,26 @@ if (file_exists($maintenanceFlagPath)) {
     header('Content-Type: application/json');
     echo json_encode([
         'error' => [
-            'error' => 21,
+            'code' => 21,
             'message' => 'This API instance is currently down for maintenance. Please try again later.'
         ]
     ]);
     exit;
 }
 
-$app = \Directus\create_app($basePath, require $configFilePath);
+try {
+    $app = \Directus\create_app_with_project_name($basePath, $projectName);
+} catch (ErrorException $e) {
+    http_response_code($e->getStatusCode());
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => [
+            'code' => $e->getCode(),
+            'message' => $e->getMessage()
+        ]
+    ]);
+    exit;
+}
 
 // ----------------------------------------------------------------------------
 //

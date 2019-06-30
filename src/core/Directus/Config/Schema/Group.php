@@ -23,15 +23,14 @@ class Group extends Base implements Node
     public function value($context)
     {
         $value = [];
+        $current = [];
         if (!isset($context[$this->key()])) {
             if ($this->optional()) {
                 throw new OmitException();
-            } else {
-                return;
             }
+        } else {
+            $current = $context[$this->key()];
         }
-
-        $current = $context[$this->key()];
 
         foreach ($this->children() as $children) {
             try {
