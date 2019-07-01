@@ -2,6 +2,7 @@ Icon
 .DS_Store
 *.log
 .cache
+.vscode
 
 # Ignore dev files
 /.idea
@@ -9,6 +10,7 @@ node_modules
 yarn.lock
 package-lock.json
 /nbproject/
+/tests/api/tmp/
 
 # Don't track composer phar/vendors
 composer.phar
