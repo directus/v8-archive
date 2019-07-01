@@ -11,6 +11,13 @@ class Schema {
      * @return Node
      */
     public static function get() {
+        $isEnv = getenv("DIRECTUS_USE_ENV") === "1";
+        if ($isEnv) {
+            $loggerPath = "php://stdout";
+        } else {
+            $loggerPath = __DIR__ . '/../../../../../logs/app.log';
+        }
+
         return new Group('directus', [
             new Group('app', [
                 new Value('env', Types::STRING, 'production'),
@@ -19,7 +26,7 @@ class Schema {
             new Group('settings', [
                 new Group('logger', [
                     // TODO: fix this mess
-                    new Value('path', Types::STRING, __DIR__ . '/../../../../../logs/app.log'),
+                    new Value('path', Types::STRING, $loggerPath),
                 ])
             ]),
             new Group('database', [

@@ -1,4 +1,7 @@
 <?php
+
+use Directus\Config\Context;
+use Directus\Config\Schema\Schema;
 use Directus\Exception\ErrorException;
 
 $basePath =  realpath(__DIR__ . '/../');
@@ -20,7 +23,13 @@ $projectName = \Directus\get_api_project_from_request();
 // Otherwise there's not way to tell which database to connect to
 // It returns 401 Unauthorized error to any endpoint except /server/ping
 if (!$projectName) {
-    return \Directus\create_unknown_project_app($basePath);
+    $schema = Schema::get();
+    if (getenv("DIRECTUS_USE_ENV") === "1") {
+        $configData = $schema->value(Context::from_env());
+    } else {
+        $configData = $schema->value([]);
+    }
+    return \Directus\create_unknown_project_app($basePath, $configData);
 }
 
 
