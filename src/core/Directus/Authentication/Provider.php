@@ -426,15 +426,21 @@ class Provider
      *
      * @param UserInterface $user
      *
+     * @param bool $needs2FA Whether the User needs 2FA
+     *
      * @return string
      */
-    public function generateAuthToken(UserInterface $user)
+    public function generateAuthToken(UserInterface $user, $needs2FA = false)
     {
         $payload = [
             'id' => (int) $user->getId(),
             // 'group' => $user->getGroupId(),
             'exp' => $this->getNewExpirationTime()
         ];
+
+        if ($needs2FA == true) {
+            $payload['needs2FA'] = true;
+        }
 
         return $this->generateToken(JWTUtils::TYPE_AUTH, $payload);
     }
@@ -518,7 +524,7 @@ class Provider
      * @throws ExpiredTokenException
      * @throws InvalidTokenException
      */
-    public function refreshToken($token)
+    public function refreshToken($token, $needs2FA = false)
     {
         $payload = $this->getTokenPayload($token);
 
@@ -527,6 +533,16 @@ class Provider
         }
 
         $payload->exp = $this->getNewExpirationTime();
+
+        $payload_arr = json_decode($payload);
+
+        if ($needs2FA == true) {
+            $payload_arr['needs2FA'] = true;
+        } else {
+            unset($payload['needs2FA']);
+        }
+
+        $payload = json_encode($payload_arr);
 
         return JWTUtils::encode($payload, $this->getSecretKey(), $this->getTokenAlgorithm());
     }
