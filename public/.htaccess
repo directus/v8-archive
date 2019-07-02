@@ -20,6 +20,12 @@ Options +SymLinksIfOwnerMatch
     RewriteRule !^admin index.php?%{QUERY_STRING} [L]
 </ifModule>
 
+<FilesMatch "\.(jpe?g|png|gif|mp3|wav|ogg|m4a|mp4|mov|wmv|avi)$">
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Allow-Methods "PUT, GET, POST, DELETE, OPTIONS"
+  Header set Access-Control-Allow-Headers "Access-Control-Allow-Headers,Content-Type"
+</FilesMatch>
+
 <IfModule mod_php7.c>
   php_value upload_max_filesize 50M
   php_value post_max_size 100M
