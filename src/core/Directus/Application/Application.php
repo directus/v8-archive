@@ -142,7 +142,7 @@ class Application extends App
     protected function createConfig(array $appConfig)
     {
         return [
-            'settings' => ArrayUtils::pull($appConfig, 'settings', []),
+            'settings' => $appConfig['settings'],
             'config' => function () use ($appConfig) {
                 return new Config($appConfig);
             }

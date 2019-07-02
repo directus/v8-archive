@@ -127,12 +127,14 @@ class CoreServicesProvider
 
             $filenameFormat = '%s.%s.log';
             foreach (Logger::getLevels() as $name => $level) {
+                if ($path !== "php://stdout" && $path !== "php://stderr") {
+                    $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d'));
+                }
                 $handler = new StreamHandler(
-                    $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d')),
+                    $path,
                     $level,
                     false
                 );
-
                 $handler->setFormatter($formatter);
                 $logger->pushHandler($handler);
             }
