@@ -1238,7 +1238,27 @@ class BaseTableGateway extends TableGateway
      * @throws \Exception
      */
     public function enforceUpdatePermission(Update $update)
-    {
+    {        
+        $collectionObject = $this->getTableSchema();
+        $statusField = $collectionObject->getStatusField();
+        $updateState = $update->getRawState();        
+        $updateData = $updateState['set'];
+        
+        //If a collection has status field then records are not actually deleting, they are soft deleting
+        //Check delete permission for soft delete
+        if (
+            $statusField
+            && ArrayUtils::has($updateData, $statusField->getName())
+            && in_array(
+                ArrayUtils::get($updateData, $collectionObject->getStatusField()->getName()),
+                $this->getStatusMapping()->getSoftDeleteStatusesValue()
+            )
+        ) { 
+            $delete = $this->sql->delete();
+            $delete->where($updateState['where']);            
+            $this->enforceDeletePermission($delete);
+        }
+        
         if ($this->acl->canUpdateAll($this->table) && $this->acl->isAdmin()) {
             return;
         }
