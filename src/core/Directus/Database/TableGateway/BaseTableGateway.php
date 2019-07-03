@@ -1263,9 +1263,7 @@ class BaseTableGateway extends TableGateway
             return;
         }
 
-        $collectionObject = $this->getTableSchema();
         $currentUserId = $this->acl->getUserId();
-        $updateState = $update->getRawState();
         $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
         $select = $this->sql->select();
         $select->where($updateState['where']);
