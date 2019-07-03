@@ -1257,6 +1257,7 @@ class BaseTableGateway extends TableGateway
             $delete = $this->sql->delete();
             $delete->where($updateState['where']);            
             $this->enforceDeletePermission($delete);
+            return;
         }
         
         if ($this->acl->canUpdateAll($this->table) && $this->acl->isAdmin()) {
