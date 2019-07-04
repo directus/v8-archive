@@ -9,7 +9,7 @@ use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
-use Directus\Authentication\Exception\MaximumInvalidLoginAttemptException;
+use Directus\Authentication\Exception\UserSuspendedException;
 use Directus\Database\TableGatewayFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
@@ -206,7 +206,7 @@ class Provider
                         'status' => DirectusUsersTableGateway::STATUS_SUSPENDED
                     ];
                     $tableGateway->update($update, ['id' => $userId]);
-                    throw new MaximumInvalidLoginAttemptException();
+                    throw new UserSuspendedException();
                 }
             }
         }
@@ -248,6 +248,21 @@ class Provider
 
         // TODO: Cast attributes values
         return $user->get('status') == $userProvider::STATUS_ACTIVE;
+    }
+
+    /**
+     * Checks if the user is suspended
+     *
+     * @param UserInterface $user
+     *
+     * @return bool
+     */
+    public function isSuspended(UserInterface $user)
+    {
+        $userProvider = $this->userProvider;
+
+        // TODO: Cast attributes values
+        return $user->get('status') == $userProvider::STATUS_SUSPENDED;
     }
 
     /**
@@ -655,6 +670,10 @@ class Provider
     {
         if (!($user instanceof UserInterface) || !$user->getId()) {
             throw new UserNotFoundException();
+        }
+
+        if ($this->isSuspended($user)) {
+            throw new UserSuspendedException();
         }
 
         if (!$this->isActive($user)) {

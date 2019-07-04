@@ -4,7 +4,7 @@ namespace Directus\Authentication\Exception;
 
 use Directus\Exception\NotFoundException;
 
-class MaximumInvalidLoginAttemptException extends NotFoundException
+class UserSuspendedException extends NotFoundException
 {
     const ERROR_CODE = 103;
 

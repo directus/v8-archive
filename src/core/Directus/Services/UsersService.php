@@ -77,11 +77,7 @@ class UsersService extends AbstractService
             $activityTableGateway->recordAction(
                 $id,
                 SchemaManager::COLLECTION_USERS,
-                DirectusActivityTableGateway::ACTION_UPDATE_USER_STATUS,
-                json_encode([
-                    'from' => $oldRecord['data']['status'],
-                    'to' => ArrayUtils::get($payload, $status->getName())
-                ])
+                DirectusActivityTableGateway::ACTION_UPDATE_USER_STATUS
             );
         }
 
