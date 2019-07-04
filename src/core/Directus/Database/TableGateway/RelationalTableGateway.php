@@ -1020,6 +1020,7 @@ class RelationalTableGateway extends BaseTableGateway
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
 
         if (!$rows || !$total) return $metadata;
+        $meta_param=explode(',',$params['meta']);
 
         if ($filtered) {
             $filteredparams = array_merge($params, [
@@ -1030,7 +1031,10 @@ class RelationalTableGateway extends BaseTableGateway
 
             $entries = $this->fetchItems($filteredparams);
             $total = count($entries);
-            $metadata['filter_count'] = $total;
+
+            if(in_array('filter_count',$meta_param) || in_array('*',$meta_param)) {
+                $metadata['filter_count'] = $total;
+            }
         }
 
         $limit = $limit < 1 ? $rows : $limit;
@@ -1046,20 +1050,23 @@ class RelationalTableGateway extends BaseTableGateway
             $last = ($pages < 2) ? null : (($pages - 1) * $limit);
         }
 
-        $metadata = array_merge($metadata, [
-            "limit" => $limit,
-            "offset" => $offset,
-            "page" => $page,
-            "page_count" => $pages,
-            "links" => [
-                "self" => $url,
-                "current" => "{$url}?" . urldecode(http_build_query(array_merge($params, ["page" => $page]))),
-                "next" => $next > 0 && $page < $pages ? ("{$url}?" . urldecode(http_build_query(array_merge($params, ["offset" => $next, "page" => $page + 1])))) : null,
-                "previous" => $previous >= 0 && $page > 1 ? ("{$url}?" . urldecode(http_build_query(array_merge($params, ["offset" => $previous, "page" => $page - 1])))) : null,
-                "first" => $first >= 0 ? ("{$url}?" . urldecode(http_build_query(array_merge($params, ["offset" => $first, "page" => 1])))) : null,
-                "last" => $last > 0 ? ("{$url}?" . urldecode(http_build_query(array_merge($params, ["offset" => $last, "page" => $pages])))) : null
-            ]
-        ]);
+        
+        if(in_array('page',$meta_param) || in_array('*',$meta_param)) {
+            $metadata = array_merge($metadata, [
+                "limit" => $limit,
+                "offset" => $offset,
+                "page" => $page,
+                "page_count" => $pages,
+                "links" => [
+                    "self" => $url,
+                    "current" => "{$url}?" . urldecode(http_build_query(array_merge($params, ["page" => $page]))),
+                    "next" => $next > 0 && $page < $pages ? ("{$url}?" . urldecode(http_build_query(array_merge($params, ["offset" => $next, "page" => $page + 1])))) : null,
+                    "previous" => $previous >= 0 && $page > 1 ? ("{$url}?" . urldecode(http_build_query(array_merge($params, ["offset" => $previous, "page" => $page - 1])))) : null,
+                    "first" => $first >= 0 ? ("{$url}?" . urldecode(http_build_query(array_merge($params, ["offset" => $first, "page" => 1])))) : null,
+                    "last" => $last > 0 ? ("{$url}?" . urldecode(http_build_query(array_merge($params, ["offset" => $last, "page" => $pages])))) : null
+                ]
+            ]);
+        }
 
         return $metadata;
     }
