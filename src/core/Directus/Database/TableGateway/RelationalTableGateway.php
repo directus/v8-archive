@@ -1019,10 +1019,14 @@ class RelationalTableGateway extends BaseTableGateway
         $pathname = explode('?', ArrayUtils::get($_SERVER, 'REQUEST_URI'));
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
 
-        if (!$rows || !$total) return $metadata;
         $meta_param=explode(',',$params['meta']);
+        if((in_array('filter_count',$meta_param) || in_array('*',$meta_param)) && $filtered) {
+            $metadata['filter_count'] = 0;
+        } 
 
-        if ($filtered) {
+        if (!$rows || !$total) return $metadata;
+
+        if ($filtered && (in_array('filter_count',$meta_param) || in_array('*',$meta_param))) {
             $filteredparams = array_merge($params, [
                 "depth" => 0,
                 "fields" => $this->primaryKeyFieldName,
@@ -1031,10 +1035,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $entries = $this->fetchItems($filteredparams);
             $total = count($entries);
-
-            if(in_array('filter_count',$meta_param) || in_array('*',$meta_param)) {
-                $metadata['filter_count'] = $total;
-            }
+            $metadata['filter_count'] = $total;
         }
 
         $limit = $limit < 1 ? $rows : $limit;
