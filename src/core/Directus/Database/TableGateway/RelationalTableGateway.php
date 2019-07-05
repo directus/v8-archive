@@ -1020,12 +1020,7 @@ class RelationalTableGateway extends BaseTableGateway
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
 
         $meta_param=explode(',',$params['meta']);
-        if((in_array('filter_count',$meta_param) || in_array('*',$meta_param)) && $filtered) {
-            $metadata['filter_count'] = 0;
-        } 
-
-        if (!$rows || !$total) return $metadata;
-
+        
         if ($filtered && (in_array('filter_count',$meta_param) || in_array('*',$meta_param))) {
             $filteredparams = array_merge($params, [
                 "depth" => 0,
