@@ -187,6 +187,10 @@ class ItemsService extends AbstractService
     public function update($collection, $id, $payload, array $params = [])
     {
         $this->enforceUpdatePermissions($collection, $payload, $params);
+        $recordData = $this->findByIds($collection,$id,['fields' => '*.*.*']);
+        if(!empty($recordData['data'])){
+            $payload = array_replace_recursive($recordData['data'], $payload);
+        }
         $this->validatePayload($collection, array_keys($payload), $payload, $params);
           
         //Validate alias field payload
