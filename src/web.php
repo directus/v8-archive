@@ -90,8 +90,21 @@ date_default_timezone_set(\Directus\get_default_timezone());
 
 $container = $app->getContainer();
 
-\Directus\register_global_hooks($app);
-\Directus\register_extensions_hooks($app);
+try {
+    \Directus\register_global_hooks($app);
+    \Directus\register_extensions_hooks($app);
+} catch (ErrorException $e) {
+    http_response_code($e->getStatusCode());
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => [
+            'code' => $e->getCode(),
+            'message' => $e->getMessage()
+        ]
+    ]);
+    exit;
+}
+
 
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
@@ -220,8 +233,8 @@ $app->group('/{project}', function () use ($middleware) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
     })
-    ->add($middleware['auth'])
-    ->add($middleware['table_gateway']);
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
 
     $this->group('/pages', function () {
         $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/pages', true);
