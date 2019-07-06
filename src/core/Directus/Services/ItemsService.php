@@ -204,7 +204,7 @@ class ItemsService extends AbstractService
                     foreach($payload[$colName] as $individual){     
                         if(!isset($individual['$delete'])){                        
                             $validatePayload = $individual[$aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField()];
-                            $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
+                            $this->validatePayload($relationalCollectionName, array_keys($validatePayload), $validatePayload,$params);
                         }
                     }
                 }                
@@ -215,9 +215,9 @@ class ItemsService extends AbstractService
                     $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionOne();
                 }
                 if($relationalCollectionName && isset($payload[$colName])){
-                    foreach($payload[$colName] as $individual){     
+                    foreach($payload[$colName] as $individual){ 
                         if(!isset($individual['$delete'])){                        
-                            $this->validatePayload($relationalCollectionName, null, $individual,$params,$collection);
+                            $this->validatePayload($relationalCollectionName, array_keys($individual), $individual,$params,$collection);
                         }
                     }
                 }
