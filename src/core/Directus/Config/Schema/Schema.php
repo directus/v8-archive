@@ -15,7 +15,7 @@ class Schema {
         if ($isEnv) {
             $loggerPath = "php://stdout";
         } else {
-            $loggerPath = __DIR__ . '/../../../../../logs/app.log';
+            $loggerPath = realpath(__DIR__ . '/../../../../../logs');
         }
 
         return new Group('directus', [

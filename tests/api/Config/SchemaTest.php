@@ -21,7 +21,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
             ],
             'settings' =>
             [
-                'logger' => 
+                'logger' =>
                 [
                 ]
             ],
@@ -112,5 +112,24 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                 [],
             ],
         ], $data);
+    }
+
+    public function testNonDefaults()
+    {
+        $schema = Schema::get();
+
+        $values = $schema->value([
+            "directus" => [
+                "storage" => [
+                    "adapter" => "xxxxxxxxx",
+                    "root" => "xxxxxxxxx",
+                    "root_url" => "xxxxxxxxx",
+                    "thumb_root" => "xxxxxxxxx",
+                ],
+            ]
+        ]);
+
+        $config = new Config($values);
+        $this->assertEquals($config->get("storage.root_url"), "xxxxxxxxx");
     }
 }
