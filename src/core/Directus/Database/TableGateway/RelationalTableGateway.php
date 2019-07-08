@@ -965,22 +965,25 @@ class RelationalTableGateway extends BaseTableGateway
         $tableSchema = $this->getTableSchema($this->table);
 
         $metadata = [];
+        $countedData = [];
 
         if (empty($list) || in_array('*', $list)) {
             $list = $allKeys;
         }
 
+        $countedData['result_count'] = count($entries);
         if (in_array('result_count', $list)) {
             $metadata['result_count'] = count($entries);
         }
 
+        $condition = null;
+        if ($this->getTableSchema()->hasStatusField()) {
+            $fieldName = $this->getTableSchema()->getStatusField()->getName();
+            $condition = new In($fieldName, $this->getNonSoftDeleteStatuses());
+        }
+        $countedData['total_count'] = $this->countTotal($condition);
+        
         if (in_array('total_count', $list)) {
-            $condition = null;
-            if ($this->getTableSchema()->hasStatusField()) {
-                $fieldName = $this->getTableSchema()->getStatusField()->getName();
-                $condition = new In($fieldName, $this->getNonSoftDeleteStatuses());
-            }
-
             $metadata['total_count'] = $this->countTotal($condition);
         }
 
@@ -990,7 +993,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         if (in_array('filter_count', $list) || in_array('page', $list)) {
-            $metadata = $this->createMetadataPagination($metadata, $_GET);
+            $metadata = $this->createMetadataPagination($metadata, $_GET,$countedData);
         }
 
         return $metadata;
@@ -1004,7 +1007,7 @@ class RelationalTableGateway extends BaseTableGateway
      *
      * @return array
      */
-    public function createMetadataPagination(array $metadata = [], array $params = [])
+    public function createMetadataPagination(array $metadata = [], array $params = [], array $countedData = [])
     {
         if (empty($params)) $params = $_GET;
 
@@ -1014,14 +1017,17 @@ class RelationalTableGateway extends BaseTableGateway
         $page = intval(ArrayUtils::get($params, 'page', 1));
         $offset = intval(ArrayUtils::get($params, 'offset', -1));
 
-        $total = intval(ArrayUtils::get($metadata, 'Published') ?: ArrayUtils::get($metadata, 'total_count'));
-        $rows = intval(ArrayUtils::get($metadata, 'result_count'));
+        $total = intval(ArrayUtils::get($metadata, 'Published') ?: ArrayUtils::get($countedData, 'total_count'));
+        $rows = intval(ArrayUtils::get($countedData, 'result_count'));
         $pathname = explode('?', ArrayUtils::get($_SERVER, 'REQUEST_URI'));
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
 
         $meta_param=explode(',',$params['meta']);
-        
-        if ($filtered && (in_array('filter_count',$meta_param) || in_array('*',$meta_param))) {
+        if((in_array('filter_count',$meta_param) || in_array('*',$meta_param))) {
+            $metadata['filter_count'] = $countedData['total_count'];
+        } 
+
+        if ($filtered) {
             $filteredparams = array_merge($params, [
                 "depth" => 0,
                 "fields" => $this->primaryKeyFieldName,
@@ -1030,9 +1036,11 @@ class RelationalTableGateway extends BaseTableGateway
 
             $entries = $this->fetchItems($filteredparams);
             $total = count($entries);
-            $metadata['filter_count'] = $total;
+            if(in_array('filter_count',$meta_param) || in_array('*',$meta_param)){
+                $metadata['filter_count'] = $total;
+            }
         }
-
+        
         $limit = $limit < 1 ? $rows : $limit;
         $pages = $total ? ceil($total / $limit) : 1;
         $page = $page > $pages ? $pages : ($page && $offset >= 0 ? (floor($offset / $limit) + 1) : $page);
