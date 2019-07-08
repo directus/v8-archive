@@ -1027,7 +1027,7 @@ class RelationalTableGateway extends BaseTableGateway
             $metadata['filter_count'] = $countedData['total_count'];
         } 
 
-        if ($filtered && (in_array('filter_count',$meta_param) || in_array('*',$meta_param))) {
+        if ($filtered) {
             $filteredparams = array_merge($params, [
                 "depth" => 0,
                 "fields" => $this->primaryKeyFieldName,
@@ -1036,7 +1036,9 @@ class RelationalTableGateway extends BaseTableGateway
 
             $entries = $this->fetchItems($filteredparams);
             $total = count($entries);
-            $metadata['filter_count'] = $total;
+            if(in_array('filter_count',$meta_param) || in_array('*',$meta_param)){
+                $metadata['filter_count'] = $total;
+            }
         }
         
         $limit = $limit < 1 ? $rows : $limit;
