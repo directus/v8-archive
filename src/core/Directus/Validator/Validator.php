@@ -11,11 +11,13 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Time;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Validation;
+use function Directus\get_directus_setting;
 
 class Validator
 {
@@ -106,6 +108,12 @@ class Validator
             case 'datetime':
                 $constraint = new DateTime();
                 break;
+            case 'mimeTypes':
+                $constraint = new Choice(['choices' => $options, 'message' => 'Choose a valid file.']);
+                break;
+            // case 'maxSize':
+            //     $constraint = new File(['maxSize' => $options]);
+            //     break;
             case 'regex':
                 $constraint = new Regex(['pattern' => $options]);
                 break;
@@ -129,7 +137,10 @@ class Validator
 
         foreach ($constraints as $constraint) {
             $options = null;
-
+        
+            if($constraint == 'mimeTypes') {
+                $options= explode(',', get_directus_setting('file_type_whitelist'));
+            }
             // NOTE: Simple implementation to adapt a new regex validation and its pattern
             if (strpos($constraint, ':')) {
                 $constraintParts = explode(':', $constraint);
@@ -139,7 +150,7 @@ class Validator
 
             $constraintsObjects[] = $this->getConstraint($constraint, $options);
         }
-
+        
         return $constraintsObjects;
     }
 }

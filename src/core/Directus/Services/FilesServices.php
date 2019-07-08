@@ -8,7 +8,9 @@ use Directus\Exception\BadRequestException;
 use Directus\Exception\BatchUploadNotAllowedException;
 use function Directus\is_a_url;
 use Directus\Util\ArrayUtils;
+use Directus\Util\MimeTypeUtils;
 use Directus\Util\DateTimeUtils;
+use Directus\Filesystem\Files;
 use Directus\Validator\Exception\InvalidRequestException;
 
 class FilesServices extends AbstractService
@@ -42,7 +44,8 @@ class FilesServices extends AbstractService
         if (is_a_url(ArrayUtils::get($data, 'data'))) {
             unset($validationConstraints['filename']);
         }
-
+        $data['type']=$data['data']->getClientMediaType();
+    
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
         $newFile = $tableGateway->createRecord($data, $this->getCRUDParams($params));
 
@@ -73,6 +76,12 @@ class FilesServices extends AbstractService
         $this->enforceUpdatePermissions($this->collection, $data, $params);
 
         $this->checkItemExists($this->collection, $id);
+        if (strpos($data['data'], 'data:') === 0) {
+            $parts = explode(',', $data['data']);
+            $file = $parts[1];
+            $info = Files::getFileInfoFromData(base64_decode($file));
+            $data['type']=$info['type'];
+        }
         $this->validatePayload($this->collection, array_keys($data), $data, $params);
 
         $tableGateway = $this->createTableGateway($this->collection);

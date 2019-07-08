@@ -150,10 +150,9 @@ abstract class AbstractService
             if (is_string($constraint)) {
                 $constraint = explode('|', $constraint);
             }
-
             $violations[$field] = $this->validator->validate(ArrayUtils::get($data, $field), $constraint);
         }
-
+     
         return $violations;
     }
 
@@ -256,7 +255,9 @@ abstract class AbstractService
                 $constraints[$field->getName()] = $columnConstraints;
             }
         }
-
+        if($collectionName == "directus_files") {
+          $constraints['type'] = 'mimeTypes';
+        }
         return $constraints;
     }
 
@@ -384,7 +385,7 @@ abstract class AbstractService
         // TODO: Ideally this should be part of the validator constraints
         // we need to accept options for the constraint builder
         $this->validatePayloadWithFieldsValidation($collectionName, $payload);
-
+       
         $this->validate($payload, $this->createConstraintFor($collectionName, $columnsToValidate, $skipRelatedCollectionField));
     }
 
