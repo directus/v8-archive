@@ -187,12 +187,18 @@ class ItemsService extends AbstractService
     public function update($collection, $id, $payload, array $params = [])
     {
         $this->enforceUpdatePermissions($collection, $payload, $params);
-        $recordData = $this->findByIds($collection,$id,['fields' => '*.*.*']);
-        if(!empty($recordData['data'])){
-            $payload = array_replace_recursive($recordData['data'], $payload);
+        $dbData = $this->findByIds($collection,$id,['fields' => '*.*.*']);
+        $recordData = !empty($dbData['data']) ? $dbData['data'] : [];
+        $tableColumns = SchemaService::getAllCollectionFields($collection);
+        $collectionFields = $payload;
+        foreach($tableColumns as $key => $column){
+            if(!empty($recordData) && !$column->isAlias() && !$column->hasPrimaryKey()){
+                $columnName = $column->getName(); 
+                $collectionFields[$columnName] = isset($collectionFields[$column->getName()]) ? $collectionFields[$column->getName()]: $recordData[$columnName];
+            }
         }
-        $this->validatePayload($collection, array_keys($payload), $payload, $params);
-          
+        $this->validatePayload($collection, null,  $collectionFields, $params);
+
         //Validate alias field payload
         $tableSchema = SchemaService::getCollection($collection);
         $collectionAliasColumns = $tableSchema->getAliasFields();
@@ -203,11 +209,26 @@ class ItemsService extends AbstractService
             
             if($this->isManyToManyField($aliasColumnDetails)){
                 $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
-                
                 if($relationalCollectionName && isset($payload[$colName])){
+                    $relationalCollectionPrimaryKey = SchemaService::getCollectionPrimaryKey($relationalCollectionName);
+                    $relationalCollectionColumns = SchemaService::getAllCollectionFields($relationalCollectionName);
+
                     foreach($payload[$colName] as $individual){     
-                        if(!isset($individual['$delete'])){                        
-                            $validatePayload = $individual[$aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField()];
+                        if(!isset($individual['$delete'])){ 
+                            $aliasField = $aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField();
+                            $validatePayload = $individual[$aliasField];
+                            $storedData = (!empty($recordData) && isset($recordData[$colName])) ? $recordData[$colName] : [] ;
+                            
+                            foreach($relationalCollectionColumns as $key => $column){
+                                if(!empty($recordData) && !$column->isAlias() && !$column->hasPrimaryKey() && isset($recordData[$colName])){
+                                    $search = array_search($individual[$relationalCollectionPrimaryKey], array_column($storedData, $relationalCollectionPrimaryKey));
+                                    if($search){
+                                        $columnName = $column->getName();
+                                        $dbObj = isset($storedData[$search][$aliasField]) ? $storedData[$search][$aliasField] : [];
+                                        $validatePayload[$columnName] = isset($validatePayload[$columnName]) ? $validatePayload[$columnName]: (isset($dbObj[$columnName]) ? $dbObj[$columnName] : null);
+                                    }
+                                }
+                            }
                             $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
                         }
                     }
@@ -219,11 +240,24 @@ class ItemsService extends AbstractService
                     $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionOne();
                 }
                 if($relationalCollectionName && isset($payload[$colName])){
+                    $relationalCollectionPrimaryKey = SchemaService::getCollectionPrimaryKey($relationalCollectionName);
+                    $relationalCollectionColumns = SchemaService::getAllCollectionFields($relationalCollectionName);
+
                     foreach($payload[$colName] as $individual){     
-                        if(!isset($individual['$delete'])){                        
-                            $this->validatePayload($relationalCollectionName, null, $individual,$params,$collection);
+                        if(!isset($individual['$delete'])){ 
+                            foreach($relationalCollectionColumns as $key => $column){
+                                if(!empty($recordData) && !$column->isAlias() && !$column->hasPrimaryKey() && isset($recordData[$colName])){
+                                    $search = array_search($individual[$relationalCollectionPrimaryKey], array_column($recordData[$colName], $relationalCollectionPrimaryKey));
+                                    if($search){
+                                        $columnName = $column->getName();
+                                        $individual[$columnName] = isset($individual[$columnName]) ? $individual[$columnName]: (isset($recordData[$colName][$search][$columnName]) ? $recordData[$colName][$search][$columnName] : null);
+                                    }
+                                }
+                            }
+                            $this->validatePayload($relationalCollectionName, null, $individual,$params);
                         }
                     }
+
                 }
             }            
         }
