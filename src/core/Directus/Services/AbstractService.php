@@ -20,6 +20,7 @@ use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Validator\Validator;
+use function Directus\get_directus_setting;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -152,7 +153,6 @@ abstract class AbstractService
             }
             $violations[$field] = $this->validator->validate(ArrayUtils::get($data, $field), $constraint);
         }
-     
         return $violations;
     }
 
@@ -256,7 +256,12 @@ abstract class AbstractService
             }
         }
         if($collectionName == "directus_files") {
-          $constraints['type'] = 'mimeTypes';
+          if(get_directus_setting('file_type_whitelist') != null){
+              $constraints['type'] = 'mimeTypes';
+          }
+          if(get_directus_setting('file_max_size') != null){
+            $constraints['filesize'] = 'maxSize';
+          }
         }
         return $constraints;
     }
