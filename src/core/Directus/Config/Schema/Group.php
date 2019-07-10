@@ -26,7 +26,7 @@ class Group extends Base implements Node
         $current = [];
 
         foreach ($context as $context_key => $context_value) {
-            $context[str_replace("_", "", $context_key)] = $context_value;
+            $context[strtolower(str_replace("_", "", $context_key))] = $context_value;
         }
 
         if (!isset($context[$this->key()])) {

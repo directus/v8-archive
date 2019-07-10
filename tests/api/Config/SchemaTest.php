@@ -48,6 +48,10 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                 'root' => 'public/uploads/_/originals',
                 'root_url' => '/uploads/_/originals',
                 'thumb_root' => 'public/uploads/_/thumbnails',
+                'options' => [
+                    'ACL' => 'public-read',
+                    'Cache-Control' => 'max-age=604800',
+                ],
             ],
             'mail' =>
             [
@@ -102,7 +106,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                 'token' => 'a-kind-of-unique-token',
                 'login' => true,
             ],
-            'tableblacklist' =>
+            'tableBlacklist' =>
             [],
             'auth' =>
             [
@@ -112,6 +116,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                 [],
             ],
         ], $data);
+
     }
 
     public function testNonDefaults()

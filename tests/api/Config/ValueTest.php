@@ -26,4 +26,25 @@ class ValueTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInternalType("int", $value["value"]);
     }
+
+    public function testOptionalValue()
+    {
+        $context = Context::from_array([
+            "group" => [
+                "optional" => "2222"
+            ]
+        ]);
+
+        $group = new Group("group", [
+            new Value("value", Types::INTEGER, 1111),
+            new Value("optional?", Types::INTEGER),
+            new Value("optional2?", Types::INTEGER)
+        ]);
+
+        $values = $group->value($context);
+
+        $this->assertEquals(1111, $values["value"]);
+        $this->assertEquals(2222, $values["optional"]);
+        $this->assertEquals(null, @$values["optional2"]);
+    }
 }

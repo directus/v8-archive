@@ -36,7 +36,7 @@ class Value extends Base implements Node
     public function value($context)
     {
         foreach ($context as $context_key => $context_value) {
-            $context[str_replace("_", "", $context_key)] = $context_value;
+            $context[strtolower(str_replace("-", "", str_replace("_", "", $context_key)))] = $context_value;
         }
 
         if (!isset($context) || !isset($context[$this->key()])) {
