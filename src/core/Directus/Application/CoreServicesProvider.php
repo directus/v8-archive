@@ -49,6 +49,7 @@ use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
 use function Directus\is_a_url;
 use function Directus\is_iso8601_datetime;
+use Directus\Logger\Exception\InvalidLoggerConfigurationException;
 use Directus\Mail\Mailer;
 use Directus\Mail\TransportManager;
 use Directus\Mail\Transports\SendMailTransport;
@@ -127,9 +128,19 @@ class CoreServicesProvider
                 $path = $config->get('settings.logger.path');
             }
 
+            if (substr($path, -1) == '/') {
+                $path = substr($path, 0, strlen($path) - 1);
+            }
+
+            if ($path !== 'php://stdout' && $path !== 'php://stderr') {
+                if (!is_dir($path)) {
+                    throw new InvalidLoggerConfigurationException('path');
+                }
+            }
+
             $filenameFormat = '%s.%s.log';
             foreach (Logger::getLevels() as $name => $level) {
-                if ($path !== "php://stdout" && $path !== "php://stderr") {
+                if ($path !== 'php://stdout' && $path !== 'php://stderr') {
                     $loggerPath = $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d'));
                 } else {
                     $loggerPath = $path;
