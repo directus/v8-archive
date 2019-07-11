@@ -44,10 +44,12 @@ class FilesServices extends AbstractService
         if (is_a_url(ArrayUtils::get($data, 'data'))) {
             unset($validationConstraints['filename']);
         }
-        $file=json_decode(json_encode($data['data']));
-        $data['type']=$file->file;
-        $data['filesize']=$file->file;
-       
+        
+        $files = $this->container->get('files');
+        $result=$files->getFileSizeType($data['data']);
+        $data['type']=$result['type'];
+        $data['filesize']=$result['filesize'];
+      
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
         $newFile = $tableGateway->createRecord($data, $this->getCRUDParams($params));
 
@@ -82,9 +84,12 @@ class FilesServices extends AbstractService
             $parts = explode(',', $data['data']);
             $file = $parts[1];
             $info = Files::getFileInfoFromData(base64_decode($file));
-            $data['type']=$info['type'];
-            $data['filesize']=$info['size'];
         }
+        $files = $this->container->get('files');
+        $result=$files->getFileSizeType($data['data']);
+        $data['type']=$result['type'];
+        $data['filesize']=$result['filesize'];
+        
         $this->validatePayload($this->collection, array_keys($data), $data, $params);
 
         $tableGateway = $this->createTableGateway($this->collection);

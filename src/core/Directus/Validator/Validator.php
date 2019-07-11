@@ -4,6 +4,7 @@ namespace Directus\Validator;
 
 use Directus\Validator\Constraints\DateTime;
 use Directus\Validator\Constraints\Required;
+use Directus\Validator\Constraints\File;
 use Directus\Validator\Exception\UnknownConstraintException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Validation;
@@ -12,7 +13,6 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Time;
-use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
