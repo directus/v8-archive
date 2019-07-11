@@ -256,7 +256,7 @@ abstract class AbstractService
             }
         }
         if($collectionName == "directus_files") {
-          if(get_directus_setting('file_type_whitelist') != null){
+          if(get_directus_setting('file_mimetype_whitelist') != null){
               $constraints['type'] = 'mimeTypes';
           }
           if(get_directus_setting('file_max_size') != null){

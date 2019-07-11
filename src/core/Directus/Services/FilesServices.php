@@ -45,7 +45,7 @@ class FilesServices extends AbstractService
             unset($validationConstraints['filename']);
         }
         $file=json_decode(json_encode($data['data']));
-        $data['type']=$data['data']->getClientMediaType();
+        $data['type']=$file->file;
         $data['filesize']=$file->file;
        
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));

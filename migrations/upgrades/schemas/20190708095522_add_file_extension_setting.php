@@ -7,7 +7,7 @@ class AddFileExtensionSetting extends AbstractMigration
     public function up()
     {
         $fieldObject = [
-            'field' => 'file_type_whitelist',
+            'field' => 'file_mimetype_whitelist',
             'type' => 'array',
             'interface' => 'tags',
         ];

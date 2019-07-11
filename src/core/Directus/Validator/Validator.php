@@ -110,7 +110,7 @@ class Validator
                 $constraint = new DateTime();
                 break;
             case 'mimeTypes':
-                $constraint = new Choice(['choices' => $options,'message'=> 'The mime type of the file is invalid. Allowed mime types are '.get_directus_setting('file_type_whitelist')]);
+                $constraint = new File(['mimeTypes' => $options]);
                 break;
             case 'maxSize':
                 $constraint = new File(['maxSize' => get_directus_setting('file_max_size')]);
@@ -140,7 +140,7 @@ class Validator
             $options = null;
         
             if($constraint == 'mimeTypes') {
-                $options= explode(',', get_directus_setting('file_type_whitelist'));
+                $options= explode(',', get_directus_setting('file_mimetype_whitelist'));
             }
             // NOTE: Simple implementation to adapt a new regex validation and its pattern
             if (strpos($constraint, ':')) {
