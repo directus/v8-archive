@@ -78,13 +78,9 @@ class FilesServices extends AbstractService
     public function update($id, array $data, array $params = [])
     {
         $this->enforceUpdatePermissions($this->collection, $data, $params);
-
+        
         $this->checkItemExists($this->collection, $id);
-        if (strpos($data['data'], 'data:') === 0) {
-            $parts = explode(',', $data['data']);
-            $file = $parts[1];
-            $info = Files::getFileInfoFromData(base64_decode($file));
-        }
+
         $files = $this->container->get('files');
         $result=$files->getFileSizeType($data['data']);
         $data['type']=$result['type'];
