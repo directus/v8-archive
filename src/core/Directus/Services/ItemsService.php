@@ -185,6 +185,7 @@ class ItemsService extends AbstractService
                 $collectionFields[$columnName] = isset($collectionFields[$column->getName()]) ? $collectionFields[$column->getName()]: $recordData[$columnName];
             }
         }
+        
         $this->validatePayload($collection, null,  $collectionFields, $params);
     }
     
@@ -241,6 +242,7 @@ class ItemsService extends AbstractService
             $parentCollectionName = $aliasColumnDetails->getRelationship()->getCollectionMany();
         }
         if($relationalCollectionName && isset($payload[$colName])){
+            
             $relationalCollectionPrimaryKey = SchemaService::getCollectionPrimaryKey($relationalCollectionName);
             $parentCollectionPrimaryKey = SchemaService::getCollectionPrimaryKey($parentCollectionName);
             $relationalCollectionColumns = SchemaService::getAllCollectionFields($relationalCollectionName);
@@ -266,10 +268,9 @@ class ItemsService extends AbstractService
                     }
 
                     // only add parent id's to items that are lacking the parent column
-                    if (!array_key_exists($foreignJoinColumn, $individual)) {
+                    if (empty($individual[$foreignJoinColumn])) {
                         $individual[$foreignJoinColumn] = $recordData[$parentCollectionPrimaryKey];
                     }
-                    
                     $this->validatePayload($relationalCollectionName, null, $individual,$params);
                 }
             }
