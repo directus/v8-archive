@@ -229,7 +229,7 @@ class ItemsService extends AbstractService
     }
     
     /**
-     * Validate Alias Collection Fields
+     * Validate Alias Collection Fields (O2M and M2O - Including Translations and Files)
      */
     public function validateAliasCollection($payload, $params, $aliasColumnDetails, $recordData){
         $colName = $aliasColumnDetails->getName();
