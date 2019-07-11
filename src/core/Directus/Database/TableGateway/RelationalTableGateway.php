@@ -607,8 +607,8 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
-            // Update/Add foreign record
-            if ($this->recordDataContainsNonPrimaryKeyData($foreignRow, $foreignTableSchema->getPrimaryKeyName()) && ($field->getType() != "file" && !isset($parentRow[$fieldName][$primaryKey]))) {
+            // TODO: Remove the hardcode consition of file
+            if ($this->recordDataContainsNonPrimaryKeyData($foreignRow, $foreignTableSchema->getPrimaryKeyName()) && $field->getType() != "file" ) {
                  // NOTE: using manageRecordUpdate instead of addOrUpdateRecordByArray to update related data
                 $foreignRow = $ForeignTable->manageRecordUpdate($foreignTableName, $foreignRow);
             }
