@@ -128,22 +128,31 @@ class CoreServicesProvider
                 $path = $config->get('settings.logger.path');
             }
 
-            if (substr($path, -1) == '/') {
-                $path = substr($path, 0, strlen($path) - 1);
-            }
+            $pathIsStream = $path == 'php://stdout' || $path == 'php://stderr';
+            if (!$pathIsStream) {
+                if (file_exists($path)) {
+                    if (is_file($path)) {
+                        $path = dirname($path);
+                    }
+                } else {
+                    mkdir($path, 0777, true);
+                }
 
-            if ($path !== 'php://stdout' && $path !== 'php://stderr') {
-                if (!is_dir($path)) {
+                if (!is_dir($path) || !is_writeable($path)) {
                     throw new InvalidLoggerConfigurationException('path');
+                }
+
+                if (substr($path, -1) == '/') {
+                    $path = substr($path, 0, strlen($path) - 1);
                 }
             }
 
             $filenameFormat = '%s.%s.log';
             foreach (Logger::getLevels() as $name => $level) {
-                if ($path !== 'php://stdout' && $path !== 'php://stderr') {
-                    $loggerPath = $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d'));
-                } else {
+                if ($pathIsStream) {
                     $loggerPath = $path;
+                } else {
+                    $loggerPath = $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d'));
                 }
                 $handler = new StreamHandler(
                     $loggerPath,
