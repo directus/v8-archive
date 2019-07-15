@@ -255,14 +255,6 @@ abstract class AbstractService
                 $constraints[$field->getName()] = $columnConstraints;
             }
         }
-        if($collectionName == "directus_files") {
-          if(get_directus_setting('file_mimetype_whitelist') != null){
-              $constraints['type'] = 'mimeTypes';
-          }
-          if(get_directus_setting('file_max_size') != null){
-            $constraints['filesize'] = 'maxSize';
-          }
-        }
         return $constraints;
     }
 

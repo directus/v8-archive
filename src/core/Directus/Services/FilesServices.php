@@ -7,6 +7,8 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\BatchUploadNotAllowedException;
 use function Directus\is_a_url;
+use function Directus\validate_file;
+use function Directus\get_directus_setting;
 use Directus\Util\ArrayUtils;
 use Directus\Util\MimeTypeUtils;
 use Directus\Util\DateTimeUtils;
@@ -44,13 +46,17 @@ class FilesServices extends AbstractService
         if (is_a_url(ArrayUtils::get($data, 'data'))) {
             unset($validationConstraints['filename']);
         }
-        
+        $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
         $files = $this->container->get('files');
         $result=$files->getFileSizeType($data['data']);
-        $data['type']=$result['type'];
-        $data['filesize']=$result['filesize'];
-      
-        $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
+
+        if(get_directus_setting('file_mimetype_whitelist') != null){
+            validate_file($result['mimeType'],'mimeTypes');
+        }
+        if(get_directus_setting('file_max_size') != null){
+            validate_file($result['size'],'maxSize');
+        }
+
         $newFile = $tableGateway->createRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
@@ -80,14 +86,18 @@ class FilesServices extends AbstractService
         $this->enforceUpdatePermissions($this->collection, $data, $params);
         
         $this->checkItemExists($this->collection, $id);
+        $this->validatePayload($this->collection, array_keys($data), $data, $params);
 
         $files = $this->container->get('files');
         $result=$files->getFileSizeType($data['data']);
-        $data['type']=$result['type'];
-        $data['filesize']=$result['filesize'];
-        
-        $this->validatePayload($this->collection, array_keys($data), $data, $params);
 
+        if(get_directus_setting('file_mimetype_whitelist') != null){
+            validate_file($result['mimeType'],'mimeTypes');
+        }
+        if(get_directus_setting('file_max_size') != null){
+            validate_file($result['size'],'maxSize');
+        }
+        
         $tableGateway = $this->createTableGateway($this->collection);
         $newFile = $tableGateway->updateRecord($id, $data, $this->getCRUDParams($params));
 

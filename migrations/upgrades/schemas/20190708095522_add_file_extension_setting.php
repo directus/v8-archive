@@ -10,6 +10,7 @@ class AddFileExtensionSetting extends AbstractMigration
             'field' => 'file_mimetype_whitelist',
             'type' => 'array',
             'interface' => 'tags',
+            'options'   => json_encode(['placeholder' => 'Type a file mimetype and then hit enter or comma.'])
         ];
         $collection = 'directus_settings';
 
@@ -17,8 +18,8 @@ class AddFileExtensionSetting extends AbstractMigration
         $result = $this->query($checkSql)->fetch();
 
         if (!$result) {
-            $insertSqlFormat = 'INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`) VALUES ("%s", "%s", "%s", "%s");';
-            $insertSql = sprintf($insertSqlFormat, $collection, $fieldObject['field'], $fieldObject['type'], $fieldObject['interface']);
+            $insertSqlFormat = "INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`, `options`) VALUES ('%s', '%s', '%s', '%s', '%s');";
+            $insertSql = sprintf($insertSqlFormat, $collection, $fieldObject['field'], $fieldObject['type'], $fieldObject['interface'],$fieldObject['options']);
             $this->execute($insertSql);
         }
 

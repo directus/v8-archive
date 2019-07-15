@@ -11,8 +11,8 @@ class AddFileMaxSizeSetting extends AbstractMigration
             'field' => 'file_max_size',
             'type' => 'string',
             'interface' => 'text-input',
-            'options'   => json_encode(['placeholder' => '10k or 10M']),
-            'note' => 'It accepts value like 10k,10M etc.',
+            'options'   => json_encode(['placeholder' => 'i.e. 10KB or 10MB or 10GB']),
+            'note' => 'i.e. 10KB ,10MB ,10GB.',
         ];
         $collection = 'directus_settings';
 
