@@ -79,7 +79,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
             }
         } catch (\Exception $e) {
             if ($publicRoleId) {
-
                 // NOTE: 0 will not represent a "guest" or the "public" user
                 // To prevent the issue where user column on activity table can't be null
                 $user = new User([
