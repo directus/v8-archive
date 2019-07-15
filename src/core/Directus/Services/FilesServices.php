@@ -10,7 +10,6 @@ use function Directus\is_a_url;
 use function Directus\validate_file;
 use function Directus\get_directus_setting;
 use Directus\Util\ArrayUtils;
-use Directus\Util\MimeTypeUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Filesystem\Files;
 use Directus\Validator\Exception\InvalidRequestException;

@@ -6,8 +6,6 @@ use Directus\Application\Application;
 use function Directus\filename_put_ext;
 use function Directus\generate_uuid5;
 use function Directus\is_a_url;
-use function Directus\get_directus_setting;
-use function Directus\validate_file;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
