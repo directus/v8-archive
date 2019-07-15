@@ -14,7 +14,6 @@ use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
 use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
-use Directus\Exception\ErrorException;
 
 class AuthenticationMiddleware extends AbstractMiddleware
 {
@@ -78,7 +77,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
                     $permissionsByCollection = $permissionsTable->getRolePermissions($publicRoleId);
                 }
             }
-        } catch (ErrorException $e) {
+        } catch (\Exception $e) {
             if ($publicRoleId) {
 
                 // NOTE: 0 will not represent a "guest" or the "public" user
