@@ -6,7 +6,6 @@ use Directus\Validator\Constraints\DateTime;
 use Directus\Validator\Constraints\Required;
 use Directus\Validator\Exception\UnknownConstraintException;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Constraints\Date;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -16,7 +15,7 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
-use function Directus\get_directus_setting;
+use Symfony\Component\Validator\Validation;
 
 class Validator
 {
