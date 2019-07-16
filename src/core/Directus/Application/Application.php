@@ -142,7 +142,7 @@ class Application extends App
     protected function createConfig(array $appConfig)
     {
         return [
-            'settings' => $appConfig['settings'],
+            'settings' => isset($appConfig['settings']) ? $appConfig['settings'] : [],
             'config' => function () use ($appConfig) {
                 return new Config($appConfig);
             }
