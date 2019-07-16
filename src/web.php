@@ -8,6 +8,11 @@ $basePath =  realpath(__DIR__ . '/../');
 
 require $basePath . '/vendor/autoload.php';
 
+// Disable error reporting until we know which kind of
+// environment we're in (development, production)
+error_reporting(0);
+ini_set('display_errors', 0);
+
 // Creates a simple endpoint to test the server rewriting
 // If the server responds "pong" it means the rewriting works
 // NOTE: The API requires the default project to be configured to properly works
