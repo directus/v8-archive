@@ -18,7 +18,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(1, $config->get("option"));
     }
-    
+
     public function testItemsUsingSchema()
     {
         // Get the configuration schema
@@ -40,7 +40,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         // Fetch a value from config
         $this->assertEquals("admin@example.com", $config->get("mail.default.from"));
     }
-    
+
     public function testSchemaUsingEnvironement()
     {
         // Simulate an environment variable
@@ -51,7 +51,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $context = Context::from_env();
 
         // We don't need to put it inside directus key in env
-        $values = $schema->value($context); 
+        $values = $schema->value($context);
 
         // Fetch values
         $config = new Config($values);

@@ -21,7 +21,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
             ],
             'settings' =>
             [
-                'logger' => 
+                'logger' =>
                 [
                 ]
             ],
@@ -48,6 +48,10 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                 'root' => 'public/uploads/_/originals',
                 'root_url' => '/uploads/_/originals',
                 'thumb_root' => 'public/uploads/_/thumbnails',
+                'options' => [
+                    'ACL' => 'public-read',
+                    'Cache-Control' => 'max-age=604800',
+                ],
             ],
             'mail' =>
             [
@@ -102,7 +106,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                 'token' => 'a-kind-of-unique-token',
                 'login' => true,
             ],
-            'tableblacklist' =>
+            'tableBlacklist' =>
             [],
             'auth' =>
             [
@@ -112,5 +116,25 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                 [],
             ],
         ], $data);
+
+    }
+
+    public function testNonDefaults()
+    {
+        $schema = Schema::get();
+
+        $values = $schema->value([
+            "directus" => [
+                "storage" => [
+                    "adapter" => "xxxxxxxxx",
+                    "root" => "xxxxxxxxx",
+                    "root_url" => "xxxxxxxxx",
+                    "thumb_root" => "xxxxxxxxx",
+                ],
+            ]
+        ]);
+
+        $config = new Config($values);
+        $this->assertEquals($config->get("storage.root_url"), "xxxxxxxxx");
     }
 }
