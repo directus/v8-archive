@@ -36,6 +36,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
             $key = md5($container->get('acl')->getUserId().'@'.$requestPath.'?'.http_build_query($parameters));
         } else if ($request->isPost() && StringUtils::endsWith($request->getUri()->getPath(), '/gql')) {
             // Handle caching for GraphQL query that are POST.
+            // TODO:: Add support for ACL and Mutation
             $body = $request->getBody();
             $key = md5($body->getContents());
             $body->rewind();
