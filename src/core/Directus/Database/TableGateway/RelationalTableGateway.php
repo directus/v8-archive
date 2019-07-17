@@ -1208,7 +1208,7 @@ class RelationalTableGateway extends BaseTableGateway
             }, $results);
         }
 
-        if ($statusField && $this->acl->getCollectionStatuses($this->table)) {
+        if ($statusField && $this->acl != null && $this->acl->getCollectionStatuses($this->table)) {
             foreach ($results as $index => &$item) {
                 $statusId = ArrayUtils::get($item, $statusField->getName());
                 $blacklist = $this->acl->getReadFieldBlacklist($this->table, $statusId);
