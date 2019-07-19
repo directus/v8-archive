@@ -17,6 +17,10 @@ composer.phar
 composer.lock
 /vendor
 
+# Exclude env vars and custom deployment scripts
+.env
+deploy.*
+
 # Ignore configuration files
 /config/*
 !/config/migrations.php
