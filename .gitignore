@@ -19,7 +19,7 @@ composer.lock
 
 # Exclude env vars and custom deployment scripts
 .env
-delpoy.*
+deploy.*
 
 # Ignore configuration files
 /config/*
