@@ -305,7 +305,7 @@ class ItemsService extends AbstractService
                             }
                         }
                         if($deletedData == count($recordData[$columnName])){
-                            throw new UnprocessableEntityException('Atleast one '.$columnName.' must be there.');
+                            throw new UnprocessableEntityException($columnName.': This value should not be blank.');
                         }
                     }
                 }
