@@ -53,7 +53,8 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
             if (!is_null($user)) {
                 $rolesIpWhitelist = $this->getUserRolesIPWhitelist($user->getId());
-                $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());
+                $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());                
+                $hookEmitter->run('auth.success', [$user]);
             } else {
                 if (is_null($user) && $publicRoleId) {
                     // NOTE: 0 will not represent a "guest" or the "public" user
@@ -100,8 +101,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
         $acl->setUserId($user->getId());
         $acl->setUserEmail($user->getEmail());
         $acl->setUserFullName($user->get('first_name') . ' ' . $user->get('last_name'));
-
-        $hookEmitter->run('auth.success', [$user]);
 
         return $next($request, $response);
     }
