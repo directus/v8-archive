@@ -12,6 +12,7 @@ use Directus\Util\StringUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 use Directus\Database\SchemaService;
+use Directus\Database\Schema\DataTypes;
 
 class ItemsService extends AbstractService
 {
@@ -182,7 +183,7 @@ class ItemsService extends AbstractService
         foreach($tableColumns as $key => $column){
             if(!empty($recordData)  && !$column->hasPrimaryKey()){
                 $columnName = $column->getName(); 
-                $collectionFields[$columnName] = isset($collectionFields[$column->getName()]) ? $collectionFields[$column->getName()]: $recordData[$columnName];
+                $collectionFields[$columnName] = array_key_exists($column->getName(), $collectionFields) ? $collectionFields[$column->getName()]: (DataTypes::isJson($column->getType()) ? (array) $recordData[$columnName] : $recordData[$columnName]);
             }
         }
         
@@ -211,14 +212,14 @@ class ItemsService extends AbstractService
                             $columnName = $column->getName();
                             if($search !== false){
                                 $dbObj = isset($storedData[$search][$aliasField]) ? $storedData[$search][$aliasField] : [];
-                                $validatePayload[$columnName] = isset($validatePayload[$columnName]) ? $validatePayload[$columnName]: (isset($dbObj[$columnName]) ? $dbObj[$columnName] : null);
+                                $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($dbObj[$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $dbObj[$columnName] : $dbObj[$columnName])) : null);
                             }else{
                                 $relationalCollectionData = $this->findByIds(
                                     $relationalCollectionName,
                                     $validatePayload[$relationalCollectionPrimaryKey],
                                     $params
                                 );
-                                $validatePayload[$columnName] = isset($validatePayload[$columnName]) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? $relationalCollectionData['data'][$columnName] : null);
+                                $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
                             }
                         }
                     }
@@ -255,14 +256,14 @@ class ItemsService extends AbstractService
                             $search = array_search($individual[$relationalCollectionPrimaryKey], array_column($recordData[$colName], $relationalCollectionPrimaryKey));
                             $columnName = $column->getName();
                             if($search !== false){
-                                $individual[$columnName] = isset($individual[$columnName]) ? $individual[$columnName]: (isset($recordData[$colName][$search][$columnName]) ? $recordData[$colName][$search][$columnName] : null);
+                                $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($recordData[$colName][$search][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $recordData[$colName][$search][$columnName] : $recordData[$colName][$search][$columnName])) : null);
                             }else{
                                 $relationalCollectionData = $this->findByIds(
                                     $relationalCollectionName,
                                     $individual[$relationalCollectionPrimaryKey],
                                     $params
                                 );
-                                $individual[$columnName] = isset($individual[$columnName]) ? $individual[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? $relationalCollectionData['data'][$columnName] : null);
+                                $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
                             }
                         }
                     }
