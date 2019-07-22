@@ -14,7 +14,10 @@ use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 use Directus\Database\SchemaService;
 use Directus\Database\Schema\DataTypes;
+<<<<<<< HEAD
 use function Directus\get_directus_setting;
+=======
+>>>>>>> Parent + Nested validation changes (#1138)
 
 class ItemsService extends AbstractService
 {
