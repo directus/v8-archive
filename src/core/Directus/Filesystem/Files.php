@@ -685,8 +685,8 @@ class Files
         $result=[];
         if (is_a_url($data)) {
             $dataInfo = $this->getLink($data);
-            $result['mimeType']=$dataInfo['type'];
-            $result['size']=$dataInfo['filesize'] ? $dataInfo['filesize'] : $dataInfo['size'];
+            $result['mimeType'] = isset($dataInfo['type']) ? $dataInfo['type'] : null;
+            $result['size'] = isset($dataInfo['filesize']) ? $dataInfo['filesize'] : (isset($dataInfo['size']) ? $dataInfo['size'] : null);
         }else if(is_object($data)) {
             $result['mimeType']=$data->getClientMediaType();
             $result['size']=$data->getSize();
@@ -694,8 +694,8 @@ class Files
             $parts = explode(',', $data);
             $file = $parts[1];
             $dataInfo = $this->getFileInfoFromData(base64_decode($file));
-            $result['mimeType']=$dataInfo['type'];
-            $result['size']=$dataInfo['size'];
+            $result['mimeType']=isset($dataInfo['type']) ? $dataInfo['type'] : null;
+            $result['size']=isset($dataInfo['size']) ? $dataInfo['size'] : null;
         }
         return $result;
     }
