@@ -14,6 +14,7 @@ use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 use Directus\Database\SchemaService;
 use Directus\Database\Schema\DataTypes;
+use function Directus\get_directus_setting;
 
 class ItemsService extends AbstractService
 {
@@ -23,17 +24,28 @@ class ItemsService extends AbstractService
         'status'
     ];
 
+    const PASSWORD_FIELD = 'password';
+
     public function createItem($collection, $payload, $params = [])
     {
         $this->enforceCreatePermissions($collection, $payload, $params);
         $this->validatePayload($collection, null, $payload, $params);
         
+        // Validate Password if password policy settled in the system settings.
+        if($collection == SchemaManager::COLLECTION_USERS){
+            $passwordValidation = get_directus_setting('password_policy');
+            if(!empty($passwordValidation)){
+                $this->validate($payload,[static::PASSWORD_FIELD => ['regex:'.$passwordValidation ]]);
+            }
+        }
+
         //Validate nested payload
         $tableSchema = SchemaService::getCollection($collection);
         $collectionAliasColumns = $tableSchema->getAliasFields();
         
         foreach ($collectionAliasColumns as $aliasColumnDetails) {
             $colName = $aliasColumnDetails->getName();
+           
             $relationalCollectionName = "";
             
             if($this->isManyToManyField($aliasColumnDetails)){
