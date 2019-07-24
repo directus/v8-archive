@@ -20,7 +20,7 @@ Options +SymLinksIfOwnerMatch
     RewriteRule !^admin index.php?%{QUERY_STRING} [L]
 </ifModule>
 
-#Uncomment line to set the PHP variables
+# Uncomment the following lines to midify the PHP variables like increase the max upload size of Directus
 #<IfModule mod_php7.c>
   #php_value upload_max_filesize 50M
   #php_value post_max_size 100M
