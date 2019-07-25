@@ -6,6 +6,7 @@ use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\ForbiddenException;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
@@ -13,6 +14,7 @@ use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 use Directus\Database\SchemaService;
 use Directus\Database\Schema\DataTypes;
+use function Directus\get_directus_setting;
 
 class ItemsService extends AbstractService
 {
@@ -22,17 +24,28 @@ class ItemsService extends AbstractService
         'status'
     ];
 
+    const PASSWORD_FIELD = 'password';
+
     public function createItem($collection, $payload, $params = [])
     {
         $this->enforceCreatePermissions($collection, $payload, $params);
         $this->validatePayload($collection, null, $payload, $params);
         
+        // Validate Password if password policy settled in the system settings.
+        if($collection == SchemaManager::COLLECTION_USERS){
+            $passwordValidation = get_directus_setting('password_policy');
+            if(!empty($passwordValidation)){
+                $this->validate($payload,[static::PASSWORD_FIELD => ['regex:'.$passwordValidation ]]);
+            }
+        }
+
         //Validate nested payload
         $tableSchema = SchemaService::getCollection($collection);
         $collectionAliasColumns = $tableSchema->getAliasFields();
         
         foreach ($collectionAliasColumns as $aliasColumnDetails) {
             $colName = $aliasColumnDetails->getName();
+           
             $relationalCollectionName = "";
             
             if($this->isManyToManyField($aliasColumnDetails)){
@@ -278,6 +291,40 @@ class ItemsService extends AbstractService
         }
     }
 
+    /**
+     * Check relational items are deletable or not. If it is not deletable then throws the exception.
+     */
+
+    public function checkRelationalItemDeletable($collection, $payload, $recordData){
+        $tableColumns = SchemaService::getAllCollectionFields($collection);
+        $deletedData = 0;
+        foreach($tableColumns as $column){
+
+            // Check if field is O2M and required
+            if($column->hasRelationship() && $column->isOneToMany() && ($column->isRequired() || (!$column->isNullable() && $column->getDefaultValue() == null))){
+                if(!empty($recordData)){
+                    $columnName = $column->getName(); 
+                    
+                    if(isset($recordData[$columnName]) && isset($payload[$columnName]) && count($recordData[$columnName]) == count($payload[$columnName]) ){
+                        $fieldMany = $column->getRelationship()->getFieldMany(); 
+                        $collectionMany = SchemaService::getCollection($column->getRelationship()->getCollectionMany());
+                        $primaryKeyCollectionMany = $collectionMany->getPrimaryKeyName();
+                        $alreadyStoredEntries = array_column($recordData[$columnName],$primaryKeyCollectionMany);
+                        foreach($payload[$columnName] as $payloadData){
+                            if(isset($payloadData[$primaryKeyCollectionMany]) && in_array($payloadData[$primaryKeyCollectionMany],$alreadyStoredEntries)){
+                                if(isset($payloadData['$delete']) || ( array_key_exists($fieldMany, $payloadData) && is_null($payloadData[$fieldMany]))){
+                                    $deletedData++;
+                                }
+                            }
+                        }
+                        if($deletedData == count($recordData[$columnName])){
+                            throw new UnprocessableEntityException($columnName.': This value should not be blank.');
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     /**
      * Updates a single item in the given collection and id
@@ -309,6 +356,9 @@ class ItemsService extends AbstractService
                 $this->validateAliasCollection($payload, $params, $aliasColumnDetails, $recordData);          
             }            
         }
+
+        // There is a scenario in which user tries to delete all the relational data although it is required. This can be possible for o2M only and API have to restrict that.
+        $this->checkRelationalItemDeletable($collection, $payload, $recordData);         
         
         $this->checkItemExists($collection, $id);
 
