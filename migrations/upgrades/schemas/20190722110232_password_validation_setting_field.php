@@ -14,7 +14,7 @@ class PasswordValidationSettingField extends AbstractMigration
             'type' => 'string',
             'note' => 'Weak : Minimum length 8; Strong :  1 small-case letter, 1 capital letter, 1 digit, 1 special character and the length should be minimum 8',
             'interface' => 'dropdown',
-            'options'   => ['choices' => ['' => 'None', '/^.{8,}$/' => 'Weak', '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong', 'allow_other' => 'Other']]
+            'options'   => ['choices' => ['' => 'None', '/^.{8,}$/' => 'Weak', '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong']]
           ];  
           $collection = 'directus_settings';
           $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $fieldObject['field']);
