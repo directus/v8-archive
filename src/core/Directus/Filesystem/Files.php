@@ -694,8 +694,8 @@ class Files
             $parts = explode(',', $data);
             $file = $parts[1];
             $dataInfo = $this->getFileInfoFromData(base64_decode($file));
-            $result['mimeType']=isset($dataInfo['type']) ? $dataInfo['type'] : null;
-            $result['size']=isset($dataInfo['size']) ? $dataInfo['size'] : null;
+            $result['mimeType'] = isset($dataInfo['type']) ? $dataInfo['type'] : null;
+            $result['size'] = isset($dataInfo['size']) ? $dataInfo['size'] : null;
         }
         return $result;
     }
