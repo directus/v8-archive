@@ -1772,8 +1772,8 @@ class RelationalTableGateway extends BaseTableGateway
             }
             
             if (!(!is_string($column) || strpos($column, '.') === false)){
-                //Process relational fields & non relation fields sequentially
-                //Before, all the relation fields filters were processing first and then non relation fields, due to that logical operators were not working
+                //Process relational & non relation field filters sequentially
+                //Earlier, all the relation field filters were processing first and then non relation fields, due to that logical operators were not working in mix filters
                 //Reference #1149
                 $this->processRelationalFilter($query, $column, $conditions);
             }else{
