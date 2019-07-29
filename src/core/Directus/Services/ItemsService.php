@@ -196,12 +196,26 @@ class ItemsService extends AbstractService
                     foreach($relationalCollectionColumns as $column){
                         if(!$column->isAlias() && !$column->hasPrimaryKey() && !empty($validatePayload[$relationalCollectionPrimaryKey])){
                             $columnName = $column->getName();
+<<<<<<< HEAD
                             $relationalCollectionData = $this->findByIds(
                                 $relationalCollectionName,
                                 $validatePayload[$relationalCollectionPrimaryKey],
                                 $params
                             );
                             $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+=======
+                            if($search !== false){
+                                $dbObj = isset($storedData[$search][$aliasField]) ? $storedData[$search][$aliasField] : [];
+                                $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($dbObj[$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $dbObj[$columnName] : $dbObj[$columnName])) : null);
+                            }else{
+                                $relationalCollectionData = $this->findByIds(
+                                    $relationalCollectionName,
+                                    $validatePayload[$relationalCollectionPrimaryKey],
+                                    $params
+                                );
+                                $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+                            }
+>>>>>>> Release 2.3.1 (#1158)
                         }
                     }
                     $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
@@ -237,12 +251,25 @@ class ItemsService extends AbstractService
 
                         if(!$column->isAlias() && !$column->hasPrimaryKey() && !empty($individual[$relationalCollectionPrimaryKey])){
                             $columnName = $column->getName();
+<<<<<<< HEAD
                             $relationalCollectionData = $this->findByIds(
                                 $relationalCollectionName,
                                 $individual[$relationalCollectionPrimaryKey],
                                 $params
                             );
                             $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+=======
+                            if($search !== false){
+                                $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($recordData[$colName][$search][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $recordData[$colName][$search][$columnName] : $recordData[$colName][$search][$columnName])) : null);
+                            }else{
+                                $relationalCollectionData = $this->findByIds(
+                                    $relationalCollectionName,
+                                    $individual[$relationalCollectionPrimaryKey],
+                                    $params
+                                );
+                                $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+                            }
+>>>>>>> Release 2.3.1 (#1158)
                         }
                     }
 
