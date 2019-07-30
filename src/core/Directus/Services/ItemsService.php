@@ -49,16 +49,7 @@ class ItemsService extends AbstractService
             $relationalCollectionName = "";
             
             if($this->isManyToManyField($aliasColumnDetails)){
-                $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
-                
-                if($relationalCollectionName && isset($payload[$colName])){
-                    foreach($payload[$colName] as $individual){     
-                        if(!isset($individual['$delete'])){                        
-                            $validatePayload = $individual[$aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField()];
-                            $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
-                        }
-                    }
-                }                
+                $this->validateManyToManyCollection($payload, $params, $aliasColumnDetails);       
             }else{
                 if($aliasColumnDetails->isOneToMany()){
                     $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionMany();
@@ -74,7 +65,6 @@ class ItemsService extends AbstractService
                 }
             }            
         }
-        
         $tableGateway = $this->createTableGateway($collection);
         $newRecord = $tableGateway->createRecord($payload, $this->getCRUDParams($params));
 
@@ -206,7 +196,7 @@ class ItemsService extends AbstractService
     /**
      * Validate Many To Many Collection Fields
      */
-    public function validateManyToManyCollection($payload, $params, $aliasColumnDetails, $recordData){
+    public function validateManyToManyCollection($payload, $params, $aliasColumnDetails){
         $colName = $aliasColumnDetails->getName();
         $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
         if($relationalCollectionName && isset($payload[$colName])){
@@ -217,23 +207,16 @@ class ItemsService extends AbstractService
                 if(!isset($individual['$delete'])){ 
                     $aliasField = $aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField();
                     $validatePayload = $individual[$aliasField];
-                    $storedData = (!empty($recordData) && isset($recordData[$colName])) ? $recordData[$colName] : [] ;
                     
                     foreach($relationalCollectionColumns as $column){
-                        if(!empty($recordData) && !$column->isAlias() && !$column->hasPrimaryKey() && isset($recordData[$colName])){
-                            $search = array_search($individual[$relationalCollectionPrimaryKey], array_column($storedData, $relationalCollectionPrimaryKey));
+                        if(!$column->isAlias() && !$column->hasPrimaryKey() && !empty($validatePayload[$relationalCollectionPrimaryKey])){
                             $columnName = $column->getName();
-                            if($search !== false){
-                                $dbObj = isset($storedData[$search][$aliasField]) ? $storedData[$search][$aliasField] : [];
-                                $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($dbObj[$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $dbObj[$columnName] : $dbObj[$columnName])) : null);
-                            }else{
-                                $relationalCollectionData = $this->findByIds(
-                                    $relationalCollectionName,
-                                    $validatePayload[$relationalCollectionPrimaryKey],
-                                    $params
-                                );
-                                $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
-                            }
+                            $relationalCollectionData = $this->findByIds(
+                                $relationalCollectionName,
+                                $validatePayload[$relationalCollectionPrimaryKey],
+                                $params
+                            );
+                            $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
                         }
                     }
                     $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
@@ -351,7 +334,7 @@ class ItemsService extends AbstractService
         
         foreach ($collectionAliasColumns as $aliasColumnDetails) {
             if($this->isManyToManyField($aliasColumnDetails)){  
-                $this->validateManyToManyCollection($payload, $params, $aliasColumnDetails, $recordData);          
+                $this->validateManyToManyCollection($payload, $params, $aliasColumnDetails);          
             }else{
                 $this->validateAliasCollection($payload, $params, $aliasColumnDetails, $recordData);          
             }            
