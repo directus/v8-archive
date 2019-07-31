@@ -44,25 +44,10 @@ class ItemsService extends AbstractService
         $collectionAliasColumns = $tableSchema->getAliasFields();
         
         foreach ($collectionAliasColumns as $aliasColumnDetails) {
-            $colName = $aliasColumnDetails->getName();
-           
-            $relationalCollectionName = "";
-            
             if($this->isManyToManyField($aliasColumnDetails)){
                 $this->validateManyToManyCollection($payload, $params, $aliasColumnDetails);       
             }else{
-                if($aliasColumnDetails->isOneToMany()){
-                    $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionMany();
-                }else if($aliasColumnDetails->isManyToOne()){
-                    $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionOne();
-                }
-                if($relationalCollectionName && isset($payload[$colName])){
-                    foreach($payload[$colName] as $individual){     
-                        if(!isset($individual['$delete'])){                        
-                            $this->validatePayload($relationalCollectionName, null, $individual,$params,$collection);
-                        }
-                    }
-                }
+                $this->validateAliasCollection($payload, $params, $aliasColumnDetails, []);       
             }            
         }
         $tableGateway = $this->createTableGateway($collection);
@@ -245,27 +230,24 @@ class ItemsService extends AbstractService
             $relationalCollectionColumns = SchemaService::getAllCollectionFields($relationalCollectionName);
             $foreignJoinColumn = $aliasColumnDetails->getRelationship()->getFieldMany();
            
-            foreach($payload[$colName] as $individual){     
+            foreach($payload[$colName] as $individual){  
+                   
                 if(!isset($individual['$delete'])){ 
                     foreach($relationalCollectionColumns as $key => $column){
-                        if(!empty($recordData) && !$column->isAlias() && !$column->hasPrimaryKey() && isset($recordData[$colName])){
-                            $search = array_search($individual[$relationalCollectionPrimaryKey], array_column($recordData[$colName], $relationalCollectionPrimaryKey));
+
+                        if(!$column->isAlias() && !$column->hasPrimaryKey() && !empty($individual[$relationalCollectionPrimaryKey])){
                             $columnName = $column->getName();
-                            if($search !== false){
-                                $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($recordData[$colName][$search][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $recordData[$colName][$search][$columnName] : $recordData[$colName][$search][$columnName])) : null);
-                            }else{
-                                $relationalCollectionData = $this->findByIds(
-                                    $relationalCollectionName,
-                                    $individual[$relationalCollectionPrimaryKey],
-                                    $params
-                                );
-                                $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
-                            }
+                            $relationalCollectionData = $this->findByIds(
+                                $relationalCollectionName,
+                                $individual[$relationalCollectionPrimaryKey],
+                                $params
+                            );
+                            $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
                         }
                     }
 
                     // only add parent id's to items that are lacking the parent column
-                    if (empty($individual[$foreignJoinColumn])) {
+                    if (empty($individual[$foreignJoinColumn]) && !empty($recordData[$parentCollectionPrimaryKey])) {
                         $individual[$foreignJoinColumn] = $recordData[$parentCollectionPrimaryKey];
                     }
                     $this->validatePayload($relationalCollectionName, null, $individual,$params);
