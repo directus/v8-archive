@@ -7,6 +7,7 @@ use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Provider;
+use Directus\Database\Exception\InvalidQueryException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
@@ -377,19 +378,24 @@ class UsersService extends AbstractService
      */
     public function has2FAEnforced($id)
     {
-        $result = $this->createTableGateway(SchemaManager::COLLECTION_ROLES, false)->fetchAll(function (Select $select) use ($id) {
-            $select->columns(['enforce_2fa']);
-            $select->where(['user' => $id]);
-            $on = sprintf('%s.role = %s.id', SchemaManager::COLLECTION_USER_ROLES, SchemaManager::COLLECTION_ROLES);
-            $select->join(SchemaManager::COLLECTION_USER_ROLES, $on, ['id' => 'role']);
-        });
+        try {
+            $result = $this->createTableGateway(SchemaManager::COLLECTION_ROLES, false)->fetchAll(function (Select $select) use ($id) {
+                $select->columns(['enforce_2fa']);
+                $select->where(['user' => $id]);
+                $on = sprintf('%s.role = %s.id', SchemaManager::COLLECTION_USER_ROLES, SchemaManager::COLLECTION_ROLES);
+                $select->join(SchemaManager::COLLECTION_USER_ROLES, $on, ['id' => 'role']);
+            });
 
-        $enforce_2fa = $result->current()['enforce_2fa'];
+            $enforce_2fa = $result->current()['enforce_2fa'];
 
-        if ($enforce_2fa == null || $enforce_2fa == 0) {
+            if ($enforce_2fa == null || $enforce_2fa == 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (InvalidQueryException $e) {
+            // Column enforce_2fa doesn't exist in directus_roles
             return false;
-        } else {
-            return true;
         }
     }
 
