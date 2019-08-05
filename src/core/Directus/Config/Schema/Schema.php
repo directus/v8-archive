@@ -139,6 +139,7 @@ class Schema {
                     ]),
                 ]),
             ]),
+            new Value('ext', Types::ARRAY, []),
         ]);
     }
 }

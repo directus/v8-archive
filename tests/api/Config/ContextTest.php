@@ -120,6 +120,9 @@ class ContextTest extends \PHPUnit_Framework_TestCase
                     "b" => "2"
                 ],
             ],
+            'arrayval' => [
+                'some' => 'array'
+            ]
         ];
 
         // Should load values from php source file

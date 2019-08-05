@@ -100,7 +100,7 @@ if (!function_exists('get_project_config')) {
             if (!file_exists($configFilePath)) {
                 throw new UnknownProjectException($name);
             }
-            $configData = Context::from_file($configFilePath);
+            $configData = $schema->value(['directus' => Context::from_file($configFilePath)]);
         }
 
         $config = new Config($configData);
