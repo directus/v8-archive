@@ -241,7 +241,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
             return false;
         }
 
-        if ($num_elements == 4 && $target_array[2] == 'users' && $target_array[3] == strval($id)) {
+        if ($num_elements > 2 && $target_array[$num_elements - 2] == 'users' && $target_array[$num_elements - 1] == strval($id)) {
             return true;
         }
 
