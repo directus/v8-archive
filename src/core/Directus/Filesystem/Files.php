@@ -259,6 +259,7 @@ class Files
         // When file is uploaded via multipart form data then We will get object of Slim\Http\UploadFile
         // When file is uploaded via URL (Youtube, Vimeo, or image link) then we will get base64 encode string.
         $size = null;
+
         $title = $fileName;
 
         if (is_object($fileData)) {

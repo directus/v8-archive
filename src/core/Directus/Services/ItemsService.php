@@ -45,6 +45,7 @@ class ItemsService extends AbstractService
 
         foreach ($collectionAliasColumns as $aliasColumnDetails) {
             if($this->isManyToManyField($aliasColumnDetails)){
+
                 $this->validateManyToManyCollection($payload, $params, $aliasColumnDetails);
             }else{
                 $this->validateAliasCollection($payload, $params, $aliasColumnDetails, []);
@@ -170,7 +171,9 @@ class ItemsService extends AbstractService
 
         foreach($tableColumns as $key => $column){
             if(!empty($recordData)){
+
                 $columnName = $column->getName();
+              
                 $collectionFields[$columnName] = array_key_exists($column->getName(), $collectionFields) ? $collectionFields[$column->getName()]: (DataTypes::isJson($column->getType()) ? (array) $recordData[$columnName] : $recordData[$columnName]);
             }
         }
@@ -192,6 +195,7 @@ class ItemsService extends AbstractService
                 if(!isset($individual['$delete'])){
                     $aliasField = $aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField();
                     $validatePayload = $individual[$aliasField];
+
 
                     foreach($relationalCollectionColumns as $column){
                         if(!$column->isAlias() && !$column->hasPrimaryKey() && !empty($validatePayload[$relationalCollectionPrimaryKey])){
