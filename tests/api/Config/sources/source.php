@@ -7,4 +7,7 @@ return [
             "b" => 2,
         ],
     ],
+    'arrayval' => [
+        'some' => 'array'
+    ]
 ];

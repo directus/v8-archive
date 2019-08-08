@@ -115,6 +115,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
                 'social_providers' =>
                 [],
             ],
+            'ext' => []
         ], $data);
 
     }
