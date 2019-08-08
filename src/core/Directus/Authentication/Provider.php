@@ -539,7 +539,7 @@ class Provider
         if ($needs2FA == true) {
             $payload_arr['needs2FA'] = true;
         } else {
-            unset($payload['needs2FA']);
+            unset($payload_arr['needs2FA']);
         }
 
         $payload = json_encode($payload_arr);
