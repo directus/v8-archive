@@ -195,10 +195,11 @@ class ItemsService extends AbstractService
                 if(!isset($individual['$delete'])){
                     $aliasField = $aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField();
                     $validatePayload = $individual[$aliasField];
-
-
+                    if(!isset($params['fields'])){
+                        $params['fields'] = "*.*";
+                    }
                     foreach($relationalCollectionColumns as $column){
-                        if(!$column->isAlias() && !$column->hasPrimaryKey() && !empty($validatePayload[$relationalCollectionPrimaryKey])){
+                        if(!$column->hasPrimaryKey() && !empty($validatePayload[$relationalCollectionPrimaryKey])){
                             $columnName = $column->getName();
                             $relationalCollectionData = $this->findByIds(
                                 $relationalCollectionName,
@@ -206,6 +207,7 @@ class ItemsService extends AbstractService
                                 $params
                             );
                             $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+                            $params['select_existing_or_update'] = true;
                         }
                     }
                     $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
