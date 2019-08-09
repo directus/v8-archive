@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Authentication\Exception\ExpiredTokenException;
+use Directus\Authentication\Exception\InvalidOTPException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Provider;
@@ -19,6 +20,7 @@ use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
+use PragmaRX\Google2FA\Google2FA;
 use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Select;
 use function Directus\get_directus_setting;
@@ -411,5 +413,31 @@ class UsersService extends AbstractService
         if ($this->isLastAdmin($id)) {
             throw new ForbiddenLastAdminException();
         }
+    }
+
+    /**
+     * Activate 2FA for the given user id if the OTP is valid for the given 2FA secret
+     * @param $id
+     * @param $tfa_secret
+     * @param $otp
+     *
+     * @return array
+     *
+     * @throws InvalidOTPException
+     */
+    public function activate2FA($id, $tfa_secret, $otp)
+    {
+        $this->validate(
+            ['tfa_secret' => $tfa_secret, 'otp' => $otp],
+            ['tfa_secret' => 'required|string', 'otp' => 'required|string']
+        );
+
+        $ga = new Google2FA();
+
+        if (!$ga->verifyKey($tfa_secret, $otp, 2)){
+            throw new InvalidOTPException();
+        }
+
+        return $this->update($id, ['2fa_secret' => $tfa_secret]);
     }
 }

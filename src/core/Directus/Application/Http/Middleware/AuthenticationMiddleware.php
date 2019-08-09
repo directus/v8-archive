@@ -237,11 +237,14 @@ class AuthenticationMiddleware extends AbstractMiddleware
         $target_array = explode('/', $request->getRequestTarget());
         $num_elements = count($target_array);
 
-        if (!$request->isPatch()) {
+        if (!$request->isPost()) {
             return false;
         }
 
-        if ($num_elements > 2 && $target_array[$num_elements - 2] == 'users' && $target_array[$num_elements - 1] == strval($id)) {
+        if ($num_elements > 3
+            &&$target_array[$num_elements - 3] == 'users'
+            && $target_array[$num_elements - 2] == strval($id)
+            && $target_array[$num_elements - 1] == 'activate2FA') {
             return true;
         }
 
