@@ -2049,7 +2049,9 @@ class RelationalTableGateway extends BaseTableGateway
             // Only select the fields not on the currently authenticated user group's read field blacklist
             $relationalColumnName = $alias->getRelationship()->getFieldMany();
             $tableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
-            $filterFields = \Directus\get_array_flat_columns($columnsTree[$alias->getName()]);
+            if(!empty($columnsTree[$alias->getName()])){
+                $filterFields = \Directus\get_array_flat_columns($columnsTree[$alias->getName()]);
+            }
             $filters = [];
 
             if (ArrayUtils::get($params, 'lang') && DataTypes::isTranslationsType($alias->getType())) {
@@ -2067,7 +2069,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $results = $tableGateway->fetchItems(array_merge([
-                'fields' => array_merge([$relationalColumnName], $filterFields),
+                'fields' => !empty($filterFields)  ? array_merge([$relationalColumnName], $filterFields) : [$relationalColumnName],
                 // Fetch all related data
                 'limit' => -1,
                 'filter' => array_merge($filters, [
@@ -2076,7 +2078,9 @@ class RelationalTableGateway extends BaseTableGateway
             ], $params));
 
             $relatedEntries = [];
-            $selectedFields = $tableGateway->getSelectedFields($filterFields);
+            if(!empty($filterFields)){
+                $selectedFields = $tableGateway->getSelectedFields($filterFields);
+            }
 
             foreach ($results as $row) {
                 // Quick fix
