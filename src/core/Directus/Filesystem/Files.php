@@ -537,7 +537,7 @@ class Files
         $this->emitter->run('file.save:after', ['name' => $targetName, 'size' => strlen($data)]);
 
         $fileData['name'] = basename($finalPath);
-        $fileData['date_uploaded'] = DateTimeUtils::nowInUTC()->toString();
+        $fileData['date_uploaded'] = DateTimeUtils::nowInTimezone()->toString();
         $fileData['storage'] = $this->config['adapter'];
 
         return $fileData;
