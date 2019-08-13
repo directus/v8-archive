@@ -249,16 +249,6 @@ class ItemsService extends AbstractService
                                 $params
                             );
                             $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
-                            if($search !== false){
-                                $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($recordData[$colName][$search][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $recordData[$colName][$search][$columnName] : $recordData[$colName][$search][$columnName])) : null);
-                            }else{
-                                $relationalCollectionData = $this->findByIds(
-                                    $relationalCollectionName,
-                                    $individual[$relationalCollectionPrimaryKey],
-                                    $params
-                                );
-                                $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
-                            }
                         }
                     }
 
