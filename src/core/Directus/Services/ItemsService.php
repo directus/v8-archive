@@ -189,6 +189,7 @@ class ItemsService extends AbstractService
         $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
         if($relationalCollectionName && isset($payload[$colName])){
             $relationalCollectionPrimaryKey = SchemaService::getCollectionPrimaryKey($relationalCollectionName);
+            $relationalCollectionPrimaryKeyObject = SchemaService::getField($relationalCollectionName,$relationalCollectionPrimaryKey);
             $relationalCollectionColumns = SchemaService::getAllCollectionFields($relationalCollectionName);
 
             foreach($payload[$colName] as $individual){
@@ -199,15 +200,28 @@ class ItemsService extends AbstractService
                         $params['fields'] = "*.*";
                     }
                     foreach($relationalCollectionColumns as $column){
-                        if(!$column->hasPrimaryKey() && !empty($validatePayload[$relationalCollectionPrimaryKey])){
+                        if(!$column->hasPrimaryKey()){
                             $columnName = $column->getName();
-                            $relationalCollectionData = $this->findByIds(
-                                $relationalCollectionName,
-                                $validatePayload[$relationalCollectionPrimaryKey],
-                                $params
-                            );
-                            $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
-                            $params['select_existing_or_update'] = true;
+
+                            /**
+                             * Current system have INT / VARCHAR type primary key. For INT primary key will be auto incremented so at the create time ID will be not passed but for VARCHAR ID will be passed in payload for create request.
+                             * If datatype of primary key is VARCHAR; ID wil be passed as payload for create/ select existing / update. If ID exist in the system then system will consider it as a update / select existing otherwise it will be considered as a create.
+                             * If datatype of primary key is INT; if ID exist in the payload then system will consider it as a update / select existing otherwise it will be considered as a create.
+                             * */ 
+
+                            if(!empty($validatePayload[$relationalCollectionPrimaryKey]) && $relationalCollectionPrimaryKeyObject->hasAutoIncrement() && $relationalCollectionPrimaryKeyObject->getDataType() == "INT"){
+                                $relationalCollectionData = $this->findByIds($relationalCollectionName,$validatePayload[$relationalCollectionPrimaryKey],$params);
+                                $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+                                $params['select_existing_or_update'] = true;
+                            }else if(!empty($validatePayload[$relationalCollectionPrimaryKey]) && !$relationalCollectionPrimaryKeyObject->hasAutoIncrement()){
+                                try{
+                                    $relationalCollectionData = $this->findByIds($relationalCollectionName,$validatePayload[$relationalCollectionPrimaryKey],$params);
+                                    $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName]: (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+                                    $params['select_existing_or_update'] = true;
+                                }catch(\Exception $e){
+                                    continue;
+                                }
+                            }
                         }
                     }
                     $this->validatePayload($relationalCollectionName, null, $validatePayload,$params);
