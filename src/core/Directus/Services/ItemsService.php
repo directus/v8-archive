@@ -204,9 +204,9 @@ class ItemsService extends AbstractService
                             $columnName = $column->getName();
 
                             /**
-                             * Current system have INT / VARCHAR type primary key. For INT primary key will be auto incremented so at the create time ID will be not passed but for VARCHAR ID will be passed in payload for create request.
-                             * If datatype of primary key is VARCHAR; ID wil be passed as payload for create/ select existing / update. If ID exist in the system then system will consider it as a update / select existing otherwise it will be considered as a create.
-                             * If datatype of primary key is INT; if ID exist in the payload then system will consider it as a update / select existing otherwise it will be considered as a create.
+                             * The current system has INT / VARCHAR type primary key. For INT primary key will be auto-incremented so at the create time ID will be not passed but for VARCHAR ID will be passed in the payload for creating request.
+                             * If datatype of a primary key is VARCHAR; ID will be passed as payload for creating/ select existing / update. If the ID exists in the system then the system will consider it as an update/select existing otherwise it will be considered as a create request.
+                             *  If datatype of the primary key is INT; if ID exists in the payload then the system will consider it as an update/select existing otherwise it will be considered as a create request.
                              * */ 
 
                             if(!empty($validatePayload[$relationalCollectionPrimaryKey]) && $relationalCollectionPrimaryKeyObject->hasAutoIncrement() && $relationalCollectionPrimaryKeyObject->getDataType() == "INT"){
