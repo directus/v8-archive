@@ -199,9 +199,9 @@ class MySQLSchema extends AbstractSchema
         ]);
 
         if (isset($params['collection'])) {
-            $selectOne->where([
-                'SF.TABLE_NAME' => $params['collection']
-            ]);
+            $where = $selectOne->where->nest();
+            $where->equalTo(new Expression('BINARY SF.TABLE_NAME'), $params['collection']);
+            $where->unnest();
         }
 
         if (isset($params['field'])) {
@@ -675,6 +675,8 @@ class MySQLSchema extends AbstractSchema
             'varbinary',
             'enum',
             'set',
+            'decimal',
+            'char'
         ];
     }
 

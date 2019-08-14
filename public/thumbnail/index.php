@@ -26,12 +26,16 @@ try {
 $settings = \Directus\get_directus_thumbnail_settings();
 $timeToLive = \Directus\array_get($settings, 'thumbnail_cache_ttl', 86400);
 try {
+
+    parse_str($_SERVER['QUERY_STRING'], $queryParams);
+
     // if the thumb already exists, return it
     $thumbnailer = new Thumbnailer(
         $app->getContainer()->get('filesystem'),
         $app->getContainer()->get('filesystem_thumb'),
         $settings,
-        urldecode(\Directus\get_virtual_path())
+        urldecode(\Directus\get_virtual_path()),
+        $queryParams
     );
 
     $image = $thumbnailer->get();
@@ -39,11 +43,11 @@ try {
     if (!$image) {
         // now we can create the thumb
         switch ($thumbnailer->action) {
-            // http://image.intervention.io/api/resize
+                // http://image.intervention.io/api/resize
             case 'contain':
                 $image = $thumbnailer->contain();
                 break;
-            // http://image.intervention.io/api/fit
+                // http://image.intervention.io/api/fit
             case 'crop':
             default:
                 $image = $thumbnailer->crop();
@@ -54,13 +58,14 @@ try {
     header('Content-type: ' . $thumbnailer->getThumbnailMimeType());
     header("Pragma: cache");
     header('Cache-Control: max-age=' . $timeToLive);
-    header('Last-Modified: '. gmdate('D, d M Y H:i:s \G\M\T', time()));
-    header('Expires: '. gmdate('D, d M Y H:i:s \G\M\T', time() + $timeToLive));
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: PUT, GET, POST, DELETE, OPTIONS");
+    header("Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type");
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', time()));
+    header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $timeToLive));
     echo $image;
     exit(0);
-}
-
-catch (Exception $e) {
+} catch (Exception $e) {
     $filePath = ArrayUtils::get($settings, 'thumbnail_not_found_location');
     if (is_string($filePath) && !empty($filePath) && $filePath[0] !== '/') {
         $filePath = $basePath . '/' . $filePath;

@@ -7,24 +7,28 @@ use Cache\Adapter\Apcu\ApcuCachePool;
 use Cache\Adapter\Common\PhpCachePool;
 use Cache\Adapter\Filesystem\FilesystemCachePool;
 use Cache\Adapter\Memcached\MemcachedCachePool;
+use Cache\Adapter\Memcache\MemcacheCachePool;
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
 use Cache\Adapter\Void\VoidCachePool;
+use Cocur\Slugify\Slugify;
 use Directus\Application\ErrorHandlers\ErrorHandler;
 use function Directus\array_get;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Sso\Social;
 use Directus\Authentication\User\Provider\UserTableGatewayProvider;
 use Directus\Cache\Response;
+use Directus\Cache\Exception\InvalidCacheAdapterException;
+use Directus\Cache\Exception\InvalidCacheConfigurationException;
 use Directus\Config\StatusMapping;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Database\Schema\DataTypes;
+use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
-use Directus\Database\TableGateway\DirectusSettingsTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\SchemaService;
@@ -43,7 +47,9 @@ use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
+use function Directus\is_a_url;
 use function Directus\is_iso8601_datetime;
+use Directus\Logger\Exception\InvalidLoggerConfigurationException;
 use Directus\Mail\Mailer;
 use Directus\Mail\TransportManager;
 use Directus\Mail\Transports\SendMailTransport;
@@ -68,34 +74,37 @@ class CoreServicesProvider
 {
     public function register($container)
     {
-        $container['database']          = $this->getDatabase();
-        $container['logger']            = $this->getLogger();
-        $container['hook_emitter']      = $this->getEmitter();
-        $container['auth']              = $this->getAuth();
-        $container['external_auth']     = $this->getExternalAuth();
-        $container['session']           = $this->getSession();
-        $container['acl']               = $this->getAcl();
-        $container['errorHandler']      = $this->getErrorHandler();
-        $container['phpErrorHandler']   = $this->getErrorHandler();
-        $container['schema_adapter']    = $this->getSchemaAdapter();
-        $container['schema_manager']    = $this->getSchemaManager();
-        $container['schema_factory']    = $this->getSchemaFactory();
-        $container['hash_manager']      = $this->getHashManager();
-        $container['embed_manager']     = $this->getEmbedManager();
-        $container['filesystem']        = $this->getFileSystem();
-        $container['filesystem_thumb']  = $this->getThumbFilesystem();
-        $container['files']             = $this->getFiles();
-        $container['mailer_transport']  = $this->getMailerTransportManager();
-        $container['mailer']            = $this->getMailer();
-        $container['mail_view']         = $this->getMailView();
-        $container['app_settings']      = $this->getSettings();
-        $container['status_mapping']    = $this->getStatusMapping();
+        $container['database'] = $this->getDatabase();
+        $container['logger'] = $this->getLogger();
+        // TODO: Put hooks/filters listeners out of this service
+        // for easy access and code readability
+        $container['hook_emitter'] = $this->getEmitter();
+        $container['auth'] = $this->getAuth();
+        $container['external_auth'] = $this->getExternalAuth();
+        $container['session'] = $this->getSession();
+        $container['slugify'] = $this->getSlugify();
+        $container['acl'] = $this->getAcl();
+        $container['errorHandler'] = $this->getErrorHandler();
+        $container['phpErrorHandler'] = $this->getErrorHandler();
+        $container['schema_adapter'] = $this->getSchemaAdapter();
+        $container['schema_manager'] = $this->getSchemaManager();
+        $container['schema_factory'] = $this->getSchemaFactory();
+        $container['hash_manager'] = $this->getHashManager();
+        $container['embed_manager'] = $this->getEmbedManager();
+        $container['filesystem'] = $this->getFileSystem();
+        $container['filesystem_thumb'] = $this->getThumbFilesystem();
+        $container['files'] = $this->getFiles();
+        $container['mailer_transport'] = $this->getMailerTransportManager();
+        $container['mailer'] = $this->getMailer();
+        $container['mail_view'] = $this->getMailView();
+        $container['app_settings'] = $this->getSettings();
+        $container['status_mapping'] = $this->getStatusMapping();
 
         // Move this separately to avoid clogging one class
-        $container['cache']             = $this->getCache();
-        $container['response_cache']    = $this->getResponseCache();
+        $container['cache'] = $this->getCache();
+        $container['response_cache'] = $this->getResponseCache();
 
-        $container['services']          = $this->getServices($container);
+        $container['services'] = $this->getServices($container);
     }
 
     /**
@@ -119,14 +128,37 @@ class CoreServicesProvider
                 $path = $config->get('settings.logger.path');
             }
 
+            $pathIsStream = $path == 'php://stdout' || $path == 'php://stderr';
+            if (!$pathIsStream) {
+                if (file_exists($path)) {
+                    if (is_file($path)) {
+                        $path = dirname($path);
+                    }
+                } else {
+                    mkdir($path, 0777, true);
+                }
+
+                if (!is_dir($path) || !is_writeable($path)) {
+                    throw new InvalidLoggerConfigurationException('path');
+                }
+
+                if (substr($path, -1) == '/') {
+                    $path = substr($path, 0, strlen($path) - 1);
+                }
+            }
+
             $filenameFormat = '%s.%s.log';
             foreach (Logger::getLevels() as $name => $level) {
+                if ($pathIsStream) {
+                    $loggerPath = $path;
+                } else {
+                    $loggerPath = $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d'));
+                }
                 $handler = new StreamHandler(
-                    $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d')),
+                    $loggerPath,
                     $level,
                     false
                 );
-
                 $handler->setFormatter($formatter);
                 $logger->pushHandler($handler);
             }
@@ -169,35 +201,37 @@ class CoreServicesProvider
 
             // Cache subscriptions
             $emitter->addAction('postUpdate', function (RelationalTableGateway $gateway, $data) use ($cachePool) {
-                if(isset($data[$gateway->primaryKeyFieldName])) {
-                    $cachePool->invalidateTags(['entity_'.$gateway->getTable().'_'.$data[$gateway->primaryKeyFieldName]]);
+                if (isset($data[$gateway->primaryKeyFieldName])) {
+                    $cachePool->invalidateTags(['entity_' . $gateway->getTable() . '_' . $data[$gateway->primaryKeyFieldName]]);
                 }
             });
 
             $cacheTableTagInvalidator = function ($tableName) use ($cachePool) {
-                $cachePool->invalidateTags(['table_'.$tableName]);
+                $cachePool->invalidateTags(['table_' . $tableName]);
             };
-
-            foreach (['item.update:after', 'collection.delete:after'] as $action) {
+            foreach (['item.create:after', 'item.delete:after', 'item.update:after', 'collection.update:after', 'collection.delete:after'] as $action) {
                 $emitter->addAction($action, $cacheTableTagInvalidator);
             }
 
-            $emitter->addAction('item.delete:after', function ($tableName, $ids) use ($cachePool){
+            $cacheEntityTagInvalidator = function ($tableName, $ids) use ($cachePool) {
                 foreach ($ids as $id) {
-                    $cachePool->invalidateTags(['entity_'.$tableName.'_'.$id]);
+                    $cachePool->invalidateTags(['entity_' . $tableName . '_' . $id]);
                 }
-            });
+            };
+            foreach (['item.delete:after', 'item.update:after'] as $action) {
+                $emitter->addAction($action, $cacheEntityTagInvalidator);
+            }
 
-            $emitter->addAction('item.update.directus_permissions:after', function ($data) use($container, $cachePool) {
+            $emitter->addAction('item.update.directus_permissions:after', function ($data) use ($container, $cachePool) {
                 $acl = $container->get('acl');
                 $dbConnection = $container->get('database');
                 $privileges = new DirectusPermissionsTableGateway($dbConnection, $acl);
                 $record = $privileges->fetchById($data['id']);
-                $cachePool->invalidateTags(['permissions_collection_'.$record['collection']]);
+                $cachePool->invalidateTags(['permissions_collection_' . $record['collection']]);
             });
             // /Cache subscriptions
 
-            $emitter->addAction('application.error', function ($e) use($container) {
+            $emitter->addAction('application.error', function ($e) use ($container) {
                 /** @var Logger $logger */
                 $logger = $container->get('logger');
 
@@ -287,9 +321,14 @@ class CoreServicesProvider
                 $files = $container->get('files');
 
                 $fileData = ArrayUtils::get($data, 'data');
-                if (filter_var($fileData, FILTER_VALIDATE_URL)) {
+
+                $dataInfo = [];
+                if (is_a_url($fileData)) {
                     $dataInfo = $files->getLink($fileData);
-                } else {
+                    // Set the URL payload data
+                    $payload['data'] = ArrayUtils::get($dataInfo, 'data');
+                    $payload['filename'] = ArrayUtils::get($dataInfo, 'filename');
+                } else if(!is_object($fileData)) {
                     $dataInfo = $files->getDataInfo($fileData);
                 }
 
@@ -379,7 +418,7 @@ class CoreServicesProvider
                         if (empty($value) && !is_numeric($value)) {
                             $value = [];
                         } else {
-                            $value = !is_array($value) ? explode(',', $value) :  $value;
+                            $value = !is_array($value) ? explode(',', $value) : $value;
                         }
 
                         return $value;
@@ -435,7 +474,7 @@ class CoreServicesProvider
 
                     if ($decode === true) {
                         $value = is_string($value) ? json_decode($value) : $value;
-                    } else if ($value !== null) {
+                    } elseif ($value !== null) {
                         $value = !is_string($value) ? json_encode($value) : $value;
                     }
 
@@ -514,6 +553,7 @@ class CoreServicesProvider
             // -------------------------------------------------------------------------------------------
             // Add file url and thumb url
             $emitter->addFilter('item.read.directus_files', function (Payload $payload) use ($addFilesUrl, $container) {
+
                 $rows = $addFilesUrl($payload->getData());
 
                 $payload->replace($rows);
@@ -530,7 +570,7 @@ class CoreServicesProvider
                     ];
                     // Authenticated user can see their private info
                     // Admin can see all users private info
-                    if (!$acl->isAdmin() && $userId !== $row['id']) {
+                    if (!$acl->isAdmin() && $userId !== (int) $row['id']) {
                         $omit = array_merge($omit, [
                             'token',
                             'email_notifications',
@@ -547,52 +587,90 @@ class CoreServicesProvider
             $onInsertOrUpdate = function (Payload $payload) use ($container) {
                 /** @var SchemaManager $schemaManager */
                 $schemaManager = $container->get('schema_manager');
+                /** @var HashManager $hashManager */
+                $hashManager = $container->get('hash_manager');
                 $collectionName = $payload->attribute('collection_name');
                 $collection = $schemaManager->getCollection($collectionName);
                 $isSystemCollection = $schemaManager->isSystemCollection($collectionName);
+                /** @var Field[] $slugMirrorFields */
+                $slugMirrorFields = [];
 
+                // Find all slug field mirroredField values
+                foreach ($collection->getFields() as $field) {
+                    if (!$field || !DataTypes::isSlugType($field->getType())) {
+                        continue;
+                    }
+
+                    $fieldOptions = $options = $field->getOptions() ?: [];
+                    $mirroredFieldName = ArrayUtils::get($fieldOptions, 'mirroredField');
+                    if ($mirroredFieldName && ($mirroredField = $collection->getField($mirroredFieldName)) && DataTypes::isStringType($mirroredField->getType())) {
+                        $slugMirrorFields[$mirroredFieldName] = $field;
+                    }
+                }
+
+                // TODO: Use iterator instead of looping through a copy of the payload data (while ($payload->valid))
                 $data = $payload->getData();
                 foreach ($data as $key => $value) {
-                   $field = $collection->getField($key);
-                   $type = $field->getType();
+                    $field = $collection->getField($key);
 
-                   // This value is being populated in another hook
-                   if (DataTypes::isSystemDateTimeType($type)) {
-                       continue;
-                   }
+                    // This value is being populated in another hook
+                    if (!$field || DataTypes::isSystemDateTimeType($field->getType())) {
+                        continue;
+                    }
 
-                   if (DataTypes::isDateTimeType($type)) {
-                       $dateTime = new DateTimeUtils($value);
-                       if ($isSystemCollection || is_iso8601_datetime($value)) {
-                           $dateTimeValue = $dateTime->toUTCString();
-                       } else {
-                           $dateTimeValue = $dateTime->toString();
-                       }
+                    $type = $field->getType();
+                    if (DataTypes::isHashType($type)) {
+                        $options = $field->getOptions() ?: ['hasher' => 'core'];
+                        $hashedString = $hashManager->hash($value, $options);
+                        $payload->set($key, $hashedString);
 
-                       $payload->set($key, $dateTimeValue);
-                   } else if (DataTypes::isDateType($type)) {
-                       $dateTime = new DateTimeUtils($value);
-                       $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_DATE_FORMAT));
-                   } else if (DataTypes::isTimeType($type)) {
-                       $dateTime = new DateTimeUtils($value);
-                       $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_TIME_FORMAT));
-                   }
+                        continue;
+                    }
+
+                    if (array_key_exists($key, $slugMirrorFields) && !$payload->has($slugMirrorFields[$key]->getName())) {
+                        /** @var Slugify $slugify */
+                        $slugify = $container->get('slugify');
+
+                        $slugField = $slugMirrorFields[$key];
+                        $slugOptions = $slugField->getOptions() ?: [];
+
+                        ArrayUtils::renameSome($slugOptions, [
+                            'forceLowercase' => 'lowercase',
+                        ]);
+
+                        $slugOptions = ArrayUtils::defaults(['lowercase' => true], $slugOptions);
+
+                        $payload->set($slugField->getName(), $slugify->slugify($value, $slugOptions));
+
+                        continue;
+                    }
+
+                    // Skip if the date/time is empty
+                    if (!$value) {
+                        continue;
+                    }
+
+                    if (DataTypes::isDateTimeType($type)) {
+                        $dateTime = new DateTimeUtils($value);
+                        if ($isSystemCollection || is_iso8601_datetime($value)) {
+                            $dateTimeValue = $dateTime->toUTCString();
+                        } else {
+                            $dateTimeValue = $dateTime->toString();
+                        }
+
+                        $payload->set($key, $dateTimeValue);
+                    } elseif (DataTypes::isDateType($type)) {
+                        $dateTime = new DateTimeUtils($value);
+                        $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_DATE_FORMAT));
+                    } elseif (DataTypes::isTimeType($type)) {
+                        $dateTime = new DateTimeUtils($value);
+                        $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_TIME_FORMAT));
+                    }
                 }
 
                 return $payload;
             };
-            $preventNonAdminFromUpdateRoles = function (array $payload) use ($container) {
-                /** @var Acl $acl */
-                $acl = $container->get('acl');
 
-                if (!$acl->isAdmin()) {
-                    throw new ForbiddenException('You are not allowed to create, update or delete roles');
-                }
-            };
-
-            $emitter->addAction('item.create.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
-            $emitter->addAction('item.update.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
-            $emitter->addAction('item.delete.directus_user_roles:before', $preventNonAdminFromUpdateRoles);
             $generateExternalId = function (Payload $payload) {
                 // generate an external id if none is passed
                 if (!$payload->get('external_id')) {
@@ -810,6 +888,16 @@ class CoreServicesProvider
     /**
      * @return \Closure
      */
+    protected function getSlugify()
+    {
+        return function () {
+            return new Slugify();
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
     protected function getAcl()
     {
         return function (Container $container) {
@@ -833,8 +921,8 @@ class CoreServicesProvider
             if (is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
                 $pool = $poolConfig;
             } else {
-                if (!in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'redis', 'void'])) {
-                    throw new \Exception("Valid cache adapters are 'apc', 'apcu', 'filesystem', 'memcached', 'redis'");
+                if (!in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'memcache', 'redis', 'void'])) {
+                    throw new InvalidCacheAdapterException();
                 }
 
                 $pool = new VoidCachePool();
@@ -855,7 +943,7 @@ class CoreServicesProvider
 
                 if ($adapter == 'filesystem') {
                     if (empty($poolConfig['path']) || !is_string($poolConfig['path'])) {
-                        throw new \Exception('"cache.pool.path parameter is required for "filesystem" adapter and must be a string');
+                        throw new InvalidCacheConfigurationException($adapter);
                     }
 
                     $cachePath = $poolConfig['path'];
@@ -870,21 +958,56 @@ class CoreServicesProvider
                     $pool = new FilesystemCachePool($filesystem);
                 }
 
-                if ($adapter == 'memcached') {
-                    $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
-                    $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 11211;
+                if ($adapter == 'memcached' || $adapter == 'memcache') {
 
-                    $client = new \Memcached();
-                    $client->addServer($host, $port);
-                    $pool = new MemcachedCachePool($client);
+                    if ($adapter == 'memcached' && !extension_loaded('memcached')) {
+                        throw new InvalidCacheConfigurationException($adapter);
+                    }
+
+                    if ($adapter == 'memcache' && !extension_loaded('memcache')) {
+                        throw new InvalidCacheConfigurationException($adapter);
+                    }
+
+                    $client = $adapter == 'memcached' ? new \Memcached() : new \Memcache();
+                    if (isset($poolConfig['url'])) {
+                        $urls = explode(';', $poolConfig['url']);
+                        if ($urls ===  false) {
+                            $urls = 'localhost:11211';
+                        }
+                        foreach ($urls as $url) {
+                            $parts = parse_url($url);
+                            $host = (isset($parts['host'])) ? $parts['host'] : 'localhost';
+                            $port = (isset($parts['port'])) ? $parts['port'] : 11211;
+
+                            $client->addServer($host, $port);
+                        }
+                    } else {
+                        $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
+                        $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 11211;
+
+                        $client->addServer($host, $port);
+                    }
+                    $pool = $adapter == 'memcached' ? new MemcachedCachePool($client) : new MemcacheCachePool($client);
                 }
 
                 if ($adapter == 'redis') {
+
+                    if (!extension_loaded('redis')) {
+                        throw new InvalidCacheConfigurationException($adapter);
+                    }
+
                     $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
                     $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 6379;
+                    $socket = (isset($poolConfig['socket'])) ? $poolConfig['socket'] : null;
 
                     $client = new \Redis();
-                    $client->connect($host, $port);
+
+                    if ($socket) {
+                        $client->connect($socket);
+                    } else {
+                        $client->connect($host, $port);
+                    }
+
                     $pool = new RedisCachePool($client);
                 }
             }
@@ -905,12 +1028,12 @@ class CoreServicesProvider
             switch ($databaseName) {
                 case 'MySQL':
                     return new \Directus\Database\Schema\Sources\MySQLSchema($adapter);
-                // case 'SQLServer':
-                //    return new SQLServerSchema($adapter);
-                // case 'SQLite':
-                //     return new \Directus\Database\Schemas\Sources\SQLiteSchema($adapter);
-                // case 'PostgreSQL':
-                //     return new PostgresSchema($adapter);
+                    // case 'SQLServer':
+                    //    return new SQLServerSchema($adapter);
+                    // case 'SQLite':
+                    //     return new \Directus\Database\Schemas\Sources\SQLiteSchema($adapter);
+                    // case 'PostgreSQL':
+                    //     return new PostgresSchema($adapter);
             }
 
             throw new \Exception('Unknown/Unsupported database: ' . $databaseName);
@@ -1223,4 +1346,3 @@ class CoreServicesProvider
         return $storageConfig;
     }
 }
-

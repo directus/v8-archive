@@ -3,12 +3,12 @@
 return [
     'app' => [
         'env' => 'production',
-        'timezone' => 'America/New_York',
+        'timezone' => 'America/New_York'
     ],
 
     'settings' => [
         'logger' => [
-            'path' => __DIR__ . '/logs/app.log',
+            'path' => __DIR__ . '/../logs',
         ],
     ],
 
@@ -41,9 +41,16 @@ return [
         // ],
         // 'pool' => [
         //    'adapter'   => 'memcached',
+        //    //'url' => 'localhost:11211;localhost:11212'
         //    'host'      => 'localhost',
         //    'port'      => 11211
         // ],
+        // 'pool' => [
+        //    'adapter'   => 'memcache',
+        //    'url' => 'localhost:11211;localhost:11212'
+        //    //'host'      => 'localhost',
+        //    //'port'      => 11211
+        //],
         // 'pool' => [
         //    'adapter'   => 'redis',
         //    'host'      => 'localhost',
@@ -72,6 +79,12 @@ return [
         //   'options' => ['ACL' => 'public-read', 'Cache-Control' => 'max-age=604800']
         // Set custom S3 endpoint
         //   'endpoint' => 's3-endpoint',
+        //   'OSS_ACCESS_ID' => 'aliyun-oss-id',
+        //   'OSS_ACCESS_KEY' => 'aliyun-oss-key',
+        //   'OSS_ENDPOINT' => 'aliyun-oss-endpoint',
+        //   'OSS_BUCKET' => 'aliyun-oss-bucket'
+        // Use an internal proxy for downloading all files
+        //'proxy_downloads' => false,
     ],
 
     'mail' => [

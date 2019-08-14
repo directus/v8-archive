@@ -2,11 +2,13 @@
 
 namespace Directus\Filesystem;
 
+use function Directus\add_default_thumbnail_dimensions;
 use function Directus\filename_put_ext;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Intervention\Image\ImageManagerStatic as Image;
 use Exception;
+use Imagick;
 
 class Thumbnailer {
 
@@ -44,17 +46,18 @@ class Thumbnailer {
      * @param Filesystem $main
      * @param Filesystem $thumb
      * @param array $config
-     * @param string $path in the form '_/100/100/crop/good/some-image.jpg'
+     * @param string $path in the form '_/100/100/crop/good/path/to/some-image.jpg'
      *
      * @throws Exception
      */
-    public function __construct(Filesystem $main, Filesystem $thumb, array $config, $path = '')
+    public function __construct(Filesystem $main, Filesystem $thumb, array $config, $path = '', array $params)
     {
         try {
             // $this->files = $files;
             $this->filesystem = $main;
             $this->filesystemThumb = $thumb;
             $this->config = $config;
+            $this->params = $params;
 
             $this->thumbnailParams = $this->extractThumbnailParams($path);
 
@@ -105,8 +108,8 @@ class Thumbnailer {
     public function get()
     {
         try {
-            if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->fileName) ) {
-                $img = $this->filesystemThumb->read($this->thumbnailDir . '/' . $this->fileName);
+            if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName) ) {
+                $img = $this->filesystemThumb->read($this->thumbnailDir . '/' . $this->thumbnailFileName);
             }
 
             return isset($img) && $img ? $img : null;
@@ -126,8 +129,11 @@ class Thumbnailer {
     public function getThumbnailMimeType()
     {
         try {
-            if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->fileName) ) {
-                $img = Image::make($this->filesystemThumb->read($this->thumbnailDir . '/' . $this->fileName));
+            if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName) ) {
+                if(strtolower(pathinfo($this->thumbnailFileName, PATHINFO_EXTENSION)) === 'webp') {
+                    return 'image/webp';
+                }
+                $img = Image::make($this->filesystemThumb->read($this->thumbnailDir . '/' . $this->thumbnailFileName));
                 return $img->mime();
             }
 
@@ -137,6 +143,20 @@ class Thumbnailer {
         catch (Exception $e) {
             throw $e;
         }
+    }
+
+    /**
+     * Replace PDF files with a JPG thumbnail
+     * @throws Exception
+     * @return string image content
+     */
+    public function load () {
+        $content = $this->filesystem->read($this->fileName);
+        $ext = pathinfo($this->fileName, PATHINFO_EXTENSION);
+        if (Thumbnail::isNonImageFormatSupported($ext)) {
+            $content = Thumbnail::createImageFromNonImage($content);
+        }
+        return Image::make($content);
     }
 
     /**
@@ -154,19 +174,22 @@ class Thumbnailer {
             $options = $this->getSupportedActionOptions($this->action);
 
             // open file image resource
-            $img = Image::make($this->filesystem->read($this->fileName));
+            $img = $this->load();
 
             // crop image
             $img->resize($this->width, $this->height, function ($constraint) {
                 $constraint->aspectRatio();
+                if (ArrayUtils::get($options, 'preventUpsize')) {
+                    $constraint->upsize();
+                }
             });
 
-            if( ArrayUtils::get($options, 'resizeCanvas')) {
+            if (ArrayUtils::get($options, 'resizeCanvas')) {
                 $img->resizeCanvas($this->width, $this->height, ArrayUtils::get($options, 'position', 'center'), ArrayUtils::get($options, 'resizeRelative', false), ArrayUtils::get($options, 'canvasBackground', [255, 255, 255, 0]));
             }
 
-            $encodedImg = (string) $img->encode(ArrayUtils::get($this->thumbnailParams, 'fileExt'), ($this->quality ? $this->translateQuality($this->quality) : null));
-            $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->fileName, $encodedImg);
+            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->translateQuality($this->quality) : null));
+            $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
 
             return $encodedImg;
         }
@@ -187,17 +210,18 @@ class Thumbnailer {
     public function crop()
     {
         try {
+
             // action options
             $options = $this->getSupportedActionOptions($this->action);
 
             // open file image resource
-            $img = Image::make($this->filesystem->read($this->fileName));
+            $img = $this->load();
 
             // resize/crop image
             $img->fit($this->width, $this->height, function($constraint){}, ArrayUtils::get($options, 'position', 'center'));
 
-            $encodedImg = (string) $img->encode(ArrayUtils::get($this->thumbnailParams, 'fileExt'), ($this->quality ? $this->translateQuality($this->quality) : null));
-            $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->fileName, $encodedImg);
+            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->translateQuality($this->quality) : null));
+            $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
 
             return $encodedImg;
         }
@@ -216,84 +240,69 @@ class Thumbnailer {
      */
     public function extractThumbnailParams($thumbnailUrlPath)
     {
-        try {
-            if ($this->thumbnailParams) {
-                return $this->thumbnailParams;
-            }
-
-            $urlSegments = explode('/', $thumbnailUrlPath);
-
-            // pull the env out of the segments
-            array_shift($urlSegments);
-
-            if (! $urlSegments) {
-                throw new Exception('Invalid thumbnailUrlPath.');
-            }
-
-            // pop off the filename
-            $fileName = ArrayUtils::pop($urlSegments);
-
-            // make sure filename is valid
-            $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-            $name = pathinfo($fileName, PATHINFO_FILENAME);
-            if (! $this->isSupportedFileExtension($ext)) {
-                throw new Exception('Invalid file extension.');
-            }
-
-            $thumbnailParams = [
-                'fileName' => filename_put_ext($name, $ext),
-                'fileExt' => $ext
-            ];
-
-            foreach ($urlSegments as $segment) {
-
-                if (! $segment) continue;
-
-                $hasWidth = ArrayUtils::get($thumbnailParams, 'width');
-                $hasHeight = ArrayUtils::get($thumbnailParams, 'height');
-                // extract width and height
-                if ((!$hasWidth || !$hasHeight) && is_numeric($segment)) {
-                    if (!$hasWidth) {
-                        ArrayUtils::set($thumbnailParams, 'width', $segment);
-                    } else if (!$hasHeight) {
-                        ArrayUtils::set($thumbnailParams, 'height', $segment);
-                    }
-                }
-
-                // extract action and quality
-                else {
-                    if (!ArrayUtils::get($thumbnailParams, 'action')) {
-                        ArrayUtils::set($thumbnailParams, 'action', $segment);
-                    } else if (!ArrayUtils::get($thumbnailParams, 'quality')) {
-                        ArrayUtils::set($thumbnailParams, 'quality', $segment);
-                    }
-                }
-            }
-
-            // validate
-            if (! ArrayUtils::contains($thumbnailParams, [
-                'width',
-                'height'
-            ])) {
-                throw new Exception('No height or width provided.');
-            }
-
-            // set default action, if needed
-            if (! ArrayUtils::exists($thumbnailParams, 'action')) {
-                ArrayUtils::set($thumbnailParams, 'action', null);
-            }
-
-            // set quality to null, if needed
-            if (! ArrayUtils::exists($thumbnailParams, 'quality')) {
-                ArrayUtils::set($thumbnailParams, 'quality', null);
-            }
-
-            return $thumbnailParams;
+        // cache
+        if ($this->thumbnailParams) {
+            return $this->thumbnailParams;
         }
 
-        catch (Exception $e) {
-            throw $e;
+        // get URL parts
+        // https://docs.directus.io/guides/thumbnailer.html#url-syntax
+        $urlSegments = explode('/', $thumbnailUrlPath);
+        if (count($urlSegments) < 6) {
+            throw new Exception('Invalid URL syntax.');
         }
+
+        // pull the env out of the segments
+        array_shift($urlSegments);
+
+        // set thumbnail parameters
+        $thumbnailParams = [
+            'action' => filter_var($urlSegments[2], FILTER_SANITIZE_STRING),
+            'height' => filter_var($urlSegments[1], FILTER_SANITIZE_NUMBER_INT),
+            'quality' => filter_var($urlSegments[3], FILTER_SANITIZE_STRING),
+            'width' => filter_var($urlSegments[0], FILTER_SANITIZE_NUMBER_INT),
+        ];
+
+        // validate parameters
+        if (! ArrayUtils::contains($thumbnailParams, [
+            'width',
+            'height'
+        ])) {
+            throw new Exception('No height or width provided.');
+        }
+
+        // make sure filename is valid
+        $filename = implode('/', array_slice($urlSegments, 4));
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $name = pathinfo($filename, PATHINFO_FILENAME);
+        if (! $this->isSupportedFileExtension($ext)) {
+            throw new Exception('Invalid file extension.');
+        }
+
+        // Set thumbnail filename parameters
+        $thumbnailParams['fileExt'] = $ext;
+        $thumbnailParams['fileName'] = $filename;
+        $format = strtolower(ArrayUtils::get($this->params, 'format') ?: $ext);
+
+        if (! $this->isSupportedFileExtension($format)) {
+            throw new Exception('Invalid file format.');
+        }
+
+        // Check format against image extension
+        if(
+            $format !== NULL &&
+            strtolower($ext) !== $format &&
+            !(
+                ($format === 'jpeg' || $format === 'jpg') &&
+                (strtolower($ext) === 'jpeg' || strtolower($ext) === 'jpg')
+            )
+        ) {
+            $thumbnailParams['thumbnailFileName'] = $name . '.' . $format;
+        } else {
+            $thumbnailParams['thumbnailFileName'] = $filename;
+        }
+
+        return $thumbnailParams;
     }
 
     /**
@@ -352,15 +361,11 @@ class Thumbnailer {
      */
     public function getSupportedThumbnailDimensions()
     {
-        $defaultDimension = '200x200';
-
         $dimensions =  $this->parseCSV(
             ArrayUtils::get($this->getConfig(), 'thumbnail_dimensions')
         );
 
-        if (!in_array($defaultDimension, $dimensions)) {
-            array_unshift($dimensions, $defaultDimension);
-        }
+        add_default_thumbnail_dimensions($dimensions);
 
         return $dimensions;
     }

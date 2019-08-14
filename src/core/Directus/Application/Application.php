@@ -13,7 +13,7 @@ class Application extends App
      *
      * @var string
      */
-    const DIRECTUS_VERSION = '2.0.17';
+    const DIRECTUS_VERSION = '2.4.0';
 
     /**
      * NOT USED
@@ -142,7 +142,7 @@ class Application extends App
     protected function createConfig(array $appConfig)
     {
         return [
-            'settings' => ArrayUtils::pull($appConfig, 'settings', []),
+            'settings' => isset($appConfig['settings']) ? $appConfig['settings'] : [],
             'config' => function () use ($appConfig) {
                 return new Config($appConfig);
             }

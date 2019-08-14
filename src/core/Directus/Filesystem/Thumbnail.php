@@ -16,6 +16,7 @@ class Thumbnail
         'jpeg',
         'gif',
         'png',
+	    'webp'
     ];
 
     /**
@@ -89,7 +90,7 @@ class Thumbnail
         }
 
         // Preserve transperancy for gifs and pngs
-        if ($format == 'gif' || $format == 'png') {
+        if ($format == 'gif' || $format == 'png' || $format == 'webp') {
             imagealphablending($imgResized, false);
             imagesavealpha($imgResized, true);
             $transparent = imagecolorallocatealpha($imgResized, 255, 255, 255, 127);
@@ -115,12 +116,13 @@ class Thumbnail
         if (!extension_loaded('imagick')) {
             return false;
         }
-
         $image = new \Imagick();
         $image->readImageBlob($content);
         $image->setIteratorIndex(0);
         $image->setImageFormat($format);
-
+        $image->setImageBackgroundColor('#ffffff');
+        $image->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
+        $image = $image->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
         return $image->getImageBlob();
     }
 
@@ -139,6 +141,9 @@ class Thumbnail
                 break;
             case 'png':
                 imagepng($img, $path);
+                break;
+	        case 'webp':
+                imagewebp($img, $path, $quality);
                 break;
             case 'pdf':
             case 'psd':

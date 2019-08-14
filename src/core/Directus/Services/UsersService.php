@@ -10,17 +10,23 @@ use Directus\Authentication\Provider;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
+use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\ForbiddenLastAdminException;
+use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
 use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Select;
+use function Directus\get_directus_setting;
 
 class UsersService extends AbstractService
 {
+
+    const PASSWORD_FIELD = 'password';
+
     /**
      * @var string
      */
@@ -54,6 +60,12 @@ class UsersService extends AbstractService
 
         $this->enforceUpdatePermissions($this->collection, $payload, $params);
         $this->validatePayload($this->collection, array_keys($payload), $payload, $params);
+
+        $passwordValidation = get_directus_setting('password_policy');
+        if(!empty($passwordValidation)){
+            $this->validate($payload,[static::PASSWORD_FIELD => ['regex:'.$passwordValidation ]]);
+        }
+
         $this->checkItemExists($this->collection, $id);
 
         $tableGateway = $this->createTableGateway($this->collection);
@@ -64,7 +76,20 @@ class UsersService extends AbstractService
 
         // Fetch the entry even if it's not "published"
         $params['status'] = '*';
+        $oldRecord = $this->find(
+            $id,
+            ArrayUtils::omit($params, $this->itemsService::SINGLE_ITEM_PARAMS_BLACKLIST)
+        );
         $newRecord = $tableGateway->updateRecord($id, $payload, $this->getCRUDParams($params));
+
+        if(!is_null(ArrayUtils::get($payload, $status->getName()))){
+            $activityTableGateway = $this->createTableGateway(SchemaManager::COLLECTION_ACTIVITY);
+            $activityTableGateway->recordAction(
+                $id,
+                SchemaManager::COLLECTION_USERS,
+                DirectusActivityTableGateway::ACTION_UPDATE_USER_STATUS
+            );
+        }
 
         try {
             $item = $this->find(
@@ -217,7 +242,7 @@ class UsersService extends AbstractService
             $datetime = DateTimeUtils::nowInUTC();
             $invitationToken = $auth->generateInvitationToken([
                 'date' => $datetime->toString(),
-                'exp' => $datetime->inDays(30)->toString(),
+                'exp' => $datetime->inDays(30)->getTimestamp(),
                 'email' => $email,
                 'sender' => $this->getAcl()->getUserId()
             ]);
@@ -260,6 +285,18 @@ class UsersService extends AbstractService
             throw new InvalidTokenException();
         }
 
+        // auth middleware doesn't parse this kind of token
+        // but we know that only admins can send invitations
+        $this->getAcl()->setUserId($payload->sender);
+        $this->getAcl()->setPermissions([
+            'directus_users' => [
+                [
+                    Acl::ACTION_READ   => Acl::LEVEL_FULL,
+                    Acl::ACTION_UPDATE => Acl::LEVEL_FULL,
+                ],
+            ],
+        ]);
+
         $auth = $this->getAuth();
         $auth->validatePayloadOrigin($payload);
 
@@ -267,7 +304,6 @@ class UsersService extends AbstractService
         try {
             $result = $this->findOne([
                 'filter' => [
-                    'id' => $payload->id,
                     'email' => $payload->email,
                     'status' => DirectusUsersTableGateway::STATUS_INVITED
                 ]

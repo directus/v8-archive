@@ -6,6 +6,8 @@ use Directus\Application\Application;
 use Directus\Console\Common\Exception\PasswordChangeException;
 use Directus\Console\Common\Exception\UserUpdateException;
 use Zend\Db\TableGateway\TableGateway;
+use Directus\Util\Installation\InstallerUtils;
+use function Directus\get_directus_setting;
 
 class User
 {
@@ -14,18 +16,42 @@ class User
     private $db;
     private $usersTableGateway;
 
-    public function __construct($base_path)
+    public function __construct($base_path, $projectName)
     {
         if ($base_path == null) {
             $base_path = \Directus\base_path();
         }
 
+        $config = require InstallerUtils::createConfigPath($base_path, $projectName);
+
         $this->directus_path = $base_path;
-        $this->app = new Application($base_path, require $base_path. '/config/api.php');
+        $this->app = new Application($base_path, $config);
         $this->db = $this->app->getContainer()->get('database');
 
         $this->usersTableGateway = new TableGateway('directus_users', $this->db);
     }
+
+    /**
+     * Check the existance of user in the system
+     * 
+     * The function will check the user of given their e-mail address exist in 
+     * the system or not.
+     */
+    public function userExists($email)
+    {
+        try {
+            $rowset = $this->usersTableGateway->select([
+                'email' => $email
+            ]);
+            if ($rowset->count() > 0) {
+                return true;
+            }
+            return false;
+        } catch (\PDOException $ex) {
+            return false;
+        }
+    }
+
 
     /**
      *  Change the password of a user given their e-mail address
@@ -49,6 +75,14 @@ class User
     {
 
         $auth = $this->app->getContainer()->get('auth');
+
+        $passwordValidation = get_directus_setting('password_policy');
+        if(!empty($passwordValidation)){
+            if(!preg_match($passwordValidation, $password, $match)){
+                throw new PasswordChangeException('Password is not valid.');
+            }
+        }
+
         $hash = $auth->hashPassword($password);
         $user = $this->usersTableGateway->select(['email' => $email])->current();
 
@@ -68,7 +102,6 @@ class User
         } catch (\PDOException $ex) {
             throw new PasswordChangeException('Failed to change password' . ': ' . str($ex));
         }
-
     }
 
     /**
@@ -100,5 +133,4 @@ class User
             throw new PasswordChangeException('Could not change email for ID ' . $id . ': ' . str($ex));
         }
     }
-
 }

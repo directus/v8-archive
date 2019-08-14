@@ -3,24 +3,25 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use Directus\Database\Exception;
+use Directus\Database\Exception\CollectionAlreadyExistsException;
+use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Exception\CollectionNotManagedException;
 use Directus\Database\Exception\FieldAlreadyExistsException;
 use Directus\Database\Exception\FieldLengthNotSupportedException;
 use Directus\Database\Exception\FieldLengthRequiredException;
 use Directus\Database\Exception\FieldNotFoundException;
-use Directus\Database\Exception\CollectionAlreadyExistsException;
-use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Exception\InvalidFieldException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Exception\UnknownTypeException;
 use Directus\Database\RowGateway\BaseRowGateway;
+use Directus\Database\SchemaService;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\SchemaService;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
@@ -76,12 +77,6 @@ class TablesService extends AbstractService
 
     public function findAllFieldsByCollection($collectionName, array $params = [])
     {
-        if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Permission denied');
-        }
-
-        // $this->tagResponseCache('tableColumnsSchema_'.$tableName);
-
         $this->validate(['collection' => $collectionName], ['collection' => 'required|string']);
 
         /** @var SchemaManager $schemaManager */
@@ -94,20 +89,30 @@ class TablesService extends AbstractService
         $tableGateway = $this->getFieldsTableGateway();
         $result = $tableGateway->getItems(array_merge($params, [
             'filter' => [
-                'collection' => $collectionName
-            ]
+                'collection' => $collectionName,
+            ],
         ]));
 
-        $result['data'] = $this->mergeMissingSchemaFields($collection, $result['data']);
+        $result = $this->mergeMissingSchemaFields($collection, $result);
 
-        return $result;
+        $data = [];
+        foreach ($result as $resultDetails) {
+            if ($this->getAcl()->isAdmin()) {
+                $data[] = $resultDetails;
+            } else {
+                $fieldReadBlackListDetails = $this->getAcl()->getStatusesOnReadFieldBlacklist($collectionName, $resultDetails['field']);
+                if (!(isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList'])) {
+                    $data[] = $resultDetails;
+                }
+            }
+        }
+
+        return ['data' => $data];
     }
 
     public function findAllFields(array $params = [])
     {
-        if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Permission denied');
-        }
+        $this->getAcl()->enforceReadOnce('directus_fields');
 
         /** @var SchemaManager $schemaManager */
         $schemaManager = $this->container->get('schema_manager');
@@ -120,7 +125,19 @@ class TablesService extends AbstractService
             $data[] = $this->mergeSchemaField($field);
         }
 
-        return ['data' => $data];
+        $response = [];
+        foreach ($data as $fieldDetails) {
+            if ($this->getAcl()->isAdmin()) {
+                $response[] = $fieldDetails;
+            } else {
+                $fieldReadBlackListDetails = $this->getAcl()->getStatusesOnReadFieldBlacklist($fieldDetails['collection'], $fieldDetails['field']);
+                if ($this->getAcl()->canReadOnce($fieldDetails['collection']) && !(isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList'])) {
+                    $response[] = $fieldDetails;
+                }
+            }
+        }
+
+        return ['data' => $response];
     }
 
     public function find($name, array $params = [])
@@ -130,7 +147,7 @@ class TablesService extends AbstractService
         $tableGateway = $this->createTableGateway($this->collection);
 
         $result = $tableGateway->getItems(array_merge($params, [
-            'id' => $name
+            'id' => $name,
         ]));
 
         $newData = $this->mergeSchemaCollection($name, $result['data']);
@@ -154,9 +171,7 @@ class TablesService extends AbstractService
             $collectionNames = StringUtils::csv((string) $name);
             $result['data'] = $this->mergeMissingSchemaCollections($collectionNames, $result['data']);
         } catch (ItemNotFoundException $e) {
-            $data = $this->mergeSchemaCollection($name, []);
-
-            $result = $tableGateway->wrapData($data, true, ArrayUtils::get($params, 'meta'));
+            throw $e;
         }
 
         if ($result['data'] === null) {
@@ -168,16 +183,19 @@ class TablesService extends AbstractService
 
     public function findField($collection, $field, array $params = [])
     {
-        if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Permission denied');
+        $this->getAcl()->enforceReadOnce('directus_fields');
+        $this->getAcl()->enforceReadOnce($collection);
+        $fieldReadBlackListDetails = $this->getAcl()->getStatusesOnReadFieldBlacklist($collection, $field);
+        if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
+            throw new Exception\ForbiddenFieldAccessException($field);
         }
 
         $this->validate([
             'collection' => $collection,
-            'field' => $field
+            'field' => $field,
         ], [
             'collection' => 'required|string',
-            'field' => 'required|string'
+            'field' => 'required|string',
         ]);
 
         /** @var SchemaManager $schemaManager */
@@ -201,7 +219,7 @@ class TablesService extends AbstractService
             $params['single'] = true;
             $params['filter'] = [
                 'collection' => $collection,
-                'field' => $field
+                'field' => $field,
             ];
 
             $result = $tableGateway->getItems($params);
@@ -223,11 +241,14 @@ class TablesService extends AbstractService
 
     public function findFields($collectionName, array $fieldsName, array $params = [])
     {
-        if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Permission denied');
+        $this->getAcl()->enforceReadOnce('directus_fields');
+        $this->getAcl()->enforceReadOnce($collectionName);
+        foreach ($fieldsName as $field) {
+            $fieldReadBlackListDetails = $this->getAcl()->getStatusesOnReadFieldBlacklist($collectionName, $field);
+            if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
+                throw new Exception\ForbiddenFieldAccessException($field);
+            }
         }
-
-        // $this->tagResponseCache('tableColumnsSchema_'.$tableName);
         $this->validate(['fields' => $fieldsName], ['fields' => 'required|array']);
 
         /** @var SchemaManager $schemaManager */
@@ -241,8 +262,8 @@ class TablesService extends AbstractService
         $result = $tableGateway->getItems(array_merge($params, [
             'filter' => [
                 'collection' => $collectionName,
-                'field' => ['in' => $fieldsName]
-            ]
+                'field' => ['in' => $fieldsName],
+            ],
         ]));
 
         $result['data'] = $this->mergeMissingSchemaFields($collection, ArrayUtils::get($result, 'data'), $fieldsName);
@@ -252,18 +273,18 @@ class TablesService extends AbstractService
 
     public function deleteField($collection, $field, array $params = [])
     {
-        if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Permission denied');
+        $this->getAcl()->enforceDelete('directus_fields');
+        $this->getAcl()->enforceDelete($collection);
+        $fieldWriteBlackListDetails = $this->getAcl()->getStatusesOnWriteFieldBlacklist($collection, $field);
+        if (isset($fieldWriteBlackListDetails['isWriteBlackList']) && $fieldWriteBlackListDetails['isWriteBlackList']) {
+            throw new Exception\ForbiddenFieldAccessException($field);
         }
-
-        $this->enforcePermissions('directus_fields', [], $params);
-
         $this->validate([
             'collection' => $collection,
-            'field' => $field
+            'field' => $field,
         ], [
             'collection' => 'required|string',
-            'field' => 'required|string'
+            'field' => 'required|string',
         ]);
 
         $tableService = new TablesService($this->container);
@@ -271,9 +292,9 @@ class TablesService extends AbstractService
         /** @var Emitter $hookEmitter */
         $hookEmitter = $this->container->get('hook_emitter');
         $hookEmitter->run('field.delete:before', [$collection, $field]);
-        $hookEmitter->run('field.delete.' . $collection. ':before', [$field]);
+        $hookEmitter->run('field.delete.' . $collection . ':before', [$field]);
 
-        $tableService->dropColumn($collection, $field);
+        $tableService->dropColumn($collection, $field, $params);
 
         $hookEmitter->run('field.delete', [$collection, $field]);
         $hookEmitter->run('field.delete.' . $collection, [$field]);
@@ -505,11 +526,8 @@ class TablesService extends AbstractService
      */
     public function addColumn($collectionName, $columnName, array $data, array $params = [])
     {
-        if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Permission denied');
-        }
-
-        $this->enforcePermissions('directus_fields', $data, $params);
+        $this->getAcl()->enforceCreate('directus_fields');
+        $this->getAcl()->enforceCreate($collectionName);
 
         $data['field'] = $columnName;
         $data['collection'] = $collectionName;
@@ -528,7 +546,7 @@ class TablesService extends AbstractService
         }
 
         $columnData = array_merge($data, [
-            'field' => $columnName
+            'field' => $columnName,
         ]);
 
         /** @var Emitter $hookEmitter */
@@ -538,7 +556,7 @@ class TablesService extends AbstractService
 
         // TODO: Only call this when necessary
         $this->updateTableSchema($collection, [
-            'fields' => [$columnData]
+            'fields' => [$columnData],
         ]);
 
         // ----------------------------------------------------------------------------
@@ -569,11 +587,12 @@ class TablesService extends AbstractService
      */
     public function changeColumn($collectionName, $fieldName, array $data, array $params = [])
     {
-        if (!$this->getAcl()->isAdmin()) {
-            throw new UnauthorizedException('Permission denied');
+        $this->getAcl()->enforceUpdate('directus_fields');
+        $this->getAcl()->enforceUpdate($collectionName);
+        $fieldWriteBlackListDetails = $this->getAcl()->getStatusesOnWriteFieldBlacklist($collectionName, $fieldName);
+        if (isset($fieldWriteBlackListDetails['isWriteBlackList']) && $fieldWriteBlackListDetails['isWriteBlackList']) {
+            throw new Exception\ForbiddenFieldAccessException($fieldName);
         }
-
-        $this->enforcePermissions('directus_fields', $data, $params);
 
         $data['field'] = $fieldName;
         $data['collection'] = $collectionName;
@@ -601,7 +620,7 @@ class TablesService extends AbstractService
 
         if ($this->shouldUpdateSchema($data)) {
             $this->updateTableSchema($collection, [
-                'fields' => [array_merge($field->toArray(), $data)]
+                'fields' => [array_merge($field->toArray(), $data)],
             ]);
         }
 
@@ -711,7 +730,7 @@ class TablesService extends AbstractService
         return $allItems;
     }
 
-    public function dropColumn($collectionName, $fieldName)
+    public function dropColumn($collectionName, $fieldName, array $params = [])
     {
         $tableObject = $this->getSchemaManager()->getCollection($collectionName);
         if (!$tableObject) {
@@ -734,14 +753,34 @@ class TablesService extends AbstractService
         }
 
         if ($columnObject->hasRelationship()) {
-            $this->removeColumnRelationship($columnObject);
+            $this->removeColumnRelationship($columnObject,$params);
         }
 
         if ($columnObject->isManaged()) {
+            /**
+             * Remove O2M field if M2O interface deleted as O2M will only work if M2O exist
+             */
+            if($columnObject->isManyToOne()){
+              $this->removeRelatedColumnInfo($columnObject);
+            }
             $this->removeColumnInfo($collectionName, $fieldName);
         }
     }
 
+    /**
+     * @param $collectionName
+     * @param $fieldName
+     *
+     * @return int
+     */
+    public function removeRelatedColumnInfo(Field $field)
+    {
+        $relationship = $field->getRelationship();
+
+        if ($field->getName() === $relationship->getFieldMany() && !is_null($relationship->getFieldOne())) {
+            $this->removeColumnInfo($relationship->getCollectionOne(), $relationship->getFieldOne());
+        }
+    }
     /**
      * Add columns information to the fields table
      *
@@ -774,7 +813,7 @@ class TablesService extends AbstractService
         $fieldsTableGateway = $this->getFieldsTableGateway();
         $row = $fieldsTableGateway->findOneByArray([
             'collection' => $collectionName,
-            'field' => $fieldName
+            'field' => $fieldName,
         ]);
 
         if ($row) {
@@ -801,12 +840,12 @@ class TablesService extends AbstractService
             'note' => null,
             'hidden_detail' => 0,
             'hidden_browse' => 0,
-            'options' => null
+            'options' => null,
         ];
 
         $data = array_merge($defaults, $data, [
             'collection' => $collection,
-            'field' => $field
+            'field' => $field,
         ]);
 
         // Get the Directus based on the source type
@@ -850,7 +889,7 @@ class TablesService extends AbstractService
 
         return $fieldsTableGateway->delete([
             'collection' => $collectionName,
-            'field' => $fieldName
+            'field' => $fieldName,
         ]);
     }
 
@@ -861,7 +900,7 @@ class TablesService extends AbstractService
      *
      * @return bool|int
      */
-    public function removeColumnRelationship(Field $field)
+    public function removeColumnRelationship(Field $field, array $params = [])
     {
         if (!$field->hasRelationship()) {
             return false;
@@ -870,7 +909,7 @@ class TablesService extends AbstractService
         if ($this->shouldRemoveRelationshipRecord($field)) {
             $result = $this->removeRelationshipRecord($field);
         } else {
-            $result = $this->removeRelationshipFromRecord($field);
+            $result = $this->removeRelationshipFromRecord($field, $params);
         }
 
         return $result;
@@ -886,10 +925,8 @@ class TablesService extends AbstractService
     protected function shouldRemoveRelationshipRecord(Field $field)
     {
         $relationship = $field->getRelationship();
-        $isOne = ($field->getName() === $relationship->getFieldOne());
 
-        return ($isOne && !$relationship->getFieldMany())
-            || (!$isOne && !$relationship->getFieldOne());
+        return ($field->getName() === $relationship->getFieldMany());
     }
 
     /**
@@ -903,7 +940,6 @@ class TablesService extends AbstractService
     {
         $tableGateway = $this->getRelationsTableGateway();
         $conditions = $this->getRemoveRelationshipConditions($field);
-
         return $tableGateway->delete($conditions['values']);
     }
 
@@ -914,16 +950,41 @@ class TablesService extends AbstractService
      *
      * @return int
      */
-    protected function removeRelationshipFromRecord(Field $field)
+    protected function removeRelationshipFromRecord(Field $field, array $params = [])
     {
         $tableGateway = $this->getRelationsTableGateway();
+
+        $relationship = $field->getRelationship();
+
+        /**
+         * Remove the junction fields
+         */
+        $junctionConditions = [
+            'junction_field' => $relationship->getFieldMany(),
+            'collection_many' => $relationship->getCollectionMany(),
+        ];
+        $junctionEntries = $tableGateway->getItems(['filter' => $junctionConditions]);
         $conditions = $this->getRemoveRelationshipConditions($field);
 
         $data = [
-            $conditions['field'] => null
+            $conditions['field'] => null,
         ];
 
-        return $tableGateway->update($data, $conditions['values']);
+        /**
+         * Delete the junction entries(For M2M) and update the values for (O2M)
+         */
+        if (!empty($junctionEntries['data'])) {
+            $tableGateway->delete($junctionConditions);
+
+            if(isset($params['delete_junction'])){
+                $this->dropTable($relationship->getCollectionMany());
+            }
+
+            return $tableGateway->delete($conditions['values']);
+        } else {
+            return $tableGateway->update($data, $conditions['values']);
+        }
+
     }
 
     /**
@@ -984,8 +1045,8 @@ class TablesService extends AbstractService
         $schemaFactory = $this->container->get('schema_factory');
         $table = $schemaFactory->alterTable($collectionName, [
             'drop' => [
-                $fieldName
-            ]
+                $fieldName,
+            ],
         ]);
 
         return $schemaFactory->buildTable($table) ? true : false;
@@ -1158,7 +1219,6 @@ class TablesService extends AbstractService
         return $result;
     }
 
-
     /**
      * @param string $name
      * @param array $data
@@ -1177,8 +1237,8 @@ class TablesService extends AbstractService
         /** @var Emitter $hookEmitter */
         $hookEmitter = $this->container->get('hook_emitter');
         $hookEmitter->run('collection.create:before', $name);
-
-        $result = $schemaFactory->buildTable($table);
+        $charset = $this->container->get('config')->get('database.charset');
+        $result = $schemaFactory->buildTable($table, $charset);
 
         return $result ? true : false;
     }
@@ -1238,7 +1298,7 @@ class TablesService extends AbstractService
         $table = $schemaFactory->alterTable($name, [
             'add' => $toAdd,
             'change' => $toChange,
-            'drop' => $toDrop
+            'drop' => $toDrop,
         ]);
 
         $result = $schemaFactory->buildTable($table);
@@ -1290,10 +1350,9 @@ class TablesService extends AbstractService
                 break;
         }
 
-
         $row = $relationsTableGateway->findOneByArray([
             'collection_many' => $collectionName,
-            'store_key_a' => $column['field']
+            'store_key_a' => $column['field'],
         ]);
 
         if ($row) {
@@ -1414,7 +1473,7 @@ class TablesService extends AbstractService
         }
 
         $types = [];
-        foreach ($found as $type=> $count) {
+        foreach ($found as $type => $count) {
             if ($count > 1) {
                 $types[] = $type;
             }
@@ -1636,8 +1695,8 @@ class TablesService extends AbstractService
     }
 
     /**
- * @return RelationalTableGateway
- */
+     * @return RelationalTableGateway
+     */
     protected function getFieldsTableGateway()
     {
         if (!$this->fieldsTableGateway) {
@@ -1683,9 +1742,9 @@ class TablesService extends AbstractService
             $collection = $this->getSchemaManager()->getCollection(SchemaManager::COLLECTION_FIELDS);
 
             foreach ($sort as $field) {
-                $field = (string)$field;
+                $field = (string) $field;
                 if (!$collection->hasField($field)) {
-                    throw new InvalidFieldException($field);
+                    throw new InvalidFieldException($field, $collection->getName());
                 }
             }
         }
@@ -1699,5 +1758,12 @@ class TablesService extends AbstractService
         }
 
         return $newParams;
+    }
+
+    public function getFieldObject($collection, $field)
+    {
+        $collectionObject = $this->getSchemaManager()->getCollection($collection);
+        $fieldObject = $collectionObject->getField($field);
+        return $fieldObject;
     }
 }

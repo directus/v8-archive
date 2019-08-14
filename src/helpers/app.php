@@ -2,7 +2,7 @@
 
 namespace Directus;
 
-use Directus\Api\Routes\Projects;
+use Directus\Api\Routes\ProjectsCreate;
 use Directus\Application\Application;
 use Directus\Application\ErrorHandlers\NotInstalledNotFoundHandler;
 use Directus\Application\Http\Middleware\CorsMiddleware;
@@ -10,6 +10,10 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Collection\Collection;
 use Directus\Config\Config;
+use Directus\Config\Context;
+use Directus\Config\Schema\Schema;
+use Directus\Config\Exception\UnknownProjectException;
+use Directus\Config\Exception\InvalidProjectException;
 use Directus\Exception\Exception;
 use Directus\Exception\UnauthorizedException;
 use Slim\Http\Body;
@@ -83,11 +87,23 @@ if (!function_exists('get_project_config')) {
             return $configs[$configFilePath];
         }
 
-        if (!file_exists($configFilePath)) {
-            throw new Exception('Unknown environment: ' . $name);
+        $config = [];
+        $schema = Schema::get();
+
+        if (getenv("DIRECTUS_USE_ENV") === "1") {
+            if ($name !== "_") {
+                throw new InvalidProjectException();
+            }
+            $configFilePath = "__env__";
+            $configData = $schema->value(Context::from_env());
+        } else {
+            if (!file_exists($configFilePath)) {
+                throw new UnknownProjectException($name);
+            }
+            $configData = $schema->value(['directus' => Context::from_file($configFilePath)]);
         }
 
-        $config = new Config(require $configFilePath);
+        $config = new Config($configData);
         $configs[$configFilePath] = $config;
 
         return $config;
@@ -167,7 +183,7 @@ if (!function_exists('create_install_route')) {
      */
     function create_install_route(Application $app)
     {
-        $app->group('/projects', Projects::class);
+        $app->post('/projects', ProjectsCreate::class);
 
         return $app;
     }

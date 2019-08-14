@@ -1,11 +1,15 @@
-# Comment this line if you are getting: "Option SymLinksIfOwnerMatch not allowed here" error
-# in Apache
+# Comment this line if you are getting: "Option SymLinksIfOwnerMatch not allowed here" error in Apache
 Options +SymLinksIfOwnerMatch
+
+# php5_module automatically handles HTTP_AUTHORIZATION headers, but fcgi_module does not.
+<IfModule mod_setenvif.c>
+    <IfModule mod_proxy_fcgi.c>
+        SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
+    </IfModule>
+</IfModule>
 
 <ifModule mod_rewrite.c>
     RewriteEngine On
-
-    RewriteRule .* - [env=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     # Map all admin endpoints to the admin app (except static files)
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -16,7 +20,8 @@ Options +SymLinksIfOwnerMatch
     RewriteRule !^admin index.php?%{QUERY_STRING} [L]
 </ifModule>
 
-<ifModule mod_php5.c>
-    # Fix $HTTP_RAW_POST_DATA deprecated warning
-    php_value always_populate_raw_post_data -1
-</ifModule>
+# Uncomment the following lines to modify PHP settings. The lines below can be used to increase the max upload size of files in Directus
+#<IfModule mod_php7.c>
+  #php_value upload_max_filesize 50M
+  #php_value post_max_size 100M
+#</IfModule>

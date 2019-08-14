@@ -123,10 +123,14 @@ class StringUtils
      *
      * @return string
      */
-    public static function randomString($length = 16)
+    public static function randomString($length = 16, $special_chars = true)
     {
         // TODO: Add options to allow symbols or user provided characters to extend the list
-        $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $pool = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        if ($special_chars) {
+            $pool .= "!@#$%^&*()_+}{;?>.<,";
+        }
 
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
@@ -195,15 +199,55 @@ class StringUtils
      */
     public static function replacePlaceholder($string, $data = [], $placeHolderFormat = self::PLACEHOLDER_DOUBLE_MUSTACHE)
     {
+        $keyName = function ($key) {
+            $parts = explode('.', $key);
+
+            return end($parts);
+        };
+
+        $wrapValue = function ($value) {
+            return sprintf('\'%s\'', $value);
+        };
+
         foreach ($data as $key => $value) {
+            $isString = is_string($value);
+
             if (is_bool($value)) {
                 $value = $value ? 'true' : 'false';
+            } else if (is_null($value)) {
+                $value = 'null';
+            } else if (is_array($value)) {
+                $value = var_export($value, true);
+                // make the array as one-liner to avoid bad indentation
+                // $value = str_replace("\n", '', $value);
             }
 
             if (is_scalar($value) || is_null($value)) {
+                $string = str_replace(
+                    sprintf('{{optional(%s)}}', $key),
+                    sprintf(
+                        '\'%s\' => %s',
+                        $keyName($key),
+                        // Only wrap string values
+                        $isString ? $wrapValue($value) : $value
+                    ),
+                    $string
+                );
                 $string = str_replace(sprintf($placeHolderFormat, $key), $value, $string);
             }
         }
+
+        /**
+         * If any variable of the given string have null value as a replacement then the
+         * result will be 'null'(string). So we need to replace it with blank string.
+         */
+        $string = str_replace("'null'", "''", $string);
+
+        // convert all remaining optionals placeholder from {{optional(key)}} to // 'key' => ''
+        $pattern = '#^(.*)({{optional\((.*)\)}})(.*\n)?#im';
+        $string = preg_replace_callback($pattern, function ($matches) use ($keyName) {
+            return sprintf('%s// \'%s\' => \'\'%s', $matches[1], $keyName($matches[3]), $matches[4]);
+        }, $string);
 
         return $string;
     }
@@ -251,4 +295,28 @@ class StringUtils
 
         return $result;
     }
+
+     /**
+     *  Replace underscore with space.
+     *
+     * @param $string
+     *
+     * @return string
+     */
+    public static function underscoreToSpace($string)
+    {
+        return str_replace("_", " ", $string);
+    }
+
+    /**
+     *  Convert string to pascal case.
+     *
+     * @param $string
+     *
+     * @return string
+     */
+     public static function toPascalCase($string)
+     {
+         return str_replace('_', '', ucwords($string, '_'));
+     }
 }

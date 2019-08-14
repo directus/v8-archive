@@ -9,11 +9,17 @@ use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
+use Directus\Authentication\Exception\UserSuspendedException;
+use Directus\Database\TableGatewayFactory;
+use Directus\Database\Schema\SchemaManager;
+use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Authentication\User\Provider\UserProviderInterface;
 use Directus\Authentication\User\UserInterface;
 use Directus\Exception\Exception;
 use function Directus\get_api_project_from_request;
 use function Directus\get_project_config;
+use function Directus\get_directus_setting;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
@@ -71,7 +77,7 @@ class Provider
             throw new Exception('auth: secret key is required and it must be a string');
         }
 
-        $ttl = ArrayUtils::get($options, 'ttl', 5);
+        $ttl = ArrayUtils::get($options, 'ttl', 20);
         if (!is_numeric($ttl)) {
             throw new Exception('ttl must be a number');
         }
@@ -158,12 +164,52 @@ class Provider
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
         if (!password_verify($password, $user->get('password'))) {
+            
+            $this->recordActivityAndCheckLoginAttempt($user);
             throw new InvalidUserCredentialsException();
         }
 
         $this->user = $user;
 
         return $user;
+    }
+
+    /**
+     * Record invalid credentials action and throw exception if the maximum invalid login attempts reached.
+     */
+    public function recordActivityAndCheckLoginAttempt($user)
+    {
+        $userId = $user->get('id');
+        $activityTableGateway = TableGatewayFactory::create(SchemaManager::COLLECTION_ACTIVITY, ['acl' => false]);
+
+        // Added this before calculation as system may throw the exception here.
+        $activityTableGateway->recordAction($userId, SchemaManager::COLLECTION_USERS, DirectusActivityTableGateway::ACTION_INVALID_CREDENTIALS);
+
+        $loginAttemptsAllowed = get_directus_setting('login_attempts_allowed');
+        
+        if(!empty($loginAttemptsAllowed)){
+
+            // We added 'Invalid credentials' entry before this condition so need to increase this counter with 1
+            $totalLoginAttemptsAllowed = $loginAttemptsAllowed + 1;
+
+            $invalidLoginAttempts = $activityTableGateway->getInvalidLoginAttempts($userId, $totalLoginAttemptsAllowed);
+            if(!empty($invalidLoginAttempts)){
+                $lastInvalidCredentialsEntry = current($invalidLoginAttempts);
+                $firstInvalidCredentialsEntry = end($invalidLoginAttempts);
+              
+                $lastLoginAttempt = $activityTableGateway->getLastLoginOrStatusUpdateAttempt($userId);
+              
+                if(!empty($lastLoginAttempt) && !in_array($lastLoginAttempt['id'], range($firstInvalidCredentialsEntry['id'], $lastInvalidCredentialsEntry['id'])) &&  count($invalidLoginAttempts) > $loginAttemptsAllowed){
+                    
+                    $tableGateway = TableGatewayFactory::create(SchemaManager::COLLECTION_USERS, ['acl' => false]);
+                    $update = [
+                        'status' => DirectusUsersTableGateway::STATUS_SUSPENDED
+                    ];
+                    $tableGateway->update($update, ['id' => $userId]);
+                    throw new UserSuspendedException();
+                }
+            }
+        }
     }
 
     /**
@@ -202,6 +248,21 @@ class Provider
 
         // TODO: Cast attributes values
         return $user->get('status') == $userProvider::STATUS_ACTIVE;
+    }
+
+    /**
+     * Checks if the user is suspended
+     *
+     * @param UserInterface $user
+     *
+     * @return bool
+     */
+    public function isSuspended(UserInterface $user)
+    {
+        $userProvider = $this->userProvider;
+
+        // TODO: Cast attributes values
+        return $user->get('status') == $userProvider::STATUS_SUSPENDED;
     }
 
     /**
@@ -370,7 +431,7 @@ class Provider
             'type' => 'request_token',
             'id' => (int) $user->getId(),
             // 'group' => (int) $user->getGroupId(),
-            'exp' => time() + (5 * DateTimeUtils::MINUTE_IN_SECONDS),
+            'exp' => time() + (20 * DateTimeUtils::MINUTE_IN_SECONDS),
             'url' => \Directus\get_url(),
             'project' => \Directus\get_api_project_from_request()
         ];
@@ -609,6 +670,10 @@ class Provider
     {
         if (!($user instanceof UserInterface) || !$user->getId()) {
             throw new UserNotFoundException();
+        }
+
+        if ($this->isSuspended($user)) {
+            throw new UserSuspendedException();
         }
 
         if (!$this->isActive($user)) {

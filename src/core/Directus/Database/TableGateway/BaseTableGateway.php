@@ -21,6 +21,7 @@ use Directus\Database\TableGatewayFactory;
 use Directus\Database\SchemaService;
 use Directus\Exception\Exception;
 use Directus\Exception\UnprocessableEntityException;
+use function Directus\filename_put_ext;
 use Directus\Filesystem\Files;
 use function Directus\get_directus_setting;
 use Directus\Hook\Emitter;
@@ -424,11 +425,12 @@ class BaseTableGateway extends TableGateway
             throw new UnprocessableEntityException();
         }
 
+        $recordId = $recordData[$primaryKey];
         if ($collectionName === SchemaManager::COLLECTION_FILES) {
             $select = new Select($collectionName);
             $select->columns(['filename']);
             $select->where([
-                $primaryKey => $recordData[$primaryKey]
+                $primaryKey => $recordId
             ]);
             $select->limit(1);
             $result = $TableGateway->ignoreFilters()->selectWith($select);
@@ -448,19 +450,23 @@ class BaseTableGateway extends TableGateway
         $Update = new Update($collectionName);
         $Update->set($recordData);
         $Update->where([
-            $primaryKey => $recordData[$primaryKey]
+            $primaryKey => $recordId
         ]);
         $TableGateway->updateWith($Update);
 
+        $replace = true;
         if ($collectionName === SchemaManager::COLLECTION_FILES && static::$container) {
-            if ($originalFilename && $recordData['filename'] !== $originalFilename) {
+            $changeFilename = $originalFilename && $recordData['filename'] !== $originalFilename;
+            $replace = !$changeFilename;
+
+            if ($changeFilename) {
                 /** @var Files $Files */
                 $Files = static::$container->get('files');
                 $Files->delete(['filename' => $originalFilename]);
             }
         }
 
-        $this->afterAddOrUpdate($recordData, true);
+        $this->afterAddOrUpdate($recordData, $replace);
 
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($collectionName);
         return $TableGateway->fetchAll(function ($select) use ($recordData, $columns, $primaryKey) {
@@ -668,7 +674,7 @@ class BaseTableGateway extends TableGateway
     public function castFloatIfNumeric(&$value, $key)
     {
         if ($key != 'table_name') {
-            $value = is_numeric($value) ? (float)$value : $value;
+            $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float)$value : $value;
         }
     }
 
@@ -704,6 +710,8 @@ class BaseTableGateway extends TableGateway
      */
     protected function executeSelect(Select $select)
     {
+
+
         $useFilter = $this->shouldUseFilter();
         unset($this->options['filter']);
 
@@ -713,6 +721,7 @@ class BaseTableGateway extends TableGateway
 
         $selectState = $select->getRawState();
         $selectCollectionName = $selectState['table'];
+
 
         if ($useFilter) {
             $selectState = $this->applyHooks([
@@ -894,11 +903,12 @@ class BaseTableGateway extends TableGateway
         if ($pk = $this->primaryKeyFieldName) {
             $select = $this->sql->select();
             $select->where($deleteState['where']);
-            $select->columns([$pk]);
             $results = parent::executeSelect($select);
 
-            foreach($results as $result) {
-                $ids[] = $result['id'];
+            $deletedObject = [];
+            foreach ($results as $result) {
+                $ids[] = $result[$this->primaryKeyFieldName];
+                $deletedObject[$result[$this->primaryKeyFieldName]] = $result->toArray();
             }
         }
 
@@ -909,7 +919,7 @@ class BaseTableGateway extends TableGateway
             $delete->where($expression);
 
             foreach ($ids as $id) {
-                $deleteData = ['id' => $id];
+                $deleteData = [$this->primaryKeyFieldName => $id];
                 $this->runHook('item.delete:before', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete.' . $deleteTable . ':before', [$deleteData]);
             }
@@ -924,7 +934,7 @@ class BaseTableGateway extends TableGateway
             }
 
             foreach ($ids as $id) {
-                $deleteData = ['id' => $id];
+                $deleteData = $deletedObject[$id];
                 $this->runHook('item.delete', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete:after', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete.' . $deleteTable, [$deleteData]);
@@ -1228,14 +1238,33 @@ class BaseTableGateway extends TableGateway
      * @throws \Exception
      */
     public function enforceUpdatePermission(Update $update)
-    {
+    {        
+        $collectionObject = $this->getTableSchema();
+        $statusField = $collectionObject->getStatusField();
+        $updateState = $update->getRawState();        
+        $updateData = $updateState['set'];
+        
+        //If a collection has status field then records are not actually deleting, they are soft deleting
+        //Check delete permission for soft delete
+        if (
+            $statusField
+            && ArrayUtils::has($updateData, $statusField->getName())
+            && in_array(
+                ArrayUtils::get($updateData, $collectionObject->getStatusField()->getName()),
+                $this->getStatusMapping()->getSoftDeleteStatusesValue()
+            )
+        ) { 
+            $delete = $this->sql->delete();
+            $delete->where($updateState['where']);            
+            $this->enforceDeletePermission($delete);
+            return;
+        }
+        
         if ($this->acl->canUpdateAll($this->table) && $this->acl->isAdmin()) {
             return;
         }
 
-        $collectionObject = $this->getTableSchema();
         $currentUserId = $this->acl->getUserId();
-        $updateState = $update->getRawState();
         $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
         $select = $this->sql->select();
         $select->where($updateState['where']);
@@ -1266,6 +1295,22 @@ class BaseTableGateway extends TableGateway
         // User Created Interface not found, item cannot be updated
         $itemOwnerField = $this->getTableSchema()->getUserCreatedField();
         if (!$itemOwnerField) {
+
+            /** User object dont have a created_by field so we cant get the owner and not able to update
+             * the profile. Thus we need to check manually that whether its update profile or not.
+             */
+            if ($this->table == SchemaManager::COLLECTION_USERS  && $item['id'] == $currentUserId) {
+                $this->acl->enforceUpdate($updateTable, $statusId);
+                return;
+            }
+
+            /** Object dont have a created_by field so we cant get the owner and not able to fetch
+             *  the bookmarks.
+             */
+            if ($this->table == SchemaManager::COLLECTION_COLLECTION_PRESETS  && $item['user'] == $currentUserId) {
+                $this->acl->enforceUpdate($updateTable, $statusId);
+                return;
+            }
             $this->acl->enforceUpdateAll($updateTable, $statusId);
             return;
         }
@@ -1728,14 +1773,11 @@ class BaseTableGateway extends TableGateway
 
             if (
                 ($field && is_array($columnValue)
-                    && (
-                        !DataTypes::isJson($field->getType())
+                    && (!DataTypes::isJson($field->getType())
                         && !DataTypes::isArray($field->getType())
-                            // The owner of the alias should handle it
-                            // either on hook or custom field validation to ignore any value
-                        && !DataTypes::isAliasType($field->getType())
-                    )
-                )
+                        // The owner of the alias should handle it
+                        // either on hook or custom field validation to ignore any value
+                        && !DataTypes::isAliasType($field->getType())))
             ) {
                 throw new SuppliedArrayAsColumnValue(
                     $this->table,
@@ -1752,37 +1794,45 @@ class BaseTableGateway extends TableGateway
     protected function afterAddOrUpdate(array $record, $replace = false)
     {
         // TODO: Move this to a proper hook
-        if ($this->table == SchemaManager::COLLECTION_FILES && static::$container) {
-            $Files = static::$container->get('files');
+        $hasData = ArrayUtils::has($record, 'data') && is_string($record['data']);
+        $isFilesCollection = $this->table == SchemaManager::COLLECTION_FILES;
 
-            $updateArray = [];
-            if ($Files->getSettings('file_naming') == 'id') {
-                // overwrite a file with this file content if it already exists
-                $replace = true;
-                $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
-                $fileId = $record[$this->primaryKeyFieldName];
-                $newFilename = str_pad(
-                    $fileId,
-                    11,
-                    '0',
-                    STR_PAD_LEFT
-                ) . '.' . $ext;
+        if (!static::$container || !$hasData || !$isFilesCollection) {
+            return;
+        }
 
+        $Files = static::$container->get('files');
+
+        $updateArray = [];
+        if ($Files->getSettings('file_naming') == 'id') {
+            $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
+            $fileId = $record[$this->primaryKeyFieldName];
+            // TODO: The left padding should be based on the max length of the primary
+            $newFilename = filename_put_ext(str_pad(
+                $fileId,
+                11,
+                '0',
+                STR_PAD_LEFT
+            ), $ext);
+
+            // overwrite a file with this file content if it already exists
+            if (!$replace) {
                 $Files->rename(
                     $record['filename'],
                     $newFilename,
-                    $replace
+                    true
                 );
-                $updateArray['filename'] = $newFilename;
-                $record['filename'] = $updateArray['filename'];
             }
 
-            if (!empty($updateArray)) {
-                $Update = new Update($this->table);
-                $Update->set($updateArray);
-                $Update->where([$this->primaryKeyFieldName => $record[$this->primaryKeyFieldName]]);
-                $this->updateWith($Update);
-            }
+            $updateArray['filename'] = $newFilename;
+            $record['filename'] = $updateArray['filename'];
+        }
+
+        if (!empty($updateArray)) {
+            $Update = new Update($this->table);
+            $Update->set($updateArray);
+            $Update->where([$this->primaryKeyFieldName => $record[$this->primaryKeyFieldName]]);
+            $this->updateWith($Update);
         }
     }
 
@@ -1793,7 +1843,7 @@ class BaseTableGateway extends TableGateway
      */
     protected function shouldNullSortedLast()
     {
-        return (bool) get_directus_setting('sort_null_last', true);
+        return (bool)get_directus_setting('sort_null_last', true);
     }
 
     /**

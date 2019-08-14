@@ -5,6 +5,8 @@ namespace Directus\Filesystem;
 use Directus\Application\Application;
 use function Directus\filename_put_ext;
 use function Directus\generate_uuid5;
+use function Directus\is_a_url;
+use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Formatting;
 use Directus\Util\MimeTypeUtils;
@@ -32,7 +34,8 @@ class Files
     private $defaults = [
         'description' => '',
         'tags' => '',
-        'location' => ''
+        'location' => '',
+        'charset' => ''
     ];
 
     /**
@@ -102,7 +105,7 @@ class Files
             'height' => $fileData['height'],
             //    @TODO: Returns date in ISO 8601 Ex: 2016-06-06T17:18:20Z
             //    see: https://en.wikipedia.org/wiki/ISO_8601
-            'date_uploaded' => $fileData['date_uploaded'],// . ' UTC',
+            'date_uploaded' => $fileData['date_uploaded'], // . ' UTC',
             'storage' => $fileData['storage']
         ];
     }
@@ -184,7 +187,12 @@ class Files
 
         $info = [];
 
-        $contentType = $this->getMimeTypeFromContentType($urlHeaders['Content-Type']);
+        $contentType = $urlHeaders['Content-Type'];
+        if (is_array($contentType)) {
+            $contentType = array_shift($contentType);
+        }
+
+        $contentType = $this->getMimeTypeFromContentType($contentType);
 
         if (strpos($contentType, 'image/') === false) {
             return $info;
@@ -198,7 +206,14 @@ class Files
 
         list($width, $height) = getimagesizefromstring($content);
 
-        $data = 'data:' . $contentType . ';base64,' . base64_encode($content);
+        if (isset($urlInfo['filename']) && !empty($urlInfo['filename'])) {
+            $filename = $urlInfo['filename'];
+        } else {
+            $filename = md5(time() . $url);
+        }
+
+        $data = base64_encode($content);
+        $info['filename'] = filename_put_ext($filename, MimeTypeUtils::getFromMimeType($contentType));
         $info['title'] = $urlInfo['filename'];
         $info['name'] = $urlInfo['basename'];
         $info['size'] = isset($urlHeaders['Content-Length']) ? $urlHeaders['Content-Length'] : 0;
@@ -241,22 +256,35 @@ class Files
      */
     public function saveData($fileData, $fileName, $replace = false)
     {
-        $fileData = base64_decode($this->getDataInfo($fileData)['data']);
-        $checksum = md5($fileData);
+        // When file is uploaded via multipart form data then We will get object of Slim\Http\UploadFile
+        // When file is uploaded via URL (Youtube, Vimeo, or image link) then we will get base64 encode string.
+        $size = null;
 
+        $title = $fileName;
+
+        if (is_object($fileData)) {
+            $size = $fileData->getSize();
+            $checksum = hash_file('md5', $fileData->file);
+        } else {
+            $fileData = base64_decode($this->getDataInfo($fileData)['data']);
+            $checksum = md5($fileData);
+            $size = strlen($fileData);
+        }
         // @TODO: merge with upload()
         $fileName = $this->getFileName($fileName, $replace !== true);
 
         $filePath = $this->getConfig('root') . '/' . $fileName;
 
-        $this->emitter->run('file.save', ['name' => $fileName, 'size' => strlen($fileData)]);
+
+
+        $this->emitter->run('file.save', ['name' => $fileName, 'size' => $size]);
         $this->write($fileName, $fileData, $replace);
-        $this->emitter->run('file.save:after', ['name' => $fileName, 'size' => strlen($fileData)]);
+        $this->emitter->run('file.save:after', ['name' => $fileName, 'size' => $size]);
 
         unset($fileData);
 
         $fileData = $this->getFileInfo($fileName);
-        $fileData['title'] = Formatting::fileNameToFileTitle($fileName);
+        $fileData['title'] = Formatting::fileNameToFileTitle($title);
         $fileData['filename'] = basename($filePath);
         $fileData['storage'] = $this->config['adapter'];
 
@@ -293,8 +321,14 @@ class Files
         }
 
         $fileName = isset($fileInfo['filename']) ? $fileInfo['filename'] : md5(time()) . '.jpg';
+        $thumbnailData = $this->saveData($fileInfo['data'], $fileName);
 
-        return $this->saveData($fileInfo['data'], $fileName);
+        return array_merge(
+            $fileInfo,
+            ArrayUtils::pick($thumbnailData, [
+                'filename',
+            ])
+        );
     }
 
     /**
@@ -311,11 +345,35 @@ class Files
     {
         if ($outside === true) {
             $buffer = file_get_contents($path);
+            $fileData = $this->getFileInfoFromData($buffer);
         } else {
-            $buffer = $this->filesystem->getAdapter()->read($path);
+            $fileData = $this->getFileInfoFromPath($path);
         }
 
-        return $this->getFileInfoFromData($buffer);
+        return $fileData;
+    }
+
+    public function getFileInfoFromPath($path)
+    {
+        $mime = $this->filesystem->getAdapter()->getMimetype($path);
+
+        $typeTokens = explode('/', $mime);
+
+        if ($typeTokens[0] == 'image') {
+            $buffer = $this->filesystem->getAdapter()->read($path);
+            $info = $this->getFileInfoFromData($buffer);
+        } else {
+            $size = $this->filesystem->getAdapter()->getSize($path);
+            $info = [
+                'type' => $mime,
+                'format' => $typeTokens[1],
+                'size' => $size,
+                'width' => null,
+                'height' => null
+            ];
+        }
+
+        return $info;
     }
 
     public function getFileInfoFromData($data)
@@ -494,9 +552,17 @@ class Files
      */
     private function sanitizeName($fileName)
     {
-        // do not start with dot
-        $fileName = preg_replace('/^\./', 'dot-', $fileName);
-        $fileName = str_replace(' ', '_', $fileName);
+        // Swap out Non "Letters" with a -
+        $fileName = preg_replace('/[^\\pL\d^\.]+/u', '-', $fileName);
+
+        // Trim out extra -'s
+        $fileName = trim($fileName, '-');
+
+        // Make text lowercase
+        $fileName = strtolower($fileName);
+
+        // Strip out anything we haven't been able to convert
+        $fileName = preg_replace('/[^-\w\.]+/', '', $fileName);
 
         return $fileName;
     }
@@ -532,7 +598,7 @@ class Files
 
             if (preg_match($trailingDigit, $fileName, $matches)) {
                 // Convert "fname-1.jpg" to "fname-2.jpg"
-                $attempt = 1 + (int)$matches[1];
+                $attempt = 1 + (int) $matches[1];
                 $newName = preg_replace(
                     $trailingDigit,
                     filename_put_ext("-{$attempt}", $ext),
@@ -610,43 +676,30 @@ class Files
         $len = strpos($string, $end, $ini) - $ini;
         return substr($string, $ini, $len);
     }
-
     /**
-     * Get URL info
+     * Get a file size and type info from base64 data , URL ,multipart form data
+     * 
+     * @param string $data
      *
-     * @param string $link
-     *
-     * @return array
+     * @return array file size and type
      */
-    public function getLinkInfo($link)
+    public function getFileSizeType($data)
     {
-        $fileData = [];
-        $width = 0;
-        $height = 0;
-
-        $urlHeaders = get_headers($link, 1);
-        $contentType = $this->getMimeTypeFromContentType($urlHeaders['Content-Type']);
-
-        if (strpos($contentType, 'image/') === 0) {
-            list($width, $height) = getimagesize($link);
+        $result=[];
+        if (is_a_url($data)) {
+            $dataInfo = $this->getLink($data);
+            $result['mimeType'] = isset($dataInfo['type']) ? $dataInfo['type'] : null;
+            $result['size'] = isset($dataInfo['filesize']) ? $dataInfo['filesize'] : (isset($dataInfo['size']) ? $dataInfo['size'] : null);
+        }else if(is_object($data)) {
+            $result['mimeType']=$data->getClientMediaType();
+            $result['size']=$data->getSize();
+        }else if(strpos($data, 'data:') === 0){
+            $parts = explode(',', $data);
+            $file = $parts[1];
+            $dataInfo = $this->getFileInfoFromData(base64_decode($file));
+            $result['mimeType'] = isset($dataInfo['type']) ? $dataInfo['type'] : null;
+            $result['size'] = isset($dataInfo['size']) ? $dataInfo['size'] : null;
         }
-
-        $urlInfo = pathinfo($link);
-        $linkContent = file_get_contents($link);
-        $url = 'data:' . $contentType . ';base64,' . base64_encode($linkContent);
-
-        $fileData = array_merge($fileData, [
-            'type' => $contentType,
-            'name' => $urlInfo['basename'],
-            'title' => $urlInfo['filename'],
-            'charset' => 'binary',
-            'size' => isset($urlHeaders['Content-Length']) ? $urlHeaders['Content-Length'] : 0,
-            'width' => $width,
-            'height' => $height,
-            'data' => $url,
-            'url' => ($width) ? $url : ''
-        ]);
-
-        return $fileData;
+        return $result;
     }
 }

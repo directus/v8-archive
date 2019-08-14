@@ -1,5 +1,9 @@
 <?php
 
+use Directus\Config\Context;
+use Directus\Config\Schema\Schema;
+use Directus\Exception\ErrorException;
+
 $basePath =  realpath(__DIR__ . '/../');
 
 require $basePath . '/vendor/autoload.php';
@@ -19,23 +23,42 @@ $projectName = \Directus\get_api_project_from_request();
 // Otherwise there's not way to tell which database to connect to
 // It returns 401 Unauthorized error to any endpoint except /server/ping
 if (!$projectName) {
-    return \Directus\create_unknown_project_app($basePath);
+    $schema = Schema::get();
+    if (getenv("DIRECTUS_USE_ENV") === "1") {
+        $configData = $schema->value(Context::from_env());
+    } else {
+        $configData = $schema->value([]);
+    }
+    return \Directus\create_unknown_project_app($basePath, $configData);
 }
 
-$configFilePath = \Directus\create_config_path($basePath, $projectName);
-if (!file_exists($configFilePath)) {
-    http_response_code(404);
+
+$maintenanceFlagPath = \Directus\create_maintenanceflag_path($basePath);
+if (file_exists($maintenanceFlagPath)) {
+    http_response_code(503);
     header('Content-Type: application/json');
     echo json_encode([
         'error' => [
-            'error' => 8,
-            'message' => 'API Environment Configuration Not Found: ' . $projectName
+            'code' => 21,
+            'message' => 'This API instance is currently down for maintenance. Please try again later.'
         ]
     ]);
     exit;
 }
 
-$app = \Directus\create_app($basePath, require $configFilePath);
+try {
+    $app = \Directus\create_app_with_project_name($basePath, $projectName);
+} catch (ErrorException $e) {
+    http_response_code($e->getStatusCode());
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => [
+            'code' => $e->getCode(),
+            'message' => $e->getMessage()
+        ]
+    ]);
+    exit;
+}
 
 // ----------------------------------------------------------------------------
 //
@@ -63,12 +86,25 @@ ini_set('display_errors', $displayErrors);
 // =============================================================================
 // Timezone
 // =============================================================================
-date_default_timezone_set($app->getConfig()->get('app.timezone', 'America/New_York'));
+date_default_timezone_set(\Directus\get_default_timezone());
 
 $container = $app->getContainer();
 
-\Directus\register_global_hooks($app);
-\Directus\register_extensions_hooks($app);
+try {
+    \Directus\register_global_hooks($app);
+    \Directus\register_extensions_hooks($app);
+} catch (ErrorException $e) {
+    http_response_code($e->getStatusCode());
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => [
+            'code' => $e->getCode(),
+            'message' => $e->getMessage()
+        ]
+    ]);
+    exit;
+}
+
 
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
@@ -104,8 +140,14 @@ $app->get('/', \Directus\Api\Routes\Home::class)
     ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 
-$app->group('/projects', \Directus\Api\Routes\Projects::class)
-    ->add($middleware['table_gateway']);
+$app->group('/projects', function () use ($middleware) {
+    $this->post('', \Directus\Api\Routes\ProjectsCreate::class);
+
+    $this->delete('/{name}', \Directus\Api\Routes\ProjectsDelete::class)
+        ->add($middleware['auth_admin'])
+        ->add($middleware['auth'])
+        ->add($middleware['auth_ignore_origin']);
+})->add($middleware['table_gateway']);
 
 $app->group('/{project}', function () use ($middleware) {
     $this->get('/', \Directus\Api\Routes\ProjectHome::class)
@@ -190,7 +232,9 @@ $app->group('/{project}', function () use ($middleware) {
         foreach ($endpointsList as $name => $endpoints) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
-    })->add($middleware['table_gateway']);
+    })
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
 
     $this->group('/pages', function () {
         $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/pages', true);
@@ -210,6 +254,12 @@ $app->group('/{project}', function () use ($middleware) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
     })
+        ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
+
+    $this->group('/gql', \Directus\Api\Routes\GraphQL::class)
+        ->add($middleware['auth_admin'])
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);

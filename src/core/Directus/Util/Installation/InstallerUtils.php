@@ -12,6 +12,7 @@ use Directus\Exception\Exception;
 use Directus\Exception\InvalidConfigPathException;
 use Directus\Exception\InvalidPathException;
 use function Directus\generate_uuid4;
+use function Directus\get_default_timezone;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
@@ -50,7 +51,10 @@ class InstallerUtils
     {
         $configStub = file_get_contents(__DIR__ . '/stubs/config.stub');
 
-        return static::replacePlaceholderValues($configStub, $data);
+        $configStub = static::replacePlaceholderValues($configStub, $data);
+
+        // Users are allowed to sent {{project}} to be replaced with the project name
+        return static::replacePlaceholderValues($configStub, ArrayUtils::pick($data, 'project'));
     }
 
     /**
@@ -106,6 +110,11 @@ class InstallerUtils
         }
 
         static::runMigrationAndSeeder($config);
+    }
+
+    public static function cleanDatabase($basePath, $projectName = null)
+    {
+        static::dropTables($basePath, $projectName);
     }
 
     /**
@@ -248,7 +257,7 @@ class InstallerUtils
             'user_email' => 'admin@example.com',
             'user_password' => 'password',
             'user_token' => null,
-            'timezone' => 'America/New_York',
+            'timezone' => get_default_timezone($app),
             'locale' => 'en-US',
         ], $data);
 
@@ -387,6 +396,22 @@ class InstallerUtils
         if ($force !== true) {
             static::ensureFileDoesNotExists($configPath);
         }
+    }
+
+    /**
+    * Deletes the given config file
+    *
+    * @param string $path
+    * @param string|null $projectName
+    */
+    public static function deleteConfigFile($path, $projectName = null)
+    {
+        $filePath = static::createConfigPath($path, $projectName);
+
+        static::ensureConfigFileExists($path, $projectName);
+        static::ensureFileCanBeDeleted($filePath);
+
+        @unlink($filePath);
     }
 
     /**
@@ -559,6 +584,27 @@ class InstallerUtils
     }
 
     /**
+     * Check if the api configuration file exists
+     *
+     * @param string $basePath
+     * @param null $projectName
+     *
+     * @throws \Exception
+     */
+    public static function ensureConfigFileExists($basePath, $projectName = null)
+    {
+        $basePath = rtrim($basePath, '/');
+        $configName = static::getConfigName($projectName);
+        $configPath = static::createConfigPath($basePath, $projectName);
+
+        if (!file_exists($configPath)) {
+            throw new InvalidPathException(
+                sprintf('Config file for "%s" does not exist at: "%s"', $configName, $basePath)
+            );
+        }
+    }
+
+    /**
      * Creates a config path from data
      *
      * @param string $path
@@ -637,83 +683,10 @@ class InstallerUtils
                 'value' => isset($data['project_name']) ? $data['project_name'] : 'Directus'
             ],
             [
-                'key' => 'project_url',
-                'value' => ''
-            ],
-            [
                 'key' => 'app_url',
                 'value' => isset($data['app_url']) ? $data['app_url'] : ''
             ],
-            [
-                'key' => 'logo',
-                'value' => ''
-            ],
-            [
-                'key' => 'color',
-                'value' => 'light-blue-600'
-            ],
-            [
-                'key' => 'default_limit',
-                'value' => '200'
-            ],
-            [
-                'key' => 'sort_null_last',
-                'value' => 1
-            ],
-            [
-                'key' => 'auto_sign_out',
-                'value' => '60'
-            ],
-            [
-                'key' => 'youtube_api_key',
-                'value' => ''
-            ],
-            [
-                'key' => 'trusted_proxies',
-                'value' => ''
-            ],
-            [
-                'key' => 'thumbnail_dimensions',
-                'value' => '200x200'
-            ],
-            [
-                'key' => 'thumbnail_quality_tags',
-                'value' => '{"poor": 25, "good": 50, "better":  75, "best": 100}'
-            ],
-            [
-                'key' => 'thumbnail_actions',
-                'value' => '{"contain":{"options":{"resizeCanvas":false,"position":"center","resizeRelative":false,"canvasBackground":"ccc"}},"crop":{"options":{"position":"center"}}}'
-            ],
-            [
-                'key' => 'thumbnail_cache_ttl',
-                'value' => '86400'
-            ],
-            [
-                'key' => 'thumbnail_not_found_location',
-                'value' => ''
-            ],
         ];
-    }
-
-    /**
-     * Check if the api configuration file exists
-     *
-     * @param string $basePath
-     * @param null $projectName
-     *
-     * @throws \Exception
-     */
-    private static function ensureConfigFileExists($basePath, $projectName = null)
-    {
-        $basePath = rtrim($basePath, '/');
-        $configName = static::getConfigName($projectName);
-        $configPath = static::createConfigPath($basePath, $projectName);
-
-        if (!file_exists($configPath)) {
-            throw new InvalidPathException(
-                sprintf('Config file for "%s" does not exist at: "%s"', $configName, $basePath)
-            );
-        }
     }
 
     /**
@@ -751,11 +724,27 @@ class InstallerUtils
     }
 
     /**
+    * Throws an exception when the given file path cannot be deleted
+    *
+    * @param string $path
+    *
+    * @throws InvalidPathException
+    */
+    private static function ensureFileCanBeDeleted($path)
+    {
+        if (!is_writable($path) || !is_file($path)) {
+            throw new InvalidPathException(
+                sprintf('Unable to delete the config file at "%s"', $path)
+            );
+        }
+    }
+
+    /**
      * Throws an exception when file exists
      *
      * @param string $path
      *
-     * @throws InvalidPathException
+     * @throws InvalidConfigPathException
      */
     private static function ensureFileDoesNotExists($path)
     {
@@ -890,6 +879,10 @@ class InstallerUtils
      */
     private static function createConfigData(array $data)
     {
+        $corsEnabled = ArrayUtils::get($data, 'cors_enabled', true);
+        $authSecret = ArrayUtils::get($data, 'auth_secret', StringUtils::randomString(32, false));
+        $authPublic = ArrayUtils::get($data, 'auth_public', generate_uuid4());
+
         return ArrayUtils::defaults([
             'project' => '_',
             'db_type' => 'mysql',
@@ -898,12 +891,52 @@ class InstallerUtils
             'db_password' => null,
             'db_socket' => '',
             'mail_from' => 'admin@example.com',
-            'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32)),
-            'auth_secret' => StringUtils::randomString(32),
-            'auth_public' => generate_uuid4(),
+            'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32, false)),
             'feedback_login' => true,
-            'cors_enabled' => true,
-            'timezone' => 'America/New_York',
+            'timezone' => get_default_timezone(),
+            'logs_path' => __DIR__ . '/../../../../../logs',
+            'cache' => [
+                'enabled' => false,
+                'response_ttl' => 3600,
+            ],
+            'storage' => [
+                'adapter' => 'local',
+                'root' => 'public/uploads/{{project}}/originals',
+                'root_url' => '/uploads/{{project}}/originals',
+                'thumb_root' => 'public/uploads/{{project}}/thumbnails',
+            ],
+            'mail' => [
+                'transport' => 'sendmail',
+            ],
+            'cors' => [
+                'enabled' => $corsEnabled,
+                'origin' => ['*'],
+                'methods' => [
+                    'GET',
+                    'POST',
+                    'PUT',
+                    'PATCH',
+                    'DELETE',
+                    'HEAD',
+                ],
+                'headers' => [],
+                'exposed_headers' => [],
+                'max_age' => 600,
+                'credentials' => false,
+            ],
+            'rate_limit' => [
+                'enabled' => false,
+                'limit' => 100,
+                'interval' => 60,
+                'adapter' => 'redis',
+                'host' => '127.0.0.1',
+                'port' => 6379,
+                'timeout' => 10,
+            ],
+            'auth' => [
+                'secret' => $authSecret,
+                'public' => $authPublic,
+            ]
         ], $data);
     }
 }
