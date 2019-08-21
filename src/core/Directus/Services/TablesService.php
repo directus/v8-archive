@@ -624,6 +624,22 @@ class TablesService extends AbstractService
             ]);
         }
 
+        if(!strcasecmp($field['datatype'],DataTypes::TYPE_ENUM)){
+            $firstPos = strpos($field['column_type'], "(");
+            
+            if ($firstPos) {
+                $firstPos += strlen("(");
+                $secondPos = strpos($field['column_type'], ")", $firstPos) - $firstPos;
+                $choices = str_replace("'","",substr($field['column_type'] , $firstPos, $secondPos));
+                $choiceArray = explode(",",$choices);
+                $array = array_combine(
+                    $choiceArray,
+                    array_map('ucfirst', array_values($choiceArray))
+                );
+                $data['options'] = json_encode(['choices' => $array]);
+            }
+        }
+
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
         $resultData = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
         // ----------------------------------------------------------------------------

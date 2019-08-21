@@ -24,6 +24,7 @@ final class DataTypes
     const TYPE_SORT                 = 'sort';
     const TYPE_STATUS               = 'status';
     const TYPE_STRING               = 'string';
+    const TYPE_ENUM                 = 'enum';
     const TYPE_TRANSLATION          = 'translation';
     const TYPE_UUID                 = 'uuid';
     const TYPE_DATETIME_CREATED     = 'datetime_created';
