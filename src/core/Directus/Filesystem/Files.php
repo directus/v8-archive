@@ -1,7 +1,6 @@
 <?php
 
 namespace Directus\Filesystem;
-require_once '/var/www/html/vendor/autoload.php';
 
 use Char0n\FFMpegPHP\Movie;
 use Directus\Application\Application;
