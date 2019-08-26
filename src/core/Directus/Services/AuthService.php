@@ -24,6 +24,8 @@ use Directus\Util\StringUtils;
 
 class AuthService extends AbstractService
 {
+    const AUTH_VALIDATION_ERROR_CODE = 109;
+
     /**
      * Gets the user token using the authentication email/password combination
      *
@@ -436,6 +438,6 @@ class AuthService extends AbstractService
         ];
 
         // throws an exception if the constraints are not met
-        $this->validate($payload, $constraints);
+        $this->validate($payload, $constraints, self::AUTH_VALIDATION_ERROR_CODE);
     }
 }

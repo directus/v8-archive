@@ -113,11 +113,11 @@ abstract class AbstractService
      *
      * @throws UnprocessableEntityException
      */
-    public function validate(array $data, array $constraints)
+    public function validate(array $data, array $constraints, $errorCode = "")
     {
         $constraintViolations = $this->getViolations($data, $constraints);
 
-        $this->throwErrorIfAny($constraintViolations);
+        $this->throwErrorIfAny($constraintViolations,$errorCode);
     }
 
     /**
@@ -162,7 +162,7 @@ abstract class AbstractService
      *
      * @throws UnprocessableEntityException
      */
-    protected function throwErrorIfAny(array $violations)
+    protected function throwErrorIfAny(array $violations,$errorCode = "")
     {
         $results = [];
 
@@ -183,7 +183,7 @@ abstract class AbstractService
         }
 
         if (count($results) > 0) {
-            throw new InvalidRequestException(implode(' ', $results));
+            throw new InvalidRequestException(implode(' ', $results), $errorCode);
         }
     }
 
