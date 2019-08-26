@@ -196,7 +196,7 @@ abstract class AbstractService
      * 
      * @return array
      */
-    protected function createConstraintFor($collectionName, array $fields = [], $skipRelatedCollectionField = '')
+    protected function createConstraintFor($collectionName, array $fields = [], $skipRelatedCollectionField = '', array $params = [] )
     {
         /** @var SchemaManager $schemaManager */
         $schemaManager = $this->container->get('schema_manager');
@@ -217,6 +217,10 @@ abstract class AbstractService
             $columnConstraints = [];
 
             if ($field->hasAutoIncrement()) {
+                continue;
+            }
+
+            if ($field->getName() == "password" && isset($params['select_existing_or_update'])) {
                 continue;
             }
 
@@ -376,13 +380,13 @@ abstract class AbstractService
         if (is_array($fields)) {
             $columnsToValidate = $fields;
         }
-
+      
         $this->validatePayloadFields($collectionName, $payload);
         // TODO: Ideally this should be part of the validator constraints
         // we need to accept options for the constraint builder
         $this->validatePayloadWithFieldsValidation($collectionName, $payload);
        
-        $this->validate($payload, $this->createConstraintFor($collectionName, $columnsToValidate, $skipRelatedCollectionField));
+        $this->validate($payload, $this->createConstraintFor($collectionName, $columnsToValidate, $skipRelatedCollectionField,$params));
     }
 
     /**
