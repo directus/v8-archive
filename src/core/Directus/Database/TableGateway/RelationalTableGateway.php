@@ -695,6 +695,15 @@ class RelationalTableGateway extends BaseTableGateway
                     }
                 }
 
+                if (strtolower($field->getType()) == DataTypes::TYPE_TRANSLATION){
+                    $columns=SchemaService::getAllCollectionFields($foreignTableName);
+                    foreach($columns as $column){
+                        if(strtolower($column->getType()) == DataTypes::TYPE_USER_CREATED || strtolower($column->getType()) == DataTypes::TYPE_USER_UPDATED){
+                            unset($foreignRecord[$column->getName()]);
+                        }
+                    }       
+                }
+                
                 $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
                     $foreignRecord,
@@ -703,6 +712,7 @@ class RelationalTableGateway extends BaseTableGateway
                     $parentCollectionRelationshipsChanged,
                     $parentData
                 );
+
             }
 
             // Once they're managed, remove the foreign collections from the record array
