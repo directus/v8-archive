@@ -72,7 +72,12 @@ class Schema {
             new Group('mail', [
                 new Group('default', [
                     new Value('transport', Types::STRING, 'sendmail'),
-                    new Value('from', Types::STRING, 'admin@example.com')
+                    new Value('from', Types::STRING, 'admin@example.com'),
+                    new Value('host?', Types::STRING, ''),
+                    new Value('port?', Types::STRING, ''),
+                    new Value('username?', Types::STRING, ''),
+                    new Value('password?', Types::STRING, ''),
+                    new Value('encryption?', Types::STRING, '')
                 ]),
             ]),
             new Group('cors', [
