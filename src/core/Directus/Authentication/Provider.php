@@ -534,15 +534,7 @@ class Provider
 
         $payload->exp = $this->getNewExpirationTime();
 
-        $payload_arr = json_decode($payload);
-
-        if ($needs2FA == true) {
-            $payload_arr['needs2FA'] = true;
-        } else {
-            unset($payload_arr['needs2FA']);
-        }
-
-        $payload = json_encode($payload_arr);
+        $payload->needs2FA = $needs2FA;
 
         return JWTUtils::encode($payload, $this->getSecretKey(), $this->getTokenAlgorithm());
     }
