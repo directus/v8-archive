@@ -674,7 +674,7 @@ class BaseTableGateway extends TableGateway
     public function castFloatIfNumeric(&$value, $key)
     {
         if ($key != 'table_name') {
-            $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float)$value : $value;
+            $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float) $value : $value;
         }
     }
 
@@ -876,6 +876,13 @@ class BaseTableGateway extends TableGateway
 
         if ($useFilter) {
             $this->runAfterUpdateHooks($updateTable, $updateData);
+        }
+
+        //Invalidate individual cache
+        $config = static::$container->get('config');
+        if ($config->get('cache.enabled')) {
+            $cachePool = static::$container->get('cache');
+            $cachePool->invalidateTags(['entity_' . $updateTable . '_' . $result[$this->primaryKeyFieldName]]);
         }
 
         return $result;
@@ -1238,12 +1245,12 @@ class BaseTableGateway extends TableGateway
      * @throws \Exception
      */
     public function enforceUpdatePermission(Update $update)
-    {        
+    {
         $collectionObject = $this->getTableSchema();
         $statusField = $collectionObject->getStatusField();
-        $updateState = $update->getRawState();        
+        $updateState = $update->getRawState();
         $updateData = $updateState['set'];
-        
+
         //If a collection has status field then records are not actually deleting, they are soft deleting
         //Check delete permission for soft delete
         if (
@@ -1253,13 +1260,13 @@ class BaseTableGateway extends TableGateway
                 ArrayUtils::get($updateData, $collectionObject->getStatusField()->getName()),
                 $this->getStatusMapping()->getSoftDeleteStatusesValue()
             )
-        ) { 
+        ) {
             $delete = $this->sql->delete();
-            $delete->where($updateState['where']);            
+            $delete->where($updateState['where']);
             $this->enforceDeletePermission($delete);
             return;
         }
-        
+
         if ($this->acl->canUpdateAll($this->table) && $this->acl->isAdmin()) {
             return;
         }
@@ -1843,7 +1850,7 @@ class BaseTableGateway extends TableGateway
      */
     protected function shouldNullSortedLast()
     {
-        return (bool)get_directus_setting('sort_null_last', true);
+        return (bool) get_directus_setting('sort_null_last', true);
     }
 
     /**

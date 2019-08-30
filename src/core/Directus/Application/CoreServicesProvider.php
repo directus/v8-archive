@@ -218,7 +218,7 @@ class CoreServicesProvider
                     $cachePool->invalidateTags(['entity_' . $tableName . '_' . $id]);
                 }
             };
-            foreach (['item.delete:after', 'item.update:after'] as $action) {
+            foreach (['item.delete:after'] as $action) {
                 $emitter->addAction($action, $cacheEntityTagInvalidator);
             }
 
@@ -328,7 +328,7 @@ class CoreServicesProvider
                     // Set the URL payload data
                     $payload['data'] = ArrayUtils::get($dataInfo, 'data');
                     $payload['filename'] = ArrayUtils::get($dataInfo, 'filename');
-                } else if(!is_object($fileData)) {
+                } else if (!is_object($fileData)) {
                     $dataInfo = $files->getDataInfo($fileData);
                 }
 

@@ -67,3 +67,6 @@ deploy.*
 #See https://github.com/slimphp/Slim/issues/1829
 #php -S localhost:8000 cliserver.php
 public/cliserver.php
+
+# Cache generated while filesystem adapter
+/cache/*
