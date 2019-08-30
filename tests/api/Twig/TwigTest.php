@@ -4,7 +4,7 @@ namespace Directus\Tests\Api;
 
 use Directus\View\Twig\DirectusTwigExtension;
 
-class TwigTest extends \PHPUnit_Framework_TestCase
+class TwigTest extends \PHPUnit\Framework\TestCase
 {
     public function testExtension()
     {

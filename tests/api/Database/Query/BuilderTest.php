@@ -1,6 +1,6 @@
 <?php
 
-class BuilderTest extends \PHPUnit_Framework_TestCase
+class BuilderTest extends \PHPUnit\Framework\TestCase
 {
     public function testConstructor()
     {

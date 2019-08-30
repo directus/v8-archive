@@ -5,7 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 
-class UsersTest extends \PHPUnit_Framework_TestCase
+class UsersTest extends \PHPUnit\Framework\TestCase
 {
     public static function resetDatabase()
     {

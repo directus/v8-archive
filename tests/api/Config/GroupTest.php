@@ -8,7 +8,7 @@ use Directus\Config\Schema\Group;
 use Directus\Config\Schema\Value;
 use Directus\Config\Schema\Types;
 
-class GroupTest extends \PHPUnit_Framework_TestCase
+class GroupTest extends \PHPUnit\Framework\TestCase
 {
     public function testGroup()
     {

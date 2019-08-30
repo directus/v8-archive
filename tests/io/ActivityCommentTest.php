@@ -5,7 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Database\Connection;
 use Psr\Http\Message\ResponseInterface;
 
-class ActivityCommentTest extends \PHPUnit_Framework_TestCase
+class ActivityCommentTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Connection
@@ -397,7 +397,8 @@ class ActivityCommentTest extends \PHPUnit_Framework_TestCase
         $query = array_merge($extraQuery, ['access_token' => 'token']);
         $data = isset($options['data']) ? $options['data'] : [];
 
-        $function = sprintf('request_%s%s',
+        $function = sprintf(
+            'request_%s%s',
             $error ? 'error_' : '',
             $type
         );

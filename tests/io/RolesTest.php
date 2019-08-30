@@ -4,7 +4,7 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ItemNotFoundException;
 
-class RolesTest extends \PHPUnit_Framework_TestCase
+class RolesTest extends \PHPUnit\Framework\TestCase
 {
     protected $queryParams = [
         'access_token' => 'token'

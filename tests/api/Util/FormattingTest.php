@@ -2,7 +2,7 @@
 
 use Directus\Util\Formatting;
 
-class FormattingTest extends PHPUnit_Framework_TestCase
+class FormattingTest extends \PHPUnit\Framework\TestCase
 {
     public function testFilenameToTitle()
     {

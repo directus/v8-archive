@@ -2,7 +2,7 @@
 
 use Directus\Util\Installation\InstallerUtils;
 
-class InstallerUtilsTest extends PHPUnit_Framework_TestCase
+class InstallerUtilsTest extends \PHPUnit\Framework\TestCase
 {
     public function testCreateFileException()
     {

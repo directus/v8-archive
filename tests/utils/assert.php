@@ -1,7 +1,7 @@
 <?php
 
 use Psr\Http\Message\ResponseInterface;
-use PHPUnit_Framework_TestCase as TestCase;
+use \PHPUnit\Framework\TestCase as TestCase;
 
 /**
  * @param TestCase $testCase
@@ -66,7 +66,7 @@ function assert_response(TestCase $testCase, ResponseInterface $response, array 
 /**
  * Tests whether the response content match a given content
  *
- * @param PHPUnit_Framework_TestCase $testCase
+ * @param \PHPUnit\Framework\TestCase $testCase
  * @param ResponseInterface $response
  * @param string $content
  * @param array $options
@@ -151,7 +151,7 @@ function assert_response_data_contains(TestCase $testCase, ResponseInterface $re
 }
 
 /**
- * @param PHPUnit_Framework_TestCase $testCase
+ * @param \PHPUnit\Framework\TestCase $testCase
  * @param ResponseInterface $response
  * @param array $expectedKeys
  */
@@ -163,7 +163,7 @@ function assert_response_data_fields(TestCase $testCase, ResponseInterface $resp
 }
 
 /**
- * @param PHPUnit_Framework_TestCase $testCase
+ * @param \PHPUnit\Framework\TestCase $testCase
  * @param array|object $data
  * @param array $expectedKeys
  */

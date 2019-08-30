@@ -4,7 +4,7 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Connection;
 
-class RevisionsTest extends \PHPUnit_Framework_TestCase
+class RevisionsTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Connection
@@ -58,7 +58,7 @@ class RevisionsTest extends \PHPUnit_Framework_TestCase
 
         $response = request_patch('items/test/1', ['name' => 'test one'], ['query' => ['access_token' => 'token']]);
         assert_response($this, $response);
-        $this->assertSame($count+1, table_count(static::$db, 'directus_revisions'));
+        $this->assertSame($count + 1, table_count(static::$db, 'directus_revisions'));
     }
 
     public function testDeleteItem()

@@ -10,7 +10,7 @@ use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Util\JWTUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 
-class AuthenticationTest extends \PHPUnit_Framework_TestCase
+class AuthenticationTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetToken()
     {

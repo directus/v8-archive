@@ -6,7 +6,7 @@ use Directus\Config\Config;
 use Directus\Config\Context;
 use Directus\Config\Schema\Schema;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ConfigTest extends \PHPUnit\Framework\TestCase
 {
     public function testItem()
     {

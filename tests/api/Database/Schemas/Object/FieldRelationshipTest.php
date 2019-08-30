@@ -1,6 +1,6 @@
 <?php
 
-class FieldRelationshipTest extends PHPUnit_Framework_TestCase
+class FieldRelationshipTest extends \PHPUnit\Framework\TestCase
 {
     public function testColumnRelationship()
     {

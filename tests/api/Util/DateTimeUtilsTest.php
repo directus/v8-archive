@@ -2,7 +2,7 @@
 
 use Directus\Util\DateTimeUtils;
 
-class DateTimeUtilsTest extends PHPUnit_Framework_TestCase
+class DateTimeUtilsTest extends \PHPUnit\Framework\TestCase
 {
     public function setUp()
     {

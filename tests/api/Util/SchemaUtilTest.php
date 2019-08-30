@@ -2,7 +2,7 @@
 
 use Directus\Util\SchemaUtils;
 
-class SchemaUtilsTest extends PHPUnit_Framework_TestCase
+class SchemaUtilsTest extends \PHPUnit\Framework\TestCase
 {
     public function testColumnName()
     {

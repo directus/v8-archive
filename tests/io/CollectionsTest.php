@@ -6,7 +6,7 @@ use Directus\Database\Exception\CollectionNotFoundException;
 use Directus\Database\Exception\CollectionNotManagedException;
 use Directus\Util\ArrayUtils;
 
-class CollectionsTest extends \PHPUnit_Framework_TestCase
+class CollectionsTest extends \PHPUnit\Framework\TestCase
 {
     protected $queryParams = [
         'access_token' => 'token'
@@ -28,7 +28,7 @@ class CollectionsTest extends \PHPUnit_Framework_TestCase
 
     public static function tearDownAfterClass()
     {
-         static::resetDatabase();
+        static::resetDatabase();
     }
 
     public function testCreate()

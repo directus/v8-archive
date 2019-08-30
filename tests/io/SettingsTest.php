@@ -4,7 +4,7 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Database\Exception\ItemNotFoundException;
 
-class SettingsTest extends \PHPUnit_Framework_TestCase
+class SettingsTest extends \PHPUnit\Framework\TestCase
 {
     public static function setUpBeforeClass()
     {

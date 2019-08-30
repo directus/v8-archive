@@ -2,7 +2,7 @@
 
 namespace Directus\Tests\Api\Io;
 
-class GeneralTest extends \PHPUnit_Framework_TestCase
+class GeneralTest extends \PHPUnit\Framework\TestCase
 {
     public function testPing()
     {

@@ -5,7 +5,7 @@ namespace Directus\Tests\Api\Io;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Exception\BatchUploadNotAllowedException;
 
-class FilesTest extends \PHPUnit_Framework_TestCase
+class FilesTest extends \PHPUnit\Framework\TestCase
 {
     protected $queryParams = [
         'access_token' => 'token'

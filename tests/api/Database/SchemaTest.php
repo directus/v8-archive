@@ -2,7 +2,7 @@
 
 use Directus\Database\SchemaManager as Schema;
 
-class SchemaTest extends PHPUnit_Framework_TestCase
+class SchemaTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Schema

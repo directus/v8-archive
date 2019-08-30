@@ -9,7 +9,7 @@ use Directus\Permissions\Exception\ForbiddenCollectionDeleteException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
 use Directus\Permissions\Exception\ForbiddenCollectionUpdateException;
 
-class PermissionsTest extends \PHPUnit_Framework_TestCase
+class PermissionsTest extends \PHPUnit\Framework\TestCase
 {
     protected $queryParams = [
         'access_token' => 'token'

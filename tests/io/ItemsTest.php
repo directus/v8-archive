@@ -7,7 +7,7 @@ use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 
-class ItemsTest extends \PHPUnit_Framework_TestCase
+class ItemsTest extends \PHPUnit\Framework\TestCase
 {
     protected $systemTables = [
         'directus_activity',
@@ -94,7 +94,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
             foreach (['GET', 'PATCH', 'PUT', 'DELETE'] as $method) {
                 $path = 'items/' . $table . '/1';
                 call_user_func('request_error_' . strtolower($method), $path, [
-                'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
+                    'code' => ForbiddenSystemTableDirectAccessException::ERROR_CODE,
                     'status' => 401
                 ]);
             }
@@ -308,7 +308,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 
         $result = response_to_object($response);
         $data = $result->data;
-        $first = (array)array_shift($data);
+        $first = (array) array_shift($data);
         $expected = static::$data[2];
         // because the output is casted wrong
         unset($expected['price']);
@@ -558,7 +558,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response);
 
         $result = response_to_object($response);
-        $newData = (array)$result->data;
+        $newData = (array) $result->data;
         unset($data['price']);
 
         foreach ($data as $key => $value) {
@@ -579,7 +579,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
         assert_response($this, $response);
 
         $result = response_to_object($response);
-        $newData = (array)$result->data;
+        $newData = (array) $result->data;
         unset($data['price']);
 
         foreach ($data as $key => $value) {
@@ -709,7 +709,8 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
     public function testStatusInterfaceMapping()
     {
         request_patch(
-            'fields/products/status', ['options' => null],
+            'fields/products/status',
+            ['options' => null],
             ['query' => ['access_token' => 'token'], 'json' => true]
         );
         truncate_table(static::$db, 'directus_settings');

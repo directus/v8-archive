@@ -4,7 +4,7 @@ namespace Directus\Tests\Api\Io;
 
 use Directus\Util\ArrayUtils;
 
-class ItemsBatchTest extends \PHPUnit_Framework_TestCase
+class ItemsBatchTest extends \PHPUnit\Framework\TestCase
 {
     protected static $data = [
         ['status' => 2, 'name' => 'Old Product', 'price' => 4.99, 'category_id' => 1],

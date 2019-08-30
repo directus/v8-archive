@@ -47,7 +47,7 @@ class CallableClass
 //     }
 // }
 
-class ApplicationTests extends PHPUnit_Framework_TestCase
+class ApplicationTests extends \PHPUnit\Framework\TestCase
 {
     public function setUp()
     {

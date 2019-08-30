@@ -2,7 +2,7 @@
 
 namespace Directus\Tests\Api\Io;
 
-class CollectionPresetsTest extends \PHPUnit_Framework_TestCase
+class CollectionPresetsTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var array

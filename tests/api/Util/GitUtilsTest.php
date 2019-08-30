@@ -1,6 +1,6 @@
 <?php
 
-class GitUtilsTest extends PHPUnit_Framework_TestCase
+class GitUtilsTest extends \PHPUnit\Framework\TestCase
 {
     protected $gitPath;
     protected $gitPath2;

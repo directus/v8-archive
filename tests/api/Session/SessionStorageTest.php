@@ -3,7 +3,7 @@
 use Directus\Session\Storage\ArraySessionStorage as NoPersistenceSessionStorage;
 use Directus\Session\Storage\NativeSessionStorage;
 
-class SessionStorageTest extends PHPUnit_Framework_TestCase
+class SessionStorageTest extends \PHPUnit\Framework\TestCase
 {
     protected $nativeStorage;
 

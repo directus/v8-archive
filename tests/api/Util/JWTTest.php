@@ -5,7 +5,7 @@ namespace Directus\Tests\Api;
 use Directus\Util\JWTUtils;
 use Firebase\JWT\JWT;
 
-class JWTTest extends \PHPUnit_Framework_TestCase
+class JWTTest extends \PHPUnit\Framework\TestCase
 {
     public function testHeader()
     {

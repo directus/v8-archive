@@ -1,6 +1,6 @@
 <?php
 
-class MySQLSchemaTest extends PHPUnit_Framework_TestCase
+class MySQLSchemaTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetTables()
     {

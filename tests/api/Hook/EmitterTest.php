@@ -14,7 +14,7 @@ class HookListener
     }
 }
 
-class EmitterTest extends \PHPUnit_Framework_TestCase
+class EmitterTest extends \PHPUnit\Framework\TestCase
 {
     public function testEmitter()
     {

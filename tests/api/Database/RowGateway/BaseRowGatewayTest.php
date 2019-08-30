@@ -1,6 +1,6 @@
 <?php
 
-class BaseRowGatewayTest extends PHPUnit_Framework_TestCase
+class BaseRowGatewayTest extends \PHPUnit\Framework\TestCase
 {
     protected $data = [];
 

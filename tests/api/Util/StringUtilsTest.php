@@ -2,7 +2,7 @@
 
 use Directus\Util\StringUtils;
 
-class StringUtilsTest extends PHPUnit_Framework_TestCase
+class StringUtilsTest extends \PHPUnit\Framework\TestCase
 {
     public function testContains()
     {

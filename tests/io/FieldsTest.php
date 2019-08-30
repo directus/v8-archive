@@ -10,7 +10,7 @@ use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 
-class FieldsTest extends \PHPUnit_Framework_TestCase
+class FieldsTest extends \PHPUnit\Framework\TestCase
 {
     protected $queryParams = [
         'access_token' => 'token'

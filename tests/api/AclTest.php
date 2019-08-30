@@ -2,7 +2,7 @@
 
 use Directus\Permissions\Acl;
 
-class AclTest extends PHPUnit_Framework_TestCase
+class AclTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Directus\Permissions\Acl null

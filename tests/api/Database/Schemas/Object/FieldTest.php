@@ -1,6 +1,6 @@
 <?php
 
-class FieldTest extends PHPUnit_Framework_TestCase
+class FieldTest extends \PHPUnit\Framework\TestCase
 {
     protected $fieldData;
     protected $fieldData2;

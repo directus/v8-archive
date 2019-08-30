@@ -2,7 +2,7 @@
 
 use Directus\Embed\Provider\YoutubeProvider;
 
-class YoutubeProviderTest extends PHPUnit_Framework_TestCase
+class YoutubeProviderTest extends \PHPUnit\Framework\TestCase
 {
     protected $youtubeURL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
     protected $vimeoURL = 'https://vimeo.com/45196609';

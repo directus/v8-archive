@@ -2,7 +2,7 @@
 
 namespace Directus\Tests\Api\Io;
 
-class ActivitySkipTest extends \PHPUnit_Framework_TestCase
+class ActivitySkipTest extends \PHPUnit\Framework\TestCase
 {
     protected static $db;
 

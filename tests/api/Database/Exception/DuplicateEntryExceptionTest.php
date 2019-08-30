@@ -1,6 +1,6 @@
 <?php
 
-class DuplicateEntryExceptionTest extends PHPUnit_Framework_TestCase
+class DuplicateEntryExceptionTest extends \PHPUnit\Framework\TestCase
 {
     public function testExceptionMessage()
     {

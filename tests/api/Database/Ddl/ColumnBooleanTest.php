@@ -2,7 +2,7 @@
 
 use Directus\Database\Ddl\Column\Boolean;
 
-class BooleanTest extends \PHPUnit_Framework_TestCase
+class BooleanTest extends \PHPUnit\Framework\TestCase
 {
     public function testData()
     {

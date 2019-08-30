@@ -2,7 +2,7 @@
 
 use Directus\Embed\EmbedManager;
 
-class EmbedManagerProviderTest extends PHPUnit_Framework_TestCase
+class EmbedManagerProviderTest extends \PHPUnit\Framework\TestCase
 {
     protected $vimeoURL = 'https://vimeo.com/45196609';
     protected $youtubeURL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';

@@ -1,6 +1,6 @@
 <?php
 
-class AclAwareTableGatewayTest extends PHPUnit_Framework_TestCase
+class AclAwareTableGatewayTest extends \PHPUnit\Framework\TestCase
 {
     public function testConstructor()
     {

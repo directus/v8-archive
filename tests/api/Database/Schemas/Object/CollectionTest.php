@@ -5,7 +5,7 @@ namespace Directus\Tests\Database\Schemas\Object;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Util\ArrayUtils;
 
-class CollectionTest extends \PHPUnit_Framework_TestCase
+class CollectionTest extends \PHPUnit\Framework\TestCase
 {
     public function testTable()
     {

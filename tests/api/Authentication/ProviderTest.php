@@ -2,7 +2,7 @@
 
 use Directus\Authentication\Provider as Auth;
 
-class ProviderTest extends PHPUnit_Framework_TestCase
+class ProviderTest extends \PHPUnit\Framework\TestCase
 {
     const DATA_USER_INACTIVE = 0;
 
