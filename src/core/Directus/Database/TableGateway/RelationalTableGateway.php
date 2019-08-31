@@ -174,7 +174,8 @@ class RelationalTableGateway extends BaseTableGateway
             $column = $tableSchema->getField($key);
 
             // NOTE: Each interface or the API should handle the `alias` type
-            if ($column && $column->isOneToMany()) {
+            //Ignore all the alias fields except file interface > data
+            if ($column && (($column->isAlias() && $this->getTable() !== SchemaManager::COLLECTION_FILES)) || $column->isOneToMany()) {
                 continue;
             }
 
@@ -400,7 +401,8 @@ class RelationalTableGateway extends BaseTableGateway
             $column = $tableSchema->getField($key);
 
             // NOTE: Each interface or the API should handle the `alias` type
-            if ($column && $column->isOneToMany()) {
+            //Ignore all the alias fields except file interface > data
+            if ($column && (($column->isAlias() && $this->getTable() !== SchemaManager::COLLECTION_FILES)) || $column->isOneToMany()) {
                 continue;
             }
 
