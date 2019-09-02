@@ -905,7 +905,7 @@ class BaseTableGateway extends TableGateway
 
         $deleteState = $delete->getRawState();
         $deleteTable = $this->getRawTableNameFromQueryStateTable($deleteState['table']);
-
+       
         // Runs select PK with passed delete's $where before deleting, to use those for the even hook
         if ($pk = $this->primaryKeyFieldName) {
             $select = $this->sql->select();
@@ -924,7 +924,7 @@ class BaseTableGateway extends TableGateway
             $delete = $this->sql->delete();
             $expression = new In($pk, $ids);
             $delete->where($expression);
-
+            
             foreach ($ids as $id) {
                 $deleteData = [$this->primaryKeyFieldName => $id];
                 $this->runHook('item.delete:before', [$deleteTable, $deleteData]);
@@ -940,13 +940,23 @@ class BaseTableGateway extends TableGateway
                 );
             }
 
+            
+            //Invalidate individual cache
+            $config = static::$container->get('config');
+
             foreach ($ids as $id) {
                 $deleteData = $deletedObject[$id];
                 $this->runHook('item.delete', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete:after', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete.' . $deleteTable, [$deleteData]);
                 $this->runHook('item.delete.' . $deleteTable . ':after', [$deleteData]);
+                if ($config->get('cache.enabled')) {
+                    $cachePool = static::$container->get('cache');
+                    $cachePool->invalidateTags(['entity_' . $deleteTable . '_' . $deleteData[$this->primaryKeyFieldName]]);
+                }
             }
+
+
 
             return $result;
         }

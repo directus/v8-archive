@@ -213,15 +213,6 @@ class CoreServicesProvider
                 $emitter->addAction($action, $cacheTableTagInvalidator);
             }
 
-            $cacheEntityTagInvalidator = function ($tableName, $ids) use ($cachePool) {
-                foreach ($ids as $id) {
-                    $cachePool->invalidateTags(['entity_' . $tableName . '_' . $id]);
-                }
-            };
-            foreach (['item.delete:after'] as $action) {
-                $emitter->addAction($action, $cacheEntityTagInvalidator);
-            }
-
             $emitter->addAction('item.update.directus_permissions:after', function ($data) use ($container, $cachePool) {
                 $acl = $container->get('acl');
                 $dbConnection = $container->get('database');
