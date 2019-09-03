@@ -165,7 +165,7 @@ class Files
     }
 
     /**
-     * Copy base64 data into Directus Media
+     * Check strpos in array
      *
      * @param string $haystack - The string to search in.
      * @param array $needle - Array to search from string
