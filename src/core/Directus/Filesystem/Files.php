@@ -210,8 +210,8 @@ class Files
         }
 
         $contentType = $this->getMimeTypeFromContentType($contentType);
-        $comparableContentTpe = ['image/', 'pdf'];
-        if (!$this->strposarray($contentType, $comparableContentTpe)) {
+        $comparableContentType = ['image/', 'pdf'];
+        if (!$this->strposarray($contentType, $comparableContentType)) {
             return $info;
         }
 
