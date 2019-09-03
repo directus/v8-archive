@@ -165,6 +165,22 @@ class Files
     }
 
     /**
+     * Copy base64 data into Directus Media
+     *
+     * @param string $haystack - The string to search in.
+     * @param array $needle - Array to search from string
+     *
+     * @return boolean
+     */
+    function strposarray($haystack, $needle) {
+        if(!is_array($needle)) $needle = array($needle);
+        foreach($needle as $query) {
+            if(strpos($haystack, $query) !== false) return true; 
+        }
+        return false;
+    }
+
+    /**
      * Get Image from URL
      *
      * @param $url
@@ -194,8 +210,8 @@ class Files
         }
 
         $contentType = $this->getMimeTypeFromContentType($contentType);
-
-        if (strpos($contentType, 'image/') === false && strpos($contentType, 'pdf') === false) {
+        $comparableContentTpe = ['image/', 'pdf'];
+        if (!$this->strposarray($contentType, $comparableContentTpe)) {
             return $info;
         }
 
@@ -312,7 +328,7 @@ class Files
             $duration = $media->format->duration;
         }
         if(isset($handle)){
-        fclose($handle);
+            fclose($handle);
         }
         unset($tmpData);
 
