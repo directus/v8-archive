@@ -175,7 +175,7 @@ class Files
     function strposarray($haystack, $needle) {
         if(!is_array($needle)) $needle = array($needle);
         foreach($needle as $query) {
-            if(strpos($haystack, $query) !== false) return true; 
+            if(strpos($haystack, $query) !== false) return true;
         }
         return false;
     }
@@ -276,7 +276,7 @@ class Files
         // When file is uploaded via multipart form data then We will get object of Slim\Http\UploadFile
         // When file is uploaded via URL (Youtube, Vimeo, or image link) then we will get base64 encode string.
         $size = null;
-        
+
         $title = $fileName;
 
         if (is_object($fileData)) {
@@ -398,7 +398,7 @@ class Files
 
     public function getFileInfoFromPath($path)
     {
-        
+
         $mime = $this->filesystem->getAdapter()->getMimetype($path);
 
         $typeTokens = explode('/', $mime);
@@ -722,7 +722,7 @@ class Files
     }
     /**
      * Get a file size and type info from base64 data , URL ,multipart form data
-     * 
+     *
      * @param string $data
      *
      * @return array file size and type
