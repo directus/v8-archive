@@ -69,6 +69,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Slim\Views\Twig;
 use Zend\Db\TableGateway\TableGateway;
+use Directus\Api\Routes\Roles;
 
 class CoreServicesProvider
 {
@@ -677,6 +678,7 @@ class CoreServicesProvider
             $emitter->addFilter('item.update:before', $onInsertOrUpdate);
             $preventUsePublicGroup = function (Payload $payload) use ($container) {
                 $data = $payload->getData();
+                
                 if (!ArrayUtils::has($data, 'role')) {
                     return $payload;
                 }
@@ -689,12 +691,8 @@ class CoreServicesProvider
                 if (!$roleId) {
                     return $payload;
                 }
-
-                $zendDb = $container->get('database');
-                $acl = $container->get('acl');
-                $tableGateway = new BaseTableGateway(SchemaManager::COLLECTION_ROLES, $zendDb, $acl);
-                $row = $tableGateway->select(['id' => $roleId])->current();
-                if (strtolower($row->name) === 'public') {
+                
+                if ($roleId == ROLES::PUBLIC) {
                     throw new ForbiddenException('Users cannot be added into the public group');
                 }
 
