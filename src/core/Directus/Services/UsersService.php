@@ -24,6 +24,7 @@ use PragmaRX\Google2FA\Google2FA;
 use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Select;
 use function Directus\get_directus_setting;
+use Directus\Validator\Exception\InvalidRequestException;
 
 class UsersService extends AbstractService
 {
