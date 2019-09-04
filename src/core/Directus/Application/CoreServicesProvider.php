@@ -69,7 +69,6 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Slim\Views\Twig;
 use Zend\Db\TableGateway\TableGateway;
-use Directus\Api\Routes\Roles;
 
 class CoreServicesProvider
 {
@@ -695,7 +694,7 @@ class CoreServicesProvider
                 $acl = $container->get('acl');
                 $tableGateway = new BaseTableGateway(SchemaManager::COLLECTION_ROLES, $zendDb, $acl);
                 $row = $tableGateway->select(['id' => $roleId])->current();
-                if (strtolower($row->name) === Roles::PUBLIC) {
+                if (strtolower($row->name) === 'public') {
                     throw new ForbiddenException('Users cannot be added into the public group');
                 }
 

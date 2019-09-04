@@ -8,7 +8,6 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusRolesTableGateway;
 use Directus\Exception\UnauthorizedException;
 use Directus\Util\ArrayUtils;
-use Directus\Api\Routes\Roles;
 
 class RolesService extends AbstractService
 {
@@ -158,7 +157,7 @@ class RolesService extends AbstractService
         }
 
         // TODO: RowGateWay should parse values against their column type
-        return !(!$group || $group->id == 1 || strtolower($group->name) === Roles::PUBLIC);
+        return !(!$group || $group->id == 1 || strtolower($group->name) === 'public');
     }
 
     /**
