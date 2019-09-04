@@ -9,7 +9,6 @@ use Directus\Database\TableGateway\DirectusRolesTableGateway;
 use Directus\Exception\UnauthorizedException;
 use Directus\Util\ArrayUtils;
 use Directus\Api\Routes\Roles;
-use Zend\Db\TableGateway\TableGateway;
 
 class RolesService extends AbstractService
 {
