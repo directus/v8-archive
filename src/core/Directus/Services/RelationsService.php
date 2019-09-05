@@ -19,9 +19,9 @@ class RelationsService extends AbstractService
     protected $itemsService;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $restrictedTables = [
+    public $restrictedTables = [
         SchemaManager::COLLECTION_ACTIVITY,
         SchemaManager::COLLECTION_COLLECTIONS,
         SchemaManager::COLLECTION_FIELDS,
