@@ -39,7 +39,7 @@ class RelationsService extends AbstractService
     public function throwErrorIfRestrictedTable($name)
     {
         if (in_array($name, $this->restrictedTables)) {
-            throw new ForbiddenSystemTableDirectAccessException($this->collection);
+            throw new ForbiddenSystemTableDirectAccessException($name);
         }
     }
 
