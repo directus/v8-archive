@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Database\Exception\ForbiddenSystemTableDirectAccessException;
 
 class RelationsService extends AbstractService
 {
@@ -25,8 +26,23 @@ class RelationsService extends AbstractService
         $this->itemsService = new ItemsService($this->container);
     }
 
+    public function throwErrorIfRestrictedTable($name)
+    {
+        $restrictedTables = [
+            SchemaManager::COLLECTION_ACTIVITY,
+            SchemaManager::COLLECTION_COLLECTIONS,
+            SchemaManager::COLLECTION_FIELDS,
+            SchemaManager::COLLECTION_RELATIONS
+        ];
+        if (in_array($name, $restrictedTables)) {
+            throw new ForbiddenSystemTableDirectAccessException($this->collection);
+        }
+    }
+
+
     public function create(array $data, array $params = [])
     {
+        $this->throwErrorIfRestrictedTable($data['collection_one']);
         return $this->itemsService->createItem($this->collection, $data, $params);
     }
 
