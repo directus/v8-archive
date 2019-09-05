@@ -18,6 +18,16 @@ class RelationsService extends AbstractService
      */
     protected $itemsService;
 
+    /**
+     * @var string
+     */
+    protected $restrictedTables = [
+        SchemaManager::COLLECTION_ACTIVITY,
+        SchemaManager::COLLECTION_COLLECTIONS,
+        SchemaManager::COLLECTION_FIELDS,
+        SchemaManager::COLLECTION_RELATIONS
+    ];
+
     public function __construct(Container $container)
     {
         parent::__construct($container);
@@ -28,13 +38,7 @@ class RelationsService extends AbstractService
 
     public function throwErrorIfRestrictedTable($name)
     {
-        $restrictedTables = [
-            SchemaManager::COLLECTION_ACTIVITY,
-            SchemaManager::COLLECTION_COLLECTIONS,
-            SchemaManager::COLLECTION_FIELDS,
-            SchemaManager::COLLECTION_RELATIONS
-        ];
-        if (in_array($name, $restrictedTables)) {
+        if (in_array($name, $this->restrictedTables)) {
             throw new ForbiddenSystemTableDirectAccessException($this->collection);
         }
     }
@@ -58,6 +62,7 @@ class RelationsService extends AbstractService
 
     public function update($id, array $data, array $params = [])
     {
+        $this->throwErrorIfRestrictedTable($data['collection_one']);
         return $this->itemsService->update($this->collection, $id, $data, $params);
     }
 
