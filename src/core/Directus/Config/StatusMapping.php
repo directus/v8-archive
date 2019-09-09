@@ -69,7 +69,7 @@ class StatusMapping extends Collection
      */
     public function getNonSoftDeleteStatusesValue()
     {
-        return $this->getStatusesValue('soft_delete', false);
+        return $this->getStatusesValue('soft_delete', [false,null]);
     }
 
     /**
@@ -99,8 +99,11 @@ class StatusMapping extends Collection
     protected function getStatusesValue($type, $value)
     {
         $statuses = [];
+        if(!is_array($value)){
+            $value[] = $value;
+        }
         foreach ($this->items as $status) {
-            if ($status->getAttribute($type) === $value) {
+            if (in_array($status->getAttribute($type),$value)) {
                 $statuses[] = $status->getValue();
             }
         }
