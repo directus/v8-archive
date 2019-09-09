@@ -53,6 +53,15 @@ class StatusMapping extends Collection
     }
 
     /**
+     * Returns a list of required status values
+     *
+     * @return array
+     */
+    public function getRequiredStatusesValue()
+    {
+        return $this->getStatusesValue('required_fields', true);
+    }
+    /**
      * Returns a list of soft delete status values
      *
      * @return array
