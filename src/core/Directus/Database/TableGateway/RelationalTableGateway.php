@@ -2075,6 +2075,8 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
+	    $filterFields = [];
+
             // Only select the fields not on the currently authenticated user group's read field blacklist
             $relationalColumnName = $alias->getRelationship()->getFieldMany();
             $tableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
