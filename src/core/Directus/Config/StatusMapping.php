@@ -100,7 +100,7 @@ class StatusMapping extends Collection
     {
         $statuses = [];
         if(!is_array($value)){
-            $value[] = $value;
+            $value = [$value];
         }
         foreach ($this->items as $status) {
             if (in_array($status->getAttribute($type),$value)) {
