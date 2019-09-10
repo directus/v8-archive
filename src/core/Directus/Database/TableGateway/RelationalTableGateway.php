@@ -703,9 +703,9 @@ class RelationalTableGateway extends BaseTableGateway
                         if(strtolower($column->getType()) == DataTypes::TYPE_USER_CREATED || strtolower($column->getType()) == DataTypes::TYPE_USER_UPDATED){
                             unset($foreignRecord[$column->getName()]);
                         }
-                    }       
+                    }
                 }
-                
+
                 $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
                     $foreignRecord,
@@ -994,7 +994,7 @@ class RelationalTableGateway extends BaseTableGateway
             $condition = new In($fieldName, $this->getNonSoftDeleteStatuses());
         }
         $countedData['total_count'] = $this->countTotal($condition);
-        
+
         if (in_array('total_count', $list)) {
             $metadata['total_count'] = $this->countTotal($condition);
         }
@@ -1037,7 +1037,7 @@ class RelationalTableGateway extends BaseTableGateway
         $meta_param=explode(',',$params['meta']);
         if((in_array('filter_count',$meta_param) || in_array('*',$meta_param))) {
             $metadata['filter_count'] = $countedData['total_count'];
-        } 
+        }
 
         if ($filtered) {
             $filteredparams = array_merge($params, [
@@ -1052,7 +1052,7 @@ class RelationalTableGateway extends BaseTableGateway
                 $metadata['filter_count'] = $total;
             }
         }
-        
+
         $limit = $limit < 1 ? $rows : $limit;
         $pages = $total ? ceil($total / $limit) : 1;
         $page = $page > $pages ? $pages : ($page && $offset >= 0 ? (floor($offset / $limit) + 1) : $page);
@@ -1066,7 +1066,7 @@ class RelationalTableGateway extends BaseTableGateway
             $last = ($pages < 2) ? null : (($pages - 1) * $limit);
         }
 
-        
+
         if(in_array('page',$meta_param) || in_array('*',$meta_param)) {
             $metadata = array_merge($metadata, [
                 "limit" => $limit,
@@ -1308,7 +1308,7 @@ class RelationalTableGateway extends BaseTableGateway
             'logical' => $logical
         ];
     }
-    
+
     protected function parseDotFilters(Builder $mainQuery, array $filters)
     {
         foreach ($filters as $column => $condition) {
@@ -1613,7 +1613,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         return in_array($operator, $operators) && empty($value) && !is_numeric($value);
     }
-    
+
     /**
      * Process single relation field filter
      *
@@ -1621,7 +1621,7 @@ class RelationalTableGateway extends BaseTableGateway
      * @param string $column
      * @param array | string $condition
      *
-     * @return 
+     * @return
      */
     protected function processRelationalFilter(Builder $mainQuery, $column, $condition){
         $columnList = $filterColumns = explode('.', $column);
@@ -1762,7 +1762,7 @@ class RelationalTableGateway extends BaseTableGateway
             $mainTable
         );
     }
-    
+
     /**
      * Process Select Filters (Where conditions)
      *
@@ -1782,7 +1782,7 @@ class RelationalTableGateway extends BaseTableGateway
             } else if (isset($fieldReadBlackListDetails['statuses']) && !empty($fieldReadBlackListDetails['statuses'])) {
                 $blackListStatuses = array_merge($blackListStatuses, array_values($fieldReadBlackListDetails['statuses']));
             }
-            
+
             if (!(!is_string($column) || strpos($column, '.') === false)){
                 //Process relational & non relation field filters sequentially
                 //Earlier, all the relation field filters were processing first and then non relation fields, due to that logical operators were not working in mix filters
@@ -1874,13 +1874,13 @@ class RelationalTableGateway extends BaseTableGateway
                     $relatedTable = $relationship->getCollectionMany();
                     $relatedRightColumn = $relationship->getFieldMany();
                     $relatedTableColumns = SchemaService::getAllCollectionFields($relatedTable);
-                    
+
                     //Condition for table related to same table with O2M, to avoid right join of same tables
                     if($relatedTable == $table){
                         $relatedQuery = new Builder($this->getAdapter());
                         $relatedQuery->columns([$relatedRightColumn]);
                         $relatedQuery->from($relatedTable);
-                        
+
                         foreach ($relatedTableColumns as $relatedColumn) {
                             // NOTE: Only search numeric or string type columns
                             $isNumeric = $this->getSchemaManager()->isFieldNumericType($relatedColumn);
@@ -2074,6 +2074,8 @@ class RelationalTableGateway extends BaseTableGateway
             if (empty($ids)) {
                 continue;
             }
+
+            $filterFields = [];
 
             // Only select the fields not on the currently authenticated user group's read field blacklist
             $relationalColumnName = $alias->getRelationship()->getFieldMany();
