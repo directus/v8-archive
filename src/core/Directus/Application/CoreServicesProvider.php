@@ -678,7 +678,7 @@ class CoreServicesProvider
             $emitter->addFilter('item.update:before', $onInsertOrUpdate);
             $preventUsePublicGroup = function (Payload $payload) use ($container) {
                 $data = $payload->getData();
-                
+
                 if (!ArrayUtils::has($data, 'role')) {
                     return $payload;
                 }
@@ -691,7 +691,7 @@ class CoreServicesProvider
                 if (!$roleId) {
                     return $payload;
                 }
-                
+
                 if ($roleId == ROLES::PUBLIC) {
                     throw new ForbiddenException('Users cannot be added into the public group');
                 }
@@ -907,14 +907,17 @@ class CoreServicesProvider
                 $poolConfig = ['adapter' => 'void'];
             }
 
+            $pool = new VoidCachePool();
+
+            if(!$config->get('cache.enabled'))
+                return $pool;
+
             if (is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
                 $pool = $poolConfig;
             } else {
                 if (!in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'memcache', 'redis', 'void'])) {
                     throw new InvalidCacheAdapterException();
                 }
-
-                $pool = new VoidCachePool();
 
                 $adapter = $poolConfig['adapter'];
 
