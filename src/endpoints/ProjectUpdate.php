@@ -14,6 +14,10 @@ class ProjectUpdate extends Route
     {
         InstallerUtils::updateTables($this->container->get('path_base'), get_api_project_from_request());
 
+        // clear cache
+        $cache = $this->container->get('cache');
+        $cache->clear();
+
         return $this->responseWithData($request, $response, []);
     }
 }

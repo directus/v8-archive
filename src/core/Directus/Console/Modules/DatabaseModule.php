@@ -46,5 +46,11 @@ class DatabaseModule extends ModuleBase
         }
 
         InstallerUtils::updateTables($this->getBasePath(), $project);
+
+        $app = \Directus\create_app_with_project_name($this->getBasePath(), $project);
+
+        /** @var AbstractCachePool $cache */
+        $cache = $app->getContainer()->get('cache');
+        $cache->clear();
     }
 }
