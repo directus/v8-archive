@@ -983,7 +983,7 @@ class Acl
      * @throws Exception\ForbiddenCollectionReadException
      */
     public function enforceReadOnce($collection)
-    {
+    { 
         if (!$this->canReadOnce($collection)) {
             throw new Exception\ForbiddenCollectionReadException(
                 $collection

@@ -299,16 +299,15 @@ if (!function_exists('get_request_authorization_token')) {
             }
         } elseif ($request->hasHeader('Set-Cookie')) {
             $authorizationHeader = $request->getHeader('Set-Cookie');
-
             // If there's multiple Authorization header, pick first, ignore the rest
             if (is_array($authorizationHeader)) {
                 $authorizationHeader = array_shift($authorizationHeader);
             }
-
+            
             if (is_string($authorizationHeader)) {
                 $app = Application::getInstance();
                 $authService = $app->getContainer()->get('services')->get('auth');
-                list($authToken, $sessionId) = explode("-",$authService->decryptStaticToken($authorizationHeader));
+                list($authToken, $sessionId) = explode("-",$authService->decryptStaticToken(urldecode($authorizationHeader)));
                 $userSession = $authService->getUserSession($sessionId);
                 $authToken = isset($userSession['id']) ? $authToken : null;
             }

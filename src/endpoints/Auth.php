@@ -7,10 +7,12 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use function Directus\array_get;
+use function Directus\get_directus_setting;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
 use Directus\Util\ArrayUtils;
+use Slim\Http\Cookies;
 
 class Auth extends Route
 {
@@ -86,7 +88,12 @@ class Auth extends Route
                 'user_agent' => ($request->hasHeader('User-Agent')) ? (is_array($request->getHeader('User-Agent')) ? $request->getHeader('User-Agent')[0] : $request->getHeader('User-Agent')) : null
             ];
             $token = $authService->storeUserSession($sessionInput);
-            $response =  $response->withAddedHeader('Set-Cookie', "access_token=".$token);
+            
+            $expirationMinutes =  get_directus_setting('auto_sign_out');
+            $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
+            $cookie = new Cookies();
+            $cookie->set('access_token',['value' => $token,'expires' =>$expiry->format(\DateTime::COOKIE),'httponly' => true]);
+            $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
         }
 
         return $this->responseWithData($request, $response, []);
@@ -116,11 +123,11 @@ class Auth extends Route
      */
     public function killUserSession(Request $request, Response $response)
     {
-        $response =  $response->withoutHeader('Set-Cookie');
         $authService = $this->container->get('services')->get('auth');
         $responseData = $authService->killUserSession(
             $request->getAttribute('id')
         );
+        $response =  $response->withoutHeader('Set-Cookie');
         return $this->responseWithData($request, $response, $responseData);
     }
 
