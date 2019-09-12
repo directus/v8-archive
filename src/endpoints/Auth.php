@@ -76,13 +76,22 @@ class Auth extends Route
             $request->getParsedBodyParam('otp'),
             true
         );
-
-        if(isset($responseData['data']) && isset($responseData['data']['token'])){
-            $response =  $response->withAddedHeader('Set-Cookie', "access_token=".$responseData['data']['token']);
+       
+        if(isset($responseData['data']) && isset($responseData['data']['user'])){
+            $sessionInput = [
+                'created_on' => date('Y-m-d H:i:s'),
+                'user' => $responseData['data']['user']['id'],
+                'token' => $responseData['data']['user']['token'],
+                'ip_address' =>  $request->getAttribute('ip_address') ? $request->getAttribute('ip_address') : null,
+                'user_agent' => ($request->hasHeader('User-Agent')) ? (is_array($request->getHeader('User-Agent')) ? $request->getHeader('User-Agent')[0] : $request->getHeader('User-Agent')) : null
+            ];
+            $token = $authService->storeUserSession($sessionInput);
+            $response =  $response->withAddedHeader('Set-Cookie', "access_token=".$token);
         }
 
         return $this->responseWithData($request, $response, []);
     }
+
     /**
      * Stop the session of user
      *
@@ -95,6 +104,24 @@ class Auth extends Route
     {
         $response =  $response->withoutHeader('Set-Cookie');
         return $this->responseWithData($request, $response, []);
+    }
+
+    /**
+     * Stop the session of user
+     *
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function killUserSession(Request $request, Response $response)
+    {
+        $response =  $response->withoutHeader('Set-Cookie');
+        $authService = $this->container->get('services')->get('auth');
+        $responseData = $authService->killUserSession(
+            $request->getAttribute('id')
+        );
+        return $this->responseWithData($request, $response, $responseData);
     }
 
 

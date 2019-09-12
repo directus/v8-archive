@@ -23,6 +23,9 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\Sql\Update;
+use Zend\Db\Sql\Delete;
+use Zend\Db\Sql\Insert;
+use Zend\Db\Sql\Select;
 
 class AuthService extends AbstractService
 {
@@ -67,16 +70,78 @@ class AuthService extends AbstractService
         $tfa_enforced = $usersService->has2FAEnforced($user->getId());
 
         if($cookie){
-            $token = $this->generateCookieToken($user);
+            $token = $this->findOrCreateStaticToken($user);
+            $responseData = [
+                'user' => $user
+            ];
         }else{
             $needs2FA = $tfa_enforced && $user->get2FASecret() == null;
             $token = $this->generateAuthToken($user,$needs2FA);
+            $responseData = [
+                'token' => $token
+            ];
         }
         return [
-            'data' => [
-                'token' => $token
-            ]
+            'data' => $responseData
         ];
+    }
+
+    /**
+     * @param array $sessionArray
+     *
+     * @return string
+     * 
+     */
+    public function storeUserSession(array $sessionArray)
+    {
+        $userSessionTable = $this->createTableGateway(SchemaManager::COLLECTION_USER_SESSIONS, false);
+        $insert = new Insert(SchemaManager::COLLECTION_USER_SESSIONS);
+        $insert->values($sessionArray);
+        $userSessionTable->insertWith($insert);
+        $insertedValue = $userSessionTable->getLastInsertValue();
+        if(!empty($sessionArray['token'])){
+            $sessionArray['token'] .= "-" .$insertedValue;
+            $update = new Update(SchemaManager::COLLECTION_USER_SESSIONS);
+            $update->set(['token' => $sessionArray['token']]);
+            $update->where([
+                'id' => $insertedValue
+            ]);
+            $userSessionTable->updateWith($update);
+        }
+        return  $this->encryptStaticToken($sessionArray['token']);
+    }
+
+    /**
+     * @param array $sessionArray
+     *
+     * @return string
+     * 
+     */
+    public function getUserSession($id)
+    {
+        $userSessionTable = $this->createTableGateway(SchemaManager::COLLECTION_USER_SESSIONS, false);
+        $select = new Select(SchemaManager::COLLECTION_USER_SESSIONS);
+        $select->columns(['*']);
+        $select->where([
+            'id' => $id
+        ]);
+        $select->limit(1);
+        $result = $userSessionTable->selectWith($select)->current();
+        return  $result ? $result->toArray() : $result;
+    }
+
+    /**
+     * @param $id
+     *
+     */
+    public function killUserSession($id)
+    {
+        $userSessionTable = $this->createTableGateway(SchemaManager::COLLECTION_USER_SESSIONS, false);
+        $conditions = [
+            'user' => $id
+        ];
+        $userSessionTable->delete($conditions);
+        return true;
     }
 
     /**
@@ -85,19 +150,21 @@ class AuthService extends AbstractService
      * @return array
      * 
      */
-    public function generateCookieToken($user)
+    public function findOrCreateStaticToken(&$user)
     {
-        if(empty($user->get('token'))){
-            $token = StringUtils::randomString(6);
+        $user = $user->toArray();
+        if(empty($user['token'])){
+            $token = StringUtils::randomString(6,false);
             $userTable = $this->createTableGateway(SchemaManager::COLLECTION_USERS, false);
             $Update = new Update(SchemaManager::COLLECTION_USERS);
             $Update->set(['token' => $token]);
             $Update->where([
-                'id' => $user->get('id')
+                'id' => $user['id']
             ]);
             $userTable->updateWith($Update);
+            $user['token'] = $token;
         }
-        return $this->encryptStaticToken($user->get('token'));
+        return $user;
     }
 
     /**

@@ -308,7 +308,9 @@ if (!function_exists('get_request_authorization_token')) {
             if (is_string($authorizationHeader)) {
                 $app = Application::getInstance();
                 $authService = $app->getContainer()->get('services')->get('auth');
-                $authToken = $authService->decryptStaticToken($authorizationHeader);
+                list($authToken, $sessionId) = explode("-",$authService->decryptStaticToken($authorizationHeader));
+                $userSession = $authService->getUserSession($sessionId);
+                $authToken = isset($userSession['id']) ? $authToken : null;
             }
         }
 
