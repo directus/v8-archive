@@ -21,6 +21,9 @@ class Auth extends Route
     {
         $app->post('/authenticate', [$this, 'authenticate']);
         $app->post('/password/request', [$this, 'forgotPassword']);
+        $app->post('/sessions/start', [$this, 'startSession']);
+        $app->post('/sessions/stop', [$this, 'stopSession']);
+        $app->post('/sessions/kill/{id}', [$this, 'killUserSession']);
         $app->get('/password/reset/{token}', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
         $app->get('/sso', [$this, 'listSsoAuthServices']);
@@ -52,6 +55,48 @@ class Auth extends Route
 
         return $this->responseWithData($request, $response, $responseData);
     }
+    
+    /**
+     * Start a session of user
+     *
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function startSession(Request $request, Response $response)
+    {
+        $this->validateRequestPayload($request);
+        /** @var AuthService $authService */
+        $authService = $this->container->get('services')->get('auth');
+
+        $responseData = $authService->loginWithCredentials(
+            $request->getParsedBodyParam('email'),
+            $request->getParsedBodyParam('password'),
+            $request->getParsedBodyParam('otp'),
+            true
+        );
+
+        if(isset($responseData['data']) && isset($responseData['data']['token'])){
+            $response =  $response->withAddedHeader('Set-Cookie', "access_token=".$responseData['data']['token']);
+        }
+
+        return $this->responseWithData($request, $response, []);
+    }
+    /**
+     * Stop the session of user
+     *
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function stopSession(Request $request, Response $response)
+    {
+        $response =  $response->withoutHeader('Set-Cookie');
+        return $this->responseWithData($request, $response, []);
+    }
+
 
     /**
      * Sends a user a token to reset its password
