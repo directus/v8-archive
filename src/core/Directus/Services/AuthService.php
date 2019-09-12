@@ -15,17 +15,20 @@ use Directus\Authentication\Provider;
 use Directus\Authentication\Sso\Social;
 use Directus\Authentication\Sso\TwoSocialProvider;
 use Directus\Authentication\User\UserInterface;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Exception\UnauthorizedException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
+use Zend\Db\Sql\Update;
 
 class AuthService extends AbstractService
 {
     const AUTH_VALIDATION_ERROR_CODE = 114;
 
+    const TOKEN_CIPHER_METHOD = 'aes-128-ctr';
     /**
      * Gets the user token using the authentication email/password combination
      *
@@ -37,7 +40,7 @@ class AuthService extends AbstractService
      *
      * @throws UnauthorizedException
      */
-    public function loginWithCredentials($email, $password, $otp=null)
+    public function loginWithCredentials($email, $password, $otp=null, $cookie = false)
     {
         $this->validateCredentials($email, $password, $otp);
 
@@ -63,12 +66,12 @@ class AuthService extends AbstractService
         $usersService = new UsersService($this->container);
         $tfa_enforced = $usersService->has2FAEnforced($user->getId());
 
-        if ($tfa_enforced && $user->get2FASecret() == null) {
-            $token = $this->generateAuthToken($user, true);
-        } else {
-            $token = $this->generateAuthToken($user);
+        if($cookie){
+            $token = $this->generateCookieToken($user);
+        }else{
+            $needs2FA = $tfa_enforced && $user->get2FASecret() == null;
+            $token = $this->generateAuthToken($user,$needs2FA);
         }
-
         return [
             'data' => [
                 'token' => $token
@@ -76,6 +79,50 @@ class AuthService extends AbstractService
         ];
     }
 
+    /**
+     * @param array $user
+     *
+     * @return array
+     * 
+     */
+    public function generateCookieToken($user)
+    {
+        if(empty($user->get('token'))){
+            $token = StringUtils::randomString(6);
+            $userTable = $this->createTableGateway(SchemaManager::COLLECTION_USERS, false);
+            $Update = new Update(SchemaManager::COLLECTION_USERS);
+            $Update->set(['token' => $token]);
+            $Update->where([
+                'id' => $user->get('id')
+            ]);
+            $userTable->updateWith($Update);
+        }
+        return $this->encryptStaticToken($user->get('token'));
+    }
+
+    /**
+     * @param string $token
+     *
+     * @return array
+     */
+    public function encryptStaticToken($token){
+        $enc_key = openssl_digest(php_uname(), 'SHA256', TRUE);
+        $enc_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length(self::TOKEN_CIPHER_METHOD));
+        $cryptedToken = openssl_encrypt($token, self::TOKEN_CIPHER_METHOD, $enc_key, 0, $enc_iv) . "::" . bin2hex($enc_iv);
+        return $cryptedToken;
+    }
+
+    /**
+     * @param string $token
+     *
+     * @return array
+     */
+    public function decryptStaticToken($token){
+        list($cryptedToken, $enc_iv) = explode("::", $token);
+        $enc_key = openssl_digest(php_uname(), 'SHA256', TRUE);
+        $token = openssl_decrypt($cryptedToken,self::TOKEN_CIPHER_METHOD, $enc_key, 0, hex2bin($enc_iv));
+        return $token;
+    }
     /**
      * @param string $name
      *

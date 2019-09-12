@@ -132,7 +132,6 @@ class AuthenticationMiddleware extends AbstractMiddleware
     {
         $user = null;
         $authToken = $this->getAuthToken($request);
-
         if ($authToken) {
             /** @var AuthService $authService */
             $authService = $this->container->get('services')->get('auth');
