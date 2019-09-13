@@ -92,7 +92,7 @@ class Auth extends Route
             $expirationMinutes =  get_directus_setting('auto_sign_out');
             $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
             $cookie = new Cookies();
-            $cookie->set('access_token',['value' => $token,'expires' =>$expiry->format(\DateTime::COOKIE),'httponly' => true]);
+            $cookie->set('access_token',['value' => $token,'expires' =>$expiry->format(\DateTime::COOKIE),'path'=>'/','httponly' => true]);
             $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
         }
 
