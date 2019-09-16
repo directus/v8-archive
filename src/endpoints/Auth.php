@@ -140,7 +140,6 @@ class Auth extends Route
             $userSessionService = new UserSessionService($this->container);
             $userSessionService->destroy(['token' => $accessToken]);
         }
-        $response =  $response->withoutHeader('Set-Cookie');
         return $this->responseWithData($request, $response, []);
     }
 
@@ -158,7 +157,6 @@ class Auth extends Route
         $responseData = $userSessionService->destroy([
             'user' => $request->getAttribute('user')
         ]);
-        $response =  $response->withoutHeader('Set-Cookie');
         return $this->responseWithData($request, $response, $responseData);
     }
 
@@ -177,7 +175,6 @@ class Auth extends Route
             'id' => $request->getAttribute('id'),
             'user' => $request->getAttribute('user')
         ]);
-        $response =  $response->withoutHeader('Set-Cookie');
         return $this->responseWithData($request, $response, $responseData);
     }
 

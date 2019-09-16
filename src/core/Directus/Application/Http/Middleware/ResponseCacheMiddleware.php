@@ -83,13 +83,11 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                 case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                     $accessToken = decrypt_static_token($authorizationTokenObject['token']);
                     $userSession = $userSessionService->find(['token' => $accessToken]);
-                    if($userSession){
-                        $cookie = new Cookies();
-                        $cookie->set('session',['value' => $authorizationTokenObject['token'],'expires' =>$expiry->format(\DateTime::COOKIE),'path'=>'/','httponly' => true]);
-                        $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
-                    }else{
-                        $response =  $response->withoutHeader('Set-Cookie');
-                    }
+                    $cookie = new Cookies();
+                    $expiryAt = $userSession ? $expiry->format(\DateTime::COOKIE) : DateTimeUtils::now()->toString();
+                    $cookie->set('session',['value' => $authorizationTokenObject['token'],'expires' => $expiryAt ,'path'=>'/','httponly' => true]);
+                    $cookie->set('PHPSESSID',['expires' => DateTimeUtils::now()->toString()]);
+                    $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
                     break;
                 default :
                     $userSession = $userSessionService->find(['token' => $authorizationTokenObject['token']]);
