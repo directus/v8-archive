@@ -23,15 +23,11 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
 use Zend\Db\Sql\Update;
-use Zend\Db\Sql\Delete;
-use Zend\Db\Sql\Insert;
-use Zend\Db\Sql\Select;
 
 class AuthService extends AbstractService
 {
     const AUTH_VALIDATION_ERROR_CODE = 114;
 
-    const TOKEN_CIPHER_METHOD = 'aes-128-ctr';
     /**
      * Gets the user token using the authentication email/password combination
      *
@@ -70,7 +66,7 @@ class AuthService extends AbstractService
         $tfa_enforced = $usersService->has2FAEnforced($user->getId());
 
         if($cookie){
-            $token = $this->findOrCreateStaticToken($user);
+            $user = $this->findOrCreateStaticToken($user);
             $responseData = [
                 'user' => $user
             ];
@@ -78,70 +74,13 @@ class AuthService extends AbstractService
             $needs2FA = $tfa_enforced && $user->get2FASecret() == null;
             $token = $this->generateAuthToken($user,$needs2FA);
             $responseData = [
-                'token' => $token
+                'token' => $token,
+                'user' => $user->toArray()
             ];
         }
         return [
             'data' => $responseData
         ];
-    }
-
-    /**
-     * @param array $sessionArray
-     *
-     * @return string
-     * 
-     */
-    public function storeUserSession(array $sessionArray)
-    {
-        $userSessionTable = $this->createTableGateway(SchemaManager::COLLECTION_USER_SESSIONS, false);
-        $insert = new Insert(SchemaManager::COLLECTION_USER_SESSIONS);
-        $insert->values($sessionArray);
-        $userSessionTable->insertWith($insert);
-        $insertedValue = $userSessionTable->getLastInsertValue();
-        if(!empty($sessionArray['token'])){
-            $sessionArray['token'] .= "-" .$insertedValue;
-            $update = new Update(SchemaManager::COLLECTION_USER_SESSIONS);
-            $update->set(['token' => $sessionArray['token']]);
-            $update->where([
-                'id' => $insertedValue
-            ]);
-            $userSessionTable->updateWith($update);
-        }
-        return  $this->encryptStaticToken($sessionArray['token']);
-    }
-
-    /**
-     * @param array $sessionArray
-     *
-     * @return string
-     * 
-     */
-    public function getUserSession($id)
-    {
-        $userSessionTable = $this->createTableGateway(SchemaManager::COLLECTION_USER_SESSIONS, false);
-        $select = new Select(SchemaManager::COLLECTION_USER_SESSIONS);
-        $select->columns(['*']);
-        $select->where([
-            'id' => $id
-        ]);
-        $select->limit(1);
-        $result = $userSessionTable->selectWith($select)->current();
-        return  $result ? $result->toArray() : $result;
-    }
-
-    /**
-     * @param $id
-     *
-     */
-    public function killUserSession($id)
-    {
-        $userSessionTable = $this->createTableGateway(SchemaManager::COLLECTION_USER_SESSIONS, false);
-        $conditions = [
-            'user' => $id
-        ];
-        $userSessionTable->delete($conditions);
-        return true;
     }
 
     /**
@@ -167,29 +106,6 @@ class AuthService extends AbstractService
         return $user;
     }
 
-    /**
-     * @param string $token
-     *
-     * @return array
-     */
-    public function encryptStaticToken($token){
-        $enc_key = openssl_digest(php_uname(), 'SHA256', TRUE);
-        $enc_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length(self::TOKEN_CIPHER_METHOD));
-        $cryptedToken = openssl_encrypt($token, self::TOKEN_CIPHER_METHOD, $enc_key, 0, $enc_iv) . "::" . bin2hex($enc_iv);
-        return $cryptedToken;
-    }
-
-    /**
-     * @param string $token
-     *
-     * @return array
-     */
-    public function decryptStaticToken($token){
-        list($cryptedToken, $enc_iv) = explode("::", $token);
-        $enc_key = openssl_digest(php_uname(), 'SHA256', TRUE);
-        $token = openssl_decrypt($cryptedToken,self::TOKEN_CIPHER_METHOD, $enc_key, 0, hex2bin($enc_iv));
-        return $token;
-    }
     /**
      * @param string $name
      *

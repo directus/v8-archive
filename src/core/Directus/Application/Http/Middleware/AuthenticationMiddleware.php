@@ -11,6 +11,7 @@ use Directus\Authentication\User\UserInterface;
 use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Exception\UnauthorizedLocationException;
 use function Directus\get_request_authorization_token;
+use function Directus\get_static_token_based_on_type;
 use Directus\Permissions\Acl;
 use Directus\Services\AuthService;
 use Directus\Services\UsersService;
@@ -132,7 +133,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
     {
         $user = null;
         $authToken = $this->getAuthToken($request);
-       
+
         if ($authToken) {
             /** @var AuthService $authService */
             $authService = $this->container->get('services')->get('auth');
@@ -152,7 +153,8 @@ class AuthenticationMiddleware extends AbstractMiddleware
      */
     protected function getAuthToken(Request $request)
     {
-        return get_request_authorization_token($request);
+        $authToken = get_request_authorization_token($request);
+        return get_static_token_based_on_type($authToken);
     }
 
     /**
