@@ -324,7 +324,7 @@ class Files
             'charset' => $fileData['charset'],
             'filesize' => $fileData['size'],
             'width' => isset($width) ? $width : $fileData['width'],
-            'height' => isset($height) ? $width : $fileData['height'],
+            'height' => isset($height) ? $height : $fileData['height'],
             'storage' => $fileData['storage'],
             'checksum' => $checksum,
             'duration' => isset($duration) ? $duration : 0
