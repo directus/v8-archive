@@ -86,7 +86,6 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                     $cookie = new Cookies();
                     $expiryAt = $userSession ? $expiry->format(\DateTime::COOKIE) : DateTimeUtils::now()->toString();
                     $cookie->set('session',['value' => $authorizationTokenObject['token'],'expires' => $expiryAt ,'path'=>'/','httponly' => true]);
-                    $cookie->set('PHPSESSID',['expires' => DateTimeUtils::now()->toString()]);
                     $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
                     break;
                 default :
