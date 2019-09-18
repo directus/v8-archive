@@ -216,6 +216,10 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
+    $this->group('/webhooks', \Directus\Api\Routes\Webhook::class)
+        ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
     $this->group('/scim', function () {
         $this->group('/v2', \Directus\Api\Routes\ScimTwo::class);
     })->add($middleware['rate_limit_user'])

@@ -1606,7 +1606,48 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'enforce_2fa',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle'
+            ],
+
+            // Webhooks
+            // -----------------------------------------------------------------
+            [
+                'collection' => 'directus_webhooks',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+                'interface' => 'primary-key',
+                'locked' => 1,
+                'required' => 1,
+                'hidden_detail' => 1
+            ],
+            [
+                'collection' => 'directus_webhooks',
+                'field' => 'collection',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'required' => 1
+            ],
+            [
+                'collection' => 'directus_webhooks',
+                'field' => 'directus_action',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'required' => 1
+            ],
+            [
+                'collection' => 'directus_webhooks',
+                'field' => 'url',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'required' => 1
+            ],
+            [
+                'collection' => 'directus_webhooks',
+                'field' => 'http_action',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'required' => 1
             ]
+            
         ];
 
         $files = $this->table('directus_fields');
