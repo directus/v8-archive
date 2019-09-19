@@ -9,6 +9,8 @@ use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Installation\InstallerUtils;
+use Directus\Util\Webhooks\WebhookUtils;
+use Directus\Services\WebhookService;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
 use Phinx\Db\Adapter\AdapterInterface;
@@ -506,6 +508,21 @@ if (!function_exists('register_extensions_hooks')) {
             $app,
             get_custom_hooks('public/extensions/core/interfaces', true)
         );
+    }
+}
+
+if (!function_exists('register_webhooks')) {
+    /**
+     * Register all the hooks from the configuration file
+     *
+     * @param Application $app
+     */
+    function register_webhooks(Application $app)
+    {
+        $app = Application::getInstance();
+        $webhook = new WebhookService($app->getContainer());
+        $webhookData = $webhook->findAll([],false);
+        print_r($webhookData); die;
     }
 }
 

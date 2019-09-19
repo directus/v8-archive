@@ -36,9 +36,9 @@ class WebhookService extends AbstractService
      *
      * @return array
      */
-    public function findAll(array $params = [])
+    public function findAll(array $params = [],$acl = false)
     {
-        return $this->getItemsAndSetResponseCacheTags($this->getTableGateway(), $params);
+        return $this->getItemsAndSetResponseCacheTags($this->getTableGateway($acl), $params);
     }
 
     /**
@@ -124,10 +124,10 @@ class WebhookService extends AbstractService
      *
      * @return RelationalTableGateway
      */
-    public function getTableGateway()
+    public function getTableGateway($acl=true)
     {
         if (!$this->tableGateway) {
-            $this->tableGateway = $this->createTableGateway($this->collection);
+            $this->tableGateway = $this->createTableGateway($this->collection,$acl);
         }
 
         return $this->tableGateway;

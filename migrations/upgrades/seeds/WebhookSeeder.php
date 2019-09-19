@@ -36,8 +36,20 @@ class WebhookSeeder extends AbstractSeed
                 'collection' => 'directus_webhooks',
                 'field' => 'directus_action',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'required' => 1
+                'interface' => 'dropdown',
+                'required' => 1,
+                'options' => json_encode([
+                    'choices' => [
+                        'item.read:before' => 'item.read:before',
+                        'item.read:after' => 'item.read:after',
+                        'item.create:before' => 'item.create:before',
+                        'item.create:after' => 'item.create:after',
+                        'item.update:before' => 'item.update:before',
+                        'item.update:after' => 'item.update:after',
+                        'item.delete:before' => 'item.delete:before',
+                        'item.delete:after' => 'item.delete:after',
+                    ]
+                ])
             ],
             [
                 'collection' => 'directus_webhooks',
@@ -50,8 +62,14 @@ class WebhookSeeder extends AbstractSeed
                 'collection' => 'directus_webhooks',
                 'field' => 'http_action',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'required' => 1
+                'interface' => 'dropdown',
+                'required' => 1,
+                'options' => json_encode([
+                    'choices' => [
+                        'get' => 'Get',
+                        'post' => 'Post'
+                    ]
+                ])
             ]
             
         ];

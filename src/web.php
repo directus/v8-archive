@@ -95,15 +95,17 @@ $container = $app->getContainer();
 try {
     \Directus\register_global_hooks($app);
     \Directus\register_extensions_hooks($app);
+    // \Directus\register_webhooks($app);
 } catch (ErrorException $e) {
-    http_response_code($e->getStatusCode());
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error' => [
-            'code' => $e->getCode(),
-            'message' => $e->getMessage()
-        ]
-    ]);
+    throw $e;
+    // http_response_code($e->getStatusCode());
+    // header('Content-Type: application/json');
+    // echo json_encode([
+    //     'error' => [
+    //         'code' => $e->getCode(),
+    //         'message' => $e->getMessage()
+    //     ]
+    // ]);
     exit;
 }
 
