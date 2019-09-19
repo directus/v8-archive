@@ -38,7 +38,7 @@ class Schema {
                 new Value('engine', Types::STRING, 'InnoDB'),
                 new Value('charset', Types::STRING, 'utf8mb4'),
                 new Value('socket', Types::STRING, ''),
-                new Value('driver_options', Types::ARRAY, []),
+                new Value('driver_options?', Types::ARRAY, []),
             ]),
             new Group('cache', [
                 new Value('enabled', Types::BOOLEAN, false),
