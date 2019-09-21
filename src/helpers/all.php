@@ -11,6 +11,7 @@ use Directus\Util\DateTimeUtils;
 use Directus\Util\Installation\InstallerUtils;
 use Directus\Util\Webhooks\WebhookUtils;
 use Directus\Services\WebhookService;
+use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
 use Phinx\Db\Adapter\AdapterInterface;
@@ -520,9 +521,19 @@ if (!function_exists('register_webhooks')) {
     function register_webhooks(Application $app)
     {
         $app = Application::getInstance();
+        BaseTableGateway::setContainer($app->getContainer());
+        $app->getContainer()->get('logger')->info("hook callse");
         $webhook = new WebhookService($app->getContainer());
         $webhookData = $webhook->findAll([],false);
-        print_r($webhookData); die;
+        $result = null;
+        foreach($webhookData['data'] as $hook){
+            $action = explode(":",$hook['directus_action']);
+            $result['actions'][$action[0].".".$hook['collection'].":".$action[1]] = function ($data, $collectionName) use ($hook) {
+                $client = new \GuzzleHttp\Client();
+                $client->request($hook['http_action'], $hook['url'], $data);
+            };
+        }
+        return $result;
     }
 }
 

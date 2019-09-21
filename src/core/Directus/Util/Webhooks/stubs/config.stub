@@ -1,8 +1,0 @@
-<?php
-
-'action' => [
-    '{{directus_action}}.{{collection}}:{{directus_action_type}}' => function ($data, $collectionName) {
-        $client = new GuzzleHttp\Client();
-        $res = $client->request({{http_action}}', {{url}}, $data);
-    }
-];
