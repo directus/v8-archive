@@ -9,6 +9,7 @@ use Directus\Util\StringUtils;
 use Slim\Http\Cookies;
 use function Directus\get_directus_setting;
 use function Directus\decrypt_static_token;
+use function Directus\get_project_session_cookie_name;
 use function Directus\get_request_authorization_token;
 use Directus\Services\UserSessionService;
 use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
@@ -59,7 +60,6 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         } else {
             /** @var Response $response */
             $response = $next($request, $response);
-
             $body = $response->getBody();
             $body->rewind();
             $bodyContent = $body->getContents();
@@ -85,7 +85,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                     $userSession = $userSessionService->find(['token' => $accessToken]);
                     $cookie = new Cookies();
                     $expiryAt = $userSession ? $expiry->format(\DateTime::COOKIE) : DateTimeUtils::now()->toString();
-                    $cookie->set('session',['value' => $authorizationTokenObject['token'],'expires' => $expiryAt ,'path'=>'/','httponly' => true]);
+                    $cookie->set(get_project_session_cookie_name($request),['value' => $authorizationTokenObject['token'],'expires' => $expiryAt ,'path'=>'/','httponly' => true]);
                     $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
                     break;
                 default :

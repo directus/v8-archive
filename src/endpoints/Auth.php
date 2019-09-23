@@ -8,6 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use function Directus\array_get;
 use function Directus\get_directus_setting;
+use function Directus\get_project_session_cookie_name;
 use function Directus\get_request_authorization_token;
 use function Directus\encrypt_static_token;
 use function Directus\decrypt_static_token;
@@ -27,11 +28,10 @@ class Auth extends Route
     public function __invoke(Application $app)
     {
         $app->post('/authenticate', [$this, 'authenticate']);
+        $app->post('/logout', [$this, 'logout']);
+        $app->post('/logout/{user}', [$this, 'logoutFromAll']);
+        $app->post('/logout/{user}/{id}', [$this, 'logoutFromOne']);
         $app->post('/password/request', [$this, 'forgotPassword']);
-        $app->post('/sessions/start', [$this, 'startSession']);
-        $app->post('/sessions/stop', [$this, 'stopSession']);
-        $app->post('/sessions/kill/{user}', [$this, 'killAllSession']);
-        $app->post('/sessions/kill/{user}/{id}', [$this, 'killUserSession']);
         $app->get('/password/reset/{token}', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
         $app->get('/sso', [$this, 'listSsoAuthServices']);
@@ -58,117 +58,118 @@ class Auth extends Route
         $responseData = $authService->loginWithCredentials(
             $request->getParsedBodyParam('email'),
             $request->getParsedBodyParam('password'),
-            $request->getParsedBodyParam('otp')
+            $request->getParsedBodyParam('otp'),
+            $request->getParam('mode')
         );
 
         if(isset($responseData['data']) && isset($responseData['data']['user'])){
-            $expirationMinutes =  get_directus_setting('auto_sign_out');
-            $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
-            $userSessionService = new UserSessionService($this->container);
-            $userSessionService->create([
-                'user' => $responseData['data']['user']['id'],
-                'token' => $responseData['data']['token'],
-                'token_type' => DirectusUserSessionsTableGateway::TOKEN_JWT,
-                'token_expired_at' => $expiry->format('Y-m-d H:i:s')
-            ]);
+            switch($request->getParam('mode')){
+                case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+                    $response = $this->storeCookieSession($request,$response,$responseData['data']);
+                    break;
+                case DirectusUserSessionsTableGateway::TOKEN_JWT : 
+                default : 
+                    $this->storeJwtSession($responseData['data']);
+            }
             unset($responseData['data']['user']);
         }
-
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
+     * Generate cookie token and store it into user sessions table
+     *
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function storeCookieSession($request,$response,$data){
+        $authorizationTokenObject = get_request_authorization_token($request);
+        $expirationMinutes =  get_directus_setting('auto_sign_out');
+        $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
+        $userSessionService = new UserSessionService($this->container);
+        if(!empty($authorizationTokenObject['token'])){
+            $accessToken = decrypt_static_token($authorizationTokenObject['token']);
+            $userSessionObject = $userSessionService->find(['token' => $accessToken]);
+            $sessionToken = $userSessionObject['token'];
+        }else{
+            $userSession = $userSessionService->create([
+                'user' => $data['user']['id'],
+                'token' => $data['user']['token'],
+                'token_type' => DirectusUserSessionsTableGateway::TOKEN_COOKIE,
+                'token_expired_at' => $expiry->format('Y-m-d H:i:s')
+            ]);
+            $sessionToken = $data['user']['token']."-".$userSession;
+            $userSessionService->update($userSession,['token' => $sessionToken]);
+        }
+       
+        $cookie = new Cookies();
+        $cookie->set(get_project_session_cookie_name($request),['value' => encrypt_static_token($sessionToken),'expires' =>$expiry->format(\DateTime::COOKIE),'path'=>'/','httponly' => true]);
+        return  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
     }
     
     /**
-     * Start a session of user
+     * Generate jwt token and store login entry into user sessions table
      *
      * @param Request $request
      * @param Response $response
      *
      * @return Response
      */
-    public function startSession(Request $request, Response $response)
-    {
-        $this->validateRequestPayload($request);
-        /** @var AuthService $authService */
-        $authService = $this->container->get('services')->get('auth');
-
-        $responseData = $authService->loginWithCredentials(
-            $request->getParsedBodyParam('email'),
-            $request->getParsedBodyParam('password'),
-            $request->getParsedBodyParam('otp'),
-            true
-        );
-        if(isset($responseData['data']) && isset($responseData['data']['user'])){
-            $authorizationTokenObject = get_request_authorization_token($request);
-            $expirationMinutes =  get_directus_setting('auto_sign_out');
-            $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
-            $userSessionService = new UserSessionService($this->container);
-            if(!empty($authorizationTokenObject['token'])){
-                $accessToken = decrypt_static_token($authorizationTokenObject['token']);
-                $userSessionObject = $userSessionService->find(['token' => $accessToken]);
-                $sessionToken = $userSessionObject['token'];
-            }else{
-                $userSession = $userSessionService->create([
-                    'user' => $responseData['data']['user']['id'],
-                    'token' => $responseData['data']['user']['token'],
-                    'token_type' => DirectusUserSessionsTableGateway::TOKEN_COOKIE,
-                    'token_expired_at' => $expiry->format('Y-m-d H:i:s')
-                ]);
-                $sessionToken = $responseData['data']['user']['token']."-".$userSession;
-                $userSessionService->update($userSession,['token' => $sessionToken]);
-            }
-            $cookie = new Cookies();
-            $cookie->set('session',['value' => encrypt_static_token($sessionToken),'expires' =>$expiry->format(\DateTime::COOKIE),'path'=>'/','httponly' => true]);
-            $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
-        }
-
-        return $this->responseWithData($request, $response, []);
+    public function storeJwtSession($data){
+        $expirationMinutes =  get_directus_setting('auto_sign_out');
+        $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
+        $userSessionService = new UserSessionService($this->container);
+        $userSessionService->create([
+            'user' => $data['user']['id'],
+            'token' => $data['token'],
+            'token_type' => DirectusUserSessionsTableGateway::TOKEN_JWT,
+            'token_expired_at' => $expiry->format('Y-m-d H:i:s')
+        ]);
     }
 
     /**
-     * Stop the session of user
+     * Logout user's current session
      *
      * @param Request $request
      * @param Response $response
      *
      * @return Response
      */
-    public function stopSession(Request $request, Response $response)
+    public function logout(Request $request, Response $response)
     {
         $authorizationTokenObject = get_request_authorization_token($request);
-        if(!empty($authorizationTokenObject['token']) && $authorizationTokenObject['type'] == DirectusUserSessionsTableGateway::TOKEN_COOKIE){
-            $accessToken = decrypt_static_token($authorizationTokenObject['token']);
-            $userSessionService = new UserSessionService($this->container);
-            $userSessionService->destroy(['token' => $accessToken]);
-        }
+        $accessToken = $authorizationTokenObject['type'] == DirectusUserSessionsTableGateway::TOKEN_COOKIE ? decrypt_static_token($authorizationTokenObject['token']) : $authorizationTokenObject['token'];
+        $userSessionService = new UserSessionService($this->container);
+        $userSessionService->destroy(['token' => $accessToken]);
         return $this->responseWithData($request, $response, []);
     }
 
     /**
-     * Kill all sessions of user
+     * Logout from user's all session
      *
      * @param Request $request
      * @param Response $response
      *
      * @return Response
      */
-    public function killAllSession(Request $request, Response $response)
+    public function logoutFromAll(Request $request, Response $response)
     {
         $userSessionService = new UserSessionService($this->container);
-        $responseData = $userSessionService->destroy([
-            'user' => $request->getAttribute('user')
-        ]);
+        $responseData = $userSessionService->destroy(['user' => $request->getAttribute('user')]);
         return $this->responseWithData($request, $response, $responseData);
     }
 
     /**
-     * Kill particular session of user
+     * Logout from user's particular session
      *
      * @param Request $request
      * @param Response $response
      *
      * @return Response
      */
-    public function killUserSession(Request $request, Response $response)
+    public function logoutFromOne(Request $request, Response $response)
     {
         $userSessionService = new UserSessionService($this->container);
         $responseData = $userSessionService->destroy([
@@ -293,7 +294,7 @@ class Auth extends Route
             $session->set('sso_origin_url', $origin);
             $response = $response->withRedirect(array_get($responseData, 'data.authorization_url'));
         }
-
+        
         return $this->responseWithData($request, $response, $responseData);
     }
 
@@ -366,7 +367,6 @@ class Auth extends Route
 
             $response = $response->withRedirect($redirectUrl . '?' . http_build_query($urlParams));
         }
-
         return $this->responseWithData($request, $response, $responseData);
     }
 

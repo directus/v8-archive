@@ -21,6 +21,8 @@ use Slim\Http\Headers;
 use Slim\Http\RequestBody;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
+use Directus\Authentication\Exception\InvalidTokenException;
+
 
 const TOKEN_CIPHER_METHOD = 'aes-128-ctr';
 
@@ -308,10 +310,25 @@ if (!function_exists('get_request_authorization_token')) {
             }
         } elseif ($request->hasHeader('Cookie')) {
             $response['type'] = DirectusUserSessionsTableGateway::TOKEN_COOKIE;
-            $authorizationHeader = $request->getCookieParam('session');
+            $authorizationHeader = $request->getCookieParam(get_project_session_cookie_name($request));
             $response['token'] = $authorizationHeader;
         }
         return $response;
+    }
+}
+
+if (!function_exists('get_project_session_cookie_name')) {
+    /**
+     * Returns the session cookie name of current project
+     *
+     * @param Request $request
+     *
+     * @return null|string
+     */
+    function get_project_session_cookie_name($request)
+    {
+        $projectName = get_api_project_from_request($request);
+        return 'directus-'.$projectName.'-session';
     }
 }
 
@@ -336,6 +353,8 @@ if (!function_exists('get_static_token_based_on_type')) {
                     if($userSession){
                         $user = $container->get('auth')->getUserProvider()->find($userSession['user'])->toArray();
                         $accessToken = $user['token'];
+                    }else{
+                        throw new InvalidTokenException();
                     }
                     break;
                 default :
@@ -346,8 +365,6 @@ if (!function_exists('get_static_token_based_on_type')) {
         return $accessToken;
     }
 }
-
-
 
 if (!function_exists('encrypt_static_token')) {
     /**

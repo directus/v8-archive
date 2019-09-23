@@ -47,9 +47,8 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
         try {
             $user = $this->authenticate($request);
-
+            
             $hookEmitter = $this->container->get('hook_emitter');
-
             if (!$user && !$publicRoleId) {
                 $exception = new UserNotAuthenticatedException();
                 $hookEmitter->run('auth.fail', [$exception]);

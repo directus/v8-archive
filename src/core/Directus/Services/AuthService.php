@@ -17,6 +17,7 @@ use Directus\Authentication\Sso\TwoSocialProvider;
 use Directus\Authentication\User\UserInterface;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
 use Directus\Exception\UnauthorizedException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
@@ -39,7 +40,7 @@ class AuthService extends AbstractService
      *
      * @throws UnauthorizedException
      */
-    public function loginWithCredentials($email, $password, $otp=null, $cookie = false)
+    public function loginWithCredentials($email, $password, $otp=null, $mode = null)
     {
         $this->validateCredentials($email, $password, $otp);
 
@@ -65,18 +66,19 @@ class AuthService extends AbstractService
         $usersService = new UsersService($this->container);
         $tfa_enforced = $usersService->has2FAEnforced($user->getId());
 
-        if($cookie){
-            $user = $this->findOrCreateStaticToken($user);
-            $responseData = [
-                'user' => $user
-            ];
-        }else{
-            $needs2FA = $tfa_enforced && $user->get2FASecret() == null;
-            $token = $this->generateAuthToken($user,$needs2FA);
-            $responseData = [
-                'token' => $token,
-                'user' => $user->toArray()
-            ];
+        switch($mode){
+            case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+                $user = $this->findOrCreateStaticToken($user);
+                $responseData['user'] = $user;
+                break;
+            case DirectusUserSessionsTableGateway::TOKEN_JWT : 
+            default : 
+                $needs2FA = $tfa_enforced && $user->get2FASecret() == null;
+                $token = $this->generateAuthToken($user,$needs2FA);
+                $responseData = [
+                    'token' => $token,
+                    'user' => $user->toArray()
+                ];
         }
         return [
             'data' => $responseData
@@ -238,7 +240,7 @@ class AuthService extends AbstractService
         } else {
             $authenticated = $this->getAuth()->authenticateWithPrivateToken($token);
         }
-
+        
         return $authenticated;
     }
 
