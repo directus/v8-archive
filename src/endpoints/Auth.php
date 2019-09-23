@@ -285,13 +285,12 @@ class Auth extends Route
         $responseData = $authService->getAuthenticationRequestInfo(
             $request->getAttribute('service')
         );
-
         if (\Directus\cors_is_origin_allowed($allowedOrigins, $origin)) {
             if (is_array($origin)) {
                 $origin = array_shift($origin);
             }
-
             $session->set('sso_origin_url', $origin);
+            $session->set('mode', $request->getParam('mode'));
             $response = $response->withRedirect(array_get($responseData, 'data.authorization_url'));
         }
         
@@ -333,16 +332,30 @@ class Auth extends Route
         // TODO: Implement a pull method
         $redirectUrl = $session->get('sso_origin_url');
         $session->remove('sso_origin_url');
-
+        $mode = $session->get('mode');
+        $session->remove('mode');
         $responseData = [];
         $urlParams = [];
         try {
             $responseData = $authService->handleAuthenticationRequestCallback(
                 $request->getAttribute('service'),
-                !!$redirectUrl
+                !!$redirectUrl,
+                $mode
             );
 
-            $urlParams['request_token'] = array_get($responseData, 'data.token');
+            if(isset($responseData['data']) && isset($responseData['data']['user'])){
+                switch($request->getParam('mode')){
+                    case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+                        $response = $this->storeCookieSession($request,$response,$responseData['data']);
+                        break;
+                    default : 
+                        $this->storeJwtSession($responseData['data']);
+                        $urlParams['request_token'] = array_get($responseData, 'data.token');
+                }
+                unset($responseData['data']['user']);
+            }
+    
+
         } catch (\Exception $e) {
             if (!$redirectUrl) {
                 throw $e;
@@ -356,6 +369,7 @@ class Auth extends Route
             $urlParams['error'] = true;
         }
 
+       
         if ($redirectUrl) {
             $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
             $redirectUrlParts = explode('?', $redirectUrl);

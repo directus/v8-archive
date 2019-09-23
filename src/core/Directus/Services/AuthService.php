@@ -204,7 +204,7 @@ class AuthService extends AbstractService
         );
     }
 
-    public function handleAuthenticationRequestCallback($name, $generateRequestToken = false)
+    public function handleAuthenticationRequestCallback($name, $generateRequestToken = false, $mode= null)
     {
         /** @var Social $socialAuth */
         $socialAuth = $this->container->get('external_auth');
@@ -214,16 +214,23 @@ class AuthService extends AbstractService
         $serviceUser = $service->handle();
 
         $user = $this->authenticateWithEmail($serviceUser->getEmail());
-        if ($generateRequestToken) {
-            $token = $this->generateRequestToken($user);
-        } else {
-            $token = $this->generateAuthToken($user);
+
+        switch($mode){
+            case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+                $user = $this->findOrCreateStaticToken($user);
+                $responseData['user'] = $user;
+                break;
+            case DirectusUserSessionsTableGateway::TOKEN_JWT : 
+            default : 
+                $token = $generateRequestToken ? $this->generateRequestToken($user) : $this->generateAuthToken($user);
+                $responseData = [
+                    'token' => $token,
+                    'user' => $user->toArray()
+                ];
         }
 
         return [
-            'data' => [
-                'token' => $token
-            ]
+            'data' => $responseData
         ];
     }
 
