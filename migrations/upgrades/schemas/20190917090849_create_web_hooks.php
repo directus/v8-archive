@@ -1,3 +1,4 @@
+
 <?php
 
 
@@ -58,8 +59,7 @@ class CreateWebHooks extends AbstractMigration
         ]);
         
         $table->create();
-
-
+        
         // Insert Into Directus Fields
         $data = [
             [
@@ -120,8 +120,9 @@ class CreateWebHooks extends AbstractMigration
 
         foreach($data as $value){
             if(!$this->checkFieldExist($value['collection'], $value['field'])){
-                $insertSqlFormat = 'INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`, `readonly`, `hidden_detail`, `hidden_browse`, `required`, `locked`, `options`) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");';
-                $insertSql = sprintf($insertSqlFormat, $value['field'], $value['type'], $value['interface'], isset($value['readonly']) ? $value['readonly'] : null, isset($value['hidden_detail']) ? $value['hidden_detail'] : null, isset($value['hidden_browse']) ? $value['hidden_browse'] : null, isset($value['required']) ? $value['required'] : null, isset($value['locked']) ? $value['locked'] : null, isset($value['options']) ? $value['options'] : null);
+                $insertSqlFormat = "INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`, `hidden_detail`, `required`, `locked`, `options`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s','%s' , '%s');";
+
+                $insertSql = sprintf($insertSqlFormat,$value['collection'], $value['field'], $value['type'], $value['interface'], isset($value['hidden_detail']) ? $value['hidden_detail'] : 0, $value['required'], isset($value['locked']) ? $value['locked'] : 0, isset($value['options']) ? $value['options'] : null);
                 $this->execute($insertSql);
             }
         }

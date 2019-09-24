@@ -9,7 +9,6 @@ use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\Installation\InstallerUtils;
-use Directus\Util\Webhooks\WebhookUtils;
 use Directus\Services\WebhookService;
 use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Util\JWTUtils;
