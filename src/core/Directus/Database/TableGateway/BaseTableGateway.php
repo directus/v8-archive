@@ -879,10 +879,12 @@ class BaseTableGateway extends TableGateway
         }
 
         //Invalidate individual cache
-        $config = static::$container->get('config');
-        if ($config->get('cache.enabled')) {
-            $cachePool = static::$container->get('cache');
-            $cachePool->invalidateTags(['entity_' . $updateTable . '_' . $result[$this->primaryKeyFieldName]]);
+        if (static::$container) {
+            $config = static::$container->get('config');
+            if ($config->get('cache.enabled')) {
+                $cachePool = static::$container->get('cache');
+                $cachePool->invalidateTags(['entity_' . $updateTable . '_' . $result[$this->primaryKeyFieldName]]);
+            }
         }
 
         return $result;
@@ -942,15 +944,16 @@ class BaseTableGateway extends TableGateway
 
             
             //Invalidate individual cache
-            $config = static::$container->get('config');
-
+            if (static::$container) {
+                $config = static::$container->get('config');
+            }
             foreach ($ids as $id) {
                 $deleteData = $deletedObject[$id];
                 $this->runHook('item.delete', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete:after', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete.' . $deleteTable, [$deleteData]);
                 $this->runHook('item.delete.' . $deleteTable . ':after', [$deleteData]);
-                if ($config->get('cache.enabled')) {
+                if (isset($config) && $config->get('cache.enabled')) {
                     $cachePool = static::$container->get('cache');
                     $cachePool->invalidateTags(['entity_' . $deleteTable . '_' . $deleteData[$this->primaryKeyFieldName]]);
                 }
