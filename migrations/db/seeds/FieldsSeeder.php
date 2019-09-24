@@ -1621,6 +1621,46 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_webhooks',
+                'field' => 'status',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STATUS,
+                'interface' => 'status',
+                'options' => json_encode([
+                    'status_mapping' => [
+                        'published' => [
+                            'name' => 'Published',
+                            'value' => 'published',
+                            'text_color' => 'white',
+                            'background_color' => 'accent',
+                            'browse_subdued' => false,
+                            'browse_badge' => true,
+                            'soft_delete' => false,
+                            'published' => true,
+                        ],
+                        'draft' => [
+                            'name' => 'Draft',
+                            'value' => 'draft',
+                            'text_color' => 'white',
+                            'background_color' => 'blue-grey-100',
+                            'browse_subdued' => true,
+                            'browse_badge' => true,
+                            'soft_delete' => false,
+                            'published' => false,
+                        ],
+                        'deleted' => [
+                            'name' => 'Deleted',
+                            'value' => 'deleted',
+                            'text_color' => 'white',
+                            'background_color' => 'red',
+                            'browse_subdued' => true,
+                            'browse_badge' => true,
+                            'soft_delete' => true,
+                            'published' => false,
+                        ]
+                    ]
+                ])
+            ],
+            [
+                'collection' => 'directus_webhooks',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
@@ -1663,7 +1703,6 @@ class FieldsSeeder extends AbstractSeed
                     ]
                 ])
             ]
-            
         ];
 
         $files = $this->table('directus_fields');

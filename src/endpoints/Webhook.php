@@ -15,6 +15,10 @@ class Webhook extends Route
     /** @var $usersGateway DirectusUsersTableGateway */
     protected $usersGateway;
 
+    const STATUS_DELETED = 'deleted';
+    const STATUS_DRAFT = 'draft';
+    const STATUS_PUBLISHED = 'published';
+
     /**
      * @param Application $app
      */

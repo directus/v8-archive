@@ -521,22 +521,25 @@ if (!function_exists('register_webhooks')) {
     {
         $app = Application::getInstance();
         BaseTableGateway::setContainer($app->getContainer());
-        
-        $webhook = new WebhookService($app->getContainer());
-        $webhookData = $webhook->findAll([],false);
-        $result = [];
-        foreach($webhookData['data'] as $hook){
-            $action = explode(":",$hook['directus_action']);
-            $result['hooks']['actions'][$action[0].".".$hook['collection'].":".$action[1]] = function ($data) use ($hook) {
-                $client = new \GuzzleHttp\Client();
-                $response = [];
-                if($hook['http_action'] == WebhookService::HTTP_ACTION_POST){
-                    $response['form_params'] = ($data);
-                }
-                $client->request($hook['http_action'], $hook['url'], $response);
-            };
+        try{
+            $webhook = new WebhookService($app->getContainer());
+            $webhookData = $webhook->findAll(['status' => \Directus\Api\Routes\Webhook::STATUS_PUBLISHED],false);
+            $result = [];
+            foreach($webhookData['data'] as $hook){
+                $action = explode(":",$hook['directus_action']);
+                $result['hooks']['actions'][$action[0].".".$hook['collection'].":".$action[1]] = function ($data) use ($hook) {
+                    $client = new \GuzzleHttp\Client();
+                    $response = [];
+                    if($hook['http_action'] == WebhookService::HTTP_ACTION_POST){
+                        $response['form_params'] = ($data);
+                    }
+                    $client->request($hook['http_action'], $hook['url'], $response);
+                };
+            }
+            register_hooks_list($app,$result);
+        }catch(\Exception $e){
+            return true;
         }
-        register_hooks_list($app,$result);
     }
 }
 
