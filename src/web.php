@@ -3,8 +3,6 @@
 use Directus\Config\Context;
 use Directus\Config\Schema\Schema;
 use Directus\Exception\ErrorException;
-use function Directus\get_api_project_from_request;
-use Directus\Util\Installation\InstallerUtils;
 
 $basePath =  realpath(__DIR__ . '/../');
 
@@ -93,7 +91,6 @@ ini_set('display_errors', $displayErrors);
 date_default_timezone_set(\Directus\get_default_timezone());
 
 $container = $app->getContainer();
-InstallerUtils::updateTables($container->get('path_base'), get_api_project_from_request());
 
 try {
     \Directus\register_global_hooks($app);
@@ -121,6 +118,7 @@ $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 //       Ex: $app->add(['global', 'auth']);
 $middleware = [
     'table_gateway' => new \Directus\Application\Http\Middleware\TableGatewayMiddleware($app->getContainer()),
+    'database_migration' => new \Directus\Application\Http\Middleware\DatabaseMigrationMiddleware($app->getContainer()),
     'rate_limit_ip' => new \Directus\Application\Http\Middleware\IpRateLimitMiddleware($app->getContainer()),
     'ip' => new RKA\Middleware\IpAddress(),
     'proxy' => new \Directus\Application\Http\Middleware\ProxyMiddleware(),
@@ -136,6 +134,7 @@ $middleware = [
 $app->add($middleware['rate_limit_ip'])
     ->add($middleware['proxy'])
     ->add($middleware['ip'])
+    ->add($middleware['database_migration'])
     ->add($middleware['cors']);
 
 $app->get('/', \Directus\Api\Routes\Home::class)
@@ -207,6 +206,7 @@ $app->group('/{project}', function () use ($middleware) {
     $this->group('/settings', \Directus\Api\Routes\Settings::class)
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
+        ->add($middleware['database_migration'])
         ->add($middleware['table_gateway']);
     $this->group('/collections', \Directus\Api\Routes\Collections::class)
         ->add($middleware['rate_limit_user'])
