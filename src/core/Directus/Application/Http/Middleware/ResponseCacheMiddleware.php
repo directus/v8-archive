@@ -71,11 +71,11 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         $authorizationTokenObject = get_request_authorization_token($request);
         
         $accessToken = null;
-        $userSessionService = new UserSessionService($container);
-        $userSessionService->destroy([
-            'token_expired_at < ?' => DateTimeUtils::now()->toString()
-        ]);
         if(!empty($authorizationTokenObject['token'])){
+            $userSessionService = new UserSessionService($container);
+            $userSessionService->destroy([
+                'token_expired_at < ?' => DateTimeUtils::now()->toString()
+            ]);
             $expirationMinutes =  get_directus_setting('auto_sign_out');
             $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
 

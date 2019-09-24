@@ -62,5 +62,76 @@ class CreateUserSessions extends AbstractMigration
         ]);
         
         $table->create();
+
+        // Insert Into Directus Fields
+        $data = [
+            // User Session
+            // -----------------------------------------------------------------
+            [
+                'collection' => 'directus_user_sessions',
+                'field' => 'id',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+                'interface' => 'primary-key',
+                'locked' => 1,
+                'required' => 1,
+                'hidden_detail' => 1
+            ],
+            [
+                'collection' => 'directus_user_sessions',
+                'field' => 'user',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_USER,
+                'required' => 1,
+                'interface' => 'user'
+            ],
+            [
+                'collection' => 'directus_user_sessions',
+                'field' => 'token_type',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_user_sessions',
+                'field' => 'token',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_user_sessions',
+                'field' => 'ip_address',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_user_sessions',
+                'field' => 'user_agent',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input'
+            ],
+            [
+                'collection' => 'directus_user_sessions',
+                'field' => 'created_on',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime'
+            ],
+            [
+                'collection' => 'directus_user_sessions',
+                'field' => 'token_expired_at',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime'
+            ],
+        ];
+
+        foreach($data as $value){
+            if(!$this->checkFieldExist($value['collection'], $value['field'])){
+                $insertSqlFormat = "INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`, `hidden_detail`, `required`, `locked`, `options`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s','%s' , '%s');";
+                $insertSql = sprintf($insertSqlFormat,$value['collection'], $value['field'], $value['type'], $value['interface'], isset($value['hidden_detail']) ? $value['hidden_detail'] : 0, isset($value['required']) ? $value['required'] : 0, isset($value['locked']) ? $value['locked'] : 0, isset($value['options']) ? $value['options'] : null);
+                $this->execute($insertSql);
+            }
+        }
     }
+    public function checkFieldExist($collection,$field){
+        $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
+        return $this->query($checkSql)->fetch();
+    }
+
 }
