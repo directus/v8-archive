@@ -1634,8 +1634,6 @@ class FieldsSeeder extends AbstractSeed
                 'required' => 1,
                 'options' => json_encode([
                     'choices' => [
-                        'item.read:before' => 'item.read:before',
-                        'item.read:after' => 'item.read:after',
                         'item.create:before' => 'item.create:before',
                         'item.create:after' => 'item.create:after',
                         'item.update:before' => 'item.update:before',
