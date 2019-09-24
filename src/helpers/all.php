@@ -513,7 +513,7 @@ if (!function_exists('register_extensions_hooks')) {
 
 if (!function_exists('register_webhooks')) {
     /**
-     * Register all the hooks from the configuration file
+     * Register all the hooks from the directus_webhooks table
      *
      * @param Application $app
      */

@@ -97,8 +97,15 @@ try {
     \Directus\register_extensions_hooks($app);
     \Directus\register_webhooks($app);
 } catch (ErrorException $e) {
-    throw $e;
-    exit;
+    http_response_code($e->getStatusCode());	    throw $e;
+    header('Content-Type: application/json');	
+    echo json_encode([	
+        'error' => [	
+            'code' => $e->getCode(),	
+            'message' => $e->getMessage()	
+        ]	
+    ]);
+    exit;	
 }
 
 
