@@ -53,18 +53,18 @@ class UserSessionService extends AbstractService
     }
    
     /**
-     * @param array $sessionArray
+     * @param array $conditions
      *
      * @return string
      * 
      */
     public function findAll($conditions)
     {
-        return $this->getItemsAndSetResponseCacheTags($this->createTableGateway($this->collection, false), $conditions);
+        return $this->getItemsAndSetResponseCacheTags($this->createTableGateway($this->collection,false), $conditions);
     }
    
     /**
-     * @param array $sessionArray
+     * @param array $conditions
      *
      * @return string
      * 
@@ -77,7 +77,7 @@ class UserSessionService extends AbstractService
     }
 
     /**
-     * @param $id
+     * @param $conditions
      *
      */
     public function destroy($conditions)

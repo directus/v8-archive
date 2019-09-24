@@ -28,7 +28,7 @@ class Auth extends Route
     public function __invoke(Application $app)
     {
         $app->post('/authenticate', [$this, 'authenticate']);
-        $app->get('/{user}/sessions', [$this, 'userSessions']);
+        $app->get('/sessions', [$this, 'userSessions']);
         $app->post('/logout', [$this, 'logout']);
         $app->post('/logout/{user}', [$this, 'logoutFromAll']);
         $app->post('/logout/{user}/{id}', [$this, 'logoutFromOne']);
@@ -87,8 +87,16 @@ class Auth extends Route
      */
     public function userSessions(Request $request, Response $response)
     {
-        $userSessionService = new UserSessionService($this->container);
-        $responseData = $userSessionService->findAll(['user' => $request->getAttribute('user')]);
+        $responseData = [];
+        $authorizationTokenObject = get_request_authorization_token($request);
+        if(isset($authorizationTokenObject['type'])){
+          $accessToken = $authorizationTokenObject['type'] == DirectusUserSessionsTableGateway::TOKEN_COOKIE ? decrypt_static_token($authorizationTokenObject['token']) : $authorizationTokenObject['token'];
+            $userSessionService = new UserSessionService($this->container);
+            $userSession = $userSessionService->find(['token' => $accessToken]);
+            if($userSession){
+                $responseData = $userSessionService->findAll(['user' => $userSession['user']]);
+            }
+        }
         return $this->responseWithData($request, $response, $responseData);
     }
 
