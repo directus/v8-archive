@@ -1623,6 +1623,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_user_sessions',
                 'field' => 'user',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_USER,
+                'required' => 1,
                 'interface' => 'user'
             ],
             [
