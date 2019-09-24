@@ -3,6 +3,8 @@
 use Directus\Config\Context;
 use Directus\Config\Schema\Schema;
 use Directus\Exception\ErrorException;
+use function Directus\get_api_project_from_request;
+use Directus\Util\Installation\InstallerUtils;
 
 $basePath =  realpath(__DIR__ . '/../');
 
@@ -91,6 +93,7 @@ ini_set('display_errors', $displayErrors);
 date_default_timezone_set(\Directus\get_default_timezone());
 
 $container = $app->getContainer();
+InstallerUtils::updateTables($container->get('path_base'), get_api_project_from_request());
 
 try {
     \Directus\register_global_hooks($app);
