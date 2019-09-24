@@ -10,6 +10,10 @@ use Directus\Validator\Exception\InvalidRequestException;
 
 class WebhookService extends AbstractService
 {
+
+    const HTTP_ACTION_GET = "get";
+    const HTTP_ACTION_POST = "post";
+
     /**
      * @var string
      */

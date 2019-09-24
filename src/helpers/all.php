@@ -522,18 +522,22 @@ if (!function_exists('register_webhooks')) {
     {
         $app = Application::getInstance();
         BaseTableGateway::setContainer($app->getContainer());
-        $app->getContainer()->get('logger')->info("hook callse");
+        
         $webhook = new WebhookService($app->getContainer());
         $webhookData = $webhook->findAll([],false);
-        $result = null;
+        $result = [];
         foreach($webhookData['data'] as $hook){
             $action = explode(":",$hook['directus_action']);
-            $result['actions'][$action[0].".".$hook['collection'].":".$action[1]] = function ($data, $collectionName) use ($hook) {
+            $result['hooks']['actions'][$action[0].".".$hook['collection'].":".$action[1]] = function ($data) use ($hook) {
                 $client = new \GuzzleHttp\Client();
-                $client->request($hook['http_action'], $hook['url'], $data);
+                $response = [];
+                if($hook['http_action'] == WebhookService::HTTP_ACTION_POST){
+                    $response['form_params'] = ($data);
+                }
+                $client->request($hook['http_action'], $hook['url'], $response);
             };
         }
-        return $result;
+        register_hooks_list($app,$result);
     }
 }
 
