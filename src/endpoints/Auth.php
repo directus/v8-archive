@@ -28,6 +28,7 @@ class Auth extends Route
     public function __invoke(Application $app)
     {
         $app->post('/authenticate', [$this, 'authenticate']);
+        $app->get('/{user}/sessions', [$this, 'userSessions']);
         $app->post('/logout', [$this, 'logout']);
         $app->post('/logout/{user}', [$this, 'logoutFromAll']);
         $app->post('/logout/{user}/{id}', [$this, 'logoutFromOne']);
@@ -73,6 +74,21 @@ class Auth extends Route
             }
             unset($responseData['data']['user']);
         }
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+     /**
+     * Return the session history of given user
+     *
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function userSessions(Request $request, Response $response)
+    {
+        $userSessionService = new UserSessionService($this->container);
+        $responseData = $userSessionService->findAll(['user' => $request->getAttribute('user')]);
         return $this->responseWithData($request, $response, $responseData);
     }
 

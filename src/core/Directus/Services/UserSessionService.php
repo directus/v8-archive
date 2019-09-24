@@ -52,7 +52,17 @@ class UserSessionService extends AbstractService
         return $userSessiontableGateway->updateSession($id,$data);
     }
    
-    
+    /**
+     * @param array $sessionArray
+     *
+     * @return string
+     * 
+     */
+    public function findAll($conditions)
+    {
+        return $this->getItemsAndSetResponseCacheTags($this->createTableGateway($this->collection, false), $conditions);
+    }
+   
     /**
      * @param array $sessionArray
      *

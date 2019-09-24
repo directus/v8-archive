@@ -277,10 +277,10 @@ if (!function_exists('get_request_authorization_token')) {
         $response = [];
 
         if ($request->getParam('access_token')) {
-            $response['type'] =  DirectusUserSessionsTableGateway::TOKEN_STATIC;
+            $response['type'] =  DirectusUserSessionsTableGateway::TOKEN_JWT;
             $response['token'] =  $request->getParam('access_token');
         } elseif ($request->hasHeader('Php-Auth-User')) {
-            $response['type'] =  DirectusUserSessionsTableGateway::TOKEN_PHP_AUTH_USER;
+            $response['type'] =  DirectusUserSessionsTableGateway::TOKEN_JWT;
             $authUser = $request->getHeader('Php-Auth-User');
             $authPassword = $request->getHeader('Php-Auth-Pw');
 
