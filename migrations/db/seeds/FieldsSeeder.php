@@ -1139,7 +1139,15 @@ class FieldsSeeder extends AbstractSeed
                     ]
                 ])
             ],
-
+            [
+                'collection' => 'directus_settings',
+                'field' => 'relational_data_limit',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'Define the level for fetch the relational data',
+            ],
 
             // Users
             // -----------------------------------------------------------------

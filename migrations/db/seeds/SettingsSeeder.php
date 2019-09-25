@@ -66,6 +66,10 @@ class SettingsSeeder extends AbstractSeed
       [
         'key' => 'file_naming',
         'value' => 'uuid'
+      ],
+      [
+        'key' => 'relational_data_limit',
+        'value' => '*.*.*'
       ]
     ];
 
