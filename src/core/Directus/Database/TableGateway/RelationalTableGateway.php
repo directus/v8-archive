@@ -1039,7 +1039,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function createMetadataPagination(array $metadata = [], array $params = [], array $countedData = [])
     {
-        if (empty($params)) $params = $_GET;
+        if (empty($params)) $params = $this::$container->get('request')->getQueryParams();
 
         $filtered = ArrayUtils::get($params, 'filter') || ArrayUtils::get($params, 'q');
 
