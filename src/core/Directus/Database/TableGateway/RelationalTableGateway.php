@@ -658,6 +658,11 @@ class RelationalTableGateway extends BaseTableGateway
             $foreignTableName = $relationship->getCollectionMany();
             $foreignJoinColumn = $relationship->getFieldMany();
 
+            // we need to store all the deleted items ids
+            // so we can use it to compare against items that were deleted in previous iterations.
+            // if we don't check against already deleted IDs, then the recursion will re-create the deleted item.
+            static $hasBeenDeletedIds = [];
+
             $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
             foreach ($foreignDataSet as &$foreignRecord) {
                 if (empty($foreignRecord)) {
@@ -669,10 +674,23 @@ class RelationalTableGateway extends BaseTableGateway
                 // due to our basic "cache" implementation on schema layer
                 $hasPrimaryKey = isset($foreignRecord[$ForeignTable->primaryKeyFieldName]);
 
+                // check if this foreignRecord was already deleted from a previous recursive iterations.
+                $foreignTableHasBeenDeletedIds = \Directus\array_get($hasBeenDeletedIds, $ForeignTable->getTable());
+                if($hasPrimaryKey && !empty($foreignTableHasBeenDeletedIds)) {
+                    $id = $foreignRecord[$ForeignTable->primaryKeyFieldName];
+
+                    // skip if already deleted
+                    // otherwise, it will re-create the deleted item/record
+                    if(in_array($id, $foreignTableHasBeenDeletedIds))
+                        continue;
+                }
+
                 if ($hasPrimaryKey && ArrayUtils::get($foreignRecord, $this->deleteFlag) === true) {
                     $Where = new Where();
                     $Where->equalTo($ForeignTable->primaryKeyFieldName, $foreignRecord[$ForeignTable->primaryKeyFieldName]);
                     $ForeignTable->delete($Where);
+
+                    $hasBeenDeletedIds[$ForeignTable->getTable()][] = $foreignRecord[$ForeignTable->primaryKeyFieldName];
 
                     continue;
                 }
