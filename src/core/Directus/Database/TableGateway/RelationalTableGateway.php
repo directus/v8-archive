@@ -2255,7 +2255,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             // Replace foreign keys with foreign rows
-            foreach ($entries as &$parentRow) {
+            foreach ($entries as $key => &$parentRow) {
                 if (array_key_exists($relationalColumnName, $parentRow)) {
                     // @NOTE: Not always will be a integer
                     // @NOTE: But what about UUIDS and slugs?
@@ -2264,6 +2264,9 @@ class RelationalTableGateway extends BaseTableGateway
                     // "Did we retrieve the foreign row with this foreign ID in our recent query of the foreign table"?
                     if (array_key_exists($foreign_id, $relatedEntries)) {
                         $parentRow[$relationalColumnName] = $relatedEntries[$foreign_id];
+                    }
+                    else{
+                        unset($entries[$key]);
                     }
                 }
             }
