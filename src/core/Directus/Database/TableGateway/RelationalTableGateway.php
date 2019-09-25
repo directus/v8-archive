@@ -675,7 +675,7 @@ class RelationalTableGateway extends BaseTableGateway
                 $hasPrimaryKey = isset($foreignRecord[$ForeignTable->primaryKeyFieldName]);
 
                 // check if this foreignRecord was already deleted from a previous recursive iterations.
-                $foreignTableHasBeenDeletedIds = array_get($hasBeenDeletedIds, $ForeignTable->getTable());
+                $foreignTableHasBeenDeletedIds = \Directus\array_get($hasBeenDeletedIds, $ForeignTable->getTable());
                 if($hasPrimaryKey && !empty($foreignTableHasBeenDeletedIds)) {
                     $id = $foreignRecord[$ForeignTable->primaryKeyFieldName];
 
