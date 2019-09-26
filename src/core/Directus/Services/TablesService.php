@@ -1049,7 +1049,9 @@ class TablesService extends AbstractService
             ],
         ]);
 
-        return $schemaFactory->buildTable($table) ? true : false;
+        $result = !$table ? true : $schemaFactory->buildTable($table);
+
+        return $result ? true : false;
     }
 
     /**
@@ -1301,7 +1303,9 @@ class TablesService extends AbstractService
             'drop' => $toDrop,
         ]);
 
-        $result = $schemaFactory->buildTable($table);
+        //BUGFIX: Do nothing if there's nothing to do
+        $result = !$table ? true : $schemaFactory->buildTable($table);
+
         $this->updateColumnsRelation($name, array_merge($toAdd, $toChange));
 
         $hookEmitter->run('collection.update', [$name, $data]);

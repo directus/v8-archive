@@ -736,6 +736,16 @@ class CoreServicesProvider
         };
     }
 
+    private static function getDefaultCharset($dbType)
+    {
+        switch ($dbType) {
+            case "mysql":
+                return 'utf8mb4';
+            default:
+                return 'utf8';
+        }
+    }
+
     /**
      * @return \Closure
      */
@@ -748,8 +758,8 @@ class CoreServicesProvider
 
             // TODO: enforce/check required params
 
-            $charset = ArrayUtils::get($dbConfig, 'charset', 'utf8mb4');
             $type = ArrayUtils::pull($dbConfig, 'type');
+            $charset = ArrayUtils::get($dbConfig, 'charset', self::getDefaultCharset($type));
 
             // the "database" attribute is named "name"
             // and the "unix_socket" is named "socket"
@@ -763,6 +773,10 @@ class CoreServicesProvider
                 $defaultConfig = [
                     \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
                     \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+                ];
+            } elseif (strtolower($type) === 'pgsql') {
+                $defaultConfig = [
+                    'options' => sprintf('"--client_encoding=%s"', $charset)
                 ];
             }
 
@@ -1024,8 +1038,8 @@ class CoreServicesProvider
                     //    return new SQLServerSchema($adapter);
                     // case 'SQLite':
                     //     return new \Directus\Database\Schemas\Sources\SQLiteSchema($adapter);
-                    // case 'PostgreSQL':
-                    //     return new PostgresSchema($adapter);
+                case 'PostgreSQL':
+                    return new \Directus\Database\Schema\Sources\PostgresSchema($adapter);
             }
 
             throw new \Exception('Unknown/Unsupported database: ' . $databaseName);

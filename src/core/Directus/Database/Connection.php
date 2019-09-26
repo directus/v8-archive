@@ -29,6 +29,10 @@ class Connection extends Adapter
             case 'mysql':
                 $enabled = $this->isMySQLStrictModeEnabled();
                 break;
+            case 'pgsql':
+                //Enabled by default (?)
+                $enabled = true;
+                break;
         }
 
         return $enabled;

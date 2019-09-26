@@ -1125,7 +1125,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
-        $builder = new Builder($this->getAdapter());
+        $builder = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
         $builder->from($this->getTable());
 
         $selectedFields = $this->getSelectedNonAliasFields($fields ?: ['*']);
@@ -1398,7 +1398,7 @@ class RelationalTableGateway extends BaseTableGateway
             $column = array_shift($columns);
             $table = array_shift($columnsTable);
 
-            $query = new Builder($this->getAdapter());
+            $query = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
             $mainTableObject = $this->getTableSchema($table);
             $selectColumn = $mainTableObject->getPrimaryField()->getName();
 
@@ -1422,7 +1422,7 @@ class RelationalTableGateway extends BaseTableGateway
                 ++$index;
 
                 $oldQuery = $query;
-                $query = new Builder($this->getAdapter());
+                $query = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
                 $collection = $this->getTableSchema($columnsTable[$key]);
                 $field = $collection->getField($column);
 
@@ -1453,7 +1453,7 @@ class RelationalTableGateway extends BaseTableGateway
             /*if ($field->isOneToMany()) {
                 $mainColumn = $collection->getPrimaryField()->getName();
                 $oldQuery = $query;
-                $query = new Builder($this->getAdapter());
+                $query = $this->getSchemaManager()->getSource()->getBuilder($this->getAdapter());
                 $selectColumn = $column = $relationship->getFieldOne();
                 $table = $relationship->getCollectionOne();
 
@@ -2015,8 +2015,9 @@ class RelationalTableGateway extends BaseTableGateway
                 $entriesIds = [$entriesIds];
             }
 
-            //$query->whereIn($this->primaryKeyFieldName, $entriesIds);
-            $query->whereIn(new Expression('CAST(`' . $this->getTable() . '`.`' . $this->primaryKeyFieldName . '` as CHAR)'), $entriesIds);
+            $query->whereIn($this->primaryKeyFieldName, $entriesIds);
+            //TODO add the following change to MySQL only as-is; must be transformed for other RDBMS
+            //$query->whereIn(new Expression('CAST(`' . $this->getTable() . '`.`' . $this->primaryKeyFieldName . '` as CHAR)'), $entriesIds);
         }
 
         if (!ArrayUtils::has($params, 'q')) {
@@ -2026,7 +2027,8 @@ class RelationalTableGateway extends BaseTableGateway
                 $columns = SchemaService::getAllNonAliasCollectionFields($this->getTable());
                 $query->nestWhere(function (Builder $query) use ($columns, $search) {
                     foreach ($columns as $column) {
-                        if ($column->getType() === 'VARCHAR' || $column->getType()) {
+                        //TODO check if still O.K. for MySQL
+                        if (DataTypes::isStringType($column->getType()) || $column->getType()) {
                             $query->whereLike($column->getName(), $search);
                         }
                     }
@@ -2602,7 +2604,7 @@ class RelationalTableGateway extends BaseTableGateway
                 'parent_changed',
             ]));
             $revisionTableGateway->insert([
-                'activity' => $ActivityGateway->lastInsertValue,
+                'activity' => $this->getSchemaManager()->getSource()->getLastGeneratedId($ActivityGateway, $ActivityGateway->getTable(), $ActivityGateway->primaryKeyFieldName),
                 'collection' => ArrayUtils::get($item, 'collection'),
                 'item' => ArrayUtils::get($item, 'item'),
                 'data' => ArrayUtils::get($item, 'data'),

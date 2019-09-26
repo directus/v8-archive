@@ -10,7 +10,7 @@ class MiscRequiredFields extends AbstractMigration
           $this->getAdapter(),
           'directus_fields',
           [
-            'required' => 1
+            'required' => true
           ],
           ['collection' => 'directus_users', 'field' => 'status']
       ));
@@ -19,7 +19,7 @@ class MiscRequiredFields extends AbstractMigration
           $this->getAdapter(),
           'directus_fields',
           [
-            'required' => 1
+            'required' => true
           ],
           ['collection' => 'directus_users', 'field' => 'timezone']
       ));
@@ -28,7 +28,7 @@ class MiscRequiredFields extends AbstractMigration
           $this->getAdapter(),
           'directus_fields',
           [
-            'required' => 1
+            'required' => true
           ],
           ['collection' => 'directus_users', 'field' => 'locale']
       ));
@@ -37,7 +37,7 @@ class MiscRequiredFields extends AbstractMigration
           $this->getAdapter(),
           'directus_fields',
           [
-            'required' => 1
+            'required' => true
           ],
           ['collection' => 'directus_users', 'field' => 'roles']
       ));
@@ -46,7 +46,7 @@ class MiscRequiredFields extends AbstractMigration
           $this->getAdapter(),
           'directus_fields',
           [
-            'required' => 1
+            'required' => true
           ],
           ['collection' => 'directus_roles', 'field' => 'name']
       ));
@@ -55,7 +55,7 @@ class MiscRequiredFields extends AbstractMigration
           $this->getAdapter(),
           'directus_fields',
           [
-            'required' => 1
+            'required' => true
           ],
           ['collection' => 'directus_files', 'field' => 'filename']
       ));
@@ -118,7 +118,7 @@ class MiscRequiredFields extends AbstractMigration
           $this->getAdapter(),
           'directus_fields',
           [
-            'hidden_browse' => 1
+            'hidden_browse' => true
           ],
           ['collection' => 'directus_files', 'field' => 'checksum']
       ));

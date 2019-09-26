@@ -5,14 +5,14 @@
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/directus/zend-db"
+      "url": "https://github.com/Toilal/zend-db"
     }
   ],
   "require": {
     "php": "^7.1",
     "slim/slim": "^3.0.0",
     "monolog/monolog": "^1.23.0",
-    "zendframework/zend-db": "dev-directus",
+    "zendframework/zend-db": "dev-directus-pgsql",
     "league/flysystem": "^1.0",
     "swiftmailer/swiftmailer": "^5.4",
     "league/oauth2-google": "^2.0",

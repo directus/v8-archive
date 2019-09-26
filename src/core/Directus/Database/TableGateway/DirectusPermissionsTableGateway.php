@@ -180,7 +180,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
             ->values($attributes);
         $this->insertWith($insert);
 
-        $privilegeId = $this->lastInsertValue;
+        $privilegeId = $this->getSchemaManager()->getSource()->getLastGeneratedId($this, $this->getTable(), $this->primaryKeyFieldName);
 
         return $this->fetchById($privilegeId);
     }

@@ -73,12 +73,12 @@ class CreateFieldsTable extends AbstractMigration
         $table->addColumn('hidden_detail', 'boolean', [
             'signed' => false,
             'null' => false,
-            'default' => 0
+            'default' => false
         ]);
         $table->addColumn('hidden_browse', 'boolean', [
             'signed' => false,
             'null' => false,
-            'default' => 0
+            'default' => false
         ]);
         $table->addColumn('sort', 'integer', [
             'signed' => false,

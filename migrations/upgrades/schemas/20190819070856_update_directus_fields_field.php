@@ -11,7 +11,7 @@ class UpdateDirectusFieldsField extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'readonly' => 0,
+              'readonly' => false,
               'note' => 'Duration must be in seconds'
             ],
             ['collection' => 'directus_files', 'field' => 'duration']

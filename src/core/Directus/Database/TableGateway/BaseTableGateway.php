@@ -396,7 +396,7 @@ class BaseTableGateway extends TableGateway
         // Only get the last inserted id, if the column has auto increment value
         $columnObject = $this->getTableSchema()->getField($primaryKey);
         if ($columnObject->hasAutoIncrement()) {
-            $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
+            $recordData[$primaryKey] = $this->schemaManager->getSource()->getLastGeneratedId($TableGateway, $this->table, $primaryKey);
         }
 
         $this->afterAddOrUpdate($recordData);
@@ -801,15 +801,24 @@ class BaseTableGateway extends TableGateway
         try {
             $result = parent::executeInsert($insert);
         } catch (UnexpectedValueException $e) {
+            // TODO: Move error handling in adapter
+            //MySQL
             if (
                 strtolower($this->adapter->platform->getName()) === 'mysql'
                 && strpos(strtolower($e->getMessage()), 'duplicate entry') !== false
             ) {
                 preg_match("/Duplicate entry '([^']+)' for key '([^']+)'/i", $e->getMessage(), $output);
+            }
+            //PostgreSQL
+            else if (
+                strtolower($this->adapter->platform->getName()) === 'postgresql'
+                && strpos(strtolower($e->getMessage()), '(23505 ') !== false
+            ) {
+                preg_match("/\(([^']+)\)=\(([^']+)\)/i", $e->getMessage(), $output);
+            }
 
-                if ($output) {
-                    throw new DuplicateItemException($this->table, $output[1]);
-                }
+            if ($output) {
+                throw new DuplicateItemException($this->table, $output[1]);
             }
 
             throw new InvalidQueryException(
@@ -824,7 +833,7 @@ class BaseTableGateway extends TableGateway
         if ($this->getTable() === SchemaManager::COLLECTION_COLLECTIONS) {
             $generatedValue = ArrayUtils::get($insertDataAssoc, $this->primaryKeyFieldName, 'table_name');
         } else {
-            $generatedValue = $this->getLastInsertValue();
+            $generatedValue = $this->schemaManager->getSource()->getLastGeneratedId($this, $this->table, $this->primaryKeyFieldName);
         }
 
         $resultData = $insertTableGateway->find($generatedValue);

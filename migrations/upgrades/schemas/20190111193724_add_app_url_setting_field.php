@@ -14,11 +14,12 @@ class AddAppUrlSettingField extends AbstractMigration
     protected function addSetting()
     {
         $key = 'app_url';
-        $checkSql = sprintf('SELECT 1 FROM `directus_settings` WHERE `key` = "%s";', $key);
+        $keyColumn = $this->adapter->quoteColumnName('key');
+        $checkSql = sprintf("SELECT 1 FROM directus_settings WHERE $keyColumn = '%s';", $key);
         $result = $this->query($checkSql)->fetch();
 
         if (!$result) {
-            $insertSql = sprintf('INSERT INTO `directus_settings` (`key`, `value`) VALUES ("%s", "");', $key);
+            $insertSql = sprintf("INSERT INTO directus_settings ($keyColumn, value) VALUES ('%s', '');", $key);
             $this->execute($insertSql);
         }
     }
@@ -27,11 +28,11 @@ class AddAppUrlSettingField extends AbstractMigration
     {
         $collection = 'directus_settings';
         $field = 'app_url';
-        $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
+        $checkSql = sprintf("SELECT 1 FROM directus_fields WHERE collection = '%s' AND field = '%s';", $collection, $field);
         $result = $this->query($checkSql)->fetch();
 
         if (!$result) {
-            $insertSqlFormat = 'INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`) VALUES ("%s", "%s", "%s", "%s");';
+            $insertSqlFormat = "INSERT INTO directus_fields (collection, field, type, interface) VALUES ('%s', '%s', '%s', '%s');";
             $insertSql = sprintf($insertSqlFormat, $collection, $field, 'string', 'text-input');
             $this->execute($insertSql);
         }

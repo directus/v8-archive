@@ -27,6 +27,7 @@ class ProjectService extends AbstractService
             'force' => 'bool',
             'existing' => 'bool',
 
+            'db_type' => 'string',
             'db_host' => 'string',
             'db_port' => 'numeric',
             'db_name' => 'required|string',

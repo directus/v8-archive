@@ -88,9 +88,9 @@ class CreateUsersTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('email_notifications', 'integer', [
-            'limit' => 1,
-            'default' => 1
+        $table->addColumn('email_notifications', 'boolean', [
+            'signed' => false,
+            'default' => true
         ]);
         $table->addColumn('last_access_on', 'datetime', [
             'null' => true,

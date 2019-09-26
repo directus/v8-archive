@@ -37,9 +37,8 @@ class ServerService extends AbstractService
         ];
 
         if ($global !== true) {
-            $config = $this->getContainer()->get('config');
-            $data['api']['database'] = $config->get('database.type');
             $data['api'] = array_merge($data['api'], $this->getPublicInfo());
+            $data['api']['database'] =$this->getDatabaseType();            
         }
 
         if ($this->getAcl()->isAdmin()) {
@@ -62,5 +61,16 @@ class ServerService extends AbstractService
     public function getPublicInfo()
     {
         return get_project_info();
+    }
+
+    /**
+     * Return database implementation name
+     * 
+     * @return String
+     */
+    public function getDatabaseType()
+    {
+        $config = $this->getContainer()->get('config');
+        return $config->get('database.type');
     }
 }

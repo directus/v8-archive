@@ -17,10 +17,10 @@ class PasswordValidationSettingField extends AbstractMigration
             'options'   => ['choices' => ['' => 'None', '/^.{8,}$/' => 'Weak', '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong']]
           ];  
           $collection = 'directus_settings';
-          $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $fieldObject['field']);
+          $checkSql = sprintf("SELECT 1 FROM directus_fields WHERE collection = '%s' AND field = '%s';", $collection, $fieldObject['field']);
           $result = $this->query($checkSql)->fetch();
           if (!$result) {
-            $insertSqlFormat = "INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`, `options`, `note`) VALUES ('%s', '%s', '%s', '%s' , %s, '%s');";
+            $insertSqlFormat = "INSERT INTO directus_fields (collection, field, type, interface, options, note) VALUES ('%s', '%s', '%s', '%s' , %s, '%s');";
             $insertSql = sprintf($insertSqlFormat, $collection, $fieldObject['field'], $fieldObject['type'], $fieldObject['interface'], $conn->quote(json_encode($fieldObject['options'])) , $fieldObject['note']);
             $this->execute($insertSql);
           }

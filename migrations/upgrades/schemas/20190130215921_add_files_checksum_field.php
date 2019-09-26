@@ -17,9 +17,9 @@ class AddFilesChecksumField extends AbstractMigration
             $table->save();
         }
 
-        $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_files" AND `field` = "checksum";')->fetch();
+        $result = $this->query("SELECT 1 FROM directus_fields WHERE collection = 'directus_files' AND field = 'checksum';")->fetch();
         if (!$result) {
-            $this->execute('INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`) VALUES ("directus_files", "checksum", "string", "text-input");');
+            $this->execute("INSERT INTO directus_fields (collection, field, type, interface) VALUES ('directus_files', 'checksum', 'string', 'text-input');");
         }
     }
 }

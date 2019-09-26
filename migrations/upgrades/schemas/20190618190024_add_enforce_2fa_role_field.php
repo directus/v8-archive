@@ -28,11 +28,11 @@ class AddEnforce2FARoleField extends AbstractMigration
     {
         $collection = 'directus_roles';
         $field = 'enforce_2fa';
-        $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
+        $checkSql = sprintf("SELECT 1 FROM directus_fields WHERE collection = '%s' AND field = '%s';", $collection, $field);
         $result = $this->query($checkSql)->fetch();
 
         if (!$result) {
-            $insertSqlFormat = 'INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`) VALUES ("%s", "%s", "%s", "%s");';
+            $insertSqlFormat = "INSERT INTO directus_fields (collection, field, type, interface) VALUES ('%s', '%s', '%s', '%s');";
             $insertSql = sprintf($insertSqlFormat, $collection, $field, 'boolean', 'toggle');
             $this->execute($insertSql);
         }

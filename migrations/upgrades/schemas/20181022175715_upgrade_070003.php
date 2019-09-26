@@ -41,8 +41,8 @@ class Upgrade070003 extends AbstractMigration
             'directus_fields',
             [
                 'interface' => 'user-roles',
-                'hidden_detail' => 0,
-                'hidden_browse' => 0,
+                'hidden_detail' => false,
+                'hidden_browse' => false,
                 'width' => 2,
                 'sort' => 8,
             ],
@@ -59,7 +59,7 @@ class Upgrade070003 extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-                'hidden_detail' => 1,
+                'hidden_detail' => true,
             ],
             [
                 'collection' => 'directus_users',

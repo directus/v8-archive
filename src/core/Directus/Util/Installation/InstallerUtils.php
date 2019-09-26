@@ -9,9 +9,11 @@ use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\Schema\Sources\MySQLSchema;
+use Directus\Database\Schema\Sources\PostgresSchema;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Exception\Exception;
 use Directus\Exception\InvalidConfigPathException;
+use Directus\Exception\InvalidDatabaseConnectionException;
 use Directus\Exception\InvalidPathException;
 use function Directus\generate_uuid4;
 use function Directus\get_default_timezone;
@@ -78,7 +80,7 @@ class InstallerUtils
 
     public static function createConfigFileContent($data)
     {
-        $configStub = file_get_contents(__DIR__ . '/stubs/config.stub');
+        $configStub = file_get_contents(__DIR__ . '/stubs/config.' . $data['db_type'] . '.stub');
 
         $configStub = static::replacePlaceholderValues($configStub, $data);
 
@@ -303,8 +305,9 @@ class InstallerUtils
 
         $userRolesTableGateway = new TableGateway('directus_user_roles', $db);
 
+        $schemaManager = $app->getContainer()->get('schema_manager');
         $userRolesTableGateway->insert([
-            'user' => $tableGateway->getLastInsertValue(),
+            'user' => $schemaManager->getSource()->getLastGeneratedId($tableGateway, 'directus_users', 'id'),
             'role' => 1
         ]);
 
@@ -695,7 +698,7 @@ class InstallerUtils
         ArrayUtils::rename($apiConfig, 'username', 'user');
         ArrayUtils::rename($apiConfig, 'password', 'pass');
         ArrayUtils::rename($apiConfig, 'socket', 'unix_socket');
-        $apiConfig['charset'] = ArrayUtils::get($apiConfig, 'database.charset', 'utf8mb4');
+        $apiConfig['charset'] = ArrayUtils::get($apiConfig, 'database.charset', self::getDefaultCharset($apiConfig['adapter']));
 
         $configArray = require $basePath . '/config/migrations.php';
         $configArray['paths']['migrations'] = $migrationPath . '/schemas';
@@ -834,7 +837,6 @@ class InstallerUtils
     private static function createDatabaseConnectionFromData(array $data)
     {
         $data = static::createConfigData($data);
-        $charset = ArrayUtils::get($data, 'db_charset', 'utf8mb4');
 
         $dbConfig = [
             'driver' => 'Pdo_' . ArrayUtils::get($data, 'db_type'),
@@ -842,11 +844,20 @@ class InstallerUtils
             'port' => ArrayUtils::get($data, 'db_port'),
             'database' => ArrayUtils::get($data, 'db_name'),
             'username' => ArrayUtils::get($data, 'db_user'),
-            'password' => ArrayUtils::get($data, 'db_password'),
-            'charset' => $charset,
-            \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-            \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+            'password' => ArrayUtils::get($data, 'db_password')
         ];
+
+        $charset = ArrayUtils::get($data, 'db_charset', self::getDefaultCharset(ArrayUtils::get($data, 'db_type')));
+
+        if (ArrayUtils::get($data, 'db_type') === 'mysql') {
+            $dbConfig['charset'] = $charset;
+            $dbConfig[\PDO::MYSQL_ATTR_INIT_COMMAND] = sprintf('SET NAMES "%s"', $charset);
+
+            $dbConfig[\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
+        } else if (ArrayUtils::get($data, 'db_type') === 'pgsql') {
+            $charset = ArrayUtils::get($data, 'db_charset', 'UTF8');
+            $dbConfig['options'] = "'--client_encoding=$charset'";
+        }
 
         if (ArrayUtils::get($data, 'db_socket')) {
             ArrayUtils::remove($dbConfig, 'host');
@@ -870,8 +881,11 @@ class InstallerUtils
             $db = static::createDatabaseConnectionFromData($data);
         }
 
-        // TODO: Implement a factory to support multiple adapters
-        return new SchemaManager(new MySQLSchema($db));
+        switch (ArrayUtils::get($data, 'db_type', 'mysql')) {
+            case 'mysql': return new SchemaManager(new MySQLSchema($db));
+            case 'pgsql':return new SchemaManager(new PostgresSchema($db));
+            default: throw new InvalidDatabaseConnectionException();
+        }
     }
 
     /**
@@ -917,11 +931,10 @@ class InstallerUtils
         $authSecret = ArrayUtils::get($data, 'auth_secret', StringUtils::randomString(32, false));
         $authPublic = ArrayUtils::get($data, 'auth_public', generate_uuid4());
 
-        return ArrayUtils::defaults([
+        $configData = ArrayUtils::defaults([
             'project' => '_',
             'db_type' => 'mysql',
             'db_host' => 'localhost',
-            'db_port' => 3306,
             'db_password' => null,
             'db_socket' => '',
             'mail_from' => 'admin@example.com',
@@ -972,5 +985,36 @@ class InstallerUtils
                 'public' => $authPublic,
             ]
         ], $data);
+
+        $dbType = ArrayUtils::get($configData, 'db_type');
+        $dbPort = ArrayUtils::get($configData, 'db_port');
+
+        if (!$dbPort && $dbType) {
+            ArrayUtils::set($configData, 'db_port', self::getDefaultDbPort($dbType));
+        }
+
+        return $configData;
+    }
+
+    private static function getDefaultDbPort($dbType)
+    {
+        switch ($dbType) {
+            case "mysql":
+                return 3306;
+            case "pgsql":
+                return 5432;
+        }
+
+        return null;
+    }
+
+    private static function getDefaultCharset($dbType)
+    {
+        switch ($dbType) {
+            case "mysql":
+                return 'utf8mb4';
+            default:
+                return 'utf8';
+        }
     }
 }

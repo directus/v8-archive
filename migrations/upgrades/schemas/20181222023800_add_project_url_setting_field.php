@@ -6,10 +6,11 @@ class AddProjectUrlSettingField extends AbstractMigration
 {
     public function up()
     {
-        $result = $this->query('SELECT 1 FROM `directus_settings` WHERE `key` = "project_url";')->fetch();
+        $keyColumn = $this->adapter->quoteColumnName('key');
+        $result = $this->query("SELECT 1 FROM directus_settings WHERE $keyColumn = 'project_url';")->fetch();
 
         if (!$result) {
-            $this->execute("INSERT INTO `directus_settings` (`key`, `value`) VALUES ('project_url', '');");
+            $this->execute("INSERT INTO directus_settings ($keyColumn, value) VALUES ('project_url', '');");
         }
     }
 }

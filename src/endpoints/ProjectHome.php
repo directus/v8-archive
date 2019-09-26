@@ -24,6 +24,7 @@ class ProjectHome extends Route
                     'api' => $service->getPublicInfo()
                 ]
             ];
+            $responseData['data']['api']['database'] = $service->getDatabaseType();
         }
 
         return $this->responseWithData($request, $response, $responseData);

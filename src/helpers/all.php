@@ -1350,8 +1350,8 @@ if (!function_exists('get_missing_requirements')) {
             $errors[] = 'Your host needs to have PDO enabled to run this version of Directus!';
         }
 
-        if (defined('PDO::ATTR_DRIVER_NAME') && !in_array('mysql', \PDO::getAvailableDrivers())) {
-            $errors[] = 'Your host needs to have PDO MySQL Driver enabled to run this version of Directus!';
+        if (defined('PDO::ATTR_DRIVER_NAME') && !in_array('mysql', \PDO::getAvailableDrivers()) && !in_array('pgsql', \PDO::getAvailableDrivers())) {
+            $errors[] = 'Your host needs to have PDO MySQL or PostgreSQL Driver enabled to run this version of Directus!';
         }
 
         if (!extension_loaded('gd') || !function_exists('gd_info')) {
@@ -1691,8 +1691,11 @@ if (!function_exists('phinx_update')) {
                 if (is_string($value)) {
                     $value = sprintf('%s', $adapter->getConnection()->quote($value));
                 }
-
-                $list[] = sprintf('%s = %s', $adapter->quoteColumnName($column), $value);
+                if (is_bool($value)) {
+                    $list[] = sprintf('%s = %s', $adapter->quoteColumnName($column), $value ? 'true' : 'false');
+                } else {
+                    $list[] = sprintf('%s = %s', $adapter->quoteColumnName($column), $value);
+                }
             }
 
             return implode($glue, $list);
