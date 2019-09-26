@@ -251,7 +251,7 @@ class ItemsService extends AbstractService
 
                 if(!isset($individual['$delete'])){
                     foreach($relationalCollectionColumns as $key => $column){
-                        if(!$column->isAlias() && !$column->hasPrimaryKey() && !empty($individual[$relationalCollectionPrimaryKey])){
+                        if(!$column->hasPrimaryKey() && !empty($individual[$relationalCollectionPrimaryKey])){
                             $columnName = $column->getName();
                             $relationalCollectionData = $this->findByIds(
                                 $relationalCollectionName,
