@@ -1023,7 +1023,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         if (in_array('filter_count', $list) || in_array('page', $list)) {
-            $metadata = $this->createMetadataPagination($metadata, $_GET,$countedData);
+            $metadata = $this->createMetadataPagination($metadata, $this::$container->get('request')->getQueryParams(),$countedData);
         }
 
         return $metadata;
