@@ -2290,7 +2290,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
         }
 
-        return $entries;
+        return array_values($entries);
     }
 
     /**
