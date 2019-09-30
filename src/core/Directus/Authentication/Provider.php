@@ -511,7 +511,7 @@ class Provider
         $payload['key'] = $this->getPublicKey();
         $payload['project'] = get_api_project_from_request();
 
-        return JWTUtils::encode($payload, $this->getSecretKey(), $this->getTokenAlgorithm());
+        return JWTUtils::encode($payload, $this->getSecretKey($payload['project']), $this->getTokenAlgorithm());
     }
 
     /**
@@ -536,7 +536,7 @@ class Provider
 
         $payload->needs2FA = $needs2FA;
 
-        return JWTUtils::encode($payload, $this->getSecretKey(), $this->getTokenAlgorithm());
+        return JWTUtils::encode($payload, $this->getSecretKey(get_api_project_from_request()), $this->getTokenAlgorithm());
     }
 
     /**
