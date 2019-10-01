@@ -96,7 +96,8 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         if(isset($userSession)){
             $userSessionService->update($userSession['id'],['token_expired_at' => $expiry->format('Y-m-d H:i:s')]);
         }
-       
+        $response = $response->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'))
+        ->withHeader('Access-Control-Allow-Credentials', 'true');
         return $response;
     }
 }

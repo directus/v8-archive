@@ -398,7 +398,7 @@ class Auth extends Route
             $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
             $redirectUrlParts = explode('?', $redirectUrl);
             $redirectUrl = $redirectUrlParts[0];
-            $redirectQueryParams = parse_str($redirectQueryString);
+            parse_str($redirectQueryString, $redirectQueryParams);
             if (is_array($redirectQueryParams)) {
                 $urlParams = array_merge($redirectQueryParams, $urlParams);
             }
