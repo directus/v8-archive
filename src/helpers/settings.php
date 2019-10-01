@@ -156,14 +156,18 @@ if (!function_exists('get_project_info')) {
      */
     function get_project_info()
     {
-        $settings = get_directus_settings_by_keys(['project_name', 'logo']);
+        $settings = get_directus_settings_by_keys(['project_name', 'logo','color','project_icon','project_image']);
 
         if (array_get($settings, 'logo')) {
             $settings['logo'] = get_project_logo_data(array_get($settings, 'logo'));
         }
+        if (array_get($settings, 'project_image')) {
+            $settings['project_image'] = get_project_logo_data(array_get($settings, 'project_image'));
+        }
 
         array_rename($settings, [
             'logo' => 'project_logo',
+            'color' => 'project_color'
         ]);
 
         return $settings;

@@ -5,27 +5,7 @@ use Phinx\Migration\AbstractMigration;
 
 class AddProjectSettings extends AbstractMigration
 {
-    /**
-     * Change Method.
-     *
-     * Write your reversible migrations using this method.
-     *
-     * More information on writing migrations is available here:
-     * http://docs.phinx.org/en/latest/migrations.html#the-abstractmigration-class
-     *
-     * The following commands can be used in this method and Phinx will
-     * automatically reverse them when rolling back:
-     *
-     *    createTable
-     *    renameTable
-     *    addColumn
-     *    renameColumn
-     *    addIndex
-     *    addForeignKey
-     *
-     * Remember to call "create()" or "update()" and NOT "save()" when working
-     * with the Table class.
-     */
+
     public function change()
     {
         // Update width of file nameing option
@@ -38,24 +18,44 @@ class AddProjectSettings extends AbstractMigration
             ['collection' => 'directus_settings', 'field' => 'file_naming']
         ));
 
+        // Update width of file nameing option
+        $this->execute(\Directus\phinx_update(
+            $this->getAdapter(),
+            'directus_fields',
+            [
+              'width' => 'half'
+            ],
+            ['collection' => 'directus_settings', 'field' => 'login_attempts_allowed']
+        ));
 
 
-        $fieldObject = [
-            'field' => 'login_attempts_allowed',
-            'type' => 'integer',
-            'interface' => 'numeric',
+        $settings = [
+            'project_icon' => [
+                'interface' => 'icon',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'width' => 'half',
+            ],
+            'project_image' => [
+                'interface' => 'file',
+                'width' => 'half',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
+            ]
         ];
-        $collection = 'directus_settings';
+        foreach ($settings as $field => $options) {
+            $this->addField($field, $options);
+        }
+    }
 
-        $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $fieldObject['field']);
+    protected function addField($field, $options)
+    {
+        $collection = 'directus_settings';
+        $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
         $result = $this->query($checkSql)->fetch();
 
         if (!$result) {
-            $insertSqlFormat = 'INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`) VALUES ("%s", "%s", "%s", "%s");';
-            $insertSql = sprintf($insertSqlFormat, $collection, $fieldObject['field'], $fieldObject['type'], $fieldObject['interface']);
+            $insertSqlFormat = 'INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`,`width`) VALUES ("%s", "%s", "%s", "%s", "%s");';
+            $insertSql = sprintf($insertSqlFormat, $collection, $field, $options['type'], $options['interface'], $options['width']);
             $this->execute($insertSql);
         }
-
-
     }
 }
