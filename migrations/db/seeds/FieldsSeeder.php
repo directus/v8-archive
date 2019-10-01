@@ -1129,7 +1129,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'dropdown',
                 'locked' => 1,
-                'width' => 'half',
+                'width' => 'full',
                 'note' => 'The file-system naming convention for uploads.',
                 'sort' => 14,
                 'options' => json_encode([
@@ -1139,30 +1139,8 @@ class FieldsSeeder extends AbstractSeed
                     ]
                 ])
             ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'login_attempts_allowed',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
-                'interface' => 'numeric',
-                'locked' => 1,
-                'width' => 'half'
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'project_icon',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'icon',
-                'locked' => 1,
-                'width' => 'half'
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'project_image',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
-                'interface' => 'file',
-                'locked' => 1,
-                'width' => 'half'
-            ],
+
+
             // Users
             // -----------------------------------------------------------------
             [
