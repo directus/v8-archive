@@ -156,7 +156,7 @@ if (!function_exists('get_project_info')) {
      */
     function get_project_info()
     {
-        $settings = get_directus_settings_by_keys(['project_name', 'logo','color','project_icon','project_image']);
+        $settings = get_directus_settings_by_keys(['project_name', 'logo','project_color','project_icon','project_image']);
 
         if (array_get($settings, 'logo')) {
             $settings['logo'] = get_project_logo_data(array_get($settings, 'logo'));
@@ -166,8 +166,7 @@ if (!function_exists('get_project_info')) {
         }
 
         array_rename($settings, [
-            'logo' => 'project_logo',
-            'color' => 'project_color'
+            'logo' => 'project_logo'
         ]);
 
         return $settings;
