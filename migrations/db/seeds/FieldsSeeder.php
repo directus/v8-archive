@@ -1001,7 +1001,7 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'color',
+                'field' => 'project_color',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'color-palette',
                 'locked' => 1,

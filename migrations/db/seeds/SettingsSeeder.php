@@ -20,7 +20,7 @@ class SettingsSeeder extends AbstractSeed
         'value' => ''
       ],
       [
-        'key' => 'color',
+        'key' => 'project_color',
         'value' => 'darkest-gray',
       ],
       [
