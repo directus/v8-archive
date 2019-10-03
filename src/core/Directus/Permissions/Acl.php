@@ -7,6 +7,7 @@ use Directus\Permissions\Exception\ForbiddenCommentDeleteException;
 use Directus\Permissions\Exception\ForbiddenCommentUpdateException;
 use Directus\Permissions\Exception\ForbiddenFieldReadException;
 use Directus\Permissions\Exception\ForbiddenFieldWriteException;
+use Directus\Exception\UnauthorizedException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 
@@ -985,9 +986,14 @@ class Acl
     public function enforceReadOnce($collection)
     {
         if (!$this->canReadOnce($collection)) {
-            throw new Exception\ForbiddenCollectionReadException(
-                $collection
-            );
+            // If a collection can't be accessed by the public group and user not logged in, ACL will return the unauthorized exception otherwise it will return forbidden error.
+            if($this->isPublic()){
+                throw new UnauthorizedException('Unauthorized request');
+            }else{
+                throw new Exception\ForbiddenCollectionReadException(
+                    $collection
+                );
+            }
         }
     }
 
