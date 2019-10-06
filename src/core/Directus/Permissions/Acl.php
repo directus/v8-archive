@@ -984,7 +984,7 @@ class Acl
      * @throws Exception\ForbiddenCollectionReadException
      */
     public function enforceReadOnce($collection)
-    {
+    { 
         if (!$this->canReadOnce($collection)) {
             // If a collection can't be accessed by the public group and user not logged in, ACL will return the unauthorized exception otherwise it will return forbidden error.
             if($this->isPublic()){

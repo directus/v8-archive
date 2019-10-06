@@ -15,12 +15,15 @@ use Directus\Authentication\Provider;
 use Directus\Authentication\Sso\Social;
 use Directus\Authentication\Sso\TwoSocialProvider;
 use Directus\Authentication\User\UserInterface;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
 use Directus\Exception\UnauthorizedException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
+use Zend\Db\Sql\Update;
 
 class AuthService extends AbstractService
 {
@@ -37,7 +40,7 @@ class AuthService extends AbstractService
      *
      * @throws UnauthorizedException
      */
-    public function loginWithCredentials($email, $password, $otp=null)
+    public function loginWithCredentials($email, $password, $otp=null, $mode = null)
     {
         $this->validateCredentials($email, $password, $otp);
 
@@ -63,17 +66,46 @@ class AuthService extends AbstractService
         $usersService = new UsersService($this->container);
         $tfa_enforced = $usersService->has2FAEnforced($user->getId());
 
-        if ($tfa_enforced && $user->get2FASecret() == null) {
-            $token = $this->generateAuthToken($user, true);
-        } else {
-            $token = $this->generateAuthToken($user);
+        switch($mode){
+            case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+                $user = $this->findOrCreateStaticToken($user);
+                $responseData['user'] = $user;
+                break;
+            case DirectusUserSessionsTableGateway::TOKEN_JWT : 
+            default : 
+                $needs2FA = $tfa_enforced && $user->get2FASecret() == null;
+                $token = $this->generateAuthToken($user,$needs2FA);
+                $responseData = [
+                    'token' => $token,
+                    'user' => $user->toArray()
+                ];
         }
-
         return [
-            'data' => [
-                'token' => $token
-            ]
+            'data' => $responseData
         ];
+    }
+
+    /**
+     * @param array $user
+     *
+     * @return array
+     * 
+     */
+    public function findOrCreateStaticToken(&$user)
+    {
+        $user = $user->toArray();
+        if(empty($user['token'])){
+            $token = StringUtils::randomString(6,false);
+            $userTable = $this->createTableGateway(SchemaManager::COLLECTION_USERS, false);
+            $Update = new Update(SchemaManager::COLLECTION_USERS);
+            $Update->set(['token' => $token]);
+            $Update->where([
+                'id' => $user['id']
+            ]);
+            $userTable->updateWith($Update);
+            $user['token'] = $token;
+        }
+        return $user;
     }
 
     /**
@@ -172,7 +204,7 @@ class AuthService extends AbstractService
         );
     }
 
-    public function handleAuthenticationRequestCallback($name, $generateRequestToken = false)
+    public function handleAuthenticationRequestCallback($name, $generateRequestToken = false, $mode= null)
     {
         /** @var Social $socialAuth */
         $socialAuth = $this->container->get('external_auth');
@@ -182,16 +214,23 @@ class AuthService extends AbstractService
         $serviceUser = $service->handle();
 
         $user = $this->authenticateWithEmail($serviceUser->getEmail());
-        if ($generateRequestToken) {
-            $token = $this->generateRequestToken($user);
-        } else {
-            $token = $this->generateAuthToken($user);
+
+        switch($mode){
+            case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+                $user = $this->findOrCreateStaticToken($user);
+                $responseData['user'] = $user;
+                break;
+            case DirectusUserSessionsTableGateway::TOKEN_JWT : 
+            default : 
+                $token = $generateRequestToken ? $this->generateRequestToken($user) : $this->generateAuthToken($user);
+                $responseData = [
+                    'token' => $token,
+                    'user' => $user->toArray()
+                ];
         }
 
         return [
-            'data' => [
-                'token' => $token
-            ]
+            'data' => $responseData
         ];
     }
 
@@ -208,7 +247,7 @@ class AuthService extends AbstractService
         } else {
             $authenticated = $this->getAuth()->authenticateWithPrivateToken($token);
         }
-
+        
         return $authenticated;
     }
 
