@@ -2279,11 +2279,18 @@ class RelationalTableGateway extends BaseTableGateway
                     // @NOTE: But what about UUIDS and slugs?
                     $foreign_id = (string)$parentRow[$relationalColumnName];
                     $parentRow[$relationalColumnName] = null;
+
+                    // if the foreign_key is empty, then there's nothing more to do
+                    if(empty($foreign_id))
+                        continue;
+
                     // "Did we retrieve the foreign row with this foreign ID in our recent query of the foreign table"?
                     if (array_key_exists($foreign_id, $relatedEntries)) {
                         $parentRow[$relationalColumnName] = $relatedEntries[$foreign_id];
                     }
                     else{
+                        // when foreign_id is not empty but there's no $relatedEntries,
+                        // then it means it was soft-deleted.
                         unset($entries[$key]);
                     }
                 }
