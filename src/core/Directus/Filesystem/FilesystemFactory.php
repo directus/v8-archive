@@ -13,6 +13,8 @@ use Aliyun\Flysystem\AliyunOss\AliyunOssAdapter;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 use League\Flysystem\AwsS3v3\AwsS3Adapter as S3Adapter;
 use League\Flysystem\Filesystem as Flysystem;
+use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter as AzureAdapter;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 
 class FilesystemFactory
 {
@@ -26,6 +28,9 @@ class FilesystemFactory
                 break;
             case 's3':
                 return self::createS3Adapter($config, $rootKey);
+                break;
+            case 'azure':
+                return self::createAzureAdapter($config, $rootKey);
                 break;
             case 'local':
             default:
@@ -46,6 +51,15 @@ class FilesystemFactory
         $root = $root ?: '/';
 
         return new Flysystem(new LocalAdapter($root));
+    }
+
+    public static function createAzureAdapter(Array $config, $rootKey = 'root')
+    {
+        if (!array_key_exists('key', $config)) {
+            throw new \InvalidArgumentException('Filesystem: Azure Adapter missing secret key');
+        }
+        $client = BlobRestProxy::createBlobService($config['azure-key']);
+        return new Flysystem(new AzureAdapter($client, $config['azure-container']));
     }
 
     public static function createS3Adapter(Array $config, $rootKey = 'root')
