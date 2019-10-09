@@ -575,8 +575,8 @@ class FieldsSeeder extends AbstractSeed
             [
                 'collection' => 'directus_files',
                 'field' => 'uploaded_by',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
-                'interface' => 'user',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_USER_CREATED,
+                'interface' => 'user-created',
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 9,
