@@ -76,7 +76,7 @@ class Schema {
                 new Value('OSS_ENDPOINT?', Types::STRING, 'oss-endpoint'),
 
                 // Azure
-                new Value('azure_key?', Types::STRING, 'azure-key'),
+                new Value('azure_connection_string?', Types::STRING, 'azure-connection-string'),
                 new Value('azure_container?', Types::STRING, 'azure-container'),
 
                 // TODO: Missing keys?

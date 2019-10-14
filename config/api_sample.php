@@ -91,7 +91,7 @@ return [
         // Use an internal proxy for downloading all files
         //'proxy_downloads' => false,
         // Azure Config
-        //   'azure_key'   => 'azure-key',
+        //   'azure_connection_string'   => 'azure-connection-string',
         //   'azure_container'    => 'azure-blob-container-name',
     ],
 
