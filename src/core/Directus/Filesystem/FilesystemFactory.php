@@ -55,11 +55,13 @@ class FilesystemFactory
 
     public static function createAzureAdapter(Array $config, $rootKey = 'root')
     {
-        if (!array_key_exists('key', $config)) {
+        if (!array_key_exists('azure_key', $config)) {
             throw new \InvalidArgumentException('Filesystem: Azure Adapter missing secret key');
+        } else if (!array_key_exists('azure_container', $config)) {
+            throw new \InvalidArgumentException('Filesystem: Azure Adapter missing container name');
         }
-        $client = BlobRestProxy::createBlobService($config['azure-key']);
-        return new Flysystem(new AzureAdapter($client, $config['azure-container']));
+        $client = BlobRestProxy::createBlobService($config['azure_key']);
+        return new Flysystem(new AzureAdapter($client, $config['azure_container']));
     }
 
     public static function createS3Adapter(Array $config, $rootKey = 'root')
