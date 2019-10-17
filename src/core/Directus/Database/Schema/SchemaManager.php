@@ -789,7 +789,7 @@ class SchemaManager
         // save the column into the data
         // @NOTE: this is the early implementation of cache
         // soon this will be change to cache
-        $this->data['tables'][$name] = $schema;
+        $this->data['collections'][$name] = $schema;
     }
 
     protected function addField(Field $column)
