@@ -204,7 +204,7 @@ abstract class AbstractService
 
         $constraints = [];
 
-        if ($fields === null) {
+        if (empty($fields)) {
             return $constraints;
         }
 
