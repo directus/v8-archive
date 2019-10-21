@@ -789,6 +789,11 @@ class RelationalTableGateway extends BaseTableGateway
             $params['status'] = $statusList;
         }
 
+        // If page is defined as param then add offset dynamically.
+        if (!isset($params['offset']) && isset($params['page']) && isset($params['limit'])) {
+            $params['offset'] = $params['limit'] * ($params['page'] - 1);
+        }
+        
         $params = array_merge($defaultParams, $params);
 
         if (ArrayUtils::get($params, 'sort')) {
