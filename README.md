@@ -131,7 +131,7 @@ Directus is a GPLv3-licensed open source project with development made possible 
 
 ### Contributing
 
-We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `master` branch of our `api` and `app` repositories.
+We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `develop` branch of our `api` and `app` repositories.
 
 * [Setup API Development Environment](https://docs.directus.io/advanced/source.html#api-source)
 * [Setup App Development Environment](https://docs.directus.io/advanced/source.html#application-source)
