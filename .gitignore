@@ -3,6 +3,7 @@ Icon
 *.log
 .cache
 .vscode
+.ddev
 
 # Ignore dev files
 /.idea
