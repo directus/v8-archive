@@ -251,9 +251,20 @@ if (!function_exists('get_api_project_from_request')) {
                 'check_proxy' => false,
             ]);
             
-            $authTokenObject = get_request_authorization_token($request);
-            $authToken = get_static_token_based_on_type($authTokenObject);
-            if (JWTUtils::isJWT($authToken)) {
+            if ($request->hasHeader('Authorization')) {
+                $authorizationHeader = $request->getHeader('Authorization');
+
+                // If there's multiple Authorization header, pick first, ignore the rest
+                if (is_array($authorizationHeader)) {
+                    $authorizationHeader = array_shift($authorizationHeader);
+                }
+    
+                if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
+                    $authToken = $matches[1];
+                }
+            }
+
+            if(isset($authToken)){
                 $name = JWTUtils::getPayload($authToken, 'project');
             } else {
                 $name = get_request_project_name($request);
