@@ -204,7 +204,7 @@ abstract class AbstractService
 
         $constraints = [];
 
-        if ($fields === null) {
+        if (empty($fields)) {
             return $constraints;
         }
 
@@ -217,6 +217,10 @@ abstract class AbstractService
             $columnConstraints = [];
 
             if ($field->hasAutoIncrement()) {
+                continue;
+            }
+            
+            if($field->isSystemDateTimeType() || $field->isSystemUserType()){
                 continue;
             }
 

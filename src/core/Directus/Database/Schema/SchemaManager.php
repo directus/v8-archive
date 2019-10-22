@@ -30,6 +30,7 @@ class SchemaManager
     const COLLECTION_USER_ROLES          = 'directus_user_roles';
     const COLLECTION_USERS               = 'directus_users';
     const COLLECTION_WEBHOOKS            = 'directus_webhooks';
+    const COLLECTION_USER_SESSIONS       = 'directus_user_sessions';
 
     /**
      * Schema source instance
@@ -790,7 +791,7 @@ class SchemaManager
         // save the column into the data
         // @NOTE: this is the early implementation of cache
         // soon this will be change to cache
-        $this->data['tables'][$name] = $schema;
+        $this->data['collections'][$name] = $schema;
     }
 
     protected function addField(Field $column)
