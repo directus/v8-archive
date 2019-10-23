@@ -136,6 +136,11 @@ We love pull-requests! To work on Directus you'll need to install it locally fro
 * [Setup API Development Environment](https://docs.directus.io/advanced/source.html#api-source)
 * [Setup App Development Environment](https://docs.directus.io/advanced/source.html#application-source)
 
+If you want to dive right into the code and skip the manual setup of your development environment you can also spin up fully functional browser based development environments with a single click:
+
+* [Start API Gitpod Workspace](https://gitpod.io/#https://github.com/directus/api)
+* [Start APP Gitpod Workspace](https://gitpod.io/#https://github.com/directus/app)
+
 ### Sponsors
 
 [RANGER Studio](http://rangerstudio.com), Bas Jansen
