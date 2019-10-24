@@ -5,6 +5,7 @@ namespace Directus\Services;
 use Directus\Application\Application;
 use Directus\Exception\UnauthorizedException;
 use function Directus\get_project_info;
+use Directus\Services\UsersService;
 
 class ServerService extends AbstractService
 {
@@ -23,17 +24,22 @@ class ServerService extends AbstractService
      */
     public function findAllInfo($global = true, $configuration = null)
     {
+        $acl = $this->container->get('acl');
+        $usersService = new UsersService($this->container);
+        $tfa_enforced = $usersService->has2FAEnforced($acl->getUserId());
+
         if ($configuration === null) {
             $configuration = self::INFO_SETTINGS_RUNTIME;
         }
 
         $data = [
             'api' => [
-                'version' => Application::DIRECTUS_VERSION
+                'version' => Application::DIRECTUS_VERSION,
+                'requires2FA' => $tfa_enforced
             ],
             'server' => [
                 'max_upload_size' => \Directus\get_max_upload_size($configuration === self::INFO_SETTINGS_CORE),
-            ]
+            ],
         ];
 
         if ($global !== true) {
