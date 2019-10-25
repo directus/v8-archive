@@ -161,9 +161,9 @@ if (!function_exists('get_project_info')) {
         if (array_get($settings, 'logo')) {
             $settings['logo'] = get_project_logo_data(array_get($settings, 'logo'));
         }
-        if (array_get($settings, 'project_image')) {
-            $settings['project_image'] = get_project_logo_data(array_get($settings, 'project_image'));
-        }
+
+        $settings['project_image'] = array_get($settings, 'project_image') ? get_project_logo_data(array_get($settings, 'project_image')) : null;
+        $settings['project_icon'] = array_get($settings, 'project_icon') ? $settings['project_icon'] : null;
 
         array_rename($settings, [
             'logo' => 'project_logo'
