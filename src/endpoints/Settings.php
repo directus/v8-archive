@@ -8,7 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Services\SettingsService;
 use Directus\Services\FilesServices;
-use Directus\Api\Routes\ArrayUtils;
+use Directus\Util\ArrayUtils;
 use function Directus\regex_numeric_ids;
 
 class Settings extends Route
