@@ -69,7 +69,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         }
 
         $authorizationTokenObject = get_request_authorization_token($request);
-        
+
         $accessToken = null;
         if(!empty($authorizationTokenObject['token'])){
             $userSessionService = new UserSessionService($container);
@@ -85,7 +85,16 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                     $userSession = $userSessionService->find(['token' => $accessToken]);
                     $cookie = new Cookies();
                     $expiryAt = $userSession ? $expiry->format(\DateTime::COOKIE) : DateTimeUtils::now()->toString();
-                    $cookie->set(get_project_session_cookie_name($request),['value' => $authorizationTokenObject['token'],'expires' => $expiryAt ,'path'=>'/','httponly' => true]);
+                    $cookie->set(
+                        get_project_session_cookie_name($request),
+                        [
+                            'value' => $authorizationTokenObject['token'],
+                            'expires' => $expiryAt,
+                            'path'=>'/',
+                            'httponly' => true
+                        ]
+                    );
+
                     $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
                     break;
                 default :

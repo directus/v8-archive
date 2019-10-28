@@ -65,11 +65,11 @@ class Auth extends Route
 
         if(isset($responseData['data']) && isset($responseData['data']['user'])){
             switch($request->getParam('mode')){
-                case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+                case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                     $response = $this->storeCookieSession($request,$response,$responseData['data']);
                     break;
-                case DirectusUserSessionsTableGateway::TOKEN_JWT : 
-                default : 
+                case DirectusUserSessionsTableGateway::TOKEN_JWT :
+                default :
                     $this->storeJwtSession($responseData['data']);
             }
             unset($responseData['data']['user']);
@@ -127,12 +127,21 @@ class Auth extends Route
             $sessionToken = $data['user']['token']."-".$userSession;
             $userSessionService->update($userSession,['token' => $sessionToken]);
         }
-       
+
         $cookie = new Cookies();
-        $cookie->set(get_project_session_cookie_name($request),['value' => encrypt_static_token($sessionToken),'expires' =>$expiry->format(\DateTime::COOKIE),'path'=>'/','httponly' => true]);
+        $cookie->set(
+            get_project_session_cookie_name($request),
+            [
+                'value' => encrypt_static_token($sessionToken),
+                'expires' => $expiry->format(\DateTime::COOKIE),
+                'path'=>'/',
+                'httponly' => true
+            ]
+        );
+
         return  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
     }
-    
+
     /**
      * Generate jwt token and store login entry into user sessions table
      *
@@ -317,7 +326,7 @@ class Auth extends Route
             $session->set('mode', $request->getParam('mode'));
             $response = $response->withRedirect(array_get($responseData, 'data.authorization_url'));
         }
-        
+
         return $this->responseWithData($request, $response, $responseData);
     }
 
@@ -369,16 +378,16 @@ class Auth extends Route
 
             if(isset($responseData['data']) && isset($responseData['data']['user'])){
                 switch($request->getParam('mode')){
-                    case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+                    case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                         $response = $this->storeCookieSession($request,$response,$responseData['data']);
                         break;
-                    default : 
+                    default :
                         $this->storeJwtSession($responseData['data']);
                         $urlParams['request_token'] = array_get($responseData, 'data.token');
                 }
                 unset($responseData['data']['user']);
             }
-    
+
 
         } catch (\Exception $e) {
             if (!$redirectUrl) {
@@ -393,7 +402,7 @@ class Auth extends Route
             $urlParams['error'] = true;
         }
 
-       
+
         if ($redirectUrl) {
             $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
             $redirectUrlParts = explode('?', $redirectUrl);

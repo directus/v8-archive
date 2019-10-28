@@ -956,7 +956,7 @@ class InstallerUtils
                 'headers' => [],
                 'exposed_headers' => [],
                 'max_age' => 600,
-                'credentials' => false,
+                'credentials' => true,
             ],
             'rate_limit' => [
                 'enabled' => false,

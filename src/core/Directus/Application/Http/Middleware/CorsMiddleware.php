@@ -57,7 +57,9 @@ class CorsMiddleware extends AbstractMiddleware
         if ($this->isEnabled()) {
             if ($request->isOptions()) {
                 $this->processPreflightHeaders($request, $response);
-                return $response;
+                return $response
+                    ->withHeader('Access-Control-Allow-Credentials', 'true')
+                    ->withHeader('Access-Control-Allow-Headers', ['X-Directus-Project', 'Content-Type']);
             } else {
                 $this->processActualHeaders($request, $response);
             }

@@ -10,7 +10,7 @@
   ],
   "require": {
     "php": "^7.1",
-    "slim/slim": "^3.0.0",
+    "slim/slim": "^3.12.2",
     "monolog/monolog": "^1.23.0",
     "zendframework/zend-db": "dev-directus",
     "league/flysystem": "^1.0",
