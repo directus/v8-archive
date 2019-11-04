@@ -19,6 +19,7 @@ use Directus\Services\UserSessionService;
 use Directus\Util\ArrayUtils;
 use Slim\Http\Cookies;
 use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
+use Directus\Mail\Exception\MailNotSentException;
 
 class Auth extends Route
 {
@@ -233,6 +234,7 @@ class Auth extends Route
             );
         } catch (\Exception $e) {
             $this->container->get('logger')->error($e);
+            throw new MailNotSentException();
         }
 
         return $this->responseWithData($request, $response, []);
