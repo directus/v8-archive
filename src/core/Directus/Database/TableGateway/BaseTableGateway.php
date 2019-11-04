@@ -534,6 +534,12 @@ class BaseTableGateway extends TableGateway
             'collection' => $tableName
         ]);
 
+        // Remove entries from directus_relations
+        $columnsTableGateway = new TableGateway(SchemaManager::COLLECTION_RELATIONS, $this->adapter);
+        $columnsTableGateway->delete([
+            'collection_many' => $tableName
+        ]);
+
         // Remove table from directus_tables
         $tablesTableGateway = new TableGateway(SchemaManager::COLLECTION_COLLECTIONS, $this->adapter);
         $tablesTableGateway->delete([
