@@ -402,7 +402,7 @@ class InstallerUtils
         $name = 'api';
 
         if ($projectName && $projectName !== '_') {
-            $name = sprintf('api.%s', $projectName);
+            $name = sprintf('%s', $projectName);
         }
 
         return $name;
@@ -697,7 +697,7 @@ class InstallerUtils
         ArrayUtils::rename($apiConfig, 'socket', 'unix_socket');
         $apiConfig['charset'] = ArrayUtils::get($apiConfig, 'database.charset', 'utf8mb4');
 
-        $configArray = require $basePath . '/config/migrations.php';
+        $configArray = require $basePath . '/migrations/migrations.php';
         $configArray['paths']['migrations'] = $migrationPath . '/schemas';
         $configArray['paths']['seeds'] = $migrationPath . '/seeds';
         $configArray['environments']['development'] = $apiConfig;
@@ -733,7 +733,7 @@ class InstallerUtils
      */
     private static function ensureMigrationFileExists($basePath)
     {
-        $migrationConfigPath = $basePath . '/config/migrations.php';
+        $migrationConfigPath = $basePath . '/migrations/migrations.php';
 
         if (!file_exists($migrationConfigPath)) {
             throw new InvalidPathException(
@@ -882,7 +882,7 @@ class InstallerUtils
      */
     private static function dropTables($basePath, $projectName)
     {
-        $app = static::createApp($basePath, $config);
+        $app = static::createApp($basePath, $projectName);
         /** @var Connection $db */
         $db = $app->getContainer()->get('database');
         /** @var SchemaManager $schemaManager */

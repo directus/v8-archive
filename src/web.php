@@ -31,9 +31,9 @@ if (!$projectName) {
     } else {
         $configData = $schema->value([]);
     }
+
     return \Directus\create_unknown_project_app($basePath, $configData);
 }
-
 
 $maintenanceFlagPath = \Directus\create_maintenanceflag_path($basePath);
 if (file_exists($maintenanceFlagPath)) {
@@ -285,6 +285,7 @@ $app->group('/pages', \Directus\Api\Routes\Pages::class)
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['table_gateway']);
+   
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['rate_limit_user'])
