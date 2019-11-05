@@ -59,11 +59,11 @@ class UpdateGeneralSettingVariabeName extends AbstractMigration
             ['collection' => 'directus_settings', 'field' => 'project_icon']
         ));
         
-        
-        $result = $this->query('SELECT 1 FROM `directus_settings` WHERE `key` = "project_foreground";')->fetch();
+        // Need to delete the project_icon as this migration will change the interface to file and the icon will contain the string
+        $result = $this->query('SELECT 1 FROM `directus_settings` WHERE `key` = "project_icon";')->fetch();
 
         if ($result) {
-            $this->execute('DELETE FROM `directus_settings` where `key` = "project_foreground";');
+            $this->execute('DELETE FROM `directus_settings` where `key` = "project_icon";');
         }
 
         // Rename project_image
