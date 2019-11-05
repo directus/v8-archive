@@ -1011,24 +1011,13 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'logo',
+                'field' => 'project_logo',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
                 'interface' => 'file',
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Your brand\'s logo.',
                 'sort' => 3
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'app_url',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'locked' => 1,
-                'required' => 1,
-                'width' => 'half-space',
-                'note' => 'The URL where your app is hosted. The API will use this to direct your users to the correct login page.',
-                'sort' => 4
             ],
             [
                 'collection' => 'directus_settings',
@@ -1149,15 +1138,15 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'project_icon',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'icon',
+                'field' => 'project_foreground',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
+                'interface' => 'file',
                 'locked' => 1,
                 'width' => 'half'
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'project_image',
+                'field' => 'project_background',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
                 'interface' => 'file',
                 'locked' => 1,
