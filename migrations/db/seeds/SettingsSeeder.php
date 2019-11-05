@@ -16,7 +16,7 @@ class SettingsSeeder extends AbstractSeed
   {
     $data = [
       [
-        'key' => 'logo',
+        'key' => 'project_logo',
         'value' => ''
       ],
       [

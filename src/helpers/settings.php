@@ -156,18 +156,10 @@ if (!function_exists('get_project_info')) {
      */
     function get_project_info()
     {
-        $settings = get_directus_settings_by_keys(['project_name', 'logo','project_color','project_icon','project_image']);
-
-        if (array_get($settings, 'logo')) {
-            $settings['logo'] = get_project_logo_data(array_get($settings, 'logo'));
-        }
-
-        $settings['project_image'] = array_get($settings, 'project_image') ? get_project_logo_data(array_get($settings, 'project_image')) : null;
-        $settings['project_icon'] = array_get($settings, 'project_icon') ? $settings['project_icon'] : null;
-
-        array_rename($settings, [
-            'logo' => 'project_logo'
-        ]);
+        $settings = get_directus_settings_by_keys(['project_name', 'project_logo','project_color','project_foreground','project_background']);
+        $settings['project_logo'] = array_get($settings, 'project_logo') ? get_project_logo_data(array_get($settings, 'project_logo')) : null;
+        $settings['project_foreground'] = array_get($settings, 'project_foreground') ? get_project_logo_data(array_get($settings, 'project_foreground')) : null;
+        $settings['project_background'] = array_get($settings, 'project_background') ? get_project_logo_data(array_get($settings, 'project_background')) : null;
 
         return $settings;
     }
