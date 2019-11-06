@@ -47,18 +47,32 @@ class UpdateGeneralSettingVariabeName extends AbstractMigration
             ['key' => 'logo']
         ));
 
+
         // Update the interface of project_icon from icon to file and rename it.
-        $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_fields',
-            [
-              'field' => 'project_foreground',
-              'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
-              'interface' => 'file'
-            ],
-            ['collection' => 'directus_settings', 'field' => 'project_icon']
-        ));
-        
+
+        // ...check first if the project_icon exists
+        $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_settings" AND `field` = "project_icon" ;')->fetch();
+        if($result) {
+
+            //...if we already have the project_foreground we should first delete it, otherwise we recieve the constraint vialoation since the FieldsSeeder already creates the project_foreground entry
+            $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_settings" AND `field` = "project_foreground";')->fetch();
+            if ($result) {
+                $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" AND `field` = "project_foreground";');
+            }
+
+            //...rename
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'field' => 'project_foreground',
+                  'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
+                  'interface' => 'file'
+                ],
+                ['collection' => 'directus_settings', 'field' => 'project_icon']
+            ));
+        }
+
         // Need to delete the project_icon as this migration will change the interface to file and the icon will contain the string
         $result = $this->query('SELECT 1 FROM `directus_settings` WHERE `key` = "project_icon";')->fetch();
 
@@ -67,15 +81,28 @@ class UpdateGeneralSettingVariabeName extends AbstractMigration
         }
 
         // Rename project_image
-        $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_fields',
-            [
-              'field' => 'project_background'
-            ],
-            ['collection' => 'directus_settings', 'field' => 'project_image']
-        ));
-        
+
+        // ...check first if the project_image exists
+        $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_settings" AND `field` = "project_image" ;')->fetch();
+        if($result) {
+
+            //...if we already have the project_background we should first delete it, otherwise we recieve the constraint vialoation since the FieldsSeeder already creates the project_background entry
+            $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_settings" AND `field` = "project_background";')->fetch();
+            if ($result) {
+                $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" AND `field` = "project_background";');
+            }
+
+            //...rename
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                'field' => 'project_background'
+                ],
+                ['collection' => 'directus_settings', 'field' => 'project_image']
+            ));
+        }
+
         $this->execute(\Directus\phinx_update(
             $this->getAdapter(),
             'directus_settings',
