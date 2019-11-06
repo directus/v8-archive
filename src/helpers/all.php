@@ -275,20 +275,6 @@ if (!function_exists('get_api_project_from_request')) {
     }
 }
 
-if (!function_exists('get_all_projects')) {
-    /**
-     * Gets the project name from the request uri
-     *
-     * @return string
-     */
-    function get_all_projects($public=true)
-    {
-       
-        $scanned_directory = array_diff(scandir($directory), array('..', '.'));
-        return $name;
-    }
-}
-
 if (!function_exists('get_request_authorization_token')) {
     /**
      * Returns the authorization token from a request object
