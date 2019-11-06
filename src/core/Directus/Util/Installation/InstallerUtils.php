@@ -28,6 +28,7 @@ use Zend\Db\TableGateway\TableGateway;
 
 class InstallerUtils
 {
+    const MIGRATION_CONFIGURATION_PATH = '/migrations/migrations.php';
     /**
      * Check if environment is using files or environment variables
      *
@@ -697,7 +698,7 @@ class InstallerUtils
         ArrayUtils::rename($apiConfig, 'socket', 'unix_socket');
         $apiConfig['charset'] = ArrayUtils::get($apiConfig, 'database.charset', 'utf8mb4');
 
-        $configArray = require $basePath . '/migrations/migrations.php';
+        $configArray = require $basePath.self::MIGRATION_CONFIGURATION_PATH ;
         $configArray['paths']['migrations'] = $migrationPath . '/schemas';
         $configArray['paths']['seeds'] = $migrationPath . '/seeds';
         $configArray['environments']['development'] = $apiConfig;
@@ -733,7 +734,7 @@ class InstallerUtils
      */
     private static function ensureMigrationFileExists($basePath)
     {
-        $migrationConfigPath = $basePath . '/migrations/migrations.php';
+        $migrationConfigPath = $basePath . self::MIGRATION_CONFIGURATION_PATH;
 
         if (!file_exists($migrationConfigPath)) {
             throw new InvalidPathException(

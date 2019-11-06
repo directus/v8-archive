@@ -8,16 +8,6 @@ $basePath =  realpath(__DIR__ . '/../');
 
 require $basePath . '/vendor/autoload.php';
 
-// Creates a simple endpoint to test the server rewriting
-// If the server responds "pong" it means the rewriting works
-// NOTE: The API requires the default project to be configured to properly works
-//       It should work without the default project being configured
-if (getenv("DIRECTUS_USE_ENV") !== "1") {
-    if (!file_exists($basePath . '/config/api.php')) {
-        return \Directus\create_default_app($basePath);
-    }
-}
-
 // Get Environment name
 $projectName = \Directus\get_api_project_from_request();
 
