@@ -255,6 +255,7 @@ if (!function_exists('create_default_app')) {
 
         $app->add(new CorsMiddleware($app->getContainer(), true));
 
+        $app->get('/', \Directus\Api\Routes\Home::class);
         $app->group('/server', \Directus\Api\Routes\Server::class);
 
         create_install_route($app);

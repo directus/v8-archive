@@ -27,7 +27,7 @@ class ProjectService extends AbstractService
             
             'force' => 'bool',
             'existing' => 'bool',
-            'superadmin_password' => 'required',
+            'super_admin_token' => 'required',
             
             'db_host' => 'string',
             'db_port' => 'numeric',
@@ -65,12 +65,12 @@ class ProjectService extends AbstractService
         $superadminFilePath = \Directus\get_app_base_path().'/config/__api.json';
         if(empty($scannedDirectory)){
             $auth = $this->container->get('auth');
-            $data['superadmin_password'] = $auth->hashPassword($data['superadmin_password']);
+            $data['super_admin_token'] = $auth->hashPassword($data['super_admin_token']);
             $configStub = InstallerUtils::createJsonFileContent($data);
             file_put_contents($superadminFilePath, $configStub);
         }else{
             $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
-            if (!password_verify($data['superadmin_password'], $superadminFileData['super_admin_token'])) {
+            if (!password_verify($data['super_admin_token'], $superadminFileData['super_admin_token'])) {
                 throw new UnauthorizedException('Permission denied: Superadmin Only');
             }
         }
