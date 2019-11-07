@@ -21,54 +21,54 @@ class ProjectService extends AbstractService
         if ($this->isLocked()) {
             throw new ForbiddenException('Creating new instance is locked');
         }
-     
+
         $this->validate($data,[
             'project' => 'required|string|regex:/^[0-9a-z_-]+$/i',
-            
+
             'force' => 'bool',
             'existing' => 'bool',
             'super_admin_token' => 'required',
-            
+
             'db_host' => 'string',
             'db_port' => 'numeric',
             'db_name' => 'required|string',
             'db_user' => 'required|string',
             'db_password' => 'string',
             'db_socket' => 'string',
-            
+
             'cache' => 'array',
             'storage' => 'array',
             'auth' => 'array',
             'rate_limit' => 'array',
-            
+
             'mail_from' => 'string',
             'mail' => 'array',
             'cors_enabled' => 'bool',
             'cors' => 'array',
-            
+
             'timezone' => 'string',
             'locale' => 'string',
             'logs_path' => 'string',
-            
+
             'project_name' => 'string',
             'app_url' => 'string',
             'user_email' => 'required|email',
             'user_password' => 'required|string',
             'user_token' => 'string'
             ]);
-            
+
         // If the first installtion is executing then add the api.json file to store the password.
         // For every installation after the first one, user must pass that same password to create the next project.
-           
+
         $scannedDirectory = \Directus\scan_config_folder();
-        
+
         $superadminFilePath = \Directus\get_app_base_path().'/config/__api.json';
         if(empty($scannedDirectory)){
             $configStub = InstallerUtils::createJsonFileContent($data);
             file_put_contents($superadminFilePath, $configStub);
         }else{
             $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
-            if (!password_verify($data['super_admin_token'], $superadminFileData['super_admin_token'])) {
+            if ($data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
                 throw new UnauthorizedException('Permission denied: Superadmin Only');
             }
         }
@@ -90,7 +90,7 @@ class ProjectService extends AbstractService
         } catch (InvalidConfigPathException $e) {
             throw new ProjectAlreadyExistException($projectName);
         }
-        
+
         try {
             InstallerUtils::ensureCanCreateTables($basePath, $data, $ignoreSystemTables ? true : $force);
         } catch (ConnectionFailedException $e) {
