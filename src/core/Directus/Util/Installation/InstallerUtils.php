@@ -46,10 +46,10 @@ class InstallerUtils
      * @param string $projectName
      * @return \Directus\Application\Application
      */
-    public static function createApp($basePath, $projectName , $private=false)
+    public static function createApp($basePath, $projectName)
     {
         if (static::isUsingFiles()) {
-            $config = require static::createConfigPath($basePath, $projectName, $private);
+            $config = require static::createConfigPath($basePath, $projectName);
         } else {
             $config = Schema::get()->value(Context::from_env());
         }
@@ -150,7 +150,7 @@ class InstallerUtils
      */
     public static function createTables($basePath, $env = null, $force = false)
     {
-        $config = static::getMigrationConfig($basePath, $env, null);
+        $config = static::getMigrationConfig($basePath, $env);
 
         if ($force === true) {
             static::dropTables($basePath, $env);
@@ -269,9 +269,8 @@ class InstallerUtils
     public static function addDefaultSettings($basePath, array $data, $projectName = null)
     {
         $basePath = rtrim($basePath, '/');
-        $private = ArrayUtils::get($data, 'private');
         static::ensureConfigFileExists($basePath, $projectName);
-        $app = static::createApp($basePath, $projectName,$private);
+        $app = static::createApp($basePath, $projectName);
         $db = $app->getContainer()->get('database');
 
         $defaultSettings = static::getDefaultSettings($data);
@@ -292,7 +291,7 @@ class InstallerUtils
      */
     public static function addDefaultUser($basePath, array $data, $projectName = null)
     {
-        $app = static::createApp($basePath, $projectName, ArrayUtils::get($data, 'private'));
+        $app = static::createApp($basePath, $projectName);
         $db = $app->getContainer()->get('database');
         $auth = $app->getContainer()->get('auth');
         $tableGateway = new TableGateway('directus_users', $db);

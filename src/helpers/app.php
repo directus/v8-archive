@@ -76,7 +76,6 @@ if (!function_exists('get_project_config')) {
         }
 
         $configFilePath = InstallerUtils::createConfigPath($basePath, $name);
-        $privateConfigPath = InstallerUtils::createConfigPath($basePath, $name,['private' => true]);
         
         if (isset($configs[$configFilePath])) {
             return $configs[$configFilePath];
@@ -89,11 +88,10 @@ if (!function_exists('get_project_config')) {
             $configFilePath = "__env__";
             $configData = $schema->value(Context::from_env());
         } else {
-            $filePath = file_exists($configFilePath) ? $configFilePath : $privateConfigPath;
-            if (!file_exists($filePath)) {
+            if (!file_exists($configFilePath)) {
                 throw new UnknownProjectException($name);
             }
-            $configData = $schema->value(['directus' => Context::from_file($filePath)]);
+            $configData = $schema->value(['directus' => Context::from_file($configFilePath)]);
         }
 
         $config = new Config($configData);
