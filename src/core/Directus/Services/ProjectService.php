@@ -85,10 +85,6 @@ class ProjectService extends AbstractService
         }
 
         $projectName = ArrayUtils::pull($data, 'project');
-        if (empty($projectName)) {
-            $projectName = '_';
-        }
-
         $data['project'] = $projectName;
 
         try {
