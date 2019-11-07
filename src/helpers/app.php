@@ -241,9 +241,8 @@ if (!function_exists('create_default_app')) {
 
         $app->add(new CorsMiddleware($app->getContainer(), true));
 
-        $app->group('/server', function () {
-            create_ping_route($this);
-        });
+        $app->group('/server', \Directus\Api\Routes\Server::class);
+
         create_install_route($app);
 
         return $app;
