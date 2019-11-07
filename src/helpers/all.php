@@ -270,7 +270,7 @@ if (!function_exists('get_api_project_from_request')) {
                 $name = get_request_project_name($request);
             }
         }
-
+        
         return $name;
     }
 }

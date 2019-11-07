@@ -8,16 +8,6 @@ $basePath =  realpath(__DIR__ . '/../');
 
 require $basePath . '/vendor/autoload.php';
 
-// Creates a simple endpoint to test the server rewriting
-// If the server responds "pong" it means the rewriting works
-// NOTE: The API requires the default project to be configured to properly works
-//       It should work without the default project being configured
-if (getenv("DIRECTUS_USE_ENV") !== "1") {
-    if (!file_exists($basePath . '/config/api.php')) {
-        return \Directus\create_default_app($basePath);
-    }
-}
-
 // Get Environment name
 $projectName = \Directus\get_api_project_from_request();
 
@@ -31,9 +21,9 @@ if (!$projectName) {
     } else {
         $configData = $schema->value([]);
     }
+
     return \Directus\create_unknown_project_app($basePath, $configData);
 }
-
 
 $maintenanceFlagPath = \Directus\create_maintenanceflag_path($basePath);
 if (file_exists($maintenanceFlagPath)) {
@@ -106,7 +96,6 @@ try {
     ]);
     exit;
 }
-
 
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
@@ -285,6 +274,7 @@ $app->group('/pages', \Directus\Api\Routes\Pages::class)
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
     ->add($middleware['table_gateway']);
+   
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['rate_limit_user'])

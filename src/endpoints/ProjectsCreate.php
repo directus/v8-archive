@@ -14,7 +14,7 @@ class ProjectsCreate extends Route
         $this->validateRequestPayload($request);
         $installService = new ProjectService($this->container);
         $installService->create($request->getParsedBody());
-
+       
         return $this->responseWithData($request, $response, []);
     }
 }
