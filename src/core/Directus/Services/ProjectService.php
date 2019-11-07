@@ -21,9 +21,7 @@ class ProjectService extends AbstractService
         if ($this->isLocked()) {
             throw new ForbiddenException('Creating new instance is locked');
         }
-        
-        $scannedDirectory = \Directus\scan_config_folder();
-        
+     
         $this->validate($data,[
             'project' => 'required|string|regex:/^[0-9a-z_-]+$/i',
             
@@ -61,6 +59,8 @@ class ProjectService extends AbstractService
             
         // If the first installtion is executing then add the api.json file to store the password.
         // For every installation after the first one, user must pass that same password to create the next project.
+           
+        $scannedDirectory = \Directus\scan_config_folder();
         
         $superadminFilePath = \Directus\get_app_base_path().'/config/__api.json';
         if(empty($scannedDirectory)){
