@@ -18,16 +18,54 @@ use function Directus\get_default_timezone;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
+use Directus\Util\DateTimeUtils;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Zend\Db\Sql\Ddl\DropTable;
 use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
 
 class InstallerUtils
 {
+    /**
+     * Add the upgraded migrations into directus_migration on a fresh installation of project.
+     * Upgraded migrations may contain the same queries which is in db [Original] migrations. 
+     * So in every fresh installtion we have boycott the upgrades. 
+     * This function will add the upgrades migrations into directus_migrations table; so the current upgraded migrations cant be executed.
+     * 
+     * @return boolean
+     */
+    public static function addUpgradeMigrations()
+    {
+        $dbConnection = Application::getInstance()->fromContainer('database');
+        $migrationsTableGateway = new TableGateway(SchemaManager::COLLECTION_MIGRATIONS, $dbConnection);
+
+        $select = new Select($migrationsTableGateway->table);
+        $select->columns(['version']);
+        $result = $migrationsTableGateway->selectWith($select)->toArray();
+        $alreadyStoredMigrations = array_column($result, 'version');
+        
+        $ignoreableFiles = ['..', '.'];
+        $scannedDirectory = array_values(array_diff(scandir(\Directus\get_app_base_path().'/migrations/upgrades/schemas'), $ignoreableFiles));
+        foreach($scannedDirectory as $fileName){
+            $data = [];
+            $fileNameObject = explode("_",$fileName,2);
+            $migrationName = explode(".",str_replace(' ', '',ucwords(str_replace('_', ' ', $fileNameObject[1]))),2);
+            $data = [
+                'version' => $fileNameObject[0],
+                'migration_name' => $migrationName[0],
+                'start_time' => DateTimeUtils::nowInTimezone()->toString(),
+                'end_time' => DateTimeUtils::nowInTimezone()->toString()
+            ];
+
+            if(!in_array($data['version'],$alreadyStoredMigrations) && !is_null($data['version']) && !is_null($data['migration_name'])){
+                $migrationsTableGateway->insert($data);
+            }
+        }
+    }
     /**
      * Check if environment is using files or environment variables
      *
