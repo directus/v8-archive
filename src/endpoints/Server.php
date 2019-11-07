@@ -8,6 +8,7 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Exception\NotInstalledException;
 use Directus\Util\StringUtils;
+use Directus\Services\ServerService;
 
 class Server extends Route
 {
@@ -18,7 +19,7 @@ class Server extends Route
     {
         \Directus\create_ping_route($app);
         $app->get('/projects', [$this, 'projects']);
-        $app->get('/check-requirements', [$this, 'checkRequirements']);
+        $app->get('/info', [$this, 'getInfo']);
     }
 
     /**
@@ -50,26 +51,36 @@ class Server extends Route
      * 
      * @return Response
      */
-    public function checkRequirements(Request $request, Response $response)
+    public function getInfo(Request $request, Response $response)
     {
+        $data = $request->getQueryParams();
+        $service = new ServerService($this->container);
+        $service->validateServerInfo($data);
+
         $basePath = $this->container->get('path_base');
         $responseData['data'] = [
-            'os' => PHP_OS,
-            'os_version' => php_uname('v'),
-            'web_server' => $_SERVER['SERVER_SOFTWARE'],
-            'php_version' => phpversion(),
-            'extensions' => [
-                'pdo_enabled' => defined('PDO::ATTR_DRIVER_NAME'),
-                'mysqli_enabled' => extension_loaded("mysqli"),
-                'curl_enabled' => extension_loaded("curl"),
-                'gd_enabled' => extension_loaded("gd"),
-                'fileinfo_enabled' => extension_loaded("fileinfo"),
-                'libapache2_mod_php_enabled' => extension_loaded("libapache2-mod-php"),
-                'mbstring_enabled' => extension_loaded("mbstring"),
-                'json_enabled' => extension_loaded("json"),
-                'mod_rewrite_enabled' =>function_exists('apache_get_modules') ? in_array('mod_rewrite', apache_get_modules()) : null,
+            'directus' => Application::DIRECTUS_VERSION,
+            'server' => [
+                'type' => $_SERVER['SERVER_SOFTWARE'],
+                'rewrites' => function_exists('apache_get_modules') ? in_array('mod_rewrite', apache_get_modules()) : null,
+                'os' => PHP_OS,
+                'os_version' => php_uname('v'),
             ],
-            'file_permission' => [
+            'php' => [
+                'version' => phpversion(),
+                'max_upload_size' => \Directus\get_max_upload_size(ServerService::INFO_SETTINGS_RUNTIME === ServerService::INFO_SETTINGS_CORE),
+                'extensions' => [
+                    'pdo' => defined('PDO::ATTR_DRIVER_NAME'),
+                    'mysqli' => extension_loaded("mysqli"),
+                    'curl' => extension_loaded("curl"),
+                    'gd' => extension_loaded("gd"),
+                    'fileinfo' => extension_loaded("fileinfo"),
+                    'libapache2_mod_php' => extension_loaded("libapache2-mod-php"),
+                    'mbstring' => extension_loaded("mbstring"),
+                    'json' => extension_loaded("json"),
+                ],
+            ],
+            'permissions' => [
                 'public' => substr(sprintf('%o', fileperms($basePath."/public")), -4),
                 'logs' => substr(sprintf('%o', fileperms($basePath."/logs")), -4),
                 'uploads' => substr(sprintf('%o', fileperms($basePath."/public/uploads")), -4),

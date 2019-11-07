@@ -128,9 +128,6 @@ $app->add($middleware['rate_limit_ip'])
 
 $app->get('/', \Directus\Api\Routes\Home::class)
     ->add($middleware['rate_limit_user'])
-    ->add($middleware['auth_user'])
-    ->add($middleware['auth'])
-    ->add($middleware['auth_ignore_origin'])
     ->add($middleware['table_gateway']);
 
 $app->group('/projects', function () use ($middleware) {
