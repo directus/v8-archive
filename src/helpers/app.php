@@ -13,9 +13,9 @@ use Directus\Config\Config;
 use Directus\Config\Context;
 use Directus\Config\Schema\Schema;
 use Directus\Config\Exception\UnknownProjectException;
-use Directus\Config\Exception\InvalidProjectException;
 use Directus\Exception\Exception;
 use Directus\Exception\UnauthorizedException;
+use Directus\Util\Installation\InstallerUtils;
 use Slim\Http\Body;
 
 if (!function_exists('create_app'))  {
@@ -75,10 +75,9 @@ if (!function_exists('get_project_config')) {
             $basePath = get_app_base_path();
         }
 
-        $configPath = $basePath . '/config';
-
-        $configFilePath = sprintf('%s/%s.php', $configPath, $name);
-
+        $configFilePath = InstallerUtils::createConfigPath($basePath, $name);
+        $privateConfigPath = InstallerUtils::createConfigPath($basePath, $name,['private' => true]);
+        
         if (isset($configs[$configFilePath])) {
             return $configs[$configFilePath];
         }
@@ -90,10 +89,11 @@ if (!function_exists('get_project_config')) {
             $configFilePath = "__env__";
             $configData = $schema->value(Context::from_env());
         } else {
-            if (!file_exists($configFilePath)) {
+            $filePath = file_exists($configFilePath) ? $configFilePath : $privateConfigPath;
+            if (!file_exists($filePath)) {
                 throw new UnknownProjectException($name);
             }
-            $configData = $schema->value(['directus' => Context::from_file($configFilePath)]);
+            $configData = $schema->value(['directus' => Context::from_file($filePath)]);
         }
 
         $config = new Config($configData);

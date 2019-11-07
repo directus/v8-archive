@@ -46,10 +46,10 @@ class InstallerUtils
      * @param string $projectName
      * @return \Directus\Application\Application
      */
-    public static function createApp($basePath, $projectName)
+    public static function createApp($basePath, $projectName , $private=false)
     {
         if (static::isUsingFiles()) {
-            $config = require static::createConfigPath($basePath, $projectName);
+            $config = require static::createConfigPath($basePath, $projectName, $private);
         } else {
             $config = Schema::get()->value(Context::from_env());
         }
@@ -85,6 +85,22 @@ class InstallerUtils
 
         // Users are allowed to sent {{project}} to be replaced with the project name
         return static::replacePlaceholderValues($configStub, ArrayUtils::pick($data, 'project'));
+    }
+
+
+    /**
+     * Creates a api json file to store the superadmin password
+     *
+     * @param string $name
+     *
+     * @throws NotFoundException
+     * @throws UnprocessableEntityException
+     */
+    public function createJsonFileContent($data)
+    {
+        $configStub = file_get_contents(__DIR__ . '/stubs/api.stub');
+
+        return static::replacePlaceholderValues($configStub, $data);
     }
 
     /**
@@ -128,12 +144,13 @@ class InstallerUtils
      * @param string $basePath
      * @param string $env
      * @param bool $force
+     * @param bool $private
      *
      * @throws \Exception
      */
     public static function createTables($basePath, $env = null, $force = false)
     {
-        $config = static::getMigrationConfig($basePath, $env);
+        $config = static::getMigrationConfig($basePath, $env, null);
 
         if ($force === true) {
             static::dropTables($basePath, $env);
@@ -252,13 +269,12 @@ class InstallerUtils
     public static function addDefaultSettings($basePath, array $data, $projectName = null)
     {
         $basePath = rtrim($basePath, '/');
+        $private = ArrayUtils::get($data, 'private');
         static::ensureConfigFileExists($basePath, $projectName);
-
-        $app = static::createApp($basePath, $projectName);
+        $app = static::createApp($basePath, $projectName,$private);
         $db = $app->getContainer()->get('database');
 
         $defaultSettings = static::getDefaultSettings($data);
-
         $tableGateway = new TableGateway('directus_settings', $db);
         foreach ($defaultSettings as $setting) {
             $tableGateway->insert($setting);
@@ -276,7 +292,7 @@ class InstallerUtils
      */
     public static function addDefaultUser($basePath, array $data, $projectName = null)
     {
-        $app = static::createApp($basePath, $projectName);
+        $app = static::createApp($basePath, $projectName, ArrayUtils::get($data, 'private'));
         $db = $app->getContainer()->get('database');
         $auth = $app->getContainer()->get('auth');
         $tableGateway = new TableGateway('directus_users', $db);
@@ -398,15 +414,10 @@ class InstallerUtils
      *
      * @return string
      */
-    public static function getConfigName($projectName)
+    public static function getConfigName($projectName,$private=false)
     {
-        $name = 'api';
-
-        if ($projectName && $projectName !== '_') {
-            $name = sprintf('%s', $projectName);
-        }
-
-        return $name;
+        $text = $private ? "_%s" : "%s";
+        return sprintf($text, $projectName);
     }
 
     /**
@@ -418,7 +429,8 @@ class InstallerUtils
      */
     public static function ensureCanCreateConfig($path, array $data, $force = false)
     {
-        $configPath = static::createConfigPathFromData($path, $data);
+        $input = ArrayUtils::omit($data, ['private']);
+        $configPath = static::createConfigPathFromData($path, $input);
 
         static::ensureDirectoryIsWritable($path);
         if ($force !== true) {
@@ -450,10 +462,15 @@ class InstallerUtils
      *
      * @return string
      */
-    public static function createConfigPath($path, $projectName = null)
+    public static function createConfigPath($path, $projectName, $private=null)
     {
-        $configName = static::getConfigName($projectName);
-
+        if(!is_null($private)){
+            $configName = static::getConfigName($projectName,$private);
+        }else{
+            $publicConfig = static::getConfigName($projectName);
+            $privateConfig = static::getConfigName($projectName,true);
+            $configName = file_exists($path . '/config/' . $privateConfig . '.php') ? $privateConfig : $publicConfig;
+        }
         return $path . '/config/' . $configName . '.php';
     }
 
@@ -619,7 +636,7 @@ class InstallerUtils
      *
      * @throws \Exception
      */
-    public static function ensureConfigFileExists($basePath, $projectName = null)
+    public static function ensureConfigFileExists($basePath, $projectName)
     {
         if (!self::isUsingFiles()) {
             return;
@@ -646,7 +663,7 @@ class InstallerUtils
      */
     private static function createConfigPathFromData($path, array $data)
     {
-        return static::createConfigPath($path, ArrayUtils::get($data, 'project'));
+        return static::createConfigPath($path, ArrayUtils::get($data, 'project'), ArrayUtils::get($data, 'private'));
     }
 
     /**
@@ -677,11 +694,10 @@ class InstallerUtils
     {
         static::ensureConfigFileExists($basePath, $projectName);
         static::ensureMigrationFileExists($basePath);
-
+        
         if ($migrationName === null) {
             $migrationName = 'db';
         }
-
         $configPath = static::createConfigPath($basePath, $projectName);
         $migrationPath = $basePath . '/migrations/' . $migrationName;
 

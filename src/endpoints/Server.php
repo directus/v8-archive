@@ -6,7 +6,6 @@ use Directus\Application\Application;
 use Directus\Application\Route;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
-use Directus\Exception\PrivateProjectException;
 use Directus\Exception\NotInstalledException;
 use Directus\Util\StringUtils;
 
@@ -29,7 +28,7 @@ class Server extends Route
     public function projects(Request $request, Response $response)
     {
         $scannedDirectory = \Directus\scan_config_folder();
-        
+        $projectNames = [];
         if(empty($scannedDirectory)){
             throw new NotInstalledException('This Directus instance has not been configured. Install via the Directus App (eg: /admin) or read more about configuration at: https://docs.directus.io/getting-started/installation.html#configure');
         }else{
@@ -38,9 +37,6 @@ class Server extends Route
                 if(!StringUtils::startsWith($fileObject[0], '_')){
                     $projectNames[] = $fileObject[0];
                 }
-            }
-            if(!isset($projectNames)){
-                throw new PrivateProjectException();
             }
         }
   

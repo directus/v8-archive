@@ -1,0 +1,3 @@
+{
+  "super_admin_token": "{{superadmin_password}}"
+}

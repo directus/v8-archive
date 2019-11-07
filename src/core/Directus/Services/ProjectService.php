@@ -8,6 +8,7 @@ use Directus\Exception\InvalidConfigPathException;
 use Directus\Exception\InvalidDatabaseConnectionException;
 use Directus\Exception\InvalidPathException;
 use Directus\Exception\NotFoundException;
+use Directus\Exception\UnauthorizedException;
 use Directus\Exception\ProjectAlreadyExistException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
@@ -20,40 +21,59 @@ class ProjectService extends AbstractService
         if ($this->isLocked()) {
             throw new ForbiddenException('Creating new instance is locked');
         }
-
-        $this->validate($data, [
-            'project' => 'string|regex:/^[0-9a-z_-]+$/i',
-
+        
+        $scannedDirectory = \Directus\scan_config_folder();
+        
+        $this->validate($data,[
+            'project' => 'required|string|regex:/^[0-9a-z_-]+$/i',
+            
             'force' => 'bool',
             'existing' => 'bool',
-
+            'superadmin_password' => 'required',
+            
             'db_host' => 'string',
             'db_port' => 'numeric',
             'db_name' => 'required|string',
             'db_user' => 'required|string',
             'db_password' => 'string',
             'db_socket' => 'string',
-
+            
             'cache' => 'array',
             'storage' => 'array',
             'auth' => 'array',
             'rate_limit' => 'array',
-
+            
             'mail_from' => 'string',
             'mail' => 'array',
             'cors_enabled' => 'bool',
             'cors' => 'array',
-
+            
             'timezone' => 'string',
             'locale' => 'string',
             'logs_path' => 'string',
-
+            
             'project_name' => 'string',
             'app_url' => 'string',
             'user_email' => 'required|email',
             'user_password' => 'required|string',
             'user_token' => 'string'
-        ]);
+            ]);
+            
+        // If the first installtion is executing then add the api.json file to store the password.
+        // For every installation after the first one, user must pass that same password to create the next project.
+        
+        $superadminFilePath = \Directus\get_app_base_path().'/config/__api.json';
+        if(empty($scannedDirectory)){
+            $auth = $this->container->get('auth');
+            $data['superadmin_password'] = $auth->hashPassword($data['superadmin_password']);
+            $configStub = InstallerUtils::createJsonFileContent($data);
+            file_put_contents($superadminFilePath, $configStub);
+        }else{
+            $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
+            if (!password_verify($data['superadmin_password'], $superadminFileData['super_admin_token'])) {
+                throw new UnauthorizedException('Permission denied: Superadmin Only');
+            }
+        }
 
         $basePath = $this->container->get('path_base');
         $force = ArrayUtils::pull($data, 'force', false);
@@ -72,11 +92,11 @@ class ProjectService extends AbstractService
         $data['project'] = $projectName;
 
         try {
-         InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
+            InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
         } catch (InvalidConfigPathException $e) {
             throw new ProjectAlreadyExistException($projectName);
         }
-
+        
         try {
             InstallerUtils::ensureCanCreateTables($basePath, $data, $ignoreSystemTables ? true : $force);
         } catch (ConnectionFailedException $e) {
@@ -95,6 +115,7 @@ class ProjectService extends AbstractService
             InstallerUtils::addDefaultUser($basePath, $data, $projectName);
         }
     }
+
 
     /**
      * Deletes a project with the given name

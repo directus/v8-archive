@@ -97,7 +97,6 @@ try {
     exit;
 }
 
-
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
 // TODO: Implement a way to register middleware with a name
