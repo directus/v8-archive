@@ -64,8 +64,6 @@ class ProjectService extends AbstractService
         
         $superadminFilePath = \Directus\get_app_base_path().'/config/__api.json';
         if(empty($scannedDirectory)){
-            $auth = $this->container->get('auth');
-            $data['super_admin_token'] = $auth->hashPassword($data['super_admin_token']);
             $configStub = InstallerUtils::createJsonFileContent($data);
             file_put_contents($superadminFilePath, $configStub);
         }else{
