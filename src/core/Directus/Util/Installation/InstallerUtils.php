@@ -144,7 +144,6 @@ class InstallerUtils
      * @param string $basePath
      * @param string $env
      * @param bool $force
-     * @param bool $private
      *
      * @throws \Exception
      */
