@@ -28,6 +28,7 @@ use Zend\Db\TableGateway\TableGateway;
 
 class InstallerUtils
 {
+    const MIGRATION_CONFIGURATION_PATH = '/migrations/migrations.php';
     /**
      * Check if environment is using files or environment variables
      *
@@ -84,6 +85,22 @@ class InstallerUtils
 
         // Users are allowed to sent {{project}} to be replaced with the project name
         return static::replacePlaceholderValues($configStub, ArrayUtils::pick($data, 'project'));
+    }
+
+
+    /**
+     * Creates a api json file to store the superadmin password
+     *
+     * @param string $name
+     *
+     * @throws NotFoundException
+     * @throws UnprocessableEntityException
+     */
+    public function createJsonFileContent($data)
+    {
+        $configStub = file_get_contents(__DIR__ . '/stubs/api.stub');
+
+        return static::replacePlaceholderValues($configStub, $data);
     }
 
     /**
@@ -252,12 +269,10 @@ class InstallerUtils
     {
         $basePath = rtrim($basePath, '/');
         static::ensureConfigFileExists($basePath, $projectName);
-
         $app = static::createApp($basePath, $projectName);
         $db = $app->getContainer()->get('database');
 
         $defaultSettings = static::getDefaultSettings($data);
-
         $tableGateway = new TableGateway('directus_settings', $db);
         foreach ($defaultSettings as $setting) {
             $tableGateway->insert($setting);
@@ -397,15 +412,10 @@ class InstallerUtils
      *
      * @return string
      */
-    public static function getConfigName($projectName)
+    public static function getConfigName($projectName,$private=false)
     {
-        $name = 'api';
-
-        if ($projectName && $projectName !== '_') {
-            $name = sprintf('api.%s', $projectName);
-        }
-
-        return $name;
+        $text = $private ? "_%s" : "%s";
+        return sprintf($text, $projectName);
     }
 
     /**
@@ -417,7 +427,8 @@ class InstallerUtils
      */
     public static function ensureCanCreateConfig($path, array $data, $force = false)
     {
-        $configPath = static::createConfigPathFromData($path, $data);
+        $input = ArrayUtils::omit($data, ['private']);
+        $configPath = static::createConfigPathFromData($path, $input);
 
         static::ensureDirectoryIsWritable($path);
         if ($force !== true) {
@@ -449,10 +460,15 @@ class InstallerUtils
      *
      * @return string
      */
-    public static function createConfigPath($path, $projectName = null)
+    public static function createConfigPath($path, $projectName, $private=null)
     {
-        $configName = static::getConfigName($projectName);
-
+        if(!is_null($private)){
+            $configName = static::getConfigName($projectName,$private);
+        }else{
+            $publicConfig = static::getConfigName($projectName);
+            $privateConfig = static::getConfigName($projectName,true);
+            $configName = file_exists($path . '/config/' . $privateConfig . '.php') ? $privateConfig : $publicConfig;
+        }
         return $path . '/config/' . $configName . '.php';
     }
 
@@ -618,7 +634,7 @@ class InstallerUtils
      *
      * @throws \Exception
      */
-    public static function ensureConfigFileExists($basePath, $projectName = null)
+    public static function ensureConfigFileExists($basePath, $projectName)
     {
         if (!self::isUsingFiles()) {
             return;
@@ -645,7 +661,7 @@ class InstallerUtils
      */
     private static function createConfigPathFromData($path, array $data)
     {
-        return static::createConfigPath($path, ArrayUtils::get($data, 'project'));
+        return static::createConfigPath($path, ArrayUtils::get($data, 'project'), ArrayUtils::get($data, 'private'));
     }
 
     /**
@@ -676,11 +692,10 @@ class InstallerUtils
     {
         static::ensureConfigFileExists($basePath, $projectName);
         static::ensureMigrationFileExists($basePath);
-
+        
         if ($migrationName === null) {
             $migrationName = 'db';
         }
-
         $configPath = static::createConfigPath($basePath, $projectName);
         $migrationPath = $basePath . '/migrations/' . $migrationName;
 
@@ -697,7 +712,7 @@ class InstallerUtils
         ArrayUtils::rename($apiConfig, 'socket', 'unix_socket');
         $apiConfig['charset'] = ArrayUtils::get($apiConfig, 'database.charset', 'utf8mb4');
 
-        $configArray = require $basePath . '/config/migrations.php';
+        $configArray = require $basePath.self::MIGRATION_CONFIGURATION_PATH ;
         $configArray['paths']['migrations'] = $migrationPath . '/schemas';
         $configArray['paths']['seeds'] = $migrationPath . '/seeds';
         $configArray['environments']['development'] = $apiConfig;
@@ -733,7 +748,7 @@ class InstallerUtils
      */
     private static function ensureMigrationFileExists($basePath)
     {
-        $migrationConfigPath = $basePath . '/config/migrations.php';
+        $migrationConfigPath = $basePath . self::MIGRATION_CONFIGURATION_PATH;
 
         if (!file_exists($migrationConfigPath)) {
             throw new InvalidPathException(
@@ -882,7 +897,7 @@ class InstallerUtils
      */
     private static function dropTables($basePath, $projectName)
     {
-        $app = static::createApp($basePath, $config);
+        $app = static::createApp($basePath, $projectName);
         /** @var Connection $db */
         $db = $app->getContainer()->get('database');
         /** @var SchemaManager $schemaManager */
