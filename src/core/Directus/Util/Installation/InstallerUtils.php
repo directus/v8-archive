@@ -96,7 +96,7 @@ class InstallerUtils
      * @throws NotFoundException
      * @throws UnprocessableEntityException
      */
-    public function createJsonFileContent($data)
+    public static function createJsonFileContent($data)
     {
         $configStub = file_get_contents(__DIR__ . '/stubs/api.stub');
 
