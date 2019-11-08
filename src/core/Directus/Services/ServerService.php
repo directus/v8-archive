@@ -75,7 +75,7 @@ class ServerService extends AbstractService
                 'super_admin_token' => 'required'
             ]);
             $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
-            if (!password_verify($data['super_admin_token'], $superadminFileData['super_admin_token'])) {
+            if ($data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
                 throw new UnauthorizedException('Permission denied: Superadmin Only');
             }
         }
