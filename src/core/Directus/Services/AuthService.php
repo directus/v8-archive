@@ -10,6 +10,7 @@ use Directus\Authentication\Exception\ExpiredResetPasswordToken;
 use Directus\Authentication\Exception\InvalidResetPasswordTokenException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
+use Directus\Authentication\Exception\TFAEnforcedException;
 use Directus\Authentication\Sso\OneSocialProvider;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Sso\Social;
@@ -73,16 +74,26 @@ class AuthService extends AbstractService
                 break;
             case DirectusUserSessionsTableGateway::TOKEN_JWT : 
             default : 
-                $needs2FA = $tfa_enforced && $user->get2FASecret() == null;
-                $token = $this->generateAuthToken($user,$needs2FA);
+                $token = $this->generateAuthToken($user);
+                $user = $user->toArray();
                 $responseData = [
                     'token' => $token,
-                    'user' => $user->toArray()
+                    'user' => $user
                 ];
+               
         }
-        return [
-            'data' => $responseData
-        ];
+        $responseObject['data'] = $responseData;
+        
+        if(!is_null($user)){
+            $needs2FA = $tfa_enforced && $user['2fa_secret'] == null;
+            if($needs2FA){
+                $responseObject['error'] = [
+                    'code' => TFAEnforcedException::ERROR_CODE,
+                    'message' => TFAEnforcedException::ERROR_MESSAGE
+                ];
+            }
+        }
+        return $responseObject;
     }
 
     /**
