@@ -47,7 +47,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
         try {
             $user = $this->authenticate($request);
-            
+
             $hookEmitter = $this->container->get('hook_emitter');
             if (!$user && !$publicRoleId) {
                 $exception = new UserNotAuthenticatedException();
@@ -110,7 +110,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
             $hookEmitter->run('auth.fail', [$exception]);
             throw $exception;
         }
-       
+
         // TODO: Adding an user should auto set its ID and GROUP
         // TODO: User data should be casted to its data type
         // TODO: Make sure that the group is not empty
@@ -139,7 +139,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
             $user = $authService->authenticateWithToken($authToken, $request->getAttribute('ignore_origin'));
         }
-        
+
         return $user;
     }
 
@@ -226,8 +226,11 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
         if ($num_elements > 3
             &&$target_array[$num_elements - 3] == 'users'
-            && $target_array[$num_elements - 2] == strval($id)
-            && $target_array[$num_elements - 1] == 'activate2FA') {
+            && (
+                $target_array[$num_elements - 2] == strval($id) ||
+                $target_array[$num_elements - 2] == 'me'
+            )
+            && $target_array[$num_elements - 1] == 'activate_2fa') {
             return true;
         }
 
