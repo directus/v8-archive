@@ -75,6 +75,7 @@ class Auth extends Route
             }
             unset($responseData['data']['user']);
         }
+        $responseData['data'] = !empty($responseData['data']) ? $responseData['data'] : null;
         return $this->responseWithData($request, $response, $responseData);
     }
 
