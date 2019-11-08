@@ -430,7 +430,7 @@ class Provider
      *
      * @return string
      */
-    public function generateAuthToken(UserInterface $user, $needs2FA = false)
+    public function generateAuthToken(UserInterface $user)
     {
         $payload = [
             'id' => (int) $user->getId(),
@@ -438,9 +438,6 @@ class Provider
             'exp' => $this->getNewExpirationTime()
         ];
 
-        if ($needs2FA == true) {
-            $payload['needs2FA'] = true;
-        }
 
         return $this->generateToken(JWTUtils::TYPE_AUTH, $payload);
     }
