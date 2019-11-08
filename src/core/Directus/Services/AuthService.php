@@ -353,16 +353,14 @@ class AuthService extends AbstractService
      *
      * @param UserInterface $user
      *
-     * @param bool $needs2FA Whether the user needs 2FA
-     *
      * @return string
      */
-    public function generateAuthToken(UserInterface $user, bool $needs2FA = false)
+    public function generateAuthToken(UserInterface $user)
     {
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
 
-        return $auth->generateAuthToken($user, $needs2FA);
+        return $auth->generateAuthToken($user);
     }
 
     /**
