@@ -414,7 +414,7 @@ class InstallerUtils
      */
     public static function getConfigName($projectName,$private=false)
     {
-        $text = $private ? "_%s" : "%s";
+        $text = $private ? "private.%s" : "%s";
         return sprintf($text, $projectName);
     }
 
@@ -469,6 +469,7 @@ class InstallerUtils
             $privateConfig = static::getConfigName($projectName,true);
             $configName = file_exists($path . '/config/' . $privateConfig . '.php') ? $privateConfig : $publicConfig;
         }
+        
         return $path . '/config/' . $configName . '.php';
     }
 
