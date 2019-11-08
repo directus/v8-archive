@@ -65,6 +65,28 @@ class ServerService extends AbstractService
      *
      * @return array
      */
+    public function validateServerInfo($data)
+    {
+        $scannedDirectory = \Directus\scan_config_folder();
+        
+        $superadminFilePath = \Directus\get_app_base_path().'/config/__api.json';
+        if(!empty($scannedDirectory)){
+            $this->validate($data, [
+                'super_admin_token' => 'required'
+            ]);
+            $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
+            if ($data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
+                throw new UnauthorizedException('Permission denied: Superadmin Only');
+            }
+        }
+
+    }
+
+    /**
+     * Return Project public data
+     *
+     * @return array
+     */
     public function getPublicInfo()
     {
         return get_project_info();

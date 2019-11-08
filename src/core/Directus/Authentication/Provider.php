@@ -609,7 +609,7 @@ class Provider
      *
      * @return string
      */
-    public function getSecretKey($project = '_')
+    public function getSecretKey($project)
     {
         if ($project) {
             $config = get_project_config($project);
