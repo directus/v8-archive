@@ -289,9 +289,10 @@ class Auth extends Route
     {
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
+        
         /** @var Social $externalAuth */
         $externalAuth = $this->container->get('external_auth');
-
+        
         $services = [];
         foreach ($externalAuth->getAll() as $name => $provider) {
             $services[] = $authService->getSsoBasicInfo($name);
@@ -369,7 +370,7 @@ class Auth extends Route
         $redirectUrl = $session->get('sso_origin_url');
         $session->remove('sso_origin_url');
         $mode = $session->get('mode');
-        $session->remove('mode');
+       
         $responseData = [];
         $urlParams = [];
         try {
@@ -380,7 +381,7 @@ class Auth extends Route
             );
 
             if(isset($responseData['data']) && isset($responseData['data']['user'])){
-                switch($request->getParam('mode')){
+                switch($mode){
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                         $response = $this->storeCookieSession($request,$response,$responseData['data']);
                         break;
@@ -390,8 +391,6 @@ class Auth extends Route
                 }
                 unset($responseData['data']['user']);
             }
-
-
         } catch (\Exception $e) {
             if (!$redirectUrl) {
                 throw $e;
@@ -405,7 +404,6 @@ class Auth extends Route
             $urlParams['error'] = true;
         }
 
-
         if ($redirectUrl) {
             $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
             $redirectUrlParts = explode('?', $redirectUrl);
@@ -416,7 +414,10 @@ class Auth extends Route
             }
 
             $response = $response->withRedirect($redirectUrl . '?' . http_build_query($urlParams));
+        }else{
+            $response = $response->withRedirect('/admin');
         }
+        $session->remove('mode');
         return $this->responseWithData($request, $response, $responseData);
     }
 
