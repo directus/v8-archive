@@ -853,7 +853,7 @@ class InstallerUtils
     {
         static::getDirectusTablesFromData($data, function (Connection $db, $name) {
             throw new Exception(
-                sprintf('The "%s" database already contains existing Directus system tables.', $db->getCurrentSchema())
+                sprintf('The "%s" database already contains Directus system tables.', $db->getCurrentSchema())
             );
         });
     }
