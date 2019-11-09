@@ -16,7 +16,6 @@ use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
 use Directus\Services\UsersService;
-use Directus\Authentication\Exception\TFAEnforcedException;
 use Directus\Services\UserSessionService;
 use Directus\Util\ArrayUtils;
 use Slim\Http\Cookies;
@@ -425,7 +424,7 @@ class Auth extends Route
         }else{
             $response = $response->withRedirect('/admin');
         }
-        
+
         $session->remove('mode');
         return $this->responseWithData($request, $response, $responseData);
     }
