@@ -117,6 +117,11 @@ class CreateUsersTable extends AbstractMigration
             'name' => 'idx_users_token'
         ]);
 
+        $table->addIndex('2fa_secret', [
+            'unique' => true,
+            'limit' => 100
+        ]);
+
         $table->addIndex('external_id', [
             'unique' => true,
             'name' => 'idx_users_external_id'
