@@ -108,8 +108,10 @@ class CreateUsersTable extends AbstractMigration
         ]);
 
         $table->addColumn('2fa_secret', 'string', [
-            'unique' => true,
-            'limit' => 100
+            'limit' => 100,
+            'encoding' => 'utf8',
+            'null' => true,
+            'default' => null
         ]);
 
         $table->addIndex('email', [
