@@ -8,6 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use function Directus\array_get;
 use function Directus\get_directus_setting;
+use function Directus\get_directus_path;
 use function Directus\get_project_session_cookie_name;
 use function Directus\get_request_authorization_token;
 use function Directus\encrypt_static_token;
@@ -36,7 +37,7 @@ class Auth extends Route
         $app->post('/logout/{user}', [$this, 'logoutFromAll']);
         $app->post('/logout/{user}/{id}', [$this, 'logoutFromOne']);
         $app->post('/password/request', [$this, 'forgotPassword']);
-        $app->get('/password/reset/{token}', [$this, 'resetPassword']);
+        $app->post('/password/reset', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
         $app->get('/sso', [$this, 'listSsoAuthServices']);
         $app->post('/sso/access_token', [$this, 'ssoAccessToken']);
@@ -255,7 +256,8 @@ class Auth extends Route
         $authService = $this->container->get('services')->get('auth');
 
         $authService->resetPasswordWithToken(
-            $request->getAttribute('token')
+            $request->getParsedBodyParam('token'),
+            $request->getParsedBodyParam('password')
         );
 
         return $this->responseWithData($request, $response, []);
@@ -372,7 +374,7 @@ class Auth extends Route
         $mode = $session->get('mode');
 
         $redirectUrl = $mode == DirectusUserSessionsTableGateway::TOKEN_COOKIE
-            ? '/admin/#/'
+            ? get_directus_path() . '/admin/#/'
             : $session->get('sso_origin_url');
 
         $needs2FA = false;
