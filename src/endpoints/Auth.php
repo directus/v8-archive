@@ -13,6 +13,7 @@ use function Directus\get_request_authorization_token;
 use function Directus\encrypt_static_token;
 use function Directus\decrypt_static_token;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
+use Directus\Authentication\Exception\SsoNotAllowedException;
 use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
 use Directus\Services\UsersService;
@@ -382,6 +383,11 @@ class Auth extends Route
             );
 
             if(isset($responseData['data']) && isset($responseData['data']['user'])){
+                $usersService = new UsersService($this->container);
+                $tfa_enforced = $usersService->has2FAEnforced($responseData['data']['user']['id']);
+                if($tfa_enforced && $responseData['data']['user']['2fa_secret'] == null){
+                    throw new SsoNotAllowedException();
+                }
                 switch($mode){
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                         $response = $this->storeCookieSession($request,$response,$responseData['data']);
@@ -390,11 +396,6 @@ class Auth extends Route
                         $this->storeJwtSession($responseData['data']);
                         $urlParams['request_token'] = array_get($responseData, 'data.token');
                 }
-                $usersService = new UsersService($this->container);
-                $tfa_enforced = $usersService->has2FAEnforced($responseData['data']['user']['id']);
-
-                $needs2FA = $tfa_enforced && $responseData['data']['user']['2fa_secret'] == null;
-                unset($responseData['data']['user']);
             }
         } catch (\Exception $e) {
             if (!$redirectUrl) {
@@ -410,9 +411,7 @@ class Auth extends Route
         }
 
             
-        if($needs2FA){
-            $response = $response->withRedirect('/2fa-activation');
-        }else if ($redirectUrl) {
+        if ($redirectUrl) {
             $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
             $redirectUrlParts = explode('?', $redirectUrl);
             $redirectUrl = $redirectUrlParts[0];
