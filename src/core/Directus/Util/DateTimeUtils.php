@@ -113,6 +113,9 @@ class DateTimeUtils extends \DateTime
         if(!is_null($projectName)){
             $config = get_project_config($projectName);
             return static::now($config->get('app.timezone'));
+        } else {
+            // If there's no project config (f.e. when creating projects), default to UTC
+            return static::now('UTC');
         }
     }
 
