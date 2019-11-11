@@ -37,7 +37,7 @@ class CreateUserSessions extends AbstractMigration
         ]);
 
         $table->addColumn('token', 'string', [
-            'limit' => 255,
+            'limit' => 520,
             'encoding' => 'utf8',
             'null' => true,
             'default' => null

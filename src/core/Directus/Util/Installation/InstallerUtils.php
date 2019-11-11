@@ -33,10 +33,10 @@ class InstallerUtils
     const MIGRATION_CONFIGURATION_PATH = '/migrations/migrations.php';
     /**
      * Add the upgraded migrations into directus_migration on a fresh installation of project.
-     * Upgraded migrations may contain the same queries which is in db [Original] migrations. 
-     * So in every fresh installtion we have boycott the upgrades. 
+     * Upgraded migrations may contain the same queries which is in db [Original] migrations.
+     * So in every fresh installtion we have boycott the upgrades.
      * This function will add the upgrades migrations into directus_migrations table; so the current upgraded migrations cant be executed.
-     * 
+     *
      * @return boolean
      */
     public static function addUpgradeMigrations()
@@ -48,7 +48,7 @@ class InstallerUtils
         $select->columns(['version']);
         $result = $migrationsTableGateway->selectWith($select)->toArray();
         $alreadyStoredMigrations = array_column($result, 'version');
-        
+
         $ignoreableFiles = ['..', '.'];
         $scannedDirectory = array_values(array_diff(scandir(\Directus\get_app_base_path().'/migrations/upgrades/schemas'), $ignoreableFiles));
         foreach($scannedDirectory as $fileName){
@@ -507,7 +507,7 @@ class InstallerUtils
             $privateConfig = static::getConfigName($projectName,true);
             $configName = file_exists($path . '/config/' . $privateConfig . '.php') ? $privateConfig : $publicConfig;
         }
-        
+
         return $path . '/config/' . $configName . '.php';
     }
 
@@ -731,7 +731,7 @@ class InstallerUtils
     {
         static::ensureConfigFileExists($basePath, $projectName);
         static::ensureMigrationFileExists($basePath);
-        
+
         if ($migrationName === null) {
             $migrationName = 'db';
         }
@@ -853,7 +853,7 @@ class InstallerUtils
     {
         static::getDirectusTablesFromData($data, function (Connection $db, $name) {
             throw new Exception(
-                sprintf('Directus seems to has been installed in the "%s" database.', $db->getCurrentSchema())
+                sprintf('The "%s" database already contains Directus system tables.', $db->getCurrentSchema())
             );
         });
     }
