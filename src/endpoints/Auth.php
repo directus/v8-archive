@@ -385,7 +385,7 @@ class Auth extends Route
             if(isset($responseData['data']) && isset($responseData['data']['user'])){
                 $usersService = new UsersService($this->container);
                 $tfa_enforced = $usersService->has2FAEnforced($responseData['data']['user']['id']);
-                if($tfa_enforced && $responseData['data']['user']['2fa_secret'] == null){
+                if($tfa_enforced || !is_null($responseData['data']['user']['2fa_secret'])){
                     throw new SsoNotAllowedException();
                 }
                 switch($mode){
