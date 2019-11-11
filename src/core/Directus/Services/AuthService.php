@@ -106,7 +106,7 @@ class AuthService extends AbstractService
     {
         $user = $user->toArray();
         if(empty($user['token'])){
-            $token = StringUtils::randomString(6,false);
+            $token = StringUtils::randomString(24,false);
             $userTable = $this->createTableGateway(SchemaManager::COLLECTION_USERS, false);
             $Update = new Update(SchemaManager::COLLECTION_USERS);
             $Update->set(['token' => $token]);
