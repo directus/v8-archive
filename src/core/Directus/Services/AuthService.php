@@ -3,6 +3,7 @@
 namespace Directus\Services;
 
 use function Directus\get_directus_path;
+use function Directus\get_api_project_from_request;
 use function Directus\get_url;
 use Directus\Authentication\Exception\ExpiredRequestTokenException;
 use Directus\Authentication\Exception\InvalidRequestTokenException;
@@ -396,7 +397,9 @@ class AuthService extends AbstractService
 
         $resetToken = $auth->generateResetPasswordToken($user);
 
-        $resetUrl = get_url() . '#/reset-password?token=' . $resetToken;
+        // Sending the project key in the query param makes sure the app will use the correct project
+        // to send the new password to
+        $resetUrl = get_url() . 'admin/#/reset-password?token=' . $resetToken . '&project=' . get_api_project_from_request();
 
         \Directus\send_forgot_password_email($user->toArray(), $resetUrl);
     }
