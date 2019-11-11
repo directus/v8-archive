@@ -420,7 +420,8 @@ class Auth extends Route
             if (is_array($redirectQueryParams)) {
                 $urlParams = array_merge($redirectQueryParams, $urlParams);
             }
-            $response = $response->withRedirect($redirectUrl . '?' . http_build_query($urlParams));
+            $urlToRedirect = !empty($urlParams) ? $redirectUrl . '?' . http_build_query($urlParams) : $redirectUrl;
+            $response = $response->withRedirect($urlToRedirect);
         }else{
             $response = $response->withRedirect('/admin');
         }
