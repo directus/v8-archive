@@ -291,10 +291,10 @@ class Auth extends Route
     {
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
-        
+
         /** @var Social $externalAuth */
         $externalAuth = $this->container->get('external_auth');
-        
+
         $services = [];
         foreach ($externalAuth->getAll() as $name => $provider) {
             $services[] = $authService->getSsoBasicInfo($name);
@@ -367,18 +367,22 @@ class Auth extends Route
     {
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
+
         $session = $this->container->get('session');
-        // TODO: Implement a pull method
-        $redirectUrl = $session->get('sso_origin_url');
-        $session->remove('sso_origin_url');
         $mode = $session->get('mode');
+
+        $redirectUrl = $mode == DirectusUserSessionsTableGateway::TOKEN_COOKIE
+            ? '/admin/#/'
+            : $session->get('sso_origin_url');
+
         $needs2FA = false;
         $responseData = [];
         $urlParams = [];
+
         try {
             $responseData = $authService->handleAuthenticationRequestCallback(
                 $request->getAttribute('service'),
-                !!$redirectUrl,
+                true,
                 $mode
             );
 
@@ -388,6 +392,7 @@ class Auth extends Route
                 if($tfa_enforced || !is_null($responseData['data']['user']['2fa_secret'])){
                     throw new SsoNotAllowedException();
                 }
+
                 switch($mode){
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                         $response = $this->storeCookieSession($request,$response,$responseData['data']);
@@ -410,7 +415,7 @@ class Auth extends Route
             $urlParams['error'] = true;
         }
 
-            
+
         if ($redirectUrl) {
             $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
             $redirectUrlParts = explode('?', $redirectUrl);
@@ -419,10 +424,16 @@ class Auth extends Route
             if (is_array($redirectQueryParams)) {
                 $urlParams = array_merge($redirectQueryParams, $urlParams);
             }
-            $urlToRedirect = !empty($urlParams) ? $redirectUrl . '?' . http_build_query($urlParams) : $redirectUrl;
-            $response = $response->withRedirect($urlToRedirect);
+
+            if (!empty($urlParams) && $mode == DirectusUserSessionsTableGateway::TOKEN_COOKIE) {
+                $redirectUrl .= 'login?' . http_build_query($urlParams);
+            } else {
+                $redirectUrl .= '?' . http_build_query($urlParams);
+            }
+
+            $response = $response->withRedirect($redirectUrl);
         }else{
-            $response = $response->withRedirect('/admin');
+            $response = $response->withRedirect($redirectUrl);
         }
 
         $session->remove('mode');
