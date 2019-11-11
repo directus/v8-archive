@@ -15,6 +15,7 @@ use function Directus\decrypt_static_token;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\Sso\Social;
 use Directus\Services\AuthService;
+use Directus\Services\UsersService;
 use Directus\Services\UserSessionService;
 use Directus\Util\ArrayUtils;
 use Slim\Http\Cookies;
@@ -289,9 +290,10 @@ class Auth extends Route
     {
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
+        
         /** @var Social $externalAuth */
         $externalAuth = $this->container->get('external_auth');
-
+        
         $services = [];
         foreach ($externalAuth->getAll() as $name => $provider) {
             $services[] = $authService->getSsoBasicInfo($name);
@@ -369,7 +371,7 @@ class Auth extends Route
         $redirectUrl = $session->get('sso_origin_url');
         $session->remove('sso_origin_url');
         $mode = $session->get('mode');
-        $session->remove('mode');
+        $needs2FA = false;
         $responseData = [];
         $urlParams = [];
         try {
@@ -380,7 +382,7 @@ class Auth extends Route
             );
 
             if(isset($responseData['data']) && isset($responseData['data']['user'])){
-                switch($request->getParam('mode')){
+                switch($mode){
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                         $response = $this->storeCookieSession($request,$response,$responseData['data']);
                         break;
@@ -388,10 +390,12 @@ class Auth extends Route
                         $this->storeJwtSession($responseData['data']);
                         $urlParams['request_token'] = array_get($responseData, 'data.token');
                 }
+                $usersService = new UsersService($this->container);
+                $tfa_enforced = $usersService->has2FAEnforced($responseData['data']['user']['id']);
+
+                $needs2FA = $tfa_enforced && $responseData['data']['user']['2fa_secret'] == null;
                 unset($responseData['data']['user']);
             }
-
-
         } catch (\Exception $e) {
             if (!$redirectUrl) {
                 throw $e;
@@ -405,8 +409,10 @@ class Auth extends Route
             $urlParams['error'] = true;
         }
 
-
-        if ($redirectUrl) {
+            
+        if($needs2FA){
+            $response = $response->withRedirect('/2fa-activation');
+        }else if ($redirectUrl) {
             $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
             $redirectUrlParts = explode('?', $redirectUrl);
             $redirectUrl = $redirectUrlParts[0];
@@ -414,9 +420,12 @@ class Auth extends Route
             if (is_array($redirectQueryParams)) {
                 $urlParams = array_merge($redirectQueryParams, $urlParams);
             }
-
             $response = $response->withRedirect($redirectUrl . '?' . http_build_query($urlParams));
+        }else{
+            $response = $response->withRedirect('/admin');
         }
+
+        $session->remove('mode');
         return $this->responseWithData($request, $response, $responseData);
     }
 
