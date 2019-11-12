@@ -1152,6 +1152,22 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'width' => 'half'
             ],
+
+            [
+                'collection' => 'directus_settings',
+                'field' => 'default_locale',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'language',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'telemetry',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle',
+                'locked' => 1
+            ],
+            
             // Users
             // -----------------------------------------------------------------
             [
