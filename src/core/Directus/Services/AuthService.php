@@ -2,6 +2,9 @@
 
 namespace Directus\Services;
 
+use function Directus\get_directus_path;
+use function Directus\get_api_project_from_request;
+use function Directus\get_url;
 use Directus\Authentication\Exception\ExpiredRequestTokenException;
 use Directus\Authentication\Exception\InvalidRequestTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
@@ -68,22 +71,22 @@ class AuthService extends AbstractService
         $tfa_enforced = $usersService->has2FAEnforced($user->getId());
 
         switch($mode){
-            case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+            case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                 $user = $this->findOrCreateStaticToken($user);
                 $responseData['user'] = $user;
                 break;
-            case DirectusUserSessionsTableGateway::TOKEN_JWT : 
-            default : 
+            case DirectusUserSessionsTableGateway::TOKEN_JWT :
+            default :
                 $token = $this->generateAuthToken($user);
                 $user = $user->toArray();
                 $responseData = [
                     'token' => $token,
                     'user' => $user
                 ];
-               
+
         }
         $responseObject['data'] = $responseData;
-        
+
         if(!is_null($user)){
             $needs2FA = $tfa_enforced && $user['2fa_secret'] == null;
             if($needs2FA){
@@ -100,7 +103,7 @@ class AuthService extends AbstractService
      * @param array $user
      *
      * @return array
-     * 
+     *
      */
     public function findOrCreateStaticToken(&$user)
     {
@@ -227,12 +230,12 @@ class AuthService extends AbstractService
         $user = $this->authenticateWithEmail($serviceUser->getEmail());
 
         switch($mode){
-            case DirectusUserSessionsTableGateway::TOKEN_COOKIE : 
+            case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                 $user = $this->findOrCreateStaticToken($user);
                 $responseData['user'] = $user;
                 break;
-            case DirectusUserSessionsTableGateway::TOKEN_JWT : 
-            default : 
+            case DirectusUserSessionsTableGateway::TOKEN_JWT :
+            default :
                 $token = $generateRequestToken ? $this->generateRequestToken($user) : $this->generateAuthToken($user);
                 $responseData = [
                     'token' => $token,
@@ -258,7 +261,7 @@ class AuthService extends AbstractService
         } else {
             $authenticated = $this->getAuth()->authenticateWithPrivateToken($token);
         }
-        
+
         return $authenticated;
     }
 
@@ -384,6 +387,7 @@ class AuthService extends AbstractService
      * @param $email
      */
     public function sendResetPasswordToken($email)
+
     {
         $this->validate(['email' => $email], ['email' => 'required|email']);
 
@@ -393,10 +397,14 @@ class AuthService extends AbstractService
 
         $resetToken = $auth->generateResetPasswordToken($user);
 
-        \Directus\send_forgot_password_email($user->toArray(), $resetToken);
+        // Sending the project key in the query param makes sure the app will use the correct project
+        // to send the new password to
+        $resetUrl = get_url() . 'admin/#/reset-password?token=' . $resetToken . '&project=' . get_api_project_from_request();
+
+        \Directus\send_forgot_password_email($user->toArray(), $resetUrl);
     }
 
-    public function resetPasswordWithToken($token)
+    public function resetPasswordWithToken($token, $newPassword)
     {
         if (!JWTUtils::isJWT($token)) {
             throw new InvalidResetPasswordTokenException($token);
@@ -427,12 +435,9 @@ class AuthService extends AbstractService
             throw new InvalidResetPasswordTokenException($token);
         }
 
-        $newPassword = StringUtils::randomString(16);
         $userProvider->update($user, [
             'password' => $auth->hashPassword($newPassword)
         ]);
-
-        \Directus\send_reset_password_email($user->toArray(), $newPassword);
     }
 
     public function refreshToken($token)
