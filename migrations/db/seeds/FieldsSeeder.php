@@ -1813,34 +1813,24 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'status',
                 'options' => json_encode([
                     'status_mapping' => [
-                        'published' => [
-                            'name' => 'Published',
-                            'value' => 'published',
+                        'active' => [
+                            'name' => 'Active',
+                            'value' => 'active',
                             'text_color' => 'white',
-                            'background_color' => 'accent',
+                            'background_color' => 'green',
                             'browse_subdued' => false,
                             'browse_badge' => true,
                             'soft_delete' => false,
                             'published' => true,
                         ],
-                        'draft' => [
-                            'name' => 'Draft',
-                            'value' => 'draft',
+                        'inactive' => [
+                            'name' => 'Inactive',
+                            'value' => 'inactive',
                             'text_color' => 'white',
-                            'background_color' => 'blue-grey-100',
+                            'background_color' => 'blue-grey',
                             'browse_subdued' => true,
                             'browse_badge' => true,
                             'soft_delete' => false,
-                            'published' => false,
-                        ],
-                        'deleted' => [
-                            'name' => 'Deleted',
-                            'value' => 'deleted',
-                            'text_color' => 'white',
-                            'background_color' => 'red',
-                            'browse_subdued' => true,
-                            'browse_badge' => true,
-                            'soft_delete' => true,
                             'published' => false,
                         ]
                     ]
@@ -1857,8 +1847,8 @@ class FieldsSeeder extends AbstractSeed
                 'required' => 1,
                 'options' => json_encode([
                     'choices' => [
-                        'get' => 'Get',
-                        'post' => 'Post'
+                        'get' => 'GET',
+                        'post' => 'POST'
                     ]
                 ]),
                 'locked' => 1,
@@ -1898,12 +1888,9 @@ class FieldsSeeder extends AbstractSeed
                 'required' => 1,
                 'options' => json_encode([
                     'choices' => [
-                        'item.create:before' => 'item.create:before',
-                        'item.create:after' => 'item.create:after',
-                        'item.update:before' => 'item.update:before',
-                        'item.update:after' => 'item.update:after',
-                        'item.delete:before' => 'item.delete:before',
-                        'item.delete:after' => 'item.delete:after',
+                        'item.create:after' => 'Create',
+                        'item.update:after' => 'Update',
+                        'item.delete:after' => 'Delete',
                     ]
                 ]),
                 'locked' => 1,
