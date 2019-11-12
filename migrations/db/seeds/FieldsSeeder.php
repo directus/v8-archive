@@ -1290,7 +1290,6 @@ class FieldsSeeder extends AbstractSeed
                 'note' => 'Allows fetching more YouTube Embed info',
                 'sort' => 39
             ],
-
             [
                 'collection' => 'directus_settings',
                 'field' => 'default_locale',
@@ -1305,7 +1304,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'toggle',
                 'locked' => 1
             ],
-            
+
             // Users
             // -----------------------------------------------------------------
             [
@@ -1377,7 +1376,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'placeholder' => 'Enter your give name...'
+                    'iconRight' => 'account_circle'
                 ]),
                 'locked' => 1,
                 'required' => 1,
@@ -1390,7 +1389,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'placeholder' => 'Enter your surname...'
+                    'iconRight' => 'account_circle'
                 ]),
                 'locked' => 1,
                 'required' => 1,
@@ -1403,7 +1402,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'placeholder' => 'Enter your email address...'
+                    'iconRight' => 'alternate_email'
                 ]),
                 'locked' => 1,
                 'validation' => '$email',
@@ -1446,7 +1445,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'placeholder' => 'Enter your company or organization name...'
+                    'iconRight' => 'location_city'
                 ]),
                 'sort' => 9,
                 'width' => 'half'
@@ -1457,7 +1456,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'placeholder' => 'Enter your title or role...'
+                    'iconRight' => 'text_fields'
                 ]),
                 'sort' => 10,
                 'width' => 'half'
@@ -1637,6 +1636,23 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_users',
+                'field' => 'avatar',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
+                'interface' => 'file',
+                'locked' => 1,
+                'sort' => 13
+            ],
+            [
+                'collection' => 'directus_users',
+                'field' => '2fa_secret',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => '2fa-secret',
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 14
+            ],
+            [
+                'collection' => 'directus_users',
                 'field' => 'locale_options',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'json',
@@ -1690,14 +1706,6 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_users',
-                'field' => 'avatar',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
-                'interface' => 'file',
-                'locked' => 1,
-                'sort' => 18
-            ],
-            [
-                'collection' => 'directus_users',
                 'field' => 'invite_token',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
@@ -1731,14 +1739,6 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => '2fa_secret',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => '2fa-secret',
-                'locked' => 1,
-                'readonly' => 1
             ],
 
             // User Roles Junction
