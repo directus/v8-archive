@@ -30,10 +30,10 @@ class CreateWebHooks extends AbstractMigration
     public function change()
     {
         $table = $this->table('directus_webhooks', ['signed' => false]);
-        
+
         $table->addColumn('status', 'string', [
             'limit' => 16,
-            'default' => \Directus\Api\Routes\Webhook::STATUS_DRAFT
+            'default' => \Directus\Api\Routes\Webhook::STATUS_INACTIVE
         ]);
 
         $table->addColumn('collection', 'string', [
@@ -63,10 +63,10 @@ class CreateWebHooks extends AbstractMigration
             'default' => null
         ]);
 
-       
-        
+
+
         $table->create();
-        
+
         // Insert Into Directus Fields
         $data = [
             [
@@ -163,7 +163,7 @@ class CreateWebHooks extends AbstractMigration
                 'interface' => 'text-input',
                 'required' => 1
             ]
-            
+
         ];
 
         foreach($data as $value){
