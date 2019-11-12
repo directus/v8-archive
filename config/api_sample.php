@@ -10,6 +10,7 @@ return [
         'logger' => [
             'path' => __DIR__ . '/../logs',
         ],
+        'useTelemetry' => true
     ],
 
     'database' => [
