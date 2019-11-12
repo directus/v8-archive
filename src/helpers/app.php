@@ -134,7 +134,6 @@ if (!function_exists('scan_config_folder')) {
                     continue;
                 }
                 if(end($fileObject) == "php" ){
-                    array_pop($fileObject);
                     $projectNames[] = implode(".",$fileObject);
                 }
             }
