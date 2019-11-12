@@ -88,6 +88,7 @@ $container = $app->getContainer();
 try {
     \Directus\register_global_hooks($app);
     \Directus\register_extensions_hooks($app);
+    \Directus\register_webhooks($app);
 } catch (ErrorException $e) {
     http_response_code($e->getStatusCode());
     header('Content-Type: application/json');
@@ -202,6 +203,10 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
     $this->group('/users', \Directus\Api\Routes\Users::class)
+        ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
+    $this->group('/webhooks', \Directus\Api\Routes\Webhook::class)
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);

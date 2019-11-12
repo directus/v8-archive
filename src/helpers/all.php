@@ -10,6 +10,8 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
 use Directus\Util\Installation\InstallerUtils;
+use Directus\Services\WebhookService;
+use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
 use Directus\Services\UserSessionService;
@@ -614,6 +616,38 @@ if (!function_exists('register_extensions_hooks')) {
             $app,
             get_custom_hooks('public/extensions/core/interfaces', true)
         );
+    }
+}
+
+if (!function_exists('register_webhooks')) {
+    /**
+     * Register all the hooks from the directus_webhooks table
+     *
+     * @param Application $app
+     */
+    function register_webhooks(Application $app)
+    {
+        $app = Application::getInstance();
+        BaseTableGateway::setContainer($app->getContainer());
+        try{
+            $webhook = new WebhookService($app->getContainer());
+            $webhookData = $webhook->findAll(['status' => \Directus\Api\Routes\Webhook::STATUS_PUBLISHED],false);
+            $result = [];
+            foreach($webhookData['data'] as $hook){
+                $action = explode(":",$hook['directus_action']);
+                $result['hooks']['actions'][$action[0].".".$hook['collection'].":".$action[1]] = function ($data) use ($hook) {
+                    $client = new \GuzzleHttp\Client();
+                    $response = [];
+                    if($hook['http_action'] == WebhookService::HTTP_ACTION_POST){
+                        $response['form_params'] = ($data);
+                    }
+                    $client->request($hook['http_action'], $hook['url'], $response);
+                };
+            }
+            register_hooks_list($app,$result);
+        }catch(\Exception $e){
+            return true;
+        }
     }
 }
 

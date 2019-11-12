@@ -29,6 +29,7 @@ class SchemaManager
     const COLLECTION_SETTINGS            = 'directus_settings';
     const COLLECTION_USER_ROLES          = 'directus_user_roles';
     const COLLECTION_USERS               = 'directus_users';
+    const COLLECTION_WEBHOOKS            = 'directus_webhooks';
     const COLLECTION_USER_SESSIONS       = 'directus_user_sessions';
 
     /**
