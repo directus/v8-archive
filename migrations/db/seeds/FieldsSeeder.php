@@ -1874,7 +1874,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_webhooks',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
+                'interface' => 'collections',
                 'required' => 1,
                 'locked' => 1,
                 'width' => 'half',
