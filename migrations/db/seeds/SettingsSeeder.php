@@ -16,12 +16,24 @@ class SettingsSeeder extends AbstractSeed
   {
     $data = [
       [
+        'key' => 'project_url',
+        'value' => ''
+      ],
+      [
         'key' => 'project_logo',
         'value' => ''
       ],
       [
         'key' => 'project_color',
-        'value' => 'darkest-gray',
+        'value' => 'blue-grey-900',
+      ],
+      [
+        'key' => 'project_foreground',
+        'value' => '',
+      ],
+      [
+        'key' => 'project_background',
+        'value' => '',
       ],
       [
         'key' => 'default_limit',
@@ -32,15 +44,31 @@ class SettingsSeeder extends AbstractSeed
         'value' => '1'
       ],
       [
-        'key' => 'auto_sign_out',
-        'value' => '60'
-      ],
-      [
-        'key' => 'youtube_api_key',
+        'key' => 'password_policy',
         'value' => ''
       ],
       [
+        'key' => 'auto_sign_out',
+        'value' => '10080'
+      ],
+      [
+        'key' => 'login_attempts_allowed',
+        'value' => '10'
+      ],
+      [
         'key' => 'trusted_proxies',
+        'value' => ''
+      ],
+      [
+        'key' => 'file_naming',
+        'value' => 'uuid'
+      ],
+      [
+        'key' => 'file_max_size',
+        'value' => '100MB'
+      ],
+      [
+        'key' => 'file_mimetype_whitelist',
         'value' => ''
       ],
       [
@@ -56,16 +84,16 @@ class SettingsSeeder extends AbstractSeed
         'value' => '{"contain":{"options":{"resizeCanvas":false,"position":"center","resizeRelative":false,"canvasBackground":"ccc"}},"crop":{"options":{"position":"center"}}}'
       ],
       [
-        'key' => 'thumbnail_cache_ttl',
-        'value' => '86400'
-      ],
-      [
         'key' => 'thumbnail_not_found_location',
         'value' => ''
       ],
       [
-        'key' => 'file_naming',
-        'value' => 'uuid'
+        'key' => 'thumbnail_cache_ttl',
+        'value' => '86400'
+      ],
+      [
+        'key' => 'youtube_api_key',
+        'value' => ''
       ]
     ];
 

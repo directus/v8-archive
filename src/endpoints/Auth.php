@@ -8,6 +8,7 @@ use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use function Directus\array_get;
 use function Directus\get_directus_setting;
+use function Directus\get_directus_path;
 use function Directus\get_project_session_cookie_name;
 use function Directus\get_request_authorization_token;
 use function Directus\encrypt_static_token;
@@ -36,7 +37,7 @@ class Auth extends Route
         $app->post('/logout/{user}', [$this, 'logoutFromAll']);
         $app->post('/logout/{user}/{id}', [$this, 'logoutFromOne']);
         $app->post('/password/request', [$this, 'forgotPassword']);
-        $app->get('/password/reset/{token}', [$this, 'resetPassword']);
+        $app->post('/password/reset', [$this, 'resetPassword']);
         $app->post('/refresh', [$this, 'refresh']);
         $app->get('/sso', [$this, 'listSsoAuthServices']);
         $app->post('/sso/access_token', [$this, 'ssoAccessToken']);
@@ -255,7 +256,8 @@ class Auth extends Route
         $authService = $this->container->get('services')->get('auth');
 
         $authService->resetPasswordWithToken(
-            $request->getAttribute('token')
+            $request->getParsedBodyParam('token'),
+            $request->getParsedBodyParam('password')
         );
 
         return $this->responseWithData($request, $response, []);
@@ -291,10 +293,10 @@ class Auth extends Route
     {
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
-        
+
         /** @var Social $externalAuth */
         $externalAuth = $this->container->get('external_auth');
-        
+
         $services = [];
         foreach ($externalAuth->getAll() as $name => $provider) {
             $services[] = $authService->getSsoBasicInfo($name);
@@ -324,12 +326,14 @@ class Auth extends Route
         $responseData = $authService->getAuthenticationRequestInfo(
             $request->getAttribute('service')
         );
+        $session->set('mode', $request->getParam('mode'));
+        $session->set('redirect_url', $request->getParam('redirect_url'));
         if (\Directus\cors_is_origin_allowed($allowedOrigins, $origin)) {
             if (is_array($origin)) {
                 $origin = array_shift($origin);
             }
             $session->set('sso_origin_url', $origin);
-            $session->set('mode', $request->getParam('mode'));
+
             $response = $response->withRedirect(array_get($responseData, 'data.authorization_url'));
         }
 
@@ -367,27 +371,27 @@ class Auth extends Route
     {
         /** @var AuthService $authService */
         $authService = $this->container->get('services')->get('auth');
+
         $session = $this->container->get('session');
-        // TODO: Implement a pull method
-        $redirectUrl = $session->get('sso_origin_url');
-        $session->remove('sso_origin_url');
         $mode = $session->get('mode');
-        $needs2FA = false;
+        $redirectUrl = $session->get('redirect_url') ? $session->get('redirect_url') : $session->get('sso_origin_url');
         $responseData = [];
         $urlParams = [];
+
         try {
             $responseData = $authService->handleAuthenticationRequestCallback(
                 $request->getAttribute('service'),
-                !!$redirectUrl,
+                true,
                 $mode
             );
 
             if(isset($responseData['data']) && isset($responseData['data']['user'])){
                 $usersService = new UsersService($this->container);
                 $tfa_enforced = $usersService->has2FAEnforced($responseData['data']['user']['id']);
-                if($tfa_enforced || !is_null($responseData['data']['user']['2fa_secret'])){
+                if($tfa_enforced || !empty($responseData['data']['user']['2fa_secret'])){
                     throw new SsoNotAllowedException();
                 }
+
                 switch($mode){
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                         $response = $this->storeCookieSession($request,$response,$responseData['data']);
@@ -410,7 +414,7 @@ class Auth extends Route
             $urlParams['error'] = true;
         }
 
-            
+
         if ($redirectUrl) {
             $redirectQueryString = parse_url($redirectUrl, PHP_URL_QUERY);
             $redirectUrlParts = explode('?', $redirectUrl);
@@ -419,13 +423,16 @@ class Auth extends Route
             if (is_array($redirectQueryParams)) {
                 $urlParams = array_merge($redirectQueryParams, $urlParams);
             }
+
             $urlToRedirect = !empty($urlParams) ? $redirectUrl . '?' . http_build_query($urlParams) : $redirectUrl;
             $response = $response->withRedirect($urlToRedirect);
+
         }else{
-            $response = $response->withRedirect('/admin');
+            $response = $response->withRedirect($redirectUrl);
         }
 
         $session->remove('mode');
+        $session->remove('redirect_url');
         return $this->responseWithData($request, $response, $responseData);
     }
 
