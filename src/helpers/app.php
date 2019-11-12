@@ -133,8 +133,8 @@ if (!function_exists('scan_config_folder')) {
                 if (StringUtils::startsWith($fileName, '_')) {
                     continue;
                 }
-                if(isset($fileObject[1]) && $fileObject[1] == "php" ){
-                    $projectNames[] = $fileObject[0];
+                if(end($fileObject) == "php" ){
+                    $projectNames[] = implode(".",$fileObject);
                 }
             }
         }
