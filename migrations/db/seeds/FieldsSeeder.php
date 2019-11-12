@@ -1861,6 +1861,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
+                    'placeholder' => 'https://example.com',
                     'iconRight' => 'link'
                 ]),
                 'required' => 1,
