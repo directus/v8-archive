@@ -1844,14 +1844,51 @@ class FieldsSeeder extends AbstractSeed
                             'published' => false,
                         ]
                     ]
-                ])
+                ]),
+                'locked' => 1,
+                'width' => 'full',
+                'sort' => 1
+            ],
+            [
+                'collection' => 'directus_webhooks',
+                'field' => 'http_action',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'dropdown',
+                'required' => 1,
+                'options' => json_encode([
+                    'choices' => [
+                        'get' => 'Get',
+                        'post' => 'Post'
+                    ]
+                ]),
+                'locked' => 1,
+                'width' => 'half-space',
+                'sort' => 2
+            ],
+            [
+                'collection' => 'directus_webhooks',
+                'field' => 'url',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'options' => json_encode([
+                    'iconRight' => 'link'
+                ]),
+                'required' => 1,
+                'locked' => 1,
+                'width' => 'full',
+                'note' => '',
+                'sort' => 3
             ],
             [
                 'collection' => 'directus_webhooks',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'required' => 1
+                'required' => 1,
+                'locked' => 1,
+                'width' => 'half',
+                'note' => '',
+                'sort' => 4
             ],
             [
                 'collection' => 'directus_webhooks',
@@ -1868,28 +1905,28 @@ class FieldsSeeder extends AbstractSeed
                         'item.delete:before' => 'item.delete:before',
                         'item.delete:after' => 'item.delete:after',
                     ]
-                ])
+                ]),
+                'locked' => 1,
+                'width' => 'half',
+                'note' => '',
+                'sort' => 5
             ],
             [
                 'collection' => 'directus_webhooks',
-                'field' => 'url',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'required' => 1
-            ],
-            [
-                'collection' => 'directus_webhooks',
-                'field' => 'http_action',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'dropdown',
-                'required' => 1,
+                'field' => 'info',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
+                'interface' => 'divider',
                 'options' => json_encode([
-                    'choices' => [
-                        'get' => 'Get',
-                        'post' => 'Post'
-                    ]
-                ])
-            ]
+                    'style' => 'medium',
+                    'title' => 'Creating Webhooks',
+                    'hr' => true,
+                    'margin' => false,
+                    'description' => 'Directus will send a POST request to the URL below with details from the selected events. You can specify which data format you’d like to receive and set a secret to be sent as a signature. More information can be found in our developer documentation.'
+                ]),
+                'locked' => 1,
+                'width' => 'full',
+                'sort' => 6
+            ],
         ];
 
         $files = $this->table('directus_fields');
