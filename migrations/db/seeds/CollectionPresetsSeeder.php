@@ -68,10 +68,10 @@ class CollectionPresetsSeeder extends AbstractSeed
                 'view_options' => json_encode([
                     'tabular' => [
                         'widths' => [
-                            'status' => 30,
-                            'http_action' => 39,
-                            'url' => 197,
-                            'collection' => 170,
+                            'status' => 32,
+                            'http_action' => 72,
+                            'url' => 200,
+                            'collection' => 200,
                             'directus_action' => 200
                         ]
                     ]
