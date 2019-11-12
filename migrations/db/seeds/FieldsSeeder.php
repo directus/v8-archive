@@ -450,8 +450,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
                 'interface' => 'file',
                 'locked' => 1,
-                'hidden_detail' => 1,
-                'sort' => 0
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -460,8 +459,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_detail' => 1,
-                'sort' => 1
+                'hidden_detail' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -469,7 +467,8 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
                 'interface' => 'file-preview',
                 'locked' => 1,
-                'sort' => 2
+                'sort' => 1,
+                'width' => 'full'
             ],
             [
                 'collection' => 'directus_files',
@@ -504,6 +503,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'tags',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
+                'options' => json_encode([
+                    'placeholder' => 'Enter a keyword then hit enter...'
+                ]),
                 'sort' => 5,
                 'width' => 'half'
             ],
@@ -525,9 +527,35 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'wysiwyg',
                 'options' => json_encode([
-                    'placeholder' => 'Enter a caption or description...'
+                    'toolbar' => ['bold','italic','underline','link','code']
                 ]),
-                'sort' => 7
+                'sort' => 7,
+                'width' => 'full'
+            ],
+            [
+                'collection' => 'directus_files',
+                'field' => 'uploaded_on',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
+                'interface' => 'datetime',
+                'options' => json_encode([
+                    'iconRight' => 'today'
+                ]),
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 8,
+                'width' => 'half',
+                'required' => 1
+            ],
+            [
+                'collection' => 'directus_files',
+                'field' => 'uploaded_by',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_USER_CREATED,
+                'interface' => 'user-created',
+                'locked' => 1,
+                'readonly' => 1,
+                'sort' => 9,
+                'width' => 'half',
+                'required' => 1
             ],
             [
                 'collection' => 'directus_files',
@@ -583,36 +611,12 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_files',
-                'field' => 'uploaded_on',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
-                'interface' => 'datetime',
-                'options' => json_encode([
-                    'iconRight' => 'today'
-                ]),
-                'locked' => 1,
-                'readonly' => 1,
-                'sort' => 8,
-                'width' => 'half',
-                'required' => 1
-            ],
-            [
-                'collection' => 'directus_files',
-                'field' => 'uploaded_by',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_USER_CREATED,
-                'interface' => 'user-created',
-                'locked' => 1,
-                'readonly' => 1,
-                'sort' => 9,
-                'width' => 'half',
-                'required' => 1
-            ],
-            [
-                'collection' => 'directus_files',
                 'field' => 'metadata',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'json',
                 'locked' => 1,
-                'sort' => 14
+                'sort' => 14,
+                'width' => 'full'
             ],
             [
                 'collection' => 'directus_files',
