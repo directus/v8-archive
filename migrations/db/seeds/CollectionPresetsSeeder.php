@@ -17,7 +17,6 @@ class CollectionPresetsSeeder extends AbstractSeed
         $data = [
             [
                 'collection' => 'directus_activity',
-                'view_type' => 'tabular',
                 'view_type' => 'timeline',
                 'view_query' => json_encode([
                     'timeline' => [
@@ -55,6 +54,26 @@ class CollectionPresetsSeeder extends AbstractSeed
                         'content' => 'title',
                         'src' => 'avatar',
                         'icon' => 'person'
+                    ]
+                ])
+            ],
+            [
+                'collection' => 'directus_webhooks',
+                'view_type' => 'tabular',
+                'view_query' => json_encode([
+                    'tabular' => [
+                      'fields' => 'status,http_action,url,collection,directus_action'
+                    ]
+                ]),
+                'view_options' => json_encode([
+                    'tabular' => [
+                        'widths' => [
+                            'status' => 30,
+                            'http_action' => 39,
+                            'url' => 197,
+                            'collection' => 170,
+                            'directus_action' => 200
+                        ]
                     ]
                 ])
             ]
