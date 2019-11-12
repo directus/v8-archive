@@ -1118,6 +1118,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'width' => 'full',
+                'hidden_browse' => 1,
                 'sort' => 10
             ],
             [
@@ -1155,6 +1156,7 @@ class FieldsSeeder extends AbstractSeed
                     'hr' => true
                 ]),
                 'locked' => 1,
+                'hidden_browse' => 1,
                 'width' => 'full',
                 'sort' => 20
             ],
@@ -1196,6 +1198,7 @@ class FieldsSeeder extends AbstractSeed
                     'hr' => true
                 ]),
                 'locked' => 1,
+                'hidden_browse' => 1,
                 'width' => 'full',
                 'sort' => 30
             ],
@@ -1916,6 +1919,7 @@ class FieldsSeeder extends AbstractSeed
                 ]),
                 'locked' => 1,
                 'width' => 'full',
+                'hidden_browse' => 1,
                 'sort' => 6
             ],
         ];
