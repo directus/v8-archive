@@ -35,13 +35,8 @@ class CreateWebHooks extends AbstractMigration
             'default' => \Directus\Api\Routes\Webhook::STATUS_INACTIVE
         ]);
 
-        $table->addColumn('collection', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
 
-        $table->addColumn('directus_action', 'string', [
+        $table->addColumn('http_action', 'string', [
             'limit' => 255,
             'encoding' => 'utf8',
             'null' => true,
@@ -55,14 +50,18 @@ class CreateWebHooks extends AbstractMigration
             'default' => null
         ]);
 
-        $table->addColumn('http_action', 'string', [
+        $table->addColumn('collection', 'string', [
+            'limit' => 255,
+            'null' => true,
+            'default' => null
+        ]);
+
+        $table->addColumn('directus_action', 'string', [
             'limit' => 255,
             'encoding' => 'utf8',
             'null' => true,
             'default' => null
         ]);
-
-
 
         $table->create();
     }
