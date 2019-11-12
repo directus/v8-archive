@@ -33,15 +33,22 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'action',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'activity-icon',
+                'options' => json_encode([
+                    'iconRight' => 'change_history'
+                ]),
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 1
+                'sort' => 1,
+                'width' => 'full'
             ],
             [
                 'collection' => 'directus_activity',
                 'field' => 'collection',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'collections',
+                'options' => json_encode([
+                    'iconRight' => 'list_alt'
+                ]),
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 2,
@@ -52,6 +59,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'item',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
+                'options' => json_encode([
+                    'iconRight' => 'link'
+                ]),
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 3,
@@ -62,6 +72,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'action_by',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'user',
+                'options' => json_encode([
+                    'iconRight' => 'account_circle'
+                ]),
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 4,
@@ -73,7 +86,8 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime',
                 'options' => json_encode([
-                    'showRelative' => true
+                    'showRelative' => true,
+                    'iconRight' => 'calendar_today'
                 ]),
                 'locked' => 1,
                 'readonly' => 1,
@@ -86,7 +100,8 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime',
                 'options' => json_encode([
-                    'showRelative' => true
+                    'showRelative' => true,
+                    'iconRight' => 'edit'
                 ]),
                 'locked' => 1,
                 'readonly' => 1,
@@ -99,7 +114,8 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime',
                 'options' => json_encode([
-                    'showRelative' => true
+                    'showRelative' => true,
+                    'iconRight' => 'delete_outline'
                 ]),
                 'locked' => 1,
                 'readonly' => 1,
@@ -111,6 +127,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'ip',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
+                'options' => json_encode([
+                    'iconRight' => 'my_location'
+                ]),
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 8,
@@ -121,6 +140,9 @@ class FieldsSeeder extends AbstractSeed
                 'field' => 'user_agent',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
+                'options' => json_encode([
+                    'iconRight' => 'devices_other'
+                ]),
                 'locked' => 1,
                 'readonly' => 1,
                 'sort' => 9,
@@ -133,7 +155,8 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'textarea',
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 10
+                'sort' => 10,
+                'width' => 'full'
             ],
 
 
