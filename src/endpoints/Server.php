@@ -30,13 +30,14 @@ class Server extends Route
     public function projects(Request $request, Response $response)
     {
         $scannedDirectory = \Directus\scan_config_folder();
+        
         $projectNames = [];
         if(empty($scannedDirectory)){
             throw new NotInstalledException('This Directus instance has not been configured. Install via the Directus App (eg: /admin) or read more about configuration at: https://docs.directus.io/getting-started/installation.html#configure');
         }else{
             foreach($scannedDirectory as $fileName){
-                $fileObject = explode(".",$fileName);
-                if(!StringUtils::startsWith($fileObject[0], '_')){
+                if(!StringUtils::startsWith($fileName, 'private.')){
+                    $fileObject = explode(".",$fileName);
                     $projectNames[] = $fileObject[0];
                 }
             }
