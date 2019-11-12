@@ -15,9 +15,8 @@ class Webhook extends Route
     /** @var $usersGateway DirectusUsersTableGateway */
     protected $usersGateway;
 
-    const STATUS_DELETED = 'deleted';
-    const STATUS_DRAFT = 'draft';
-    const STATUS_PUBLISHED = 'published';
+    const STATUS_INACTIVE = 'inactive';
+    const STATUS_ACTIVE = 'active';
 
     /**
      * @param Application $app
@@ -33,7 +32,7 @@ class Webhook extends Route
         // Revisions
         $app->get('/{id}/revisions', [$this, 'webhookRevisions']);
         $app->get('/{id}/revisions/{offset}', [$this, 'oneWebhookRevision']);
-  
+
     }
 
     /**
@@ -112,7 +111,7 @@ class Webhook extends Route
         if (strpos($id, ',') !== false) {
             return $this->batch($request, $response);
         }
-      
+
         $responseData = $service->update(
             $id,
             $payload,

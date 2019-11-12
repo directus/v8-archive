@@ -252,7 +252,7 @@ if (!function_exists('get_api_project_from_request')) {
                 'ignore_payload' => true,
                 'check_proxy' => false,
             ]);
-            
+
             if ($request->hasHeader('Authorization')) {
                 $authorizationHeader = $request->getHeader('Authorization');
 
@@ -260,7 +260,7 @@ if (!function_exists('get_api_project_from_request')) {
                 if (is_array($authorizationHeader)) {
                     $authorizationHeader = array_shift($authorizationHeader);
                 }
-    
+
                 if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
                     $authToken = $matches[1];
                 }
@@ -272,7 +272,7 @@ if (!function_exists('get_api_project_from_request')) {
                 $name = get_request_project_name($request);
             }
         }
-        
+
         return $name;
     }
 }
@@ -631,7 +631,7 @@ if (!function_exists('register_webhooks')) {
         BaseTableGateway::setContainer($app->getContainer());
         try{
             $webhook = new WebhookService($app->getContainer());
-            $webhookData = $webhook->findAll(['status' => \Directus\Api\Routes\Webhook::STATUS_PUBLISHED],false);
+            $webhookData = $webhook->findAll(['status' => \Directus\Api\Routes\Webhook::STATUS_ACTIVE],false);
             $result = [];
             foreach($webhookData['data'] as $hook){
                 $action = explode(":",$hook['directus_action']);
