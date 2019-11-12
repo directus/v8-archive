@@ -333,7 +333,7 @@ class Auth extends Route
                 $origin = array_shift($origin);
             }
             $session->set('sso_origin_url', $origin);
-            
+
             $response = $response->withRedirect(array_get($responseData, 'data.authorization_url'));
         }
 
@@ -388,7 +388,7 @@ class Auth extends Route
             if(isset($responseData['data']) && isset($responseData['data']['user'])){
                 $usersService = new UsersService($this->container);
                 $tfa_enforced = $usersService->has2FAEnforced($responseData['data']['user']['id']);
-                if($tfa_enforced || !is_null($responseData['data']['user']['2fa_secret'])){
+                if($tfa_enforced || !empty($responseData['data']['user']['2fa_secret'])){
                     throw new SsoNotAllowedException();
                 }
 
@@ -424,7 +424,7 @@ class Auth extends Route
                 $urlParams = array_merge($redirectQueryParams, $urlParams);
             }
 
-            $urlToRedirect = !empty($urlParams) ? $redirectUrl . '?' . http_build_query($urlParams) : $redirectUrl;	
+            $urlToRedirect = !empty($urlParams) ? $redirectUrl . '?' . http_build_query($urlParams) : $redirectUrl;
             $response = $response->withRedirect($urlToRedirect);
 
         }else{
