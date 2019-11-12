@@ -1659,7 +1659,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'hidden_browse' => 1,
                 'hidden_detail' => 1,
-                'sort' => 13
+                'sort' => 15
             ],
             [
                 'collection' => 'directus_users',
@@ -1669,17 +1669,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 14
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'last_login',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
-                'interface' => 'datetime',
-                'locked' => 1,
-                'readonly' => 1,
-                'sort' => 15,
-                'width' => 'half'
+                'sort' => 16
             ],
             [
                 'collection' => 'directus_users',
@@ -1689,8 +1679,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1,
-                'sort' => 16,
-                'width' => 'half'
+                'sort' => 17
             ],
             [
                 'collection' => 'directus_users',
@@ -1701,35 +1690,7 @@ class FieldsSeeder extends AbstractSeed
                 'readonly' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 17,
-                'width' => 'half'
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'invite_token',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'invite_accepted',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
-                'locked' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
-            ],
-            [
-                'collection' => 'directus_users',
-                'field' => 'last_ip',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1
+                'sort' => 18
             ],
             [
                 'collection' => 'directus_users',
@@ -1827,7 +1788,7 @@ class FieldsSeeder extends AbstractSeed
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
                 'interface' => 'datetime'
             ],
-          
+
             // Webhooks
             // -----------------------------------------------------------------
             [
