@@ -16,6 +16,7 @@ use Directus\Config\Exception\UnknownProjectException;
 use Directus\Exception\Exception;
 use Directus\Exception\UnauthorizedException;
 use Directus\Util\Installation\InstallerUtils;
+use Directus\Util\StringUtils;
 use Slim\Http\Body;
 
 if (!function_exists('create_app'))  {
@@ -129,6 +130,9 @@ if (!function_exists('scan_config_folder')) {
         if(!empty($scannedDirectory)){
             foreach($scannedDirectory as $fileName){
                 $fileObject = explode(".",$fileName);
+                if (StringUtils::startsWith($fileName, '_')) {
+                    continue;
+                }
                 if(end($fileObject) == "php" ){
                     array_pop($fileObject);
                     $projectNames[] = implode(".",$fileObject);
