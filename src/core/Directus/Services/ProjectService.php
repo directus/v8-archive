@@ -24,7 +24,7 @@ class ProjectService extends AbstractService
 
         $this->validate($data,[
             'project' => 'required|string|regex:/^[0-9a-z_-]+$/i',
-
+            'private' => 'bool',
             'force' => 'bool',
             'existing' => 'bool',
             'super_admin_token' => 'required',
