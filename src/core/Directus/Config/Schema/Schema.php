@@ -26,7 +26,8 @@ class Schema {
             new Group('settings', [
                 new Group('logger', [
                     new Value('path', Types::STRING, $loggerPath),
-                ])
+                ]),
+                new Value('useTelemetry', Types::BOOLEAN, true),
             ]),
             new Group('database', [
                 new Value('type', Types::STRING, 'mysql'),
