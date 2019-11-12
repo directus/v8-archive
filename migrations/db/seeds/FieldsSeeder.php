@@ -1091,7 +1091,10 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Default locale for Directus Users',
-                'sort' => 7
+                'sort' => 7,
+                'options' => json_encode([
+                    'limit' => true
+                ])
             ],
             [
                 'collection' => 'directus_settings',
@@ -1638,7 +1641,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'sort' => 12,
                 'width' => 'half',
-                'required' => 1
+                'required' => 0
             ],
             [
                 'collection' => 'directus_users',

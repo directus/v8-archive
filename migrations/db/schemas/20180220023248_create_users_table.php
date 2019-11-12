@@ -66,7 +66,7 @@ class CreateUsersTable extends AbstractMigration
         $table->addColumn('locale', 'string', [
             'limit' => 8,
             'null' => true,
-            'default' => 'en-US'
+            'default' => null
         ]);
         $table->addColumn('locale_options', 'text', [
             'null' => true,
