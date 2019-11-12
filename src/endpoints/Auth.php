@@ -326,12 +326,14 @@ class Auth extends Route
         $responseData = $authService->getAuthenticationRequestInfo(
             $request->getAttribute('service')
         );
+        $session->set('mode', $request->getParam('mode'));
+        $session->set('redirect_url', $request->getParam('redirect_url'));
         if (\Directus\cors_is_origin_allowed($allowedOrigins, $origin)) {
             if (is_array($origin)) {
                 $origin = array_shift($origin);
             }
             $session->set('sso_origin_url', $origin);
-            $session->set('mode', $request->getParam('mode'));
+            
             $response = $response->withRedirect(array_get($responseData, 'data.authorization_url'));
         }
 
@@ -372,12 +374,7 @@ class Auth extends Route
 
         $session = $this->container->get('session');
         $mode = $session->get('mode');
-
-        $redirectUrl = $mode == DirectusUserSessionsTableGateway::TOKEN_COOKIE
-            ? get_directus_path() . '/admin/#/'
-            : $session->get('sso_origin_url');
-
-        $needs2FA = false;
+        $redirectUrl = $session->get('redirect_url') ? $session->get('redirect_url') : $session->get('sso_origin_url');
         $responseData = [];
         $urlParams = [];
 
@@ -427,18 +424,15 @@ class Auth extends Route
                 $urlParams = array_merge($redirectQueryParams, $urlParams);
             }
 
-            if (!empty($urlParams) && $mode == DirectusUserSessionsTableGateway::TOKEN_COOKIE) {
-                $redirectUrl .= 'login?' . http_build_query($urlParams);
-            } else {
-                $redirectUrl .= '?' . http_build_query($urlParams);
-            }
+            $urlToRedirect = !empty($urlParams) ? $redirectUrl . '?' . http_build_query($urlParams) : $redirectUrl;	
+            $response = $response->withRedirect($urlToRedirect);
 
-            $response = $response->withRedirect($redirectUrl);
         }else{
             $response = $response->withRedirect($redirectUrl);
         }
 
         $session->remove('mode');
+        $session->remove('redirect_url');
         return $this->responseWithData($request, $response, $responseData);
     }
 
