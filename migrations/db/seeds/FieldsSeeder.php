@@ -1085,6 +1085,26 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_settings',
+                'field' => 'default_locale',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'language',
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'Default locale for Directus Users',
+                'sort' => 7
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'telemetry',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
+                'interface' => 'toggle',
+                'locked' => 1,
+                'width' => 'half',
+                'note' => '<a href="https://docs.directus.io/getting-started/concepts.html#telemetry" target="_blank">Learn More</a>',
+                'sort' => 8
+            ],
+            [
+                'collection' => 'directus_settings',
                 'field' => 'data_divider',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
                 'interface' => 'divider',
@@ -1289,20 +1309,6 @@ class FieldsSeeder extends AbstractSeed
                 'width' => 'half',
                 'note' => 'Allows fetching more YouTube Embed info',
                 'sort' => 39
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'default_locale',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'language',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'telemetry',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
-                'locked' => 1
             ],
 
             // Users
