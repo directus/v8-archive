@@ -15,7 +15,14 @@ class UseJson extends AbstractMigration
             ['collection' => 'directus_activity', 'interface' => 'code']
         ));
 
-  
+        $this->execute(\Directus\phinx_update(	  
+            $this->getAdapter(),	
+            'directus_fields',	
+            [	
+              'interface' => 'json'	
+            ],	
+            ['collection' => 'directus_activity_seen', 'interface' => 'code']	
+        ));
 
         $this->execute(\Directus\phinx_update(
             $this->getAdapter(),
