@@ -41,6 +41,9 @@ if (file_exists($maintenanceFlagPath)) {
 try {
     $app = \Directus\create_app_with_project_name($basePath, $projectName);
 } catch (ErrorException $e) {
+    if($e->getCode() == Directus\Config\Exception\UnknownProjectException::ERROR_CODE){
+        return \Directus\create_unknown_project_app($basePath);
+    }
     http_response_code($e->getStatusCode());
     header('Content-Type: application/json');
     echo json_encode([
