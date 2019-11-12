@@ -1906,10 +1906,10 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'divider',
                 'options' => json_encode([
                     'style' => 'medium',
-                    'title' => 'Creating Webhooks',
+                    'title' => 'How Webhooks Work',
                     'hr' => true,
                     'margin' => false,
-                    'description' => 'Directus will send a POST request to the URL below with details from the selected events. You can specify which data format you’d like to receive and set a secret to be sent as a signature. More information can be found in our developer documentation.'
+                    'description' => 'When the selected action occurs for the selected collection, Directus will send an HTTP request to the above URL.'
                 ]),
                 'locked' => 1,
                 'width' => 'full',
