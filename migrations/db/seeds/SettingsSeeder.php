@@ -36,6 +36,14 @@ class SettingsSeeder extends AbstractSeed
         'value' => '',
       ],
       [
+        'key' => 'default_locale',
+        'value' => 'en-US',
+      ],
+      [
+        'key' => 'telemetry',
+        'value' => '1',
+      ],
+      [
         'key' => 'default_limit',
         'value' => '200'
       ],
