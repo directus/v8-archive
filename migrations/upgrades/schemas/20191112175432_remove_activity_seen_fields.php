@@ -1,8 +1,9 @@
 <?php
 
+
 use Phinx\Migration\AbstractMigration;
 
-class CreateActivitySeenTable extends AbstractMigration
+class RemoveActivitySeenFields extends AbstractMigration
 {
     /**
      * Change Method.
@@ -27,29 +28,21 @@ class CreateActivitySeenTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_activity_seen', ['signed' => false]);
 
-        $table->addColumn('activity', 'integer', [
-            'null' => false,
-            'signed' => false
-        ]);
+        $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_activity_seen"')->fetch();
 
-        $table->addColumn('user', 'integer', [
-            'signed' => false,
-            'null' => false,
-            'default' => 0
-        ]);
+        if ($result) {
+            $this->execute('DELETE FROM `directus_fields` WHERE `collection` = "directus_activity_seen"');
+        }
 
-        $table->addColumn('seen_on', 'datetime', [
-            'null' => true,
-            'default' => null
-        ]);
+        $result = $this->query('SELECT 1 FROM `directus_relations` WHERE `collection_many` = "directus_activity_seen"')->fetch();
 
-        $table->addColumn('archived', 'boolean', [
-            'signed' => false,
-            'default' => false
-        ]);
+        if ($result) {
+            $this->execute('DELETE FROM `directus_relations` WHERE `collection_many` = "directus_activity_seen"');
+        }
+   
+        
+        $this->execute('DROP TABLE IF EXISTS directus_activity_seen');
 
-        $table->create();
     }
 }

@@ -15,7 +15,6 @@ class SchemaManager
 {
     // Tables
     const COLLECTION_ACTIVITY            = 'directus_activity';
-    const COLLECTION_ACTIVITY_SEEN       = 'directus_activity_seen';
     const COLLECTION_COLLECTIONS         = 'directus_collections';
     const COLLECTION_COLLECTION_PRESETS  = 'directus_collection_presets';
     const COLLECTION_FIELDS              = 'directus_fields';
@@ -494,7 +493,6 @@ class SchemaManager
     {
         return [
             static::COLLECTION_ACTIVITY,
-            static::COLLECTION_ACTIVITY_SEEN,
             static::COLLECTION_COLLECTIONS,
             static::COLLECTION_COLLECTION_PRESETS,
             static::COLLECTION_FIELDS,

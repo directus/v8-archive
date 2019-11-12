@@ -522,14 +522,6 @@ class InstallerUtils
                 'comment' => Acl::COMMENT_LEVEL_UPDATE,
                 'explain' => Acl::EXPLAIN_LEVEL_NONE,
             ],
-            SchemaManager::COLLECTION_ACTIVITY_SEEN => [
-                'create' => Acl::LEVEL_FULL,
-                'read' => Acl::LEVEL_MINE,
-                'update' => Acl::LEVEL_MINE,
-                'delete' => Acl::LEVEL_MINE,
-                'comment' => Acl::COMMENT_LEVEL_NONE,
-                'explain' => Acl::EXPLAIN_LEVEL_NONE,
-            ],
             SchemaManager::COLLECTION_COLLECTION_PRESETS => [
                 'create' => Acl::LEVEL_FULL,
                 'read' => Acl::LEVEL_FULL,
