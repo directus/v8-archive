@@ -1128,7 +1128,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'divider',
                 'options' => json_encode([
                     'style' => 'large',
-                    'title' => 'Security'
+                    'title' => 'Security',
                     'hr' => true
                 ]),
                 'locked' => 1,
@@ -1169,7 +1169,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'divider',
                 'options' => json_encode([
                     'style' => 'large',
-                    'title' => 'Files & Thumbnails'
+                    'title' => 'Files & Thumbnails',
                     'hr' => true
                 ]),
                 'locked' => 1,
