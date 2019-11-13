@@ -1,8 +1,9 @@
 <?php
 
+
 use Phinx\Migration\AbstractMigration;
 
-class CreateActivitySeenTable extends AbstractMigration
+class UpdateDirectusUserSessions extends AbstractMigration
 {
     /**
      * Change Method.
@@ -27,29 +28,21 @@ class CreateActivitySeenTable extends AbstractMigration
      */
     public function change()
     {
-        $table = $this->table('directus_activity_seen', ['signed' => false]);
-
-        $table->addColumn('activity', 'integer', [
-            'null' => false,
-            'signed' => false
-        ]);
-
-        $table->addColumn('user', 'integer', [
-            'signed' => false,
-            'null' => false,
-            'default' => 0
-        ]);
-
-        $table->addColumn('seen_on', 'datetime', [
-            'null' => true,
-            'default' => null
-        ]);
-
-        $table->addColumn('archived', 'boolean', [
-            'signed' => false,
-            'default' => false
-        ]);
-
-        $table->create();
+        $table = $this->table('directus_user_sessions');
+        if (!$table->hasColumn('token_type')) {
+            $table->addColumn('token_type', 'string', [
+                'null' => true,
+                'default' => null
+            ]);
+        }
+        
+        if (!$table->hasColumn('token_expired_at')) {
+            $table->addColumn('token_expired_at', 'datetime', [
+                'null' => true,
+                'default' => null
+            ]);
+        }
+        
+        $table->save();
     }
 }

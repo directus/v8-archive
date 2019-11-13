@@ -131,10 +131,15 @@ Directus is a GPLv3-licensed open source project with development made possible 
 
 ### Contributing
 
-We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `master` branch of our `api` and `app` repositories.
+We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `develop` branch of our `api` and `app` repositories.
 
 * [Setup API Development Environment](https://docs.directus.io/advanced/source.html#api-source)
 * [Setup App Development Environment](https://docs.directus.io/advanced/source.html#application-source)
+
+If you want to dive right into the code and skip the manual setup of your development environment you can also spin up fully functional browser based development environments with a single click:
+
+* [Start API Gitpod Workspace](https://gitpod.io/#https://github.com/directus/api)
+* [Start APP Gitpod Workspace](https://gitpod.io/#https://github.com/directus/app)
 
 ### Sponsors
 

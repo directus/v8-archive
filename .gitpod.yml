@@ -1,0 +1,36 @@
+image: gitpod/workspace-mysql
+
+tasks:
+  - init: >
+      composer install &&
+      cp config/api_sample.php config/api.php &&
+      echo "downloading demo database..." &&
+      curl https://directus.github.io/demo-sql/demo.sql > demo.sql &&
+      echo "please wait while demo database (demo.sql) is being imported..." &&
+      mysql -u root < gitpod-helper.sql &&
+      mysql -u root -p'root' directus < demo.sql &&
+      rm demo.sql
+
+    command: >
+      apachectl start &&
+      echo "######################################################################################################" &&
+      echo "#   " &&
+      echo "#   Your Directus Backend is now running! You can access it with a Directus App by the following url:" &&
+      echo "#   " &&
+      echo "#   $GITPOD_WORKSPACE_URL/_/" | sed -e 's/https:\/\//https:\/\/8001-/g' &&
+      echo "#   " &&
+      echo "#   Username: admin@example.com      Password: password" &&
+      echo "#   " &&
+      echo "#   " &&
+      echo "#   Quick access to Directus frontend app (choose 'other' in the api dropdown):" &&
+      echo "#   " &&
+      echo "#   Either use: https://directus.app/ " &&
+      echo "#   or" &&
+      echo "#   start a Directus App workspace: https://gitpod.io#https://github.com/directus/app"  &&
+      echo "#   " &&
+      echo "######################################################################################################"
+      
+
+ports:
+  - port: 8001
+
