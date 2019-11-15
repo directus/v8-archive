@@ -676,30 +676,7 @@ class CoreServicesProvider
 
             $emitter->addFilter('item.create:before', $onInsertOrUpdate);
             $emitter->addFilter('item.update:before', $onInsertOrUpdate);
-            $preventUsePublicGroup = function (Payload $payload) use ($container) {
-                $data = $payload->getData();
-
-                if (!ArrayUtils::has($data, 'role')) {
-                    return $payload;
-                }
-
-                $roleId = ArrayUtils::get($data, 'role');
-                if (is_array($roleId)) {
-                    $roleId = ArrayUtils::get($roleId, 'id');
-                }
-
-                if (!$roleId) {
-                    return $payload;
-                }
-
-                if ($roleId == ROLES::PUBLIC) {
-                    throw new ForbiddenException('Users cannot be added into the public group');
-                }
-
-                return $payload;
-            };
-            $emitter->addFilter('item.create.directus_user_roles:before', $preventUsePublicGroup);
-            $emitter->addFilter('item.update.directus_user_roles:before', $preventUsePublicGroup);
+            
             $beforeSavingFiles = function ($payload) use ($container) {
                 $acl = $container->get('acl');
                 if (!$acl->canUpdate('directus_files')) {

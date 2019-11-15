@@ -972,7 +972,7 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_roles',
                 'field' => 'users',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
-                'interface' => 'many-to-many',
+                'interface' => 'one-to-many',
                 'locked' => 1,
                 'options' => json_encode([
                     'fields' => "first_name,last_name"
@@ -1443,8 +1443,8 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_users',
-                'field' => 'roles',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_O2M,
+                'field' => 'role',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
                 'interface' => 'user-roles',
                 'locked' => 1,
                 'sort' => 8,
@@ -1712,38 +1712,6 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1
-            ],
-
-            // User Roles Junction
-            // -----------------------------------------------------------------
-            [
-                'collection' => 'directus_user_roles',
-                'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
-                'interface' => 'primary-key',
-                'locked' => 1,
-                'required' => 1,
-                'hidden_detail' => 1
-            ],
-            [
-                'collection' => 'directus_user_roles',
-                'field' => 'user',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
-                'interface' => 'many-to-one',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_user_roles',
-                'field' => 'role',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_M2O,
-                'interface' => 'many-to-one',
-                'locked' => 1
-            ],
-            [
-                'collection' => 'directus_user_roles',
-                'field' => 'enforce_2fa',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle'
             ],
 
             // User Session

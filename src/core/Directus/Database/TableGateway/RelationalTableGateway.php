@@ -1127,6 +1127,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $params = $this->applyDefaultEntriesSelectParams($params);
         $fields = ArrayUtils::get($params, 'fields');
+       
 
         // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
@@ -1134,6 +1135,7 @@ class RelationalTableGateway extends BaseTableGateway
         $builder->from($this->getTable());
 
         $selectedFields = $this->getSelectedNonAliasFields($fields ?: ['*']);
+        
         if (!in_array($collectionObject->getPrimaryKeyName(), $selectedFields)) {
             array_unshift($selectedFields, $collectionObject->getPrimaryKeyName());
         }
@@ -1147,7 +1149,6 @@ class RelationalTableGateway extends BaseTableGateway
         if ($this->table == SchemaManager::COLLECTION_FILES && !in_array('type', $selectedFields)) {
             $selectedFields[] = 'type';
         }
-
         $builder->columns($selectedFields);
 
         $builder = $this->applyParamsToTableEntriesSelect(
@@ -2334,6 +2335,7 @@ class RelationalTableGateway extends BaseTableGateway
     public function getSelectedNonAliasFields(array $fields)
     {
         $nonAliasFields = SchemaService::getAllNonAliasCollectionFieldsName($this->getTableSchema()->getName());
+    
         $allFields = $this->replaceWildcardFieldWith(
             $fields,
             $nonAliasFields
