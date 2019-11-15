@@ -387,9 +387,14 @@ class UpdateCurrentMigrations extends AbstractMigration
 
 
         $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_users" and `field` = "last_login";')->fetch();
-
+        
         if ($result) {
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_users" and  `field` = "last_login";');
+        }
+        
+        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "directus_users" AND COLUMN_NAME = "last_login"')->fetch();
+        
+        if ($result) {
             $this->execute('ALTER TABLE `directus_users` DROP last_login;');
         }
 
@@ -397,24 +402,40 @@ class UpdateCurrentMigrations extends AbstractMigration
 
         if ($result) {
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_users" and  `field` = "invite_token";');
-            $this->execute('ALTER TABLE `directus_users` DROP `invite_token`;');
         }
+
+        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "directus_users" AND COLUMN_NAME = "invite_token"')->fetch();
+        
+        if ($result) {
+            $this->execute('ALTER TABLE `directus_users` DROP invite_token;');
+        }
+
 
         $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_users" and `field` = "invite_accepted";')->fetch();
 
         if ($result) {
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_users" and  `field` = "invite_accepted";');
-            $this->execute('ALTER TABLE `directus_users` DROP `invite_accepted`;');
         }
+
+        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "directus_users" AND COLUMN_NAME = "invite_accepted"')->fetch();
         
+        if ($result) {
+            $this->execute('ALTER TABLE `directus_users` DROP invite_accepted;');
+        }
+
 
         $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_users" and `field` = "last_ip";')->fetch();
 
         if ($result) {
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_users" and  `field` = "last_ip";');
-            $this->execute('ALTER TABLE `directus_users` DROP  `last_ip`;');
         }
         
+        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "directus_users" AND COLUMN_NAME = "last_ip"')->fetch();
+        
+        if ($result) {
+            $this->execute('ALTER TABLE `directus_users` DROP last_ip;');
+        }
+
         $this->execute(\Directus\phinx_update(
             $this->getAdapter(),
             'directus_fields',
