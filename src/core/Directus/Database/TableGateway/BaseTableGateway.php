@@ -743,7 +743,6 @@ class BaseTableGateway extends TableGateway
         try {
             $result = parent::executeSelect($select);
         } catch (UnexpectedValueException $e) {
-            echo $this->sql->getSqlstringForSqlObject($select); die ;
             throw new InvalidQueryException(
                 $this->dumpSql($select),
                 $e
