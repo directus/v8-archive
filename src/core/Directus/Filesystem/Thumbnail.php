@@ -118,7 +118,7 @@ class Thumbnail
         }
         
         // Check if the format is supported by the Imagick
-        if(!in_array($format, \Imagick::queryFormats())){
+        if(!in_array(strtoupper($format), \Imagick::queryFormats())){
             return false;
         }
         
