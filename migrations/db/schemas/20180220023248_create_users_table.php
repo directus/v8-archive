@@ -110,7 +110,12 @@ class CreateUsersTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-
+        $table->addColumn('theme', 'string', [
+            'limit' => 100,
+            'encoding' => 'utf8',
+            'null' => true,
+            'default' => 'auto'
+        ]);
         $table->addColumn('2fa_secret', 'string', [
             'limit' => 100,
             'encoding' => 'utf8',
