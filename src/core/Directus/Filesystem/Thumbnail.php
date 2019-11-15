@@ -116,6 +116,12 @@ class Thumbnail
         if (!extension_loaded('imagick')) {
             return false;
         }
+        
+        // Check if the format is supported by the Imagick
+        if(!in_array($format, \Imagick::queryFormats())){
+            return false;
+        }
+        
         $image = new \Imagick();
         $image->readImageBlob($content);
         $image->setIteratorIndex(0);
