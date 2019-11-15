@@ -1656,12 +1656,29 @@ class FieldsSeeder extends AbstractSeed
             ],
             [
                 'collection' => 'directus_users',
+                'field' => 'theme',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'radio-buttons',
+                'options' => json_encode([
+                    'format' => true,
+                    'choices' => [
+                        'auto' => 'Auto',
+                        'light' => 'Light',
+                        'dark' => 'Dark'
+                    ]
+                ]),
+                'locked' => 1,
+                'readonly' => 0,
+                'sort' => 14
+            ],
+            [
+                'collection' => 'directus_users',
                 'field' => '2fa_secret',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => '2fa-secret',
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 14
+                'sort' => 15
             ],
             [
                 'collection' => 'directus_users',
@@ -1671,7 +1688,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'hidden_browse' => 1,
                 'hidden_detail' => 1,
-                'sort' => 15
+                'sort' => 16
             ],
             [
                 'collection' => 'directus_users',
@@ -1681,7 +1698,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 16
+                'sort' => 17
             ],
             [
                 'collection' => 'directus_users',
@@ -1691,7 +1708,7 @@ class FieldsSeeder extends AbstractSeed
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1,
-                'sort' => 17
+                'sort' => 18
             ],
             [
                 'collection' => 'directus_users',
@@ -1702,7 +1719,7 @@ class FieldsSeeder extends AbstractSeed
                 'readonly' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 18
+                'sort' => 19
             ],
             [
                 'collection' => 'directus_users',
@@ -1711,7 +1728,7 @@ class FieldsSeeder extends AbstractSeed
                 'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
-                'hidden_detail' => 1
+                'hidden_detail' => 20
             ],
 
             // User Roles Junction
