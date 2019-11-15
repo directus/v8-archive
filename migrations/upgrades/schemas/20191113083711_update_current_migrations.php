@@ -7,6 +7,10 @@ class UpdateCurrentMigrations extends AbstractMigration
 {
     public function change()
     {
+        $config = \Directus\Application\Application::getInstance()->getContainer()->get('config');
+        $dbName = $config->get('database.name');
+        
+        
         // Fields Table
         $this->execute(\Directus\phinx_update(
             $this->getAdapter(),
@@ -392,7 +396,7 @@ class UpdateCurrentMigrations extends AbstractMigration
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_users" and  `field` = "last_login";');
         }
         
-        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "directus_users" AND COLUMN_NAME = "last_login"')->fetch();
+        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "'.$dbName.'" AND TABLE_NAME = "directus_users" AND COLUMN_NAME = "last_login"')->fetch();
         
         if ($result) {
             $this->execute('ALTER TABLE `directus_users` DROP last_login;');
@@ -404,7 +408,7 @@ class UpdateCurrentMigrations extends AbstractMigration
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_users" and  `field` = "invite_token";');
         }
 
-        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "directus_users" AND COLUMN_NAME = "invite_token"')->fetch();
+        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "'.$dbName.'" AND TABLE_NAME = "directus_users" AND COLUMN_NAME = "invite_token"')->fetch();
         
         if ($result) {
             $this->execute('ALTER TABLE `directus_users` DROP invite_token;');
@@ -417,7 +421,7 @@ class UpdateCurrentMigrations extends AbstractMigration
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_users" and  `field` = "invite_accepted";');
         }
 
-        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "directus_users" AND COLUMN_NAME = "invite_accepted"')->fetch();
+        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "'.$dbName.'" AND TABLE_NAME = "directus_users" AND COLUMN_NAME = "invite_accepted"')->fetch();
         
         if ($result) {
             $this->execute('ALTER TABLE `directus_users` DROP invite_accepted;');
@@ -430,7 +434,7 @@ class UpdateCurrentMigrations extends AbstractMigration
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_users" and  `field` = "last_ip";');
         }
         
-        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "directus_users" AND COLUMN_NAME = "last_ip"')->fetch();
+        $result = $this->query('SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = "'.$dbName.'" AND TABLE_NAME = "directus_users" AND COLUMN_NAME = "last_ip"')->fetch();
         
         if ($result) {
             $this->execute('ALTER TABLE `directus_users` DROP last_ip;');
