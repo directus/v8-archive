@@ -33,6 +33,10 @@ class CreateUsersTable extends AbstractMigration
             'limit' => 16,
             'default' => \Directus\Database\TableGateway\DirectusUsersTableGateway::STATUS_DRAFT
         ]);
+        $table->addColumn('role', 'integer', [
+            'null' => true,
+            'default' => null
+        ]);
         $table->addColumn('first_name', 'string', [
             'limit' => 50,
             'null' => true,
