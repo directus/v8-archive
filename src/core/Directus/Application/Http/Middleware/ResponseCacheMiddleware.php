@@ -79,7 +79,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                 ]);
                 $expirationMinutes =  get_directus_setting('auto_sign_out');
                 $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
-    
+
                 switch($authorizationTokenObject['type']){
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE :
                         $accessToken = decrypt_static_token($authorizationTokenObject['token']);
@@ -95,7 +95,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                                 'httponly' => true
                             ]
                         );
-    
+
                         $response =  $response->withAddedHeader('Set-Cookie',$cookie->toHeaders());
                         break;
                     default :
@@ -109,7 +109,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         }catch(\Exception $e){
             $container->get('logger')->error($e->getMessage());
         }
-        
+
         $response = $response->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'));
         $config = $container->get('config');
         if ($config->get('cors.credentials')) {

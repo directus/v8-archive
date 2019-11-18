@@ -29,13 +29,13 @@ class Server extends Route
 
     /**
      * Return the projects
-     * 
+     *
      * @return Response
      */
     public function projects(Request $request, Response $response)
     {
         $scannedDirectory = \Directus\scan_config_folder();
-        
+
         $projectNames = [];
         if(empty($scannedDirectory)){
             throw new NotInstalledException('This Directus instance has not been configured. Install via the Directus App (eg: /admin) or read more about configuration at: https://docs.directus.io/getting-started/installation.html#configure');
@@ -47,14 +47,14 @@ class Server extends Route
                 }
             }
         }
-  
+
         $responseData['data'] = $projectNames;
         return $this->responseWithData($request, $response, $responseData);
-    }	    
+    }
 
      /**
      * Return the current setup of server.
-     * 
+     *
      * @return Response
      */
     public function getInfo(Request $request, Response $response)
@@ -93,10 +93,5 @@ class Server extends Route
             ]
         ];
         return $this->responseWithData($request, $response, $responseData);
-    }	    
+    }
 }
-
-
-
-
-

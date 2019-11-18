@@ -13,7 +13,7 @@ class ProjectsDelete extends Route
     {
         $installService = new ProjectService($this->container);
         $installService->delete($request);
-       
+
         return $this->responseWithData($request, $response, []);
     }
 }
