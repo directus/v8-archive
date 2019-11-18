@@ -18,17 +18,13 @@ class Server extends Route
      */
     public function __invoke(Application $app)
     {
-        $container = $this->container;
         \Directus\create_ping_route($app);
         $app->get('/projects', [$this, 'projects']);
         $app->get('/info', [$this, 'getInfo']);
-        $app->group('/projects', function () use ($container){
+        $app->group('/projects', function () {
             $this->post('/', \Directus\Api\Routes\ProjectsCreate::class);
-            $this->delete('/{name}', \Directus\Api\Routes\ProjectsDelete::class)
-                ->add(new \Directus\Application\Http\Middleware\AdminOnlyMiddleware($container))
-                ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($container))
-                ->add(new \Directus\Application\Http\Middleware\AuthenticationIgnoreOriginMiddleware($container));
-        })->add(new TableGatewayMiddleware($container));
+            $this->delete('/{name}', \Directus\Api\Routes\ProjectsDelete::class);
+        })->add(new TableGatewayMiddleware($this->container));
     }
 
     /**
