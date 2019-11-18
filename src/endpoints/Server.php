@@ -9,6 +9,7 @@ use Directus\Application\Http\Response;
 use Directus\Exception\NotInstalledException;
 use Directus\Util\StringUtils;
 use Directus\Services\ServerService;
+use Directus\Application\Http\Middleware\TableGatewayMiddleware;
 
 class Server extends Route
 {
@@ -17,9 +18,17 @@ class Server extends Route
      */
     public function __invoke(Application $app)
     {
+        $container = $this->container;
         \Directus\create_ping_route($app);
         $app->get('/projects', [$this, 'projects']);
         $app->get('/info', [$this, 'getInfo']);
+        $app->group('/projects', function () use ($container){
+            $this->post('/', \Directus\Api\Routes\ProjectsCreate::class);
+            $this->delete('/{name}', \Directus\Api\Routes\ProjectsDelete::class)
+                ->add(new \Directus\Application\Http\Middleware\AdminOnlyMiddleware($container))
+                ->add(new \Directus\Application\Http\Middleware\AuthenticationMiddleware($container))
+                ->add(new \Directus\Application\Http\Middleware\AuthenticationIgnoreOriginMiddleware($container));
+        })->add(new TableGatewayMiddleware($container));
     }
 
     /**
@@ -90,3 +99,8 @@ class Server extends Route
         return $this->responseWithData($request, $response, $responseData);
     }	    
 }
+
+
+
+
+
