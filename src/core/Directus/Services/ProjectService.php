@@ -122,7 +122,8 @@ class ProjectService extends AbstractService
      */
     public function delete(Request $request)
     {
-        $data = $request->getParsedBody();
+        $data = $request->getQueryParams();
+    
         $this->validate($data,[
             'super_admin_token' => 'required',
         ]);
