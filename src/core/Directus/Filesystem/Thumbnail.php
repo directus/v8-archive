@@ -118,8 +118,8 @@ class Thumbnail
         }
         
         // Check if the format is supported by the Imagick
-        if(!in_array(strtoupper($format), \Imagick::queryFormats())){
-            return false;
+        if(!static::isNonImageFormatSupported($format)){
+           return false;
         }
         
         $image = new \Imagick();
@@ -198,6 +198,24 @@ class Thumbnail
      */
     public static function getNonImageFormatSupported()
     {
+        // if imagick is enabled,
+        // we need to check if the currently installed version support formats
+        // that are declared in static::$nonImageFormatsSupported
+        if (extension_loaded('imagick')) {
+            $availableFormats = \Imagick::queryFormats();
+            $availableFormats = array_map('strtolower', $availableFormats);
+
+            // if tiff is available,
+            // Then we add 'tif' manually as available format
+            // since Imagick consider tif the same as tiff but not added in \Imagick::queryFormats()
+            // so users can upload both .tif or .tiff and imagick will treat them the same.
+            if(in_array('tiff', $availableFormats)){
+                $availableFormats[] = 'tif';
+            }
+
+            return array_values(array_intersect($availableFormats, static::$nonImageFormatsSupported));
+        }
+        
         return static::$nonImageFormatsSupported;
     }
 
@@ -210,6 +228,6 @@ class Thumbnail
      */
     public static function isNonImageFormatSupported($format)
     {
-        return in_array(strtolower($format), static::$nonImageFormatsSupported);
+        return in_array(strtolower($format), static::getNonImageFormatSupported());
     }
 }
