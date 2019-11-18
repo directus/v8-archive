@@ -50,7 +50,7 @@ class AddThemeFieldForUser extends AbstractMigration
                     'dark' => 'Dark'
                 ]
             ]);
-            $insertSqlFormat = $this->execute('INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`, `options`, `locked`, `readonly`, `sort`) VALUES ("directus_users", "theme",  "string", "radio-buttons", '.$options.',  1, 0, 14');
+              $this->execute("INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`, `options`, `locked`, `readonly`, `sort`) VALUES ('directus_users', 'theme', 'string', 'radio-buttons', '".$options."', 1,0 , 14);");
         }
     }
 }
