@@ -503,7 +503,9 @@ class SchemaManager
             static::COLLECTION_RELATIONS,
             static::COLLECTION_REVISIONS,
             static::COLLECTION_SETTINGS,
-            static::COLLECTION_USERS
+            static::COLLECTION_USERS,
+            static::COLLECTION_WEBHOOKS,
+            static::COLLECTION_USER_SESSIONS
         ];
     }
 
