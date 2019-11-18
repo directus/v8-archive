@@ -237,7 +237,10 @@ class Auth extends Route
                 $request->getParsedBodyParam('email')
             );
         } catch (\Exception $e) {
-            $this->container->get('logger')->error($e);
+            $this->container->get('logger')->error($e->getMessage());
+            if(!empty($e->getCode())){
+                throw $e;
+            }
             throw new MailNotSentException();
         }
 
