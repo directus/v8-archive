@@ -992,17 +992,15 @@ class CoreServicesProvider
                     $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 6379;
                     $socket = (isset($poolConfig['socket'])) ? $poolConfig['socket'] : null;
                     if ($adapter == 'rediscluster') {
+                        $client = new \RedisCluster(NULL,["$host:$port"]);
+                    } else {
                         $client = new \Redis();
-                    } else {
-                        $client = new \RedisCluster();
+                        if ($socket) {
+                            $client->connect($socket);
+                        } else {
+                            $client->connect($host, $port);
+                        }
                     }
-
-                    if ($socket) {
-                        $client->connect($socket);
-                    } else {
-                        $client->connect($host, $port);
-                    }
-
                     $pool = new RedisCachePool($client);
                 }
             }
