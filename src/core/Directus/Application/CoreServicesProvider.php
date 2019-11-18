@@ -982,7 +982,7 @@ class CoreServicesProvider
                     $pool = $adapter == 'memcached' ? new MemcachedCachePool($client) : new MemcacheCachePool($client);
                 }
 
-                if ($adapter == 'redis') {
+                if ($adapter == 'redis' || $adapter == 'rediscluster') {
 
                     if (!extension_loaded('redis')) {
                         throw new InvalidCacheConfigurationException($adapter);
@@ -991,8 +991,11 @@ class CoreServicesProvider
                     $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
                     $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 6379;
                     $socket = (isset($poolConfig['socket'])) ? $poolConfig['socket'] : null;
-
-                    $client = new \Redis();
+                    if ($adapter == 'rediscluster') {
+                        $client = new \Redis();
+                    } else {
+                        $client = new \RedisCluster();
+                    }
 
                     if ($socket) {
                         $client->connect($socket);
