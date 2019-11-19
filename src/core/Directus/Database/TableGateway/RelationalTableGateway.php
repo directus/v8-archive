@@ -280,7 +280,7 @@ class RelationalTableGateway extends BaseTableGateway
                             $logEntryAction
                         ),
                         'action_by' => $currentUserId,
-                        'action_on' => DateTimeUtils::nowInTimezone()->toString(),
+                        'action_on' => DateTimeUtils::nowInUTC()->toString(),
                         'ip' => \Directus\get_request_ip(),
                         'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                         'collection' => $tableName,
@@ -321,7 +321,7 @@ class RelationalTableGateway extends BaseTableGateway
                                 $logEntryAction
                             ),
                             'action_by' => $currentUserId,
-                            'action_on' => DateTimeUtils::nowInTimezone()->toString(),
+                            'action_on' => DateTimeUtils::nowInUTC()->toString(),
                             'ip' => \Directus\get_request_ip(),
                             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                             'collection' => $tableName,
@@ -2579,7 +2579,7 @@ class RelationalTableGateway extends BaseTableGateway
                 $action
             ),
             'action_by' => $currentUserId,
-            'action_on' => DateTimeUtils::nowInTimezone()->toString(),
+            'action_on' => DateTimeUtils::nowInUTC()->toString(),
             'ip' => \Directus\get_request_ip(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'collection' => $this->getTable(),

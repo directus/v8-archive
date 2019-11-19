@@ -1016,7 +1016,7 @@ class BaseTableGateway extends TableGateway
                 }
 
                 $columnName = $column->getName();
-                $datetime = DateTimeUtils::createFromDefaultFormat($row[$columnName]);
+                $datetime = DateTimeUtils::createFromDefaultFormat($row[$columnName], 'UTC');
                 $records[$index][$columnName] = $datetime->toISO8601Format();
             }
         }
