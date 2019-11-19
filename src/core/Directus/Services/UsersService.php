@@ -243,7 +243,7 @@ class UsersService extends AbstractService
         if (!$user) {
             /** @var Provider $auth */
             $auth = $this->container->get('auth');
-            $datetime = DateTimeUtils::nowInTimezone();
+            $datetime = DateTimeUtils::nowInUTC();
             $invitationToken = $auth->generateInvitationToken([
                 'date' => $datetime->toString(),
                 'exp' => $datetime->inDays(30)->getTimestamp(),
