@@ -55,6 +55,7 @@ class FilesServices extends AbstractService
         if(get_directus_setting('file_max_size') != null){
             validate_file($result['size'],'maxSize');
         }
+
         $newFile = $tableGateway->createRecord($data, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
