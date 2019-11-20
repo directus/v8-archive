@@ -138,32 +138,33 @@ return [
     'auth' => [
         'secret_key' => '{{auth.secret}}',
         'public_key' => '{{auth.public}}',
-        {{optional(auth.social_providers)}},
-        // 'okta' => [
-        //     'client_id' => '',
-        //     'client_secret' => '',
-        //     'base_url' => 'https://dev-000000.oktapreview.com/oauth2/default'
-        // ],
-        // 'github' => [
-        //     'client_id' => '',
-        //     'client_secret' => ''
-        // ],
-        // 'facebook' => [
-        //     'client_id'          => '',
-        //     'client_secret'      => '',
-        //     'graph_api_version'  => 'v2.8',
-        // ],
-        // 'google' => [
-        //     'client_id'       => '',
-        //     'client_secret'   => '',
-        //     'hosted_domain'   => '*',
-        //     // Uses OpenIDConnect to fetch the email instead of using the Google+ API
-        //     // Disabling the OIDC Mode, requires you to enable the Google+ API otherwise it will fail
-        //     'use_oidc_mode'   => true,
-        // ],
-        // 'twitter' => [
-        //     'identifier'   => '',
-        //     'secret'       => ''
+        // 'social_providers' => [
+            // 'okta' => [
+            //     'client_id' => '',
+            //     'client_secret' => '',
+            //     'base_url' => 'https://dev-000000.oktapreview.com/oauth2/default'
+            // ],
+            // 'github' => [
+            //     'client_id' => '',
+            //     'client_secret' => ''
+            // ],
+            // 'facebook' => [
+            //     'client_id'          => '',
+            //     'client_secret'      => '',
+            //     'graph_api_version'  => 'v2.8',
+            // ],
+            // 'google' => [
+            //     'client_id'       => '',
+            //     'client_secret'   => '',
+            //     'hosted_domain'   => '*',
+            //     // Uses OpenIDConnect to fetch the email instead of using the Google+ API
+            //     // Disabling the OIDC Mode, requires you to enable the Google+ API otherwise it will fail
+            //     'use_oidc_mode'   => true,
+            // ],
+            // 'twitter' => [
+            //     'identifier'   => '',
+            //     'secret'       => ''
+            // ]
         // ]
     ],
 ];
