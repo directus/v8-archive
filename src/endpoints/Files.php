@@ -78,7 +78,7 @@ class Files extends Route
                 'data' => $uploadedFile,
             ], $payload);
         }
- 
+
         $responseData = $service->create(
             $payload,
             $request->getQueryParams()
