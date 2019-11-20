@@ -679,17 +679,34 @@ class CoreServicesProvider
             
             $beforeSavingFiles = function ($payload) use ($container) {
                 $acl = $container->get('acl');
+                if (!$acl->canCreate('directus_files')) {
+                    throw new ForbiddenException('You are not allowed to upload files');
+                }
+
+                return $payload;
+            };
+            $beforeUpdatingFiles = function ($payload) use ($container) {
+                $acl = $container->get('acl');
                 if (!$acl->canUpdate('directus_files')) {
-                    throw new ForbiddenException('You are not allowed to upload, edit or delete files');
+                    throw new ForbiddenException('You are not allowed to edit files');
+                }
+
+                return $payload;
+            };
+            $beforeDeletingFiles = function ($payload) use ($container) {
+                $acl = $container->get('acl');
+                if (!$acl->canDelete('directus_files')) {
+                    throw new ForbiddenException('You are not allowed to delete files');
                 }
 
                 return $payload;
             };
             $emitter->addAction('file.save', $beforeSavingFiles);
+            $emitter->addAction('file.update', $beforeUpdatingFiles);
             // TODO: Make insert actions and filters
             $emitter->addFilter('item.create.directus_files:before', $beforeSavingFiles);
-            $emitter->addFilter('item.update.directus_files:before', $beforeSavingFiles);
-            $emitter->addFilter('item.delete.directus_files:before', $beforeSavingFiles);
+            $emitter->addFilter('item.update.directus_files:before', $beforeUpdatingFiles);
+            $emitter->addFilter('item.delete.directus_files:before', $beforeDeletingFiles);
 
             $emitter->addAction('auth.request:credentials', function () use ($container) {
                 /** @var Session $session */
