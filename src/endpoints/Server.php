@@ -22,7 +22,7 @@ class Server extends Route
         $app->get('/info', [$this, 'getInfo']);
         $controller = $this;
         $app->group('/projects', function () use ($controller){
-            $this->get("/",[$controller, 'projects']);
+            $this->get('',[$controller, 'projects']);
             $this->post('/', \Directus\Api\Routes\ProjectsCreate::class);
             $this->delete('/{name}', \Directus\Api\Routes\ProjectsDelete::class);
         })->add(new TableGatewayMiddleware($this->container));
