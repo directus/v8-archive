@@ -19,14 +19,12 @@ class Server extends Route
     public function __invoke(Application $app)
     {
         \Directus\create_ping_route($app);
+        $app->get('/projects', [$this, 'projects']);
+        $app->post('/projects', \Directus\Api\Routes\ProjectsCreate::class);
+        $app->delete('/projects/{name}', \Directus\Api\Routes\ProjectsDelete::class)
+            ->add(new TableGatewayMiddleware($this->container));
+
         $app->get('/info', [$this, 'getInfo']);
-        $controller = $this;
-        $app->group('/projects', function () use ($controller){
-            $this->get('',[$controller, 'projects']);
-            $this->post('/', \Directus\Api\Routes\ProjectsCreate::class);
-            $this->delete('/{name}', \Directus\Api\Routes\ProjectsDelete::class);
-        })->add(new TableGatewayMiddleware($this->container));
-         
     }
 
     /**
