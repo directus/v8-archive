@@ -127,11 +127,11 @@ $middleware = [
 $app->add($middleware['rate_limit_ip'])
     ->add($middleware['proxy'])
     ->add($middleware['ip'])
-    ->add($middleware['database_migration'])
     ->add($middleware['cors']);
 
 $app->get('/', \Directus\Api\Routes\Home::class)
     ->add($middleware['rate_limit_user'])
+    ->add($middleware['database_migration'])
     ->add($middleware['table_gateway']);
 
 
@@ -254,30 +254,34 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
-});
+})->add($middleware['database_migration']);
 
 $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
     ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
-    ->add($middleware['table_gateway']);
+    ->add($middleware['table_gateway'])
+    ->add($middleware['database_migration']);
 $app->group('/layouts', \Directus\Api\Routes\Layouts::class)
     ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
-    ->add($middleware['table_gateway']);
+    ->add($middleware['table_gateway'])
+    ->add($middleware['database_migration']);
 $app->group('/pages', \Directus\Api\Routes\Pages::class)
     ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
-    ->add($middleware['table_gateway']);
+    ->add($middleware['table_gateway'])
+    ->add($middleware['database_migration']);
    
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
-    ->add($middleware['table_gateway']);
+    ->add($middleware['table_gateway'])
+    ->add($middleware['database_migration']);
 
 $app->add(new \Directus\Application\Http\Middleware\ResponseCacheMiddleware($app->getContainer()));
 
