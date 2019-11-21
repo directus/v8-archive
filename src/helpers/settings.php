@@ -94,6 +94,9 @@ if (!function_exists('get_directus_thumbnail_settings')) {
             'thumbnail_quality_tags',
             'thumbnail_actions',
             'thumbnail_cache_ttl',
+            'thumbnail_whitelist',
+            'thumbnail_whitelist_system',
+            'thumbnail_whitelist_enabled',
         ]);
     }
 }

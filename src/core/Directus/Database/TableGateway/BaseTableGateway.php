@@ -2,6 +2,7 @@
 
 namespace Directus\Database\TableGateway;
 
+use Hashids\Hashids;
 use Directus\Config\StatusMapping;
 use Directus\Container\Container;
 use Directus\Database\Exception\CollectionHasNotStatusInterfaceException;
@@ -727,7 +728,11 @@ class BaseTableGateway extends TableGateway
         $selectState = $select->getRawState();
         $selectCollectionName = $selectState['table'];
 
-
+        if($selectCollectionName === SchemaManager::COLLECTION_FILES)
+        {
+            $this->addHashIdToFilesCollection();
+        }
+        
         if ($useFilter) {
             $selectState = $this->applyHooks([
                 'item.read:before',
@@ -748,7 +753,7 @@ class BaseTableGateway extends TableGateway
                 $e
             );
         }
-
+    
         if ($useFilter) {
             $result = $this->applyHooks([
                 'item.read',
@@ -1818,14 +1823,25 @@ class BaseTableGateway extends TableGateway
         // TODO: Move this to a proper hook
         $hasData = ArrayUtils::has($record, 'data') && is_string($record['data']);
         $isFilesCollection = $this->table == SchemaManager::COLLECTION_FILES;
+        if (!static::$container || !$isFilesCollection) {
+            return;
+        }
+        
+        $updateArray = [];
+        $hashids = new Hashids();
+        $updateArray['hash_id'] = $hashids->encode($record[$this->primaryKeyFieldName]);
+       
+        $Update = new Update($this->table);
+        $Update->set($updateArray);
+        $Update->where([$this->primaryKeyFieldName => $record[$this->primaryKeyFieldName]]);
+        $this->updateWith($Update);
 
-        if (!static::$container || !$hasData || !$isFilesCollection) {
+        if (!$hasData) {
             return;
         }
 
-        $Files = static::$container->get('files');
-
         $updateArray = [];
+        $Files = static::$container->get('files');
         if ($Files->getSettings('file_naming') == 'id') {
             $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
             $fileId = $record[$this->primaryKeyFieldName];
@@ -1874,5 +1890,28 @@ class BaseTableGateway extends TableGateway
     protected function shouldUseFilter()
     {
         return !is_array($this->options) || ArrayUtils::get($this->options, 'filter', true) !== false;
+    }
+
+    public function addHashIdToFilesCollection()
+    {
+        $collectionName =  SchemaManager::COLLECTION_FILES;
+        $select = new Select($collectionName);
+        $select->columns(['*']);
+        $result =  parent::executeSelect($select)->toArray();
+
+        foreach($result as $key=>$value) 
+        {
+           if($value['hash_id'] == '' || $value['hash_id'] == null)
+           {
+               $updateArray = [];
+               $hashids = new Hashids();
+               $updateArray['hash_id'] = $hashids->encode($value['id']);
+       
+               $Update = new Update($collectionName);
+               $Update->set($updateArray);
+               $Update->where(['id' => $value['id']]);
+               $this->updateWith($Update);
+           }
+        }
     }
 }

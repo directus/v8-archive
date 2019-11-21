@@ -84,6 +84,12 @@ try {
         echo file_get_contents($filePath);
     } else {
         http_response_code(404);
+         echo json_encode([
+        'error' => [
+            'error' => 8,
+            'message' => $e->getMessage()
+        ]
+    ]);
     }
 
     exit(0);
