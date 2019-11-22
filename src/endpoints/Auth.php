@@ -419,6 +419,12 @@ class Auth extends Route
 
             $urlParams['code'] = ($e instanceof \Directus\Exception\Exception) ? $e->getErrorCode() : -1;
             $urlParams['error'] = true;
+
+            // Log error to the error file if it's not coming from Directus. This allows the user to debug
+            // errors coming from the service provider
+            if ($e instanceof \Directus\Exception\Exception === false) {
+                $this->container->get('logger')->error($e);
+            }
         }
 
 
