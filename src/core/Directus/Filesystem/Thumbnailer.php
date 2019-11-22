@@ -168,7 +168,7 @@ class Thumbnailer {
     {
         try {
             // action options
-            $options = $this->getSupportedActionOptions($this->action);
+            $options = $this->getSupportedActionOptions($this->$params);
 
             // open file image resource
             $img = $this->load();
@@ -185,7 +185,7 @@ class Thumbnailer {
                 $img->resizeCanvas($this->width, $this->height, ArrayUtils::get($options, 'position', 'center'), ArrayUtils::get($options, 'resizeRelative', false), ArrayUtils::get($options, 'canvasBackground', [255, 255, 255, 0]));
             }
 
-            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->translateQuality($this->quality) : null));
+            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->quality : null));
             $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
 
             return $encodedImg;
@@ -217,7 +217,7 @@ class Thumbnailer {
             // resize/crop image
             $img->fit($this->width, $this->height, function($constraint){}, ArrayUtils::get($options, 'position', 'center'));
 
-            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->translateQuality($this->quality) : null));
+            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->quality : null));
             $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
 
             return $encodedImg;
@@ -246,10 +246,7 @@ class Thumbnailer {
         // get URL parts
         // https://docs.directus.io/guides/thumbnailer.html#url-syntax
         $urlSegments = explode('/', $thumbnailUrlPath);
-        if (count($urlSegments) < 6) {
-            throw new Exception('Invalid URL syntax.');
-        }
-
+       
         // pull the env out of the segments
         array_shift($urlSegments);
 
@@ -277,9 +274,9 @@ class Thumbnailer {
         {
             throw new Exception('No quality is provided.');
         }
-
+    
         // make sure filename is valid
-        $filename = implode('/', array_slice($urlSegments, 4));
+        $filename = $urlSegments[1];
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         $name = pathinfo($filename, PATHINFO_FILENAME);
         if (! $this->isSupportedFileExtension($ext)) {
@@ -341,7 +338,7 @@ class Thumbnailer {
                 }
             }
             if(!$result){
-                throw new Exception('Invalid params.');
+                throw new Exception();
             }
         }
 

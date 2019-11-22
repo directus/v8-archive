@@ -3,7 +3,9 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use function Directus\get_directus_setting;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Exception\UnprocessableEntityException;
 
 class SettingsService extends AbstractService
 {
@@ -83,5 +85,37 @@ class SettingsService extends AbstractService
     public function batchDeleteWithIds(array $ids, array $params = [])
     {
         return $this->itemsService->batchDeleteWithIds($this->collection, $ids, $params);
+    }
+
+    public function validateThumbnailWhitelist($payload,$thumbnailKey)
+    {
+        $thumbnailWhitelistEnabled = get_directus_setting('thumbnail_whitelist_enabled');
+
+        if($thumbnailWhitelistEnabled && $thumbnailKey == "thumbnail_whitelist") {
+            if($payload == '')
+                throw new UnprocessableEntityException('Thumbnail Whitelist is required.');
+        }
+
+        $data= isset($payload[0]) ? $payload : array($payload); 
+        foreach($data as $key=>$value) {
+            $validateData   =   [
+                                    'width'     =>   isset($value['width']) ? $value['width'] : '',
+                                    'height'    =>   isset($value['height']) ? $value['height'] : '',
+                                    'quality'   =>   isset($value['quality']) ? $value['quality'] : '',
+                                    'fit'       =>   isset($value['fit']) ? $value['fit'] : ''
+                                ];
+
+            $constraints    =  [
+                                    'width'     =>  'required',
+                                    'height'    =>  'required',
+                                    'quality'   =>  'required',
+                                    'fit'       =>  'required'
+                                ];
+            if($thumbnailKey == "thumbnail_whitelist_system"){
+                $validateData['key'] =  isset($value['key']) ? $value['key'] : '';
+                $constraints['key']  =  'required';
+            }
+            $this->validate($validateData,$constraints);
+        }
     }
 }

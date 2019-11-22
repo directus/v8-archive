@@ -39,7 +39,7 @@ try {
     );
 
     $image = $thumbnailer->get();
-
+   
     if (!$image) {
         // now we can create the thumb
         switch ($thumbnailer->action) {
@@ -66,31 +66,37 @@ try {
     echo $image;
     exit(0);
 } catch (Exception $e) {
-    $filePath = ArrayUtils::get($settings, 'thumbnail_not_found_location');
-    if (is_string($filePath) && !empty($filePath) && $filePath[0] !== '/') {
-        $filePath = $basePath . '/' . $filePath;
+    if($e->getMessage())
+    {
+        http_response_code(422);
+        echo json_encode([
+            'error' => [
+                'error' => 4,
+                'message' => $e->getMessage()
+            ]
+        ]);
     }
-
-    // TODO: Throw message if the error is a invalid configuration
-    if (file_exists($filePath)) {
-        $mime = image_type_to_mime_type(exif_imagetype($filePath));
-
-        // TODO: Do we need to cache non-existing files?
-        header('Content-type: ' . $mime);
-        header("Pragma: cache");
-        header('Cache-Control: max-age=' . $timeToLive);
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', time()));
-        header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $timeToLive));
-        echo file_get_contents($filePath);
-    } else {
-        http_response_code(404);
-         echo json_encode([
-        'error' => [
-            'error' => 8,
-            'message' => $e->getMessage()
-        ]
-    ]);
+    else
+    {
+        $filePath = ArrayUtils::get($settings, 'thumbnail_not_found_location');
+        if (is_string($filePath) && !empty($filePath) && $filePath[0] !== '/') {
+            $filePath = $basePath . '/' . $filePath;
+        }
+    
+        // TODO: Throw message if the error is a invalid configuration
+        if (file_exists($filePath)) {
+            $mime = image_type_to_mime_type(exif_imagetype($filePath));
+    
+            // TODO: Do we need to cache non-existing files?
+            header('Content-type: ' . $mime);
+            header("Pragma: cache");
+            header('Cache-Control: max-age=' . $timeToLive);
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', time()));
+            header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $timeToLive));
+            echo file_get_contents($filePath);
+        } else {
+            http_response_code(404);
+        }
     }
-
     exit(0);
 }

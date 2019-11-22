@@ -35,13 +35,17 @@ class Settings extends Route
      */
     public function create(Request $request, Response $response)
     {
+        $service = new SettingsService($this->container);
         $this->validateRequestPayload($request);
 
         $payload = $request->getParsedBody();
+        if($payload['key'] == "thumbnail_whitelist" || $payload['key'] == "thumbnail_whitelist_system")
+        {
+            $service->validateThumbnailWhitelist($payload['value'],$payload['key']);
+        }
         if (isset($payload[0]) && is_array($payload[0])) {
             return $this->batch($request, $response);
         }
-        $service = new SettingsService($this->container);
         $fieldData = $service->findAllFields(
             $request->getQueryParams()
         );
@@ -225,12 +229,13 @@ class Settings extends Route
     {
         $payload = $request->getParsedBody();
         $id = $request->getAttribute('id');
-
+        
         if (strpos($id, ',') !== false || (isset($payload[0]) && is_array($payload[0]))) {
             return $this->batch($request, $response);
         }
-
+        
         $inputData = $request->getParsedBody();
+        
         $service = new SettingsService($this->container);
 
         /**
@@ -241,7 +246,11 @@ class Settings extends Route
             $request->getAttribute('id'),
             $request->getQueryParams()
         );
-
+        
+        if($serviceData['data']['key'] == "thumbnail_whitelist" || $serviceData['data']['key'] == "thumbnail_whitelist_system")
+        {
+            $service->validateThumbnailWhitelist($payload['value'],$serviceData['data']['key']);
+        }
         /**
          * Get the interface based input
          *
