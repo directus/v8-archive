@@ -301,10 +301,29 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_collections',
                 'field' => 'translation',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'json',
+                'interface' => 'repeater',
                 'locked' => 1,
                 'sort' => 7,
-                'hidden_detail' => 1
+                'hidden_detail' => 0,
+                'options' => '{
+                    "fields": [
+                        {
+                            "field": "locale",
+                            "type": "string",
+                            "interface": "language",
+                            "options": {
+                                "limit": true
+                            },
+                            "width": "half"
+                        },
+                        {
+                            "field": "translation",
+                            "type": "string",
+                            "interface": "text-input",
+                            "width": "half"
+                        }
+                    ]
+                }'
             ],
             [
                 'collection' => 'directus_collections',
@@ -374,8 +393,27 @@ class FieldsSeeder extends AbstractSeed
                 'collection' => 'directus_fields',
                 'field' => 'translation',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'json',
-                'locked' => 1
+                'interface' => 'repeater',
+                'locked' => 1,
+                'options' => '{
+                    "fields": [
+                        {
+                            "field": "locale",
+                            "type": "string",
+                            "interface": "language",
+                            "options": {
+                                "limit": true
+                            },
+                            "width": "half"
+                        },
+                        {
+                            "field": "translation",
+                            "type": "string",
+                            "interface": "text-input",
+                            "width": "half"
+                        }
+                    ]
+                }'
             ],
             [
                 'collection' => 'directus_fields',
