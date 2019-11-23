@@ -143,7 +143,7 @@ class InstallModule extends ModuleBase
             file_put_contents($superadminFilePath, $configStub);
         }
         InstallerUtils::createConfig($directusPath, $data, $force);
-        
+
         if(empty($scannedDirectory)){
             echo PHP_EOL . "Make sure to copy the generated Super-Admin password below. You won't be able to see it again!". PHP_EOL;
             echo PHP_EOL . $data['super_admin_token'] . PHP_EOL;
@@ -171,6 +171,7 @@ class InstallModule extends ModuleBase
         }
 
         InstallerUtils::createTables($directus_path, $projectName, $force);
+        InstallerUtils::addUpgradeMigrations($this->getBasePath(),$projectName);
     }
 
     public function cmdSeeder($args, $extra)
