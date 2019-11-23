@@ -14,7 +14,6 @@ class AddFileIdHashFieldToDirectusFilesTable extends AbstractMigration
                 'null' => true,
                 'default' => null
             ]);
-
             $table->save();
         }
 
@@ -24,9 +23,18 @@ class AddFileIdHashFieldToDirectusFilesTable extends AbstractMigration
         $result = $this->query($checkSql)->fetch();
 
         if (!$result) {
-            $insertSqlFormat = 'INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`) VALUES ("%s", "%s", "%s", "%s");';
-            $insertSql = sprintf($insertSqlFormat, $collection, $field, 'string', 'text-input');
-            $this->execute($insertSql);
+            $data = [
+                        'collection' =>  $collection,
+                        'field' => $field,
+                        'type' => 'string',
+                        'interface'=>'text-input',
+                        'readonly' => 1,
+                        'hidden_browse' => 1,
+                        'hidden_detail' => 1
+                    ];
+    
+            $groups = $this->table('directus_fields');
+            $groups->insert($data)->save();
         }
     }
 }

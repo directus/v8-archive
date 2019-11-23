@@ -118,7 +118,7 @@ if (!function_exists('append_storage_information')) {
 
         $config = $container->get('config');
         $proxyDownloads = $config->get('storage.proxy_downloads');
-        $fileRootUrl = get_file_root_url();
+        $fileRootUrl = '/'. get_api_project_from_request().'/assets';
         $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
         $isLocalStorageAdapter = $config->get('storage.adapter') == 'local';
         $list = isset($rows[0]);
@@ -267,11 +267,10 @@ if (!function_exists('get_thumbnail_path')) {
             $paramsString .= '&'. $key .'='. $value;
         }
        
-
         return sprintf(
             '/%s/%s/%s%s',
             $projectName,
-            'generated',
+            'assets',
             $name,
             $paramsString
         );
@@ -456,8 +455,10 @@ if (!function_exists('get_file_root_url')) {
      */
     function get_file_root_url()
     {
-        $projectName = get_api_project_from_request();
-        return '/'.$projectName.'/assets';
+        $container = Application::getInstance()->getContainer();
+        $config = $container->get('config');
+        return $config->get('storage.root_url');
     }
 }
+
 

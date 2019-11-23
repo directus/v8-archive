@@ -11,7 +11,7 @@ class AddThumbnailWhitelistToSettingsTable extends AbstractMigration
             'field' => 'thumbnail_whitelist',
             'type' => 'json',
             'interface' => 'json',
-            'note' => 'Defines how the thumbnail will be generated based on the requested details.',
+            'note' => 'Defines how the thumbnail will be generated based on the requested params.',
         ];
         $collection = 'directus_settings';
 
@@ -19,9 +19,17 @@ class AddThumbnailWhitelistToSettingsTable extends AbstractMigration
         $result = $this->query($checkSql)->fetch();
 
         if (!$result) {
-            $insertSqlFormat = "INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`, `note`) VALUES ('%s', '%s', '%s', '%s', '%s');";
-            $insertSql = sprintf($insertSqlFormat, $collection, $fieldObject['field'], $fieldObject['type'], $fieldObject['interface'],$fieldObject['note']);
-            $this->execute($insertSql);
+            $data = [
+                'collection' =>  $collection,
+                'field' => $fieldObject['field'],
+                'type' => $fieldObject['type'],
+                'interface'=>$fieldObject['interface'],
+                'note' => $fieldObject['note'],
+                'width' => 'half'
+            ];
+
+            $groups = $this->table('directus_fields');
+            $groups->insert($data)->save();
         }
     }
 }

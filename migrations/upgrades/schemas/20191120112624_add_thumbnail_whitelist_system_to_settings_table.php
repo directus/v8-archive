@@ -14,13 +14,45 @@ class AddThumbnailWhitelistSystemToSettingsTable extends AbstractMigration
         ];
         $collection = 'directus_settings';
 
+        $thumbnail_whitelist_system = [
+            'key'   => 'thumbnail_whitelist_system',
+            'value' =>  json_encode(
+                        [
+                            [
+                                "key" => "card",
+                                "width" => 200,
+                                "height" => 200,
+                                "fit" => "crop",
+                                "quality" => 80
+                            ],
+                            [
+                                "key" => "avatar",
+                                "width" => 200,
+                                "height" => 300,
+                                "fit" => "contain",
+                                "quality" => 80
+                            ]
+                        ])
+        ];
+
+        $groups = $this->table('directus_settings');
+        $groups->insert($thumbnail_whitelist_system )->save();
+
         $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $fieldObject['field']);
         $result = $this->query($checkSql)->fetch();
 
         if (!$result) {
-            $insertSqlFormat = "INSERT INTO `directus_fields` (`collection`, `field`, `type`, `interface`) VALUES ('%s', '%s', '%s', '%s');";
-            $insertSql = sprintf($insertSqlFormat, $collection, $fieldObject['field'], $fieldObject['type'], $fieldObject['interface']);
-            $this->execute($insertSql);
+            $data = [
+                'collection' =>  $collection,
+                'field' => $fieldObject['field'],
+                'type' => $fieldObject['type'],
+                'interface'=>$fieldObject['interface'],
+                'readonly' => 1,
+                'width' => 'half'
+            ];
+
+            $groups = $this->table('directus_fields');
+            $groups->insert($data)->save();
         }
     }
 }

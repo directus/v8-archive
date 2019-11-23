@@ -135,7 +135,9 @@ $app->get('/', \Directus\Api\Routes\Home::class)
     ->add($middleware['table_gateway']);
 
 
+$app->get('/{project}/assets/{id}', \Directus\Api\Routes\Assets::class);
 $app->group('/{project}', function () use ($middleware) {
+    
     $this->get('/', \Directus\Api\Routes\ProjectHome::class)
         ->add($middleware['auth_user'])
         ->add($middleware['rate_limit_user'])

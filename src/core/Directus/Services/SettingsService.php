@@ -90,10 +90,15 @@ class SettingsService extends AbstractService
     public function validateThumbnailWhitelist($payload,$thumbnailKey)
     {
         $thumbnailWhitelistEnabled = get_directus_setting('thumbnail_whitelist_enabled');
-
-        if($thumbnailWhitelistEnabled && $thumbnailKey == "thumbnail_whitelist") {
-            if($payload == '')
+     
+        if($thumbnailWhitelistEnabled || ($thumbnailKey == 'thumbnail_whitelist_enabled' && $payload == 1)) {
+            if($payload == '' && $thumbnailKey == "thumbnail_whitelist") {
                 throw new UnprocessableEntityException('Thumbnail Whitelist is required.');
+            }
+            $thumbnail_whitelist=get_directus_setting('thumbnail_whitelist');
+            if($thumbnail_whitelist == '') {
+                throw new UnprocessableEntityException('Thumbnail Whitelist is required.');
+            }
         }
 
         $data= isset($payload[0]) ? $payload : array($payload); 

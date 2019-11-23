@@ -247,7 +247,9 @@ class Settings extends Route
             $request->getQueryParams()
         );
         
-        if($serviceData['data']['key'] == "thumbnail_whitelist" || $serviceData['data']['key'] == "thumbnail_whitelist_system")
+        if($serviceData['data']['key'] == "thumbnail_whitelist" ||
+           $serviceData['data']['key'] == "thumbnail_whitelist_system" ||
+           $serviceData['data']['key'] == "thumbnail_whitelist_enabled")
         {
             $service->validateThumbnailWhitelist($payload['value'],$serviceData['data']['key']);
         }
