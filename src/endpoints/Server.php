@@ -34,7 +34,8 @@ class Server extends Route
      */
     public function projects(Request $request, Response $response)
     {
-        $scannedDirectory = \Directus\scan_config_folder();
+        $basePath = \Directus\get_app_base_path();
+        $scannedDirectory = \Directus\scan_folder($basePath.'/config');
 
         $projectNames = [];
         if(empty($scannedDirectory)){

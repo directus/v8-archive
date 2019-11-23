@@ -67,9 +67,10 @@ class ServerService extends AbstractService
      */
     public function validateServerInfo($data)
     {
-        $scannedDirectory = \Directus\scan_config_folder();
+        $basePath = \Directus\get_app_base_path();
+        $scannedDirectory = \Directus\scan_folder($basePath.'/config');
         
-        $superadminFilePath = \Directus\get_app_base_path().'/config/__api.json';
+        $superadminFilePath = $basePath.'/config/__api.json';
         if(!empty($scannedDirectory)){
             $this->validate($data, [
                 'super_admin_token' => 'required'
