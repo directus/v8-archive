@@ -711,7 +711,7 @@ class InstallerUtils
         static::ensureMigrationFileExists($basePath);
 
         if ($migrationName === null) {
-            $migrationName = 'db';
+            $migrationName = 'install';
         }
         $configPath = static::createConfigPath($basePath, $projectName);
         $migrationPath = $basePath . '/migrations/' . $migrationName;
