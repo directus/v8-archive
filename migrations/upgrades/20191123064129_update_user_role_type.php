@@ -49,7 +49,7 @@ class UpdateUserRoleType extends AbstractMigration
             $usersTable->addColumn('role', 'integer', [
                 'null' => true,
                 'default' => null
-            ]);
+            ])->save();
         }
 
         $result = $this->query('SELECT 1 FROM `directus_relations` WHERE `collection_many` = "directus_user_roles";')->fetch();
