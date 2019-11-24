@@ -137,7 +137,7 @@ if (!function_exists('append_storage_information')) {
                 $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['hash_id'];
 
                 // Add Full url
-                if ($isLocalStorageAdapter && !$hasFileRootUrlHost) {
+                if (!$hasFileRootUrlHost) {
                     $data['full_url'] = get_url($data['url']);
                 }
             }

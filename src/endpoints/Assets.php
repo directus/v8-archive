@@ -20,15 +20,16 @@ class Assets extends Route
             $fileId,
             $request->getQueryParams()
         );
-
+       
         $settings =get_directus_thumbnail_settings();
         $timeToLive = array_get($settings, 'thumbnail_cache_ttl', 86400);
-
-        if(isset($response['image']) && $response['mimeType'])
+        
+        if(isset($response['file']) && $response['mimeType'])
         {
             header('HTTP/1.1 200 OK');
             header('Content-type: ' . $response['mimeType']);
             header("Pragma: cache");
+            header("Content-Disposition: filename=".$response['filename']);
             header("Access-Control-Allow-Origin: *");
             header("Access-Control-Allow-Methods: PUT, GET, POST, DELETE, OPTIONS");
             header("Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type");
@@ -38,11 +39,11 @@ class Assets extends Route
                 header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', time()));
                 header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $timeToLive));
             }
-            echo $response['image'];
+            echo $response['file'];
         }
         else
         {
-            return http_response_code(404);
+            header('HTTP/1.1 404 Not Found');
         }
         exit(0);
     }

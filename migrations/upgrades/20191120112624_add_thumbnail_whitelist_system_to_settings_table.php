@@ -27,9 +27,9 @@ class AddThumbnailWhitelistSystemToSettingsTable extends AbstractMigration
                             ],
                             [
                                 "key" => "avatar",
-                                "width" => 200,
-                                "height" => 300,
-                                "fit" => "contain",
+                                "width" => 100,
+                                "height" => 100,
+                                "fit" => "crop",
                                 "quality" => 80
                             ]
                         ])

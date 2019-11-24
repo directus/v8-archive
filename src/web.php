@@ -136,6 +136,7 @@ $app->get('/', \Directus\Api\Routes\Home::class)
 
 
 $app->get('/{project}/assets/{id}', \Directus\Api\Routes\Assets::class);
+
 $app->group('/{project}', function () use ($middleware) {
     
     $this->get('/', \Directus\Api\Routes\ProjectHome::class)

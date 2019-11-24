@@ -101,26 +101,29 @@ class SettingsService extends AbstractService
             }
         }
 
-        $data= isset($payload[0]) ? $payload : array($payload); 
-        foreach($data as $key=>$value) {
-            $validateData   =   [
-                                    'width'     =>   isset($value['width']) ? $value['width'] : '',
-                                    'height'    =>   isset($value['height']) ? $value['height'] : '',
-                                    'quality'   =>   isset($value['quality']) ? $value['quality'] : '',
-                                    'fit'       =>   isset($value['fit']) ? $value['fit'] : ''
-                                ];
-
-            $constraints    =  [
-                                    'width'     =>  'required',
-                                    'height'    =>  'required',
-                                    'quality'   =>  'required',
-                                    'fit'       =>  'required'
-                                ];
-            if($thumbnailKey == "thumbnail_whitelist_system"){
-                $validateData['key'] =  isset($value['key']) ? $value['key'] : '';
-                $constraints['key']  =  'required';
+        if($thumbnailKey != 'thumbnail_whitelist_enabled')
+        {
+            $data= isset($payload[0]) ? $payload : array($payload); 
+            foreach($data as $key=>$value) {
+                $validateData   =   [
+                                        $thumbnailKey.'.width'     =>   isset($value['width']) ? $value['width'] : '',
+                                        $thumbnailKey.'.height'    =>   isset($value['height']) ? $value['height'] : '',
+                                        $thumbnailKey.'.quality'   =>   isset($value['quality']) ? $value['quality'] : '',
+                                        $thumbnailKey.'.fit'       =>   isset($value['fit']) ? $value['fit'] : ''
+                                    ];
+    
+                $constraints    =  [
+                                        $thumbnailKey.'.width'     =>  'required|numeric',
+                                        $thumbnailKey.'.height'    =>  'required|numeric',
+                                        $thumbnailKey.'.quality'   =>  'required|numeric',
+                                        $thumbnailKey.'.fit'       =>  'required'
+                                    ];
+                if($thumbnailKey == "thumbnail_whitelist_system"){
+                    $validateData[$thumbnailKey.'.key'] =  isset($value['key']) ? $value['key'] : '';
+                    $constraints[$thumbnailKey.'.key']  =  'required';
+                }
+                $this->validate($validateData,$constraints);
             }
-            $this->validate($validateData,$constraints);
         }
     }
 }

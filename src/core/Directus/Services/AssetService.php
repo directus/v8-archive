@@ -82,7 +82,8 @@ class AssetService extends AbstractService
            $img = $this->filesystem->read($file['filename']);
            $result=[];
            $result['mimeType']=Image::make($this->filesystem->read($file['filename']))->mime();;
-           $result['image']=isset($img) && $img ? $img : null; 
+           $result['file']=isset($img) && $img ? $img : null;
+           $result['filename']=$file['filename']; 
            return $result;
         }
         else {
@@ -120,7 +121,7 @@ class AssetService extends AbstractService
           unset($otherParams['key']);
         }
         
-        $paramsString=isset($params['key']) ? ',key'.$params['key'] : '';
+        $paramsString=isset($params['key']) ? ',k'.$params['key'] : '';
         if(count($otherParams) > 0) {
             ksort($otherParams);
             foreach($otherParams as $key => $value) {
@@ -143,11 +144,12 @@ class AssetService extends AbstractService
                 }
             }
             $result['mimeType']=$this->getThumbnailMimeType($this->thumbnailDir,$this->fileName);
-            $result['image']=$image;
+            $result['file']=$image;
+            $result['filename']=$this->fileName; 
             return $result;
         }
         catch (Exception $e) {
-          $this->getDefaultThumbnail();
+          return $this->getDefaultThumbnail();
         }
     }
 
@@ -188,8 +190,11 @@ class AssetService extends AbstractService
                   }
                 }
             }
+            
             if(!$result){
-                throw new Exception(sprintf('Invalid Params.'));
+                $whitelist= $validateWhiteList == 'thumbnail_whitelist' ? 'Thumbnail Whitelist' 
+                                                   : 'System Thumbnail Whitelist';
+                throw new Exception(sprintf("The params doesn't match with the ".  $whitelist . "."));
             }
         }
     }
@@ -204,28 +209,28 @@ class AssetService extends AbstractService
      */
     public function validateThumbnailParams($params)
     {
+        $this->validate(
+            [
+                'width'     =>   isset($params['width']) ? $params['width'] : '',
+                'height'    =>   isset($params['height']) ? $params['height'] : '',
+                'quality'   =>   isset($params['quality']) ? $params['quality'] : '',
+                'fit'       =>   isset($params['fit']) ? $params['fit'] : ''
+            ],
+            [
+                'width'     =>  'required|numeric',
+                'height'    =>  'required|numeric',
+                'quality'   =>  'required|numeric',
+                'fit'       =>  'required'
+            ]);
+                
         // set thumbnail parameters
         $this->thumbnailParams = [
-            'fit' => filter_var(isset($params['fit']) ? $params['fit'] : '', FILTER_SANITIZE_STRING),
-            'height' => filter_var(isset($params['height']) ? $params['height'] : '', FILTER_SANITIZE_NUMBER_INT),
-            'quality' => filter_var(isset($params['quality']) ? $params['quality'] : '', FILTER_SANITIZE_STRING),
-            'width' => filter_var(isset($params['width']) ? $params['width'] : '', FILTER_SANITIZE_NUMBER_INT),
+            'fit' => filter_var($params['fit'], FILTER_SANITIZE_STRING),
+            'height' => filter_var($params['height'], FILTER_SANITIZE_NUMBER_INT),
+            'quality' => filter_var($params['quality'], FILTER_SANITIZE_STRING),
+            'width' => filter_var($params['width'], FILTER_SANITIZE_NUMBER_INT),
         ];
         
-        $this->validate(
-                        [
-                            'width'     =>   $this->thumbnailParams['width'],
-                            'height'    =>   $this->thumbnailParams['height'],
-                            'quality'   =>   $this->thumbnailParams['quality'],
-                            'fit'       =>   $this->thumbnailParams['fit']
-                        ],
-                        [
-                            'width'     =>  'required',
-                            'height'    =>  'required',
-                            'quality'   =>  'required',
-                            'fit'       =>  'required'
-                        ]);
-
         $ext = pathinfo($this->fileName, PATHINFO_EXTENSION);
         $name = pathinfo($this->fileName, PATHINFO_FILENAME);
         if (! $this->isSupportedFileExtension($ext)) {
@@ -372,13 +377,15 @@ class AssetService extends AbstractService
         if (is_string($filePath) && !empty($filePath) && $filePath[0] !== '/') {
             $filePath = $basePath . '/' . $filePath;
         }
-    
+       
         if (file_exists($filePath)) {
-            $mime = image_type_to_mime_type(exif_imagetype($filePath));
-            echo file_get_contents($filePath);
-            exit(0);
+            $result['mimeType'] = image_type_to_mime_type(exif_imagetype($filePath));
+            $result['file']=file_get_contents($filePath);
+            $filename = pathinfo($filePath); 
+            $result['filename']= $filename['basename'];
+            return $result;
         } else {
-             return 1;
+             return http_response_code(404);
         }
     }
 
