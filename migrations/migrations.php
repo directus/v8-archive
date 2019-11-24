@@ -2,8 +2,7 @@
 
 return [
     'paths' => [
-        'migrations' => '%%PHINX_CONFIG_DIR%%/../migrations/install/schemas',
-        'seeds' => '%%PHINX_CONFIG_DIR%%/../migrations/install/seeds'
+        'migrations' => '%%PHINX_CONFIG_DIR%%/../migrations/install'
     ],
 
     'version_order' => 'creation',
