@@ -6,6 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class UpdateDirectusActivityField extends AbstractMigration
 {
     /**
+     * Version : v8.0.1
      * Update the fields of directus_activity table
      */
     public function change()

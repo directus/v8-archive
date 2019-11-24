@@ -6,6 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class UpdateUserFields extends AbstractMigration
 {
     /**
+     * Version : v8.0.1
      * Update/insert/delete users table field from directus_fields and direct_users table
      */
     public function change()

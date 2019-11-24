@@ -6,6 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class UpdateUserRoleType extends AbstractMigration
 {
     /**
+     * Version : v8.0.1
      * Update user role type from M2M to O2M and delete the junction table directus_user_roles
      */
     public function change()

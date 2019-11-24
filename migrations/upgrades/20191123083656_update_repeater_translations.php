@@ -5,6 +5,9 @@ use Phinx\Migration\AbstractMigration;
 
 class UpdateRepeaterTranslations extends AbstractMigration
 {
+    /**
+     * Version : v8.0.1
+     */
     public function change()
     {
         $this->execute(\Directus\phinx_update(

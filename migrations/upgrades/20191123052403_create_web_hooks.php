@@ -6,6 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class CreateWebHooks extends AbstractMigration
 {
     /**
+     * Version : v8.0.1
      * This will create the webhooks table and add the entry of those fields in directus_fields table
      */
     public function change()

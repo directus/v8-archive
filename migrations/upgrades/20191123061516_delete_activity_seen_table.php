@@ -6,6 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class DeleteActivitySeenTable extends AbstractMigration
 {
     /**
+     * Version : v8.0.1
      * Delete directus_activity_seen table
      */
     public function change()

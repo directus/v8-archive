@@ -6,6 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class UpdateDirectusSettings extends AbstractMigration
 {
     /**
+     * Version : v8.0.1
      * This will update the column name of directus_settings table as well as update it in directus_fields table
      */
     public function change()

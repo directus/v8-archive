@@ -6,6 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class CreateUserSessions extends AbstractMigration
 {
     /**
+     * Version : v8.0.1
      * This will create the user sessions table and add the entry of those fields in directus_fields table
      */
     public function change()

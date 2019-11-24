@@ -6,6 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class RemoveUtilities extends AbstractMigration
 {
     /**
+     * Version : v8.0.1
      * Remove schemas and seeds folder from upgrades and db folder. 
      */
     public function change()
