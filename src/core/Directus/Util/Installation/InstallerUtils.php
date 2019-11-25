@@ -39,9 +39,16 @@ class InstallerUtils
      *
      * @return boolean
      */
-    public static function addUpgradeMigrations()
+    public static function addUpgradeMigrations($basePath = null, $projectName = null)
     {
-        $dbConnection = Application::getInstance()->fromContainer('database');
+        if(!is_null($basePath) && !is_null($projectName))
+        {
+            $app = static::createApp($basePath, $projectName);
+            $dbConnection =  $app->getContainer()->get('database');
+        }else{
+            $basePath = \Directus\get_app_base_path();
+            $dbConnection = Application::getInstance()->fromContainer('database');
+        }
         $migrationsTableGateway = new TableGateway(SchemaManager::COLLECTION_MIGRATIONS, $dbConnection);
 
         $select = new Select($migrationsTableGateway->table);
@@ -50,7 +57,7 @@ class InstallerUtils
         $alreadyStoredMigrations = array_column($result, 'version');
 
         $ignoreableFiles = ['..', '.'];
-        $scannedDirectory = array_values(array_diff(scandir(\Directus\get_app_base_path().'/migrations/upgrades/schemas'), $ignoreableFiles));
+        $scannedDirectory = array_values(array_diff(scandir($basePath.'/migrations/upgrades/schemas'), $ignoreableFiles));
         foreach($scannedDirectory as $fileName){
             $data = [];
             $fileNameObject = explode("_",$fileName,2);

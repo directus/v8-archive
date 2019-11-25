@@ -116,17 +116,17 @@ if (!function_exists('get_app_base_path')) {
     }
 }
 
-if (!function_exists('scan_config_folder')) {
+if (!function_exists('scan_folder')) {
     /**
-     * Scan config folder and return the php files (Project Configurations)
+     * Scan folder and return the php files (Project Configurations)
      *
      * @return string
      */
-    function scan_config_folder()
+    function scan_folder($folder)
     {
         $projectNames = [];
         $ignoreableFiles = ['api_sample.php','.DS_Store','..', '.'];
-        $scannedDirectory = array_values(array_diff(scandir(get_app_base_path().'/config'), $ignoreableFiles));
+        $scannedDirectory = array_values(array_diff(scandir($folder), $ignoreableFiles));
         if(!empty($scannedDirectory)){
             foreach($scannedDirectory as $fileName){
                 $fileObject = explode(".",$fileName);
