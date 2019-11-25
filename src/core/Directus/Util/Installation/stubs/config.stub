@@ -144,6 +144,6 @@ return [
             {{optional(auth.social_providers.facebook)}},
             {{optional(auth.social_providers.google)}},
             {{optional(auth.social_providers.twitter)}},
-        ]
+        ],
     ],
 ];
