@@ -34,20 +34,24 @@ class Server extends Route
      */
     public function projects(Request $request, Response $response)
     {
-        $scannedDirectory = \Directus\scan_config_folder();
+        if (getenv("DIRECTUS_USE_ENV") === "1") {
+            $projectNames[]="_";
+        }
+        else {
+            $scannedDirectory = \Directus\scan_config_folder();
 
-        $projectNames = [];
-        if(empty($scannedDirectory)){
-            throw new NotInstalledException('This Directus instance has not been configured. Install via the Directus App (eg: /admin) or read more about configuration at: https://docs.directus.io/getting-started/installation.html#configure');
-        }else{
-            foreach($scannedDirectory as $fileName){
-                if(!StringUtils::startsWith($fileName, 'private.')){
-                    $fileObject = explode(".",$fileName);
-                    $projectNames[] = $fileObject[0];
+            $projectNames = [];
+            if(empty($scannedDirectory)){
+                throw new NotInstalledException('This Directus instance has not been configured. Install via the Directus App (eg: /admin) or read more about configuration at: https://docs.directus.io/getting-started/installation.html#configure');
+            }else{
+                foreach($scannedDirectory as $fileName){
+                    if(!StringUtils::startsWith($fileName, 'private.')){
+                        $fileObject = explode(".",$fileName);
+                        $projectNames[] = $fileObject[0];
+                    }
                 }
             }
         }
-
         $responseData['data'] = $projectNames;
         return $this->responseWithData($request, $response, $responseData);
     }
