@@ -27,6 +27,7 @@ class InstallModule extends ModuleBase
 
         $this->help = [
             'config' => ''
+                . PHP_EOL . "\t\t-k " . 'Project key for the created project'
                 . PHP_EOL . "\t\t-h " . 'Hostname or IP address of the MySQL DB to be used. Default: localhost'
                 . PHP_EOL . "\t\t-n " . 'Name of the database to use for Directus. Default: directus'
                 . PHP_EOL . "\t\t-u " . 'Username for DB connection. Default: directus'
@@ -37,6 +38,7 @@ class InstallModule extends ModuleBase
                 . PHP_EOL . "\t\t-r " . 'Directus root URI. Default: /',
             'database' => '',
             'install' => ''
+                . PHP_EOL . "\t\t-k " . 'Project key for the created project'
                 . PHP_EOL . "\t\t-e " . 'Administrator e-mail address, used for administration login. Default: admin@directus.com'
                 . PHP_EOL . "\t\t-p " . 'Initial administrator password. Default: directus'
                 . PHP_EOL . "\t\t-t " . 'Name for this Directus installation. Default: Directus'
@@ -46,7 +48,7 @@ class InstallModule extends ModuleBase
 
         $this->commands_help = [
             'config' => 'Configure Directus: ' . PHP_EOL . PHP_EOL . "\t\t"
-                . $this->__module_name . ':config -h db_host -n db_name -u db_user -p db_pass -d directus_path -a super_admin_token' . PHP_EOL,
+                . $this->__module_name . ':config -k my-project -h db_host -n db_name -u db_user -p db_pass -d directus_path -a super_admin_token' . PHP_EOL,
             'database' => 'Populate the Database Schema: ' . PHP_EOL . PHP_EOL . "\t\t"
                 . $this->__module_name . ':database -d directus_path' . PHP_EOL,
             'install' => 'Install Initial Configurations: ' . PHP_EOL . PHP_EOL . "\t\t"
@@ -75,6 +77,8 @@ class InstallModule extends ModuleBase
             switch ($key) {
                 case 'a':
                     $data['super_admin_token'] = $value;
+                case 'k':
+                    $data['project'] = (string) $value;
                     break;
                 case 't':
                     $data['db_type'] = $value;
@@ -100,9 +104,6 @@ class InstallModule extends ModuleBase
                 case 'c':
                     $data['cors_enabled'] = (bool) $value;
                     break;
-                case 'N': // project Name
-                    $data['project'] = (string) $value;
-                    break;
                 case 's':
                     $data['db_socket'] = $value;
                     break;
@@ -119,7 +120,7 @@ class InstallModule extends ModuleBase
         if (!file_exists($apiPath)) {
             throw new \Exception(sprintf('Path "%s" does not exist', $apiPath));
         }
-        
+
         $scannedDirectory = \Directus\scan_folder($this->getBasePath().'/config');
 
         $superadminFilePath = $this->getBasePath().'/config/__api.json';
@@ -161,7 +162,7 @@ class InstallModule extends ModuleBase
                 case 'd':
                     $directus_path = $value;
                     break;
-                case 'N':
+                case 'k':
                     $projectName = $value;
                     break;
                 case 'f':
@@ -204,7 +205,7 @@ class InstallModule extends ModuleBase
                 case 'T':
                     $data['user_token'] = $value;
                     break;
-                case 'N':
+                case 'k':
                     $projectName = $value;
                     break;
                 case 'timezone':
