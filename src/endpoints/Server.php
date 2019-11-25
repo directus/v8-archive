@@ -35,7 +35,7 @@ class Server extends Route
     public function projects(Request $request, Response $response)
     {
         if (getenv("DIRECTUS_USE_ENV") === "1") {
-            $projectNames[]="api";
+            $projectNames[]="_";
         }
         else {
             $scannedDirectory = \Directus\scan_config_folder();
