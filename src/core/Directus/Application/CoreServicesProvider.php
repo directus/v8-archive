@@ -125,8 +125,8 @@ class CoreServicesProvider
             // TODO: Move log configuration outside "slim app" settings
             $path = $container->get('path_base') . '/logs';
             $config = $container->get('config');
-            if ($config->has('settings.logger.path')) {
-                $path = $config->get('settings.logger.path');
+            if ($config->has('logger.path')) {
+                $path = $config->get('logger.path');
             }
 
             $pathIsStream = $path == 'php://stdout' || $path == 'php://stderr';

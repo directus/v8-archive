@@ -3,10 +3,8 @@
 return [
     'env' => 'production',
 
-    'settings' => [
-        'logger' => [
-            'path' => '{{logs_path}}',
-        ],
+    'logger' => [
+        'path' => '{{logs_path}}',
     ],
 
     'database' => [
