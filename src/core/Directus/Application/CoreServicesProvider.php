@@ -717,11 +717,7 @@ class CoreServicesProvider
             $emitter->addAction('auth.request:credentials', function () use ($container) {
                 /** @var Session $session */
                 $session = $container->get('session');
-                $config = $container->get('config');
-                $useTelemetry = true; // default
-                if ($config->has('settings.useTelemetry')) {
-                    $useTelemetry = $config->get('settings.useTelemetry');
-                }
+                $useTelemetry =  get_directus_setting('telemetry',true);
 
                 if($useTelemetry) {
                     if ($session->getStorage()->get('telemetry') === true) {
