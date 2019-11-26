@@ -4,7 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Container;
 
-class PagesService extends AbstractExtensionsController
+class ModulesService extends AbstractExtensionsController
 {
     public function __construct(Container $container)
     {
@@ -12,8 +12,8 @@ class PagesService extends AbstractExtensionsController
 
         $basePath = $this->container->get('path_base');
         $this->paths = [
-            $basePath . '/public/extensions/core/pages',
-            $basePath . '/public/extensions/custom/pages',
+            $basePath . '/public/extensions/core/modules',
+            $basePath . '/public/extensions/custom/modules',
         ];
     }
 
