@@ -9,7 +9,7 @@ return [
     'settings' => [
         'logger' => [
             'path' => __DIR__ . '/../logs',
-        ]
+        ],
     ],
 
     'database' => [
