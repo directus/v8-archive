@@ -71,7 +71,7 @@ try {
 
 $errorReporting = E_ALL;
 $displayErrors = 1;
-if ($app->getConfig()->get('app.env', 'development') === 'production') {
+if ($app->getConfig()->get('env', 'development') === 'production') {
     $displayErrors = $errorReporting = 0;
 }
 
@@ -274,7 +274,7 @@ $app->group('/pages', \Directus\Api\Routes\Pages::class)
     ->add($middleware['auth'])
     ->add($middleware['table_gateway'])
     ->add($middleware['database_migration']);
-   
+
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['rate_limit_user'])

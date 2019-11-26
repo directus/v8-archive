@@ -184,7 +184,7 @@ class CoreServicesProvider
             $hookEmitter = $container['hook_emitter'];
 
             return new ErrorHandler($hookEmitter, [
-                'env' => $container->get('config')->get('app.env', 'development')
+                'env' => $container->get('config')->get('env', 'development')
             ]);
         };
 
@@ -676,7 +676,7 @@ class CoreServicesProvider
 
             $emitter->addFilter('item.create:before', $onInsertOrUpdate);
             $emitter->addFilter('item.update:before', $onInsertOrUpdate);
-            
+
             $beforeSavingFiles = function ($payload) use ($container) {
                 $acl = $container->get('acl');
                 if (!$acl->canCreate('directus_files')) {

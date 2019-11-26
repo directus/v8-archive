@@ -1,9 +1,10 @@
 <?php
 
 return [
+    'env' => 'production',
+
     'app' => [
-        'env' => 'production',
-        'timezone' => '{{timezone}}',
+        'timezone' => 'America/New_York'
     ],
 
     'settings' => [
