@@ -61,9 +61,10 @@ class ProjectService extends AbstractService
         // If the first installtion is executing then add the api.json file to store the password.
         // For every installation after the first one, user must pass that same password to create the next project.
 
-        $scannedDirectory = \Directus\scan_config_folder();
+        $basePath = \Directus\get_app_base_path();
+        $scannedDirectory = \Directus\scan_folder($basePath.'/config');
 
-        $superadminFilePath = \Directus\get_app_base_path().'/config/__api.json';
+        $superadminFilePath = $basePath.'/config/__api.json';
         if(empty($scannedDirectory)){
             $configStub = InstallerUtils::createJsonFileContent($data);
             file_put_contents($superadminFilePath, $configStub);

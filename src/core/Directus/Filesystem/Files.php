@@ -333,11 +333,10 @@ class Files
         }
         unset($tmpData);
 
-        return [
+        $response = [
             // The MIME type will be based on its extension, rather than its content
             'type' => MimeTypeUtils::getFromFilename($fileData['filename']),
             'filename' => $fileData['filename'],
-            'title' => $fileData['title'],
             'tags' => $fileData['tags'],
             'description' => $fileData['description'],
             'location' => $fileData['location'],
@@ -349,6 +348,12 @@ class Files
             'checksum' => $checksum,
             'duration' => isset($duration) ? $duration : 0
         ];
+
+        if(!$replace){
+            $response['title'] = $fileData['title'];
+        }
+
+        return $response;
     }
 
     /**
@@ -675,13 +680,13 @@ class Files
      */
     private function getFileName($fileName, $unique = true)
     {
-        switch ($this->getSettings('file_naming')) {
-            case 'uuid':
-                $fileName = $this->uuidFileName($fileName);
-                break;
-        }
-
+        
         if ($unique) {
+            switch ($this->getSettings('file_naming')) {
+                case 'uuid':
+                    $fileName = $this->uuidFileName($fileName);
+                    break;
+            }
             $fileName = $this->uniqueName($fileName, $this->filesystem->getPath());
         }
 
