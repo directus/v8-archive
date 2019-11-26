@@ -755,15 +755,7 @@ if (!function_exists('get_default_timezone')) {
      */
     function get_default_timezone(Application $app = null)
     {
-        if ($app == null) {
-            $app = Application::getInstance();
-        }
-
-        if (!$app || !($timezone = $app->getConfig()->get('app.timezone'))) {
-            $timezone = date_default_timezone_get();
-        }
-
-        return $timezone;
+        return date_default_timezone_get();
     }
 }
 

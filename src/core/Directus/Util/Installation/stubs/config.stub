@@ -3,10 +3,6 @@
 return [
     'env' => 'production',
 
-    'app' => [
-        'timezone' => 'America/New_York'
-    ],
-
     'settings' => [
         'logger' => [
             'path' => '{{logs_path}}',

@@ -66,8 +66,8 @@ class InstallerUtils
             $data = [
                 'version' => $fileNameObject[0],
                 'migration_name' => $migrationName[0],
-                'start_time' => DateTimeUtils::nowInTimezone()->toString(),
-                'end_time' => DateTimeUtils::nowInTimezone()->toString()
+                'start_time' => DateTimeUtils::nowInUTC()->toString(),
+                'end_time' => DateTimeUtils::nowInUTC()->toString()
             ];
 
             if(!in_array($data['version'],$alreadyStoredMigrations) && !is_null($data['version']) && !is_null($data['migration_name'])){
