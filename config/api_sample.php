@@ -9,8 +9,7 @@ return [
     'settings' => [
         'logger' => [
             'path' => __DIR__ . '/../logs',
-        ],
-        'useTelemetry' => true
+        ]
     ],
 
     'database' => [
