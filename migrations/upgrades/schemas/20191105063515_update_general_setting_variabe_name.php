@@ -46,7 +46,11 @@ class UpdateGeneralSettingVariabeName extends AbstractMigration
             ],
             ['key' => 'logo']
         ));
-
+        // If there's already a project_foreground settings remove it, to avoid a duplicate key exception
+        $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `field` = "project_foreground";')->fetch();
+        if ($result) {
+          $this->execute('DELETE FROM `directus_fields` where `field` = "project_foreground";');
+        }
         // Update the interface of project_icon from icon to file and rename it.
         $this->execute(\Directus\phinx_update(
             $this->getAdapter(),
@@ -65,7 +69,11 @@ class UpdateGeneralSettingVariabeName extends AbstractMigration
         if ($result) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "project_icon";');
         }
-
+        // If there's already a project_background settings remove it, to avoid a duplicate key exception
+        $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `field` = "project_background";')->fetch();
+        if ($result) {
+          $this->execute('DELETE FROM `directus_fields` where `field` = "project_background";');
+        }
         // Rename project_image
         $this->execute(\Directus\phinx_update(
             $this->getAdapter(),
