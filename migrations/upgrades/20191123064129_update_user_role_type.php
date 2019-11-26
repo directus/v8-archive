@@ -11,34 +11,40 @@ class UpdateUserRoleType extends AbstractMigration
      */
     public function change()
     {
-
-        $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_roles',
-            [
-                'description' => 'Controls what API data is publicly available without authenticating'
-            ],
-            ['name' => 'public']
-        ));
+        $result = $this->query('SELECT 1 FROM `directus_roles` WHERE `name` = "public";')->fetch();
+        if ($result) {
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_roles',
+                [
+                    'description' => 'Controls what API data is publicly available without authenticating'
+                ],
+                ['name' => 'public']
+            ));
+        }
         
-        $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_fields',
-            [
-                'interface' => 'one-to-many'
-            ],
-            ['collection' => 'directus_roles', 'field' => 'users']
-        ));
+        if($this->checkFieldExist('directus_roles','users')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                    'interface' => 'one-to-many'
+                ],
+                ['collection' => 'directus_roles', 'field' => 'users']
+            ));
+        }
         
-        $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_fields',
-            [
-                'field' => 'role',
-                'type' => 'm2o'
-            ],
-            ['collection' => 'directus_users', 'field' => 'roles']
-        ));
+        if($this->checkFieldExist('directus_users','roles')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                    'field' => 'role',
+                    'type' => 'm2o'
+                ],
+                ['collection' => 'directus_users', 'field' => 'roles']
+            ));
+        }
 
         $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_user_roles";')->fetch();
         if ($result) {
@@ -74,5 +80,10 @@ class UpdateUserRoleType extends AbstractMigration
             }
             $userRolesTable->drop();
         }
+    }
+
+    public function checkFieldExist($collection,$field){
+        $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
+        return $this->query($checkSql)->fetch();
     }
 }
