@@ -26,7 +26,7 @@ class Schema {
             new Group('settings', [
                 new Group('logger', [
                     new Value('path', Types::STRING, $loggerPath),
-                ]),
+                ])
             ]),
             new Group('database', [
                 new Value('type', Types::STRING, 'mysql'),
