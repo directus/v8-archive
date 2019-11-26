@@ -86,7 +86,6 @@ class Server extends Route
                     'curl' => extension_loaded("curl"),
                     'gd' => extension_loaded("gd"),
                     'fileinfo' => extension_loaded("fileinfo"),
-                    'libapache2_mod_php' => extension_loaded("libapache2-mod-php"),
                     'mbstring' => extension_loaded("mbstring"),
                     'json' => extension_loaded("json"),
                 ],
