@@ -473,7 +473,7 @@ if (!function_exists('get_reserved_endpoint_names')) {
         return [
             'server',
             'interfaces',
-            'pages',
+            'modules',
             'layouts',
             'types',
             'projects'
@@ -609,7 +609,7 @@ if (!function_exists('register_extensions_hooks')) {
 
         register_hooks_list(
             $app,
-            get_custom_hooks('public/extensions/core/pages', true)
+            get_custom_hooks('public/extensions/core/modules', true)
         );
 
         register_hooks_list(
