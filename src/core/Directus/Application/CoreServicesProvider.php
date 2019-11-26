@@ -711,19 +711,23 @@ class CoreServicesProvider
             $emitter->addAction('auth.request:credentials', function () use ($container) {
                 /** @var Session $session */
                 $session = $container->get('session');
-                if ($session->getStorage()->get('telemetry') === true) {
-                    return;
+                $useTelemetry =  get_directus_setting('telemetry',true);
+
+                if($useTelemetry) {
+                    if ($session->getStorage()->get('telemetry') === true) {
+                        return;
+                    }
+
+                    $data = [
+                        'version' => Application::DIRECTUS_VERSION,
+                        'url' => get_url(),
+                        'type' => 'api'
+                    ];
+                    \Directus\request_send_json('POST', 'https://telemetry.directus.io/count', $data);
+
+                    // NOTE: this only works when the client sends subsequent request with the same cookie
+                    $session->getStorage()->set('telemetry', true);
                 }
-
-                $data = [
-                    'version' => Application::DIRECTUS_VERSION,
-                    'url' => get_url(),
-                    'type' => 'api'
-                ];
-                \Directus\request_send_json('POST', 'https://telemetry.directus.io/count', $data);
-
-                // NOTE: this only works when the client sends subsequent request with the same cookie
-                $session->getStorage()->set('telemetry', true);
             });
 
             return $emitter;
