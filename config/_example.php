@@ -1,112 +1,32 @@
 <?php
 
 // Directus Project Config example
-//
+
 // Directus config files control everything that the API needs to know in order to run a project.
 // This includes database credentials, where to save files, and what social providers to allow
 
 return [
-    // What mode to run the API in
-    // production | development
-    'env' => 'production',
-
-    'settings' => [
-        'logger' => [
-            'path' => __DIR__ . '/../logs',
-        ],
-    ],
-
     'database' => [
-        'type' => 'mysql',
+        'type' => 'mysql',          // Only mysql is supported
         'host' => 'localhost',
         'port' => 3306,
         'name' => 'directus',
-        'username' => 'root',
-        'password' => 'root',
+        'username' => 'directus_db_user',
+        'password' => 'd1r3ctu5',
         'engine' => 'InnoDB',
         'charset' => 'utf8mb4',
-        // When using unix socket to connect to the database the host attribute should be removed
-        // 'socket' => '/var/lib/mysql/mysql.sock',
-        'socket' => '',
-        // Connect over TLS by using the appropriate PDO_MySQL constants:
-        // https://www.php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
-        //'driver_options' => [
-        //    PDO::MYSQL_ATTR_SSL_CAPATH => '/etc/ssl/certs',
-        //]
-    ],
-
-    'cache' => [
-        'enabled' => false,
-        'response_ttl' => 3600, // seconds
-        // 'pool' => [
-        //    'adapter' => 'apc'
-        // ],
-        // 'pool' => [
-        //    'adapter' => 'apcu'
-        // ],
-        // 'pool' => [
-        //    'adapter' => 'filesystem',
-        //    'path' => '../cache/', // relative to the api directory
-        // ],
-        // 'pool' => [
-        //    'adapter'   => 'memcached',
-        //    //'url' => 'localhost:11211;localhost:11212'
-        //    'host'      => 'localhost',
-        //    'port'      => 11211
-        // ],
-        // 'pool' => [
-        //    'adapter'   => 'memcache',
-        //    'url' => 'localhost:11211;localhost:11212'
-        //    //'host'      => 'localhost',
-        //    //'port'      => 11211
-        //],
-        // 'pool' => [
-        //    'adapter'   => 'redis',
-        //    'host'      => 'localhost',
-        //    'port'      => 6379
-        // ],
-    ],
-
-    'storage' => [
-        'adapter' => 'local',
-        // The storage root is the directus root directory.
-        // All path are relative to the storage root when the path is not starting with a forward slash.
-        // By default the uploads directory is located at the directus public root
-        // An absolute path can be used as alternative.
-        'root' => 'public/uploads/_/originals',
-        // This is the url where all the media will be pointing to
-        // here is where Directus will assume all assets will be accessed
-        // Ex: (yourdomain)/uploads/_/originals
-        'root_url' => '/uploads/_/originals',
-        // Same as "root", but for the thumbnails
-        'thumb_root' => 'public/uploads/_/thumbnails',
-        //   'key'    => 's3-key',
-        //   'secret' => 's3-secret',
-        //   'region' => 's3-region',
-        //   'version' => 's3-version',
-        //   'bucket' => 's3-bucket',
-        //   'options' => ['ACL' => 'public-read', 'Cache-Control' => 'max-age=604800']
-        // Set custom S3 endpoint
-        //   'endpoint' => 's3-endpoint',
-        //   'OSS_ACCESS_ID' => 'aliyun-oss-id',
-        //   'OSS_ACCESS_KEY' => 'aliyun-oss-key',
-        //   'OSS_ENDPOINT' => 'aliyun-oss-endpoint',
-        //   'OSS_BUCKET' => 'aliyun-oss-bucket'
-        // Use an internal proxy for downloading all files
-        //'proxy_downloads' => false,
-    ],
-
-    'mail' => [
-        'default' => [
-            'transport' => 'sendmail',
-            'from' => 'admin@example.com'
-        ],
+        'socket' => '',             // Path to socket. Remove the `host` key above when using sockets
+        'driver_options' => [       // Other MYSQL_PDO options. Can be used to connect to the database
+                                    // over an encrypted connection. For more information, see
+                                    // https://www.php.net/manual/en/ref.pdo-mysql.php#pdo-mysql.constants
+           PDO::MYSQL_ATTR_SSL_CAPATH => '/etc/ssl/certs',
+        ]
     ],
 
     'cors' => [
-        'enabled' => true,
-        'origin' => ['*'],
-        'methods' => [
+        'enabled' => true,          // Enable or disable all CORS headers
+        'origin' => ['*'],          // Access-Control-Allow-Origin
+        'methods' => [              // Access-Control-Allow-Methods
             'GET',
             'POST',
             'PUT',
@@ -114,65 +34,146 @@ return [
             'DELETE',
             'HEAD',
         ],
-        'headers' => [],
-        'exposed_headers' => [],
-        'max_age' => null, // in seconds
-        'credentials' => false,
+        'headers' => [],           // Access-Control-Allow-Headers
+        'exposed_headers' => [],   // Access-Control-Expose-Headers
+        'max_age' => null,         // Access-Control-Allow-Max-Age
+        'credentials' => false,    // Access-Control-Allow-Credentials
     ],
 
     'rate_limit' => [
-        'enabled' => false,
-        'limit' => 100, // number of request
-        'interval' => 60, // seconds
-        'adapter' => 'redis',
+        'enabled' => false,        // Enable or disable all rate limiting
+        'limit' => 100,            // Number of requests
+        'interval' => 60,          // .. per how many seconds
+        'adapter' => 'redis',      // Where to save the rate limit tmp data
         'host' => '127.0.0.1',
         'port' => 6379,
-        'timeout' => 10
+        'timeout' => 10            // Timeout from API to rate limit storage adapter
     ],
 
-    'hooks' => [
+    'storage' => [
+        'adapter' => 'local',      // What storage adapter to use with files
+                                   // Defaults to the local filesystem. Other natively supported
+                                   // options are: Amazon S3, Aliyun OSS.
+                                   // You'll have to require the correct flysystem adapters through Composer.
+                                   // See https://docs.directus.io/extensions/storage-adapters.html#using-aws-s3
+
+        'root' => 'public/uploads/_/originals',          // Where the files are stored on disk
+        'thumb_root' => 'public/uploads/_/thumbnails',   // Where the thumbnails are stored on disk
+        'root_url' => '/uploads/_/originals',            // Where the files can be accessed over the web
+
+        /* S3
+        -------------------------------------- */
+        'key'    => 's3-key',
+        'secret' => 's3-secret',
+        'region' => 's3-region',
+        'version' => 's3-version',
+        'bucket' => 's3-bucket',
+        'options' => [
+           'ACL' => 'public-read',
+           'Cache-Control' => 'max-age=604800'
+        ],
+        'endpoint' => 's3-endpoint',
+        /* ----------------------------------- */
+
+        /* Aliyun OSS
+        -------------------------------------- */
+        'OSS_ACCESS_ID' => 'aliyun-oss-id',
+        'OSS_ACCESS_KEY' => 'aliyun-oss-key',
+        'OSS_ENDPOINT' => 'aliyun-oss-endpoint',
+        'OSS_BUCKET' => 'aliyun-oss-bucket',
+        /* ----------------------------------- */
+
+        'proxy_downloads' => false,  // Use an internal proxy for downloading all files
+    ],
+
+    'mail' => [
+        'default' => [
+            'transport' => 'smtp',          // How to send emails
+                                            // Supports `smtp` and `sendmail`
+            'from' => 'admin@example.com',  // The sender of the email
+
+            /* SMTP
+            ------------------------------ */
+            'host' => 'smtp.example.com',
+            'port' => 25,
+            'username' => 'smtp-user',
+            'password' => 'd1r3ctu5',
+            'encryption' => 'tls'
+            /* --------------------------- */
+        ],
+    ],
+
+    'cache' => [
+        'enabled' => false,            // Cache all API responses
+        'response_ttl' => 3600,        // Keep the cache for n seconds
+        'pool' => [
+            'adapter' => 'apc'         // What adapter to use to store the cache in
+                                       // Supports: apc, apcu, filesystem, memcached,
+                                       //           memcache, redis
+
+           /* Filesystem
+           ------------------------------ */
+           'path' => '../cache/'
+           /* --------------------------- */
+
+           /* memcached, memcache, redis
+           ------------------------------ */
+           'host' => 'localhost',
+           'port' => 11211
+           /* --------------------------- */
+
+        ],
+    ],
+
+    'auth' => [
+        'secret_key' => '1234',        // Used in the oAuth flow
+        'public_key' => '9876',
+        'social_providers' => [
+            'okta' => [
+                'client_id' => '',
+                'client_secret' => '',
+                'base_url' => 'https://dev-000000.oktapreview.com/oauth2/default'
+            ],
+            'github' => [
+                'client_id' => '',
+                'client_secret' => ''
+            ],
+            'facebook' => [
+                'client_id'          => '',
+                'client_secret'      => '',
+                'graph_api_version'  => 'v2.8',
+            ],
+            'google' => [
+                'client_id'       => '',
+                'client_secret'   => '',
+                'hosted_domain'   => '*',
+                'use_oidc_mode'   => true,
+            ],
+            'twitter' => [
+                'identifier'   => '',
+                'secret'       => ''
+            ]
+        ]
+    ],
+
+    'hooks' => [              // See https://docs.directus.io/extensions/hooks.html#creating-hooks
         'actions' => [],
         'filters' => [],
     ],
 
-    'feedback' => [
-        'token' => 'a-kind-of-unique-token',
-        'login' => true
+    'tableBlacklist' => [],   // What tables to ignore in Directus
+
+    'env' => 'production',    // production, development, or staging
+                              // Production mode will silence stack traces and error details
+                              // in the API output
+
+    'logger' => [
+        'path' => '/../logs', // Where to save the warning / error logs of the API
     ],
 
-    // These tables will not be loaded in the directus schema
-    'tableBlacklist' => [],
-
-    'auth' => [
-        'secret_key' => '<type-a-secret-authentication-key-string>',
-        'public_key' => '<type-a-public-authentication-key-string>',
-        'social_providers' => [
-            // 'okta' => [
-            //     'client_id' => '',
-            //     'client_secret' => '',
-            //     'base_url' => 'https://dev-000000.oktapreview.com/oauth2/default'
-            // ],
-            // 'github' => [
-            //     'client_id' => '',
-            //     'client_secret' => ''
-            // ],
-            // 'facebook' => [
-            //     'client_id'          => '',
-            //     'client_secret'      => '',
-            //     'graph_api_version'  => 'v2.8',
-            // ],
-            // 'google' => [
-            //     'client_id'       => '',
-            //     'client_secret'   => '',
-            //     'hosted_domain'   => '*',
-            //     // Uses OpenIDConnect to fetch the email instead of using the Google+ API
-            //     // Disabling the OIDC Mode, requires you to enable the Google+ API otherwise it will fail
-            //     'use_oidc_mode'   => true,
-            // ],
-            // 'twitter' => [
-            //     'identifier'   => '',
-            //     'secret'       => ''
-            // ]
-        ]
+    'feedback' => [
+        'token' => '123',     // Not currently used for anything. Will be used to send anonymous
+                              // usage metrics in the future
+        'login' => true
     ],
 ];
