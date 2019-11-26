@@ -11,50 +11,52 @@ class CreateUserSessions extends AbstractMigration
      */
     public function change()
     {
+        
         $table = $this->table('directus_user_sessions', ['signed' => false]);
 
-        $table->addColumn('user', 'integer', [
-            'signed' => false,
-            'null' => true,
-            'default' => null
-        ]);
+        if(!$table->exists()){
+            $table->addColumn('user', 'integer', [
+                'signed' => false,
+                'null' => true,
+                'default' => null
+            ]); 
+            
+            $table->addColumn('token', 'string', [
+                'limit' => 520,
+                'encoding' => 'utf8',
+                'null' => true,
+                'default' => null
+            ]);
 
-        $table->addColumn('token', 'string', [
-            'limit' => 520,
-            'encoding' => 'utf8',
-            'null' => true,
-            'default' => null
-        ]);
+            $table->addColumn('token_type', 'string', [
+                'null' => true,
+                'default' => null
+            ]);
 
-        $table->addColumn('token_type', 'string', [
-            'null' => true,
-            'default' => null
-        ]);
+            $table->addColumn('token_expired_at', 'datetime', [
+                'null' => true,
+                'default' => null
+            ]);
+            
+            $table->addColumn('ip_address', 'string', [
+                'limit' => 255,
+                'encoding' => 'utf8',
+                'null' => true,
+                'default' => null
+            ]);
 
-        $table->addColumn('token_expired_at', 'datetime', [
-            'null' => true,
-            'default' => null
-        ]);
-        
-        $table->addColumn('ip_address', 'string', [
-            'limit' => 255,
-            'encoding' => 'utf8',
-            'null' => true,
-            'default' => null
-        ]);
+            $table->addColumn('user_agent', 'text', [
+                'default' => null,
+                'null' => true,
+                'default' => null
+            ]);
 
-        $table->addColumn('user_agent', 'text', [
-            'default' => null,
-            'null' => true,
-            'default' => null
-        ]);
-
-        $table->addColumn('created_on', 'datetime', [
-            'null' => true,
-            'default' => null
-        ]);
-        
-        $table->create();
+            $table->addColumn('created_on', 'datetime', [
+                'null' => true,
+                'default' => null
+            ]);
+            $table->create();
+        }
 
         // Insert Into Directus Fields
         $data = [

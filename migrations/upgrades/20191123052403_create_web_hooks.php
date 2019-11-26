@@ -13,41 +13,41 @@ class CreateWebHooks extends AbstractMigration
     {
         $table = $this->table('directus_webhooks', ['signed' => false]);
 
-        $table->addColumn('status', 'string', [
-            'limit' => 16,
-            'default' => \Directus\Api\Routes\Webhook::STATUS_INACTIVE
-        ]);
+        if(!$table->exists()){
+            $table->addColumn('status', 'string', [
+                'limit' => 16,
+                'default' => \Directus\Api\Routes\Webhook::STATUS_INACTIVE
+            ]);
 
-        $table->addColumn('collection', 'string', [
-            'limit' => 255,
-            'null' => true,
-            'default' => null
-        ]);
+            $table->addColumn('collection', 'string', [
+                'limit' => 255,
+                'null' => true,
+                'default' => null
+            ]);
 
-        $table->addColumn('directus_action', 'string', [
-            'limit' => 255,
-            'encoding' => 'utf8',
-            'null' => true,
-            'default' => null
-        ]);
+            $table->addColumn('directus_action', 'string', [
+                'limit' => 255,
+                'encoding' => 'utf8',
+                'null' => true,
+                'default' => null
+            ]);
 
-        $table->addColumn('url', 'string', [
-            'limit' => 510,
-            'encoding' => 'utf8',
-            'null' => true,
-            'default' => null
-        ]);
+            $table->addColumn('url', 'string', [
+                'limit' => 510,
+                'encoding' => 'utf8',
+                'null' => true,
+                'default' => null
+            ]);
 
-        $table->addColumn('http_action', 'string', [
-            'limit' => 255,
-            'encoding' => 'utf8',
-            'null' => true,
-            'default' => null
-        ]);
-
-
-
-        $table->create();
+            $table->addColumn('http_action', 'string', [
+                'limit' => 255,
+                'encoding' => 'utf8',
+                'null' => true,
+                'default' => null
+            ]);
+            
+            $table->create();
+        }
 
         // Insert Into Directus Fields
         $data = [
