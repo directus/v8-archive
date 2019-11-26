@@ -90,11 +90,6 @@ return [
         'filters' => [],
     ],
 
-    'feedback' => [
-        'token' => '{{feedback_token}}',
-        'login' => {{feedback_login}}
-    ],
-
     'tableBlacklist' => [],
 
     'env' => 'production',

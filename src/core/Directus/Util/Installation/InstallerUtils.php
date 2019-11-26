@@ -963,8 +963,6 @@ class InstallerUtils
             'db_password' => null,
             'db_socket' => '',
             'mail_from' => 'admin@example.com',
-            'feedback_token' => sha1(gmdate('U') . StringUtils::randomString(32, false)),
-            'feedback_login' => true,
             'timezone' => get_default_timezone(),
             'logs_path' => __DIR__ . '/../../../../../logs',
             'cache' => [

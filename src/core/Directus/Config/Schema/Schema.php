@@ -19,15 +19,10 @@ class Schema {
         }
 
         return new Group('directus', [
-            new Group('app', [
-                new Value('env', Types::STRING, 'production'),
-                new Value('timezone', Types::STRING, 'America/New_York'),
-            ]),
-            new Group('settings', [
-                new Group('logger', [
-                    new Value('path', Types::STRING, $loggerPath),
-                ])
-            ]),
+            new Value('env', Types::STRING, 'production'),
+            new Group('logger', [
+                new Value('path', Types::STRING, $loggerPath),
+            ])
             new Group('database', [
                 new Value('type', Types::STRING, 'mysql'),
                 new Value('host', Types::STRING, 'localhost'),
@@ -116,10 +111,6 @@ class Schema {
             new Group('hooks', [
                 new Value('actions', Types::ARRAY, []),
                 new Value('filters', Types::ARRAY, []),
-            ]),
-            new Group('feedback', [
-                new Value('token', Types::STRING, 'a-kind-of-unique-token'),
-                new Value('login', Types::STRING, true),
             ]),
             new Value('tableBlacklist', Types::ARRAY, []),
             new Group('auth', [
