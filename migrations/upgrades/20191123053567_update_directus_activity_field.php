@@ -11,6 +11,42 @@ class UpdateDirectusActivityField extends AbstractMigration
      */
     public function change()
     {
+        if($this->checkFieldExist('directus_activity','code')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'interface' => 'json'
+                ],
+                ['collection' => 'directus_activity', 'interface' => 'code']
+            ));
+        }
+
+        $result = $this->query('SELECT 1 FROM `directus_fields` WHERE `collection` = "directus_activity";')->fetch();
+        if ($result) {
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_collection_presets',
+                [
+                  'view_type' => 'timeline',
+                  'view_query' => json_encode([
+                    'timeline' => [
+                        'sort' => '-action_on'
+                    ]
+                  ]),
+                  'view_options' => json_encode([
+                    'timeline' => [
+                        'date' => 'action_on',
+                        'title' => '{{ action_by.first_name }} {{ action_by.last_name }} ({{ action }})',
+                        'content' => 'action_by',
+                        'color' => 'action'
+                    ]
+                  ])
+                ],
+                ['collection' => 'directus_activity']
+            ));
+        }
+        
         if($this->checkFieldExist('directus_activity', 'action')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),

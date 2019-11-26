@@ -11,13 +11,114 @@ class UpdateDirectusFilesField extends AbstractMigration
      */
     public function change()
     {
+        $filesTable = $this->table('directus_files');
+        $fieldsTable = $this->table('directus_fields');
+
+        if(!$this->checkFieldExist('directus_files', 'checksum')){
+            $fieldsTable->insert([
+                'collection' => 'directus_files',
+                'field' => 'checksum',
+                'type' => 'string',
+                'interface' => 'text-input',
+            ])->save();
+        }
+        if (!$filesTable->hasColumn('checksum')) {
+            $filesTable->addColumn('checksum', 'string', [
+                'limit' => 32,
+                'null' => true,
+                'default' => null,
+                'hidden_browse' => 1
+            ])->save();
+        }
+        
+        if($this->checkFieldExist('directus_files', 'filename')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'required' => 1
+                ],
+                ['collection' => 'directus_files', 'field' => 'filename']
+            ));
+        }
+        
+        if($this->checkFieldExist('directus_files', 'width')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'sort' => 10
+                ],
+                ['collection' => 'directus_files', 'field' => 'width']
+            ));      
+        }
+        
+        if($this->checkFieldExist('directus_files', 'height')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'sort' => 11
+                ],
+                ['collection' => 'directus_files', 'field' => 'height']
+            ));      
+        }
+        
+        if($this->checkFieldExist('directus_files', 'duration')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                    'readonly' => 0,
+                    'note' => 'Duration must be in seconds',
+                    'sort' => 12
+                ],
+                ['collection' => 'directus_files', 'field' => 'duration']
+            ));      
+        }
+        
+        if($this->checkFieldExist('directus_files', 'filesize')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'sort' => 13
+                ],
+                ['collection' => 'directus_files', 'field' => 'filesize']
+            ));
+        }
+        
+        if($this->checkFieldExist('directus_files', 'uploaded_on')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'sort' => 8
+                ],
+                ['collection' => 'directus_files', 'field' => 'uploaded_on']
+            ));
+      
+        }
+        
+        if($this->checkFieldExist('directus_files', 'code')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'interface' => 'json'
+                ],
+                ['collection' => 'directus_files', 'interface' => 'code']
+            ));
+        }
+        
         if($this->checkFieldExist('directus_files', 'uploaded_by')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
                 [
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_USER_CREATED,
-                'interface' => 'user-created'
+                    'type' => \Directus\Database\Schema\DataTypes::TYPE_USER_CREATED,
+                    'interface' => 'user-created',
+                    'sort' => 9
                 ],
                 ['collection' => 'directus_files', 'field' => 'uploaded_by']
             ));
@@ -59,6 +160,21 @@ class UpdateDirectusFilesField extends AbstractMigration
                 ['collection' => 'directus_files', 'field' => 'metadata']
             ));
         }  
+
+        if(!$this->checkFieldExist('directus_files', 'file_naming')){
+            $fieldsTable->insert([
+                'collection' => 'directus_files',
+                'field' => 'file_naming',
+                'type' => 'string',
+                'interface' => 'dropdown',
+                'options' => json_encode([
+                    'choices' => [
+                        'uuid' => 'File Hash (Obfuscated)', 
+                        'file_name' => 'File Name (Readable)'
+                    ]
+                ])
+            ])->save();
+        }
     }
 
     public function checkFieldExist($collection,$field){

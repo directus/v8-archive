@@ -316,7 +316,7 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'youtube_api',
+                'field' => 'youtube_api_key',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
