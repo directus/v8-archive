@@ -33,7 +33,11 @@ class CreateRolesTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('nav_override', 'text', [
+        $table->addColumn('module_listing', 'text', [
+            'null' => true,
+            'default' => null
+        ]);
+        $table->addColumn('collection_listing', 'text', [
             'null' => true,
             'default' => null
         ]);
@@ -120,40 +124,80 @@ class CreateRolesTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_roles',
-                'field' => 'nav_override',
+                'field' => 'module_listing',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'json',
+                'interface' => 'repeater',
                 'locked' => 1,
-                'options' => '[
-                    {
-                        "title": "$t:collections",
-                        "include": "collections"
-                    },
-                    {
-                        "title": "$t:bookmarks",
-                        "include": "bookmarks"
-                    },
-                    {
-                        "title": "$t:extensions",
-                        "include": "extensions"
-                    },
-                    {
-                        "title": "Custom Links",
-                        "links": [
-                            {
-                                "name": "RANGER Studio",
-                                "path": "https://rangerstudio.com",
-                                "icon": "star"
-                            },
-                            {
-                                "name": "Movies",
-                                "path": "/collections/movies"
-                            }
-                        ]
-                    }
-                ]'
+                'options' => '{
+                    "fields": [
+                        {
+                            "field": "name",
+                            "interface": "text-input",
+                            "type": "string",
+                            "width": "half"
+                        },
+                        {
+                            "field": "link",
+                            "interface": "text-input",
+                            "type": "string",
+                            "width": "half"
+                        },
+                        {
+                            "field": "icon",
+                            "interface": "icon",
+                            "type": "string",
+                            "width": "full"
+                        }
+                    ]
+                }'
+            ],
+            [
+                'collection' => 'directus_roles',
+                'field' => 'collection_listing',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'repeater',
+                'locked' => 1,
+                'options' => '{
+                    "fields": [
+                        {
+                            "field": "collection",
+                            "interface": "collections",
+                            "type": "string",
+                            "width": "full"
+                        }
+                    ]
+                }'
             ],
         ];
+
+        "fields": [
+          {
+            "field": "groups",
+            "width": "full",
+            "interface": "repeater",
+            "type": "JSON",
+            "options": {
+              "template": "{{ label }}",
+              "fields": [
+                {
+                  "field": "label",
+                  "interface": "text-input",
+                  "type": "string"
+                },
+                {
+                  "field": "value",
+                  "interface": "text-input",
+                  "type": "string"
+                },
+                {
+                  "field": "icon",
+                  "width": "full",
+                  "interface": "icon",
+                  "type": "string"
+                }
+              ]
+            }
+          }
 
         foreach($data as $value){
             if(!$this->checkFieldExist($value['collection'], $value['field'])){
