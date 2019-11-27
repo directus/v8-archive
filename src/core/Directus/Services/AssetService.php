@@ -65,9 +65,9 @@ class AssetService extends AbstractService
     {
         $tableGateway = $this->createTableGateway($this->collection);
         $select = new Select($this->collection);
-        $select->columns(['filename']);
+        $select->columns(['filename','id']);
         $select->where([
-           'hash_id' => $fileHashId
+           'private_hash' => $fileHashId
         ]);
         $select->limit(1);
         $result = $tableGateway->ignoreFilters()->selectWith($select);
@@ -75,19 +75,23 @@ class AssetService extends AbstractService
         if ($result->count() === 0) {
             throw new ItemNotFoundException();
         }
-
         $file = $result->current()->toArray();
+        
+        $ext = pathinfo($file['filename'], PATHINFO_EXTENSION);
+        $uploadedFileName = $file['id'].'.'.$ext;
+
         if(count($params) === 0) {
            $url=get_file_root_url();
-           $img = $this->filesystem->read($file['filename']);
+           $img = $this->filesystem->read($uploadedFileName);
            $result=[];
-           $result['mimeType']=Image::make($this->filesystem->read($file['filename']))->mime();;
+           $result['mimeType']=Image::make($this->filesystem->read($uploadedFileName))->mime();
            $result['file']=isset($img) && $img ? $img : null;
            $result['filename']=$file['filename']; 
+          
            return $result;
         }
         else {
-           $this->fileName=$file['filename'];
+           $this->fileName=$uploadedFileName;
            try {
                return $this->getThumbnail($params);
            }
@@ -107,21 +111,22 @@ class AssetService extends AbstractService
 
     public function getThumbnail($params)
     {
-        $this->validateThumbnailParams($params);
+        $this->thumbnailParams=$params;
+        $validateWhiteList= isset($params['key']) ? 'thumbnail_whitelist_system' : 'thumbnail_whitelist';
+        $this->validateThumbnailParams($params,$validateWhiteList);
 
         if (! $this->filesystem->exists($this->fileName)) {
             throw new Exception($this->fileName . ' does not exist.'); 
         }
-        $validateWhiteList= isset($params['key']) ? 'thumbnail_whitelist_system' : 'thumbnail_whitelist';
-        $this->validateThumbnailWhitelist($params,$validateWhiteList);
         
-        $otherParams=$params;
-        unset($otherParams['width'],$otherParams['height'],$otherParams['fit'],$otherParams['quality']);
-        if(isset($params['key'])) {
+        $otherParams=$this->thumbnailParams;
+        unset($otherParams['width'],$otherParams['height'],$otherParams['fit'],
+              $otherParams['quality'],$otherParams['format'],$otherParams['thumbnailFileName']);
+        if(isset($this->thumbnailParams['key'])) {
           unset($otherParams['key']);
         }
         
-        $paramsString=isset($params['key']) ? ',k'.$params['key'] : '';
+        $paramsString=isset($this->thumbnailParams['key']) ? ',k'.$this->thumbnailParams['key'] : '';
         if(count($otherParams) > 0) {
             ksort($otherParams);
             foreach($otherParams as $key => $value) {
@@ -129,7 +134,9 @@ class AssetService extends AbstractService
             }
         }
 
-        $this->thumbnailDir = 'w'.$params['width'] . ',h' . $params['height'] . ',f' . $params['fit'] . ',q' . $params['quality'].$paramsString;
+        $this->thumbnailDir = 'w'.$this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
+                              ',f' . $this->thumbnailParams['fit'] . ',q' . $this->thumbnailParams['quality'].
+                              $paramsString;
         
         try {
             $image=$this->getExistingThumbnail();
@@ -149,56 +156,11 @@ class AssetService extends AbstractService
             return $result;
         }
         catch (Exception $e) {
-          return $this->getDefaultThumbnail();
+           return http_response_code(404);
         }
     }
 
-    /**
-     * validate params against thumbnail whitelist
-     *
-     * @param array $params
-     * @throws Exception
-     * @return boolean
-    */
-
-    public function validateThumbnailWhitelist($params,$validateWhiteList)
-    {
-        $thumbnailWhitelistEnabled=ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist_enabled');
-        if ( 
-           ($thumbnailWhitelistEnabled && $validateWhiteList == 'thumbnail_whitelist') || 
-           $validateWhiteList == 'thumbnail_whitelist_system'
-           )
-        {
-            $thumbnailWhitelist=ArrayUtils::get($this->getConfig(), $validateWhiteList);
-            $thumbnailWhitelist=json_decode($thumbnailWhitelist,true);
-            $result=false;
-            foreach($thumbnailWhitelist as $key=>$value) {
-                if(
-                  $value['width'] == $params['width'] && 
-                  $value['height'] == $params['height'] &&
-                  $value['fit'] == $params['fit'] &&
-                  $value['quality'] == $params['quality'] 
-                )
-                {
-                  if($validateWhiteList == 'thumbnail_whitelist_system') {
-                      if($value['key'] == $params['key']) {
-                         $result=true;
-                      } 
-                  }
-                  else {
-                    $result = true;
-                  }
-                }
-            }
-            
-            if(!$result){
-                $whitelist= $validateWhiteList == 'thumbnail_whitelist' ? 'Thumbnail Whitelist' 
-                                                   : 'System Thumbnail Whitelist';
-                throw new Exception(sprintf("The params doesn't match with the ".  $whitelist . "."));
-            }
-        }
-    }
-
+    
     /**
      * validate params and file extensions and return it
      *
@@ -207,29 +169,71 @@ class AssetService extends AbstractService
      * @throws Exception
      * @return array
      */
-    public function validateThumbnailParams($params)
+    public function validateThumbnailParams($params,$validateWhiteList)
     {
-        $this->validate(
-            [
-                'width'     =>   isset($params['width']) ? $params['width'] : '',
-                'height'    =>   isset($params['height']) ? $params['height'] : '',
-                'quality'   =>   isset($params['quality']) ? $params['quality'] : '',
-                'fit'       =>   isset($params['fit']) ? $params['fit'] : ''
-            ],
-            [
-                'width'     =>  'required|numeric',
-                'height'    =>  'required|numeric',
-                'quality'   =>  'required|numeric',
-                'fit'       =>  'required'
-            ]);
-                
-        // set thumbnail parameters
-        $this->thumbnailParams = [
-            'fit' => filter_var($params['fit'], FILTER_SANITIZE_STRING),
-            'height' => filter_var($params['height'], FILTER_SANITIZE_NUMBER_INT),
-            'quality' => filter_var($params['quality'], FILTER_SANITIZE_STRING),
-            'width' => filter_var($params['width'], FILTER_SANITIZE_NUMBER_INT),
-        ];
+        if(!isset($params['key'])) 
+        {
+            $this->validate(
+                [
+                    'width'     =>   isset($params['width']) ? $params['width'] : '',
+                    'height'    =>   isset($params['height']) ? $params['height'] : '',
+                    'quality'   =>   isset($params['quality']) ? $params['quality'] : '',
+                    'fit'       =>   isset($params['fit']) ? $params['fit'] : ''
+                ],
+                [
+                    'width'     =>  'required|numeric',
+                    'height'    =>  'required|numeric',
+                    'quality'   =>  'required|numeric',
+                    'fit'       =>  'required'
+                ]);
+           
+        }
+        
+            $thumbnailWhitelist=ArrayUtils::get($this->getConfig(), $validateWhiteList);
+            $thumbnailWhitelist=json_decode($thumbnailWhitelist,true);
+            
+            if(!empty($thumbnailWhitelist))
+            {
+                $result=false;
+                foreach($thumbnailWhitelist as $key=>$value) {
+                    if(isset($params['key'])) {
+                        if($value['key'] == $params['key']) {
+                            $result=true;
+                            $params=[
+                                'width'=>$value['width'],
+                                'height' => $value['height'],
+                                'quality' => $value['quality'],
+                                'fit' => $value['fit'],
+                                'key' => $params['key']
+                            ];
+                        }
+                    }
+                    else {
+                        if($value['width'] == $params['width'] && $value['height'] == $params['height'] &&
+                           $value['fit'] == $params['fit'] &&$value['quality'] == $params['quality'])
+                        {
+                            $result = true;
+                        }
+                    }
+                }
+                if(!$result){
+                    $whitelist= $validateWhiteList == 'thumbnail_whitelist' ? 'Thumbnail Whitelist' 
+                                                       : 'System Thumbnail Whitelist';
+                    if(isset($params['key'])){
+                        throw new Exception(sprintf("The key don't match with the System Thumbnail Whitelist."));
+                    }else{
+                        throw new Exception(sprintf("The params don't match with the ".  $whitelist . "."));
+                    }
+                }
+            }
+        $this->thumbnailParams['fit']= filter_var($params['fit'], FILTER_SANITIZE_STRING);
+        $this->thumbnailParams['height']= filter_var($params['height'], FILTER_SANITIZE_STRING);
+        $this->thumbnailParams['quality']= filter_var($params['quality'], FILTER_SANITIZE_STRING);
+        $this->thumbnailParams['width']= filter_var($params['width'], FILTER_SANITIZE_STRING);
+
+        if(isset($params['key'])){
+            $this->thumbnailParams['key']= filter_var($params['key'], FILTER_SANITIZE_STRING);
+        }
         
         $ext = pathinfo($this->fileName, PATHINFO_EXTENSION);
         $name = pathinfo($this->fileName, PATHINFO_FILENAME);
@@ -237,8 +241,6 @@ class AssetService extends AbstractService
             throw new Exception('Invalid file extension.');
         }
 
-        $this->thumbnailParams['fileExt'] = $ext;
-        $this->thumbnailParams['fileName'] = $this->fileName;
         $this->thumbnailParams['format'] = strtolower(ArrayUtils::get($params, 'format') ?: $ext);
 
         if (! $this->isSupportedFileExtension($this->thumbnailParams['format'])) {

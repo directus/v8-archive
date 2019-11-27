@@ -89,14 +89,8 @@ if (!function_exists('get_directus_thumbnail_settings')) {
     function get_directus_thumbnail_settings()
     {
         return get_directus_settings_by_keys([
-            'thumbnail_dimensions',
-            'thumbnail_not_found_location',
-            'thumbnail_quality_tags',
-            'thumbnail_actions',
-            'thumbnail_cache_ttl',
             'thumbnail_whitelist',
-            'thumbnail_whitelist_system',
-            'thumbnail_whitelist_enabled',
+            'thumbnail_whitelist_system'
         ]);
     }
 }

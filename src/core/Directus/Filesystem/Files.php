@@ -271,7 +271,7 @@ class Files
      *
      * @return array
      */
-    public function saveData($fileData, $fileName, $replace = false)
+    public function saveData($fileData, $fileName,$fileId,$replace = false)
     {
         // When file is uploaded via multipart form data then We will get object of Slim\Http\UploadFile
         // When file is uploaded via URL (Youtube, Vimeo, or image link) then we will get base64 encode string.
@@ -291,10 +291,11 @@ class Files
         $fileName = $this->getFileName($fileName, $replace !== true);
 
         $filePath = $this->getConfig('root') . '/' . $fileName;
-
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        $uploadedFileName = $fileId.'.'.$ext;
         $event = $replace ? 'file.update' : 'file.save';
         $this->emitter->run($event, ['name' => $fileName, 'size' => $size]);
-        $this->write($fileName, $fileData, $replace);
+        $this->write($uploadedFileName, $fileData, $replace);
         $this->emitter->run($event.':after', ['name' => $fileName, 'size' => $size]);
 
         #open local tmp file since s3 bucket is private
@@ -305,14 +306,14 @@ class Files
         }
 
         unset($fileData);
-
-        $fileData = $this->getFileInfo($fileName);
+       
+        $fileData = $this->getFileInfo($uploadedFileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($title);
         $fileData['filename'] = basename($filePath);
         $fileData['storage'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
-
+       
         # Updates for file meta data tags
         if (strpos($fileData['type'],'video') !== false) {
             #use ffprobe on local file, can't stream data to it or reference
@@ -334,7 +335,7 @@ class Files
         unset($tmpData);
 
         $response = [
-            // The MIME type will be based on its extension, rather than its content
+            // The MIME type will be based on its extension, rather than its 
             'type' => MimeTypeUtils::getFromFilename($fileData['filename']),
             'filename' => $fileData['filename'],
             'tags' => $fileData['tags'],
@@ -370,7 +371,7 @@ class Files
         }
 
         $fileName = isset($fileInfo['filename']) ? $fileInfo['filename'] : md5(time()) . '.jpg';
-        $thumbnailData = $this->saveData($fileInfo['data'], $fileName);
+        $thumbnailData = $this->saveData($fileInfo['data'], $fileName,$fileInfo['fileId']);
 
         return array_merge(
             $fileInfo,
@@ -671,7 +672,7 @@ class Files
     }
 
     /**
-     * Get file name based on file naming setting
+     * Get file name 
      *
      * @param string $fileName
      * @param bool $unique
@@ -680,16 +681,9 @@ class Files
      */
     private function getFileName($fileName, $unique = true)
     {
-        
         if ($unique) {
-            switch ($this->getSettings('file_naming')) {
-                case 'uuid':
-                    $fileName = $this->uuidFileName($fileName);
-                    break;
-            }
             $fileName = $this->uniqueName($fileName, $this->filesystem->getPath());
         }
-
         return $fileName;
     }
 

@@ -2,7 +2,6 @@
 
 namespace Directus\Database\TableGateway;
 
-use Hashids\Hashids;
 use Directus\Config\StatusMapping;
 use Directus\Container\Container;
 use Directus\Database\Exception\CollectionHasNotStatusInterfaceException;
@@ -48,6 +47,7 @@ use Zend\Db\Sql\Update;
 use Zend\Db\TableGateway\Feature;
 use Zend\Db\TableGateway\Feature\RowGatewayFeature;
 use Zend\Db\TableGateway\TableGateway;
+use function Directus\get_random_string;
 
 class BaseTableGateway extends TableGateway
 {
@@ -384,16 +384,20 @@ class BaseTableGateway extends TableGateway
         $TableGateway = $this->makeTable($this->table);
         $primaryKey = $TableGateway->primaryKeyFieldName;
 
+        if($this->table === SchemaManager::COLLECTION_FILES)
+        {
+            $recordData[$primaryKey] = get_random_string();
+        }
+
         if (!$this->shouldUseFilter()) {
             $TableGateway->ignoreFilters();
         }
 
-        $TableGateway->insert($recordData);
-
+        $result = $TableGateway->insert($recordData);
         if (static::$emitter && $listenerId) {
             static::$emitter->removeListenerWithIndex($listenerId);
         }
-
+        
         // Only get the last inserted id, if the column has auto increment value
         $columnObject = $this->getTableSchema()->getField($primaryKey);
         if ($columnObject->hasAutoIncrement()) {
@@ -1823,23 +1827,10 @@ class BaseTableGateway extends TableGateway
         // TODO: Move this to a proper hook
         $hasData = ArrayUtils::has($record, 'data') && is_string($record['data']);
         $isFilesCollection = $this->table == SchemaManager::COLLECTION_FILES;
-        if (!static::$container || !$isFilesCollection) {
+        if (!static::$container || !$isFilesCollection || !$hasData) {
             return;
         }
         
-        $updateArray = [];
-        $hashids = new Hashids();
-        $updateArray['hash_id'] = $hashids->encode($record[$this->primaryKeyFieldName]);
-       
-        $Update = new Update($this->table);
-        $Update->set($updateArray);
-        $Update->where([$this->primaryKeyFieldName => $record[$this->primaryKeyFieldName]]);
-        $this->updateWith($Update);
-
-        if (!$hasData) {
-            return;
-        }
-
         $updateArray = [];
         $Files = static::$container->get('files');
         if ($Files->getSettings('file_naming') == 'id') {
@@ -1901,11 +1892,10 @@ class BaseTableGateway extends TableGateway
 
         foreach($result as $key=>$value) 
         {
-           if($value['hash_id'] == '' || $value['hash_id'] == null)
+           if($value['private_hash'] == '' || $value['private_hash'] == null)
            {
                $updateArray = [];
-               $hashids = new Hashids();
-               $updateArray['hash_id'] = $hashids->encode($value['id']);
+               $updateArray['private_hash'] = get_random_string();
        
                $Update = new Update($collectionName);
                $Update->set($updateArray);

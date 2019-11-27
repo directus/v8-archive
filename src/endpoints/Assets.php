@@ -20,9 +20,6 @@ class Assets extends Route
             $fileId,
             $request->getQueryParams()
         );
-       
-        $settings =get_directus_thumbnail_settings();
-        $timeToLive = array_get($settings, 'thumbnail_cache_ttl', 86400);
         
         if(isset($response['file']) && $response['mimeType'])
         {
@@ -33,12 +30,8 @@ class Assets extends Route
             header("Access-Control-Allow-Origin: *");
             header("Access-Control-Allow-Methods: PUT, GET, POST, DELETE, OPTIONS");
             header("Access-Control-Allow-Headers: Access-Control-Allow-Headers,Content-Type");
-            if(count($request->getQueryParams()) > 0)
-            {
-                header('Cache-Control: max-age=' . $timeToLive);
-                header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', time()));
-                header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + $timeToLive));
-            }
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', time()));
+               
             echo $response['file'];
         }
         else

@@ -70,6 +70,7 @@ use Monolog\Logger;
 use Slim\Views\Twig;
 use Zend\Db\TableGateway\TableGateway;
 use Directus\Api\Routes\Roles;
+use function Directus\get_random_string;
 
 class CoreServicesProvider
 {
@@ -322,6 +323,7 @@ class CoreServicesProvider
                     $payload['filename'] = ArrayUtils::get($dataInfo, 'filename');
                 } else if (!is_object($fileData)) {
                     $dataInfo = $files->getDataInfo($fileData);
+                    $dataInfo['fileId']= $data['id'];
                 }
 
                 $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
@@ -329,7 +331,7 @@ class CoreServicesProvider
                 if (strpos($type, 'embed/') === 0) {
                     $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename'])));
                 } else {
-                    $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
+                    $recordData = $files->saveData($payload['data'], $payload['filename'],$data['id'],$replace);
                 }
 
                 // NOTE: Use the user input title, tags, description and location when exists.
@@ -343,6 +345,10 @@ class CoreServicesProvider
                 $payload->replace($recordData);
                 $payload->remove('data');
                 $payload->remove('html');
+
+                $payload->set('id', $data['id']);
+                $payload->set('private_hash', get_random_string());
+
                 if (!$replace) {
                     /** @var Acl $auth */
                     $acl = $container->get('acl');
@@ -547,7 +553,6 @@ class CoreServicesProvider
             $emitter->addFilter('item.read.directus_files', function (Payload $payload) use ($addFilesUrl, $container) {
 
                 $rows = $addFilesUrl($payload->getData());
-
                 $payload->replace($rows);
 
                 return $payload;

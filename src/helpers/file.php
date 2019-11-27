@@ -134,12 +134,14 @@ if (!function_exists('append_storage_information')) {
                 $data['url'] = get_proxy_path($row['filename']);
                 $data['full_url'] = get_url($data['url']);
             } else {
-                $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['hash_id'];
-
-                // Add Full url
-                if (!$hasFileRootUrlHost) {
-                    $data['full_url'] = get_url($data['url']);
+                if(isset($row['private_hash'])){
+                    $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['private_hash'];
+                    // Add Full url
+                    if (!$hasFileRootUrlHost) {
+                        $data['full_url'] = get_url($data['url']);
+                    }
                 }
+
             }
 
             // Add Thumbnails
@@ -213,8 +215,8 @@ if (!function_exists('get_thumbnails')) {
                 $thumbnailExtension = Thumbnail::defaultFormat();
             }
          
-            $thumbnailUrl = get_thumbnail_url($row['hash_id'],$thumbnail);
-            $thumbnailRelativeUrl = get_thumbnail_path($row['hash_id'],$thumbnail);
+            $thumbnailUrl = get_thumbnail_url($row['private_hash'],$thumbnail);
+            $thumbnailRelativeUrl = get_thumbnail_path($row['private_hash'],$thumbnail);
             $thumbnails[] = [
                 'url' => $thumbnailUrl,
                 'relative_url' => $thumbnailRelativeUrl,
@@ -256,17 +258,8 @@ if (!function_exists('get_thumbnail_path')) {
 
         $thumbnailDetail=$thumbnail;
         
-        $paramsString=  '?width='.$thumbnailDetail['width'].'&height='.$thumbnailDetail['height']
-                        .'&fit='.$thumbnailDetail['fit'].'&quality='.$thumbnailDetail['quality']
-                        .'&key='.$thumbnailDetail['key'];
-
-        unset($thumbnailDetail['width'],$thumbnailDetail['height'],$thumbnailDetail['fit'],
-              $thumbnailDetail['quality'],$thumbnailDetail['key']);
-
-        foreach($thumbnailDetail as $key => $value) {
-            $paramsString .= '&'. $key .'='. $value;
-        }
-       
+        $paramsString=  '?key='.$thumbnailDetail['key'];
+  
         return sprintf(
             '/%s/%s/%s%s',
             $projectName,
@@ -458,6 +451,13 @@ if (!function_exists('get_file_root_url')) {
         $container = Application::getInstance()->getContainer();
         $config = $container->get('config');
         return $config->get('storage.root_url');
+    }
+}
+
+if (!function_exists('get_random_string')) {
+    function get_random_string($limit = 16)
+    {
+     return substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0,$limit);
     }
 }
 

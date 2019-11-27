@@ -1150,9 +1150,9 @@ class RelationalTableGateway extends BaseTableGateway
           if(!in_array('type', $selectedFields)) {
             $selectedFields[] = 'type';
           }
-          // NOTE: Make sure to have the `hash_id` field for files to display in URLs
-          if (!in_array('hash_id', $selectedFields)) {
-              $selectedFields[] = 'hash_id';
+          // NOTE: Make sure to have the `private_hash` field for files to display in URLs
+          if (!in_array('private_hash', $selectedFields)) {
+              $selectedFields[] = 'private_hash';
           }
         }
 

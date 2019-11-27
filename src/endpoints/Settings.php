@@ -10,6 +10,7 @@ use Directus\Services\SettingsService;
 use Directus\Services\FilesServices;
 use Directus\Util\ArrayUtils;
 use function Directus\regex_numeric_ids;
+use function Directus\get_directus_setting;
 
 class Settings extends Route
 {
@@ -39,10 +40,7 @@ class Settings extends Route
         $this->validateRequestPayload($request);
 
         $payload = $request->getParsedBody();
-        if($payload['key'] == "thumbnail_whitelist" || $payload['key'] == "thumbnail_whitelist_system")
-        {
-            $service->validateThumbnailWhitelist($payload['value'],$payload['key']);
-        }
+        $service->validateThumbnailWhitelist($payload['value'],$payload['key']);
         if (isset($payload[0]) && is_array($payload[0])) {
             return $this->batch($request, $response);
         }
@@ -246,13 +244,7 @@ class Settings extends Route
             $request->getAttribute('id'),
             $request->getQueryParams()
         );
-        
-        if($serviceData['data']['key'] == "thumbnail_whitelist" ||
-           $serviceData['data']['key'] == "thumbnail_whitelist_system" ||
-           $serviceData['data']['key'] == "thumbnail_whitelist_enabled")
-        {
-            $service->validateThumbnailWhitelist($payload['value'],$serviceData['data']['key']);
-        }
+        $service->validateThumbnailWhitelist($payload['value'],$serviceData['data']['key']);
         /**
          * Get the interface based input
          *
