@@ -168,36 +168,37 @@ class CreateRolesTable extends AbstractMigration
                     ]
                 }'
             ],
+
         ];
 
-        "fields": [
-          {
-            "field": "groups",
-            "width": "full",
-            "interface": "repeater",
-            "type": "JSON",
-            "options": {
-              "template": "{{ label }}",
-              "fields": [
-                {
-                  "field": "label",
-                  "interface": "text-input",
-                  "type": "string"
-                },
-                {
-                  "field": "value",
-                  "interface": "text-input",
-                  "type": "string"
-                },
-                {
-                  "field": "icon",
-                  "width": "full",
-                  "interface": "icon",
-                  "type": "string"
-                }
-              ]
-            }
-          }
+        // "fields": [
+        //   {
+        //     "field": "groups",
+        //     "width": "full",
+        //     "interface": "repeater",
+        //     "type": "JSON",
+        //     "options": {
+        //       "template": "{{ label }}",
+        //       "fields": [
+        //         {
+        //           "field": "label",
+        //           "interface": "text-input",
+        //           "type": "string"
+        //         },
+        //         {
+        //           "field": "value",
+        //           "interface": "text-input",
+        //           "type": "string"
+        //         },
+        //         {
+        //           "field": "icon",
+        //           "width": "full",
+        //           "interface": "icon",
+        //           "type": "string"
+        //         }
+        //       ]
+        //     }
+        //   }
 
         foreach($data as $value){
             if(!$this->checkFieldExist($value['collection'], $value['field'])){
