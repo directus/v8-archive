@@ -107,19 +107,19 @@ return [
         'enabled' => false,            // Cache all API responses
         'response_ttl' => 3600,        // Keep the cache for n seconds
         'pool' => [
-            'adapter' => 'apc'         // What adapter to use to store the cache in
+            'adapter' => 'apc',         // What adapter to use to store the cache in
                                        // Supports: apc, apcu, filesystem, memcached,
                                        //           memcache, redis
 
            /* Filesystem
            ------------------------------ */
-           'path' => '../cache/'
+           'path' => '../cache/',
            /* --------------------------- */
 
            /* memcached, memcache, redis
            ------------------------------ */
            'host' => 'localhost',
-           'port' => 11211
+           'port' => 11211,
            /* --------------------------- */
 
         ],
