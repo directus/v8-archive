@@ -47,8 +47,8 @@ class Server extends Route
                 throw new NotInstalledException('This Directus instance has not been configured. Install via the Directus App (eg: /admin) or read more about configuration at: https://docs.directus.io/getting-started/installation.html#configure');
             } else {
                 foreach($scannedDirectory as $fileName){
-                    if(!StringUtils::startsWith($fileName, 'private.') && !StringUtils::startsWith($fileName, '_')){
-                        $fileObject = explode(".", $fileName);
+                     $fileObject = explode(".", $fileName);
+                     if(!StringUtils::startsWith($fileName, 'private.') &&  (!StringUtils::startsWith($fileName, '_') || strlen($fileObject[0]) == 1)){
                         $projectNames[] = $fileObject[0];
                     }
                 }
