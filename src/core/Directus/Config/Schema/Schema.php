@@ -22,7 +22,7 @@ class Schema {
             new Value('env', Types::STRING, 'production'),
             new Group('logger', [
                 new Value('path', Types::STRING, $loggerPath),
-            ])
+            ]),
             new Group('database', [
                 new Value('type', Types::STRING, 'mysql'),
                 new Value('host', Types::STRING, 'localhost'),
