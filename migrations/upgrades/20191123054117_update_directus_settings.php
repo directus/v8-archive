@@ -54,6 +54,7 @@ class UpdateDirectusSettings extends AbstractMigration
                 'sort' => 2
             ])->save();
         }
+         
 
         if(!$this->checkFieldExist('directus_settings', 'project_name')){     
             $fieldsTable->insert([
@@ -231,79 +232,50 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'thumbnail_dimensions')){     
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'options' => json_encode([
-                        'placeholder' => 'Allowed dimensions for thumbnails (eg: 200x200)'
-                    ]),
-                    'locked' => 1,
-                    'width' => 'full',
-                    'note' => 'Allowed dimensions for thumbnails.',
-                    'sort' => 34
-                ],
-                ['collection' => 'directus_settings', 'field' => 'thumbnail_dimensions']
-            ));
+        if(!$this->checkFieldExist('directus_settings', 'thumbnail_whitelist')){     
+            $fieldsTable->insert([
+                'collection' => 'directus_settings',
+                'field' => 'thumbnail_whitelist',
+                'type' => 'json',
+                'interface' => 'json',
+                'width' => 'half',
+                'note' => 'Defines how the thumbnail will be generated based on the requested params.',
+                'sort' => 33
+            ])->save();
         }
 
-        if($this->checkFieldExist('directus_settings', 'thumbnail_quality_tags')){     
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'note' => 'Allowed qualities for thumbnails',
-                    'sort' => 35
-                ],
-                ['collection' => 'directus_settings', 'field' => 'thumbnail_quality_tags']
-            ));
+        if (!$this->checkSettingExist('thumbnail_whitelist_system')) {
+            $table->insert([
+                'key' => 'thumbnail_whitelist_system',
+                'value' => json_encode([
+                    [
+                        "key" => "card",
+                        "width" => 200,
+                        "height" => 200,
+                        "fit" => "crop",
+                        "quality" => 80
+                    ],
+                    [
+                        "key" => "avatar",
+                        "width" => 100,
+                        "height" => 100,
+                        "fit" => "crop",
+                        "quality" => 80
+                    ]
+                ])
+            ])->save();
         }
 
-        if($this->checkFieldExist('directus_settings', 'thumbnail_actions')){     
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'note' => 'Defines how the thumbnail will be generated based on the requested dimensions',
-                    'sort' => 36
-                ],
-                ['collection' => 'directus_settings', 'field' => 'thumbnail_actions']
-            ));
-        }
-
-        if($this->checkFieldExist('directus_settings', 'thumbnail_not_found_location')){     
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'options' => json_encode([
-                        'iconRight' => 'broken_image'                    
-                    ]),
-                    'locked' => 1,
-                    'width' => 'full',
-                    'note' => 'A fallback image used when thumbnail generation fails',
-                    'sort' => 37
-                ],
-                ['collection' => 'directus_settings', 'field' => 'thumbnail_not_found_location']
-            ));
-        }
-        
-        
-        if($this->checkFieldExist('directus_settings', 'thumbnail_cache_ttl')){     
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'options' => json_encode([
-                        'iconRight' => 'cached'
-                    ]),
-                    'required' => 1,
-                    'note' => 'Seconds before browsers re-fetch thumbnails',
-                    'sort' => 38
-                ],
-                ['collection' => 'directus_settings', 'field' => 'thumbnail_cache_ttl']
-            ));
+        if(!$this->checkFieldExist('directus_settings', 'thumbnail_whitelist_system')){     
+            $fieldsTable->insert([
+                'collection' => 'directus_settings',
+                'field' => 'thumbnail_whitelist_system',
+                'type' => 'json',
+                'interface' => 'json',
+                'readonly' => 1,
+                'width' => 'half',
+                'sort' => 34
+            ])->save();
         }
         
         if($this->checkFieldExist('directus_settings', 'youtube_api_key')){     
@@ -320,26 +292,6 @@ class UpdateDirectusSettings extends AbstractMigration
                     'sort' => 39
                 ],
                 ['collection' => 'directus_settings', 'field' => 'youtube_api_key']
-            ));
-        }
-
-        if($this->checkFieldExist('directus_settings', 'file_naming')){     
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'locked' => 1,
-                    'width' => 'half',
-                    'note' => 'File-system naming convention for uploads',
-                    'sort' => 31,
-                    'options' => json_encode([
-                        'choices' => [
-                            'uuid' => 'File Hash (Obfuscated)',
-                            'file_name' => 'File Name (Readable)'
-                        ]
-                    ])
-                ],
-                ['collection' => 'directus_settings', 'field' => 'file_naming']
             ));
         }
 
@@ -502,6 +454,54 @@ class UpdateDirectusSettings extends AbstractMigration
 
         if ($this->checkSettingExist('app_url')) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "app_url";');
+        }
+
+        if (!$this->checkSettingExist('thumbnail_dimensions')) {
+            $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_dimensions";');
+        }
+ 
+        if($this->checkFieldExist('directus_settings','thumbnail_dimensions')){
+            $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_dimensions";');
+        }
+
+        if (!$this->checkSettingExist('thumbnail_quality_tags')) {
+            $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_quality_tags";');
+        }
+ 
+        if($this->checkFieldExist('directus_settings','thumbnail_quality_tags')){
+            $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_quality_tags";');
+        }
+
+        if (!$this->checkSettingExist('thumbnail_actions')) {
+            $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_actions";');
+        }
+ 
+        if($this->checkFieldExist('directus_settings','thumbnail_actions')){
+            $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_actions";');
+        }
+
+        if (!$this->checkSettingExist('thumbnail_cache_ttl')) {
+            $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_cache_ttl";');
+        }
+ 
+        if($this->checkFieldExist('directus_settings','thumbnail_cache_ttl')){
+            $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_cache_ttl";');
+        }
+
+        if (!$this->checkSettingExist('thumbnail_not_found_location')) {
+            $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_not_found_location";');
+        }
+ 
+        if($this->checkFieldExist('directus_settings','thumbnail_not_found_location')){
+            $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_not_found_location";');
+        }
+
+        if (!$this->checkSettingExist('file_naming')) {
+            $this->execute('DELETE FROM `directus_settings` where `key` = "file_naming";');
+        }
+ 
+        if($this->checkFieldExist('directus_settings','file_naming')){
+            $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "file_naming";');
         }
 
 

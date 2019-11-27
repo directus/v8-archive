@@ -215,22 +215,6 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'file_naming',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'dropdown',
-                'locked' => 1,
-                'width' => 'half',
-                'note' => 'File-system naming convention for uploads',
-                'sort' => 31,
-                'options' => json_encode([
-                    'choices' => [
-                        'uuid' => 'File Hash (Obfuscated)',
-                        'file_name' => 'File Name (Readable)'
-                    ]
-                ])
-            ],
-            [
-                'collection' => 'directus_settings',
                 'field' => 'file_max_size',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
@@ -240,7 +224,7 @@ class CreateSettingsTable extends AbstractMigration
                 ]),
                 'locked' => 1,
                 'width' => 'half',
-                'sort' => 32
+                'sort' => 31
             ],
             [
                 'collection' => 'directus_settings',
@@ -252,67 +236,25 @@ class CreateSettingsTable extends AbstractMigration
                 ]),
                 'locked' => 1,
                 'width' => 'full',
+                'sort' => 32
+            ],
+            [
+                'collection' => 'directus_settings',
+                'field' => 'thumbnail_whitelist',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'json',
+                'width' => 'half',
+                'note' => 'Defines how the thumbnail will be generated based on the requested params.',
                 'sort' => 33
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'thumbnail_dimensions',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
-                'interface' => 'tags',
-                'options' => json_encode([
-                    'placeholder' => 'Allowed dimensions for thumbnails (eg: 200x200)'
-                ]),
-                'locked' => 1,
-                'width' => 'full',
-                'note' => 'Allowed dimensions for thumbnails.',
+                'field' => 'thumbnail_whitelist_system',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'json',
+                'readonly' => 1,
+                'width' => 'half',
                 'sort' => 34
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'thumbnail_quality_tags',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'json',
-                'locked' => 1,
-                'width' => 'half',
-                'note' => 'Allowed qualities for thumbnails',
-                'sort' => 35
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'thumbnail_actions',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'json',
-                'locked' => 1,
-                'width' => 'half',
-                'note' => 'Defines how the thumbnail will be generated based on the requested dimensions',
-                'sort' => 36
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'thumbnail_not_found_location',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'text-input',
-                'options' => json_encode([
-                    'iconRight' => 'broken_image'
-                ]),
-                'locked' => 1,
-                'width' => 'full',
-                'note' => 'A fallback image used when thumbnail generation fails',
-                'sort' => 37
-            ],
-            [
-                'collection' => 'directus_settings',
-                'field' => 'thumbnail_cache_ttl',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
-                'interface' => 'numeric',
-                'options' => json_encode([
-                    'iconRight' => 'cached'
-                ]),
-                'locked' => 1,
-                'width' => 'half',
-                'required' => 1,
-                'note' => 'Seconds before browsers re-fetch thumbnails',
-                'sort' => 38
             ],
             [
                 'collection' => 'directus_settings',
@@ -325,7 +267,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Allows fetching more YouTube Embed info',
-                'sort' => 39
+                'sort' => 35
             ],
         ];
 
@@ -391,10 +333,6 @@ class CreateSettingsTable extends AbstractMigration
               'value' => ''
             ],
             [
-              'key' => 'file_naming',
-              'value' => 'uuid'
-            ],
-            [
               'key' => 'file_max_size',
               'value' => '100MB'
             ],
@@ -403,28 +341,27 @@ class CreateSettingsTable extends AbstractMigration
               'value' => ''
             ],
             [
-              'key' => 'thumbnail_dimensions',
-              'value' => '200x200'
-            ],
-            [
-              'key' => 'thumbnail_quality_tags',
-              'value' => '{"poor": 25, "good": 50, "better":  75, "best": 100}'
-            ],
-            [
-              'key' => 'thumbnail_actions',
-              'value' => '{"contain":{"options":{"resizeCanvas":false,"position":"center","resizeRelative":false,"canvasBackground":"ccc"}},"crop":{"options":{"position":"center"}}}'
-            ],
-            [
-              'key' => 'thumbnail_not_found_location',
-              'value' => ''
-            ],
-            [
-              'key' => 'thumbnail_cache_ttl',
-              'value' => '86400'
-            ],
-            [
               'key' => 'youtube_api_key',
               'value' => ''
+            ],
+            [
+                'key' => 'thumbnail_whitelist_system',
+                'value' => json_encode([
+                    [
+                        "key" => "card",
+                        "width" => 200,
+                        "height" => 200,
+                        "fit" => "crop",
+                        "quality" => 80
+                    ],
+                    [
+                        "key" => "avatar",
+                        "width" => 100,
+                        "height" => 100,
+                        "fit" => "crop",
+                        "quality" => 80
+                    ]
+                ])
             ]
           ];
       
