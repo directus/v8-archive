@@ -89,7 +89,7 @@ class SettingsService extends AbstractService
 
     // Validates the thumbnail whitelist when settings are saved. This ensures that people don't accidentally
     public function validateThumbnailWhitelist($payload,$thumbnailKey) {
-        if ($thumbnailKey == 'thumbnail_whitelist' && !empty($payload)) {
+        if ($thumbnailKey == 'asset_whitelist' && !empty($payload)) {
             $data = isset($payload[0]) ? $payload : array($payload);
             foreach($data as $key=>$value) {
                 $validateData = [

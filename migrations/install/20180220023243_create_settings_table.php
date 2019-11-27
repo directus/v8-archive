@@ -257,7 +257,7 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'thumbnail_whitelist',
+                'field' => 'asset_whitelist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'repeater',
                 'width' => 'full',
@@ -312,7 +312,7 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'thumbnail_whitelist_system',
+                'field' => 'asset_whitelist_system',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'json',
                 'readonly' => 1,
@@ -410,7 +410,7 @@ class CreateSettingsTable extends AbstractMigration
               'value' => ''
             ],
             [
-                'key' => 'thumbnail_whitelist_system',
+                'key' => 'asset_whitelist_system',
                 'value' => json_encode([
                     [
                         "key" => "card",

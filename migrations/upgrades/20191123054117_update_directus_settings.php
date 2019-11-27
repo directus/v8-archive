@@ -233,10 +233,10 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'thumbnail_whitelist')){
+        if(!$this->checkFieldExist('directus_settings', 'asset_whitelist')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
-                'field' => 'thumbnail_whitelist',
+                'field' => 'asset_whitelist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'repeater',
                 'width' => 'full',
@@ -291,9 +291,9 @@ class UpdateDirectusSettings extends AbstractMigration
             ])->save();
         }
 
-        if (!$this->checkSettingExist('thumbnail_whitelist_system')) {
+        if (!$this->checkSettingExist('asset_whitelist_system')) {
             $table->insert([
-                'key' => 'thumbnail_whitelist_system',
+                'key' => 'asset_whitelist_system',
                 'value' => json_encode([
                     [
                         "key" => "card",
@@ -313,10 +313,10 @@ class UpdateDirectusSettings extends AbstractMigration
             ])->save();
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'thumbnail_whitelist_system')){
+        if(!$this->checkFieldExist('directus_settings', 'asset_whitelist_system')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
-                'field' => 'thumbnail_whitelist_system',
+                'field' => 'asset_whitelist_system',
                 'type' => 'json',
                 'interface' => 'json',
                 'readonly' => 1,

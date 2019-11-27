@@ -167,10 +167,10 @@ class AssetService extends AbstractService
         $usesKey = isset($params['key']);
 
         // The user provided whitelist. If this is empty, any combination of the params is allowed
-        $userWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist'), true);
+        $userWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'asset_whitelist'), true);
 
         // The system native thumbnails that can't be changed
-        $systemWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist_system'), true);
+        $systemWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'asset_whitelist_system'), true);
 
         // If the whitelist is set and therefore mandatory
         $whitelistEnabled = empty($userWhitelist) == false;

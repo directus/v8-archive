@@ -109,7 +109,7 @@ if (!function_exists('append_storage_information')) {
      */
     function append_storage_information(array $rows)
     {
-      
+
         if (empty($rows)) {
             return $rows;
         }
@@ -126,7 +126,7 @@ if (!function_exists('append_storage_information')) {
         if (!$list) {
             $rows = [$rows];
         }
-        
+
         foreach ($rows as &$row) {
             $data = [];
             $ext = pathinfo($row['filename'], PATHINFO_EXTENSION);
@@ -199,17 +199,17 @@ if (!function_exists('get_thumbnails')) {
         $type = array_get($row, 'type');
         $thumbnailFilenameParts = explode('.', $filename);
         $thumbnailExtension = array_pop($thumbnailFilenameParts);
-       
-        $systemThumb = json_decode(get_directus_setting('thumbnail_whitelist_system'),true);
-        $whitelistThumb = json_decode(get_directus_setting('thumbnail_whitelist'),true);
+
+        $systemThumb = json_decode(get_directus_setting('asset_whitelist_system'),true);
+        $whitelistThumb = json_decode(get_directus_setting('asset_whitelist'),true);
         $thumbnailWhitelist = !empty($whitelistThumb) ? array_merge($systemThumb, $whitelistThumb) : $systemThumb;
-         
+
         $fileExtension = MimeTypeUtils::getFromMimeType($type);
 
         if (!in_array($fileExtension, Thumbnail::getFormatsSupported())  &&  strpos($type, 'embed/') !== 0) {
             return null;
         }
-    
+
         // Add default size
         //add_default_thumbnail_dimensions($thumbnailDimensions);
 
@@ -218,7 +218,7 @@ if (!function_exists('get_thumbnails')) {
             if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
                 $thumbnailExtension = Thumbnail::defaultFormat();
             }
-         
+
             $thumbnailUrl = get_thumbnail_url($row['private_hash'],$thumbnail);
             $thumbnailRelativeUrl = get_thumbnail_path($row['private_hash'],$thumbnail);
             $thumbnails[] = [
@@ -261,9 +261,9 @@ if (!function_exists('get_thumbnail_path')) {
         $projectName = get_api_project_from_request();
 
         $thumbnailDetail=$thumbnail;
-        
+
         $paramsString=  '?key='.$thumbnailDetail['key'];
-  
+
         return sprintf(
             '/%s/%s/%s%s',
             $projectName,

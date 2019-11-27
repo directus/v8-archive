@@ -89,8 +89,8 @@ if (!function_exists('get_directus_thumbnail_settings')) {
     function get_directus_thumbnail_settings()
     {
         return get_directus_settings_by_keys([
-            'thumbnail_whitelist',
-            'thumbnail_whitelist_system'
+            'asset_whitelist',
+            'asset_whitelist_system'
         ]);
     }
 }

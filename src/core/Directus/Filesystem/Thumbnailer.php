@@ -319,7 +319,7 @@ class Thumbnailer {
 
     public function validateThumbnailWhitelist($params)
     {
-        $userWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist'), true);
+        $userWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'asset_whitelist'), true);
 
         $thumbnailWhitelistEnabled = empty($userWhitelist) === false;
 
