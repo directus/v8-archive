@@ -48,6 +48,7 @@ class Server extends Route
             } else {
                 foreach($scannedDirectory as $fileName){
                      $fileObject = explode(".", $fileName);
+                    //Adding the condition for strlen to provide the support of _ project [v7] and restict all other's which are start from _
                      if(!StringUtils::startsWith($fileName, 'private.') &&  (!StringUtils::startsWith($fileName, '_') || strlen($fileObject[0]) == 1)){
                         $projectNames[] = $fileObject[0];
                     }
