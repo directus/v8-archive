@@ -76,7 +76,7 @@ class Auth extends Route
                 default :
                     $this->storeJwtSession($responseData['data']);
             }
-            unset($responseData['data']['user']);
+            $responseData['data']['user'] = ArrayUtils::omit($responseData['data']['user'], [ 'password' , 'token', 'email_notifications', 'last_access_on', 'last_page']);
         }
         $responseData['data'] = !empty($responseData['data']) ? $responseData['data'] : null;
 
