@@ -167,16 +167,16 @@ class AssetService extends AbstractService
         {
             $this->validate(
                 [
-                    'width'     =>   isset($params['w']) ? $params['w'] : '',
-                    'height'    =>   isset($params['h']) ? $params['h'] : '',
-                    'quality'   =>   isset($params['q']) ? $params['q'] : '',
-                    'fit'       =>   isset($params['f']) ? $params['f'] : ''
+                    'w'     =>   isset($params['w']) ? $params['w'] : '',
+                    'h'    =>   isset($params['h']) ? $params['h'] : '',
+                    'q'   =>   isset($params['q']) ? $params['q'] : '',
+                    'f'       =>   isset($params['f']) ? $params['f'] : ''
                 ],
                 [
-                    'width'     =>  'required|numeric',
-                    'height'    =>  'required|numeric',
-                    'quality'   =>  'required|numeric',
-                    'fit'       =>  'required'
+                    'w'     =>  'required|numeric',
+                    'h'    =>  'required|numeric',
+                    'q'   =>  'required|numeric',
+                    'f'       =>  'required'
                 ]);
            
         }
@@ -211,7 +211,7 @@ class AssetService extends AbstractService
             }
             if(!$result){
                 if(isset($params['key'])){
-                    throw new Exception(sprintf("The key don't match with the System Thumbnail Whitelist."));
+                    throw new Exception(sprintf("Key doesn’t exist."));
                 }else{
                     throw new Exception(sprintf("The params don't match with the whitelisted thumbnails."));
                 }
