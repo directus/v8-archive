@@ -118,7 +118,7 @@ if (!function_exists('append_storage_information')) {
 
         $config = $container->get('config');
         $proxyDownloads = $config->get('storage.proxy_downloads');
-        $fileRootUrl = '/'. get_api_project_from_request().'/assets';
+        $fileRootUrl = $config->get('storage.root_url');
         $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
         $isLocalStorageAdapter = $config->get('storage.adapter') == 'local';
         $list = isset($rows[0]);
@@ -129,13 +129,14 @@ if (!function_exists('append_storage_information')) {
         
         foreach ($rows as &$row) {
             $data = [];
-
+            $ext = pathinfo($row['filename'], PATHINFO_EXTENSION);
+            $uploadedFileName = $row['id'].'.'.$ext;
             if ($proxyDownloads) {
-                $data['url'] = get_proxy_path($row['filename']);
+                $data['url'] = get_proxy_path($uploadedFileName);
                 $data['full_url'] = get_url($data['url']);
             } else {
                 if(isset($row['private_hash'])){
-                    $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['private_hash'];
+                    $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $uploadedFileName;
                     // Add Full url
                     if (!$hasFileRootUrlHost) {
                         $data['full_url'] = get_url($data['url']);
