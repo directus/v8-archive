@@ -194,7 +194,7 @@ class UpdateUserFields extends AbstractMigration
                     'interface' => 'user-roles',
                     'hidden_detail' => 0,
                     'hidden_browse' => 0,
-                    'width' => 2,
+                    'width' => 'half',
                     'sort' => 8,
                 ],
                 [
@@ -203,7 +203,7 @@ class UpdateUserFields extends AbstractMigration
                 ]
             ));
         }
-     
+
 
         if($this->checkFieldExist('directus_users','password')){
             $this->execute(\Directus\phinx_update(
@@ -211,7 +211,7 @@ class UpdateUserFields extends AbstractMigration
                 'directus_fields',
                 [
                     'type' => \Directus\Database\Schema\DataTypes::TYPE_HASH,
-                    'width' => 2,
+                    'width' => 'half',
                 ],
                 ['collection' => 'directus_users', 'field' => 'password']
             ));
@@ -239,7 +239,7 @@ class UpdateUserFields extends AbstractMigration
                 'directus_fields',
                 [
                     'options' => json_encode([
-                        'iconRight' => 'account_circle'           
+                        'iconRight' => 'account_circle'
                     ]),
                 ],
                 ['collection' => 'directus_users', 'field' => 'first_name']
@@ -252,7 +252,7 @@ class UpdateUserFields extends AbstractMigration
                 'directus_fields',
                 [
                     'options' => json_encode([
-                        'iconRight' => 'account_circle'           
+                        'iconRight' => 'account_circle'
                     ]),
                 ],
                 ['collection' => 'directus_users', 'field' => 'last_name']
@@ -266,13 +266,13 @@ class UpdateUserFields extends AbstractMigration
                 [
                     'validation' => '$email',
                     'options' => json_encode([
-                        'iconRight' => 'alternate_email'           
+                        'iconRight' => 'alternate_email'
                     ]),
                 ],
                 ['collection' => 'directus_users', 'field' => 'email']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_users','company')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -280,13 +280,13 @@ class UpdateUserFields extends AbstractMigration
                 [
                     'sort' => 9,
                     'options' => json_encode([
-                        'iconRight' => 'location_city'           
+                        'iconRight' => 'location_city'
                     ]),
                 ],
                 ['collection' => 'directus_users', 'field' => 'company']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_users','title')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -294,13 +294,13 @@ class UpdateUserFields extends AbstractMigration
                 [
                     'sort' => 10,
                     'options' => json_encode([
-                        'iconRight' => 'text_fields'           
+                        'iconRight' => 'text_fields'
                     ]),
                 ],
                 ['collection' => 'directus_users', 'field' => 'title']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_users','status')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -311,7 +311,7 @@ class UpdateUserFields extends AbstractMigration
                 ['collection' => 'directus_users', 'field' => 'status']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_users','locale_options')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -323,7 +323,7 @@ class UpdateUserFields extends AbstractMigration
                 ['collection' => 'directus_users', 'field' => 'locale_options']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_users','token')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -334,7 +334,7 @@ class UpdateUserFields extends AbstractMigration
                 ['collection' => 'directus_users', 'field' => 'token']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_users','last_access_on')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -345,7 +345,7 @@ class UpdateUserFields extends AbstractMigration
                 ['collection' => 'directus_users', 'field' => 'last_access_on']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_users','last_page')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -428,7 +428,7 @@ class UpdateUserFields extends AbstractMigration
                'default' => null
            ])->save();
         }
-        
+
         if (!$this->checkFieldExist('directus_users','theme')) {
             $options =  json_encode([
                 'format' => true,
