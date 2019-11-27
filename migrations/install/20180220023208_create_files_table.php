@@ -16,6 +16,11 @@ class CreateFilesTable extends AbstractMigration
             'null' => false,
             'default' => 'local'
         ]);
+        $table->addColumn('private_hash', 'string', [
+            'limit' => 16,
+            'null' => true,
+            'default' => null
+        ]);
         $table->addColumn('filename', 'string', [
             'limit' => 255,
             'null' => false,
@@ -112,10 +117,19 @@ class CreateFilesTable extends AbstractMigration
             [
                 'collection' => 'directus_files',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
+                'hidden_detail' => 1
+            ],
+            [
+                'collection' => 'directus_files',
+                'field' => 'private_hash',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface'=>'text-input',
+                'readonly' => 1,
+                'hidden_browse' => 1,
                 'hidden_detail' => 1
             ],
             [

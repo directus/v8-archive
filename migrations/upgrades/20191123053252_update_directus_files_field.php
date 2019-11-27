@@ -161,19 +161,41 @@ class UpdateDirectusFilesField extends AbstractMigration
             ));
         }  
 
-        if(!$this->checkFieldExist('directus_files', 'file_naming')){
+        if (!$filesTable->hasColumn('private_hash')) {
+            $filesTable->addColumn('private_hash', 'string', [
+                'limit' => 16,
+                'null' => true,
+                'default' => null
+            ])->save();
+        }
+
+        if(!$this->checkFieldExist('directus_files', 'private_hash')){     
             $fieldsTable->insert([
                 'collection' => 'directus_files',
-                'field' => 'file_naming',
+                'field' => 'private_hash',
                 'type' => 'string',
-                'interface' => 'dropdown',
-                'options' => json_encode([
-                    'choices' => [
-                        'uuid' => 'File Hash (Obfuscated)', 
-                        'file_name' => 'File Name (Readable)'
-                    ]
-                ])
+                'interface'=>'text-input',
+                'readonly' => 1,
+                'hidden_browse' => 1,
+                'hidden_detail' => 1
             ])->save();
+        }
+
+        if($filesTable->hasColumn('id')){
+            $filesTable->changeColumn('id', 'string', [
+                'limit' => 16
+            ]);
+        }
+
+        if($this->checkFieldExist('directus_files','id')){
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                    'type' => 'string'
+                ],
+                ['collection' => 'directus_files', 'field' => 'id']
+            ));
         }
     }
 
