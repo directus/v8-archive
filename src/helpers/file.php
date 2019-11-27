@@ -109,7 +109,7 @@ if (!function_exists('append_storage_information')) {
      */
     function append_storage_information(array $rows)
     {
-
+      
         if (empty($rows)) {
             return $rows;
         }
@@ -118,7 +118,7 @@ if (!function_exists('append_storage_information')) {
 
         $config = $container->get('config');
         $proxyDownloads = $config->get('storage.proxy_downloads');
-        $fileRootUrl = $config->get('storage.root_url');
+        $fileRootUrl = '/'. get_api_project_from_request().'/assets';
         $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
         $isLocalStorageAdapter = $config->get('storage.adapter') == 'local';
         $list = isset($rows[0]);
@@ -126,7 +126,7 @@ if (!function_exists('append_storage_information')) {
         if (!$list) {
             $rows = [$rows];
         }
-
+        
         foreach ($rows as &$row) {
             $data = [];
 
@@ -134,12 +134,14 @@ if (!function_exists('append_storage_information')) {
                 $data['url'] = get_proxy_path($row['filename']);
                 $data['full_url'] = get_url($data['url']);
             } else {
-                $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['filename'];
-
-                // Add Full url
-                if ($isLocalStorageAdapter && !$hasFileRootUrlHost) {
-                    $data['full_url'] = get_url($data['url']);
+                if(isset($row['private_hash'])){
+                    $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['private_hash'];
+                    // Add Full url
+                    if (!$hasFileRootUrlHost) {
+                        $data['full_url'] = get_url($data['url']);
+                    }
                 }
+
             }
 
             // Add Thumbnails
@@ -196,41 +198,35 @@ if (!function_exists('get_thumbnails')) {
         $type = array_get($row, 'type');
         $thumbnailFilenameParts = explode('.', $filename);
         $thumbnailExtension = array_pop($thumbnailFilenameParts);
-        $thumbnailDimensions = array_filter(
-            explode(',', get_directus_setting('thumbnail_dimensions'))
-        );
-
+       
+        $systemThumb = json_decode(get_directus_setting('thumbnail_whitelist_system'),true);
+        $whitelistThumb = json_decode(get_directus_setting('thumbnail_whitelist'),true);
+        $thumbnailWhitelist = !empty($whitelistThumb) ? array_merge($systemThumb, $whitelistThumb) : $systemThumb;
+         
         $fileExtension = MimeTypeUtils::getFromMimeType($type);
+
         if (!in_array($fileExtension, Thumbnail::getFormatsSupported())  &&  strpos($type, 'embed/') !== 0) {
             return null;
         }
-
+    
         // Add default size
-        add_default_thumbnail_dimensions($thumbnailDimensions);
+        //add_default_thumbnail_dimensions($thumbnailDimensions);
 
         $thumbnails = [];
-        foreach (array_unique($thumbnailDimensions) as $dimension) {
+        foreach ($thumbnailWhitelist as $thumbnail) {
             if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
                 $thumbnailExtension = Thumbnail::defaultFormat();
             }
-
-            if (!is_string($dimension)) {
-                continue;
-            }
-
-            $size = explode('x', $dimension);
-
-            if (count($size) == 2) {
-                $thumbnailUrl = get_thumbnail_url($filename, $size[0], $size[1]);
-                $thumbnailRelativeUrl = get_thumbnail_path($filename, $size[0], $size[1]);
-                $thumbnails[] = [
-                    'url' => $thumbnailUrl,
-                    'relative_url' => $thumbnailRelativeUrl,
-                    'dimension' => $dimension,
-                    'width' => (int) $size[0],
-                    'height' => (int) $size[1],
-                ];
-            }
+         
+            $thumbnailUrl = get_thumbnail_url($row['private_hash'],$thumbnail);
+            $thumbnailRelativeUrl = get_thumbnail_path($row['private_hash'],$thumbnail);
+            $thumbnails[] = [
+                'url' => $thumbnailUrl,
+                'relative_url' => $thumbnailRelativeUrl,
+                'dimension' => $thumbnail['width'].'x'.$thumbnail['height'],
+                'width' => (int) $thumbnail['width'],
+                'height' => (int) $thumbnail['height'],
+            ];
         }
 
         return $thumbnails;
@@ -241,17 +237,13 @@ if (!function_exists('get_thumbnail_url')) {
     /**
      * Returns a url for the given file pointing to the thumbnailer
      *
-     * @param string $name
-     * @param int $width
-     * @param int $height
-     * @param string $mode
-     * @param string $quality
+     * @param array $thumbnail
      *
      * @return string
      */
-    function get_thumbnail_url($name, $width, $height, $mode = 'crop', $quality = 'good')
+    function get_thumbnail_url($name,$thumbnail)
     {
-        return get_url(get_thumbnail_path($name, $width, $height, $mode, $quality));
+        return get_url(get_thumbnail_path($name, $thumbnail));
     }
 }
 
@@ -259,27 +251,24 @@ if (!function_exists('get_thumbnail_path')) {
     /**
      * Returns a relative url for the given file pointing to the thumbnailer
      *
-     * @param string $name
-     * @param int $width
-     * @param int $height
-     * @param string $mode
-     * @param string $quality
+     * @param array $thumbnail
      *
      * @return string
      */
-    function get_thumbnail_path($name, $width, $height, $mode = 'crop', $quality = 'good')
+    function get_thumbnail_path($name,$thumbnail)
     {
         $projectName = get_api_project_from_request();
 
-        // env/width/height/mode/quality/name
+        $thumbnailDetail=$thumbnail;
+        
+        $paramsString=  '?key='.$thumbnailDetail['key'];
+  
         return sprintf(
-            '/thumbnail/%s/%d/%d/%s/%s/%s',
+            '/%s/%s/%s%s',
             $projectName,
-            $width,
-            $height,
-            $mode,
-            $quality,
-            $name
+            'assets',
+            $name,
+            $paramsString
         );
     }
 }
@@ -452,3 +441,27 @@ if (!function_exists('validate_file_size')) {
         }
     }
 }
+
+if (!function_exists('get_file_root_url')) {
+    /**
+     * Get File Root URL
+     *
+     *
+     * @return string
+     */
+    function get_file_root_url()
+    {
+        $container = Application::getInstance()->getContainer();
+        $config = $container->get('config');
+        return $config->get('storage.root_url');
+    }
+}
+
+if (!function_exists('get_random_string')) {
+    function get_random_string($limit = 16)
+    {
+     return substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0,$limit);
+    }
+}
+
+

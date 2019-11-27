@@ -3,7 +3,9 @@
 namespace Directus\Services;
 
 use Directus\Application\Container;
+use function Directus\get_directus_setting;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Exception\UnprocessableEntityException;
 
 class SettingsService extends AbstractService
 {
@@ -83,5 +85,29 @@ class SettingsService extends AbstractService
     public function batchDeleteWithIds(array $ids, array $params = [])
     {
         return $this->itemsService->batchDeleteWithIds($this->collection, $ids, $params);
+    }
+
+    public function validateThumbnailWhitelist($payload,$thumbnailKey)
+    {
+        if($thumbnailKey == 'thumbnail_whitelist' && !empty($payload))
+        {
+            $data= isset($payload[0]) ? $payload : array($payload); 
+            foreach($data as $key=>$value) {
+                $validateData   =   [
+                                        $thumbnailKey.'.width'     =>   isset($value['width']) ? $value['width'] : '',
+                                        $thumbnailKey.'.height'    =>   isset($value['height']) ? $value['height'] : '',
+                                        $thumbnailKey.'.quality'   =>   isset($value['quality']) ? $value['quality'] : '',
+                                        $thumbnailKey.'.fit'       =>   isset($value['fit']) ? $value['fit'] : ''
+                                    ];
+    
+                $constraints    =  [
+                                        $thumbnailKey.'.width'     =>  'required|numeric',
+                                        $thumbnailKey.'.height'    =>  'required|numeric',
+                                        $thumbnailKey.'.quality'   =>  'required|numeric',
+                                        $thumbnailKey.'.fit'       =>  'required'
+                                    ];
+                $this->validate($validateData,$constraints);
+            }
+        }
     }
 }

@@ -47,6 +47,7 @@ use Zend\Db\Sql\Update;
 use Zend\Db\TableGateway\Feature;
 use Zend\Db\TableGateway\Feature\RowGatewayFeature;
 use Zend\Db\TableGateway\TableGateway;
+use function Directus\get_random_string;
 
 class BaseTableGateway extends TableGateway
 {
@@ -383,16 +384,20 @@ class BaseTableGateway extends TableGateway
         $TableGateway = $this->makeTable($this->table);
         $primaryKey = $TableGateway->primaryKeyFieldName;
 
+        if($this->table === SchemaManager::COLLECTION_FILES)
+        {
+            $recordData[$primaryKey] = get_random_string();
+        }
+
         if (!$this->shouldUseFilter()) {
             $TableGateway->ignoreFilters();
         }
 
-        $TableGateway->insert($recordData);
-
+        $result = $TableGateway->insert($recordData);
         if (static::$emitter && $listenerId) {
             static::$emitter->removeListenerWithIndex($listenerId);
         }
-
+        
         // Only get the last inserted id, if the column has auto increment value
         $columnObject = $this->getTableSchema()->getField($primaryKey);
         if ($columnObject->hasAutoIncrement()) {
@@ -727,7 +732,11 @@ class BaseTableGateway extends TableGateway
         $selectState = $select->getRawState();
         $selectCollectionName = $selectState['table'];
 
-
+        if($selectCollectionName === SchemaManager::COLLECTION_FILES)
+        {
+            $this->addHashIdToFilesCollection();
+        }
+        
         if ($useFilter) {
             $selectState = $this->applyHooks([
                 'item.read:before',
@@ -748,7 +757,7 @@ class BaseTableGateway extends TableGateway
                 $e
             );
         }
-
+    
         if ($useFilter) {
             $result = $this->applyHooks([
                 'item.read',
@@ -1818,14 +1827,12 @@ class BaseTableGateway extends TableGateway
         // TODO: Move this to a proper hook
         $hasData = ArrayUtils::has($record, 'data') && is_string($record['data']);
         $isFilesCollection = $this->table == SchemaManager::COLLECTION_FILES;
-
-        if (!static::$container || !$hasData || !$isFilesCollection) {
+        if (!static::$container || !$isFilesCollection || !$hasData) {
             return;
         }
-
-        $Files = static::$container->get('files');
-
+        
         $updateArray = [];
+        $Files = static::$container->get('files');
         if ($Files->getSettings('file_naming') == 'id') {
             $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
             $fileId = $record[$this->primaryKeyFieldName];
@@ -1874,5 +1881,27 @@ class BaseTableGateway extends TableGateway
     protected function shouldUseFilter()
     {
         return !is_array($this->options) || ArrayUtils::get($this->options, 'filter', true) !== false;
+    }
+
+    public function addHashIdToFilesCollection()
+    {
+        $collectionName =  SchemaManager::COLLECTION_FILES;
+        $select = new Select($collectionName);
+        $select->columns(['*']);
+        $result =  parent::executeSelect($select)->toArray();
+
+        foreach($result as $key=>$value) 
+        {
+           if($value['private_hash'] == '' || $value['private_hash'] == null)
+           {
+               $updateArray = [];
+               $updateArray['private_hash'] = get_random_string();
+       
+               $Update = new Update($collectionName);
+               $Update->set($updateArray);
+               $Update->where(['id' => $value['id']]);
+               $this->updateWith($Update);
+           }
+        }
     }
 }

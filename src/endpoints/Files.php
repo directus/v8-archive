@@ -25,10 +25,10 @@ class Files extends Route
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id:' . regex_numeric_ids() . '}', [$this, 'read']);
-        $app->patch('/{id:' . regex_numeric_ids() . '}', [$this, 'update']);
+        $app->get('/{id}', [$this, 'read']);
+        $app->patch('/{id}', [$this, 'update']);
         $app->patch('', [$this, 'update']);
-        $app->delete('/{id:' . regex_numeric_ids() . '}', [$this, 'delete']);
+        $app->delete('/{id}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
 
         // Folders
@@ -78,7 +78,7 @@ class Files extends Route
                 'data' => $uploadedFile,
             ], $payload);
         }
-
+        
         $responseData = $service->create(
             $payload,
             $request->getQueryParams()
@@ -130,7 +130,6 @@ class Files extends Route
             $request->getParsedBody(),
             $request->getQueryParams()
         );
-
         return $this->responseWithData($request, $response, $responseData);
     }
 

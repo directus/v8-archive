@@ -236,12 +236,16 @@ abstract class AbstractService
                 $isRequired = false;
             }
 
-            if ($isRequired || (!$field->isNullable() && $field->getDefaultValue() == null)) {
-                $columnConstraints[] = 'required';
-            } else if (in_array($field->getName(), $fields) && !$field->isNullable()) {
-                $columnConstraints[] = 'notnullable';
+            if(($field->getName() !== "id" && $collectionName !== 'directus_file'))
+            {
+                if ($isRequired || (!$field->isNullable() && $field->getDefaultValue() == null))
+                {
+                    $columnConstraints[] = 'required';
+                } else if (in_array($field->getName(), $fields) && !$field->isNullable()) {
+                    $columnConstraints[] = 'notnullable';
+                } 
             }
-
+           
             if (DataTypes::isArray($field->getType())) {
                 $columnConstraints[] = 'array';
             } else if (DataTypes::isJson($field->getType())) {
@@ -647,7 +651,7 @@ abstract class AbstractService
         } else if (empty($columns)) {
             $columns = ['*'];
         }
-
+        
         $select = $tableGateway->getSql()->select();
         $select->columns($columns);
         $select->where($conditions);
