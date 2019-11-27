@@ -70,7 +70,7 @@ class Thumbnailer {
 
             $otherParams=$params;
             unset($otherParams['width'],$otherParams['height'],$otherParams['fit'],$otherParams['quality']);
-            
+
             if(count($otherParams) > 0) {
                 ksort($otherParams);
                 $paramsString='';
@@ -246,7 +246,7 @@ class Thumbnailer {
         // get URL parts
         // https://docs.directus.io/guides/thumbnailer.html#url-syntax
         $urlSegments = explode('/', $thumbnailUrlPath);
-       
+
         // pull the env out of the segments
         array_shift($urlSegments);
 
@@ -257,7 +257,7 @@ class Thumbnailer {
             'quality' => filter_var($params['quality'], FILTER_SANITIZE_STRING),
             'width' => filter_var($params['width'], FILTER_SANITIZE_NUMBER_INT),
         ];
-        
+
         if($thumbnailParams['width'] == null || $thumbnailParams['width'] == '')
         {
             throw new Exception('No width is provided.');
@@ -274,7 +274,7 @@ class Thumbnailer {
         {
             throw new Exception('No quality is provided.');
         }
-    
+
         // make sure filename is valid
         $filename = $urlSegments[1];
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
@@ -308,7 +308,7 @@ class Thumbnailer {
 
         return $thumbnailParams;
     }
-    
+
      /**
      * validate params against thumbnail whitelist
      *
@@ -319,16 +319,18 @@ class Thumbnailer {
 
     public function validateThumbnailWhitelist($params)
     {
-        $thumbnailWhitelistEnabled=ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist_enabled');
+        $userWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist'), true);
+
+        $thumbnailWhitelistEnabled = empty($userWhitelist) === false;
+
         if($thumbnailWhitelistEnabled)
         {
-            $thumbnailWhitelist=ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist');
-            $thumbnailWhitelist=json_decode($thumbnailWhitelist,true);
-            $result=false;
-            foreach($thumbnailWhitelist as $key=>$value)
+            $userWhitelist = json_decode($userWhitelist,true);
+            $result = false;
+            foreach($userWhitelist as $key=>$value)
             {
                 if(
-                  $value['width'] == $params['width'] && 
+                  $value['width'] == $params['width'] &&
                   $value['height'] == $params['height'] &&
                   $value['fit'] == $params['fit'] &&
                   $value['quality'] == $params['quality']

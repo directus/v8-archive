@@ -49,7 +49,7 @@ class Settings extends Route
         );
         $inputData = $this->getInterfaceBasedInput($request, $payload['key'], $fieldData);
 
-       
+
         $responseData = $service->create(
             $inputData,
             $request->getQueryParams()
@@ -227,13 +227,13 @@ class Settings extends Route
     {
         $payload = $request->getParsedBody();
         $id = $request->getAttribute('id');
-        
+
         if (strpos($id, ',') !== false || (isset($payload[0]) && is_array($payload[0]))) {
             return $this->batch($request, $response);
         }
-        
+
         $inputData = $request->getParsedBody();
-        
+
         $service = new SettingsService($this->container);
 
         /**
