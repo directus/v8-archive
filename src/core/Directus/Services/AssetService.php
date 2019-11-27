@@ -112,8 +112,8 @@ class AssetService extends AbstractService
     public function getThumbnail($params)
     {
         $this->thumbnailParams=$params;
-        $validateWhiteList= isset($params['key']) ? 'thumbnail_whitelist_system' : 'thumbnail_whitelist';
-        $this->validateThumbnailParams($params,$validateWhiteList);
+        
+        $this->validateThumbnailParams($params);
 
         if (! $this->filesystem->exists($this->fileName)) {
             throw new Exception($this->fileName . ' does not exist.'); 
@@ -160,7 +160,7 @@ class AssetService extends AbstractService
      * @throws Exception
      * @return array
      */
-    public function validateThumbnailParams($params,$validateWhiteList)
+    public function validateThumbnailParams($params)
     {
         if(!isset($params['key'])) 
         {
@@ -180,8 +180,10 @@ class AssetService extends AbstractService
            
         }
         
-            $thumbnailWhitelist=ArrayUtils::get($this->getConfig(), $validateWhiteList);
-            $thumbnailWhitelist=json_decode($thumbnailWhitelist,true);
+         $systemThumb = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist_system'),true);
+        $whitelistThumb = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist'),true);
+        $thumbnailWhitelist = !empty($whitelistThumb) ? array_merge($systemThumb, $whitelistThumb) : $systemThumb;
+
             
             if(!empty($thumbnailWhitelist))
             {
@@ -208,12 +210,10 @@ class AssetService extends AbstractService
                     }
                 }
                 if(!$result){
-                    $whitelist= $validateWhiteList == 'thumbnail_whitelist' ? 'Thumbnail Whitelist' 
-                                                       : 'System Thumbnail Whitelist';
                     if(isset($params['key'])){
                         throw new Exception(sprintf("The key don't match with the System Thumbnail Whitelist."));
                     }else{
-                        throw new Exception(sprintf("The params don't match with the ".  $whitelist . "."));
+                        throw new Exception(sprintf("The params don't match with the whitelisted thumbnails."));
                     }
                 }
             }
