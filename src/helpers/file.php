@@ -198,7 +198,10 @@ if (!function_exists('get_thumbnails')) {
         $type = array_get($row, 'type');
         $thumbnailFilenameParts = explode('.', $filename);
         $thumbnailExtension = array_pop($thumbnailFilenameParts);
-        $systemThumbnails = json_decode(get_directus_setting('thumbnail_whitelist_system'),true);
+       
+        $systemThumb = json_decode(get_directus_setting('thumbnail_whitelist_system'),true);
+        $whitelistThumb = json_decode(get_directus_setting('thumbnail_whitelist'),true);
+        $thumbnailWhitelist = !empty($whitelistThumb) ? array_merge($systemThumb, $whitelistThumb) : $systemThumb;
          
         $fileExtension = MimeTypeUtils::getFromMimeType($type);
 
@@ -210,7 +213,7 @@ if (!function_exists('get_thumbnails')) {
         //add_default_thumbnail_dimensions($thumbnailDimensions);
 
         $thumbnails = [];
-        foreach ($systemThumbnails as $thumbnail) {
+        foreach ($thumbnailWhitelist as $thumbnail) {
             if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {
                 $thumbnailExtension = Thumbnail::defaultFormat();
             }
