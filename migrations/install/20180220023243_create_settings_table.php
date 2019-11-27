@@ -259,10 +259,56 @@ class CreateSettingsTable extends AbstractMigration
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_whitelist',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'json',
-                'width' => 'half',
+                'interface' => 'repeater',
+                'width' => 'full',
                 'note' => 'Defines how the thumbnail will be generated based on the requested params.',
-                'sort' => 33
+                'sort' => 33,
+                'options' => json_encode([
+                    'template' => '{{key}}',
+                    'fields' => [
+                        [
+                            'field' => 'key',
+                            'interface' => 'slug',
+                            'width' => 'half',
+                            'type' => 'string'
+                        ],
+                        [
+                            'field' => 'width',
+                            'interface' => 'numeric',
+                            'width' => 'half',
+                            'type' => 'integer'
+                        ],
+                        [
+                            'field' => 'height',
+                            'interface' => 'numeric',
+                            'width' => 'half',
+                            'type' => 'integer'
+                        ],
+                        [
+                            'field' => 'fit',
+                            'interface' => 'dropdown',
+                            'width' => 'half',
+                            'type' => 'string',
+                            'options' => [
+                                'choices' => [
+                                    'crop' => 'Cover (Crop to fit)',
+                                    'contain' => 'Contain (Preserve aspect ratio)'
+                                ]
+                            ]
+                        ],
+                        [
+                            'field' => 'quality',
+                            'interface' => 'slider',
+                            'width' => 'full',
+                            'type' => 'integer',
+                            'options' => [
+                                'min' => 0,
+                                'max' => 100,
+                                'step' => 1
+                            ]
+                        ]
+                    ]
+                ])
             ],
             [
                 'collection' => 'directus_settings',
@@ -271,6 +317,8 @@ class CreateSettingsTable extends AbstractMigration
                 'interface' => 'json',
                 'readonly' => 1,
                 'width' => 'half',
+                'hidden_browse' => 1,
+                'hidden_detail' => 1,
                 'sort' => 34
             ],
             [
