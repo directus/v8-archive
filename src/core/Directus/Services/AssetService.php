@@ -229,8 +229,8 @@ class AssetService extends AbstractService
                 if (
                     $value['width'] == $params['w'] &&
                     $value['height'] == $params['h'] &&
-                    $value['fit'] == $params['q'] &&
-                    $value['quality'] == $params['f']
+                    $value['fit'] == $params['f'] &&
+                    $value['quality'] == $params['q']
                 ) {
                     $exists = true;
                 }
