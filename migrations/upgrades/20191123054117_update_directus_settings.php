@@ -332,8 +332,20 @@ class UpdateDirectusSettings extends AbstractMigration
                 ]),
                 'locked' => 1,
                 'width' => 'full',
-                'sort' => 33
+                'sort' => 32
             ])->save();
+        }
+
+        if($this->checkFieldExist('directus_settings', 'file_mimetype_whitelist')){   
+            $this->execute(\Directus\phinx_update(
+                $this->getAdapter(),
+                'directus_fields',
+                [
+                  'width' => 'full',
+                  'sort' => 32
+                ],
+                ['collection' => 'directus_settings', 'field' => 'file_max_size']
+            ));
         }
 
         if(!$this->checkFieldExist('directus_settings', 'file_max_size')){     
@@ -348,15 +360,17 @@ class UpdateDirectusSettings extends AbstractMigration
                 ]),
                 'locked' => 1,
                 'width' => 'half',
-                'sort' => 32
+                'sort' => 31
             ])->save();
         }
+       
         if($this->checkFieldExist('directus_settings', 'file_max_size')){   
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
                 [
                   'width' => 'half',
+                  'sort' => 31
                 ],
                 ['collection' => 'directus_settings', 'field' => 'file_max_size']
             ));
