@@ -41,8 +41,17 @@ class UpdateDirectusSettings extends AbstractMigration
 
         if (!$this->checkSettingExist('project_url')) {
             $table->insert([
-                'key' => 'project_url',
-                'value' => null
+                'collection' => 'directus_settings',
+                'field' => 'project_url',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'options' => json_encode([
+                    'iconRight' => 'link'
+                ]),
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'External link for the App\'s top-left logo',
+                'sort' => 2
             ])->save();
         }
 
@@ -50,8 +59,16 @@ class UpdateDirectusSettings extends AbstractMigration
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'project_name',
-                'type' => 'string',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
+                'options' => json_encode([
+                    'iconRight' => 'title'
+                ]),
+                'locked' => 1,
+                'required' => 1,
+                'width' => 'half',
+                'note' => 'Logo in the top-left of the App (40x40)',
+                'sort' => 1
             ])->save();
         }
 
@@ -120,6 +137,15 @@ class UpdateDirectusSettings extends AbstractMigration
                 'directus_fields',
                 [
                     'hidden_browse' => 1,
+                    'options' => json_encode([
+                        'style' => 'large',
+                        'title' => 'Files & Thumbnails',
+                        'hr' => true
+                    ]),
+                    'locked' => 1,
+                    'hidden_browse' => 1,
+                    'width' => 'full',
+                    'sort' => 30
                 ],
                 ['collection' => 'directus_settings', 'field' => 'files_divider']
             ));
@@ -146,7 +172,10 @@ class UpdateDirectusSettings extends AbstractMigration
                 $this->getAdapter(),
                 'directus_fields',
                 [
+                    'locked' => 1,
+                    'width' => 'half',
                     'note' => 'A 40x40 brand logo, ideally a white SVG/PNG',
+                    'sort' => 3
                 ],
                 ['collection' => 'directus_settings', 'field' => 'project_logo']
             ));
@@ -157,11 +186,13 @@ class UpdateDirectusSettings extends AbstractMigration
                 $this->getAdapter(),
                 'directus_fields',
                 [
-                    'width' => 'half',
                     'options' => json_encode([
                         'iconRight' => 'keyboard_tab'
                     ]),
-                    'note' => 'Default max amount of items that\'s returned at a time in the API',
+                    'locked' => 1,
+                    'required' => 1,
+                    'width' => 'half',
+                    'note' => 'Default item count in API and App responses',
                     'sort' => 11
                 ],
                 ['collection' => 'directus_settings', 'field' => 'default_limit']
@@ -173,9 +204,10 @@ class UpdateDirectusSettings extends AbstractMigration
                 $this->getAdapter(),
                 'directus_fields',
                 [
-                    'width' => 'half-space',
-                    'sort' => 6,
+                    'locked' => 1,
                     'note' => 'NULL values are sorted last',
+                    'width' => 'half',
+                    'sort' => 12
                 ],
                 ['collection' => 'directus_settings', 'field' => 'sort_null_last']
             ));
@@ -189,9 +221,11 @@ class UpdateDirectusSettings extends AbstractMigration
                     'options' => json_encode([
                         'iconRight' => 'timer'
                     ]),
+                    'locked' => 1,
+                    'required' => 1,
+                    'width' => 'half',
                     'note' => 'Minutes before idle users are signed out',
-                    'sort' => 22,
-                    'width' => 'half'
+                    'sort' => 22
                 ],
                 ['collection' => 'directus_settings', 'field' => 'auto_sign_out']
             ));
@@ -205,7 +239,9 @@ class UpdateDirectusSettings extends AbstractMigration
                     'options' => json_encode([
                         'placeholder' => 'Allowed dimensions for thumbnails (eg: 200x200)'
                     ]),
+                    'locked' => 1,
                     'width' => 'full',
+                    'note' => 'Allowed dimensions for thumbnails.',
                     'sort' => 34
                 ],
                 ['collection' => 'directus_settings', 'field' => 'thumbnail_dimensions']
@@ -270,7 +306,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
         
-        if($this->checkFieldExist('directus_settings', 'youtube_api')){     
+        if($this->checkFieldExist('directus_settings', 'youtube_api_key')){     
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -278,6 +314,7 @@ class UpdateDirectusSettings extends AbstractMigration
                     'options' => json_encode([
                         'iconRight' => 'videocam'
                     ]),
+                    'locked' => 1,
                     'width' => 'half',
                     'note' => 'Allows fetching more YouTube Embed info',
                     'sort' => 39
@@ -291,7 +328,16 @@ class UpdateDirectusSettings extends AbstractMigration
                 $this->getAdapter(),
                 'directus_fields',
                 [
-                'width' => 'half'
+                    'locked' => 1,
+                    'width' => 'half',
+                    'note' => 'File-system naming convention for uploads',
+                    'sort' => 31,
+                    'options' => json_encode([
+                        'choices' => [
+                            'uuid' => 'File Hash (Obfuscated)',
+                            'file_name' => 'File Name (Readable)'
+                        ]
+                    ])
                 ],
                 ['collection' => 'directus_settings', 'field' => 'file_naming']
             ));
@@ -301,8 +347,15 @@ class UpdateDirectusSettings extends AbstractMigration
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'login_attempts_allowed',
-                'type' => 'integer',
-                'interface' => 'numeric'
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+                'interface' => 'numeric',
+                'options' => json_encode([
+                    'iconRight' => 'lock'
+                ]),
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'Failed login attempts before suspending users',
+                'sort' => 23
             ])->save();
         }
         if($this->checkFieldExist('directus_settings', 'login_attempts_allowed')){        
@@ -322,7 +375,12 @@ class UpdateDirectusSettings extends AbstractMigration
                 'field' => 'file_mimetype_whitelist',
                 'type' => 'array',
                 'interface' => 'tags',
-                'options'   => json_encode(['placeholder' => 'Type a file mimetype and then hit enter or comma.'])
+                'options' => json_encode([
+                    'placeholder' => 'Enter a file mimetype then hit enter (eg: image/jpeg)'
+                ]),
+                'locked' => 1,
+                'width' => 'full',
+                'sort' => 33
             ])->save();
         }
 
@@ -332,8 +390,13 @@ class UpdateDirectusSettings extends AbstractMigration
                 'field' => 'file_max_size',
                 'type' => 'string',
                 'interface' => 'text-input',
-                'options'   => json_encode(['placeholder' => 'i.e. 10KB or 10MB or 10GB']),
-                'note' => 'i.e. 10KB ,10MB ,10GB.',
+                'options' => json_encode([
+                    'placeholder' => 'eg: 4MB',
+                    'iconRight' => 'storage'
+                ]),
+                'locked' => 1,
+                'width' => 'half',
+                'sort' => 32
             ])->save();
         }
         if($this->checkFieldExist('directus_settings', 'file_max_size')){   
