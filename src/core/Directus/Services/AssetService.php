@@ -120,14 +120,14 @@ class AssetService extends AbstractService
         }
         
         $otherParams=$this->thumbnailParams;
-        unset($otherParams['width'],$otherParams['height'],$otherParams['fit'],
-              $otherParams['quality'],$otherParams['format'],$otherParams['thumbnailFileName']);
+         unset($otherParams['w'],$otherParams['h'],$otherParams['f'],
+              $otherParams['q'],$otherParams['format'],$otherParams['thumbnailFileName']);
         if(isset($this->thumbnailParams['key'])) {
           unset($otherParams['key']);
         }
         
-        $this->thumbnailDir = 'w'.$this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
-                              ',f' . $this->thumbnailParams['fit'] . ',q' . $this->thumbnailParams['quality'];
+        $this->thumbnailDir = 'w'.$this->thumbnailParams['w'] . ',h' . $this->thumbnailParams['h'] .
+                              ',f' . $this->thumbnailParams['f'] . ',q' . $this->thumbnailParams['q'];
         
         try {
             $image=$this->getExistingThumbnail();
@@ -166,10 +166,10 @@ class AssetService extends AbstractService
         {
             $this->validate(
                 [
-                    'width'     =>   isset($params['width']) ? $params['width'] : '',
-                    'height'    =>   isset($params['height']) ? $params['height'] : '',
-                    'quality'   =>   isset($params['quality']) ? $params['quality'] : '',
-                    'fit'       =>   isset($params['fit']) ? $params['fit'] : ''
+                    'width'     =>   isset($params['w']) ? $params['w'] : '',
+                    'height'    =>   isset($params['h']) ? $params['h'] : '',
+                    'quality'   =>   isset($params['q']) ? $params['q'] : '',
+                    'fit'       =>   isset($params['f']) ? $params['f'] : ''
                 ],
                 [
                     'width'     =>  'required|numeric',
@@ -180,47 +180,46 @@ class AssetService extends AbstractService
            
         }
         
-         $systemThumb = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist_system'),true);
+        $systemThumb = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist_system'),true);
         $whitelistThumb = json_decode(ArrayUtils::get($this->getConfig(), 'thumbnail_whitelist'),true);
         $thumbnailWhitelist = !empty($whitelistThumb) ? array_merge($systemThumb, $whitelistThumb) : $systemThumb;
-
             
-            if(!empty($thumbnailWhitelist))
-            {
-                $result=false;
-                foreach($thumbnailWhitelist as $key=>$value) {
-                    if(isset($params['key'])) {
-                        if($value['key'] == $params['key']) {
-                            $result=true;
-                            $params=[
-                                'width'=>$value['width'],
-                                'height' => $value['height'],
-                                'quality' => $value['quality'],
-                                'fit' => $value['fit'],
-                                'key' => $params['key']
-                            ];
-                        }
-                    }
-                    else {
-                        if($value['width'] == $params['width'] && $value['height'] == $params['height'] &&
-                           $value['fit'] == $params['fit'] &&$value['quality'] == $params['quality'])
-                        {
-                            $result = true;
-                        }
+        if(!empty($thumbnailWhitelist))
+        {
+            $result=false;
+            foreach($thumbnailWhitelist as $key=>$value) {
+                if(isset($params['key'])) {
+                    if($value['key'] == $params['key']) {
+                        $result=true;
+                        $params=[
+                             'w'=>$value['width'],
+                            'h' => $value['height'],
+                            'q' => $value['quality'],
+                            'f' => $value['fit'],
+                            'key' => $params['key']
+                        ];
                     }
                 }
-                if(!$result){
-                    if(isset($params['key'])){
-                        throw new Exception(sprintf("The key don't match with the System Thumbnail Whitelist."));
-                    }else{
-                        throw new Exception(sprintf("The params don't match with the whitelisted thumbnails."));
+                else {
+                    if($value['width'] == $params['width'] && $value['height'] == $params['height'] &&
+                       $value['fit'] == $params['fit'] &&$value['quality'] == $params['quality'])
+                    {
+                        $result = true;
                     }
                 }
             }
-        $this->thumbnailParams['fit']= filter_var($params['fit'], FILTER_SANITIZE_STRING);
-        $this->thumbnailParams['height']= filter_var($params['height'], FILTER_SANITIZE_STRING);
-        $this->thumbnailParams['quality']= filter_var($params['quality'], FILTER_SANITIZE_STRING);
-        $this->thumbnailParams['width']= filter_var($params['width'], FILTER_SANITIZE_STRING);
+            if(!$result){
+                if(isset($params['key'])){
+                    throw new Exception(sprintf("The key don't match with the System Thumbnail Whitelist."));
+                }else{
+                    throw new Exception(sprintf("The params don't match with the whitelisted thumbnails."));
+                }
+            }
+        }
+          $this->thumbnailParams['fit']= filter_var($params['f'], FILTER_SANITIZE_STRING);
+        $this->thumbnailParams['height']= filter_var($params['h'], FILTER_SANITIZE_STRING);
+        $this->thumbnailParams['quality']= filter_var($params['q'], FILTER_SANITIZE_STRING);
+        $this->thumbnailParams['width']= filter_var($params['w'], FILTER_SANITIZE_STRING);
 
         if(isset($params['key'])){
             $this->thumbnailParams['key']= filter_var($params['key'], FILTER_SANITIZE_STRING);
