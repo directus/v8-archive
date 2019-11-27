@@ -120,14 +120,15 @@ class AssetService extends AbstractService
         }
         
         $otherParams=$this->thumbnailParams;
-         unset($otherParams['w'],$otherParams['h'],$otherParams['f'],
-              $otherParams['q'],$otherParams['format'],$otherParams['thumbnailFileName']);
+          unset($otherParams['width'],$otherParams['height'],$otherParams['fit'],
+              $otherParams['quality'],$otherParams['format'],$otherParams['thumbnailFileName']);
         if(isset($this->thumbnailParams['key'])) {
           unset($otherParams['key']);
         }
         
-        $this->thumbnailDir = 'w'.$this->thumbnailParams['w'] . ',h' . $this->thumbnailParams['h'] .
-                              ',f' . $this->thumbnailParams['f'] . ',q' . $this->thumbnailParams['q'];
+        $this->thumbnailDir = 'w'.$this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
+                              ',f' . $this->thumbnailParams['fit'] . ',q' . $this->thumbnailParams['quality'];
+        
         
         try {
             $image=$this->getExistingThumbnail();
