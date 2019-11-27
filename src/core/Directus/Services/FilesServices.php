@@ -124,7 +124,7 @@ class FilesServices extends AbstractService
         $files->delete($file);
 
         // Delete file record
-        return $tableGateway->deleteRecord($id);
+        return $tableGateway->deleteRecord($id,$this->getCRUDParams($params));
     }
 
     public function findAll(array $params = [])
