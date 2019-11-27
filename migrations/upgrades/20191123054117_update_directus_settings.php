@@ -25,7 +25,7 @@ class UpdateDirectusSettings extends AbstractMigration
                 'name' => 'idx_key'
             ]);
         }
-        
+
         if ($table->hasColumn('value')) {
             $table->changeColumn('value', 'text', [
                 'null' => true
@@ -54,9 +54,9 @@ class UpdateDirectusSettings extends AbstractMigration
                 'sort' => 2
             ])->save();
         }
-         
 
-        if(!$this->checkFieldExist('directus_settings', 'project_name')){     
+
+        if(!$this->checkFieldExist('directus_settings', 'project_name')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'project_name',
@@ -73,7 +73,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ])->save();
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'default_limit')){     
+        if(!$this->checkFieldExist('directus_settings', 'default_limit')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'default_limit',
@@ -82,7 +82,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ])->save();
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'sort_null_last')){     
+        if(!$this->checkFieldExist('directus_settings', 'sort_null_last')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'sort_null_last',
@@ -91,7 +91,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ])->save();
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'auto_sign_out')){     
+        if(!$this->checkFieldExist('directus_settings', 'auto_sign_out')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'auto_sign_out',
@@ -100,7 +100,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ])->save();
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'youtube_api_key')){     
+        if(!$this->checkFieldExist('directus_settings', 'youtube_api_key')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'youtube_api_key',
@@ -108,9 +108,9 @@ class UpdateDirectusSettings extends AbstractMigration
                 'interface' => 'text-input',
             ])->save();
         }
-            
+
         // Updating Settings Table
-        if($this->checkFieldExist('directus_settings', 'data_divider')){     
+        if($this->checkFieldExist('directus_settings', 'data_divider')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -121,7 +121,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'security_divider')){     
+        if($this->checkFieldExist('directus_settings', 'security_divider')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -129,10 +129,10 @@ class UpdateDirectusSettings extends AbstractMigration
                     'hidden_browse' => 1,
                 ],
                 ['collection' => 'directus_settings', 'field' => 'security_divider']
-            )); 
+            ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'files_divider')){     
+        if($this->checkFieldExist('directus_settings', 'files_divider')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -152,7 +152,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'project_name')){     
+        if($this->checkFieldExist('directus_settings', 'project_name')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -168,7 +168,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'project_logo')){     
+        if($this->checkFieldExist('directus_settings', 'project_logo')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -182,7 +182,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'default_limit')){     
+        if($this->checkFieldExist('directus_settings', 'default_limit')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -200,7 +200,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'sort_null_last')){     
+        if($this->checkFieldExist('directus_settings', 'sort_null_last')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -214,7 +214,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'auto_sign_out')){     
+        if($this->checkFieldExist('directus_settings', 'auto_sign_out')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -232,7 +232,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'thumbnail_whitelist')){     
+        if(!$this->checkFieldExist('directus_settings', 'thumbnail_whitelist')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_whitelist',
@@ -266,7 +266,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ])->save();
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'thumbnail_whitelist_system')){     
+        if(!$this->checkFieldExist('directus_settings', 'thumbnail_whitelist_system')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'thumbnail_whitelist_system',
@@ -277,8 +277,8 @@ class UpdateDirectusSettings extends AbstractMigration
                 'sort' => 34
             ])->save();
         }
-        
-        if($this->checkFieldExist('directus_settings', 'youtube_api_key')){     
+
+        if($this->checkFieldExist('directus_settings', 'youtube_api_key')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -295,7 +295,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'login_attempts_allowed')){     
+        if(!$this->checkFieldExist('directus_settings', 'login_attempts_allowed')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'login_attempts_allowed',
@@ -310,7 +310,7 @@ class UpdateDirectusSettings extends AbstractMigration
                 'sort' => 23
             ])->save();
         }
-        if($this->checkFieldExist('directus_settings', 'login_attempts_allowed')){        
+        if($this->checkFieldExist('directus_settings', 'login_attempts_allowed')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -321,7 +321,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'file_mimetype_whitelist')){     
+        if(!$this->checkFieldExist('directus_settings', 'file_mimetype_whitelist')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'file_mimetype_whitelist',
@@ -336,7 +336,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ])->save();
         }
 
-        if($this->checkFieldExist('directus_settings', 'file_mimetype_whitelist')){   
+        if($this->checkFieldExist('directus_settings', 'file_mimetype_whitelist')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -348,7 +348,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'file_max_size')){     
+        if(!$this->checkFieldExist('directus_settings', 'file_max_size')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'file_max_size',
@@ -363,8 +363,8 @@ class UpdateDirectusSettings extends AbstractMigration
                 'sort' => 31
             ])->save();
         }
-       
-        if($this->checkFieldExist('directus_settings', 'file_max_size')){   
+
+        if($this->checkFieldExist('directus_settings', 'file_max_size')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -376,7 +376,7 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if(!$this->checkFieldExist('directus_settings', 'password_policy')){     
+        if(!$this->checkFieldExist('directus_settings', 'password_policy')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
                 'field' => 'password_policy',
@@ -386,8 +386,8 @@ class UpdateDirectusSettings extends AbstractMigration
                 'options'   => ['choices' => ['' => 'None', '/^.{8,}$/' => 'Weak', '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong']]
             ])->save();
         }
-        
-        if($this->checkFieldExist('directus_settings', 'password_policy')){     
+
+        if($this->checkFieldExist('directus_settings', 'password_policy')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -398,15 +398,16 @@ class UpdateDirectusSettings extends AbstractMigration
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'color')){     
+        if($this->checkFieldExist('directus_settings', 'color')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
                 [
                     'width' => 'half',
                     'note' => 'The color that best fits your brand.',
-                    'sort' => 2,
-                    'field' => 'project_color'
+                    'sort' => 4,
+                    'field' => 'project_color',
+                    'interface' => 'color'
                 ],
                 ['collection' => 'directus_settings', 'field' => 'color']
             ));
@@ -417,13 +418,13 @@ class UpdateDirectusSettings extends AbstractMigration
                 $this->getAdapter(),
                 'directus_settings',
                 [
-                'key' => 'project_color'
+                    'key' => 'project_color'
                 ],
                 ['key' => 'color']
             ));
         }
 
-        if($this->checkFieldExist('directus_settings', 'logo')){     
+        if($this->checkFieldExist('directus_settings', 'logo')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
@@ -473,7 +474,7 @@ class UpdateDirectusSettings extends AbstractMigration
         if (!$this->checkSettingExist('thumbnail_dimensions')) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_dimensions";');
         }
- 
+
         if($this->checkFieldExist('directus_settings','thumbnail_dimensions')){
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_dimensions";');
         }
@@ -481,7 +482,7 @@ class UpdateDirectusSettings extends AbstractMigration
         if (!$this->checkSettingExist('thumbnail_quality_tags')) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_quality_tags";');
         }
- 
+
         if($this->checkFieldExist('directus_settings','thumbnail_quality_tags')){
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_quality_tags";');
         }
@@ -489,7 +490,7 @@ class UpdateDirectusSettings extends AbstractMigration
         if (!$this->checkSettingExist('thumbnail_actions')) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_actions";');
         }
- 
+
         if($this->checkFieldExist('directus_settings','thumbnail_actions')){
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_actions";');
         }
@@ -497,7 +498,7 @@ class UpdateDirectusSettings extends AbstractMigration
         if (!$this->checkSettingExist('thumbnail_cache_ttl')) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_cache_ttl";');
         }
- 
+
         if($this->checkFieldExist('directus_settings','thumbnail_cache_ttl')){
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_cache_ttl";');
         }
@@ -505,7 +506,7 @@ class UpdateDirectusSettings extends AbstractMigration
         if (!$this->checkSettingExist('thumbnail_not_found_location')) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_not_found_location";');
         }
- 
+
         if($this->checkFieldExist('directus_settings','thumbnail_not_found_location')){
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "thumbnail_not_found_location";');
         }
@@ -513,7 +514,7 @@ class UpdateDirectusSettings extends AbstractMigration
         if (!$this->checkSettingExist('file_naming')) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "file_naming";');
         }
- 
+
         if($this->checkFieldExist('directus_settings','file_naming')){
             $this->execute('DELETE FROM `directus_fields` where `collection` = "directus_settings" and  `field` = "file_naming";');
         }
@@ -557,7 +558,7 @@ class UpdateDirectusSettings extends AbstractMigration
                 'sort' => 8
             ]
         ];
-        
+
         foreach($data as $value){
             if(!$this->checkFieldExist($value['collection'], $value['field'])){
                 $fileds = $this->table('directus_fields');

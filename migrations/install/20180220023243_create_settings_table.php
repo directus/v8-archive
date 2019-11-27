@@ -68,7 +68,7 @@ class CreateSettingsTable extends AbstractMigration
                 'collection' => 'directus_settings',
                 'field' => 'project_color',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'color-palette',
+                'interface' => 'color',
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Color for login background and App\'s logo',
@@ -364,7 +364,7 @@ class CreateSettingsTable extends AbstractMigration
                 ])
             ]
           ];
-      
+
           $groups = $this->table('directus_settings');
           $groups->insert($data)->save();
     }
