@@ -542,6 +542,19 @@ class CoreServicesProvider
 
                 return $payload;
             });
+            $emitter->addFilter('item.read.directus_activity', function (Payload $payload) use ($addFilesUrl, $container) {
+
+                $rows = $payload->getData();
+
+                foreach ($rows as &$row) {
+                    if(isset($row['ip']) && in_array($row['ip'], ['127.0.0.1','::1'])){
+                        $row['ip'] = 'localhost';
+                    }
+                }
+                $payload->replace($rows);
+
+                return $payload;
+            });
             // -------------------------------------------------------------------------------------------
             // Add file url and thumb url
             $emitter->addFilter('item.read.directus_files', function (Payload $payload) use ($addFilesUrl, $container) {
