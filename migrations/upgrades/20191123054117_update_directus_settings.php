@@ -51,7 +51,7 @@ class UpdateDirectusSettings extends AbstractMigration
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'External link for the App\'s top-left logo',
-                'sort' => 2
+                'sort' => 24
             ])->save();
         }
 
@@ -106,6 +106,7 @@ class UpdateDirectusSettings extends AbstractMigration
                 'field' => 'youtube_api_key',
                 'type' => 'string',
                 'interface' => 'text-input',
+                'width' => 'full'
             ])->save();
         }
 
@@ -287,7 +288,7 @@ class UpdateDirectusSettings extends AbstractMigration
                         'iconRight' => 'videocam'
                     ]),
                     'locked' => 1,
-                    'width' => 'half',
+                    'width' => 'full',
                     'note' => 'Allows fetching more YouTube Embed info',
                     'sort' => 39
                 ],
@@ -331,7 +332,7 @@ class UpdateDirectusSettings extends AbstractMigration
                     'placeholder' => 'Enter a file mimetype then hit enter (eg: image/jpeg)'
                 ]),
                 'locked' => 1,
-                'width' => 'full',
+                'width' => 'half',
                 'sort' => 32
             ])->save();
         }
@@ -341,10 +342,10 @@ class UpdateDirectusSettings extends AbstractMigration
                 $this->getAdapter(),
                 'directus_fields',
                 [
-                  'width' => 'full',
+                  'width' => 'half',
                   'sort' => 32
                 ],
-                ['collection' => 'directus_settings', 'field' => 'file_max_size']
+                ['collection' => 'directus_settings', 'field' => 'file_mimetype_whitelist']
             ));
         }
 
@@ -381,9 +382,16 @@ class UpdateDirectusSettings extends AbstractMigration
                 'collection' => 'directus_settings',
                 'field' => 'password_policy',
                 'type' => 'string',
-                'note' => 'Weak : Minimum length 8; Strong :  1 small-case letter, 1 capital letter, 1 digit, 1 special character and the length should be minimum 8',
+                'note' => 'Weak: Minimum length 8; Strong: 1 small-case letter, 1 capital letter, 1 digit, 1 special character and the length should be minimum 8',
                 'interface' => 'dropdown',
-                'options'   => ['choices' => ['' => 'None', '/^.{8,}$/' => 'Weak', '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong']]
+                'options' => json_encode([
+                    'choices' => [
+                        '' => 'None',
+                        '/^.{8,}$/' => 'Weak',
+                        '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong'
+                    ]
+                ]),
+                'sort' => 24
             ])->save();
         }
 
@@ -392,7 +400,15 @@ class UpdateDirectusSettings extends AbstractMigration
                 $this->getAdapter(),
                 'directus_fields',
                 [
-                  'width' => 'half',
+                    'width' => 'half',
+                    'sort' => 24,
+                    'options' => json_encode([
+                        'choices' => [
+                            '' => 'None',
+                            '/^.{8,}$/' => 'Weak',
+                            '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong'
+                        ]
+                    ]),
                 ],
                 ['collection' => 'directus_settings', 'field' => 'password_policy']
             ));
@@ -410,17 +426,6 @@ class UpdateDirectusSettings extends AbstractMigration
                     'interface' => 'color'
                 ],
                 ['collection' => 'directus_settings', 'field' => 'color']
-            ));
-        }
-
-        if ($this->checkSettingExist('project_color')) {
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_settings',
-                [
-                    'key' => 'project_color'
-                ],
-                ['key' => 'color']
             ));
         }
 
