@@ -201,8 +201,8 @@ class AssetService extends AbstractService
                     }
                 }
                 else {
-                    if($value['width'] == $params['width'] && $value['height'] == $params['height'] &&
-                       $value['fit'] == $params['fit'] &&$value['quality'] == $params['quality'])
+                    if($value['width'] == $params['w'] && $value['height'] == $params['h'] &&
+                       $value['fit'] == $params['f'] &&$value['quality'] == $params['q'])
                     {
                         $result = true;
                     }
@@ -216,7 +216,7 @@ class AssetService extends AbstractService
                 }
             }
         }
-          $this->thumbnailParams['fit']= filter_var($params['f'], FILTER_SANITIZE_STRING);
+        $this->thumbnailParams['fit']= filter_var($params['f'], FILTER_SANITIZE_STRING);
         $this->thumbnailParams['height']= filter_var($params['h'], FILTER_SANITIZE_STRING);
         $this->thumbnailParams['quality']= filter_var($params['q'], FILTER_SANITIZE_STRING);
         $this->thumbnailParams['width']= filter_var($params['w'], FILTER_SANITIZE_STRING);
