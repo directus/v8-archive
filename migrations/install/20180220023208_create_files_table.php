@@ -104,7 +104,7 @@ class CreateFilesTable extends AbstractMigration
         ]);
 
         $table->create();
-        
+
         $data = [
             [
                 'collection' => 'directus_files',
@@ -284,10 +284,24 @@ class CreateFilesTable extends AbstractMigration
                 'collection' => 'directus_files',
                 'field' => 'metadata',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
-                'interface' => 'json',
+                'interface' => 'key-value',
                 'locked' => 1,
                 'sort' => 14,
-                'width' => 'full'
+                'width' => 'full',
+                'options' => json_encode([
+                    'keyInterface' => 'text-input',
+                    'keyDataType' => 'string',
+                    'keyOptions' => [
+                        'monospace' => true,
+                        'placeholder' => 'Key'
+                    ],
+                    'valueInterface' => 'text-input',
+                    'valueDataType' => 'string',
+                    'valueOptions' => [
+                        'monospace' => true,
+                        'placeholder' => 'Value'
+                    ]
+                ])
             ],
             [
                 'collection' => 'directus_files',

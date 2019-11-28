@@ -252,6 +252,18 @@ class UpdateDirectusSettings extends AbstractMigration
                             'type' => 'string'
                         ],
                         [
+                            'field' => 'fit',
+                            'interface' => 'dropdown',
+                            'width' => 'half',
+                            'type' => 'string',
+                            'options' => [
+                                'choices' => [
+                                    'crop' => 'Crop (forces exact size)',
+                                    'contain' => 'Contain (preserve aspect ratio)'
+                                ]
+                            ]
+                        ],
+                        [
                             'field' => 'width',
                             'interface' => 'numeric',
                             'width' => 'half',
@@ -262,18 +274,6 @@ class UpdateDirectusSettings extends AbstractMigration
                             'interface' => 'numeric',
                             'width' => 'half',
                             'type' => 'integer'
-                        ],
-                        [
-                            'field' => 'fit',
-                            'interface' => 'dropdown',
-                            'width' => 'half',
-                            'type' => 'string',
-                            'options' => [
-                                'choices' => [
-                                    'crop' => 'Cover (Crop to fit)',
-                                    'contain' => 'Contain (Preserve aspect ratio)'
-                                ]
-                            ]
                         ],
                         [
                             'field' => 'quality',
