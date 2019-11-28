@@ -117,7 +117,7 @@ class CreateFilesTable extends AbstractMigration
             [
                 'collection' => 'directus_files',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRIN,
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
