@@ -30,7 +30,7 @@ class UpdateDirectusFilesField extends AbstractMigration
                 'hidden_browse' => 1
             ])->save();
         }
-        
+
         if($this->checkFieldExist('directus_files', 'filename')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -41,7 +41,7 @@ class UpdateDirectusFilesField extends AbstractMigration
                 ['collection' => 'directus_files', 'field' => 'filename']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_files', 'width')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -50,9 +50,9 @@ class UpdateDirectusFilesField extends AbstractMigration
                   'sort' => 10
                 ],
                 ['collection' => 'directus_files', 'field' => 'width']
-            ));      
+            ));
         }
-        
+
         if($this->checkFieldExist('directus_files', 'height')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -61,22 +61,22 @@ class UpdateDirectusFilesField extends AbstractMigration
                   'sort' => 11
                 ],
                 ['collection' => 'directus_files', 'field' => 'height']
-            ));      
+            ));
         }
-        
+
         if($this->checkFieldExist('directus_files', 'duration')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
                 'directus_fields',
                 [
-                    'readonly' => 0,
+                    'readonly' => 1,
                     'note' => 'Duration must be in seconds',
                     'sort' => 12
                 ],
                 ['collection' => 'directus_files', 'field' => 'duration']
-            ));      
+            ));
         }
-        
+
         if($this->checkFieldExist('directus_files', 'filesize')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -87,7 +87,7 @@ class UpdateDirectusFilesField extends AbstractMigration
                 ['collection' => 'directus_files', 'field' => 'filesize']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_files', 'uploaded_on')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -97,9 +97,9 @@ class UpdateDirectusFilesField extends AbstractMigration
                 ],
                 ['collection' => 'directus_files', 'field' => 'uploaded_on']
             ));
-      
+
         }
-        
+
         if($this->checkFieldExist('directus_files', 'code')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -110,7 +110,7 @@ class UpdateDirectusFilesField extends AbstractMigration
                 ['collection' => 'directus_files', 'interface' => 'code']
             ));
         }
-        
+
         if($this->checkFieldExist('directus_files', 'uploaded_by')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -159,7 +159,7 @@ class UpdateDirectusFilesField extends AbstractMigration
                 ],
                 ['collection' => 'directus_files', 'field' => 'metadata']
             ));
-        }  
+        }
 
         if (!$filesTable->hasColumn('private_hash')) {
             $filesTable->addColumn('private_hash', 'string', [
@@ -169,7 +169,7 @@ class UpdateDirectusFilesField extends AbstractMigration
             ])->save();
         }
 
-        if(!$this->checkFieldExist('directus_files', 'private_hash')){     
+        if(!$this->checkFieldExist('directus_files', 'private_hash')){
             $fieldsTable->insert([
                 'collection' => 'directus_files',
                 'field' => 'private_hash',
