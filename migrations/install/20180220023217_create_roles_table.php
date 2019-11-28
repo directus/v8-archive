@@ -99,8 +99,11 @@ class CreateRolesTable extends AbstractMigration
             [
                 'collection' => 'directus_roles',
                 'field' => 'ip_whitelist',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'textarea',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
+                'interface' => 'tags',
+                'options' => json_encode([
+                    '' => 'Add an IP address...'
+                ]),
                 'locked' => 1
             ],
             [
