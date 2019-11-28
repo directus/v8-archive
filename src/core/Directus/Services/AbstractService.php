@@ -236,16 +236,13 @@ abstract class AbstractService
                 $isRequired = false;
             }
 
-            if(($field->getName() !== "id" && $collectionName !== 'directus_file'))
+            if ($isRequired || (!$field->isNullable() && $field->getDefaultValue() == null))
             {
-                if ($isRequired || (!$field->isNullable() && $field->getDefaultValue() == null))
-                {
-                    $columnConstraints[] = 'required';
-                } else if (in_array($field->getName(), $fields) && !$field->isNullable()) {
-                    $columnConstraints[] = 'notnullable';
-                } 
-            }
-           
+                $columnConstraints[] = 'required';
+            } else if (in_array($field->getName(), $fields) && !$field->isNullable()) {
+                $columnConstraints[] = 'notnullable';
+            } 
+            
             if (DataTypes::isArray($field->getType())) {
                 $columnConstraints[] = 'array';
             } else if (DataTypes::isJson($field->getType())) {

@@ -37,6 +37,11 @@ class AssetService extends AbstractService
      */
     protected $fileName;
 
+     /**
+     * @var string
+     */
+    protected $fileNameDownlaod;
+
     /**
      * Main Filesystem
      *
@@ -65,7 +70,7 @@ class AssetService extends AbstractService
     {
         $tableGateway = $this->createTableGateway($this->collection);
         $select = new Select($this->collection);
-        $select->columns(['filename','id']);
+        $select->columns(['filename_disk','filename_download','id']);
         $select->where([
            'private_hash' => $fileHashId
         ]);
@@ -77,21 +82,21 @@ class AssetService extends AbstractService
         }
         $file = $result->current()->toArray();
 
-        $ext = pathinfo($file['filename'], PATHINFO_EXTENSION);
-        $uploadedFileName = $file['id'].'.'.$ext;
-
+        $ext = pathinfo($file['filename_disk'], PATHINFO_EXTENSION);
+      
         if(count($params) == 0) {
            $url=get_file_root_url();
-           $img = $this->filesystem->read($uploadedFileName);
+           $img = $this->filesystem->read($file['filename_disk']);
            $result=[];
-           $result['mimeType']=Image::make($this->filesystem->read($uploadedFileName))->mime();
+           $result['mimeType']=Image::make($this->filesystem->read($file['filename_disk']))->mime();
            $result['file']=isset($img) && $img ? $img : null;
-           $result['filename']=$file['filename'];
+           $result['filename']=$file['filename_download'];
 
            return $result;
         }
         else {
-           $this->fileName=$uploadedFileName;
+           $this->fileName=$file['filename_disk'];
+           $this->fileNameDownlaod = $file['filename_download'];
            try {
                return $this->getThumbnail($params);
            }
@@ -114,16 +119,17 @@ class AssetService extends AbstractService
         $this->thumbnailParams=$params;
 
         $this->validateThumbnailParams($params);
-
+      
         if (! $this->filesystem->exists($this->fileName)) {
             throw new Exception($this->fileName . ' does not exist.');
         }
 
         $otherParams=$this->thumbnailParams;
-          unset($otherParams['width'],$otherParams['height'],$otherParams['fit'],
-              $otherParams['quality'],$otherParams['format'],$otherParams['thumbnailFileName']);
+
+        ArrayUtils::omit($otherParams, ['width','height','fit','format','thumbnailFileName','quality']);
+
         if(isset($this->thumbnailParams['key'])) {
-          unset($otherParams['key']);
+            ArrayUtils::omit($otherParams,['key']);
         }
 
         $this->thumbnailDir = 'w'.$this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
@@ -143,14 +149,13 @@ class AssetService extends AbstractService
             }
             $result['mimeType']=$this->getThumbnailMimeType($this->thumbnailDir,$this->fileName);
             $result['file']=$image;
-            $result['filename']=$this->fileName;
+            $result['filename']=$this->fileNameDownlaod;
             return $result;
         }
         catch (Exception $e) {
-           return http_response_code(404);
+            throw $e;
         }
     }
-
 
     /**
      * validate params and file extensions and return it
@@ -195,7 +200,7 @@ class AssetService extends AbstractService
             }
 
             if ($exists == false) {
-                throw new Exception(sprintf("Key doesn’t exist."));
+                throw new Exception(sprintf("Key doesn't exist."));
             }
 
             $this->thumbnailParams['key']= filter_var($params['key'], FILTER_SANITIZE_STRING);
@@ -236,7 +241,7 @@ class AssetService extends AbstractService
             }
 
             if ($exists == false) {
-                throw new Exception(sprintf("The params don't match the whitelisted thumbnails."));
+                throw new Exception(sprintf("The params don't match the asset whitelist."));
             }
         }
 
