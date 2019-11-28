@@ -14,6 +14,7 @@ use Directus\Exception\ProjectAlreadyExistException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
+use Directus\Util\StringUtils;
 
 class ProjectService extends AbstractService
 {
@@ -64,8 +65,18 @@ class ProjectService extends AbstractService
         $basePath = \Directus\get_app_base_path();
         $scannedDirectory = \Directus\scan_folder($basePath.'/config');
 
+        $projectNames = [];
+
+        // Filter out all config files that start with `_`. Leave the file in if it's only a single character filename
+        // This ensures backwards compatibility with Directus 7
+        foreach ($scannedDirectory as $fileName) {
+            if (strlen($fileName) > 4 && StringUtils::startsWith($fileName, '_') === false) {
+                $projectNames[] = $fileName;
+            }
+        }
+
         $superadminFilePath = $basePath.'/config/__api.json';
-        if(empty($scannedDirectory)){
+        if(empty($projectNames)){
             $configStub = InstallerUtils::createJsonFileContent($data);
             file_put_contents($superadminFilePath, $configStub);
         }else{
@@ -124,7 +135,7 @@ class ProjectService extends AbstractService
     public function delete(Request $request)
     {
         $data = $request->getQueryParams();
-    
+
         $this->validate($data,[
             'super_admin_token' => 'required',
         ]);

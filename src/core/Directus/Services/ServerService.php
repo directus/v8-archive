@@ -6,6 +6,7 @@ use Directus\Application\Application;
 use Directus\Exception\UnauthorizedException;
 use function Directus\get_project_info;
 use Directus\Services\UsersService;
+use Directus\Util\StringUtils;
 
 class ServerService extends AbstractService
 {
@@ -68,10 +69,22 @@ class ServerService extends AbstractService
     public function validateServerInfo($data)
     {
         $basePath = \Directus\get_app_base_path();
+
         $scannedDirectory = \Directus\scan_folder($basePath.'/config');
-        
+
+        $projectNames = [];
+
+        // Filter out all config files that start with `_`. Leave the file in if it's only a single character filename
+        // This ensures backwards compatibility with Directus 7
+        foreach ($scannedDirectory as $fileName) {
+            if (strlen($fileName) > 4 && StringUtils::startsWith($fileName, '_') === false) {
+                $projectNames[] = $fileName;
+            }
+        }
+
         $superadminFilePath = $basePath.'/config/__api.json';
-        if(!empty($scannedDirectory)){
+
+        if(!empty($projectNames)){
             $this->validate($data, [
                 'super_admin_token' => 'required'
             ]);

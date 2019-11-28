@@ -42,19 +42,31 @@ class Server extends Route
             $basePath = \Directus\get_app_base_path();
             $scannedDirectory = \Directus\scan_folder($basePath.'/config');
 
-            $projectNames = [];
-            if (empty($scannedDirectory)) {
+            $configFiles = [];
+
+            // Filter out all config files that start with `_`. Leave the file in if it's only a single character filename
+            // This ensures backwards compatibility with Directus 7
+            foreach ($scannedDirectory as $fileName) {
+                if (strlen($fileName) > 4 && StringUtils::startsWith($fileName, '_') == false) {
+                    $configFiles[] = $fileName;
+                }
+            }
+
+            if (empty($configFiles)) {
                 throw new NotInstalledException('This Directus instance has not been configured. Install via the Directus App (eg: /admin) or read more about configuration at: https://docs.directus.io/getting-started/installation.html#configure');
-            } else {
-                foreach($scannedDirectory as $fileName){
-                     $fileObject = explode(".", $fileName);
-                    //Adding the condition for strlen to provide the support of _ project [v7] and restrict all other's which are start from _
-                     if(!StringUtils::startsWith($fileName, 'private.') &&  (!StringUtils::startsWith($fileName, '_') || strlen($fileObject[0]) == 1)){
-                        $projectNames[] = $fileObject[0];
-                    }
+            }
+
+            // We're re-filtering the list of projects again before returning them. This time we'll fetch out the private
+            // config files. We want to filter out the disabled ones (`_`) so we can correctly return the "No projects installed"
+            // warning above.
+            $projectNames = [];
+            foreach($configFiles as $fileName){
+                if (!StringUtils::startsWith($fileName, 'private.')) {
+                    $projectNames[] = explode('.', $fileName)[0];
                 }
             }
         }
+
         $responseData['data'] = $projectNames;
         return $this->responseWithData($request, $response, $responseData);
     }

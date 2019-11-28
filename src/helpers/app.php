@@ -127,11 +127,14 @@ if (!function_exists('scan_folder')) {
         $projectNames = [];
         $ignoreableFiles = ['.DS_Store','..', '.'];
         $scannedDirectory = array_values(array_diff(scandir($folder), $ignoreableFiles));
-        if(!empty($scannedDirectory)){
-            foreach($scannedDirectory as $fileName){
-                $fileObject = explode(".",$fileName);
-                if(end($fileObject) == "php" ){
-                    $projectNames[] = implode(".",$fileObject);
+        if (!empty($scannedDirectory)) {
+            foreach ($scannedDirectory as $fileName) {
+                $fileObject = explode(".", $fileName);
+
+                if (end($fileObject) == "php") {
+                    if (strlen($fileName) > 4 && StringUtils::startsWith($fileName, '_') === false) {
+                        $projectNames[] = implode(".", $fileObject);
+                    }
                 }
             }
         }

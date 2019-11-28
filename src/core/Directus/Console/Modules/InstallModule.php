@@ -123,8 +123,18 @@ class InstallModule extends ModuleBase
 
         $scannedDirectory = \Directus\scan_folder($this->getBasePath().'/config');
 
+        $projectNames = [];
+
+        // Filter out all config files that start with `_`. Leave the file in if it's only a single character filename
+        // This ensures backwards compatibility with Directus 7
+        foreach ($scannedDirectory as $fileName) {
+            if (strlen($fileName) > 4 && StringUtils::startsWith($fileName, '_') === false) {
+                $projectNames[] = $fileName;
+            }
+        }
+
         $superadminFilePath = $this->getBasePath().'/config/__api.json';
-        if(empty($scannedDirectory)){
+        if(empty($projectNames)){
             $requiredAttributes = ['db_name', 'db_user'];
             $data['super_admin_token'] = StringUtils::randomString(16,false);
         }else{
@@ -139,13 +149,13 @@ class InstallModule extends ModuleBase
                 'Creating config files required: ' . implode(', ', $requiredAttributes)
             );
         }
-        if(empty($scannedDirectory)){
+        if(empty($projectNames)){
             $configStub = InstallerUtils::createJsonFileContent($data);
             file_put_contents($superadminFilePath, $configStub);
         }
         InstallerUtils::createConfig($directusPath, $data, $force);
 
-        if(empty($scannedDirectory)){
+        if(empty($projectNames)){
             echo PHP_EOL . "Make sure to copy the generated Super-Admin password below. You won't be able to see it again!". PHP_EOL;
             echo PHP_EOL . $data['super_admin_token'] . PHP_EOL;
         }
