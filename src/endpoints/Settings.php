@@ -40,7 +40,6 @@ class Settings extends Route
         $this->validateRequestPayload($request);
 
         $payload = $request->getParsedBody();
-        $service->validateThumbnailWhitelist($payload['value'],$payload['key']);
         if (isset($payload[0]) && is_array($payload[0])) {
             return $this->batch($request, $response);
         }
@@ -244,7 +243,6 @@ class Settings extends Route
             $request->getAttribute('id'),
             $request->getQueryParams()
         );
-        $service->validateThumbnailWhitelist($payload['value'],$serviceData['data']['key']);
         /**
          * Get the interface based input
          *
