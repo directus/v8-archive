@@ -77,7 +77,7 @@ if (!function_exists('get_project_config')) {
         }
 
         $configFilePath = InstallerUtils::createConfigPath($basePath, $name);
-        
+
         if (isset($configs[$configFilePath])) {
             return $configs[$configFilePath];
         }
@@ -125,7 +125,7 @@ if (!function_exists('scan_folder')) {
     function scan_folder($folder)
     {
         $projectNames = [];
-        $ignoreableFiles = ['api_sample.php','.DS_Store','..', '.'];
+        $ignoreableFiles = ['.DS_Store','..', '.'];
         $scannedDirectory = array_values(array_diff(scandir($folder), $ignoreableFiles));
         if(!empty($scannedDirectory)){
             foreach($scannedDirectory as $fileName){

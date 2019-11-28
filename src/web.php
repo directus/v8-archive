@@ -71,7 +71,7 @@ try {
 
 $errorReporting = E_ALL;
 $displayErrors = 1;
-if ($app->getConfig()->get('app.env', 'development') === 'production') {
+if ($app->getConfig()->get('env', 'development') === 'production') {
     $displayErrors = $errorReporting = 0;
 }
 

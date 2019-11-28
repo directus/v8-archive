@@ -126,8 +126,8 @@ class CoreServicesProvider
             // TODO: Move log configuration outside "slim app" settings
             $path = $container->get('path_base') . '/logs';
             $config = $container->get('config');
-            if ($config->has('settings.logger.path')) {
-                $path = $config->get('settings.logger.path');
+            if ($config->has('logger.path')) {
+                $path = $config->get('logger.path');
             }
 
             $pathIsStream = $path == 'php://stdout' || $path == 'php://stderr';
@@ -185,7 +185,7 @@ class CoreServicesProvider
             $hookEmitter = $container['hook_emitter'];
 
             return new ErrorHandler($hookEmitter, [
-                'env' => $container->get('config')->get('app.env', 'development')
+                'env' => $container->get('config')->get('env', 'development')
             ]);
         };
 
@@ -681,7 +681,7 @@ class CoreServicesProvider
 
             $emitter->addFilter('item.create:before', $onInsertOrUpdate);
             $emitter->addFilter('item.update:before', $onInsertOrUpdate);
-            
+
             $beforeSavingFiles = function ($payload) use ($container) {
                 $acl = $container->get('acl');
                 if (!$acl->canCreate('directus_files')) {
