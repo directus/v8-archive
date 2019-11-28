@@ -975,7 +975,7 @@ class InstallerUtils
                 'adapter' => 'local',
                 'root' => 'public/uploads/{{project}}/originals',
                 'root_url' => '/uploads/{{project}}/originals',
-                'thumb_root' => 'public/uploads/{{project}}/thumbnails',
+                'thumb_root' => 'public/uploads/{{project}}/generated',
             ],
             'mail' => [
                 'transport' => 'sendmail',
