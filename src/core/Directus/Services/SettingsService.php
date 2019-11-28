@@ -87,7 +87,6 @@ class SettingsService extends AbstractService
         return $this->itemsService->batchDeleteWithIds($this->collection, $ids, $params);
     }
 
-    // Validates the thumbnail whitelist when settings are saved. This ensures that people don't accidentally
     public function validateThumbnailWhitelist($payload,$thumbnailKey) {
         if ($thumbnailKey == 'asset_whitelist' && !empty($payload)) {
             $data = isset($payload[0]) ? $payload : array($payload);

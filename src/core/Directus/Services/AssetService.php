@@ -129,7 +129,6 @@ class AssetService extends AbstractService
         $this->thumbnailDir = 'w'.$this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
                               ',f' . $this->thumbnailParams['fit'] . ',q' . $this->thumbnailParams['quality'];
 
-
         try {
             $image=$this->getExistingThumbnail();
             if (!$image) {
@@ -350,7 +349,9 @@ class AssetService extends AbstractService
     {
         try {
             $img = $this->load();
-            $img->resize($this->thumbnailParams['width'],$this->thumbnailParams['height'], function ($constraint) {});
+            $img->resize($this->thumbnailParams['width'], $this->thumbnailParams['height'], function ($constraint) {
+                $constraint->aspectRatio();
+            });
             $encodedImg = (string) $img->encode($this->thumbnailParams['format'], ($this->thumbnailParams['quality'] ? $this->thumbnailParams['quality'] : null));
             $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailParams['thumbnailFileName'], $encodedImg);
 
