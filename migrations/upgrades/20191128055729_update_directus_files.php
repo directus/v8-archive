@@ -10,7 +10,7 @@ class UpdateDirectusFiles extends AbstractMigration
     {
         $fieldsTable = $this->table('directus_fields');
         $filesTable = $this->table('directus_files');
-        
+
         if($this->checkFieldExist('directus_files', 'filename')){
             $this->execute(\Directus\phinx_update(
                 $this->getAdapter(),
@@ -25,7 +25,7 @@ class UpdateDirectusFiles extends AbstractMigration
         if (!$filesTable->hasColumn('filename_disk')) {
             $filesTable->renameColumn('filename', 'filename_disk');
         }
-    
+
         if (!$filesTable->hasColumn('filename_download')) {
             $filesTable->addColumn('filename_download', 'string', [
                 'limit' => 255,
@@ -33,7 +33,7 @@ class UpdateDirectusFiles extends AbstractMigration
                 'default' => null
             ])->save();
         }
-        if(!$this->checkFieldExist('directus_files', 'filename_download')){     
+        if(!$this->checkFieldExist('directus_files', 'filename_download')){
             $fieldsTable->insert([
                 'collection' => 'directus_files',
                 'field' => 'filename_download',
@@ -61,10 +61,10 @@ class UpdateDirectusFiles extends AbstractMigration
         }
 
         // adds private_hash in directus_files collection for existing data
-        
+
         if ($filesTable->hasColumn('private_hash')) {
             $result= $this->fetchAll('SELECT * FROM directus_files WHERE private_hash is null;');
-            if(count($result > 0)) {
+            if(count($result) > 0) {
                 foreach($result as $key=>$value) {
                     $this->execute(\Directus\phinx_update(
                         $this->getAdapter(),
@@ -74,7 +74,7 @@ class UpdateDirectusFiles extends AbstractMigration
                         ],
                         ['id' => $value['id']]
                     ));
-                } 
+                }
             }
         }
     }
@@ -86,5 +86,5 @@ class UpdateDirectusFiles extends AbstractMigration
         $checkSql = sprintf('SELECT 1 FROM `directus_settings` WHERE `key` = "%s"', $field);
         return $this->query($checkSql)->fetch();
     }
-    
+
 }
