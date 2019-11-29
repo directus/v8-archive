@@ -109,7 +109,7 @@ class RevisionsService extends AbstractService
 
         return $this->getDataAndSetResponseCacheTags(
             [$tableGateway, 'getItems'],
-            [array_merge($params, ['filter' => ['item' => $item, 'collection' => $collection]])]
+            [array_merge_recursive($params, ['filter' => ['item' => $item, 'collection' => $collection]])]
         );
     }
 
