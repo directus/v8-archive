@@ -8,8 +8,8 @@ use Directus\Util\ArrayUtils;
 use Directus\Filesystem\Thumbnail;
 use Directus\Filesystem\Filesystem;
 use Directus\Application\Container;
-use function Directus\get_file_root_url;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Database\Exception\ItemNotFoundException;
 use function Directus\get_directus_thumbnail_settings;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -82,35 +82,14 @@ class AssetService extends AbstractService
         }
         $file = $result->current()->toArray();
 
-        $ext = pathinfo($file['filename_disk'], PATHINFO_EXTENSION);
-      
-        if(count($params) == 0) {
-           $url=get_file_root_url();
-           $img = $this->filesystem->read($file['filename_disk']);
-           $result=[];
-           $result['mimeType']=Image::make($this->filesystem->read($file['filename_disk']))->mime();
-           $result['file']=isset($img) && $img ? $img : null;
-           $result['filename']=$file['filename_download'];
-
-           return $result;
+        $this->fileName=$file['filename_disk'];
+        $this->fileNameDownlaod = $file['filename_download'];
+        try {
+            return $this->getThumbnail($params);
         }
-        else {
-           $this->fileName=$file['filename_disk'];
-           $this->fileNameDownlaod = $file['filename_download'];
-           try {
-               return $this->getThumbnail($params);
-           }
-           catch(Exception $e)
-           {
-               http_response_code(422);
-               echo json_encode([
-                   'error' => [
-                       'code' => 4,
-                       'message' => $e->getMessage()
-                   ]
-               ]);
-               exit(0);
-           }
+        catch(Exception $e)
+        {
+            throw new UnprocessableEntityException(sprintf($e->getMessage()));
         }
     }
 
@@ -122,14 +101,6 @@ class AssetService extends AbstractService
       
         if (! $this->filesystem->exists($this->fileName)) {
             throw new Exception($this->fileName . ' does not exist.');
-        }
-
-        $otherParams=$this->thumbnailParams;
-
-        ArrayUtils::omit($otherParams, ['width','height','fit','format','thumbnailFileName','quality']);
-
-        if(isset($this->thumbnailParams['key'])) {
-            ArrayUtils::omit($otherParams,['key']);
         }
 
         $this->thumbnailDir = 'w'.$this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
@@ -338,6 +309,11 @@ class AssetService extends AbstractService
         $ext = pathinfo($this->fileName, PATHINFO_EXTENSION);
         if (Thumbnail::isNonImageFormatSupported($ext)) {
             $content = Thumbnail::createImageFromNonImage($content);
+            // For non supported file format make default thumbnail with jpeg extension
+            $this->thumbnailParams['thumbnailFileName'] = pathinfo($this->thumbnailParams['thumbnailFileName'], PATHINFO_FILENAME).'.jpeg';
+            $this->thumbnailParams['format']='jpeg';
+            $this->fileName = $this->thumbnailParams['thumbnailFileName'];
+            $this->fileNameDownlaod = pathinfo($this->fileNameDownlaod, PATHINFO_FILENAME).'.jpeg';
         }
         return Image::make($content);
     }

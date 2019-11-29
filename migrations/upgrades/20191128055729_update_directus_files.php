@@ -60,6 +60,8 @@ class UpdateDirectusFiles extends AbstractMigration
             ));
         }
 
+        // adds private_hash in directus_files collection for existing data
+        
         if ($filesTable->hasColumn('private_hash')) {
             $result= $this->fetchAll('SELECT * FROM directus_files WHERE private_hash is null;');
             if(count($result > 0)) {

@@ -8,8 +8,6 @@ class AddFileNamingInDirectusSettings extends AbstractMigration
     public function change()
     {
         $fieldsTable = $this->table('directus_fields');
-        $settingsTable = $this->table('directus_settings');
-        
         if(!$this->checkFieldExist('directus_settings', 'file_naming')){     
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
