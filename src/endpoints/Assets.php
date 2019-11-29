@@ -22,7 +22,7 @@ class Assets extends Route
         if(isset($asset['file']) && $asset['mimeType'])
         {
             $response->setHeader('Content-type',$asset['mimeType']);
-            $response->setHeader('Content-Disposition','filename='.$asset['filename']);
+            $response->setHeader('Content-Disposition','filename='.$asset['fileNameDownlaod']);
             $response->setHeader('Last-Modified',gmdate('D, d M Y H:i:s \G\M\T', time()));    
                
             $body = $response->getBody();

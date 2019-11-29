@@ -120,7 +120,7 @@ class AssetService extends AbstractService
             }
             $result['mimeType']=$this->getThumbnailMimeType($this->thumbnailDir,$this->fileName);
             $result['file']=$image;
-            $result['filename']=$this->fileNameDownlaod;
+            $result['fileNameDownlaod']=$this->fileNameDownlaod;
             return $result;
         }
         catch (Exception $e) {
