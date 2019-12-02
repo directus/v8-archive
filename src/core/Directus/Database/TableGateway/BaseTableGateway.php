@@ -399,8 +399,6 @@ class BaseTableGateway extends TableGateway
             $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
         }
 
-        $this->afterAddOrUpdate($recordData);
-
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($this->table);
 
         return $TableGateway->fetchAll(function (Select $select) use ($recordData, $columns, $primaryKey) {
@@ -434,14 +432,6 @@ class BaseTableGateway extends TableGateway
             $primaryKey => $recordId
         ]);
         $TableGateway->updateWith($Update);
-
-        $replace = true;
-        if ($collectionName === SchemaManager::COLLECTION_FILES && static::$container) {
-            $changeFilename = $originalFilename && $recordData['filename_disk'] !== $originalFilename;
-            $replace = !$changeFilename;
-        }
-
-        $this->afterAddOrUpdate($recordData, $replace);
 
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($collectionName);
         return $TableGateway->fetchAll(function ($select) use ($recordData, $columns, $primaryKey) {
@@ -1780,53 +1770,6 @@ class BaseTableGateway extends TableGateway
                     $field->getName()
                 );
             }
-        }
-    }
-
-    /**
-     * @param array $record
-     * @param bool $replace
-     */
-    protected function afterAddOrUpdate(array $record, $replace = false)
-    {
-        // TODO: Move this to a proper hook
-        $hasData = ArrayUtils::has($record, 'data') && is_string($record['data']);
-        $isFilesCollection = $this->table == SchemaManager::COLLECTION_FILES;
-        if (!static::$container || !$isFilesCollection || !$hasData) {
-            return;
-        }
-
-        $updateArray = [];
-        $Files = static::$container->get('files');
-        if ($Files->getSettings('file_naming') == 'id') {
-            $ext = $thumbnailExt = pathinfo($record['filename_disk'], PATHINFO_EXTENSION);
-            $fileId = $record[$this->primaryKeyFieldName];
-            // TODO: The left padding should be based on the max length of the primary
-            $newFilename = filename_put_ext(str_pad(
-                $fileId,
-                11,
-                '0',
-                STR_PAD_LEFT
-            ), $ext);
-
-            // overwrite a file with this file content if it already exists
-            if (!$replace) {
-                $Files->rename(
-                    $record['filename_disk'],
-                    $newFilename,
-                    true
-                );
-            }
-
-            $updateArray['filename_disk'] = $newFilename;
-            $record['filename_disk'] = $updateArray['filename_disk'];
-        }
-
-        if (!empty($updateArray)) {
-            $Update = new Update($this->table);
-            $Update->set($updateArray);
-            $Update->where([$this->primaryKeyFieldName => $record[$this->primaryKeyFieldName]]);
-            $this->updateWith($Update);
         }
     }
 

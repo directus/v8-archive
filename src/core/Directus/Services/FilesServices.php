@@ -13,6 +13,7 @@ use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Validator\Exception\InvalidRequestException;
 use function Directus\get_random_string;
+use Directus\Application\Application;
 
 class FilesServices extends AbstractService
 {
@@ -148,18 +149,25 @@ class FilesServices extends AbstractService
         $tableGateway = $this->createTableGateway($this->collection);
 
         $currentItem = $tableGateway->getOneData($id);
-        $data['filename_disk'] = ArrayUtils::get($currentItem, 'filename_disk');
+        $currentFileName = ArrayUtils::get($currentItem, 'filename_disk');
 
-        $recordData = $this->getSaveData($data,true);
+        if ($data['filename_disk'] && $data['filename_disk'] !== $currentFileName) {
+            $oldFilePath = $currentFileName;
+            $newFilePath = $data['filename_disk'];
+
+            try {
+                $this->container->get('filesystem')->getAdapter()->rename($oldFilePath, $newFilePath);
+            } catch(Exception $e) {
+               throw new InvalidRequestException($e);
+            }
+        }
+
+        $recordData = $this->getSaveData($data, true);
 
         $newFile = $tableGateway->updateRecord($id, $recordData, $this->getCRUDParams($params));
 
-        if ($data['filename_disk'] && $recordData['filename_disk'] !== $data['filename_disk']) {
-            $files->delete(['filename_disk' => $data['filename_disk']]);
-        }
-
         return $tableGateway->wrapData(
-            \Directus\append_storage_information($newFile->toArray()),
+            \Directus\append_storage_information([$newFile->toArray()]),
             true,
             ArrayUtils::get($params, 'meta')
         );

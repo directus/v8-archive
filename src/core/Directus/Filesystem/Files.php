@@ -265,13 +265,16 @@ class Files
     /**
      * Copy base64 data into Directus Media
      *
-     * @param string $fileData - base64 data
+     * @param string $fileData - base64 data or directus_files object
      * @param string $fileName - name of the file
      * @param bool $replace
      *
      * @return array
+     *
+     * @todo Refactor this to be clearer what's going on. $fileData can be anything,
+     *       all kinds of things are happening, and nothing is documented
      */
-    public function saveData($fileData, $fileName,$replace = false)
+    public function saveData($fileData, $fileName, $replace = false)
     {
         // When file is uploaded via multipart form data then We will get object of Slim\Http\UploadFile
         // When file is uploaded via URL (Youtube, Vimeo, or image link) then we will get base64 encode string.
@@ -288,13 +291,18 @@ class Files
             $size = strlen($fileData);
         }
         // @TODO: merge with upload()
-        $filenameDownload = $fileName;
         $fileName = $this->getFileName($fileName, $replace !== true);
         $filePath = $this->getConfig('root') . '/' . $fileName;
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
         $event = $replace ? 'file.update' : 'file.save';
         $this->emitter->run($event, ['name' => $fileName, 'size' => $size]);
-        $this->write($fileName, $fileData, $replace);
+
+        // On name change, the file would be overwritten with the empty file data.
+        // This prevents you can't update a file to a zero-byte file.
+        if (!empty($fileData)) {
+            $this->write($fileName, $fileData, $replace);
+        }
+
         $this->emitter->run($event.':after', ['name' => $fileName, 'size' => $size]);
 
         #open local tmp file since s3 bucket is private
@@ -337,7 +345,6 @@ class Files
             // The MIME type will be based on its extension, rather than its extension
             'type' => MimeTypeUtils::getFromFilename($fileData['filename_disk']),
             'filename_disk' => $fileData['filename_disk'],
-            'filename_download' => $filenameDownload,
             'tags' => $fileData['tags'],
             'description' => $fileData['description'],
             'location' => $fileData['location'],
