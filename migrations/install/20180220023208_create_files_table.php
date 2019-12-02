@@ -18,8 +18,7 @@ class CreateFilesTable extends AbstractMigration
         ]);
         $table->addColumn('private_hash', 'string', [
             'limit' => 16,
-            'null' => true,
-            'default' => null
+            'null' => false
         ]);
         $table->addColumn('filename_disk', 'string', [
             'limit' => 255,

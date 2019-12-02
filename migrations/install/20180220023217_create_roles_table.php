@@ -24,10 +24,6 @@ class CreateRolesTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('nav_blacklist', 'text', [
-            'null' => true,
-            'default' => null
-        ]);
         $table->addColumn('external_id', 'string', [
             'limit' => 255,
             'null' => true,

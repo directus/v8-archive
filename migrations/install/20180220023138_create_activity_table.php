@@ -62,8 +62,6 @@ class CreateActivityTable extends AbstractMigration
         $table->create();
 
         $data = [
-            // Activity
-            // -----------------------------------------------------------------
             [
                 'collection' => 'directus_activity',
                 'field' => 'id',

@@ -17,7 +17,7 @@ class CreateUserSessions extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-          
+
         $table->addColumn('token_type', 'string', [
             'null' => true,
             'default' => null
@@ -47,14 +47,13 @@ class CreateUserSessions extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-      
+
         $table->addColumn('token_expired_at', 'datetime', [
             'null' => true,
             'default' => null
         ]);
-        
-        $table->create();
 
+        $table->create();
 
         $data = [
             [
