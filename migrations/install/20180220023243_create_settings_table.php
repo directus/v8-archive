@@ -232,6 +232,22 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_settings',
+                'field' => 'file_naming',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'dropdown',
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'File-system naming convention for uploads',
+                'sort' => 31,
+                'options' => json_encode([
+                    'choices' => [
+                        'uuid' => 'File Hash (Obfuscated)',
+                        'file_name' => 'File Name (Readable)'
+                    ]
+                ])
+            ],
+            [
+                'collection' => 'directus_settings',
                 'field' => 'file_max_size',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
@@ -241,7 +257,7 @@ class CreateSettingsTable extends AbstractMigration
                 ]),
                 'locked' => 1,
                 'width' => 'half',
-                'sort' => 31
+                'sort' => 32
             ],
             [
                 'collection' => 'directus_settings',
@@ -253,7 +269,7 @@ class CreateSettingsTable extends AbstractMigration
                 ]),
                 'locked' => 1,
                 'width' => 'half',
-                'sort' => 32
+                'sort' => 33
             ],
             [
                 'collection' => 'directus_settings',
@@ -262,7 +278,7 @@ class CreateSettingsTable extends AbstractMigration
                 'interface' => 'repeater',
                 'width' => 'full',
                 'note' => 'Defines how the thumbnail will be generated based on the requested params.',
-                'sort' => 33,
+                'sort' => 34,
                 'options' => json_encode([
                     'template' => '{{key}}',
                     'fields' => [
@@ -319,7 +335,7 @@ class CreateSettingsTable extends AbstractMigration
                 'width' => 'half',
                 'hidden_browse' => 1,
                 'hidden_detail' => 1,
-                'sort' => 34
+                'sort' => 35
             ],
             [
                 'collection' => 'directus_settings',
@@ -332,7 +348,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'width' => 'full',
                 'note' => 'Allows fetching more YouTube Embed info',
-                'sort' => 35
+                'sort' => 36
             ],
         ];
 
@@ -404,6 +420,10 @@ class CreateSettingsTable extends AbstractMigration
             [
               'key' => 'file_mimetype_whitelist',
               'value' => ''
+            ],
+            [
+                'key' => 'file_naming',
+                'value' => ''
             ],
             [
               'key' => 'youtube_api_key',

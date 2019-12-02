@@ -45,6 +45,7 @@ class FilesServices extends AbstractService
         if (is_a_url(ArrayUtils::get($data, 'data'))) {
             unset($validationConstraints['filename']);
         }
+        unset($validationConstraints['filename_disk']);
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
         $files = $this->container->get('files');
         $result=$files->getFileSizeType($data['data']);

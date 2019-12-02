@@ -323,7 +323,6 @@ class CoreServicesProvider
                     $payload['filename'] = ArrayUtils::get($dataInfo, 'filename');
                 } else if (!is_object($fileData)) {
                     $dataInfo = $files->getDataInfo($fileData);
-                    $dataInfo['fileId']= $data['id'];
                 }
 
                 $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
@@ -331,7 +330,7 @@ class CoreServicesProvider
                 if (strpos($type, 'embed/') === 0) {
                     $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename'])));
                 } else {
-                    $recordData = $files->saveData($payload['data'], $payload['filename'],$data['id'],$replace);
+                    $recordData = $files->saveData($payload['data'], $payload['filename'],$replace);
                 }
 
                 // NOTE: Use the user input title, tags, description and location when exists.
@@ -344,9 +343,9 @@ class CoreServicesProvider
 
                 $payload->replace($recordData);
                 $payload->remove('data');
+                $payload->remove('filename');
                 $payload->remove('html');
 
-                $payload->set('id', $data['id']);
                 $payload->set('private_hash', get_random_string());
 
                 if (!$replace) {
@@ -388,8 +387,8 @@ class CoreServicesProvider
             };
             $emitter->addFilter('item.read.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
-                if (!in_array('filename', $columns)) {
-                    $columns[] = 'filename';
+                if (!in_array('filename_disk', $columns)) {
+                    $columns[] = 'filename_disk';
                     $payload->set('columns', $columns);
                 }
                 return $payload;

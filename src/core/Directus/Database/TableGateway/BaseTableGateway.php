@@ -377,10 +377,10 @@ class BaseTableGateway extends TableGateway
             $hookName = 'item.create.' . SchemaManager::COLLECTION_FILES;
             // TODO: Implement once execute. Allowing a hook callback to run once.
             $listenerId = static::$emitter->addAction($hookName, function ($data) use (&$recordData) {
-                $recordData['filename'] = $data['filename'];
+                $recordData['filename_disk'] = $data['filename_disk'];
             }, Emitter::P_LOW);
         }
-
+       
         $TableGateway = $this->makeTable($this->table);
         $primaryKey = $TableGateway->primaryKeyFieldName;
 
@@ -393,7 +393,7 @@ class BaseTableGateway extends TableGateway
             $TableGateway->ignoreFilters();
         }
 
-        $result = $TableGateway->insert($recordData);
+        $TableGateway->insert($recordData);
         if (static::$emitter && $listenerId) {
             static::$emitter->removeListenerWithIndex($listenerId);
         }
@@ -405,8 +405,9 @@ class BaseTableGateway extends TableGateway
         }
 
         $this->afterAddOrUpdate($recordData);
-
+        
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($this->table);
+       
         return $TableGateway->fetchAll(function (Select $select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
@@ -433,7 +434,7 @@ class BaseTableGateway extends TableGateway
         $recordId = $recordData[$primaryKey];
         if ($collectionName === SchemaManager::COLLECTION_FILES) {
             $select = new Select($collectionName);
-            $select->columns(['filename']);
+            $select->columns(['filename_disk']);
             $select->where([
                 $primaryKey => $recordId
             ]);
@@ -446,9 +447,9 @@ class BaseTableGateway extends TableGateway
 
             $currentItem = $result->current()->toArray();
 
-            $originalFilename = ArrayUtils::get($currentItem, 'filename');
+            $originalFilename = ArrayUtils::get($currentItem, 'filename_disk');
             $recordData = array_merge([
-                'filename' => $originalFilename
+                'filename_disk' => $originalFilename
             ], $recordData);
         }
 
@@ -461,13 +462,13 @@ class BaseTableGateway extends TableGateway
 
         $replace = true;
         if ($collectionName === SchemaManager::COLLECTION_FILES && static::$container) {
-            $changeFilename = $originalFilename && $recordData['filename'] !== $originalFilename;
+            $changeFilename = $originalFilename && $recordData['filename_disk'] !== $originalFilename;
             $replace = !$changeFilename;
 
             if ($changeFilename) {
                 /** @var Files $Files */
                 $Files = static::$container->get('files');
-                $Files->delete(['filename' => $originalFilename]);
+                $Files->delete(['filename_disk' => $originalFilename]);
             }
         }
 
@@ -731,11 +732,6 @@ class BaseTableGateway extends TableGateway
 
         $selectState = $select->getRawState();
         $selectCollectionName = $selectState['table'];
-
-        if($selectCollectionName === SchemaManager::COLLECTION_FILES)
-        {
-            $this->addHashIdToFilesCollection();
-        }
         
         if ($useFilter) {
             $selectState = $this->applyHooks([
@@ -1834,7 +1830,7 @@ class BaseTableGateway extends TableGateway
         $updateArray = [];
         $Files = static::$container->get('files');
         if ($Files->getSettings('file_naming') == 'id') {
-            $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
+            $ext = $thumbnailExt = pathinfo($record['filename_disk'], PATHINFO_EXTENSION);
             $fileId = $record[$this->primaryKeyFieldName];
             // TODO: The left padding should be based on the max length of the primary
             $newFilename = filename_put_ext(str_pad(
@@ -1847,14 +1843,14 @@ class BaseTableGateway extends TableGateway
             // overwrite a file with this file content if it already exists
             if (!$replace) {
                 $Files->rename(
-                    $record['filename'],
+                    $record['filename_disk'],
                     $newFilename,
                     true
                 );
             }
 
-            $updateArray['filename'] = $newFilename;
-            $record['filename'] = $updateArray['filename'];
+            $updateArray['filename_disk'] = $newFilename;
+            $record['filename_disk'] = $updateArray['filename_disk'];
         }
 
         if (!empty($updateArray)) {
@@ -1881,27 +1877,5 @@ class BaseTableGateway extends TableGateway
     protected function shouldUseFilter()
     {
         return !is_array($this->options) || ArrayUtils::get($this->options, 'filter', true) !== false;
-    }
-
-    public function addHashIdToFilesCollection()
-    {
-        $collectionName =  SchemaManager::COLLECTION_FILES;
-        $select = new Select($collectionName);
-        $select->columns(['*']);
-        $result =  parent::executeSelect($select)->toArray();
-
-        foreach($result as $key=>$value) 
-        {
-           if($value['private_hash'] == '' || $value['private_hash'] == null)
-           {
-               $updateArray = [];
-               $updateArray['private_hash'] = get_random_string();
-       
-               $Update = new Update($collectionName);
-               $Update->set($updateArray);
-               $Update->where(['id' => $value['id']]);
-               $this->updateWith($Update);
-           }
-        }
     }
 }
