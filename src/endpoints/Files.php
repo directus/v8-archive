@@ -74,11 +74,12 @@ class Files extends Route
 
             // TODO: the file already exists move it to the upload path location
             $payload = array_merge([
-                'filename' => $uploadedFile->getClientFilename(),
+                'filename_disk' => $uploadedFile->getClientFilename(),
+                'filename_download' => $uploadedFile->getClientFilename(),
                 'data' => $uploadedFile,
             ], $payload);
         }
-        
+
         $responseData = $service->create(
             $payload,
             $request->getQueryParams()

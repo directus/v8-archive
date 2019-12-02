@@ -21,10 +21,13 @@ class CreateFilesTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('filename', 'string', [
+        $table->addColumn('filename_disk', 'string', [
             'limit' => 255,
-            'null' => false,
-            'default' => null
+            'null' => false
+        ]);
+        $table->addColumn('filename_download', 'string', [
+            'limit' => 255,
+            'null' => false
         ]);
         $table->addColumn('title', 'string', [
             'limit' => 255,
@@ -117,7 +120,7 @@ class CreateFilesTable extends AbstractMigration
             [
                 'collection' => 'directus_files',
                 'field' => 'id',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
@@ -156,7 +159,7 @@ class CreateFilesTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_files',
-                'field' => 'filename',
+                'field' => 'filename_disk',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
@@ -168,6 +171,13 @@ class CreateFilesTable extends AbstractMigration
                 'sort' => 4,
                 'width' => 'half',
                 'required' => 1
+            ],
+            [
+                'collection' => 'directus_files',
+                'field' => 'filename_download',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1
             ],
             [
                 'collection' => 'directus_files',

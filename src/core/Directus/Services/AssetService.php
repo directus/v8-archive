@@ -8,11 +8,12 @@ use Directus\Util\ArrayUtils;
 use Directus\Filesystem\Thumbnail;
 use Directus\Filesystem\Filesystem;
 use Directus\Application\Container;
-use function Directus\get_file_root_url;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Exception\UnprocessableEntityException;
 use Directus\Database\Exception\ItemNotFoundException;
 use function Directus\get_directus_thumbnail_settings;
 use Intervention\Image\ImageManagerStatic as Image;
+use Directus\Util\DateTimeUtils;
 
 class AssetService extends AbstractService
 {
@@ -36,6 +37,11 @@ class AssetService extends AbstractService
      * @var string
      */
     protected $fileName;
+
+     /**
+     * @var string
+     */
+    protected $fileNameDownload;
 
     /**
      * Main Filesystem
@@ -65,47 +71,42 @@ class AssetService extends AbstractService
     {
         $tableGateway = $this->createTableGateway($this->collection);
         $select = new Select($this->collection);
-        $select->columns(['filename','id']);
-        $select->where([
-           'private_hash' => $fileHashId
-        ]);
+        $select->columns(['filename_disk', 'filename_download', 'id', 'type']);
+        $select->where(['private_hash' => $fileHashId]);
         $select->limit(1);
         $result = $tableGateway->ignoreFilters()->selectWith($select);
 
         if ($result->count() == 0) {
             throw new ItemNotFoundException();
         }
+
         $file = $result->current()->toArray();
 
-        $ext = pathinfo($file['filename'], PATHINFO_EXTENSION);
-        $uploadedFileName = $file['id'].'.'.$ext;
+        // Get original image
+        if (count($params) == 0) {
+            $lastModified = $this->filesystem->getAdapter()->getTimestamp($file['filename_disk']);
+            $lastModified = new DateTimeUtils(date('c', $lastModified));
 
-        if(count($params) == 0) {
-           $url=get_file_root_url();
-           $img = $this->filesystem->read($uploadedFileName);
-           $result=[];
-           $result['mimeType']=Image::make($this->filesystem->read($uploadedFileName))->mime();
-           $result['file']=isset($img) && $img ? $img : null;
-           $result['filename']=$file['filename'];
+            $img = $this->filesystem->read($file['filename_disk']);
+            $result = [];
+            $result['last_modified'] = $lastModified->toRFC2616Format();
+            $result['mimeType'] = $file['type'];
+            $result['file'] = isset($img) && $img ? $img : null;
+            $result['filename'] = $file['filename_disk'];
+            $result['filename_download'] = $file['filename_download'];
 
-           return $result;
-        }
-        else {
-           $this->fileName=$uploadedFileName;
-           try {
-               return $this->getThumbnail($params);
-           }
-           catch(Exception $e)
-           {
-               http_response_code(422);
-               echo json_encode([
-                   'error' => [
-                       'code' => 4,
-                       'message' => $e->getMessage()
-                   ]
-               ]);
-               exit(0);
-           }
+            return $result;
+        }else{
+
+            $this->fileName = $file['filename_disk'];
+            $this->fileNameDownload = $file['filename_download'];
+            try {
+                return $this->getThumbnail($params);
+            }
+            catch(Exception $e)
+            {
+                throw new UnprocessableEntityException(sprintf($e->getMessage()));
+            }
         }
     }
 
@@ -119,18 +120,12 @@ class AssetService extends AbstractService
             throw new Exception($this->fileName . ' does not exist.');
         }
 
-        $otherParams=$this->thumbnailParams;
-          unset($otherParams['width'],$otherParams['height'],$otherParams['fit'],
-              $otherParams['quality'],$otherParams['format'],$otherParams['thumbnailFileName']);
-        if(isset($this->thumbnailParams['key'])) {
-          unset($otherParams['key']);
-        }
-
-        $this->thumbnailDir = 'w'.$this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
+        $this->thumbnailDir = 'w' . $this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
                               ',f' . $this->thumbnailParams['fit'] . ',q' . $this->thumbnailParams['quality'];
 
         try {
-            $image=$this->getExistingThumbnail();
+            $image = $this->getExistingThumbnail();
+
             if (!$image) {
                 switch ($this->thumbnailParams['fit']) {
                     case 'contain':
@@ -141,16 +136,17 @@ class AssetService extends AbstractService
                         $image = $this->crop();
                 }
             }
-            $result['mimeType']=$this->getThumbnailMimeType($this->thumbnailDir,$this->fileName);
-            $result['file']=$image;
-            $result['filename']=$this->fileName;
+
+            $result['mimeType'] = $this->getThumbnailMimeType($this->thumbnailDir, $this->fileName);
+            $result['last_modified'] = $this->getThumbnailLastModified($this->thumbnailDir, $this->fileName);
+            $result['file'] = $image;
+            $result['filename_download'] = $this->fileNameDownload;
             return $result;
         }
         catch (Exception $e) {
-           return http_response_code(404);
+            throw $e;
         }
     }
-
 
     /**
      * validate params and file extensions and return it
@@ -195,7 +191,7 @@ class AssetService extends AbstractService
             }
 
             if ($exists == false) {
-                throw new Exception(sprintf("Key doesn’t exist."));
+                throw new Exception(sprintf("Key doesn't exist."));
             }
 
             $this->thumbnailParams['key']= filter_var($params['key'], FILTER_SANITIZE_STRING);
@@ -221,7 +217,8 @@ class AssetService extends AbstractService
 
         // If the user didn't provide a key, and the whitelist items are required,
         // verify if the passed keys match one of the predefined items
-        if ($usesKey == false && $whitelistEnabled) {
+
+        if (!$usesKey && $whitelistEnabled) {
             $exists = false;
 
             foreach($allSizes as $key => $value) {
@@ -235,8 +232,8 @@ class AssetService extends AbstractService
                 }
             }
 
-            if ($exists == false) {
-                throw new Exception(sprintf("The params don't match the whitelisted thumbnails."));
+            if (!$exists) {
+                throw new Exception(sprintf("The params don't match the asset whitelist."));
             }
         }
 
@@ -404,7 +401,7 @@ class AssetService extends AbstractService
         }
     }
 
-    public function getThumbnailMimeType($path,$fileName)
+    public function getThumbnailMimeType($path, $fileName)
     {
         try {
             if($this->filesystemThumb->exists($path . '/' . $fileName) ) {
@@ -415,6 +412,19 @@ class AssetService extends AbstractService
                 return $img->mime();
             }
             return 'application/octet-stream';
+        }
+
+        catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getThumbnailLastModified($path, $fileName)
+    {
+        try {
+            $lastModified = $this->filesystemThumb->getAdapter()->getTimestamp($path . '/' . $fileName);
+            $lastModified = new DateTimeUtils(date('c', $lastModified));
+            return $lastModified->toRFC2616Format();
         }
 
         catch (Exception $e) {

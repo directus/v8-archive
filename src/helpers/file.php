@@ -129,14 +129,14 @@ if (!function_exists('append_storage_information')) {
 
         foreach ($rows as &$row) {
             $data = [];
-            $ext = pathinfo($row['filename'], PATHINFO_EXTENSION);
-            $uploadedFileName = $row['id'].'.'.$ext;
+            $ext = pathinfo($row['filename_disk'], PATHINFO_EXTENSION);
+
             if ($proxyDownloads) {
-                $data['url'] = get_proxy_path($uploadedFileName);
+                $data['url'] = get_proxy_path($row['filename_disk']);
                 $data['full_url'] = get_url($data['url']);
             } else {
                 if(isset($row['private_hash'])){
-                    $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $uploadedFileName;
+                    $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['filename_disk'];
                     // Add Full url
                     if (!$hasFileRootUrlHost) {
                         $data['full_url'] = get_url($data['url']);
@@ -145,8 +145,13 @@ if (!function_exists('append_storage_information')) {
 
             }
 
-            // Add Thumbnails
-            $data['thumbnails'] = get_thumbnails($row);
+            // Add thumbnails if the asset is an image
+            $search = 'image';
+            if (substr($row['type'], 0, strlen($search)) === $search) {
+                $data['thumbnails'] = get_thumbnails($row);
+            } else {
+                $data['thumbnails'] = null;
+            }
 
             // Add embed content
             /** @var \Directus\Embed\EmbedManager $embedManager */
@@ -195,7 +200,7 @@ if (!function_exists('get_thumbnails')) {
     function get_thumbnails(array $row)
     {
 
-        $filename = $row['filename'];
+        $filename = $row['filename_disk'];
         $type = array_get($row, 'type');
         $thumbnailFilenameParts = explode('.', $filename);
         $thumbnailExtension = array_pop($thumbnailFilenameParts);
@@ -209,9 +214,6 @@ if (!function_exists('get_thumbnails')) {
         if (!in_array($fileExtension, Thumbnail::getFormatsSupported())  &&  strpos($type, 'embed/') !== 0) {
             return null;
         }
-
-        // Add default size
-        //add_default_thumbnail_dimensions($thumbnailDimensions);
 
         $thumbnails = [];
         foreach ($thumbnailWhitelist as $thumbnail) {

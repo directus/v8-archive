@@ -265,13 +265,16 @@ class Files
     /**
      * Copy base64 data into Directus Media
      *
-     * @param string $fileData - base64 data
+     * @param string $fileData - base64 data or directus_files object
      * @param string $fileName - name of the file
      * @param bool $replace
      *
      * @return array
+     *
+     * @todo Refactor this to be clearer what's going on. $fileData can be anything,
+     *       all kinds of things are happening, and nothing is documented
      */
-    public function saveData($fileData, $fileName,$fileId,$replace = false)
+    public function saveData($fileData, $fileName, $replace = false)
     {
         // When file is uploaded via multipart form data then We will get object of Slim\Http\UploadFile
         // When file is uploaded via URL (Youtube, Vimeo, or image link) then we will get base64 encode string.
@@ -289,13 +292,17 @@ class Files
         }
         // @TODO: merge with upload()
         $fileName = $this->getFileName($fileName, $replace !== true);
-
         $filePath = $this->getConfig('root') . '/' . $fileName;
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        $uploadedFileName = $fileId.'.'.$ext;
         $event = $replace ? 'file.update' : 'file.save';
         $this->emitter->run($event, ['name' => $fileName, 'size' => $size]);
-        $this->write($uploadedFileName, $fileData, $replace);
+
+        // On name change, the file would be overwritten with the empty file data.
+        // This prevents you can't update a file to a zero-byte file.
+        if (!empty($fileData)) {
+            $this->write($fileName, $fileData, $replace);
+        }
+
         $this->emitter->run($event.':after', ['name' => $fileName, 'size' => $size]);
 
         #open local tmp file since s3 bucket is private
@@ -306,14 +313,14 @@ class Files
         }
 
         unset($fileData);
-       
-        $fileData = $this->getFileInfo($uploadedFileName);
+
+        $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($title);
-        $fileData['filename'] = basename($filePath);
+        $fileData['filename_disk'] = basename($filePath);
         $fileData['storage'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
-       
+
         # Updates for file meta data tags
         if (strpos($fileData['type'],'video') !== false) {
             #use ffprobe on local file, can't stream data to it or reference
@@ -335,9 +342,9 @@ class Files
         unset($tmpData);
 
         $response = [
-            // The MIME type will be based on its extension, rather than its 
-            'type' => MimeTypeUtils::getFromFilename($fileData['filename']),
-            'filename' => $fileData['filename'],
+            // The MIME type will be based on its extension, rather than its extension
+            'type' => MimeTypeUtils::getFromFilename($fileData['filename_disk']),
+            'filename_disk' => $fileData['filename_disk'],
             'tags' => $fileData['tags'],
             'description' => $fileData['description'],
             'location' => $fileData['location'],
@@ -672,7 +679,7 @@ class Files
     }
 
     /**
-     * Get file name 
+     * Get file name based on file naming setting
      *
      * @param string $fileName
      * @param bool $unique
@@ -682,6 +689,11 @@ class Files
     private function getFileName($fileName, $unique = true)
     {
         if ($unique) {
+            switch ($this->getSettings('file_naming')) {
+                case 'uuid':
+                    $fileName = $this->uuidFileName($fileName);
+                    break;
+            }
             $fileName = $this->uniqueName($fileName, $this->filesystem->getPath());
         }
         return $fileName;

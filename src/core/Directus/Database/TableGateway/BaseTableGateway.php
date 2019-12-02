@@ -377,36 +377,30 @@ class BaseTableGateway extends TableGateway
             $hookName = 'item.create.' . SchemaManager::COLLECTION_FILES;
             // TODO: Implement once execute. Allowing a hook callback to run once.
             $listenerId = static::$emitter->addAction($hookName, function ($data) use (&$recordData) {
-                $recordData['filename'] = $data['filename'];
+                $recordData['filename_disk'] = $data['filename_disk'];
             }, Emitter::P_LOW);
         }
 
         $TableGateway = $this->makeTable($this->table);
         $primaryKey = $TableGateway->primaryKeyFieldName;
 
-        if($this->table === SchemaManager::COLLECTION_FILES)
-        {
-            $recordData[$primaryKey] = get_random_string();
-        }
-
         if (!$this->shouldUseFilter()) {
             $TableGateway->ignoreFilters();
         }
 
-        $result = $TableGateway->insert($recordData);
+        $TableGateway->insert($recordData);
         if (static::$emitter && $listenerId) {
             static::$emitter->removeListenerWithIndex($listenerId);
         }
-        
+
         // Only get the last inserted id, if the column has auto increment value
         $columnObject = $this->getTableSchema()->getField($primaryKey);
         if ($columnObject->hasAutoIncrement()) {
             $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
         }
 
-        $this->afterAddOrUpdate($recordData);
-
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($this->table);
+
         return $TableGateway->fetchAll(function (Select $select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
@@ -431,26 +425,6 @@ class BaseTableGateway extends TableGateway
         }
 
         $recordId = $recordData[$primaryKey];
-        if ($collectionName === SchemaManager::COLLECTION_FILES) {
-            $select = new Select($collectionName);
-            $select->columns(['filename']);
-            $select->where([
-                $primaryKey => $recordId
-            ]);
-            $select->limit(1);
-            $result = $TableGateway->ignoreFilters()->selectWith($select);
-
-            if ($result->count() === 0) {
-                throw new ItemNotFoundException();
-            }
-
-            $currentItem = $result->current()->toArray();
-
-            $originalFilename = ArrayUtils::get($currentItem, 'filename');
-            $recordData = array_merge([
-                'filename' => $originalFilename
-            ], $recordData);
-        }
 
         $Update = new Update($collectionName);
         $Update->set($recordData);
@@ -458,20 +432,6 @@ class BaseTableGateway extends TableGateway
             $primaryKey => $recordId
         ]);
         $TableGateway->updateWith($Update);
-
-        $replace = true;
-        if ($collectionName === SchemaManager::COLLECTION_FILES && static::$container) {
-            $changeFilename = $originalFilename && $recordData['filename'] !== $originalFilename;
-            $replace = !$changeFilename;
-
-            if ($changeFilename) {
-                /** @var Files $Files */
-                $Files = static::$container->get('files');
-                $Files->delete(['filename' => $originalFilename]);
-            }
-        }
-
-        $this->afterAddOrUpdate($recordData, $replace);
 
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($collectionName);
         return $TableGateway->fetchAll(function ($select) use ($recordData, $columns, $primaryKey) {
@@ -732,11 +692,6 @@ class BaseTableGateway extends TableGateway
         $selectState = $select->getRawState();
         $selectCollectionName = $selectState['table'];
 
-        if($selectCollectionName === SchemaManager::COLLECTION_FILES)
-        {
-            $this->addHashIdToFilesCollection();
-        }
-        
         if ($useFilter) {
             $selectState = $this->applyHooks([
                 'item.read:before',
@@ -757,7 +712,7 @@ class BaseTableGateway extends TableGateway
                 $e
             );
         }
-    
+
         if ($useFilter) {
             $result = $this->applyHooks([
                 'item.read',
@@ -921,7 +876,7 @@ class BaseTableGateway extends TableGateway
 
         $deleteState = $delete->getRawState();
         $deleteTable = $this->getRawTableNameFromQueryStateTable($deleteState['table']);
-       
+
         // Runs select PK with passed delete's $where before deleting, to use those for the even hook
         if ($pk = $this->primaryKeyFieldName) {
             $select = $this->sql->select();
@@ -940,7 +895,7 @@ class BaseTableGateway extends TableGateway
             $delete = $this->sql->delete();
             $expression = new In($pk, $ids);
             $delete->where($expression);
-            
+
             foreach ($ids as $id) {
                 $deleteData = [$this->primaryKeyFieldName => $id];
                 $this->runHook('item.delete:before', [$deleteTable, $deleteData]);
@@ -956,7 +911,7 @@ class BaseTableGateway extends TableGateway
                 );
             }
 
-            
+
             //Invalidate individual cache
             if (static::$container) {
                 $config = static::$container->get('config');
@@ -1819,53 +1774,6 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * @param array $record
-     * @param bool $replace
-     */
-    protected function afterAddOrUpdate(array $record, $replace = false)
-    {
-        // TODO: Move this to a proper hook
-        $hasData = ArrayUtils::has($record, 'data') && is_string($record['data']);
-        $isFilesCollection = $this->table == SchemaManager::COLLECTION_FILES;
-        if (!static::$container || !$isFilesCollection || !$hasData) {
-            return;
-        }
-        
-        $updateArray = [];
-        $Files = static::$container->get('files');
-        if ($Files->getSettings('file_naming') == 'id') {
-            $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
-            $fileId = $record[$this->primaryKeyFieldName];
-            // TODO: The left padding should be based on the max length of the primary
-            $newFilename = filename_put_ext(str_pad(
-                $fileId,
-                11,
-                '0',
-                STR_PAD_LEFT
-            ), $ext);
-
-            // overwrite a file with this file content if it already exists
-            if (!$replace) {
-                $Files->rename(
-                    $record['filename'],
-                    $newFilename,
-                    true
-                );
-            }
-
-            $updateArray['filename'] = $newFilename;
-            $record['filename'] = $updateArray['filename'];
-        }
-
-        if (!empty($updateArray)) {
-            $Update = new Update($this->table);
-            $Update->set($updateArray);
-            $Update->where([$this->primaryKeyFieldName => $record[$this->primaryKeyFieldName]]);
-            $this->updateWith($Update);
-        }
-    }
-
-    /**
      * Checks whether or not null should be sorted last
      *
      * @return bool
@@ -1881,27 +1789,5 @@ class BaseTableGateway extends TableGateway
     protected function shouldUseFilter()
     {
         return !is_array($this->options) || ArrayUtils::get($this->options, 'filter', true) !== false;
-    }
-
-    public function addHashIdToFilesCollection()
-    {
-        $collectionName =  SchemaManager::COLLECTION_FILES;
-        $select = new Select($collectionName);
-        $select->columns(['*']);
-        $result =  parent::executeSelect($select)->toArray();
-
-        foreach($result as $key=>$value) 
-        {
-           if($value['private_hash'] == '' || $value['private_hash'] == null)
-           {
-               $updateArray = [];
-               $updateArray['private_hash'] = get_random_string();
-       
-               $Update = new Update($collectionName);
-               $Update->set($updateArray);
-               $Update->where(['id' => $value['id']]);
-               $this->updateWith($Update);
-           }
-        }
     }
 }

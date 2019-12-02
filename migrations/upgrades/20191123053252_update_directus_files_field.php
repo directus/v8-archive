@@ -180,23 +180,6 @@ class UpdateDirectusFilesField extends AbstractMigration
                 'hidden_detail' => 1
             ])->save();
         }
-
-        if($filesTable->hasColumn('id')){
-            $filesTable->changeColumn('id', 'string', [
-                'limit' => 16
-            ]);
-        }
-
-        if($this->checkFieldExist('directus_files','id')){
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'type' => 'string'
-                ],
-                ['collection' => 'directus_files', 'field' => 'id']
-            ));
-        }
     }
 
     public function checkFieldExist($collection,$field){

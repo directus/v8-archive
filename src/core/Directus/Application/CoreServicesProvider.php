@@ -292,71 +292,8 @@ class CoreServicesProvider
 
                 return $payload;
             }, Emitter::P_HIGH);
-            $savesFile = function (Payload $payload, $replace = false) use ($container) {
-                $collectionName = $payload->attribute('collection_name');
-                if ($collectionName !== SchemaManager::COLLECTION_FILES) {
-                    return;
-                }
 
-                if ($replace === true && !$payload->has('data')) {
-                    return;
-                }
-
-                // NOTE: "data" should be ignore if it isn't a string on update
-                if ($replace === true && !is_string($payload->get('data'))) {
-                    $payload->remove('data');
-                    return;
-                }
-
-                $data = $payload->getData();
-
-                /** @var \Directus\Filesystem\Files $files */
-                $files = $container->get('files');
-
-                $fileData = ArrayUtils::get($data, 'data');
-
-                $dataInfo = [];
-                if (is_a_url($fileData)) {
-                    $dataInfo = $files->getLink($fileData);
-                    // Set the URL payload data
-                    $payload['data'] = ArrayUtils::get($dataInfo, 'data');
-                    $payload['filename'] = ArrayUtils::get($dataInfo, 'filename');
-                } else if (!is_object($fileData)) {
-                    $dataInfo = $files->getDataInfo($fileData);
-                    $dataInfo['fileId']= $data['id'];
-                }
-
-                $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
-
-                if (strpos($type, 'embed/') === 0) {
-                    $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename'])));
-                } else {
-                    $recordData = $files->saveData($payload['data'], $payload['filename'],$data['id'],$replace);
-                }
-
-                // NOTE: Use the user input title, tags, description and location when exists.
-                $recordData = ArrayUtils::defaults($recordData, ArrayUtils::pick($data, [
-                    'title',
-                    'tags',
-                    'description',
-                    'location',
-                ]));
-
-                $payload->replace($recordData);
-                $payload->remove('data');
-                $payload->remove('html');
-
-                $payload->set('id', $data['id']);
-                $payload->set('private_hash', get_random_string());
-
-                if (!$replace) {
-                    /** @var Acl $auth */
-                    $acl = $container->get('acl');
-                    $payload->set('uploaded_by', $acl->getUserId());
-                    $payload->set('uploaded_on', DateTimeUtils::now()->toString());
-                }
-            };
-            $emitter->addFilter('item.update:before', function (Payload $payload) use ($container, $savesFile) {
+            $emitter->addFilter('item.update:before', function (Payload $payload) use ($container) {
                 $collection = SchemaService::getCollection($payload->attribute('collection_name'));
 
                 /** @var Acl $acl */
@@ -374,22 +311,16 @@ class CoreServicesProvider
                     $payload->remove('date_uploaded');
                 }
 
-                $savesFile($payload, true);
-
                 return $payload;
             }, Emitter::P_HIGH);
-            $emitter->addFilter('item.create:before', function (Payload $payload) use ($savesFile) {
-                $savesFile($payload, false);
 
-                return $payload;
-            });
             $addFilesUrl = function ($rows) {
                 return \Directus\append_storage_information($rows);
             };
             $emitter->addFilter('item.read.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
-                if (!in_array('filename', $columns)) {
-                    $columns[] = 'filename';
+                if (!in_array('filename_disk', $columns)) {
+                    $columns[] = 'filename_disk';
                     $payload->set('columns', $columns);
                 }
                 return $payload;

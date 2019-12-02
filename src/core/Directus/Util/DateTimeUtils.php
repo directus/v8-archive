@@ -281,6 +281,9 @@ class DateTimeUtils extends \DateTime
         return $this->format('c');
     }
 
+    public function toRFC2616Format() {
+        return $this->format('D, d M Y H:i:s T');
+    }
     /**
      * Returns a string format of the datetime
      *
