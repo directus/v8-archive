@@ -423,7 +423,7 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'key' => 'file_naming',
-                'value' => ''
+                'value' => 'uuid'
             ],
             [
               'key' => 'youtube_api_key',

@@ -58,39 +58,6 @@ class UpdateDirectusFiles extends AbstractMigration
                 }
             }
         }
-        // Convert string ID of directus_files into integer
-        if ($filesTable->hasColumn('id')) {
-            $result= $this->fetchAll('SELECT * FROM directus_files');
-            if(count($result) > 0) {
-                foreach($result as $key=>$value) {
-                    foreach($result as $key=>$value) {
-                        $this->execute(\Directus\phinx_update(
-                            $this->getAdapter(),
-                            'directus_files',
-                            [
-                                'id' => $key+1
-                            ],
-                            ['id' => $value['id']]
-                        ));
-                    }
-                }
-            }
-        }
-
-        if($filesTable->hasColumn('id')){
-            $filesTable->changeColumn('id', 'integer',['identity' => true]);
-        }
-
-        if($this->checkFieldExist('directus_files','id')){
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'type' => 'integer'
-                ],
-                ['collection' => 'directus_files', 'field' => 'id']
-            ));
-        }
 
         if(!$this->checkFieldExist('directus_settings', 'file_naming')){
             $fieldsTable->insert([
