@@ -286,7 +286,8 @@ class CreateSettingsTable extends AbstractMigration
                             'field' => 'key',
                             'interface' => 'slug',
                             'width' => 'half',
-                            'type' => 'string'
+                            'type' => 'string',
+                            'required' => true
                         ],
                         [
                             'field' => 'fit',
@@ -298,30 +299,35 @@ class CreateSettingsTable extends AbstractMigration
                                     'crop' => 'Crop (forces exact size)',
                                     'contain' => 'Contain (preserve aspect ratio)'
                                 ]
-                            ]
+                            ],
+                            'required' => true
                         ],
                         [
                             'field' => 'width',
                             'interface' => 'numeric',
                             'width' => 'half',
-                            'type' => 'integer'
+                            'type' => 'integer',
+                            'required' => true
                         ],
                         [
                             'field' => 'height',
                             'interface' => 'numeric',
                             'width' => 'half',
-                            'type' => 'integer'
+                            'type' => 'integer',
+                            'required' => true
                         ],
                         [
                             'field' => 'quality',
                             'interface' => 'slider',
                             'width' => 'full',
                             'type' => 'integer',
+                            'default' => 80,
                             'options' => [
                                 'min' => 0,
                                 'max' => 100,
                                 'step' => 1
-                            ]
+                            ],
+                            'required' => true
                         ]
                     ]
                 ])

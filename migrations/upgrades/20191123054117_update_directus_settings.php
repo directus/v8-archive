@@ -242,6 +242,7 @@ class UpdateDirectusSettings extends AbstractMigration
                 'width' => 'full',
                 'note' => 'Defines how the thumbnail will be generated based on the requested params.',
                 'sort' => 33,
+                'locked' => 1,
                 'options' => json_encode([
                     'template' => '{{key}}',
                     'fields' => [
@@ -249,7 +250,8 @@ class UpdateDirectusSettings extends AbstractMigration
                             'field' => 'key',
                             'interface' => 'slug',
                             'width' => 'half',
-                            'type' => 'string'
+                            'type' => 'string',
+                            'required' => true
                         ],
                         [
                             'field' => 'fit',
@@ -261,30 +263,35 @@ class UpdateDirectusSettings extends AbstractMigration
                                     'crop' => 'Crop (forces exact size)',
                                     'contain' => 'Contain (preserve aspect ratio)'
                                 ]
-                            ]
+                            ],
+                            'required' => true
                         ],
                         [
                             'field' => 'width',
                             'interface' => 'numeric',
                             'width' => 'half',
-                            'type' => 'integer'
+                            'type' => 'integer',
+                            'required' => true
                         ],
                         [
                             'field' => 'height',
                             'interface' => 'numeric',
                             'width' => 'half',
-                            'type' => 'integer'
+                            'type' => 'integer',
+                            'required' => true
                         ],
                         [
                             'field' => 'quality',
                             'interface' => 'slider',
                             'width' => 'full',
                             'type' => 'integer',
+                            'default' => 80,
                             'options' => [
                                 'min' => 0,
                                 'max' => 100,
                                 'step' => 1
-                            ]
+                            ],
+                            'required' => true
                         ]
                     ]
                 ])
@@ -526,6 +533,11 @@ class UpdateDirectusSettings extends AbstractMigration
 
         if (!$this->checkSettingExist('thumbnail_dimensions')) {
             $this->execute('DELETE FROM `directus_settings` where `key` = "thumbnail_dimensions";');
+        }
+
+        if (!$this->checkSettingExist('youtube_api')) {
+            $this->execute('DELETE FROM `directus_settings` where `key` = "youtube_api";');
+            $this->execute('DELETE FROM `directus_fields` where `field` = "youtube_api" and `collection` = "directus_settings";');
         }
 
         if($this->checkFieldExist('directus_settings','thumbnail_dimensions')){
