@@ -439,12 +439,6 @@ class BaseTableGateway extends TableGateway
         if ($collectionName === SchemaManager::COLLECTION_FILES && static::$container) {
             $changeFilename = $originalFilename && $recordData['filename_disk'] !== $originalFilename;
             $replace = !$changeFilename;
-
-            if ($changeFilename) {
-                /** @var Files $Files */
-                $Files = static::$container->get('files');
-                $Files->delete(['filename_disk' => $originalFilename]);
-            }
         }
 
         $this->afterAddOrUpdate($recordData, $replace);

@@ -94,7 +94,9 @@ class FilesServices extends AbstractService
             'location',
         ]));
 
-        $recordData['private_hash'] =  get_random_string();
+        if(!$isUpdate){
+            $recordData['private_hash'] =  get_random_string();
+        }
 
         return ArrayUtils::omit(array_merge($data,$recordData),['data','html']);
     }
@@ -151,6 +153,10 @@ class FilesServices extends AbstractService
         $recordData = $this->getSaveData($data,true);
 
         $newFile = $tableGateway->updateRecord($id, $recordData, $this->getCRUDParams($params));
+
+        if ($data['filename_disk'] && $recordData['filename_disk'] !== $data['filename_disk']) {
+            $files->delete(['filename_disk' => $data['filename_disk']]);
+        }
 
         return $tableGateway->wrapData(
             \Directus\append_storage_information($newFile->toArray()),
