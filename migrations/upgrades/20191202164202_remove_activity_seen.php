@@ -9,7 +9,7 @@ class RemoveActivitySeen extends AbstractMigration
     // Remove directus_activity_seen table
     // -------------------------------------------------------------------------
     if ($this->hasTable('directus_activity_seen')) {
-      $this->table('directus_activity_seen')->drop()->save();
+      $this->table('directus_activity_seen')->drop();
     }
   }
 }

@@ -38,6 +38,8 @@ class UpdateDirectusFiles extends AbstractMigration
     // -------------------------------------------------------------------------
     // Add a private hash for all existing files
     // -------------------------------------------------------------------------
+    $filesTable->save(); // Make sure the private hash column above is saved
+
     $filesWithoutPrivateHash = $this->fetchAll('SELECT id FROM directus_files WHERE private_hash = null;');
 
     foreach($filesWithoutPrivateHash as $key => $value) {
@@ -48,13 +50,6 @@ class UpdateDirectusFiles extends AbstractMigration
             ['id' => $value['id']]
         ));
     }
-
-    // -------------------------------------------------------------------------
-    // Require a value for private hash
-    // -------------------------------------------------------------------------
-    $filesTable->changeColumn('private_hash', 'string', [
-        'null' => false
-    ]);
 
     // -------------------------------------------------------------------------
     // Save changes to table

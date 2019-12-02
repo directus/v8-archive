@@ -11,7 +11,7 @@ class UpdateDirectusUsers extends AbstractMigration
     // Add theme column
     // -------------------------------------------------------------------------
     if ($usersTable->hasColumn('theme') == false) {
-        $usersTable->addColumn('theme', 'integer', [
+        $usersTable->addColumn('theme', 'string', [
             'limit' => 100,
             'encoding' => 'utf8',
             'null' => true,
@@ -23,7 +23,7 @@ class UpdateDirectusUsers extends AbstractMigration
     // Add theme column
     // -------------------------------------------------------------------------
     if ($usersTable->hasColumn('2fa_secret') == false) {
-        $usersTable->addColumn('2fa_secret', 'integer', [
+        $usersTable->addColumn('2fa_secret', 'string', [
             'limit' => 100,
             'encoding' => 'utf8',
             'null' => true,

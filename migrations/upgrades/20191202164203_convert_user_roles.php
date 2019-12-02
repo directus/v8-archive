@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class RemoveUserRoles extends AbstractMigration
+class ConvertUserRoles extends AbstractMigration
 {
   public function change() {
     $usersTable = $this->table('directus_users');
@@ -15,6 +15,7 @@ class RemoveUserRoles extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $usersTable->save();
     }
 
     // -------------------------------------------------------------------------
@@ -31,7 +32,7 @@ class RemoveUserRoles extends AbstractMigration
     // Remove directus_user_roles table
     // -------------------------------------------------------------------------
     if ($this->hasTable('directus_user_roles')) {
-      $this->table('directus_user_roles')->drop()->save();
+      $this->table('directus_user_roles')->drop();
     }
   }
 }

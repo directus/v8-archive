@@ -37,8 +37,8 @@ class UpdateDirectusRoles extends AbstractMigration
     // -------------------------------------------------------------------------
     // Add enforce_2fa column
     // -------------------------------------------------------------------------
-    if ($rolesTable->hasColumn('collection_listing') == false) {
-        $rolesTable->addColumn('enforce_2fa', 'string', [
+    if ($rolesTable->hasColumn('enforce_2fa') == false) {
+        $rolesTable->addColumn('enforce_2fa', 'integer', [
             'null' => true,
             'default' => false
         ]);
