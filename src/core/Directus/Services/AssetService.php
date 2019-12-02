@@ -71,32 +71,35 @@ class AssetService extends AbstractService
     {
         $tableGateway = $this->createTableGateway($this->collection);
         $select = new Select($this->collection);
-        $select->columns(['filename_disk','filename_download','id']);
-        $select->where([
-           'private_hash' => $fileHashId
-        ]);
+        $select->columns(['filename_disk', 'filename_download', 'id']);
+        $select->where(['private_hash' => $fileHashId]);
         $select->limit(1);
         $result = $tableGateway->ignoreFilters()->selectWith($select);
 
         if ($result->count() == 0) {
             throw new ItemNotFoundException();
         }
+
         $file = $result->current()->toArray();
 
+        // Get original image
         if (count($params) == 0) {
             $img = $this->filesystem->read($file['filename_disk']);
             $interventionImage = Image::make($img);
             $lastModified = $this->filesystem->getAdapter()->getTimestamp($file['filename_disk']);
             $lastModified = new DateTimeUtils(date('c', $lastModified));
+
             $result = [];
-            $result['last-modified'] = $lastModified->toRFC2616Format();
-            $result['mimeType'] = $interventionImage->mime();
+            $result['last_modified'] = $lastModified->toRFC2616Format();
+            $result['mime_type'] = $interventionImage->mime();
             $result['file'] = isset($img) && $img ? $img : null;
             $result['filename'] = $file['filename'];
+            $result['filename_download'] = $file['filename_download'];
+
             return $result;
         }else{
 
-            $this->fileName=$file['filename_disk'];
+            $this->fileName = $file['filename_disk'];
             $this->fileNameDownload = $file['filename_download'];
             try {
                 return $this->getThumbnail($params);
@@ -118,11 +121,12 @@ class AssetService extends AbstractService
             throw new Exception($this->fileName . ' does not exist.');
         }
 
-        $this->thumbnailDir = 'w'.$this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
+        $this->thumbnailDir = 'w' . $this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
                               ',f' . $this->thumbnailParams['fit'] . ',q' . $this->thumbnailParams['quality'];
 
         try {
-            $image=$this->getExistingThumbnail();
+            $image = $this->getExistingThumbnail();
+
             if (!$image) {
                 switch ($this->thumbnailParams['fit']) {
                     case 'contain':
@@ -133,9 +137,11 @@ class AssetService extends AbstractService
                         $image = $this->crop();
                 }
             }
-            $result['mimeType']=$this->getThumbnailMimeType($this->thumbnailDir,$this->fileName);
-            $result['file']=$image;
-            $result['fileNameDownload']=$this->fileNameDownload;
+
+            $result['mime_type'] = $this->getThumbnailMimeType($this->thumbnailDir, $this->fileName);
+            $result['last_modified'] = $this->getThumbnailLastModified($this->thumbnailDir, $this->fileName);
+            $result['file'] = $image;
+            $result['filename_download'] = $this->fileNameDownload;
             return $result;
         }
         catch (Exception $e) {
@@ -396,7 +402,7 @@ class AssetService extends AbstractService
         }
     }
 
-    public function getThumbnailMimeType($path,$fileName)
+    public function getThumbnailMimeType($path, $fileName)
     {
         try {
             if($this->filesystemThumb->exists($path . '/' . $fileName) ) {
@@ -407,6 +413,19 @@ class AssetService extends AbstractService
                 return $img->mime();
             }
             return 'application/octet-stream';
+        }
+
+        catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getThumbnailLastModified($path, $fileName)
+    {
+        try {
+            $lastModified = $this->filesystemThumb->getAdapter()->getTimestamp($path . '/' . $fileName);
+            $lastModified = new DateTimeUtils(date('c', $lastModified));
+            return $lastModified->toRFC2616Format();
         }
 
         catch (Exception $e) {
