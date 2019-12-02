@@ -49,7 +49,7 @@ class Schema {
                 new Value('adapter', Types::STRING, 'local'),
                 new Value('root', Types::STRING, 'public/uploads/_/originals'),
                 new Value('root_url', Types::STRING, '/uploads/_/originals'),
-                new Value('thumb_root', Types::STRING, 'public/uploads/_/thumbnails'),
+                new Value('thumb_root', Types::STRING, 'public/uploads/_/generated'),
                 new Value('proxy_downloads?', Types::BOOLEAN, false),
 
                 // S3

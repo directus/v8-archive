@@ -126,7 +126,7 @@ if (!function_exists('append_storage_information')) {
         if (!$list) {
             $rows = [$rows];
         }
-     
+
         foreach ($rows as &$row) {
             $data = [];
             $ext = pathinfo($row['filename_disk'], PATHINFO_EXTENSION);
@@ -145,8 +145,13 @@ if (!function_exists('append_storage_information')) {
 
             }
 
-            // Add Thumbnails
-            $data['thumbnails'] = get_thumbnails($row);
+            // Add thumbnails if the asset is an image
+            $search = 'image';
+            if (substr($row['type'], 0, strlen($search)) === $search) {
+                $data['thumbnails'] = get_thumbnails($row);
+            } else {
+                $data['thumbnails'] = null;
+            }
 
             // Add embed content
             /** @var \Directus\Embed\EmbedManager $embedManager */
@@ -209,7 +214,7 @@ if (!function_exists('get_thumbnails')) {
         if (!in_array($fileExtension, Thumbnail::getFormatsSupported())  &&  strpos($type, 'embed/') !== 0) {
             return null;
         }
-        
+
         $thumbnails = [];
         foreach ($thumbnailWhitelist as $thumbnail) {
             if (Thumbnail::isNonImageFormatSupported($thumbnailExtension)) {

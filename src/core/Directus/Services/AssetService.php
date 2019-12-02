@@ -91,7 +91,7 @@ class AssetService extends AbstractService
 
             $result = [];
             $result['last_modified'] = $lastModified->toRFC2616Format();
-            $result['mime_type'] = $interventionImage->mime();
+            $result['mimeType'] = $interventionImage->mime();
             $result['file'] = isset($img) && $img ? $img : null;
             $result['filename'] = $file['filename'];
             $result['filename_download'] = $file['filename_download'];
@@ -138,7 +138,7 @@ class AssetService extends AbstractService
                 }
             }
 
-            $result['mime_type'] = $this->getThumbnailMimeType($this->thumbnailDir, $this->fileName);
+            $result['mimeType'] = $this->getThumbnailMimeType($this->thumbnailDir, $this->fileName);
             $result['last_modified'] = $this->getThumbnailLastModified($this->thumbnailDir, $this->fileName);
             $result['file'] = $image;
             $result['filename_download'] = $this->fileNameDownload;
