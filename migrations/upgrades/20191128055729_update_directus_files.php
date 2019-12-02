@@ -59,6 +59,14 @@ class UpdateDirectusFiles extends AbstractMigration
             }
         }
 
+        // Make duration read only
+        $this->execute(\Directus\phinx_update(
+            $this->getAdapter(),
+            'directus_fields',
+            ['readonly' => 1],
+            ['collection' => 'directus_files', 'field' => 'duration']
+        ));
+
         if(!$this->checkFieldExist('directus_settings', 'file_naming')){
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
