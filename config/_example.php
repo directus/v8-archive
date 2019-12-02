@@ -160,7 +160,7 @@ return [
                                     // Production silences stack traces and error details in API output
 
     'logger' => [
-        'path' => '/../logs',       // Where to save warning and error logs for the API
+        'path' => '../logs',       // Where to save warning and error logs for the API
     ],
 
     'feedback' => [
