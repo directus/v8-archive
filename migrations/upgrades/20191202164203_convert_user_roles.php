@@ -23,9 +23,11 @@ class ConvertUserRoles extends AbstractMigration
     // It does this by retrieving the role ID from directus_user_roles and adding
     // that role to the role column in directus_users
     // -------------------------------------------------------------------------
-    $stmt = $this->query("SELECT * FROM `directus_user_roles`");
-    while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-        $this->execute('UPDATE `directus_users` SET `role` = '.$row['role'].' where id = '.$row['user'].';');
+    if ($this->hasTable('directus_user_roles')) {
+        $stmt = $this->query("SELECT * FROM `directus_user_roles`");
+        while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+            $this->execute('UPDATE `directus_users` SET `role` = '.$row['role'].' where id = '.$row['user'].';');
+        }
     }
 
     // -------------------------------------------------------------------------

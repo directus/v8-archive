@@ -30,7 +30,7 @@ class UpdateDirectusFiles extends AbstractMigration
     if ($filesTable->hasColumn('private_hash') == false) {
         $filesTable->addColumn('private_hash', 'string', [
             'limit' => 16,
-            'null' => true, // This will be set to false after hashes have been set
+            'null' => true,
             'default' => null
         ]);
     }

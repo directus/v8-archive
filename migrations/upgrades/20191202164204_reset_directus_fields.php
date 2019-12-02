@@ -512,7 +512,8 @@ class ResetDirectusFields extends AbstractMigration
             'interface'=>'text-input',
             'readonly' => 1,
             'hidden_browse' => 1,
-            'hidden_detail' => 1
+            'hidden_detail' => 1,
+            'required' => 0
         ],
         [
             'collection' => 'directus_files',
