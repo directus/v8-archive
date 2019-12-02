@@ -48,6 +48,7 @@ class Settings extends Route
         );
         $inputData = $this->getInterfaceBasedInput($request, $payload['key'], $fieldData);
 
+
         $responseData = $service->create(
             $inputData,
             $request->getQueryParams()

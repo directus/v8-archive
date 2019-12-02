@@ -41,7 +41,6 @@ class UpdateDirectusFiles extends AbstractMigration
                 'locked' => 1
             ])->save();
         }
-        
 
         // adds private_hash in directus_files collection for existing data
         if ($filesTable->hasColumn('private_hash')) {
@@ -91,6 +90,24 @@ class UpdateDirectusFiles extends AbstractMigration
                 ],
                 ['collection' => 'directus_files', 'field' => 'id']
             ));
+        }
+
+        if(!$this->checkFieldExist('directus_settings', 'file_naming')){
+            $fieldsTable->insert([
+                'collection' => 'directus_settings',
+                'field' => 'file_naming',
+                'type' => 'string',
+                'interface'=>'dropdown',
+                'locked' => 1,
+                'width' => 'half',
+                'note' => 'File-system naming convention for uploads',
+                'options' => json_encode([
+                    'choices' => [
+                        'uuid' => 'UUID (Obfuscated)',
+                        'file_name' => 'File Name (Readable)'
+                    ]
+                ])
+            ])->save();
         }
     }
     public function checkFieldExist($collection,$field){
