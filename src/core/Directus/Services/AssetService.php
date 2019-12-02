@@ -71,7 +71,7 @@ class AssetService extends AbstractService
     {
         $tableGateway = $this->createTableGateway($this->collection);
         $select = new Select($this->collection);
-        $select->columns(['filename_disk', 'filename_download', 'id']);
+        $select->columns(['filename_disk', 'filename_download', 'id', 'type']);
         $select->where(['private_hash' => $fileHashId]);
         $select->limit(1);
         $result = $tableGateway->ignoreFilters()->selectWith($select);
@@ -84,16 +84,15 @@ class AssetService extends AbstractService
 
         // Get original image
         if (count($params) == 0) {
-            $img = $this->filesystem->read($file['filename_disk']);
-            $interventionImage = Image::make($img);
             $lastModified = $this->filesystem->getAdapter()->getTimestamp($file['filename_disk']);
             $lastModified = new DateTimeUtils(date('c', $lastModified));
 
+            $img = $this->filesystem->read($file['filename_disk']);
             $result = [];
             $result['last_modified'] = $lastModified->toRFC2616Format();
-            $result['mimeType'] = $interventionImage->mime();
+            $result['mimeType'] = $file['type'];
             $result['file'] = isset($img) && $img ? $img : null;
-            $result['filename'] = $file['filename'];
+            $result['filename'] = $file['filename_disk'];
             $result['filename_download'] = $file['filename_download'];
 
             return $result;
