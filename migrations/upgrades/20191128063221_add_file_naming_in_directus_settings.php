@@ -19,7 +19,7 @@ class AddFileNamingInDirectusSettings extends AbstractMigration
                 'note' => 'File-system naming convention for uploads',
                 'options' => json_encode([
                     'choices' => [
-                        'uuid' => 'File Hash (Obfuscated)',
+                        'uuid' => 'UUID (Obfuscated)',
                         'file_name' => 'File Name (Readable)'
                     ]
                 ])

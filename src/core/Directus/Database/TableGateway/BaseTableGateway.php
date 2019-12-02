@@ -380,14 +380,9 @@ class BaseTableGateway extends TableGateway
                 $recordData['filename_disk'] = $data['filename_disk'];
             }, Emitter::P_LOW);
         }
-       
+
         $TableGateway = $this->makeTable($this->table);
         $primaryKey = $TableGateway->primaryKeyFieldName;
-
-        if($this->table === SchemaManager::COLLECTION_FILES)
-        {
-            $recordData[$primaryKey] = get_random_string();
-        }
 
         if (!$this->shouldUseFilter()) {
             $TableGateway->ignoreFilters();
@@ -397,7 +392,7 @@ class BaseTableGateway extends TableGateway
         if (static::$emitter && $listenerId) {
             static::$emitter->removeListenerWithIndex($listenerId);
         }
-        
+
         // Only get the last inserted id, if the column has auto increment value
         $columnObject = $this->getTableSchema()->getField($primaryKey);
         if ($columnObject->hasAutoIncrement()) {
@@ -405,9 +400,9 @@ class BaseTableGateway extends TableGateway
         }
 
         $this->afterAddOrUpdate($recordData);
-        
+
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($this->table);
-       
+
         return $TableGateway->fetchAll(function (Select $select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
@@ -432,26 +427,6 @@ class BaseTableGateway extends TableGateway
         }
 
         $recordId = $recordData[$primaryKey];
-        if ($collectionName === SchemaManager::COLLECTION_FILES) {
-            $select = new Select($collectionName);
-            $select->columns(['filename_disk']);
-            $select->where([
-                $primaryKey => $recordId
-            ]);
-            $select->limit(1);
-            $result = $TableGateway->ignoreFilters()->selectWith($select);
-
-            if ($result->count() === 0) {
-                throw new ItemNotFoundException();
-            }
-
-            $currentItem = $result->current()->toArray();
-
-            $originalFilename = ArrayUtils::get($currentItem, 'filename_disk');
-            $recordData = array_merge([
-                'filename_disk' => $originalFilename
-            ], $recordData);
-        }
 
         $Update = new Update($collectionName);
         $Update->set($recordData);
@@ -732,7 +707,7 @@ class BaseTableGateway extends TableGateway
 
         $selectState = $select->getRawState();
         $selectCollectionName = $selectState['table'];
-        
+
         if ($useFilter) {
             $selectState = $this->applyHooks([
                 'item.read:before',
@@ -753,7 +728,7 @@ class BaseTableGateway extends TableGateway
                 $e
             );
         }
-    
+
         if ($useFilter) {
             $result = $this->applyHooks([
                 'item.read',
@@ -917,7 +892,7 @@ class BaseTableGateway extends TableGateway
 
         $deleteState = $delete->getRawState();
         $deleteTable = $this->getRawTableNameFromQueryStateTable($deleteState['table']);
-       
+
         // Runs select PK with passed delete's $where before deleting, to use those for the even hook
         if ($pk = $this->primaryKeyFieldName) {
             $select = $this->sql->select();
@@ -936,7 +911,7 @@ class BaseTableGateway extends TableGateway
             $delete = $this->sql->delete();
             $expression = new In($pk, $ids);
             $delete->where($expression);
-            
+
             foreach ($ids as $id) {
                 $deleteData = [$this->primaryKeyFieldName => $id];
                 $this->runHook('item.delete:before', [$deleteTable, $deleteData]);
@@ -952,7 +927,7 @@ class BaseTableGateway extends TableGateway
                 );
             }
 
-            
+
             //Invalidate individual cache
             if (static::$container) {
                 $config = static::$container->get('config');
@@ -1826,7 +1801,7 @@ class BaseTableGateway extends TableGateway
         if (!static::$container || !$isFilesCollection || !$hasData) {
             return;
         }
-        
+
         $updateArray = [];
         $Files = static::$container->get('files');
         if ($Files->getSettings('file_naming') == 'id') {

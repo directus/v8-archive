@@ -241,7 +241,7 @@ class CreateSettingsTable extends AbstractMigration
                 'sort' => 31,
                 'options' => json_encode([
                     'choices' => [
-                        'uuid' => 'File Hash (Obfuscated)',
+                        'uuid' => 'UUID (Obfuscated)',
                         'file_name' => 'File Name (Readable)'
                     ]
                 ])

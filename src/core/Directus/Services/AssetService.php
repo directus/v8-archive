@@ -13,6 +13,7 @@ use Directus\Exception\UnprocessableEntityException;
 use Directus\Database\Exception\ItemNotFoundException;
 use function Directus\get_directus_thumbnail_settings;
 use Intervention\Image\ImageManagerStatic as Image;
+use Directus\Util\DateTimeUtils;
 
 class AssetService extends AbstractService
 {
@@ -40,7 +41,7 @@ class AssetService extends AbstractService
      /**
      * @var string
      */
-    protected $fileNameDownlaod;
+    protected $fileNameDownload;
 
     /**
      * Main Filesystem
@@ -82,14 +83,28 @@ class AssetService extends AbstractService
         }
         $file = $result->current()->toArray();
 
-        $this->fileName=$file['filename_disk'];
-        $this->fileNameDownlaod = $file['filename_download'];
-        try {
-            return $this->getThumbnail($params);
-        }
-        catch(Exception $e)
-        {
-            throw new UnprocessableEntityException(sprintf($e->getMessage()));
+        if (count($params) == 0) {
+            $img = $this->filesystem->read($file['filename_disk']);
+            $interventionImage = Image::make($img);
+            $lastModified = $this->filesystem->getAdapter()->getTimestamp($file['filename_disk']);
+            $lastModified = new DateTimeUtils(date('c', $lastModified));
+            $result = [];
+            $result['last-modified'] = $lastModified->toRFC2616Format();
+            $result['mimeType'] = $interventionImage->mime();
+            $result['file'] = isset($img) && $img ? $img : null;
+            $result['filename'] = $file['filename'];
+            return $result;
+        }else{
+
+            $this->fileName=$file['filename_disk'];
+            $this->fileNameDownload = $file['filename_download'];
+            try {
+                return $this->getThumbnail($params);
+            }
+            catch(Exception $e)
+            {
+                throw new UnprocessableEntityException(sprintf($e->getMessage()));
+            }
         }
     }
 
@@ -98,7 +113,7 @@ class AssetService extends AbstractService
         $this->thumbnailParams=$params;
 
         $this->validateThumbnailParams($params);
-      
+
         if (! $this->filesystem->exists($this->fileName)) {
             throw new Exception($this->fileName . ' does not exist.');
         }
@@ -120,7 +135,7 @@ class AssetService extends AbstractService
             }
             $result['mimeType']=$this->getThumbnailMimeType($this->thumbnailDir,$this->fileName);
             $result['file']=$image;
-            $result['fileNameDownlaod']=$this->fileNameDownlaod;
+            $result['fileNameDownload']=$this->fileNameDownload;
             return $result;
         }
         catch (Exception $e) {
@@ -197,7 +212,8 @@ class AssetService extends AbstractService
 
         // If the user didn't provide a key, and the whitelist items are required,
         // verify if the passed keys match one of the predefined items
-        if ($usesKey == false && $whitelistEnabled) {
+
+        if (!$usesKey && $whitelistEnabled) {
             $exists = false;
 
             foreach($allSizes as $key => $value) {
@@ -211,7 +227,7 @@ class AssetService extends AbstractService
                 }
             }
 
-            if ($exists == false) {
+            if (!$exists) {
                 throw new Exception(sprintf("The params don't match the asset whitelist."));
             }
         }
@@ -309,11 +325,6 @@ class AssetService extends AbstractService
         $ext = pathinfo($this->fileName, PATHINFO_EXTENSION);
         if (Thumbnail::isNonImageFormatSupported($ext)) {
             $content = Thumbnail::createImageFromNonImage($content);
-            // For non supported file format make default thumbnail with jpeg extension
-            $this->thumbnailParams['thumbnailFileName'] = pathinfo($this->thumbnailParams['thumbnailFileName'], PATHINFO_FILENAME).'.jpeg';
-            $this->thumbnailParams['format']='jpeg';
-            $this->fileName = $this->thumbnailParams['thumbnailFileName'];
-            $this->fileNameDownlaod = pathinfo($this->fileNameDownlaod, PATHINFO_FILENAME).'.jpeg';
         }
         return Image::make($content);
     }

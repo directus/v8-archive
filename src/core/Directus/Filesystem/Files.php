@@ -290,7 +290,6 @@ class Files
         // @TODO: merge with upload()
         $filenameDownload = $fileName;
         $fileName = $this->getFileName($fileName, $replace !== true);
-
         $filePath = $this->getConfig('root') . '/' . $fileName;
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
         $event = $replace ? 'file.update' : 'file.save';
@@ -306,14 +305,14 @@ class Files
         }
 
         unset($fileData);
-       
+
         $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($title);
         $fileData['filename_disk'] = basename($filePath);
         $fileData['storage'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
-       
+
         # Updates for file meta data tags
         if (strpos($fileData['type'],'video') !== false) {
             #use ffprobe on local file, can't stream data to it or reference
@@ -335,7 +334,7 @@ class Files
         unset($tmpData);
 
         $response = [
-            // The MIME type will be based on its extension, rather than its 
+            // The MIME type will be based on its extension, rather than its extension
             'type' => MimeTypeUtils::getFromFilename($fileData['filename_disk']),
             'filename_disk' => $fileData['filename_disk'],
             'filename_download' => $filenameDownload,

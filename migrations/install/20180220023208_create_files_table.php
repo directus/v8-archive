@@ -23,13 +23,11 @@ class CreateFilesTable extends AbstractMigration
         ]);
         $table->addColumn('filename_disk', 'string', [
             'limit' => 255,
-            'null' => false,
-            'default' => null
+            'null' => false
         ]);
         $table->addColumn('filename_download', 'string', [
             'limit' => 255,
-            'null' => true,
-            'default' => null
+            'null' => false
         ]);
         $table->addColumn('title', 'string', [
             'limit' => 255,
@@ -179,10 +177,7 @@ class CreateFilesTable extends AbstractMigration
                 'field' => 'filename_download',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
-                'locked' => 1,
-                'readonly' => 1,
-                'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'locked' => 1
             ],
             [
                 'collection' => 'directus_files',
