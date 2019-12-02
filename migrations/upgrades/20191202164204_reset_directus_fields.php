@@ -1362,7 +1362,7 @@ class ResetDirectusFields extends AbstractMigration
                 'placeholder' => 'Enter a file mimetype then hit enter (eg: image/jpeg)'
             ]),
             'locked' => 1,
-            'width' => 'half',
+            'width' => 'full',
             'sort' => 33
         ],
         [
