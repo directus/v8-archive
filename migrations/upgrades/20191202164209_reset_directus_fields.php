@@ -184,7 +184,7 @@ class ResetDirectusFields extends AbstractMigration
             'collection' => 'directus_activity',
             'field' => 'action',
             'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-            'interface' => 'activity-icon',
+            'interface' => 'text-input',
             'options' => json_encode([
                 'iconRight' => 'change_history'
             ]),
