@@ -842,7 +842,7 @@ class ResetDirectusFields extends AbstractMigration
         [
             'collection' => 'directus_roles',
             'field' => 'enforce_2fa',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
             'interface' => 'toggle',
             'locked' => 1
         ],
