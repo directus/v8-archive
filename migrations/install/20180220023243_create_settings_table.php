@@ -268,7 +268,7 @@ class CreateSettingsTable extends AbstractMigration
                     'placeholder' => 'Enter a file mimetype then hit enter (eg: image/jpeg)'
                 ]),
                 'locked' => 1,
-                'width' => 'half',
+                'width' => 'full',
                 'sort' => 33
             ],
             [
@@ -377,7 +377,7 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
               'key' => 'project_color',
-              'value' => 'blue-grey-900',
+              'value' => '#13181a',
             ],
             [
               'key' => 'project_foreground',

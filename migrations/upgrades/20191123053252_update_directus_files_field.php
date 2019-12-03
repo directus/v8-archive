@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 class UpdateDirectusFilesField extends AbstractMigration
 {
     /**
-     * Version : v8.0.1
+     * Version : v8.0.0
      * Update the fields of directus_files table
      */
     public function change()

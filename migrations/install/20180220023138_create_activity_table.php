@@ -62,8 +62,6 @@ class CreateActivityTable extends AbstractMigration
         $table->create();
 
         $data = [
-            // Activity
-            // -----------------------------------------------------------------
             [
                 'collection' => 'directus_activity',
                 'field' => 'id',
@@ -78,7 +76,7 @@ class CreateActivityTable extends AbstractMigration
                 'collection' => 'directus_activity',
                 'field' => 'action',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-                'interface' => 'activity-icon',
+                'interface' => 'text-input',
                 'options' => json_encode([
                     'iconRight' => 'change_history'
                 ]),
