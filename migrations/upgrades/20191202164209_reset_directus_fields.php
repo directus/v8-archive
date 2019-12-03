@@ -490,32 +490,6 @@ class ResetDirectusFields extends AbstractMigration
         // directus_files
         [
             'collection' => 'directus_files',
-            'field' => 'data',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
-            'interface' => 'file',
-            'locked' => 1,
-            'hidden_detail' => 1
-        ],
-        [
-            'collection' => 'directus_files',
-            'field' => 'id',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
-            'interface' => 'primary-key',
-            'locked' => 1,
-            'required' => 1,
-            'hidden_detail' => 1
-        ],
-        [
-            'collection' => 'directus_files',
-            'field' => 'private_hash',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-            'interface'=>'text-input',
-            'readonly' => 1,
-            'hidden_browse' => 1,
-            'hidden_detail' => 1
-        ],
-        [
-            'collection' => 'directus_files',
             'field' => 'preview',
             'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
             'interface' => 'file-preview',
@@ -533,8 +507,58 @@ class ResetDirectusFields extends AbstractMigration
                 'iconRight' => 'title'
             ]),
             'locked' => 1,
+            'sort' => 2,
+            'width' => 'full'
+        ],
+        [
+            'collection' => 'directus_files',
+            'field' => 'tags',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
+            'interface' => 'tags',
+            'options' => json_encode([
+                'placeholder' => 'Enter a keyword then hit enter...'
+            ]),
             'sort' => 3,
-            'width' => 'half'
+            'width' => 'half',
+            'locked' => 1
+        ],
+        [
+            'collection' => 'directus_files',
+            'field' => 'location',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+            'interface' => 'text-input',
+            'options' => json_encode([
+                'placeholder' => 'Enter a location...',
+                'iconRight' => 'place'
+            ]),
+            'sort' => 4,
+            'width' => 'half',
+            'locked' => 1
+        ],
+        [
+            'collection' => 'directus_files',
+            'field' => 'description',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+            'interface' => 'wysiwyg',
+            'options' => json_encode([
+                'toolbar' => ['bold','italic','underline','link','code']
+            ]),
+            'sort' => 5,
+            'width' => 'full',
+            'locked' => 1
+        ],
+        [
+            'collection' => 'directus_files',
+            'field' => 'filename_download',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+            'interface' => 'text-input',
+            'locked' => 1,
+            'options' => json_encode([
+                'monospace' => true,
+                'iconRight' => 'get_app'
+            ]),
+            'sort' => 6,
+            'width' => 'full'
         ],
         [
             'collection' => 'directus_files',
@@ -546,51 +570,34 @@ class ResetDirectusFields extends AbstractMigration
                 'iconRight' => 'insert_drive_file'
             ]),
             'locked' => 1,
-            'readonly' => 1,
-            'sort' => 4,
-            'width' => 'half',
-            'required' => 1
-        ],
-        [
-            'collection' => 'directus_files',
-            'field' => 'filename_download',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-            'interface' => 'text-input',
-            'locked' => 1
-        ],
-        [
-            'collection' => 'directus_files',
-            'field' => 'tags',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
-            'interface' => 'tags',
-            'options' => json_encode([
-                'placeholder' => 'Enter a keyword then hit enter...'
-            ]),
-            'sort' => 5,
-            'width' => 'half'
-        ],
-        [
-            'collection' => 'directus_files',
-            'field' => 'location',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-            'interface' => 'text-input',
-            'options' => json_encode([
-                'placeholder' => 'Enter a location...',
-                'iconRight' => 'place'
-            ]),
-            'sort' => 6,
-            'width' => 'half'
-        ],
-        [
-            'collection' => 'directus_files',
-            'field' => 'description',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-            'interface' => 'wysiwyg',
-            'options' => json_encode([
-                'toolbar' => ['bold','italic','underline','link','code']
-            ]),
             'sort' => 7,
             'width' => 'full'
+        ],
+        [
+            'collection' => 'directus_files',
+            'field' => 'private_hash',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+            'interface'=> 'slug',
+            'width' => 'half',
+            'locked' => 1,
+            'sort' => 8,
+            'options' => json_encode([
+                'iconRight' => 'lock'
+            ])
+        ],
+        [
+            'collection' => 'directus_files',
+            'field' => 'checksum',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+            'interface' => 'text-input',
+            'locked' => 1,
+            'readonly' => 1,
+            'sort' => 9,
+            'width' => 'half',
+            'options' => json_encode([
+                'iconRight' => 'check',
+                'monospace' => true
+            ])
         ],
         [
             'collection' => 'directus_files',
@@ -602,7 +609,7 @@ class ResetDirectusFields extends AbstractMigration
             ]),
             'locked' => 1,
             'readonly' => 1,
-            'sort' => 8,
+            'sort' => 10,
             'width' => 'half',
             'required' => 1
         ],
@@ -613,7 +620,7 @@ class ResetDirectusFields extends AbstractMigration
             'interface' => 'user-created',
             'locked' => 1,
             'readonly' => 1,
-            'sort' => 9,
+            'sort' => 11,
             'width' => 'half',
             'required' => 1
         ],
@@ -627,7 +634,7 @@ class ResetDirectusFields extends AbstractMigration
             ]),
             'locked' => 1,
             'readonly' => 1,
-            'sort' => 10,
+            'sort' => 12,
             'width' => 'half'
         ],
         [
@@ -640,7 +647,7 @@ class ResetDirectusFields extends AbstractMigration
             ]),
             'locked' => 1,
             'readonly' => 1,
-            'sort' => 11,
+            'sort' => 13,
             'width' => 'half'
         ],
         [
@@ -653,7 +660,7 @@ class ResetDirectusFields extends AbstractMigration
             ]),
             'locked' => 1,
             'readonly' => 1,
-            'sort' => 12,
+            'sort' => 14,
             'width' => 'half'
         ],
         [
@@ -666,7 +673,7 @@ class ResetDirectusFields extends AbstractMigration
             ]),
             'locked' => 1,
             'readonly' => 1,
-            'sort' => 13,
+            'sort' => 15,
             'width' => 'half'
         ],
         [
@@ -675,7 +682,7 @@ class ResetDirectusFields extends AbstractMigration
             'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
             'interface' => 'key-value',
             'locked' => 1,
-            'sort' => 14,
+            'sort' => 15,
             'width' => 'full',
             'options' => json_encode([
                 'keyInterface' => 'text-input',
@@ -691,6 +698,23 @@ class ResetDirectusFields extends AbstractMigration
                     'placeholder' => 'Value'
                 ]
             ])
+        ],
+        [
+            'collection' => 'directus_files',
+            'field' => 'data',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
+            'interface' => 'file',
+            'locked' => 1,
+            'hidden_detail' => 1
+        ],
+        [
+            'collection' => 'directus_files',
+            'field' => 'id',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
+            'interface' => 'primary-key',
+            'locked' => 1,
+            'required' => 1,
+            'hidden_detail' => 1
         ],
         [
             'collection' => 'directus_files',
@@ -734,16 +758,6 @@ class ResetDirectusFields extends AbstractMigration
             'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
             'interface' => 'text-input',
             'locked' => 1,
-            'hidden_detail' => 1,
-            'hidden_browse' => 1
-        ],
-        [
-            'collection' => 'directus_files',
-            'field' => 'checksum',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-            'interface' => 'text-input',
-            'locked' => 1,
-            'readonly' => 1,
             'hidden_detail' => 1,
             'hidden_browse' => 1
         ],
