@@ -154,8 +154,8 @@ class CreateCollectionsPresetsTable extends AbstractMigration
                 'view_options' => json_encode([
                     'timeline' => [
                         'date' => 'action_on',
-                        'title' => '{{ action_by.first_name }} {{ action_by.last_name }} ({{ action }})',
-                        'content' => 'action_by',
+                        'title' => '{{ action }} by {{ action_by.first_name }} {{ action_by.last_name }} (#{{ item }})',
+                        'content' => 'collection',
                         'color' => 'action'
                     ]
                 ])
