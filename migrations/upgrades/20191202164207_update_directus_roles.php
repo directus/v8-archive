@@ -15,6 +15,13 @@ class UpdateDirectusRoles extends AbstractMigration
     }
 
     // -------------------------------------------------------------------------
+    // Remove deprecated nav_override
+    // -------------------------------------------------------------------------
+    if ($rolesTable->hasColumn('nav_override')) {
+        $rolesTable->removeColumn('nav_override');
+    }
+
+    // -------------------------------------------------------------------------
     // Add module_listing column
     // -------------------------------------------------------------------------
     if ($rolesTable->hasColumn('module_listing') == false) {

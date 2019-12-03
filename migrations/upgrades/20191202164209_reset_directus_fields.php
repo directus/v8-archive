@@ -840,12 +840,10 @@ class ResetDirectusFields extends AbstractMigration
         ],
         [
             'collection' => 'directus_roles',
-            'field' => 'nav_blacklist',
-            'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
-            'interface' => 'textarea',
-            'locked' => 1,
-            'hidden_detail' => 1,
-            'hidden_browse' => 1
+            'field' => 'enforce_2fa',
+            'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
+            'interface' => 'toggle',
+            'locked' => 1
         ],
         [
             'collection' => 'directus_roles',
