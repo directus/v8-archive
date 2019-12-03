@@ -199,7 +199,8 @@ class ResetDirectusFields extends AbstractMigration
             'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
             'interface' => 'collections',
             'options' => json_encode([
-                'iconRight' => 'list_alt'
+                'iconRight' => 'list_alt',
+                'include_system' => true
             ]),
             'locked' => 1,
             'readonly' => 1,
