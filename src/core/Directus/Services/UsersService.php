@@ -382,7 +382,7 @@ class UsersService extends AbstractService
     {
         try {
             $dbConnection = $this->container->get('database');
-            $tableGateway = new TableGateway('directus_roles', $dbConnection);
+            $tableGateway = new TableGateway(SchemaManager::COLLECTION_ROLES, $dbConnection);
             $select = new Select(['r' => SchemaManager::COLLECTION_ROLES]);
             $select->columns(['enforce_2fa']);
 
