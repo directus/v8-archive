@@ -24,7 +24,7 @@ deploy.*
 
 # Ignore configuration files
 /config/*
-!/config/api_sample.php
+!/config/_example.php
 
 # PHPUnit
 /phpunit.xml
