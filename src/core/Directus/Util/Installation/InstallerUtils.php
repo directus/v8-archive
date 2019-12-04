@@ -65,8 +65,8 @@ class InstallerUtils
         $scannedDirectory = array_values(array_diff(scandir($basePath.'/migrations/upgrades'), $ignoreableFiles));
         foreach($scannedDirectory as $fileName){
             $data = [];
-            $fileNameObject = explode("_", $fileName,2);
-            $migrationName = explode(".",str_replace(' ', '', ucwords(str_replace('_', ' ', $fileNameObject[1]))), 2);
+            $fileNameObject = explode("_", $fileName, 2);
+            $migrationName = explode(".", str_replace(' ', '', ucwords(str_replace('_', ' ', $fileNameObject[1]))), 2);
 
             $data = [
                 'version' => $fileNameObject[0],
