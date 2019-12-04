@@ -42,15 +42,7 @@ class Server extends Route
             $basePath = \Directus\get_app_base_path();
             $scannedDirectory = \Directus\scan_folder($basePath.'/config');
 
-            $configFiles = [];
-
-            // Filter out all config files that start with `_`. Leave the file in if it's only a single character filename
-            // This ensures backwards compatibility with Directus 7
-            foreach ($scannedDirectory as $fileName) {
-                if (strlen($fileName) > 4 && StringUtils::startsWith($fileName, '_') == false) {
-                    $configFiles[] = $fileName;
-                }
-            }
+            $configFiles = $scannedDirectory;
 
             if (empty($configFiles)) {
                 throw new NotInstalledException('This Directus instance has not been configured. Install via the Directus App (eg: /admin) or read more about configuration at: https://docs.directus.io/getting-started/installation.html#configure');

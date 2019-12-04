@@ -132,7 +132,7 @@ if (!function_exists('scan_folder')) {
                 $fileObject = explode(".", $fileName);
 
                 if (end($fileObject) == "php") {
-                    if (strlen($fileName) > 4 && StringUtils::startsWith($fileName, '_') === false) {
+                    if (strlen($fileObject[0]) == 1 || StringUtils::startsWith($fileName, '_') === false) {
                         $projectNames[] = implode(".", $fileObject);
                     }
                 }

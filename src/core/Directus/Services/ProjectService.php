@@ -65,15 +65,7 @@ class ProjectService extends AbstractService
         $basePath = \Directus\get_app_base_path();
         $scannedDirectory = \Directus\scan_folder($basePath.'/config');
 
-        $projectNames = [];
-
-        // Filter out all config files that start with `_`. Leave the file in if it's only a single character filename
-        // This ensures backwards compatibility with Directus 7
-        foreach ($scannedDirectory as $fileName) {
-            if (strlen($fileName) > 4 && StringUtils::startsWith($fileName, '_') === false) {
-                $projectNames[] = $fileName;
-            }
-        }
+        $projectNames = $scannedDirectory;
 
         $superadminFilePath = $basePath.'/config/__api.json';
         if(empty($projectNames)){
