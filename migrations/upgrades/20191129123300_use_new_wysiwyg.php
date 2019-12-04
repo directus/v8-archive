@@ -14,5 +14,11 @@ class UseNewWysiwyg extends AbstractMigration
         ['interface' => 'wysiwyg'],
         ['interface' => 'wysiwyg_advanced']
     ));
+    $this->execute(\Directus\phinx_update(
+        $this->getAdapter(),
+        'directus_fields',
+        ['interface' => 'wysiwyg'],
+        ['interface' => 'wysiwyg_full']
+    ));
   }
 }
