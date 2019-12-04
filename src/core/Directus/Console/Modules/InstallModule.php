@@ -2,8 +2,10 @@
 
 namespace Directus\Console\Modules;
 
+use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Console\Common\Exception\PasswordChangeException;
 use Directus\Console\Common\Exception\UserUpdateException;
+use Directus\Console\Common\Exception\InvalidDatabaseConnectionException;
 use Directus\Console\Common\Setting;
 use Directus\Console\Common\User;
 use Directus\Console\Exception\CommandFailedException;
@@ -171,6 +173,17 @@ class InstallModule extends ModuleBase
                     break;
             }
         }
+
+        $data = [
+            'project' => '_',
+            'db_name' => getenv('DIRECTUS_DATABASE_NAME'),
+            'db_host' => getenv('DIRECTUS_DATABASE_HOST'),
+            'db_port' => getenv('DIRECTUS_DATABASE_PORT'),
+            'db_user' => getenv('DIRECTUS_DATABASE_USERNAME'),
+            'db_password' => getenv('DIRECTUS_DATABASE_PASSWORD'),
+        ];
+
+        InstallerUtils::ensureCanCreateTables($directus_path, $data, $force);
 
         InstallerUtils::createTables($directus_path, $projectName, $force);
         InstallerUtils::addUpgradeMigrations($this->getBasePath(),$projectName);

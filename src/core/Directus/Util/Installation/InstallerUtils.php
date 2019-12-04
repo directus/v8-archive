@@ -178,6 +178,8 @@ class InstallerUtils
      *
      * @param string $path
      * @param array $data
+     *        The JSON that the user POSTed to the create-project endpoint
+     *        Required in here are the database credentials
      * @param bool $force
      */
     public static function ensureCanCreateTables($path, array $data, $force = false)
