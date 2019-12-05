@@ -175,7 +175,7 @@ class InstallModule extends ModuleBase
         }
 
 
-        if (getenv('DIRECTUS_USE_ENV')) {
+        if (getenv('DIRECTUS_USE_ENV') === "1") {
             $data = [
                 'project' => '_',
                 'db_name' => getenv('DIRECTUS_DATABASE_NAME'),
