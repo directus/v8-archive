@@ -156,7 +156,7 @@ class InstallModule extends ModuleBase
 
     public function cmdDatabase($args, $extra)
     {
-        $directus_path = $this->getBasePath() . DIRECTORY_SEPARATOR;
+        $directus_path = $this->getBasePath();
         $projectName = null;
         $force = false;
 
@@ -174,14 +174,28 @@ class InstallModule extends ModuleBase
             }
         }
 
-        $data = [
-            'project' => '_',
-            'db_name' => getenv('DIRECTUS_DATABASE_NAME'),
-            'db_host' => getenv('DIRECTUS_DATABASE_HOST'),
-            'db_port' => getenv('DIRECTUS_DATABASE_PORT'),
-            'db_user' => getenv('DIRECTUS_DATABASE_USERNAME'),
-            'db_password' => getenv('DIRECTUS_DATABASE_PASSWORD'),
-        ];
+
+        if (getenv('DIRECTUS_USE_ENV')) {
+            $data = [
+                'project' => '_',
+                'db_name' => getenv('DIRECTUS_DATABASE_NAME'),
+                'db_host' => getenv('DIRECTUS_DATABASE_HOST'),
+                'db_port' => getenv('DIRECTUS_DATABASE_PORT'),
+                'db_user' => getenv('DIRECTUS_DATABASE_USERNAME'),
+                'db_password' => getenv('DIRECTUS_DATABASE_PASSWORD'),
+            ];
+        } else {
+            $app = InstallerUtils::createApp($directus_path, $projectName);
+            $config = $app->getConfig();
+            $data = [
+                'project' => $projectName,
+                'db_name' => $config['database']['name'],
+                'db_host' => $config['database']['host'],
+                'db_port' => $config['database']['port'],
+                'db_user' => $config['database']['username'],
+                'db_password' => $config['database']['password'],
+            ];
+        }
 
         InstallerUtils::ensureCanCreateTables($directus_path, $data, $force);
 
