@@ -1,7 +1,7 @@
 <h1>
   <img src="https://user-images.githubusercontent.com/522079/43096167-3a1b1118-8e86-11e8-9fb2-7b4e3b1368bc.png" width="40" alt="Directus Logo"/>&nbsp;&nbsp;Directus API</h1>
 
-> Looking for the full Directus suite? Checkout [the `directus/directus` repo](https://github.com/directus/directus)!
+> **IMPORTANT:** You do not install this API directly, it is included in the Directus Suite, located here: [`directus/directus`](https://github.com/directus/directus). This repository is only used to help organize the codebase.
 
 ## Description
 
@@ -9,7 +9,7 @@ The Directus API is a PHP powered REST / GraphQL API that acts as a layer on top
 
 ## Installation / Usage
 
-**NOTE**: Unless you're contributing to the project, you shouldn't build the API from source. Use [`directus/directus`](/directus/directus) instead.
+**IMPORTANT:** Unless you're contributing to the project, you shouldn't build the API from source. Use [`directus/directus`](/directus/directus) instead.
 
 1. Clone the repo
 2. Install the depencencies using `composer`: `composer install`
