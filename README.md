@@ -9,7 +9,7 @@ The Directus API is a PHP powered REST / GraphQL API that acts as a layer on top
 
 ## Installation / Usage
 
-**IMPORTANT:** Unless you're contributing to the project, you shouldn't build the API from source. Use [`directus/directus`](/directus/directus) instead.
+**IMPORTANT:** Unless contributing to the project, you shouldn't build the API from source. Use [`directus/directus`](/directus/directus) instead.
 
 1. Clone the repo
 2. Install the depencencies using `composer`: `composer install`
