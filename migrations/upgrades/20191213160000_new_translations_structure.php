@@ -20,7 +20,11 @@ class NewTranslationsStructure extends AbstractMigration
         $languagesNameField = $options->languagesNameField;
         $translationLanguageField = $options->translationLanguageField;
 
-        $languages = $this->fetchAll('SELECT * FROM `' . $languagesCollection . '`;');
+        $languages = null;
+
+        if ($this->hasTable($languagesCollection)) {
+            $languages = $this->fetchAll('SELECT * FROM `' . $languagesCollection . '`;');
+        }
 
         $newOptions = [
             'languageField' => $translationLanguageField
