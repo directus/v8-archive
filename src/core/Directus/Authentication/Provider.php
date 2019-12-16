@@ -507,7 +507,6 @@ class Provider
         $payload['type'] = (string) $type;
         $payload['key'] = $this->getPublicKey();
         $payload['project'] = get_api_project_from_request();
-        $payload['created_at'] = strtotime(DateTimeUtils::now()->toString());
 
         return JWTUtils::encode($payload, $this->getSecretKey($payload['project']), $this->getTokenAlgorithm());
     }
@@ -529,7 +528,6 @@ class Provider
         if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_AUTH, $payload)) {
             throw new InvalidTokenException();
         }
-        $payload->created_at = strtotime(DateTimeUtils::now()->toString());
         $payload->exp = $this->getNewExpirationTime();
 
         $payload->needs2FA = $needs2FA;

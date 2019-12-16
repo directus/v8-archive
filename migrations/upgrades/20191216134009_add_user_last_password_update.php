@@ -11,21 +11,24 @@ class AddUserLastPasswordUpdate extends AbstractMigration
         $fieldsTable = $this->table('directus_fields');
 
         // -------------------------------------------------------------------------
-        // Add role column to directus_users
+        // Add password_reset_token column to directus_users
         // -------------------------------------------------------------------------
-        if ($usersTable->hasColumn('password_last_updated_at') == false) {
-            $usersTable->addColumn('password_last_updated_at', 'datetime', [
+        if ($usersTable->hasColumn('password_reset_token') == false) {
+            $usersTable->addColumn('password_reset_token', 'string', [
+                'limit' => 520,
+                'encoding' => 'utf8',
                 'null' => true,
                 'default' => null
             ]);
             $usersTable->save();
         }
-        if (!$this->checkFieldExist('directus_users', 'password_last_updated_at')) {
+
+        if (!$this->checkFieldExist('directus_users', 'password_reset_token')) {
             $fieldsTable->insert([
                 'collection' => 'directus_users',
-                'field' => 'password_last_updated_at',
-                'type' =>  \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
-                'interface' => 'datetime',
+                'field' => 'password_reset_token',
+                'type' =>  \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1

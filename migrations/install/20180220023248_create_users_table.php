@@ -104,7 +104,10 @@ class CreateUsersTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
-        $table->addColumn('password_last_updated_at', 'datetime', [
+
+        $table->addColumn('password_reset_token', 'string', [
+            'limit' => 520,
+            'encoding' => 'utf8',
             'null' => true,
             'default' => null
         ]);
@@ -542,9 +545,9 @@ class CreateUsersTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_users',
-                'field' => 'password_last_updated_at',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_DATETIME,
-                'interface' => 'datetime',
+                'field' => 'password_reset_token',
+                'type' =>  \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1

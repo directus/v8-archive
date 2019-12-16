@@ -387,16 +387,19 @@ class AuthService extends AbstractService
      * @param $email
      */
     public function sendResetPasswordToken($email)
-
     {
         $this->validate(['email' => $email], ['email' => 'required|email']);
 
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
         $user = $auth->findUserWithEmail($email);
-
         $resetToken = $auth->generateResetPasswordToken($user);
 
+        // Storing the reset_token into password_reset_token to validate it.
+        $userProvider = $auth->getUserProvider();
+        $userProvider->update($user, [
+            'password_reset_token' => $resetToken,
+        ]);
         // Sending the project key in the query param makes sure the app will use the correct project
         // to send the new password to
         $resetUrl = get_url() . 'admin/#/reset-password?token=' . $resetToken . '&project=' . get_api_project_from_request();
@@ -417,6 +420,7 @@ class AuthService extends AbstractService
         $payload = JWTUtils::getPayload($token);
 
         if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_RESET_PASSWORD, $payload)) {
+
             throw new InvalidResetPasswordTokenException($token);
         }
 
@@ -435,12 +439,12 @@ class AuthService extends AbstractService
             throw new InvalidResetPasswordTokenException($token);
         }
 
-        if ($payload->created_at < strtotime($user->password_last_updated_at)) {
+        if ($user->password_reset_token == null || $user->password_reset_token != $token) {
             throw new ExpiredResetPasswordToken($token);
         }
 
         $userProvider->update($user, [
-            'password_last_updated_at' => DateTimeUtils::now()->toString(),
+            'password_reset_token' => null,
             'password' => $auth->hashPassword($newPassword)
         ]);
     }
