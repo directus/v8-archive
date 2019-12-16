@@ -529,7 +529,7 @@ class Provider
         if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_AUTH, $payload)) {
             throw new InvalidTokenException();
         }
-        $payload->created_at = DateTimeUtils::now()->toString();
+        $payload->created_at = strtotime(DateTimeUtils::now()->toString());
         $payload->exp = $this->getNewExpirationTime();
 
         $payload->needs2FA = $needs2FA;

@@ -434,13 +434,10 @@ class AuthService extends AbstractService
         if (!property_exists($payload, 'email') || $payload->email !== $user->getEmail()) {
             throw new InvalidResetPasswordTokenException($token);
         }
-        // print_r($payload->created_at);
-        // print_r(strtotime($user->password_last_updated_at));
-        // die;
+
         if ($payload->created_at < strtotime($user->password_last_updated_at)) {
             throw new ExpiredResetPasswordToken($token);
         }
-
 
         $userProvider->update($user, [
             'password_last_updated_at' => DateTimeUtils::now()->toString(),
