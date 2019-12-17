@@ -339,7 +339,7 @@ class ItemsService extends AbstractService
 
         //Validate alias field payload
         $tableSchema = SchemaService::getCollection($collection);
-        $collectionAliasColumns = $tableSchema->getAliasFields();
+        $collectionAliasColumns = $tableSchema->getChildFields();
 
         foreach ($collectionAliasColumns as $aliasColumnDetails) {
             if ($this->isManyToManyField($aliasColumnDetails)) {
