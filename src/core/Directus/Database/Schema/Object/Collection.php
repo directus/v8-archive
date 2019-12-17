@@ -123,7 +123,7 @@ class Collection extends AbstractObject
         $fields = $this->fields;
 
         if ($names) {
-            $fields = array_filter($fields, function(Field $field) use ($names) {
+            $fields = array_filter($fields, function (Field $field) use ($names) {
                 return in_array($field->getName(), $names);
             });
         }
@@ -143,7 +143,7 @@ class Collection extends AbstractObject
         $fields = $this->fields;
 
         if ($names) {
-            $fields = array_filter($fields, function(Field $field) use ($names) {
+            $fields = array_filter($fields, function (Field $field) use ($names) {
                 return !in_array($field->getName(), $names);
             });
         }
@@ -183,7 +183,7 @@ class Collection extends AbstractObject
      */
     public function getFieldsArray()
     {
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->toArray();
         }, $this->getFields());
     }
@@ -225,7 +225,7 @@ class Collection extends AbstractObject
      */
     public function getNonRelationalFields(array $names = [])
     {
-        return array_filter($this->getFields($names), function(Field $field) {
+        return array_filter($this->getFields($names), function (Field $field) {
             return !$field->hasRelationship();
         });
     }
@@ -237,8 +237,23 @@ class Collection extends AbstractObject
      */
     public function getAliasFields()
     {
-        return array_filter($this->getFields(), function(Field $field) {
+        return array_filter($this->getFields(), function (Field $field) {
             return $field->isAlias();
+        });
+    }
+
+
+    /**
+     * Gets all child fields
+     *
+     * @param array $names
+     *
+     * @return Field[]
+     */
+    public function getChildFields(array $names = [])
+    {
+        return array_filter($this->getFields($names), function (Field $field) {
+            return $field->isAlias() || $field->isManyToOne();
         });
     }
 
@@ -249,7 +264,7 @@ class Collection extends AbstractObject
      */
     public function getNonAliasFields()
     {
-        return array_filter($this->getFields(), function(Field $field) {
+        return array_filter($this->getFields(), function (Field $field) {
             return !$field->isAlias();
         });
     }
@@ -261,7 +276,7 @@ class Collection extends AbstractObject
      */
     public function getFieldsName()
     {
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->getName();
         }, $this->getFields());
     }
@@ -285,7 +300,7 @@ class Collection extends AbstractObject
      */
     public function getAliasFieldsName()
     {
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->getName();
         }, $this->getAliasFields());
     }
@@ -297,7 +312,7 @@ class Collection extends AbstractObject
      */
     public function getNonAliasFieldsName()
     {
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->getName();
         }, $this->getNonAliasFields());
     }
@@ -409,7 +424,7 @@ class Collection extends AbstractObject
      */
     public function isHidden()
     {
-        return (bool)$this->attributes->get('hidden');
+        return (bool) $this->attributes->get('hidden');
     }
 
     /**
