@@ -1033,7 +1033,8 @@ class RelationalTableGateway extends BaseTableGateway
         $pathname = explode('?', ArrayUtils::get($_SERVER, 'REQUEST_URI'));
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
 
-        $meta_param = explode(',', $params['meta']);
+        $meta_param = explode(',', ArrayUtils::get($params, 'meta', ''));
+
         if ((in_array('filter_count', $meta_param) || in_array('*', $meta_param))) {
             $metadata['filter_count'] = $countedData['total_count'];
         }
