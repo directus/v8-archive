@@ -699,7 +699,8 @@ class RelationalTableGateway extends BaseTableGateway
                 if (!array_key_exists($foreignJoinColumn, $foreignRecord)) {
                     $foreignRecord[$foreignJoinColumn] = $parentRow[$this->primaryKeyFieldName];
                 }
-
+              
+              
                 $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
                     $foreignRecord,
@@ -1033,6 +1034,7 @@ class RelationalTableGateway extends BaseTableGateway
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
 
         $meta_param = explode(',', ArrayUtils::get($params, 'meta', ''));
+
         if ((in_array('filter_count', $meta_param) || in_array('*', $meta_param))) {
             $metadata['filter_count'] = $countedData['total_count'];
         }
@@ -2283,7 +2285,7 @@ class RelationalTableGateway extends BaseTableGateway
                     } else {
                         // when foreign_id is not empty but there's no $relatedEntries,
                         // then it means it was soft-deleted.
-                        unset($entries[$key]);
+                        $parentRow[$relationalColumnName] = null;
                     }
                 }
             }
