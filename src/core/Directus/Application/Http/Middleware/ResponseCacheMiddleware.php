@@ -71,6 +71,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         $authorizationTokenObject = get_request_authorization_token($request);
 
         $accessToken = null;
+        $cookie = new Cookies();
         try {
             if (!empty($authorizationTokenObject['token'])) {
                 $userSessionService = new UserSessionService($container);
@@ -84,7 +85,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE:
                         $accessToken = decrypt_static_token($authorizationTokenObject['token']);
                         $userSession = $userSessionService->find(['token' => $accessToken]);
-                        $cookie = new Cookies();
+
                         $expiryAt = $userSession ? $expiry->format(\DateTime::COOKIE) : DateTimeUtils::now()->toString();
                         $cookie->set(
                             get_project_session_cookie_name($request),
@@ -95,7 +96,15 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                                 'httponly' => true
                             ]
                         );
-
+                        $cookie->set(
+                            'PHPSESSID',
+                            [
+                                'value' => null,
+                                'expires' => DateTimeUtils::now()->toString(),
+                                'path' => '/',
+                                'httponly' => true
+                            ]
+                        );
                         $response =  $response->withAddedHeader('Set-Cookie', $cookie->toHeaders());
                         break;
                     default:
@@ -103,12 +112,13 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                         break;
                 }
             }
+
             if (isset($userSession)) {
                 $userSessionService->update($userSession['id'], ['token_expired_at' => $expiry->format('Y-m-d H:i:s')]);
             }
         } catch (\Exception $e) {
             $container->get('logger')->error($e->getMessage());
-            $cookie = new Cookies();
+
             $cookie->set(
                 get_project_session_cookie_name($request),
                 [
@@ -118,11 +128,20 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                     'httponly' => true
                 ]
             );
-
+            $cookie->set(
+                'PHPSESSID',
+                [
+                    'value' => null,
+                    'expires' => DateTimeUtils::now()->toString(),
+                    'path' => '/',
+                    'httponly' => true
+                ]
+            );
             $response =  $response->withAddedHeader('Set-Cookie', $cookie->toHeaders());
         }
 
-        $response = $response->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'));
+
+        // $response = $response->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'));
         $config = $container->get('config');
         if ($config->get('cors.credentials')) {
             $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
