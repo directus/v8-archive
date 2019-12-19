@@ -141,7 +141,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         }
 
 
-        // $response = $response->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'));
+        $response = $response->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'));
         $config = $container->get('config');
         if ($config->get('cors.credentials')) {
             $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
