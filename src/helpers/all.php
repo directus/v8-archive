@@ -1481,6 +1481,19 @@ if (!function_exists('get_request_ip')) {
     }
 }
 
+if (!function_exists('get_request_host')) {
+    function get_request_host()
+    {
+        /**
+         * Return localhost if the IP is from local env
+         *
+         * @return string
+         */
+        $ip = get_request_ip();
+        return in_array($ip, ['127.0.0.1', '::1']) ? "localhost" : $ip;
+    }
+}
+
 if (!function_exists('get_missing_requirements')) {
     /**
      * Gets an array of errors message when there's a missing requirements
