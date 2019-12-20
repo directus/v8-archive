@@ -18,10 +18,4 @@ class UpdateUserCreatedToOwner extends AbstractMigration
             ['type' =>  'user_created']
         ));
     }
-
-    public function checkFieldExist($collection, $field)
-    {
-        $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
-        return $this->query($checkSql)->fetch();
-    }
 }
