@@ -7,19 +7,6 @@ class UpdateUserCreatedToOwner extends AbstractMigration
 {
     public function change()
     {
-        if ($this->checkFieldExist('directus_files', 'uploaded_by')) {
-            $this->execute(\Directus\phinx_update(
-                $this->getAdapter(),
-                'directus_fields',
-                [
-                    'type' => \Directus\Database\Schema\DataTypes::TYPE_OWNER,
-                    'interface' => 'owner'
-                ],
-                ['collection' => 'directus_files', 'field' => 'uploaded_by']
-            ));
-        }
-
-
         // To change the type of all the field of user generated collection to owner
         $this->execute(\Directus\phinx_update(
             $this->getAdapter(),
