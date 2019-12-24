@@ -624,8 +624,6 @@ class TablesService extends AbstractService
             ]);
         }
 
-        $data['required'] = isset($field['required']) ? $field['required'] : false;
-
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
         $resultData = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
 
@@ -858,7 +856,7 @@ class TablesService extends AbstractService
             'options' => null,
         ];
 
-        $data = array_replace($defaults, $data, [
+        $data = array_merge($defaults, $data, [
             'collection' => $collection,
             'field' => $field,
         ]);

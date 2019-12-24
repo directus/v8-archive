@@ -95,6 +95,8 @@ class SchemaFactory
         return $table;
     }
 
+    // Todo
+    // Zend DB does not support NotNull constraint. This function will add/remove not null constraint from particular column
     public function addNotNullConstraint($column)
     {
         $connection = $this->schemaManager->getSource()->getConnection();
