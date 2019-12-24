@@ -67,16 +67,19 @@ class FieldsConfig
                     break;
                 case 'o2m':
                     $relation = $this->getRelation('o2m', $v['collection'], $v['field']);
-                    $temp = [];
-                    $temp['type'] = Types::listOf(Types::userCollection($relation['collection_one']));
-                     $temp['resolve'] = function ($value, $args, $context, $info) use ($relation) {
-                        $data = [];
-                        foreach ($value[$info->fieldName] as  $v) {
-                            $data[] = $v[$relation['field_many']];
-                        }
-                        return $data;
-                    };
-                    $fields[$v['field']] = $temp;
+                    if ($v['interface'] == 'one-to-many') {
+                        $fields[$v['field']] = Types::listOf(Types::userCollection($relation['collection_many']));
+                    } else {
+                        $fields[$v['field']] = [];
+                        $fields[$v['field']]['type'] = Types::listOf(Types::userCollection($relation['collection_one']));
+                        $fields[$v['field']]['resolve'] = function ($value, $args, $context, $info) use ($relation) {
+                            $data = [];
+                            foreach ($value[$info->fieldName] as $v) {
+                                $data[] = $v[$relation['field_many']];
+                            }
+                            return $data;
+                        };
+                    }
                     break;
                 case 'sort':
                     $fields[$v['field']] = Types::int();
