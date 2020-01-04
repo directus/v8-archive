@@ -6,5 +6,4 @@ use Directus\Exception\ErrorException;
 
 class OmitException extends ErrorException
 {
-
 }

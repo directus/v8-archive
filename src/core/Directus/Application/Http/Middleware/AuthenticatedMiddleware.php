@@ -14,7 +14,7 @@ class AuthenticatedMiddleware extends AbstractMiddleware
         /** @var Acl $acl */
         $acl = $this->container->get('acl');
 
-        if ($request->getAttribute('auth_optional') === true || ($acl->getUserId() && $acl->isPublic() !== true)) {
+        if (true === $request->getAttribute('auth_optional') || ($acl->getUserId() && true !== $acl->isPublic())) {
             return $next($request, $response);
         }
 

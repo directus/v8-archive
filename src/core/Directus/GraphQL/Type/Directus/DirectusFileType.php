@@ -1,4 +1,5 @@
 <?php
+
 namespace Directus\GraphQL\Type\Directus;
 
 use Directus\Application\Application;
@@ -9,12 +10,13 @@ use GraphQL\Type\Definition\ResolveInfo;
 class DirectusFileType extends ObjectType
 {
     private $container;
+
     public function __construct()
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
             'name' => 'DirectusFileItem',
-            'fields' =>  function () {
+            'fields' => function () {
                 /* Create a callable function to support Recurring and circular types like uploaded_by
                 *  More info https://webonyx.github.io/graphql-php/type-system/object-types/#recurring-and-circular-types
                 */
@@ -43,16 +45,16 @@ class DirectusFileType extends ObjectType
                 ];
             },
             'interfaces' => [
-                Types::node()
+                Types::node(),
             ],
             'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
-                $method = 'resolve' . ucfirst($info->fieldName);
+                $method = 'resolve'.ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($value, $args, $context, $info);
-                } else {
-                    return $value[$info->fieldName];
                 }
-            }
+
+                return $value[$info->fieldName];
+            },
         ];
         parent::__construct($config);
     }

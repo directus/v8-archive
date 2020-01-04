@@ -58,7 +58,7 @@ class Collection extends AbstractObject
     protected $langField;
 
     /**
-     * Gets the collection's name
+     * Gets the collection's name.
      *
      * @return string
      */
@@ -68,40 +68,38 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Sets the collection fields
-     *
-     * @param array $fields
+     * Sets the collection fields.
      *
      * @return Collection
      */
     public function setFields(array $fields)
     {
         foreach ($fields as $field) {
-            if (is_array($field)) {
+            if (\is_array($field)) {
                 $field = new Field($field);
             }
 
             if (!($field instanceof Field)) {
-                throw new \InvalidArgumentException('Invalid field object. ' . gettype($field) . ' given instead');
+                throw new \InvalidArgumentException('Invalid field object. '.\gettype($field).' given instead');
             }
 
             // @NOTE: This is a temporary solution
             // to always set the primary field to the first primary key field
             if (!$this->getPrimaryField() && $field->hasPrimaryKey()) {
                 $this->primaryField = $field;
-            } else if (!$this->getSortingField() && $field->isSortingType()) {
+            } elseif (!$this->getSortingField() && $field->isSortingType()) {
                 $this->sortingField = $field;
-            } else if (!$this->getStatusField() && $field->isStatusType()) {
+            } elseif (!$this->getStatusField() && $field->isStatusType()) {
                 $this->statusField = $field;
-            } else if (!$this->getDateCreatedField() && $field->isDateCreatedType()) {
+            } elseif (!$this->getDateCreatedField() && $field->isDateCreatedType()) {
                 $this->dateCreatedField = $field;
-            } else if (!$this->getUserCreatedField() && $field->isUserCreatedType()) {
-                $this->userCreatedField = $field;;
-            } else if (!$this->getDateModifiedField() && $field->isDateModifiedType()) {
+            } elseif (!$this->getUserCreatedField() && $field->isUserCreatedType()) {
+                $this->userCreatedField = $field;
+            } elseif (!$this->getDateModifiedField() && $field->isDateModifiedType()) {
                 $this->dateModifiedField = $field;
-            } else if (!$this->getUserModifiedField() && $field->isUserModifiedType()) {
+            } elseif (!$this->getUserModifiedField() && $field->isUserModifiedType()) {
                 $this->userModifiedField = $field;
-            } else if (!$this->getLangField() && $field->isLangType()) {
+            } elseif (!$this->getLangField() && $field->isLangType()) {
                 $this->langField = $field;
             }
 
@@ -112,9 +110,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets a list of the collection's fields
-     *
-     * @param array $names
+     * Gets a list of the collection's fields.
      *
      * @return Field[]
      */
@@ -123,8 +119,8 @@ class Collection extends AbstractObject
         $fields = $this->fields;
 
         if ($names) {
-            $fields = array_filter($fields, function(Field $field) use ($names) {
-                return in_array($field->getName(), $names);
+            $fields = array_filter($fields, function (Field $field) use ($names) {
+                return \in_array($field->getName(), $names, true);
             });
         }
 
@@ -132,9 +128,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Returns a list of Fields not in the given list name
-     *
-     * @param array $names
+     * Returns a list of Fields not in the given list name.
      *
      * @return Field[]
      */
@@ -143,8 +137,8 @@ class Collection extends AbstractObject
         $fields = $this->fields;
 
         if ($names) {
-            $fields = array_filter($fields, function(Field $field) use ($names) {
-                return !in_array($field->getName(), $names);
+            $fields = array_filter($fields, function (Field $field) use ($names) {
+                return !\in_array($field->getName(), $names, true);
             });
         }
 
@@ -152,7 +146,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets a field with the given name
+     * Gets a field with the given name.
      *
      * @param string $name
      *
@@ -167,31 +161,29 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Checks whether the collection is being managed by Directus
+     * Checks whether the collection is being managed by Directus.
      *
      * @return bool
      */
     public function isManaged()
     {
-        return $this->attributes->get('managed') == 1;
+        return 1 === $this->attributes->get('managed');
     }
 
     /**
-     * Get all fields data as array
+     * Get all fields data as array.
      *
      * @return array
      */
     public function getFieldsArray()
     {
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->toArray();
         }, $this->getFields());
     }
 
     /**
-     * Returns an array representation a list of Fields not in the given list name
-     *
-     * @param array $names
+     * Returns an array representation a list of Fields not in the given list name.
      *
      * @return array
      */
@@ -203,9 +195,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets all relational fields
-     *
-     * @param array $names
+     * Gets all relational fields.
      *
      * @return Field[]
      */
@@ -217,57 +207,55 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets all relational fields
-     *
-     * @param array $names
+     * Gets all relational fields.
      *
      * @return Field[]
      */
     public function getNonRelationalFields(array $names = [])
     {
-        return array_filter($this->getFields($names), function(Field $field) {
+        return array_filter($this->getFields($names), function (Field $field) {
             return !$field->hasRelationship();
         });
     }
 
     /**
-     * Gets all the alias fields
+     * Gets all the alias fields.
      *
      * @return Field[]
      */
     public function getAliasFields()
     {
-        return array_filter($this->getFields(), function(Field $field) {
+        return array_filter($this->getFields(), function (Field $field) {
             return $field->isAlias();
         });
     }
 
     /**
-     * Gets all the non-alias fields
+     * Gets all the non-alias fields.
      *
      * @return Field[]
      */
     public function getNonAliasFields()
     {
-        return array_filter($this->getFields(), function(Field $field) {
+        return array_filter($this->getFields(), function (Field $field) {
             return !$field->isAlias();
         });
     }
 
     /**
-     * Gets all the fields name
+     * Gets all the fields name.
      *
      * @return array
      */
     public function getFieldsName()
     {
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->getName();
         }, $this->getFields());
     }
 
     /**
-     * Gets all the relational fields name
+     * Gets all the relational fields name.
      *
      * @return array
      */
@@ -279,31 +267,31 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets all the alias fields name
+     * Gets all the alias fields name.
      *
      * @return array
      */
     public function getAliasFieldsName()
     {
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->getName();
         }, $this->getAliasFields());
     }
 
     /**
-     * Gets all the non-alias fields name
+     * Gets all the non-alias fields name.
      *
      * @return array
      */
     public function getNonAliasFieldsName()
     {
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->getName();
         }, $this->getNonAliasFields());
     }
 
     /**
-     * Checks whether the collection has a `primary key` interface field
+     * Checks whether the collection has a `primary key` interface field.
      *
      * @return bool
      */
@@ -313,7 +301,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Checks whether the collection has a `status` interface field
+     * Checks whether the collection has a `status` interface field.
      *
      * @return bool
      */
@@ -323,7 +311,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Checks whether the collection has a `sorting` interface field
+     * Checks whether the collection has a `sorting` interface field.
      *
      * @return bool
      */
@@ -333,7 +321,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Checks Whether or not the collection has the given field name
+     * Checks Whether or not the collection has the given field name.
      *
      * @param string $name
      *
@@ -341,11 +329,11 @@ class Collection extends AbstractObject
      */
     public function hasField($name)
     {
-        return array_key_exists($name, $this->fields);
+        return \array_key_exists($name, $this->fields);
     }
 
     /**
-     * Checks whether or not the collection has the given data type field
+     * Checks whether or not the collection has the given data type field.
      *
      * @param string $type
      *
@@ -354,7 +342,7 @@ class Collection extends AbstractObject
     public function hasType($type)
     {
         foreach ($this->fields as $field) {
-            if (strtolower($type) ===  strtolower($field->getType())) {
+            if (strtolower($type) === strtolower($field->getType())) {
                 return true;
             }
         }
@@ -363,7 +351,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Checks whether or not the collection has a JSON data type field
+     * Checks whether or not the collection has a JSON data type field.
      *
      * @return bool
      */
@@ -373,7 +361,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Checks whether or not the collection has a Array data type field
+     * Checks whether or not the collection has a Array data type field.
      *
      * @return bool
      */
@@ -383,7 +371,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Checks whether or not the collection has a Boolean data type field
+     * Checks whether or not the collection has a Boolean data type field.
      *
      * @return bool
      */
@@ -393,7 +381,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the schema/database this collection belongs to
+     * Gets the schema/database this collection belongs to.
      *
      * @return null|string
      */
@@ -403,17 +391,17 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Whether or not the collection is hidden
+     * Whether or not the collection is hidden.
      *
      * @return bool
      */
     public function isHidden()
     {
-        return (bool)$this->attributes->get('hidden');
+        return (bool) $this->attributes->get('hidden');
     }
 
     /**
-     * Whether or not the collection is single
+     * Whether or not the collection is single.
      *
      * @return bool
      */
@@ -423,9 +411,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the collection custom status mapping
+     * Gets the collection custom status mapping.
      *
-     * @return StatusMapping|null
+     * @return null|StatusMapping
      */
     public function getStatusMapping()
     {
@@ -435,7 +423,7 @@ class Collection extends AbstractObject
         }
 
         $mapping = $statusField->getOptions('status_mapping');
-        if ($mapping === null) {
+        if (null === $mapping) {
             return $mapping;
         }
 
@@ -443,11 +431,11 @@ class Collection extends AbstractObject
             return $mapping;
         }
 
-        if (!is_array($mapping)) {
+        if (!\is_array($mapping)) {
             $mapping = @json_decode($mapping, true);
         }
 
-        if (is_array($mapping)) {
+        if (\is_array($mapping)) {
             $this->attributes->set('status_mapping', new StatusMapping($mapping));
 
             $mapping = $this->attributes->get('status_mapping');
@@ -457,7 +445,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets primary key interface field
+     * Gets primary key interface field.
      *
      * @return Field
      */
@@ -467,9 +455,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the primary key field
+     * Gets the primary key field.
      *
-     * @return Field|null
+     * @return null|Field
      */
     public function getPrimaryKey()
     {
@@ -478,6 +466,7 @@ class Collection extends AbstractObject
         foreach ($this->getFields() as $field) {
             if ($field->hasPrimaryKey()) {
                 $primaryKeyField = $field;
+
                 break;
             }
         }
@@ -486,7 +475,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets primary key interface field's name
+     * Gets primary key interface field's name.
      *
      * @return string
      */
@@ -503,9 +492,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets status field
+     * Gets status field.
      *
-     * @return Field|null
+     * @return null|Field
      */
     public function getStatusField()
     {
@@ -513,9 +502,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the sort interface field
+     * Gets the sort interface field.
      *
-     * @return Field|null
+     * @return null|Field
      */
     public function getSortingField()
     {
@@ -523,9 +512,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the field storing the record's user owner
+     * Gets the field storing the record's user owner.
      *
-     * @return Field|bool
+     * @return bool|Field
      */
     public function getUserCreatedField()
     {
@@ -533,9 +522,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the field storing the user updating the record
+     * Gets the field storing the user updating the record.
      *
-     * @return Field|null
+     * @return null|Field
      */
     public function getUserModifiedField()
     {
@@ -543,9 +532,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the field storing the record created time
+     * Gets the field storing the record created time.
      *
-     * @return Field|null
+     * @return null|Field
      */
     public function getDateCreatedField()
     {
@@ -553,9 +542,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the field storing the record updated time
+     * Gets the field storing the record updated time.
      *
-     * @return Field|null
+     * @return null|Field
      */
     public function getDateModifiedField()
     {
@@ -563,9 +552,9 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Returns the lang field
+     * Returns the lang field.
      *
-     * @return Field|null
+     * @return null|Field
      */
     public function getLangField()
     {
@@ -573,7 +562,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Gets the collection comment
+     * Gets the collection comment.
      *
      * @return string
      */
@@ -583,7 +572,7 @@ class Collection extends AbstractObject
     }
 
     /**
-     * Array representation of the collection with fields
+     * Array representation of the collection with fields.
      *
      * @return array
      */

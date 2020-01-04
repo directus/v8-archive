@@ -9,7 +9,7 @@ class Exception extends \Exception
     protected $attributes = [];
 
     /**
-     * Allows child class to extend the error code value method
+     * Allows child class to extend the error code value method.
      *
      * @return int
      */
@@ -19,7 +19,7 @@ class Exception extends \Exception
     }
 
     /**
-     * Gets the error attributes
+     * Gets the error attributes.
      *
      * @return array
      */
@@ -29,7 +29,7 @@ class Exception extends \Exception
     }
 
     /**
-     * Returns the HTTP Status Code
+     * Returns the HTTP Status Code.
      *
      * @return int
      */

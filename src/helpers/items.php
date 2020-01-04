@@ -7,12 +7,12 @@ use Directus\Database\TableGatewayFactory;
 use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
 
-if (!function_exists('get_item_owner')) {
+if (!\function_exists('get_item_owner')) {
     /**
-     * Gets the item's owner ID
+     * Gets the item's owner ID.
      *
      * @param string $collection
-     * @param mixed $id
+     * @param mixed  $id
      *
      * @return array
      */
@@ -24,7 +24,7 @@ if (!function_exists('get_item_owner')) {
         /** @var \Directus\Database\TableGateway\RelationalTableGateway $tableGateway */
         $usersTableGateway = TableGatewayFactory::create($collection, [
             'connection' => $dbConnection,
-            'acl' => false
+            'acl' => false,
         ]);
 
         /** @var \Directus\Database\Schema\SchemaManager $schemaManager */
@@ -42,7 +42,7 @@ if (!function_exists('get_item_owner')) {
             $select->limit(1);
             $select->columns([]);
             $select->where([
-                'c.' . $collectionObject->getPrimaryKeyName() => $id
+                'c.'.$collectionObject->getPrimaryKeyName() => $id,
             ]);
 
             $subSelect = new Select('directus_users');
@@ -52,7 +52,7 @@ if (!function_exists('get_item_owner')) {
                 sprintf('c.%s = ur.id', $fieldName),
                 [
                     'id',
-                    'role'
+                    'role',
                 ],
                 $select::JOIN_LEFT
             );
@@ -65,7 +65,7 @@ if (!function_exists('get_item_owner')) {
     }
 }
 
-if (!function_exists('get_user_ids_in_group')) {
+if (!\function_exists('get_user_ids_in_group')) {
     function get_user_ids_in_group(array $roleIds)
     {
         $id = array_shift($roleIds);

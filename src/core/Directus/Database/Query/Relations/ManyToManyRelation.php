@@ -29,7 +29,7 @@ class ManyToManyRelation extends Builder
         $this->columns([$this->columnLeft]);
         $this->whereIn($this->columnRight, $values);
         $this->groupBy($this->columnLeft);
-        $this->having(new Expression('COUNT(*) = ?', count($values)));
+        $this->having(new Expression('COUNT(*) = ?', \count($values)));
 
         return $this;
     }

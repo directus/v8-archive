@@ -1,6 +1,5 @@
 <?php
 
-
 use Phinx\Migration\AbstractMigration;
 
 class LocaleInterface extends AbstractMigration

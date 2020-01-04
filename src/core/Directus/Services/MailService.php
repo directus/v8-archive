@@ -21,7 +21,7 @@ class MailService extends AbstractService
             'subject' => 'string',
             'body' => 'required|string',
             'data' => 'array',
-            'to' => 'required'
+            'to' => 'required',
         ]);
 
         $acl = $this->container->get('acl');
@@ -31,10 +31,10 @@ class MailService extends AbstractService
 
         $useDefaultEmail = isset($data['use_default_email']) && $acl->isAdmin() ? $data['use_default_email'] : false;
         send_mail_with_layout(
-            $data['type'] == 'plain' ? 'plain.twig' : 'base.twig',
+            'plain' === $data['type'] ? 'plain.twig' : 'base.twig',
             $data['body'],
             (array) ArrayUtils::get($data, 'data'),
-            $data['type'] == 'plain' ? 'text/plain' : 'text/html',
+            'plain' === $data['type'] ? 'text/plain' : 'text/html',
             function (Message $message) use ($data, $toAddresses, $subject, $useDefaultEmail) {
                 $message->setFrom($this->getFrom($useDefaultEmail));
                 $message->setTo($toAddresses);
@@ -44,7 +44,7 @@ class MailService extends AbstractService
     }
 
     /**
-     * Returns the list of 'to' addresses
+     * Returns the list of 'to' addresses.
      *
      * @param $addresses
      *
@@ -52,7 +52,7 @@ class MailService extends AbstractService
      */
     protected function getToAddresses($addresses)
     {
-        if (!is_array($addresses) || !ArrayUtils::isNumericKeys($addresses)) {
+        if (!\is_array($addresses) || !ArrayUtils::isNumericKeys($addresses)) {
             $addresses = [$addresses];
         }
 
@@ -62,9 +62,7 @@ class MailService extends AbstractService
     }
 
     /**
-     * Validate a list of addresses
-     *
-     * @param array $addresses
+     * Validate a list of addresses.
      *
      * @throws UnprocessableEntityException
      */
@@ -72,13 +70,13 @@ class MailService extends AbstractService
     {
         $validator = new Validator();
         foreach ($addresses as $address) {
-            if (is_array($address) && (!isset($address['name']) || !isset($address['email']))) {
+            if (\is_array($address) && (!isset($address['name']) || !isset($address['email']))) {
                 throw new UnprocessableEntityException(
                     'Addressee if an array, it must have a name and an email attribute'
                 );
             }
 
-            if (is_string($addresses)) {
+            if (\is_string($addresses)) {
                 $violations = $validator->validate($addresses, ['required|email']);
                 if ($violations->count() > 0) {
                     throw new UnprocessableEntityException(
@@ -87,7 +85,7 @@ class MailService extends AbstractService
                 }
             }
 
-            if (!is_numeric($address) && !is_string($address) && !is_array($address)) {
+            if (!is_numeric($address) && !\is_string($address) && !\is_array($address)) {
                 throw new UnprocessableEntityException(
                     'Address must be a string, number or an array'
                 );
@@ -96,13 +94,11 @@ class MailService extends AbstractService
     }
 
     /**
-     * Parses a list of address into
-     *
-     * @param array $addresses
-     *
-     * @return array
+     * Parses a list of address into.
      *
      * @throws UnprocessableEntityException
+     *
+     * @return array
      */
     protected function parseAddresses(array $addresses)
     {
@@ -111,7 +107,7 @@ class MailService extends AbstractService
             if (is_numeric($address)) {
                 $ids[] = $address;
                 unset($addresses[$i]);
-            } else if (is_array($address)) {
+            } elseif (\is_array($address)) {
                 unset($addresses[$i]);
                 $addresses[ArrayUtils::get($address, 'email')] = ArrayUtils::get($address, 'name');
             }
@@ -124,7 +120,7 @@ class MailService extends AbstractService
                 [new In('id', $ids), 'status' => DirectusUsersTableGateway::STATUS_ACTIVE]
             );
 
-            if ($users->count() !== count($ids)) {
+            if ($users->count() !== \count($ids)) {
                 throw new UnprocessableEntityException(
                     'Unable to find some users'
                 );
@@ -152,25 +148,26 @@ class MailService extends AbstractService
     }
 
     /**
-     * Returns the authenticated user address
+     * Returns the authenticated user address.
+     *
+     * @param mixed $defaultEmail
      *
      * @return array
      */
-
     protected function getFrom($defaultEmail = false)
     {
         /** @var Acl $acl */
         $acl = $this->container->get('acl');
         if ($defaultEmail) {
             $config = $this->container->get('config');
+
             return  [
-                 $config->get('mail.default.from') => $acl->getUserFullName()
+                $config->get('mail.default.from') => $acl->getUserFullName(),
             ];
         }
-        else {
-            return [
-                $acl->getUserEmail() => $acl->getUserFullName()
-            ];
-        }
+
+        return [
+            $acl->getUserEmail() => $acl->getUserFullName(),
+        ];
     }
 }

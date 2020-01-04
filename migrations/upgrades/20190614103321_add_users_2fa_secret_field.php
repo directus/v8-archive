@@ -11,7 +11,7 @@ class AddUsers2FASecretField extends AbstractMigration
             $table->addColumn('2fa_secret', 'string', [
                 'limit' => 255,
                 'null' => true,
-                'default' => null
+                'default' => null,
             ]);
 
             $table->save();

@@ -5,7 +5,7 @@ namespace Directus\Hash\Hasher;
 class BCryptHasher implements HasherInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -13,7 +13,7 @@ class BCryptHasher implements HasherInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function hash($string, array $options = [])
     {
@@ -21,7 +21,7 @@ class BCryptHasher implements HasherInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function verify($string, $hash, array $options = [])
     {

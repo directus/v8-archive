@@ -69,3 +69,6 @@ public/cliserver.php
 
 # Cache generated while filesystem adapter
 /cache/*
+
+# Ignore php-cs-fixer files
+.php_cs.cache

@@ -10,6 +10,6 @@ class UnknownFilterException extends UnprocessableEntityException
 
     public function __construct($operator)
     {
-        parent::__construct('Unknown filter: ' . (string)$operator);
+        parent::__construct('Unknown filter: '.(string) $operator);
     }
 }

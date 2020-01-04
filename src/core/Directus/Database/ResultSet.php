@@ -13,9 +13,9 @@ class ResultSet implements \Iterator, ResultInterface
     protected $dataSource;
 
     /**
-     * @var int|null
+     * @var null|int
      */
-    protected $fieldCount = null;
+    protected $fieldCount;
 
     public function __construct($dataSource = null)
     {
@@ -25,14 +25,14 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function initialize($dataSource)
     {
-        if (is_array($dataSource)) {
+        if (\is_array($dataSource)) {
             $first = current($dataSource);
             reset($dataSource);
-            $this->fieldCount = count($first);
+            $this->fieldCount = \count($first);
             $this->dataSource = new \ArrayIterator($dataSource);
         } else {
             $this->dataSource = $dataSource;
@@ -42,7 +42,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFieldCount()
     {
@@ -50,7 +50,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function count()
     {
@@ -58,7 +58,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function current()
     {
@@ -66,7 +66,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function next()
     {
@@ -74,7 +74,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function key()
     {
@@ -82,7 +82,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function valid()
     {
@@ -90,7 +90,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function rewind()
     {
@@ -106,7 +106,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function buffer()
     {
@@ -114,7 +114,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function isBuffered()
     {
@@ -122,7 +122,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function isQueryResult()
     {
@@ -130,7 +130,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getAffectedRows()
     {
@@ -138,7 +138,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getGeneratedValue()
     {
@@ -146,7 +146,7 @@ class ResultSet implements \Iterator, ResultInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getResource()
     {

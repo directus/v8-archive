@@ -1,6 +1,5 @@
 <?php
 
-
 use Phinx\Migration\AbstractMigration;
 
 class AddEnforce2FARoleField extends AbstractMigration
@@ -17,7 +16,7 @@ class AddEnforce2FARoleField extends AbstractMigration
         if (!$table->hasColumn('enforce_2fa')) {
             $table->addColumn('enforce_2fa', 'boolean', [
                 'null' => true,
-                'default' => null
+                'default' => null,
             ]);
 
             $table->save();

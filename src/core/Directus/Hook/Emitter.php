@@ -3,7 +3,7 @@
 namespace Directus\Hook;
 
 /**
- * Emitter
+ * Emitter.
  *
  * Commands can be added in order to take action when a event happens.
  */
@@ -31,43 +31,42 @@ class Emitter
     const P_LOW = -100;
 
     /**
-     * Action Listener type
+     * Action Listener type.
      *
      * @const int
      */
     const TYPE_ACTION = 0;
 
     /**
-     * Filter Listener type
+     * Filter Listener type.
      *
      * @const int
      */
     const TYPE_FILTER = 1;
 
     /**
-     * List of references to registered action listeners
+     * List of references to registered action listeners.
      *
      * @var array
      */
     protected $actionListeners = [];
 
     /**
-     * List of references to filter listeners
+     * List of references to filter listeners.
      *
      * @var array
      */
     protected $filterListeners = [];
 
-
     /**
-     * List of registered listeners
+     * List of registered listeners.
      *
      * @var array
      */
     protected $listenersList = [];
 
     /**
-     * Add an action listener with the given name
+     * Add an action listener with the given name.
      *
      * @param $name
      * @param $listener
@@ -81,7 +80,7 @@ class Emitter
     }
 
     /**
-     * Add a filter listener wit the given name
+     * Add a filter listener wit the given name.
      *
      * @param $name
      * @param $listener
@@ -95,7 +94,7 @@ class Emitter
     }
 
     /**
-     * Remove listener with a given index
+     * Remove listener with a given index.
      *
      * @param $index
      */
@@ -105,7 +104,7 @@ class Emitter
     }
 
     /**
-     * Execute all the the actions listeners registered in the given name
+     * Execute all the the actions listeners registered in the given name.
      *
      * An Action execute the given listener and do not return any value.
      *
@@ -131,13 +130,11 @@ class Emitter
     }
 
     /**
-     * Execute all the the filters listeners registered in the given name
+     * Execute all the the filters listeners registered in the given name.
      *
      * A Filter execute the given listener and return a modified given value
      *
      * @param string $name
-     * @param array $data
-     * @param array $attributes
      *
      * @return mixed
      */
@@ -155,7 +152,7 @@ class Emitter
     }
 
     /**
-     * Get all the actions listeners
+     * Get all the actions listeners.
      *
      * @param $name
      *
@@ -167,7 +164,7 @@ class Emitter
     }
 
     /**
-     * Whether the hook action name given has listener or not
+     * Whether the hook action name given has listener or not.
      *
      * @param $name
      *
@@ -179,7 +176,7 @@ class Emitter
     }
 
     /**
-     * Get all the filters listeners
+     * Get all the filters listeners.
      *
      * @param $name
      *
@@ -191,7 +188,7 @@ class Emitter
     }
 
     /**
-     * Whether the hook filter name given has listener or not
+     * Whether the hook filter name given has listener or not.
      *
      * @param $name
      *
@@ -203,7 +200,7 @@ class Emitter
     }
 
     /**
-     * Add a listener
+     * Add a listener.
      *
      * @param $name
      * @param $listener
@@ -214,11 +211,11 @@ class Emitter
      */
     protected function addListener($name, $listener, $priority = null, $type = self::TYPE_ACTION)
     {
-        if (is_string($listener) && class_exists($listener)) {
+        if (\is_string($listener) && class_exists($listener)) {
             $listener = new $listener();
         }
 
-        if ($priority === null) {
+        if (null === $priority) {
             $priority = self::P_NORMAL;
         }
 
@@ -226,28 +223,27 @@ class Emitter
 
         $index = array_push($this->listenersList, $listener) - 1;
 
-        $arrayName = ($type == self::TYPE_FILTER) ? 'filter' : 'action';
+        $arrayName = (self::TYPE_FILTER === $type) ? 'filter' : 'action';
         $this->{$arrayName.'Listeners'}[$name][$priority][] = $index;
 
         return $index;
     }
 
     /**
-     * Validate a listener
+     * Validate a listener.
      *
      * @param $listener
      */
     protected function validateListener($listener)
     {
-        if (!is_callable($listener) && !($listener instanceof HookInterface)) {
+        if (!\is_callable($listener) && !($listener instanceof HookInterface)) {
             throw new \InvalidArgumentException('Listener needs to be a callable or an instance of \Directus\Hook\HookInterface');
         }
     }
 
     /**
-     * Get all listeners registered into a given name
+     * Get all listeners registered into a given name.
      *
-     * @param array $items
      * @param $name
      *
      * @return array
@@ -255,27 +251,26 @@ class Emitter
     protected function getListeners(array $items, $name)
     {
         $functions = [];
-        if (array_key_exists($name, $items)) {
+        if (\array_key_exists($name, $items)) {
             $listeners = $items[$name];
             krsort($listeners);
-            $functions = call_user_func_array('array_merge', $listeners);
+            $functions = \call_user_func_array('array_merge', $listeners);
         }
 
         return $functions;
     }
 
     /**
-     * Execute a given listeners list
+     * Execute a given listeners list.
      *
-     * @param array $listenersIds
      * @param null $data
-     * @param int $listenerType
+     * @param int  $listenerType
      *
-     * @return array|mixed|null
+     * @return null|array|mixed
      */
     protected function executeListeners(array $listenersIds, $data = null, $listenerType = self::TYPE_ACTION)
     {
-        $isFilterType = ($listenerType == self::TYPE_FILTER);
+        $isFilterType = (self::TYPE_FILTER === $listenerType);
         foreach ($listenersIds as $index) {
             $listener = $this->listenersList[$index];
 
@@ -284,17 +279,17 @@ class Emitter
                     $listener = [$listener, 'handle'];
                 }
 
-                if (!is_array($data)) {
+                if (!\is_array($data)) {
                     $data = [$data];
                 }
 
-                $returnedValue = call_user_func_array($listener, $data);
+                $returnedValue = \call_user_func_array($listener, $data);
                 if ($isFilterType) {
                     $data = $returnedValue;
                 }
             }
         }
 
-        return ($isFilterType ? $data : null);
+        return $isFilterType ? $data : null;
     }
 }

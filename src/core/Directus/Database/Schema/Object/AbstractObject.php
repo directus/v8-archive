@@ -42,25 +42,21 @@ abstract class AbstractObject implements \ArrayAccess, Arrayable, \JsonSerializa
      * @param mixed $offset
      * @param mixed $value
      *
-     * @return void
-     *
      * @throws ErrorException
      */
     public function offsetSet($offset, $value)
     {
-        throw new ErrorException('Cannot set any value in ' . get_class($this));
+        throw new ErrorException('Cannot set any value in '.\get_class($this));
     }
 
     /**
      * @param mixed $offset
      *
-     * @return void
-     *
      * @throws ErrorException
      */
     public function offsetUnset($offset)
     {
-        throw new ErrorException('Cannot unset any attribute in ' . get_class($this));
+        throw new ErrorException('Cannot unset any attribute in '.\get_class($this));
     }
 
     /**
@@ -72,9 +68,9 @@ abstract class AbstractObject implements \ArrayAccess, Arrayable, \JsonSerializa
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return $this->toArray();
     }

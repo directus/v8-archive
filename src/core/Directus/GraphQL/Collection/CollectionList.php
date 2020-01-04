@@ -2,12 +2,11 @@
 
 namespace Directus\GraphQL\Collection;
 
-use Directus\GraphQL\Types;
 use Directus\Application\Application;
+use Directus\GraphQL\Types;
 
 class CollectionList
 {
-
     protected $param;
     protected $limit;
     protected $offset;
@@ -30,10 +29,8 @@ class CollectionList
         if (isset($this->param['filter'])) {
             $filters = [];
             foreach ($this->param['filter'] as $filter => $value) {
-                /**
-                 * TODO :: Need to rewrite the code for better readiablity.
-                 */
-                if ($filter == 'or' || $filter == 'and') {
+                // TODO :: Need to rewrite the code for better readiablity.
+                if ('or' === $filter || 'and' === $filter) {
                     $c = 0;
                     foreach ($value as $innerFilters) {
                         $innerFilter = array_keys($innerFilters)[0];
@@ -58,6 +55,7 @@ class CollectionList
         $filterParts = preg_split('~_(?=[^_]*$)~', $key);
         $res['key'] = $filterParts[0];
         $res['value'] = [$filterParts[1] => $value];
+
         return $res;
     }
 }

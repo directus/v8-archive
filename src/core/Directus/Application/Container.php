@@ -7,7 +7,7 @@ use Directus\Collection\Collection;
 class Container extends \Directus\Container\Container
 {
     /**
-     * Default settings
+     * Default settings.
      *
      * @var array
      */
@@ -22,7 +22,7 @@ class Container extends \Directus\Container\Container
     ];
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __construct(array $values = [])
     {
@@ -37,7 +37,7 @@ class Container extends \Directus\Container\Container
     {
         $defaultSettings = $this->defaultSettings;
 
-        /**
+        /*
          * This service MUST return an array or an
          * instance of \ArrayAccess.
          *

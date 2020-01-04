@@ -4,7 +4,6 @@ namespace Directus\Application\Http\Middleware;
 
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
-use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Exception\UnauthorizedException;
 use Directus\Permissions\Acl;
 

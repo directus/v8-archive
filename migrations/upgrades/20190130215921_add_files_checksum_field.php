@@ -11,7 +11,7 @@ class AddFilesChecksumField extends AbstractMigration
             $table->addColumn('checksum', 'string', [
                 'limit' => 32,
                 'null' => true,
-                'default' => null
+                'default' => null,
             ]);
 
             $table->save();

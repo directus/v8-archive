@@ -2,9 +2,9 @@
 
 namespace Directus;
 
-if (!function_exists('sorting_by_key')) {
+if (!\function_exists('sorting_by_key')) {
     /**
-     * Sorting callable helper
+     * Sorting callable helper.
      *
      * @param string $key
      * @param string $order
@@ -19,7 +19,7 @@ if (!function_exists('sorting_by_key')) {
             }
 
             $value = $a[$key] < $b[$key] ? -1 : 1;
-            if ($order === 'DESC') {
+            if ('DESC' === $order) {
                 $value *= -1;
             }
 

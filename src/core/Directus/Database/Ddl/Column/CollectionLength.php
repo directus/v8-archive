@@ -7,12 +7,12 @@ use Zend\Db\Sql\Ddl\Column\Column;
 abstract class CollectionLength extends Column
 {
     /**
-     * @var string|array
+     * @var array|string
      */
     protected $length;
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * @param int $length
      */
@@ -24,13 +24,14 @@ abstract class CollectionLength extends Column
     }
 
     /**
-     * @param  int $length
+     * @param int $length
+     *
      * @return self Provides a fluent interface
      */
     public function setLength($length)
     {
         $values = $length;
-        if (!is_array($length)) {
+        if (!\is_array($length)) {
             $values = explode(',', $values);
         }
 
@@ -52,14 +53,6 @@ abstract class CollectionLength extends Column
     }
 
     /**
-     * @return string
-     */
-    protected function getLengthExpression()
-    {
-        return (string) $this->length;
-    }
-
-    /**
      * @return array
      */
     public function getExpressionData()
@@ -67,9 +60,17 @@ abstract class CollectionLength extends Column
         $data = parent::getExpressionData();
 
         if ($this->getLengthExpression()) {
-            $data[0][1][1] .= '(' . $this->getLengthExpression() . ')';
+            $data[0][1][1] .= '('.$this->getLengthExpression().')';
         }
 
         return $data;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getLengthExpression()
+    {
+        return (string) $this->length;
     }
 }

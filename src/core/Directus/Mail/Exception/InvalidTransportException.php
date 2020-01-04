@@ -16,7 +16,7 @@ class InvalidTransportException extends Exception implements ErrorExceptionInter
             sprintf(
                 'Mailer Transport option must be an instance of %s, string or callable, instead "%s" was given.',
                 AbstractTransport::class,
-                (string)$class
+                (string) $class
             ),
             static::ERROR_CODE
         );

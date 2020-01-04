@@ -68,10 +68,9 @@ class SchemaFactory
     }
 
     /**
-     * Create a new table
+     * Create a new table.
      *
      * @param string $name
-     * @param array $columnsData
      *
      * @return CreateTable
      */
@@ -83,7 +82,7 @@ class SchemaFactory
         foreach ($columnsData as $column) {
             if (ArrayUtils::get($column, 'primary_key', false)) {
                 $table->addConstraint(new PrimaryKey($column['field']));
-            } else if (ArrayUtils::get($column, 'unique') == true) {
+            } elseif (true === ArrayUtils::get($column, 'unique')) {
                 $table->addConstraint(new UniqueKey($column['field']));
             }
         }
@@ -96,14 +95,13 @@ class SchemaFactory
     }
 
     /**
-     * Alter an existing table
+     * Alter an existing table.
      *
      * @param $name
-     * @param array $data
-     *
-     * @return AlterTable
      *
      * @throws FieldAlreadyHasUniqueKeyException
+     *
+     * @return AlterTable
      */
     public function alterTable($name, array $data)
     {
@@ -115,13 +113,14 @@ class SchemaFactory
             $table->addColumn($column);
 
             $options = $column->getOptions();
-            if (!is_array($options)) {
+            if (!\is_array($options)) {
                 continue;
             }
 
-            if (ArrayUtils::get($options, 'primary_key') == true) {
+            if (true === ArrayUtils::get($options, 'primary_key')) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
-            } if (ArrayUtils::get($options, 'unique') == true) {
+            }
+            if (true === ArrayUtils::get($options, 'unique')) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -132,13 +131,14 @@ class SchemaFactory
             $table->changeColumn($column->getName(), $column);
 
             $options = $column->getOptions();
-            if (!is_array($options)) {
+            if (!\is_array($options)) {
                 continue;
             }
 
-            if (ArrayUtils::get($options, 'primary_key') == true) {
+            if (true === ArrayUtils::get($options, 'primary_key')) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
-            } if (ArrayUtils::get($options, 'unique') == true) {
+            }
+            if (true === ArrayUtils::get($options, 'unique')) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -152,8 +152,6 @@ class SchemaFactory
     }
 
     /**
-     * @param array $data
-     *
      * @return Column[]
      */
     public function createColumns(array $data)
@@ -170,7 +168,6 @@ class SchemaFactory
 
     /**
      * @param string $name
-     * @param array $data
      *
      * @return Column
      */
@@ -194,20 +191,20 @@ class SchemaFactory
         $column->setDefault($default);
         $column->setOption('comment', $note);
 
-        if (!$autoincrement && $unique === true) {
+        if (!$autoincrement && true === $unique) {
             $column->setOption('unique', $unique);
         }
 
-        if ($primaryKey === true) {
+        if (true === $primaryKey) {
             $column->setOption('primary_key', $primaryKey);
         }
 
         // CollectionLength are SET or ENUM data type
         if ($column instanceof AbstractPrecisionColumn) {
-            $parts = !is_array($length) ? explode(',', $length) : $length;
+            $parts = !\is_array($length) ? explode(',', $length) : $length;
             $column->setDigits($parts[0]);
             $column->setDecimal(isset($parts[1]) ? $parts[1] : 0);
-        } else if ($column instanceof AbstractLengthColumn || $column instanceof CollectionLength) {
+        } elseif ($column instanceof AbstractLengthColumn || $column instanceof CollectionLength) {
             $column->setLength($length);
         } else {
             $column->setOption('length', $length);
@@ -223,20 +220,21 @@ class SchemaFactory
     }
 
     /**
-     * Creates the given table
+     * Creates the given table.
      *
      * @param AbstractSql|AlterTable|CreateTable $table
+     * @param mixed                              $charset
      *
      * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
      */
-    public function buildTable(AbstractSql $table,$charset="")
+    public function buildTable(AbstractSql $table, $charset = '')
     {
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
-        
+
         $tableQuery = $sql->buildSqlString($table);
-        $tableQuery = !empty($charset) ? $tableQuery."charset = ".$charset: $tableQuery;
-                
+        $tableQuery = !empty($charset) ? $tableQuery.'charset = '.$charset : $tableQuery;
+
         // TODO: Allow charset and comment
         return $connection->query(
             $tableQuery,
@@ -245,14 +243,14 @@ class SchemaFactory
     }
 
     /**
-     * Creates column based on type
+     * Creates column based on type.
      *
      * @param $name
      * @param $type
      *
-     * @return Column
-     *
      * @throws UnknownTypeException
+     *
+     * @return Column
      */
     protected function createColumnFromType($name, $type)
     {
@@ -260,95 +258,125 @@ class SchemaFactory
         switch (strtolower($type)) {
             case 'char':
                 $column = new Char($name);
+
                 break;
             case 'varchar':
                 $column = new Varchar($name);
+
                 break;
             case 'tinytext':
                 $column = new TinyText($name);
+
                 break;
             case 'text':
                 $column = new Text($name);
+
                 break;
             case 'mediumtext':
                 $column = new MediumText($name);
+
                 break;
             case 'longtext':
                 $column = new LongText($name);
+
                 break;
             case 'time':
                 $column = new Time($name);
+
                 break;
             case 'date':
                 $column = new Date($name);
+
                 break;
             case 'datetime':
                 $column = new Datetime($name);
+
                 break;
             case 'timestamp':
                 $column = new Timestamp($name);
+
                 break;
             case 'tinyint':
                 $column = new TinyInteger($name);
+
                 break;
             case 'smallint':
                 $column = new SmallInteger($name);
+
                 break;
             case 'integer':
             case 'int':
                 $column = new Integer($name);
+
                 break;
             case 'mediumint':
                 $column = new MediumInteger($name);
+
                 break;
             case 'serial':
             case 'bigint':
                 $column = new BigInteger($name);
+
                 break;
             case 'float':
                 $column = new Floating($name);
+
                 break;
             case 'double':
                 $column = new Double($name);
+
                 break;
             case 'decimal':
                 $column = new Decimal($name);
+
                 break;
             case 'real':
                 $column = new Real($name);
+
                 break;
             case 'numeric':
                 $column = new Numeric($name);
+
                 break;
             case 'bit':
                 $column = new Bit($name);
+
                 break;
             case 'binary':
                 $column = new Binary($name);
+
                 break;
             case 'varbinary':
                 $column = new Varbinary($name);
+
                 break;
             case 'tinyblob':
                 $column = new TinyBlob($name);
+
                 break;
             case 'blob':
                 $column = new Blob($name);
+
                 break;
             case 'mediumblob':
                 $column = new MediumBlob($name);
+
                 break;
             case 'longblob':
                 $column = new LongBlob($name);
+
                 break;
             case 'set':
                 $column = new Set($name);
+
                 break;
             case 'enum':
                 $column = new Enum($name);
+
                 break;
             default:
                 $column = new Custom($type, $name);
+
                 break;
         }
 
@@ -356,8 +384,6 @@ class SchemaFactory
     }
 
     /**
-     * @param array $columnData
-     *
      * @throws InvalidRequestException
      */
     protected function validate(array $columnData)
@@ -392,7 +418,7 @@ class SchemaFactory
             }
         }
 
-        if (count($messages) > 0) {
+        if (\count($messages) > 0) {
             throw new InvalidRequestException(implode(' ', $messages));
         }
     }

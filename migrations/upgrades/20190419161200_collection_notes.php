@@ -10,7 +10,7 @@ class CollectionNotes extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'note' => 'An internal description.'
+                'note' => 'An internal description.',
             ],
             ['collection' => 'directus_collections', 'field' => 'note']
         ));
@@ -19,7 +19,7 @@ class CollectionNotes extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'note' => '[Learn More](https://docs.directus.io/guides/collections.html#managing-collections).'
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#managing-collections).',
             ],
             ['collection' => 'directus_collections', 'field' => 'managed']
         ));
@@ -28,7 +28,7 @@ class CollectionNotes extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'note' => '[Learn More](https://docs.directus.io/guides/collections.html#hidden).'
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#hidden).',
             ],
             ['collection' => 'directus_collections', 'field' => 'hidden']
         ));
@@ -37,7 +37,7 @@ class CollectionNotes extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'note' => '[Learn More](https://docs.directus.io/guides/collections.html#single).'
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#single).',
             ],
             ['collection' => 'directus_collections', 'field' => 'single']
         ));
@@ -46,10 +46,9 @@ class CollectionNotes extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'note' => 'The icon shown in the App\'s navigation sidebar.'
+                'note' => 'The icon shown in the App\'s navigation sidebar.',
             ],
             ['collection' => 'directus_collections', 'field' => 'icon']
         ));
-
     }
 }

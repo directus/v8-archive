@@ -12,7 +12,7 @@ use Psr\Container\ContainerInterface;
 class CorsMiddleware extends AbstractMiddleware
 {
     /**
-     * Force CORS headers processing
+     * Force CORS headers processing.
      *
      * @var bool
      */
@@ -29,7 +29,7 @@ class CorsMiddleware extends AbstractMiddleware
             'PUT',
             'PATCH',
             'DELETE',
-            'HEAD'
+            'HEAD',
         ],
         'headers' => [
             'Access-Control-Allow-Headers',
@@ -44,7 +44,7 @@ class CorsMiddleware extends AbstractMiddleware
     /**
      * @var null|Collection
      */
-    protected $options = null;
+    protected $options;
 
     public function __construct(ContainerInterface $container, $force = false)
     {
@@ -58,21 +58,21 @@ class CorsMiddleware extends AbstractMiddleware
             if ($request->isOptions()) {
                 $this->processPreflightHeaders($request, $response);
 
-		// These withHeader calls are a temporary hack to get around the $response here not containig the correct headers that are supposedly set above in the processpreflightheaders call. 
-               // TODO: Remove withHeaders calls here
+                // These withHeader calls are a temporary hack to get around the $response here not containig the correct headers that are supposedly set above in the processpreflightheaders call.
+                // TODO: Remove withHeaders calls here
                 return $response
                     ->withHeader('Access-Control-Allow-Credentials', 'true')
-                    ->withHeader('Access-Control-Allow-Headers', ['X-Directus-Project', 'Content-Type', 'Authorization']);
-            } else {
-                $this->processActualHeaders($request, $response);
+                    ->withHeader('Access-Control-Allow-Headers', ['X-Directus-Project', 'Content-Type', 'Authorization'])
+                ;
             }
+            $this->processActualHeaders($request, $response);
         }
 
         return $next($request, $response);
     }
 
     /**
-     * Checks whether or not CORS is enabled
+     * Checks whether or not CORS is enabled.
      *
      * @return bool
      */
@@ -80,14 +80,11 @@ class CorsMiddleware extends AbstractMiddleware
     {
         $options = $this->getOptions();
 
-        return $this->force === true || $options->get('enabled', false);
+        return true === $this->force || $options->get('enabled', false);
     }
 
     /**
-     * Sets the preflight response headers
-     *
-     * @param Request $request
-     * @param Response $response
+     * Sets the preflight response headers.
      */
     protected function processPreflightHeaders(Request $request, Response $response)
     {
@@ -104,10 +101,7 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Sets the actual response headers
-     *
-     * @param Request $request
-     * @param Response $response
+     * Sets the actual response headers.
      */
     protected function processActualHeaders(Request $request, Response $response)
     {
@@ -121,7 +115,7 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Gets the header origin
+     * Gets the header origin.
      *
      * This is the origin the header is going to be used
      *
@@ -132,8 +126,6 @@ class CorsMiddleware extends AbstractMiddleware
      * 2) '*' - return header '*'
      * 3) {str} - return header {str}
      * 4) [{str}, {str}, {str}] - if origin matches, return header {str}
-     *
-     * @param Request $request
      *
      * @return string
      */
@@ -147,9 +139,7 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Returns the CORS origin header
-     *
-     * @param Request $request
+     * Returns the CORS origin header.
      *
      * @return array
      */
@@ -160,7 +150,7 @@ class CorsMiddleware extends AbstractMiddleware
 
         if ($origin) {
             $header = [
-                'Access-Control-Allow-Origin' => $origin
+                'Access-Control-Allow-Origin' => $origin,
             ];
         }
 
@@ -168,9 +158,9 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Returns the CORS allowed methods header
+     * Returns the CORS allowed methods header.
      *
-     * @return array|null
+     * @return null|array
      */
     protected function createAllowedMethodsHeader()
     {
@@ -178,13 +168,13 @@ class CorsMiddleware extends AbstractMiddleware
         $header = null;
 
         $methods = $options->get('methods', []);
-        if (is_array($methods)) {
+        if (\is_array($methods)) {
             $methods = implode(',', $methods);
         }
 
         if (!empty($methods)) {
             $header = [
-                'Access-Control-Allow-Methods' => $methods
+                'Access-Control-Allow-Methods' => $methods,
             ];
         }
 
@@ -192,9 +182,7 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Returns the allowed headers header
-     *
-     * @param Request $request
+     * Returns the allowed headers header.
      *
      * @return array
      */
@@ -204,7 +192,7 @@ class CorsMiddleware extends AbstractMiddleware
         $header = null;
 
         $allowedHeaders = $options->get('headers', []);
-        if (is_array($allowedHeaders)) {
+        if (\is_array($allowedHeaders)) {
             $allowedHeaders = implode(',', $allowedHeaders);
         }
 
@@ -216,7 +204,7 @@ class CorsMiddleware extends AbstractMiddleware
 
         if (!empty($allowedHeaders)) {
             $header = [
-                $headerName => $allowedHeaders
+                $headerName => $allowedHeaders,
             ];
         }
 
@@ -224,9 +212,9 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Returns exposed headers header
+     * Returns exposed headers header.
      *
-     * @return array|null
+     * @return null|array
      */
     protected function createExposedHeadersHeader()
     {
@@ -234,13 +222,13 @@ class CorsMiddleware extends AbstractMiddleware
         $options = $this->getOptions();
 
         $headers = $options->get('exposed_headers', []);
-        if (is_array($headers)) {
+        if (\is_array($headers)) {
             $headers = implode(',', $headers);
         }
 
         if (!empty($headers)) {
             $header = [
-                'Access-Control-Expose-Headers' => $headers
+                'Access-Control-Expose-Headers' => $headers,
             ];
         }
 
@@ -248,9 +236,9 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Returns the CORS max age header
+     * Returns the CORS max age header.
      *
-     * @return array|null
+     * @return null|array
      */
     protected function createMaxAgeHeader()
     {
@@ -260,7 +248,7 @@ class CorsMiddleware extends AbstractMiddleware
         $maxAge = (string) $options->get('max_age');
         if (!empty($maxAge)) {
             $header = [
-                'Access-Control-Max-Age' => $maxAge
+                'Access-Control-Max-Age' => $maxAge,
             ];
         }
 
@@ -268,18 +256,18 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Returns the credentials CORS header
+     * Returns the credentials CORS header.
      *
-     * @return array|null
+     * @return null|array
      */
     protected function createCredentialsHeader()
     {
         $options = $this->getOptions();
         $header = null;
 
-        if ($options->get('credentials') === true) {
+        if (true === $options->get('credentials')) {
             $header = [
-                'Access-Control-Allow-Credentials' => 'true'
+                'Access-Control-Allow-Credentials' => 'true',
             ];
         }
 
@@ -287,10 +275,7 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Sets a given array of headers to the response object
-     *
-     * @param Response $response
-     * @param array $headers
+     * Sets a given array of headers to the response object.
      */
     protected function setHeaders(Response $response, array $headers)
     {
@@ -301,13 +286,13 @@ class CorsMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Gets CORS options
+     * Gets CORS options.
      *
      * @return Collection
      */
     protected function getOptions()
     {
-        if ($this->options === null) {
+        if (null === $this->options) {
             $config = $this->container->get('config');
             $options = [];
 

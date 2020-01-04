@@ -5,17 +5,16 @@ namespace Directus\Util;
 class ArrayUtils
 {
     /**
-     * Sets a value in the given array with the given key
+     * Sets a value in the given array with the given key.
      *
-     * @param array $array
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      */
     public static function set(array &$array, $key, $value)
     {
         $keys = explode('.', $key);
 
-        while(count($keys) > 1) {
+        while (\count($keys) > 1) {
             $key = array_shift($keys);
             if (!isset($array[$key])) {
                 $array[$key] = [];
@@ -28,11 +27,11 @@ class ArrayUtils
     }
 
     /**
-     * Get an item from an array
+     * Get an item from an array.
      *
-     * @param  array $array
-     * @param  string $key
-     * @param  mixed $default
+     * @param array  $array
+     * @param string $key
+     * @param mixed  $default
      *
      * @return mixed
      */
@@ -42,7 +41,7 @@ class ArrayUtils
             return $array[$key];
         }
 
-        if (strpos($key, '.') !== false) {
+        if (false !== strpos($key, '.')) {
             $array = static::findDot($array, $key);
 
             if (static::exists($array, $key)) {
@@ -54,20 +53,19 @@ class ArrayUtils
     }
 
     /**
-     * Gets and remove an item from the array
+     * Gets and remove an item from the array.
      *
-     * @param array $array
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
      *
      * @return mixed
      */
     public static function pull(array &$array, $key, $default = null)
     {
         // TODO: Implement access by separator (example dot-notation)
-        $value = ArrayUtils::get($array, $key, $default);
+        $value = self::get($array, $key, $default);
 
-        ArrayUtils::remove($array, $key);
+        self::remove($array, $key);
 
         return $value;
     }
@@ -78,7 +76,7 @@ class ArrayUtils
             return true;
         }
 
-        if (strpos($key, '.') === false) {
+        if (false === strpos($key, '.')) {
             return false;
         }
 
@@ -89,26 +87,28 @@ class ArrayUtils
 
     public static function exists($array, $key)
     {
-        return array_key_exists($key, $array);
+        return \array_key_exists($key, $array);
     }
 
     /**
-     * Filter an array by keys
+     * Filter an array by keys.
+     *
      * @param $array
      * @param $keys
      * @param bool $omit
+     *
      * @return array
      */
     public static function filterByKey($array, $keys, $omit = false)
     {
         $result = [];
 
-        if (is_string($keys)) {
+        if (\is_string($keys)) {
             $keys = [$keys];
         }
 
         foreach ($array as $key => $value) {
-            $condition = in_array($key, $keys);
+            $condition = \in_array($key, $keys, true);
             if ($omit) {
                 $condition = !$condition;
             }
@@ -123,8 +123,10 @@ class ArrayUtils
 
     /**
      * Return a copy of the object, filtered to only have values for the whitelisted keys (or array of valid keys).
-     * @param  array $array
-     * @param  string|array $keys
+     *
+     * @param array        $array
+     * @param array|string $keys
+     *
      * @return array
      */
     public static function pick($array, $keys)
@@ -134,8 +136,10 @@ class ArrayUtils
 
     /**
      * Return a copy of the object, filtered to omit values for the blacklisted keys (or array of valid keys).
-     * @param  array $array
-     * @param  string|array $keys
+     *
+     * @param array        $array
+     * @param array|string $keys
+     *
      * @return array
      */
     public static function omit($array, $keys)
@@ -144,21 +148,20 @@ class ArrayUtils
     }
 
     /**
-     * Return whether or not a set of keys exists in an array
+     * Return whether or not a set of keys exists in an array.
      *
-     * @param  array $array
-     * @param  array|mixed $keys
+     * @param array|mixed $keys
      *
      * @return bool
      */
     public static function contains(array $array, $keys)
     {
-        if (!is_array($keys)) {
+        if (!\is_array($keys)) {
             $keys = [$keys];
         }
 
         foreach ($keys as $key) {
-            if (!array_key_exists($key, $array)) {
+            if (!\array_key_exists($key, $array)) {
                 return false;
             }
         }
@@ -167,16 +170,13 @@ class ArrayUtils
     }
 
     /**
-     * Checks whether the given array contain at least one of the given keys
-     *
-     * @param array $array
-     * @param array $keys
+     * Checks whether the given array contain at least one of the given keys.
      *
      * @return bool
      */
     public static function containsSome(array $array, array $keys)
     {
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (static::has($array, $key)) {
                 return true;
             }
@@ -188,8 +188,9 @@ class ArrayUtils
     /**
      * Flatten a multi-dimensional associative array with a dots.
      *
-     * @param  array $array
-     * @param  string $prepend
+     * @param array  $array
+     * @param string $prepend
+     *
      * @return array
      */
     public static function dot($array, $prepend = '')
@@ -198,7 +199,7 @@ class ArrayUtils
     }
 
     /**
-     * Find a the value of an array based on a relational key (nested value)
+     * Find a the value of an array based on a relational key (nested value).
      *
      * This is a better option than using dot
      * Dot flatten ALL keys which make thing slower when the array is big
@@ -219,9 +220,10 @@ class ArrayUtils
     /**
      * Flatten a multi-dimensional associative array with a character.
      *
-     * @param  string $separator
-     * @param  array $array
-     * @param  string $prepend
+     * @param string $separator
+     * @param array  $array
+     * @param string $prepend
+     *
      * @return array
      */
     public static function flatKey($separator, $array, $prepend = '')
@@ -229,53 +231,53 @@ class ArrayUtils
         $results = [];
 
         foreach ($array as $key => $value) {
-            if (is_array($value) && !empty($value)) {
-                $results = array_merge($results, static::flatKey($separator, $value, $prepend . $key . $separator));
+            if (\is_array($value) && !empty($value)) {
+                $results = array_merge($results, static::flatKey($separator, $value, $prepend.$key.$separator));
             }
 
-            $results[$prepend . $key] = $value;
+            $results[$prepend.$key] = $value;
         }
 
         return $results;
     }
 
     /**
-     * Find the nested value of an array using the given separator-notation key
+     * Find the nested value of an array using the given separator-notation key.
      *
      * @param $separator
      * @param $array
      * @param $key
      *
-     * @return array|null
+     * @return null|array
      */
     public static function findFlatKey($separator, $array, $key)
     {
         $keysPath = [];
         $result = null;
 
-        if (strpos($key, $separator) !== false) {
+        if (false !== strpos($key, $separator)) {
             $keys = explode($separator, $key);
             $value = $array;
 
             while ($keys) {
                 $k = array_shift($keys);
 
-                if (!array_key_exists($k, $value)) {
+                if (!\array_key_exists($k, $value)) {
                     break;
                 }
 
                 $value = $value[$k];
                 $keysPath[] = $k;
 
-                if ($key == implode($separator, $keysPath)) {
+                if ($key === implode($separator, $keysPath)) {
                     $result = [
                         'key' => $key,
-                        'value' => $value
+                        'value' => $value,
                     ];
                 }
 
                 // stop the search if the next value is not an array
-                if (!is_array($value)) {
+                if (!\is_array($value)) {
                     break;
                 }
             }
@@ -285,10 +287,7 @@ class ArrayUtils
     }
 
     /**
-     * Gets the missing values from a array in another array
-     *
-     * @param array $from
-     * @param array $target
+     * Gets the missing values from a array in another array.
      *
      * @return array
      */
@@ -298,12 +297,9 @@ class ArrayUtils
     }
 
     /**
-     * Gets the missing values from a array in another array
+     * Gets the missing values from a array in another array.
      *
      * Alias of ArrayUtils::missing
-     *
-     * @param array $from
-     * @param array $target
      *
      * @return array
      */
@@ -313,20 +309,18 @@ class ArrayUtils
     }
 
     /**
-     * Gets only the values that exists in both array
+     * Gets only the values that exists in both array.
      *
-     * @param array $arrayOne
-     * @param array $arrayTwo
      * @param bool $without
      *
      * @return array
      */
     public static function intersection(array $arrayOne, array $arrayTwo, $without = false)
     {
-        $values= [];
+        $values = [];
 
-        foreach($arrayTwo as $value) {
-            if (in_array($value, $arrayOne) === !$without) {
+        foreach ($arrayTwo as $value) {
+            if (\in_array($value, $arrayOne, true) === !$without) {
                 $values[] = $value;
             }
         }
@@ -335,9 +329,7 @@ class ArrayUtils
     }
 
     /**
-     * Checks whether the given array has only numeric keys
-     *
-     * @param array $array
+     * Checks whether the given array has only numeric keys.
      *
      * @return bool
      */
@@ -353,25 +345,23 @@ class ArrayUtils
     }
 
     /**
-     * Sets or updates the keys in the source array into the default array
+     * Sets or updates the keys in the source array into the default array.
      *
-     * @param array $defaultArray
-     * @param array $sourceArray
      * @param \Closure $validate
      *
      * @return array
      *
-     * @link http://php.net/manual/es/function.array-merge-recursive.php#92195
+     * @see http://php.net/manual/es/function.array-merge-recursive.php#92195
      */
     public static function defaults(array $defaultArray, array $sourceArray, \Closure $validate = null)
     {
         $newArray = $defaultArray;
         foreach ($sourceArray as $key => $value) {
-            if ($validate && $validate($value, $key) !== true) {
+            if ($validate && true !== $validate($value, $key)) {
                 continue;
             }
 
-            if (is_array($value) && array_key_exists($key, $defaultArray) && is_array($defaultArray[$key])) {
+            if (\is_array($value) && \array_key_exists($key, $defaultArray) && \is_array($defaultArray[$key])) {
                 $newArray[$key] = static::defaults($newArray[$key], $value);
             } else {
                 $newArray[$key] = $value;
@@ -382,19 +372,16 @@ class ArrayUtils
     }
 
     /**
-     * Gets a new array changing some or all of the given array keys
-     *
-     * @param array $array
-     * @param array $aliases
+     * Gets a new array changing some or all of the given array keys.
      *
      * @return array
      */
     public static function aliasKeys(array $array, array $aliases)
     {
         $newArray = [];
-        foreach($array as $key => $value) {
-            if (in_array($key, $aliases)) {
-                $newArray[array_search($key, $aliases)] = $value;
+        foreach ($array as $key => $value) {
+            if (\in_array($key, $aliases, true)) {
+                $newArray[array_search($key, $aliases, true)] = $value;
             } else {
                 $newArray[$key] = $value;
             }
@@ -404,40 +391,37 @@ class ArrayUtils
     }
 
     /**
-     * Renames a key
+     * Renames a key.
      *
-     * @param array $array
      * @param string $from
      * @param string $to
      */
     public static function rename(array &$array, $from, $to)
     {
-        if (ArrayUtils::exists($array, $from)) {
-            $value = ArrayUtils::get($array, $from);
+        if (self::exists($array, $from)) {
+            $value = self::get($array, $from);
 
             $array[$to] = $value;
 
-            ArrayUtils::remove($array, $from);
+            self::remove($array, $from);
         }
     }
 
     /**
-     * Rename a list of keys
+     * Rename a list of keys.
      *
-     * @param array $array
      * @param $keys
      */
     public static function renameSome(array &$array, $keys)
     {
-        foreach ($keys as $from => $to)  {
+        foreach ($keys as $from => $to) {
             static::rename($array, $from, $to);
         }
     }
 
     /**
-     * Swaps element values
+     * Swaps element values.
      *
-     * @param array $array
      * @param string $from
      * @param string $to
      *
@@ -445,15 +429,14 @@ class ArrayUtils
      */
     public static function swap(array &$array, $from, $to)
     {
-        $temp = ArrayUtils::get($array, $from);
-        $array[$from] = ArrayUtils::get($array, $to);
+        $temp = self::get($array, $from);
+        $array[$from] = self::get($array, $to);
         $array[$to] = $temp;
     }
 
     /**
-     * Pushes a new element at the end of the given array
+     * Pushes a new element at the end of the given array.
      *
-     * @param array $array
      * @param $value
      *
      * @return int
@@ -464,9 +447,7 @@ class ArrayUtils
     }
 
     /**
-     * Pulls the last element from the given array
-     *
-     * @param array $array
+     * Pulls the last element from the given array.
      *
      * @return mixed
      */
@@ -476,9 +457,7 @@ class ArrayUtils
     }
 
     /**
-     * Pulls the first element from the given array
-     *
-     * @param array $array
+     * Pulls the first element from the given array.
      *
      * @return mixed
      */
@@ -488,9 +467,9 @@ class ArrayUtils
     }
 
     /**
-     * Adds a new element at the beginning of the given array
+     * Adds a new element at the beginning of the given array.
      *
-     * @param array $array
+     * @param mixed $value
      *
      * @return mixed
      */
@@ -500,24 +479,23 @@ class ArrayUtils
     }
 
     /**
-     * Removes one or more key from the given array
+     * Removes one or more key from the given array.
      *
-     * @param array $array
      * @param $keys
      */
     public static function remove(array &$array, $keys)
     {
-        if (!is_array($keys)) {
+        if (!\is_array($keys)) {
             $keys = [$keys];
         }
 
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             unset($array[$key]);
         }
     }
 
     /**
-     * Gets how deep is the given array
+     * Gets how deep is the given array.
      *
      * 0 = no child
      *
@@ -530,7 +508,7 @@ class ArrayUtils
         $depth = 0;
 
         foreach ($array as $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $depth = max(static::deepLevel($value) + 1, $depth);
             }
         }
@@ -539,9 +517,8 @@ class ArrayUtils
     }
 
     /**
-     * Extract the key from a list of array
+     * Extract the key from a list of array.
      *
-     * @param array $array
      * @param string $key
      *
      * @return array
@@ -549,12 +526,12 @@ class ArrayUtils
     public static function pluck(array $array, $key)
     {
         return array_map(function ($value) use ($key) {
-            return is_array($value) ? static::get($value, $key) : null;
+            return \is_array($value) ? static::get($value, $key) : null;
         }, $array);
     }
 
-    /*
-     * Creates an array from CSV value
+    /**
+     * Creates an array from CSV value.
      *
      * @param mixed $value
      *
@@ -562,11 +539,11 @@ class ArrayUtils
      */
     public static function createFromCSV($value)
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return $value;
         }
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return StringUtils::csv($value);
         }
 

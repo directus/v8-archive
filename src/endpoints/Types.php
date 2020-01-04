@@ -10,18 +10,12 @@ use Directus\Database\Schema\DataTypes;
 
 class Types extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->get('', [$this, 'all']);
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function all(Request $request, Response $response)
@@ -29,7 +23,7 @@ class Types extends Route
         $responseData = [
             'data' => array_values(array_map(function ($type) {
                 return ['name' => $type];
-            }, DataTypes::getAllTypes()))
+            }, DataTypes::getAllTypes())),
         ];
 
         return $this->responseWithData($request, $response, $responseData);

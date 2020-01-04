@@ -20,9 +20,6 @@ class Relations extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function all(Request $request, Response $response)
@@ -36,16 +33,13 @@ class Relations extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function create(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
         $payload = $request->getParsedBody();
-        if (isset($payload[0]) && is_array($payload[0])) {
+        if (isset($payload[0]) && \is_array($payload[0])) {
             return $this->batch($request, $response);
         }
 
@@ -59,9 +53,6 @@ class Relations extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function read(Request $request, Response $response)
@@ -76,9 +67,6 @@ class Relations extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function update(Request $request, Response $response)
@@ -86,7 +74,7 @@ class Relations extends Route
         $this->validateRequestPayload($request);
         $id = $request->getAttribute('id');
 
-        if (strpos($id, ',') !== false) {
+        if (false !== strpos($id, ',')) {
             return $this->batch($request, $response);
         }
 
@@ -100,15 +88,12 @@ class Relations extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function delete(Request $request, Response $response)
     {
         $id = $request->getAttribute('id');
-        if (strpos($id, ',') !== false) {
+        if (false !== strpos($id, ',')) {
             return $this->batch($request, $response);
         }
 
@@ -119,9 +104,6 @@ class Relations extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     protected function batch(Request $request, Response $response)
@@ -133,10 +115,10 @@ class Relations extends Route
         $relationsService = new RelationsService($this->container);
         if ($request->isPost()) {
             $responseData = $relationsService->batchCreate($payload, $params);
-        } else if ($request->isPatch()) {
+        } elseif ($request->isPatch()) {
             $ids = explode(',', $request->getAttribute('id'));
             $responseData = $relationsService->batchUpdateWithIds($ids, $payload, $params);
-        } else if ($request->isDelete()) {
+        } elseif ($request->isDelete()) {
             $ids = explode(',', $request->getAttribute('id'));
             $relationsService->batchDeleteWithIds($ids, $params);
         }

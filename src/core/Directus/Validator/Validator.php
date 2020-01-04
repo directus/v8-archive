@@ -31,7 +31,6 @@ class Validator
 
     /**
      * @param mixed $value
-     * @param array $constraints
      *
      * @return \Symfony\Component\Validator\ConstraintViolationListInterface
      */
@@ -43,14 +42,14 @@ class Validator
             $violations = $this->provider->validate($value, $this->createConstraintFromList($constraints));
         } catch (UnexpectedTypeException $e) {
             $message = $e->getMessage();
-           
+
             preg_match('/Expected argument of type "(.*)", "(.*)" given/', $message, $matches);
-            if (count($matches) === 3) {
-                $message = 'This value should be of type ' . $matches[1];
+            if (3 === \count($matches)) {
+                $message = 'This value should be of type '.$matches[1];
             }
 
             $violations = new ConstraintViolationList();
-            $violations->add(new ConstraintViolation($message . '.', '', [], '', '', ''));
+            $violations->add(new ConstraintViolation($message.'.', '', [], '', '', ''));
         }
 
         return $violations;
@@ -65,14 +64,14 @@ class Validator
     }
 
     /**
-     * Gets constraint with the given name
+     * Gets constraint with the given name.
      *
      * @param string $name
      * @param string $options
      *
-     * @return null|Constraint
-     *
      * @throws UnknownConstraintException
+     *
+     * @return null|Constraint
      */
     public function getConstraint($name, $options = null)
     {
@@ -81,33 +80,42 @@ class Validator
         switch ($name) {
             case 'required':
                 $constraint = new Required();
+
                 break;
             case 'notnullable':
                 $constraint = new NotNull();
+
                 break;
             case 'email':
                 $constraint = new Email();
+
                 break;
             case 'json':
                 $constraint = new Type(['type' => 'array', 'message' => 'This value should be of type json.']);
+
                 break;
             case 'array':
             case 'numeric':
             case 'string':
             case 'bool':
                 $constraint = new Type(['type' => $name]);
+
                 break;
             case 'date':
                 $constraint = new Date();
+
                 break;
             case 'time':
                 $constraint = new Time();
+
                 break;
             case 'datetime':
                 $constraint = new DateTime();
+
                 break;
             case 'regex':
                 $constraint = new Regex(['pattern' => $options]);
+
                 break;
             default:
                 throw new UnknownConstraintException(sprintf('Unknown "%s" constraint', $name));
@@ -117,9 +125,7 @@ class Validator
     }
 
     /**
-     * Creates constraints object from name
-     *
-     * @param array $constraints
+     * Creates constraints object from name.
      *
      * @return Constraint[]
      */
@@ -129,7 +135,7 @@ class Validator
 
         foreach ($constraints as $constraint) {
             $options = null;
-    
+
             // NOTE: Simple implementation to adapt a new regex validation and its pattern
             if (strpos($constraint, ':')) {
                 $constraintParts = explode(':', $constraint);
@@ -139,7 +145,7 @@ class Validator
 
             $constraintsObjects[] = $this->getConstraint($constraint, $options);
         }
-        
+
         return $constraintsObjects;
     }
 }

@@ -11,8 +11,9 @@ interface SchemaInterface
      * @return Connection
      */
     public function getConnection();
+
     /**
-     * Get the schema name
+     * Get the schema name.
      *
      * @return string
      */
@@ -21,16 +22,14 @@ interface SchemaInterface
     /**
      * Gets a list of all tables structures.
      *
-     * @param array $params
-     *
      * @return ResultSet
      */
     public function getCollections(array $params = []);
 
     /**
-     * Check whether a given table name exists
+     * Check whether a given table name exists.
      *
-     * @param string|array $collectionName
+     * @param array|string $collectionName
      *
      * @return bool
      */
@@ -49,23 +48,20 @@ interface SchemaInterface
      * Gets all columns in the given table name.
      *
      * @param string $tableName
-     * @param array $params
      *
      * @return ResultSet
      */
     public function getFields($tableName, array $params = []);
 
     /**
-     * Gets all columns in the current schema
-     *
-     * @param array $params
+     * Gets all columns in the current schema.
      *
      * @return ResultSet
      */
     public function getAllFields(array $params = []);
 
     /**
-     * Checks whether the given table name has a given column name
+     * Checks whether the given table name has a given column name.
      *
      * @param string $collectionName
      * @param string $fieldName
@@ -75,7 +71,7 @@ interface SchemaInterface
     public function hasField($collectionName, $fieldName);
 
     /**
-     * Gets the info of the given column name in the given table name
+     * Gets the info of the given column name in the given table name.
      *
      * @param string $collectionName
      * @param string $fieldName
@@ -85,14 +81,14 @@ interface SchemaInterface
     public function getField($collectionName, $fieldName);
 
     /**
-     * Gets all relations
+     * Gets all relations.
      *
      * @return ResultSet
      */
     public function getAllRelations();
 
     /**
-     * Gets the collection fields relations
+     * Gets the collection fields relations.
      *
      * @param string $collectionName
      *
@@ -101,9 +97,10 @@ interface SchemaInterface
     public function getRelations($collectionName);
 
     /**
-     * Checks whether the given table name has primary key column
+     * Checks whether the given table name has primary key column.
      *
      * @param $tableName
+     * @param mixed $columns
      *
      * @return bool
      */
@@ -126,7 +123,7 @@ interface SchemaInterface
     // public function getFullSchema();
 
     /**
-     * Gets the given column UI name
+     * Gets the given column UI name.
      *
      * @param $column
      *
@@ -135,7 +132,7 @@ interface SchemaInterface
     // public function getColumnUI($column);
 
     /**
-     * Adds a primary key to the given column
+     * Adds a primary key to the given column.
      *
      * @param $table
      * @param $column
@@ -145,7 +142,7 @@ interface SchemaInterface
     // public function addPrimaryKey($table, $column);
 
     /**
-     * Removes the primary key from the given column
+     * Removes the primary key from the given column.
      *
      * @param $table
      * @param $column
@@ -155,9 +152,8 @@ interface SchemaInterface
     // public function dropPrimaryKey($table, $column);
 
     /**
-     * Cast record values by the schema type
+     * Cast record values by the schema type.
      *
-     * @param array $records
      * @param array $columns
      *
      * @return array
@@ -167,8 +163,8 @@ interface SchemaInterface
     /**
      * Cast value to its database type.
      *
-     * @param mixed $data
-     * @param null  $type
+     * @param mixed    $data
+     * @param null     $type
      * @param null|int $length
      *
      * @return mixed
@@ -176,40 +172,39 @@ interface SchemaInterface
     public function castValue($data, $type = null, $length = null);
 
     /**
-     * Gets the default length value per type
+     * Gets the default length value per type.
      *
      * @return array
      */
     public function getDefaultLengths();
 
     /**
-     * Gets the column type default length
+     * Gets the column type default length.
      *
      * @param $type - Column type
      *
-     * @return integer
+     * @return int
      */
     public function getColumnDefaultLength($type);
 
     /**
-     * Checks if the given type exists in the list
+     * Checks if the given type exists in the list.
      *
      * @param $type
-     * @param array $list
      *
      * @return bool
      */
     public function isType($type, array $list);
 
     /**
-     * Gets Integer data types
+     * Gets Integer data types.
      *
      * @return array
      */
     public function getIntegerTypes();
 
     /**
-     * Checks whether the given type is integer type
+     * Checks whether the given type is integer type.
      *
      * @param $type
      *
@@ -218,14 +213,14 @@ interface SchemaInterface
     public function isIntegerType($type);
 
     /**
-     * Gets Decimal data types
+     * Gets Decimal data types.
      *
      * @return array
      */
     public function getFloatingPointTypes();
 
     /**
-     * Checks whether the given type is decimal type
+     * Checks whether the given type is decimal type.
      *
      * @param $type
      *
@@ -234,14 +229,14 @@ interface SchemaInterface
     public function isFloatingPointType($type);
 
     /**
-     * Gets Numeric data types
+     * Gets Numeric data types.
      *
      * @return mixed
      */
     public function getNumericTypes();
 
     /**
-     * Checks whether the given type is numeric type
+     * Checks whether the given type is numeric type.
      *
      * @param $type
      *
@@ -250,14 +245,14 @@ interface SchemaInterface
     public function isNumericType($type);
 
     /**
-     * Gets String data types
+     * Gets String data types.
      *
      * @return array
      */
     public function getStringTypes();
 
     /**
-     * Checks whether the given type is string type
+     * Checks whether the given type is string type.
      *
      * @param $type
      *
@@ -266,14 +261,14 @@ interface SchemaInterface
     public function isStringType($type);
 
     /**
-     * Returns a list of date and time types
+     * Returns a list of date and time types.
      *
      * @return array
      */
     public function getDateAndTimeTypes();
 
     /**
-     * Checks whether the given type is date/time type
+     * Checks whether the given type is date/time type.
      *
      * @param string $type
      *
@@ -282,7 +277,7 @@ interface SchemaInterface
     public function isDateAndTimeTypes($type);
 
     /**
-     * Gets the Directus' type based on the source data type
+     * Gets the Directus' type based on the source data type.
      *
      * @param $type
      *
@@ -291,21 +286,21 @@ interface SchemaInterface
     public function getTypeFromSource($type);
 
     /**
-     * Returns all types that requires length
+     * Returns all types that requires length.
      *
      * @return array
      */
     public function getTypesRequireLength();
 
     /**
-     * Returns all types that allow length but are not required
+     * Returns all types that allow length but are not required.
      *
      * @return array
      */
     public function getTypesAllowLength();
 
     /**
-     * Checks whether or not the given type requires length
+     * Checks whether or not the given type requires length.
      *
      * @param string $type
      *
@@ -314,7 +309,7 @@ interface SchemaInterface
     public function isTypeLengthRequired($type);
 
     /**
-     * Checks whether or not the given type allow length
+     * Checks whether or not the given type allow length.
      *
      * @param string $type
      *
@@ -323,7 +318,7 @@ interface SchemaInterface
     public function isTypeLengthAllowed($type);
 
     /**
-     * Returns database datetime format
+     * Returns database datetime format.
      *
      * @return string
      */

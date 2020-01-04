@@ -10,6 +10,6 @@ class InvalidResetPasswordTokenException extends UnauthorizedException
 
     public function __construct($token)
     {
-        parent::__construct('Invalid Reset Password token: ' . $token);
+        parent::__construct('Invalid Reset Password token: '.$token);
     }
 }

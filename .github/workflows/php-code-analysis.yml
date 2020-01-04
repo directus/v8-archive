@@ -1,0 +1,25 @@
+name: PHP Code analysis
+
+on: [pull_request]
+
+jobs:
+  static-code-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v1
+        with:
+          php-version: '7.3'
+          tools: phpstan, php-cs-fixer
+
+      - name: Install
+        run:  composer install
+
+      - name: PHP-CS-Fixer
+        run: php-cs-fixer --dry-run --allow-risky=yes --no-interaction --ansi --diff fix
+
+      - name: PHPStan
+        run: phpstan --ansi analyse -l 4 bin/ config/ migrations/ public/ src/

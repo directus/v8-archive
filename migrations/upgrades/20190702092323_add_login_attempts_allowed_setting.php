@@ -1,6 +1,5 @@
 <?php
 
-
 use Phinx\Migration\AbstractMigration;
 
 class AddLoginAttemptsAllowedSetting extends AbstractMigration
@@ -22,6 +21,5 @@ class AddLoginAttemptsAllowedSetting extends AbstractMigration
             $insertSql = sprintf($insertSqlFormat, $collection, $fieldObject['field'], $fieldObject['type'], $fieldObject['interface']);
             $this->execute($insertSql);
         }
-
     }
 }

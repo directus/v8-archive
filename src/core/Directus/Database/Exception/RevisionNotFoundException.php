@@ -10,7 +10,7 @@ class RevisionNotFoundException extends NotFoundException
 
     public function __construct($id = null)
     {
-        if ($id !== null) {
+        if (null !== $id) {
             $message = sprintf('Revision with Id "%s" not found', $id);
         } else {
             $message = 'Revision not found';

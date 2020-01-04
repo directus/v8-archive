@@ -10,6 +10,6 @@ class ExpiredResetPasswordToken extends UnauthorizedException
 
     public function __construct($token)
     {
-        parent::__construct('Expired Reset Password token: ' . $token);
+        parent::__construct('Expired Reset Password token: '.$token);
     }
 }

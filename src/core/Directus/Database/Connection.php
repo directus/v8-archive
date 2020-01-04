@@ -7,7 +7,7 @@ use Zend\Db\Adapter\Adapter;
 class Connection extends Adapter
 {
     /**
-     * Database configuration
+     * Database configuration.
      *
      * @var array
      */
@@ -16,9 +16,9 @@ class Connection extends Adapter
     /**
      * Check if this connection has strict mode enabled.
      *
-     * @return bool
-     *
      * @throws \BadMethodCallException
+     *
+     * @return bool
      */
     public function isStrictModeEnabled()
     {
@@ -28,6 +28,7 @@ class Connection extends Adapter
         switch (strtolower($driverName)) {
             case 'mysql':
                 $enabled = $this->isMySQLStrictModeEnabled();
+
                 break;
         }
 
@@ -35,7 +36,29 @@ class Connection extends Adapter
     }
 
     /**
-     * Check if MySQL has Strict mode enabled
+     * Connect to the database.
+     *
+     * @return \Zend\Db\Adapter\Driver\ConnectionInterface
+     */
+    public function connect()
+    {
+        return \call_user_func_array([$this->getDriver()->getConnection(), 'connect'], \func_get_args());
+    }
+
+    /**
+     * Execute an query string.
+     *
+     * @param $sql
+     *
+     * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
+     */
+    public function execute($sql)
+    {
+        return $this->query($sql, static::QUERY_MODE_EXECUTE);
+    }
+
+    /**
+     * Check if MySQL has Strict mode enabled.
      *
      * @return bool
      */
@@ -49,33 +72,11 @@ class Connection extends Adapter
         $modes = explode(',', $modesEnabled['modes']);
         foreach ($modes as $name) {
             $modeName = strtoupper(trim($name));
-            if (in_array($modeName, $strictModes)) {
+            if (\in_array($modeName, $strictModes, true)) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    /**
-     * Connect to the database
-     *
-     * @return \Zend\Db\Adapter\Driver\ConnectionInterface
-     */
-    public function connect()
-    {
-        return call_user_func_array([$this->getDriver()->getConnection(), 'connect'], func_get_args());
-    }
-
-    /**
-     * Execute an query string
-     *
-     * @param $sql
-     *
-     * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
-     */
-    public function execute($sql)
-    {
-        return $this->query($sql, static::QUERY_MODE_EXECUTE);
     }
 }

@@ -1,11 +1,11 @@
 <?php
+
 namespace Directus\GraphQL\Type\Scalar;
 
 use GraphQL\Type\Definition\ScalarType;
 
 class TimeType extends ScalarType
 {
-
     public $name = 'Time';
 
     public $description = 'Time scalar type.';

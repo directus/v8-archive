@@ -5,7 +5,7 @@ namespace Directus\Authentication\Sso;
 use Directus\Util\ArrayUtils;
 
 /**
- * Provider for OAuth 1.0
+ * Provider for OAuth 1.0.
  */
 abstract class OneSocialProvider extends AbstractSocialProvider
 {
@@ -22,7 +22,7 @@ abstract class OneSocialProvider extends AbstractSocialProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function request()
     {
@@ -35,23 +35,21 @@ abstract class OneSocialProvider extends AbstractSocialProvider
 
         // resource owner to the login screen on the server.
         $this->provider->authorize($temporaryCredentials);
-
-        return;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function handle()
     {
         return $this->getUserFromCode([
             'oauth_token' => ArrayUtils::get($_GET, 'oauth_token'),
-            'oauth_verifier' => ArrayUtils::get($_GET, 'oauth_verifier')
+            'oauth_verifier' => ArrayUtils::get($_GET, 'oauth_verifier'),
         ]);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getUserFromCode(array $data)
     {
@@ -75,12 +73,12 @@ abstract class OneSocialProvider extends AbstractSocialProvider
         $user = $this->provider->getUserDetails($tokenCredentials);
 
         return new SocialUser([
-            'email' => $user->email
+            'email' => $user->email,
         ]);
     }
 
     /**
-     * Get the list of scopes for the current service
+     * Get the list of scopes for the current service.
      *
      * @return array
      */

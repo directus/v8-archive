@@ -13,7 +13,7 @@ class Field extends AbstractObject
     protected $relationship;
 
     /**
-     * Gets the field item identification number
+     * Gets the field item identification number.
      *
      * @return int
      */
@@ -23,7 +23,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the field name
+     * Gets the field name.
      *
      * @return string
      */
@@ -33,17 +33,17 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the field name with proper formatisation
+     * Gets the field name with proper formatisation.
      *
      * @return string
      */
     public function getFormatisedName()
     {
-        return ucwords(str_replace("_", " ", $this->attributes->get('field')));
+        return ucwords(str_replace('_', ' ', $this->attributes->get('field')));
     }
 
     /**
-     * Gets the field type
+     * Gets the field type.
      *
      * @return string
      */
@@ -53,7 +53,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the field original type (based on its database)
+     * Gets the field original type (based on its database).
      *
      * @return string
      */
@@ -63,7 +63,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Get the field length
+     * Get the field length.
      *
      * @return int
      */
@@ -79,7 +79,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets field full type (mysql)
+     * Gets field full type (mysql).
      *
      * @return string
      */
@@ -90,7 +90,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the fields only accepts signed values
+     * Checks whether the fields only accepts signed values.
      *
      * @return bool
      */
@@ -100,7 +100,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the columns has zero fill attribute
+     * Checks whether the columns has zero fill attribute.
      *
      * @return bool
      */
@@ -108,11 +108,11 @@ class Field extends AbstractObject
     {
         $type = $this->getColumnType();
 
-        return strpos($type, 'zerofill') !== false;
+        return false !== strpos($type, 'zerofill');
     }
 
     /**
-     * Gets the field character length
+     * Gets the field character length.
      *
      * @return int
      */
@@ -122,7 +122,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets field precision
+     * Gets field precision.
      *
      * @return int
      */
@@ -132,7 +132,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets field scale
+     * Gets field scale.
      *
      * @return int
      */
@@ -142,7 +142,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets field ordinal position
+     * Gets field ordinal position.
      *
      * @return int
      */
@@ -152,7 +152,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets field default value
+     * Gets field default value.
      *
      * @return mixed
      */
@@ -162,17 +162,17 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets whether or not the field is nullable
+     * Gets whether or not the field is nullable.
      *
      * @return bool
      */
     public function isNullable()
     {
-        return boolval($this->attributes->get('nullable'));
+        return (bool) ($this->attributes->get('nullable'));
     }
 
     /**
-     * Gets the field key
+     * Gets the field key.
      *
      * @return string
      */
@@ -182,7 +182,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the field extra
+     * Gets the field extra.
      *
      * @return string
      */
@@ -192,7 +192,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets whether or not the column has auto increment
+     * Gets whether or not the column has auto increment.
      *
      * @return bool
      */
@@ -202,7 +202,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field has primary key
+     * Checks whether or not the field has primary key.
      *
      * @return bool
      */
@@ -212,7 +212,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field has unique key
+     * Checks whether or not the field has unique key.
      *
      * @return bool
      */
@@ -222,7 +222,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets whether the field is required
+     * Gets whether the field is required.
      *
      * @return bool
      */
@@ -232,7 +232,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the interface name
+     * Gets the interface name.
      *
      * @return string
      */
@@ -242,9 +242,9 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets all or the given key options
+     * Gets all or the given key options.
      *
-     * @param string|null $key
+     * @param null|string $key
      *
      * @return mixed
      */
@@ -255,7 +255,7 @@ class Field extends AbstractObject
             $options = $this->attributes->get('options');
         }
 
-        if ($key !== null && is_array($options)) {
+        if (null !== $key && \is_array($options)) {
             $options = ArrayUtils::get($options, $key);
         }
 
@@ -263,7 +263,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets whether the field must be hidden in lists
+     * Gets whether the field must be hidden in lists.
      *
      * @return bool
      */
@@ -273,7 +273,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets whether the field must be hidden in forms
+     * Gets whether the field must be hidden in forms.
      *
      * @return bool
      */
@@ -283,7 +283,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the field comment
+     * Gets the field comment.
      *
      * @return null|string
      */
@@ -293,9 +293,9 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the field regex pattern validation string
+     * Gets the field regex pattern validation string.
      *
-     * @return string|null
+     * @return null|string
      */
     public function getValidation()
     {
@@ -303,7 +303,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the collection's name the field belongs to
+     * Gets the collection's name the field belongs to.
      *
      * @return string
      */
@@ -313,7 +313,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the field is an alias
+     * Checks whether the field is an alias.
      *
      * @return bool
      */
@@ -323,7 +323,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether this column is date system interface
+     * Checks whether this column is date system interface.
      *
      * @return bool
      */
@@ -333,7 +333,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether this column is system user interface
+     * Checks whether this column is system user interface.
      *
      * @return bool
      */
@@ -343,7 +343,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field is a status type
+     * Checks whether or not the field is a status type.
      *
      * @return bool
      */
@@ -353,7 +353,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field is a sort type
+     * Checks whether or not the field is a sort type.
      *
      * @return bool
      */
@@ -363,7 +363,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field is a date created type
+     * Checks whether or not the field is a date created type.
      *
      * @return bool
      */
@@ -373,7 +373,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field is an user created type
+     * Checks whether or not the field is an user created type.
      *
      * @return bool
      */
@@ -383,7 +383,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field is a date modified type
+     * Checks whether or not the field is a date modified type.
      *
      * @return bool
      */
@@ -393,7 +393,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field is an user modified type
+     * Checks whether or not the field is an user modified type.
      *
      * @return bool
      */
@@ -403,7 +403,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field is a lang type
+     * Checks whether or not the field is a lang type.
      *
      * @return bool
      */
@@ -413,7 +413,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether or not the field is the given type
+     * Checks whether or not the field is the given type.
      *
      * @param string $type
      *
@@ -425,9 +425,9 @@ class Field extends AbstractObject
     }
 
     /**
-     * Set the column relationship
+     * Set the column relationship.
      *
-     * @param FieldRelationship|array $relationship
+     * @param array|FieldRelationship $relationship
      *
      * @return Field
      */
@@ -447,7 +447,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the field relationship
+     * Gets the field relationship.
      *
      * @return FieldRelationship
      */
@@ -457,7 +457,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the field has relationship
+     * Checks whether the field has relationship.
      *
      * @return bool
      */
@@ -467,7 +467,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Gets the field relationship type
+     * Gets the field relationship type.
      *
      * @return null|string
      */
@@ -483,7 +483,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the relationship is MANY TO ONE
+     * Checks whether the relationship is MANY TO ONE.
      *
      * @return bool
      */
@@ -493,7 +493,7 @@ class Field extends AbstractObject
     }
 
     /**
-     * Checks whether the relationship is ONE TO MANY
+     * Checks whether the relationship is ONE TO MANY.
      *
      * @return bool
      */
@@ -503,13 +503,13 @@ class Field extends AbstractObject
     }
 
     /**
-     * Is the field being managed by Directus
+     * Is the field being managed by Directus.
      *
      * @return bool
      */
     public function isManaged()
     {
-        return $this->attributes->get('managed') == 1;
+        return 1 === $this->attributes->get('managed');
     }
 
     /**

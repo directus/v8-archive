@@ -1,6 +1,5 @@
 <?php
 
-
 use Phinx\Migration\AbstractMigration;
 
 class UpdateNoteForDefaultLimit extends AbstractMigration
@@ -11,7 +10,7 @@ class UpdateNoteForDefaultLimit extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'note' => 'The color that best fits your brand.'
+                'note' => 'The color that best fits your brand.',
             ],
             ['collection' => 'directus_settings', 'field' => 'color']
         ));
@@ -20,7 +19,7 @@ class UpdateNoteForDefaultLimit extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'note' => 'Default max amount of items that\'s returned at a time in the API.'
+                'note' => 'Default max amount of items that\'s returned at a time in the API.',
             ],
             ['collection' => 'directus_settings', 'field' => 'default_limit']
         ));
@@ -29,7 +28,7 @@ class UpdateNoteForDefaultLimit extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'width' => 'half',
+                'width' => 'half',
             ],
             ['collection' => 'directus_settings', 'field' => 'password_policy']
         ));
@@ -38,10 +37,9 @@ class UpdateNoteForDefaultLimit extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'width' => 'half',
+                'width' => 'half',
             ],
             ['collection' => 'directus_settings', 'field' => 'file_max_size']
         ));
-
     }
 }

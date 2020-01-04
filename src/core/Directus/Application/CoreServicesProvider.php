@@ -6,8 +6,8 @@ use Cache\Adapter\Apc\ApcCachePool;
 use Cache\Adapter\Apcu\ApcuCachePool;
 use Cache\Adapter\Common\PhpCachePool;
 use Cache\Adapter\Filesystem\FilesystemCachePool;
-use Cache\Adapter\Memcached\MemcachedCachePool;
 use Cache\Adapter\Memcache\MemcacheCachePool;
+use Cache\Adapter\Memcached\MemcachedCachePool;
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
 use Cache\Adapter\Void\VoidCachePool;
@@ -17,9 +17,9 @@ use function Directus\array_get;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Sso\Social;
 use Directus\Authentication\User\Provider\UserTableGatewayProvider;
-use Directus\Cache\Response;
 use Directus\Cache\Exception\InvalidCacheAdapterException;
 use Directus\Cache\Exception\InvalidCacheConfigurationException;
+use Directus\Cache\Response;
 use Directus\Config\StatusMapping;
 use Directus\Database\Connection;
 use Directus\Database\Exception\ConnectionFailedException;
@@ -27,11 +27,10 @@ use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\BaseTableGateway;
+use Directus\Database\SchemaService;
 use Directus\Database\TableGateway\DirectusPermissionsTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
-use Directus\Database\SchemaService;
 use Directus\Embed\EmbedManager;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\MissingStorageConfigurationException;
@@ -47,7 +46,6 @@ use function Directus\get_url;
 use Directus\Hash\HashManager;
 use Directus\Hook\Emitter;
 use Directus\Hook\Payload;
-use function Directus\is_a_url;
 use function Directus\is_iso8601_datetime;
 use Directus\Logger\Exception\InvalidLoggerConfigurationException;
 use Directus\Mail\Mailer;
@@ -69,8 +67,6 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Slim\Views\Twig;
 use Zend\Db\TableGateway\TableGateway;
-use Directus\Api\Routes\Roles;
-use function Directus\get_random_string;
 
 class CoreServicesProvider
 {
@@ -116,6 +112,7 @@ class CoreServicesProvider
     {
         /**
          * @param Container $container
+         *
          * @return Logger
          */
         $logger = function ($container) {
@@ -124,28 +121,28 @@ class CoreServicesProvider
             $formatter->allowInlineLineBreaks();
             $formatter->includeStacktraces();
             // TODO: Move log configuration outside "slim app" settings
-            $path = $container->get('path_base') . '/logs';
+            $path = $container->get('path_base').'/logs';
             $config = $container->get('config');
             if ($config->has('logger.path')) {
                 $path = $config->get('logger.path');
             }
 
-            $pathIsStream = $path == 'php://stdout' || $path == 'php://stderr';
+            $pathIsStream = 'php://stdout' === $path || 'php://stderr' === $path;
             if (!$pathIsStream) {
                 if (file_exists($path)) {
                     if (is_file($path)) {
-                        $path = dirname($path);
+                        $path = \dirname($path);
                     }
                 } else {
                     mkdir($path, 0777, true);
                 }
 
-                if (!is_dir($path) || !is_writeable($path)) {
+                if (!is_dir($path) || !is_writable($path)) {
                     throw new InvalidLoggerConfigurationException('path');
                 }
 
-                if (substr($path, -1) == '/') {
-                    $path = substr($path, 0, strlen($path) - 1);
+                if ('/' === substr($path, -1)) {
+                    $path = substr($path, 0, \strlen($path) - 1);
                 }
             }
 
@@ -154,7 +151,7 @@ class CoreServicesProvider
                 if ($pathIsStream) {
                     $loggerPath = $path;
                 } else {
-                    $loggerPath = $path . '/' . sprintf($filenameFormat, strtolower($name), date('Y-m-d'));
+                    $loggerPath = $path.'/'.sprintf($filenameFormat, strtolower($name), date('Y-m-d'));
                 }
                 $handler = new StreamHandler(
                     $loggerPath,
@@ -185,7 +182,7 @@ class CoreServicesProvider
             $hookEmitter = $container['hook_emitter'];
 
             return new ErrorHandler($hookEmitter, [
-                'env' => $container->get('config')->get('env', 'development')
+                'env' => $container->get('config')->get('env', 'development'),
             ]);
         };
 
@@ -204,12 +201,12 @@ class CoreServicesProvider
             // Cache subscriptions
             $emitter->addAction('postUpdate', function (RelationalTableGateway $gateway, $data) use ($cachePool) {
                 if (isset($data[$gateway->primaryKeyFieldName])) {
-                    $cachePool->invalidateTags(['entity_' . $gateway->getTable() . '_' . $data[$gateway->primaryKeyFieldName]]);
+                    $cachePool->invalidateTags(['entity_'.$gateway->getTable().'_'.$data[$gateway->primaryKeyFieldName]]);
                 }
             });
 
             $cacheTableTagInvalidator = function ($tableName) use ($cachePool) {
-                $cachePool->invalidateTags(['table_' . $tableName]);
+                $cachePool->invalidateTags(['table_'.$tableName]);
             };
             foreach (['item.create:after', 'item.delete:after', 'item.update:after', 'collection.update:after', 'collection.delete:after'] as $action) {
                 $emitter->addAction($action, $cacheTableTagInvalidator);
@@ -220,7 +217,7 @@ class CoreServicesProvider
                 $dbConnection = $container->get('database');
                 $privileges = new DirectusPermissionsTableGateway($dbConnection, $acl);
                 $record = $privileges->fetchById($data['id']);
-                $cachePool->invalidateTags(['permissions_collection_' . $record['collection']]);
+                $cachePool->invalidateTags(['permissions_collection_'.$record['collection']]);
             });
             // /Cache subscriptions
 
@@ -236,6 +233,7 @@ class CoreServicesProvider
                 if ($acl->isPublic() || !$acl->getUserId()) {
                     $payload->set('public', true);
                 }
+
                 return $payload;
             });
             $emitter->addAction('item.create.directus_roles', function ($data) use ($container) {
@@ -253,7 +251,7 @@ class CoreServicesProvider
                     foreach ($permissions as $permission) {
                         $privilegesTable->insertPrivilege(array_merge($permission, [
                             'role' => $data['id'],
-                            'collection' => $collection
+                            'collection' => $collection,
                         ]));
                     }
                 }
@@ -263,7 +261,6 @@ class CoreServicesProvider
                 $collection = SchemaService::getCollection($collectionName);
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
-
 
                 if ($dateCreated = $collection->getDateCreatedField()) {
                     $payload[$dateCreated->getName()] = DateTimeUtils::nowInUTC()->toString();
@@ -275,7 +272,7 @@ class CoreServicesProvider
 
                 // Directus Users created user are themselves (primary key)
                 // populating that field will be a duplicated primary key violation
-                if ($collection->getName() === 'directus_users') {
+                if ('directus_users' === $collection->getName()) {
                     return $payload;
                 }
 
@@ -307,7 +304,7 @@ class CoreServicesProvider
                 }
 
                 // NOTE: exclude date_uploaded from updating a file record
-                if ($collection->getName() === 'directus_files') {
+                if ('directus_files' === $collection->getName()) {
                     $payload->remove('date_uploaded');
                 }
 
@@ -319,10 +316,11 @@ class CoreServicesProvider
             };
             $emitter->addFilter('item.read.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
-                if (!in_array('filename_disk', $columns)) {
+                if (!\in_array('filename_disk', $columns, true)) {
                     $columns[] = 'filename_disk';
                     $payload->set('columns', $columns);
                 }
+
                 return $payload;
             });
 
@@ -347,7 +345,7 @@ class CoreServicesProvider
                         if (empty($value) && !is_numeric($value)) {
                             $value = [];
                         } else {
-                            $value = !is_array($value) ? explode(',', $value) : $value;
+                            $value = !\is_array($value) ? explode(',', $value) : $value;
                         }
 
                         return $value;
@@ -355,7 +353,7 @@ class CoreServicesProvider
 
                     // convert array into string
                     $encodeFn = function ($value) {
-                        return is_array($value) ? implode(',', $value) : $value;
+                        return \is_array($value) ? implode(',', $value) : $value;
                     };
 
                     // NOTE: If the array has value with comma it will be treat as a separate value
@@ -383,7 +381,7 @@ class CoreServicesProvider
                     }
 
                     $key = $field->getName();
-                    $data[$key] = boolval($data[$key]);
+                    $data[$key] = (bool) ($data[$key]);
                 }
 
                 return $data;
@@ -401,10 +399,10 @@ class CoreServicesProvider
                     $key = $field->getName();
                     $value = $data[$key];
 
-                    if ($decode === true) {
-                        $value = is_string($value) ? json_decode($value) : $value;
-                    } elseif ($value !== null) {
-                        $value = !is_string($value) ? json_encode($value) : $value;
+                    if (true === $decode) {
+                        $value = \is_string($value) ? json_decode($value) : $value;
+                    } elseif (null !== $value) {
+                        $value = !\is_string($value) ? json_encode($value) : $value;
                     }
 
                     $data[$key] = $value;
@@ -482,7 +480,6 @@ class CoreServicesProvider
             // -------------------------------------------------------------------------------------------
             // Add file url and thumb url
             $emitter->addFilter('item.read.directus_files', function (Payload $payload) use ($addFilesUrl, $container) {
-
                 $rows = $addFilesUrl($payload->getData());
                 $payload->replace($rows);
 
@@ -494,7 +491,7 @@ class CoreServicesProvider
                 $userId = $acl->getUserId();
                 foreach ($rows as &$row) {
                     $omit = [
-                        'password'
+                        'password',
                     ];
                     // Authenticated user can see their private info
                     // Admin can see all users private info
@@ -503,12 +500,13 @@ class CoreServicesProvider
                             'token',
                             'email_notifications',
                             'last_access_on',
-                            'last_page'
+                            'last_page',
                         ]);
                     }
                     $row = ArrayUtils::omit($row, $omit);
                 }
                 $payload->replace($rows);
+
                 return $payload;
             });
 
@@ -555,7 +553,7 @@ class CoreServicesProvider
                         continue;
                     }
 
-                    if (array_key_exists($key, $slugMirrorFields) && !$payload->has($slugMirrorFields[$key]->getName())) {
+                    if (\array_key_exists($key, $slugMirrorFields) && !$payload->has($slugMirrorFields[$key]->getName())) {
                         /** @var Slugify $slugify */
                         $slugify = $container->get('slugify');
 
@@ -647,17 +645,17 @@ class CoreServicesProvider
             $emitter->addAction('auth.request:credentials', function () use ($container) {
                 /** @var Session $session */
                 $session = $container->get('session');
-                $useTelemetry =  get_directus_setting('telemetry',true);
+                $useTelemetry = get_directus_setting('telemetry', true);
 
-                if($useTelemetry) {
-                    if ($session->getStorage()->get('telemetry') === true) {
+                if ($useTelemetry) {
+                    if (true === $session->getStorage()->get('telemetry')) {
                         return;
                     }
 
                     $data = [
                         'version' => Application::DIRECTUS_VERSION,
                         'url' => get_url(),
-                        'type' => 'api'
+                        'type' => 'api',
                     ];
                     \Directus\request_send_json('POST', 'https://telemetry.directus.io/count', $data);
 
@@ -693,16 +691,16 @@ class CoreServicesProvider
                 'socket' => 'unix_socket',
             ]);
 
-            if (strtolower($type) === 'mysql') {
+            if ('mysql' === strtolower($type)) {
                 $defaultConfig = [
                     \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset),
                 ];
             }
 
             $parameters = array_merge($defaultConfig, $dbConfig, [
-                'driver' => $type ? 'Pdo_' . $type : null,
-                'charset' => $charset
+                'driver' => $type ? 'Pdo_'.$type : null,
+                'charset' => $charset,
             ]);
 
             if (!ArrayUtils::get($parameters, 'unix_socket')) {
@@ -765,15 +763,15 @@ class CoreServicesProvider
 
             $ssoProviders = array_merge($coreSso, $customSso);
             foreach ($providersConfig as $providerName => $providerConfig) {
-                if (!is_array($providerConfig)) {
+                if (!\is_array($providerConfig)) {
                     continue;
                 }
 
-                if (ArrayUtils::get($providerConfig, 'enabled') === false) {
+                if (false === ArrayUtils::get($providerConfig, 'enabled')) {
                     continue;
                 }
 
-                if (array_key_exists($providerName, $ssoProviders) && isset($ssoProviders[$providerName]['provider'])) {
+                if (\array_key_exists($providerName, $ssoProviders) && isset($ssoProviders[$providerName]['provider'])) {
                     $providerInfo = $ssoProviders[$providerName];
                     $class = array_get($providerInfo, 'provider');
                     $custom = array_get($providerInfo, 'custom');
@@ -784,7 +782,7 @@ class CoreServicesProvider
 
                     $socialAuth->register($providerName, new $class($container, array_merge([
                         'custom' => $custom,
-                        'callback_url' => \Directus\get_url('/'.get_api_project_from_request().'/auth/sso/' . $providerName . '/callback')
+                        'callback_url' => \Directus\get_url('/'.get_api_project_from_request().'/auth/sso/'.$providerName.'/callback'),
                     ], $providerConfig)));
                 }
             }
@@ -837,45 +835,45 @@ class CoreServicesProvider
             $config = $container->get('config');
             $poolConfig = $config->get('cache.pool');
 
-            if (!$poolConfig || (!is_object($poolConfig) && empty($poolConfig['adapter']))) {
+            if (!$poolConfig || (!\is_object($poolConfig) && empty($poolConfig['adapter']))) {
                 $poolConfig = ['adapter' => 'void'];
             }
 
             $pool = new VoidCachePool();
 
-            if(!$config->get('cache.enabled'))
+            if (!$config->get('cache.enabled')) {
                 return $pool;
-
-            if (is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
+            }
+            if (\is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
                 $pool = $poolConfig;
             } else {
-                if (!in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'memcache', 'redis', 'rediscluster', 'void'])) {
+                if (!\in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'memcache', 'redis', 'rediscluster', 'void'], true)) {
                     throw new InvalidCacheAdapterException();
                 }
 
                 $adapter = $poolConfig['adapter'];
 
-                if ($adapter == 'apc') {
+                if ('apc' === $adapter) {
                     $pool = new ApcCachePool();
                 }
 
-                if ($adapter == 'apcu') {
+                if ('apcu' === $adapter) {
                     $pool = new ApcuCachePool();
                 }
 
-                if ($adapter == 'array') {
+                if ('array' === $adapter) {
                     $pool = new ArrayCachePool();
                 }
 
-                if ($adapter == 'filesystem') {
-                    if (empty($poolConfig['path']) || !is_string($poolConfig['path'])) {
+                if ('filesystem' === $adapter) {
+                    if (empty($poolConfig['path']) || !\is_string($poolConfig['path'])) {
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
                     $cachePath = $poolConfig['path'];
-                    if ($cachePath[0] !== '/') {
+                    if ('/' !== $cachePath[0]) {
                         $basePath = $container->get('path_base');
-                        $cachePath = rtrim($basePath, '/') . '/' . $cachePath;
+                        $cachePath = rtrim($basePath, '/').'/'.$cachePath;
                     }
 
                     $filesystemAdapter = new Local($cachePath);
@@ -884,20 +882,19 @@ class CoreServicesProvider
                     $pool = new FilesystemCachePool($filesystem);
                 }
 
-                if ($adapter == 'memcached' || $adapter == 'memcache') {
-
-                    if ($adapter == 'memcached' && !extension_loaded('memcached')) {
+                if ('memcached' === $adapter || 'memcache' === $adapter) {
+                    if ('memcached' === $adapter && !\extension_loaded('memcached')) {
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
-                    if ($adapter == 'memcache' && !extension_loaded('memcache')) {
+                    if ('memcache' === $adapter && !\extension_loaded('memcache')) {
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
-                    $client = $adapter == 'memcached' ? new \Memcached() : new \Memcache();
+                    $client = 'memcached' === $adapter ? new \Memcached() : new \Memcache();
                     if (isset($poolConfig['url'])) {
                         $urls = explode(';', $poolConfig['url']);
-                        if ($urls ===  false) {
+                        if (false === $urls) {
                             $urls = 'localhost:11211';
                         }
                         foreach ($urls as $url) {
@@ -913,20 +910,19 @@ class CoreServicesProvider
 
                         $client->addServer($host, $port);
                     }
-                    $pool = $adapter == 'memcached' ? new MemcachedCachePool($client) : new MemcacheCachePool($client);
+                    $pool = 'memcached' === $adapter ? new MemcachedCachePool($client) : new MemcacheCachePool($client);
                 }
 
-                if ($adapter == 'redis' || $adapter == 'rediscluster') {
-
-                    if (!extension_loaded('redis')) {
+                if ('redis' === $adapter || 'rediscluster' === $adapter) {
+                    if (!\extension_loaded('redis')) {
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
                     $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
                     $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 6379;
                     $socket = (isset($poolConfig['socket'])) ? $poolConfig['socket'] : null;
-                    if ($adapter == 'rediscluster') {
-                        $client = new \RedisCluster(NULL,["$host:$port"]);
+                    if ('rediscluster' === $adapter) {
+                        $client = new \RedisCluster(null, ["{$host}:{$port}"]);
                     } else {
                         $client = new \Redis();
                         if ($socket) {
@@ -963,7 +959,7 @@ class CoreServicesProvider
                     //     return new PostgresSchema($adapter);
             }
 
-            throw new \Exception('Unknown/Unsupported database: ' . $databaseName);
+            throw new \Exception('Unknown/Unsupported database: '.$databaseName);
         };
     }
 
@@ -1010,11 +1006,11 @@ class CoreServicesProvider
             $hashManager = new HashManager();
             $basePath = $container->get('path_base');
 
-            $path = implode(DIRECTORY_SEPARATOR, [
+            $path = implode(\DIRECTORY_SEPARATOR, [
                 $basePath,
                 'custom',
                 'hashers',
-                '*.php'
+                '*.php',
             ]);
 
             $customHashersFiles = glob($path);
@@ -1028,7 +1024,7 @@ class CoreServicesProvider
                         continue;
                     }
 
-                    $hashers[] = '\\Directus\\Custom\\Hasher\\' . $name;
+                    $hashers[] = '\\Directus\\Custom\\Hasher\\'.$name;
                 }
             }
 
@@ -1079,7 +1075,7 @@ class CoreServicesProvider
             foreach ($mailConfigs as $name => $mailConfig) {
                 $transport = ArrayUtils::get($mailConfig, 'transport');
 
-                if (array_key_exists($transport, $transports)) {
+                if (\array_key_exists($transport, $transports)) {
                     $transport = $transports[$transport];
                 }
 
@@ -1121,11 +1117,11 @@ class CoreServicesProvider
         return function (Container $container) {
             $statusMapping = get_directus_setting('status_mapping');
 
-            if (is_string($statusMapping)) {
+            if (\is_string($statusMapping)) {
                 $statusMapping = json_decode($statusMapping, true);
             }
 
-            if (!is_array($statusMapping)) {
+            if (!\is_array($statusMapping)) {
                 $statusMapping = [];
             }
 
@@ -1142,8 +1138,8 @@ class CoreServicesProvider
             $basePath = $container->get('path_base');
 
             return new Twig([
-                $basePath . '/public/extensions/custom/mail',
-                $basePath . '/src/mail'
+                $basePath.'/public/extensions/custom/mail',
+                $basePath.'/src/mail',
             ]);
         };
     }
@@ -1189,20 +1185,20 @@ class CoreServicesProvider
 
             $providers = [
                 '\Directus\Embed\Provider\VimeoProvider',
-                '\Directus\Embed\Provider\YoutubeProvider'
+                '\Directus\Embed\Provider\YoutubeProvider',
             ];
 
-            $path = implode(DIRECTORY_SEPARATOR, [
+            $path = implode(\DIRECTORY_SEPARATOR, [
                 $app->getContainer()->get('path_base'),
                 'custom',
                 'embeds',
-                '*.php'
+                '*.php',
             ]);
 
             $customProvidersFiles = glob($path);
             if ($customProvidersFiles) {
                 foreach ($customProvidersFiles as $filename) {
-                    $providers[] = '\\Directus\\Embed\\Provider\\' . basename($filename, '.php');
+                    $providers[] = '\\Directus\\Embed\\Provider\\'.basename($filename, '.php');
                 }
             }
 
@@ -1216,14 +1212,11 @@ class CoreServicesProvider
     }
 
     /**
-     * Register all services
-     *
-     * @param Container $mainContainer
+     * Register all services.
      *
      * @return \Closure
      *
      * @internal param Container $container
-     *
      */
     protected function getServices(Container $mainContainer)
     {
@@ -1255,11 +1248,9 @@ class CoreServicesProvider
     }
 
     /**
-     * @param Container $container
+     * @throws MissingStorageConfigurationException
      *
      * @return array
-     *
-     * @throws MissingStorageConfigurationException
      */
     protected function getStorageConfiguration(Container $container)
     {

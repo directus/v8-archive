@@ -5,31 +5,34 @@ namespace Directus\Database;
 use Directus\Application\Application;
 use Directus\Config\Config;
 use Directus\Database\Exception\FieldNotFoundException;
-use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
+use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaManager;
 
 class SchemaService
 {
+    // These columns types are aliases for "associations". They don't have
+    // real, corresponding columns in the DB.
+    public static $association_types = ['ONETOMANY', 'MANYTOMANY', 'ALIAS'];
     /**
-     * Schema Manager Instance
+     * Schema Manager Instance.
      *
      * @var SchemaManager
      */
     protected static $schemaManager = null;
 
     /**
-     * ACL Instance
+     * ACL Instance.
      *
      * @var \Directus\Permissions\Acl null
      */
     protected static $acl = null;
 
     /**
-     * Connection instance
+     * Connection instance.
      *
-     * @var \Directus\Database\Connection|null
+     * @var null|\Directus\Database\Connection
      */
     protected static $connection = null;
 
@@ -38,10 +41,6 @@ class SchemaService
      */
     protected static $config = [];
 
-    // These columns types are aliases for "associations". They don't have
-    // real, corresponding columns in the DB.
-    public static $association_types = ['ONETOMANY', 'MANYTOMANY', 'ALIAS'];
-
     protected $table;
     protected $db;
     protected $_loadedSchema;
@@ -49,13 +48,13 @@ class SchemaService
     protected static $_primaryKeys = [];
 
     /**
-     * Get the schema manager instance
+     * Get the schema manager instance.
      *
      * @return SchemaManager
      */
     public static function getSchemaManagerInstance()
     {
-        if (static::$schemaManager === null) {
+        if (null === static::$schemaManager) {
             static::setSchemaManagerInstance(
                 Application::getInstance()->fromContainer('schema_manager')
             );
@@ -65,7 +64,7 @@ class SchemaService
     }
 
     /**
-     * Set the Schema Manager instance
+     * Set the Schema Manager instance.
      *
      * @param $schemaManager
      */
@@ -75,13 +74,13 @@ class SchemaService
     }
 
     /**
-     * Get ACL Instance
+     * Get ACL Instance.
      *
      * @return \Directus\Permissions\Acl
      */
     public static function getAclInstance()
     {
-        if (static::$acl === null) {
+        if (null === static::$acl) {
             static::setAclInstance(
                 Application::getInstance()->fromContainer('acl')
             );
@@ -90,9 +89,9 @@ class SchemaService
         return static::$acl;
     }
 
-
     /**
-     * Set ACL Instance
+     * Set ACL Instance.
+     *
      * @param $acl
      */
     public static function setAclInstance($acl)
@@ -101,13 +100,13 @@ class SchemaService
     }
 
     /**
-     * Get Connection Instance
+     * Get Connection Instance.
      *
      * @return \Directus\Database\Connection
      */
     public static function getConnectionInstance()
     {
-        if (static::$connection === null) {
+        if (null === static::$connection) {
             static::setConnectionInstance(
                 Application::getInstance()->fromContainer('schema_manager')
             );
@@ -127,10 +126,9 @@ class SchemaService
     }
 
     /**
-     * Gets table schema object
+     * Gets table schema object.
      *
      * @param $tableName
-     * @param array $params
      * @param bool $skipCache
      * @param bool $skipAcl
      *
@@ -139,7 +137,7 @@ class SchemaService
     public static function getCollection($tableName, array $params = [], $skipCache = false, $skipAcl = false)
     {
         // if (!$skipAcl) {
-            // static::getAclInstance()->enforceRead($tableName);
+        // static::getAclInstance()->enforceRead($tableName);
         // }
 
         return static::getSchemaManagerInstance()->getCollection($tableName, $params, $skipCache);
@@ -160,11 +158,10 @@ class SchemaService
     }
 
     /**
-     * Gets table columns schema
+     * Gets table columns schema.
      *
      * @param string $tableName
-     * @param array $params
-     * @param bool $skipCache
+     * @param bool   $skipCache
      *
      * @return Field[]
      */
@@ -178,12 +175,12 @@ class SchemaService
     }
 
     /**
-     * Gets the column object
+     * Gets the column object.
      *
      * @param string $tableName
      * @param string $columnName
-     * @param bool $skipCache
-     * @param bool $skipAcl
+     * @param bool   $skipCache
+     * @param bool   $skipAcl
      *
      * @return Field
      */
@@ -202,10 +199,13 @@ class SchemaService
 
     /**
      * @todo  for ALTER requests, caching schemas can't be allowed
+     *
+     * @param mixed $tableName
+     * @param mixed $skipAcl
      */
 
     /**
-     * Checks whether the given table has a status column
+     * Checks whether the given table has a status column.
      *
      * @param $tableName
      * @param $skipAcl
@@ -220,7 +220,7 @@ class SchemaService
     }
 
     /**
-     * Gets the status field
+     * Gets the status field.
      *
      * @param $tableName
      * @param $skipAcl
@@ -235,7 +235,7 @@ class SchemaService
     }
 
     /**
-     * Gets the status field name
+     * Gets the status field name.
      *
      * @param $collectionName
      * @param bool $skipAcl
@@ -255,10 +255,9 @@ class SchemaService
     }
 
     /**
-     * If the table has one or more relational interfaces
+     * If the table has one or more relational interfaces.
      *
      * @param $tableName
-     * @param array $columns
      * @param bool $skipAcl
      *
      * @return bool
@@ -270,8 +269,9 @@ class SchemaService
 
         $has = false;
         foreach ($relationalColumns as $column) {
-            if (in_array($column, $columns)) {
+            if (\in_array($column, $columns, true)) {
                 $has = true;
+
                 break;
             }
         }
@@ -280,7 +280,7 @@ class SchemaService
     }
 
     /**
-     * Gets tehe column relationship type
+     * Gets tehe column relationship type.
      *
      * @param $tableName
      * @param $columnName
@@ -300,12 +300,12 @@ class SchemaService
     }
 
     /**
-     * Gets Column's relationship
+     * Gets Column's relationship.
      *
      * @param $tableName
      * @param $columnName
      *
-     * @return FieldRelationship|null
+     * @return null|FieldRelationship
      */
     public static function getColumnRelationship($tableName, $columnName)
     {
@@ -315,14 +315,14 @@ class SchemaService
     }
 
     /**
-     * Check whether the given table-column has relationship
+     * Check whether the given table-column has relationship.
      *
      * @param $tableName
      * @param $columnName
      *
-     * @return bool
-     *
      * @throws FieldNotFoundException
+     *
+     * @return bool
      */
     public static function hasRelationship($tableName, $columnName)
     {
@@ -337,7 +337,7 @@ class SchemaService
     }
 
     /**
-     * Gets related table name
+     * Gets related table name.
      *
      * @param $tableName
      * @param $columnName
@@ -352,14 +352,15 @@ class SchemaService
 
         $tableObject = static::getCollection($tableName);
         $columnObject = $tableObject->getField($columnName);
-        if($columnObject->getRelationship()->getType() == FieldRelationship::ONE_TO_MANY)
+        if (FieldRelationship::ONE_TO_MANY === $columnObject->getRelationship()->getType()) {
             return $columnObject->getRelationship()->getCollectionMany();
-        else
-            return $columnObject->getRelationship()->getCollectionOne();
+        }
+
+        return $columnObject->getRelationship()->getCollectionOne();
     }
 
     /**
-     * Checks whether the table is a system table
+     * Checks whether the table is a system table.
      *
      * @param $tableName
      *
@@ -383,7 +384,7 @@ class SchemaService
         $readFieldBlacklist = $acl->getReadFieldBlacklist($tableName);
 
         return array_filter($columns, function (Field $column) use ($readFieldBlacklist) {
-            return !in_array($column->getName(), $readFieldBlacklist);
+            return !\in_array($column->getName(), $readFieldBlacklist, true);
         });
     }
 
@@ -398,7 +399,7 @@ class SchemaService
         // TableColumnsName vs TableColumnNames
         $fields = static::getAllCollectionFields($tableName);
 
-        return array_map(function(Field $field) {
+        return array_map(function (Field $field) {
             return $field->getName();
         }, $fields);
     }
@@ -419,12 +420,12 @@ class SchemaService
     }
 
     /**
-     * Gets the non alias columns from the given table name
+     * Gets the non alias columns from the given table name.
      *
      * @param string $tableName
-     * @param bool $onlyNames
+     * @param bool   $onlyNames
      *
-     * @return Field[]|bool
+     * @return bool|Field[]
      */
     public static function getAllNonAliasCollectionFields($tableName, $onlyNames = false)
     {
@@ -435,7 +436,7 @@ class SchemaService
         }
         foreach ($schemaArray as $column) {
             if (!$column->isAlias()) {
-                $columns[] = $onlyNames === true ? $column->getName() : $column;
+                $columns[] = true === $onlyNames ? $column->getName() : $column;
             }
         }
 
@@ -443,12 +444,12 @@ class SchemaService
     }
 
     /**
-     * Gets the alias columns from the given table name
+     * Gets the alias columns from the given table name.
      *
      * @param string $tableName
-     * @param bool $onlyNames
+     * @param bool   $onlyNames
      *
-     * @return Field[]|bool
+     * @return bool|Field[]
      */
     public static function getAllAliasCollectionFields($tableName, $onlyNames = false)
     {
@@ -460,7 +461,7 @@ class SchemaService
 
         foreach ($schemaArray as $column) {
             if ($column->isAlias()) {
-                $columns[] = $onlyNames === true ? $column->getName() : $column;
+                $columns[] = true === $onlyNames ? $column->getName() : $column;
             }
         }
 
@@ -468,11 +469,11 @@ class SchemaService
     }
 
     /**
-     * Gets the non alias columns name from the given table name
+     * Gets the non alias columns name from the given table name.
      *
      * @param string $tableName
      *
-     * @return Field[]|bool
+     * @return bool|Field[]
      */
     public static function getAllNonAliasCollectionFieldsName($tableName)
     {
@@ -480,11 +481,11 @@ class SchemaService
     }
 
     /**
-     * Gets the alias columns name from the given table name
+     * Gets the alias columns name from the given table name.
      *
      * @param string $tableName
      *
-     * @return Field[]|bool
+     * @return bool|Field[]
      */
     public static function getAllAliasCollectionFieldsName($tableName)
     {
@@ -503,7 +504,7 @@ class SchemaService
         $columnsName = [];
         $count = 0;
         foreach ($columns as $column) {
-            if ($skipIgnore === false
+            if (false === $skipIgnore
                 && (
                     ($tableObject->hasStatusField() && $column->getName() === $tableObject->getStatusField()->getName())
                     || ($tableObject->hasSortingField() && $column->getName() === $tableObject->getSortingField())
@@ -519,7 +520,7 @@ class SchemaService
             }
 
             $columnsName[] = $column->getName();
-            $count++;
+            ++$count;
         }
 
         return $columnsName;
@@ -528,7 +529,7 @@ class SchemaService
     public static function getFieldsName($table)
     {
         if (isset(static::$_schemas[$table])) {
-            $columns = array_map(function($column) {
+            $columns = array_map(function ($column) {
                 return $column['column_name'];
             }, static::$_schemas[$table]);
         } else {
@@ -544,7 +545,7 @@ class SchemaService
     }
 
     /**
-     * Checks whether or not the given table has a sort column
+     * Checks whether or not the given table has a sort column.
      *
      * @param $table
      * @param bool $includeAlias
@@ -567,7 +568,7 @@ class SchemaService
             $columns = array_merge($columns, $tableObject->getAliasFieldsName());
         }
 
-        if (in_array($column, $columns)) {
+        if (\in_array($column, $columns, true)) {
             return true;
         }
 
@@ -575,7 +576,7 @@ class SchemaService
     }
 
     /**
-     * Gets the table sort column name
+     * Gets the table sort column name.
      *
      * @param $table
      *
@@ -594,7 +595,7 @@ class SchemaService
     }
 
     /**
-     * Has the authenticated user permission to view the given table
+     * Has the authenticated user permission to view the given table.
      *
      * @param $tableName
      *
@@ -604,7 +605,7 @@ class SchemaService
     {
         $acl = static::getAclInstance();
 
-        if (! $acl) {
+        if (!$acl) {
             return true;
         }
 
@@ -612,7 +613,7 @@ class SchemaService
     }
 
     /**
-     * Has the authenticated user permissions to read the given column
+     * Has the authenticated user permissions to read the given column.
      *
      * @param $tableName
      * @param $columnName
@@ -623,7 +624,7 @@ class SchemaService
     {
         $acl = static::getAclInstance();
 
-        if (! $acl) {
+        if (!$acl) {
             return true;
         }
 
@@ -631,9 +632,11 @@ class SchemaService
     }
 
     /**
-     * Get table primary key
+     * Get table primary key.
+     *
      * @param $tableName
-     * @return String|boolean - column name or false
+     *
+     * @return bool|string - column name or false
      */
     public static function getCollectionPrimaryKey($tableName)
     {
@@ -653,7 +656,7 @@ class SchemaService
         $result = [];
 
         foreach ($values as $i => $field) {
-            $result[$prefix . $i] = $field;
+            $result[$prefix.$i] = $field;
         }
 
         return $result;

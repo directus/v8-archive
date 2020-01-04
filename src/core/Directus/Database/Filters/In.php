@@ -45,11 +45,11 @@ class In implements Filter
      */
     public function getValue()
     {
-        $operator = ($this->not ? 'not' : '') . 'in';
+        $operator = ($this->not ? 'not' : '').'in';
 
         return [
             $operator => $this->values,
-            'logical' => $this->logic
+            'logical' => $this->logic,
         ];
     }
 
@@ -59,7 +59,7 @@ class In implements Filter
     public function toArray()
     {
         return [
-            $this->getIdentifier() => $this->getValue()
+            $this->getIdentifier() => $this->getValue(),
         ];
     }
 }

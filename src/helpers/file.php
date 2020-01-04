@@ -4,11 +4,10 @@ namespace Directus;
 
 use Directus\Application\Application;
 use Directus\Filesystem\Thumbnail;
-use function Directus\get_directus_setting;
-use Directus\Validator\Exception\InvalidRequestException;
 use Directus\Util\MimeTypeUtils;
+use Directus\Validator\Exception\InvalidRequestException;
 
-if (!function_exists('is_uploaded_file_okay')) {
+if (!\function_exists('is_uploaded_file_okay')) {
     /**
      * Checks whether upload file has not error.
      *
@@ -18,46 +17,54 @@ if (!function_exists('is_uploaded_file_okay')) {
      */
     function is_uploaded_file_okay($error)
     {
-        return $error === UPLOAD_ERR_OK;
+        return UPLOAD_ERR_OK === $error;
     }
 }
 
-if (!function_exists('get_uploaded_file_error')) {
+if (!\function_exists('get_uploaded_file_error')) {
     /**
-     * Returns the upload file error message
+     * Returns the upload file error message.
      *
      * Returns null if there's not error
      *
      * @param $error
      *
-     * @return string|null
+     * @return null|string
      */
     function get_uploaded_file_error($error)
     {
         switch ($error) {
             case UPLOAD_ERR_INI_SIZE:
                 $message = 'The uploaded file exceeds max upload size that was specified on the server.';
+
                 break;
             case UPLOAD_ERR_FORM_SIZE:
                 $message = 'The uploaded file exceeds the max upload size that was specified in the client.';
+
                 break;
             case UPLOAD_ERR_PARTIAL:
                 $message = 'The uploaded file was only partially uploaded.';
+
                 break;
             case UPLOAD_ERR_NO_FILE:
                 $message = 'No file was uploaded.';
+
                 break;
             case UPLOAD_ERR_NO_TMP_DIR:
                 $message = 'Missing temporary upload folder';
+
                 break;
             case UPLOAD_ERR_CANT_WRITE:
                 $message = 'Failed to write file to disk.';
+
                 break;
             case UPLOAD_ERR_EXTENSION:
                 $message = 'A PHP extension stopped the file upload';
+
                 break;
             case UPLOAD_ERR_OK:
                 $message = null;
+
                 break;
             default:
                 $message = 'Unknown error uploading a file.';
@@ -67,19 +74,20 @@ if (!function_exists('get_uploaded_file_error')) {
     }
 }
 
-if (!function_exists('get_uploaded_file_status')) {
+if (!\function_exists('get_uploaded_file_status')) {
     /**
-     * Returns the upload file http status code
+     * Returns the upload file http status code.
      *
      * @param $error
      *
-     * @return int|null
+     * @return null|int
      */
     function get_uploaded_file_status($error)
     {
         switch ($error) {
             case UPLOAD_ERR_INI_SIZE:
                 $code = 413;
+
                 break;
             case UPLOAD_ERR_FORM_SIZE:
             case UPLOAD_ERR_PARTIAL:
@@ -89,9 +97,11 @@ if (!function_exists('get_uploaded_file_status')) {
             case UPLOAD_ERR_EXTENSION:
             default:
                 $code = null;
+
                 break;
             case UPLOAD_ERR_OK:
                 $code = 200;
+
                 break;
         }
 
@@ -99,17 +109,14 @@ if (!function_exists('get_uploaded_file_status')) {
     }
 }
 
-if (!function_exists('append_storage_information')) {
+if (!\function_exists('append_storage_information')) {
     /**
-     * append storage information to one or multiple file items
-     *
-     * @param array $rows
+     * append storage information to one or multiple file items.
      *
      * @return array
      */
     function append_storage_information(array $rows)
     {
-
         if (empty($rows)) {
             return $rows;
         }
@@ -120,7 +127,7 @@ if (!function_exists('append_storage_information')) {
         $proxyDownloads = $config->get('storage.proxy_downloads');
         $fileRootUrl = $config->get('storage.root_url');
         $hasFileRootUrlHost = parse_url($fileRootUrl, PHP_URL_HOST);
-        $isLocalStorageAdapter = $config->get('storage.adapter') == 'local';
+        $isLocalStorageAdapter = 'local' === $config->get('storage.adapter');
         $list = isset($rows[0]);
 
         if (!$list) {
@@ -135,22 +142,21 @@ if (!function_exists('append_storage_information')) {
                 $data['url'] = get_proxy_path($row['filename_disk']);
                 $data['full_url'] = get_url($data['url']);
             } else {
-                if(isset($row['private_hash'])){
-                    $data['url'] = $data['full_url'] = $fileRootUrl . '/' . $row['filename_disk'];
+                if (isset($row['private_hash'])) {
+                    $data['url'] = $data['full_url'] = $fileRootUrl.'/'.$row['filename_disk'];
                     // Add Full url
                     if (!$hasFileRootUrlHost) {
                         $data['full_url'] = get_url($data['url']);
                     }
                 }
-
             }
 
             // Add thumbnails if the asset is an image
             $search = 'image';
             if (
-                array_key_exists('type', $row) &&
-                substr($row['type'], 0, strlen($search)) === $search &&
-                $row['type'] !== 'image/svg+xml' // SVGs aren't manipulatable bitmaps
+                \array_key_exists('type', $row) &&
+                substr($row['type'], 0, \strlen($search)) === $search &&
+                'image/svg+xml' !== $row['type'] // SVGs aren't manipulatable bitmaps
             ) {
                 $data['thumbnails'] = get_thumbnails($row);
             } else {
@@ -178,44 +184,39 @@ if (!function_exists('append_storage_information')) {
     }
 }
 
-if (!function_exists('add_default_dimensions')) {
+if (!\function_exists('add_default_dimensions')) {
     /**
-     * Adds the default dimensions to the dimension list
-     *
-     * @param array $list
+     * Adds the default dimensions to the dimension list.
      */
     function add_default_thumbnail_dimensions(array &$list)
     {
         $defaultDimension = '200x200';
-        if (!in_array($defaultDimension, $list)) {
+        if (!\in_array($defaultDimension, $list, true)) {
             array_unshift($list, $defaultDimension);
         }
     }
 }
 
-if (!function_exists('get_thumbnails')) {
+if (!\function_exists('get_thumbnails')) {
     /**
-     * Returns the row thumbnails data
+     * Returns the row thumbnails data.
      *
-     * @param array $row
-     *
-     * @return array|null
+     * @return null|array
      */
     function get_thumbnails(array $row)
     {
-
         $filename = $row['filename_disk'];
         $type = array_get($row, 'type');
         $thumbnailFilenameParts = explode('.', $filename);
         $thumbnailExtension = array_pop($thumbnailFilenameParts);
 
-        $systemThumb = json_decode(get_directus_setting('asset_whitelist_system'),true);
-        $whitelistThumb = json_decode(get_directus_setting('asset_whitelist'),true);
+        $systemThumb = json_decode(get_directus_setting('asset_whitelist_system'), true);
+        $whitelistThumb = json_decode(get_directus_setting('asset_whitelist'), true);
         $thumbnailWhitelist = !empty($whitelistThumb) ? array_merge($systemThumb, $whitelistThumb) : $systemThumb;
 
         $fileExtension = MimeTypeUtils::getFromMimeType($type);
 
-        if (!in_array($fileExtension, Thumbnail::getFormatsSupported())  &&  strpos($type, 'embed/') !== 0) {
+        if (!\in_array($fileExtension, Thumbnail::getFormatsSupported(), true) && 0 !== strpos($type, 'embed/')) {
             return null;
         }
 
@@ -225,7 +226,7 @@ if (!function_exists('get_thumbnails')) {
                 $thumbnailExtension = Thumbnail::defaultFormat();
             }
 
-            $thumbnailUrl = get_thumbnail_url($row['private_hash'],$thumbnail);
+            $thumbnailUrl = get_thumbnail_url($row['private_hash'], $thumbnail);
             $thumbnailRelativeUrl = get_thumbnail_path($row['private_hash'], $thumbnail, true);
             $thumbnails[] = [
                 'url' => $thumbnailUrl,
@@ -240,25 +241,28 @@ if (!function_exists('get_thumbnails')) {
     }
 }
 
-if (!function_exists('get_thumbnail_url')) {
+if (!\function_exists('get_thumbnail_url')) {
     /**
-     * Returns a url for the given file pointing to the thumbnailer
+     * Returns a url for the given file pointing to the thumbnailer.
      *
      * @param array $thumbnail
+     * @param mixed $name
      *
      * @return string
      */
-    function get_thumbnail_url($name,$thumbnail)
+    function get_thumbnail_url($name, $thumbnail)
     {
         return get_url(get_thumbnail_path($name, $thumbnail));
     }
 }
 
-if (!function_exists('get_thumbnail_path')) {
+if (!\function_exists('get_thumbnail_path')) {
     /**
-     * Returns a relative url for the given file pointing to the thumbnailer
+     * Returns a relative url for the given file pointing to the thumbnailer.
      *
      * @param array $thumbnail
+     * @param mixed $name
+     * @param mixed $addBasePath
      *
      * @return string
      */
@@ -267,22 +271,22 @@ if (!function_exists('get_thumbnail_path')) {
         $path = '';
 
         $projectName = get_api_project_from_request();
-        $paramsString = '?key=' . $thumbnail['key'];
+        $paramsString = '?key='.$thumbnail['key'];
 
-        $path = $projectName . '/assets/' . $name . $paramsString;
+        $path = $projectName.'/assets/'.$name.$paramsString;
 
-        if ($addBasePath === true) {
+        if (true === $addBasePath) {
             $basePath = get_base_path();
-            $path = $basePath . $path;
+            $path = $basePath.$path;
         }
 
         return $path;
     }
 }
 
-if (!function_exists('get_proxy_path')) {
+if (!\function_exists('get_proxy_path')) {
     /**
-     * Returns a relative url for the given file pointing to the proxy
+     * Returns a relative url for the given file pointing to the proxy.
      *
      * @param string $path
      *
@@ -301,12 +305,12 @@ if (!function_exists('get_proxy_path')) {
     }
 }
 
-if (!function_exists('filename_put_ext')) {
+if (!\function_exists('filename_put_ext')) {
     /**
-     * Appends an extension to a filename
+     * Appends an extension to a filename.
      *
-     * @param string $name
-     * @param string|null $ext
+     * @param string      $name
+     * @param null|string $ext
      *
      * @return string
      */
@@ -320,9 +324,9 @@ if (!function_exists('filename_put_ext')) {
     }
 }
 
-if (!function_exists('is_a_url')) {
+if (!\function_exists('is_a_url')) {
     /**
-     * Checks whether or not the given value is a URL
+     * Checks whether or not the given value is a URL.
      *
      * @param string $value
      *
@@ -330,7 +334,7 @@ if (!function_exists('is_a_url')) {
      */
     function is_a_url($value)
     {
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             return false;
         }
 
@@ -356,11 +360,13 @@ if (!function_exists('is_a_url')) {
     }
 }
 
-if (!function_exists('validate_file')) {
+if (!\function_exists('validate_file')) {
     /**
-     * Validate A File
+     * Validate A File.
      *
-     * @param string $value
+     * @param string     $value
+     * @param mixed      $constraint
+     * @param null|mixed $options
      *
      * @return bool
      */
@@ -369,19 +375,22 @@ if (!function_exists('validate_file')) {
         switch ($constraint) {
             case 'mimeTypes':
                 validate_file_mime_type($value, $options);
+
                 break;
             case 'maxSize':
                 validate_file_size($value, $options);
+
                 break;
         }
     }
 }
 
-if (!function_exists('validate_file_mime_type')) {
+if (!\function_exists('validate_file_mime_type')) {
     /**
-     * Validate A File Mime Types
+     * Validate A File Mime Types.
      *
      * @param string $value
+     * @param mixed  $options
      *
      * @return bool
      */
@@ -390,9 +399,9 @@ if (!function_exists('validate_file_mime_type')) {
         $mimeTypes = $options;
         $mime = $value;
 
-        if ($options == null) {
+        if (null === $options) {
             $options = get_directus_setting('file_mimetype_whitelist');
-            $mimeTypes = explode(",", $options);
+            $mimeTypes = explode(',', $options);
         }
         foreach ($mimeTypes as $mimeType) {
             if ($mimeType === $mime) {
@@ -404,22 +413,24 @@ if (!function_exists('validate_file_mime_type')) {
                 }
             }
         }
-        $message = 'The mime type of the file is invalid.Allowed mime types are ' . $options . '.';
+        $message = 'The mime type of the file is invalid.Allowed mime types are '.$options.'.';
+
         throw new InvalidRequestException($message);
     }
 }
-if (!function_exists('validate_file_size')) {
+if (!\function_exists('validate_file_size')) {
     /**
-     * Validate A File Size
+     * Validate A File Size.
      *
      * @param string $value
+     * @param mixed  $options
      *
      * @return bool
      */
     function validate_file_size($value, $options)
     {
         $maxSize = $options;
-        if ($options == null) {
+        if (null === $options) {
             $maxSize = get_directus_setting('file_max_size');
         }
         $size = $maxSize;
@@ -427,11 +438,11 @@ if (!function_exists('validate_file_size')) {
             'KB' => 1000,
             'MB' => 1000000,
             'GB' => 1000000000,
-            'TB' => 1000000000000
+            'TB' => 1000000000000,
         ];
         if (ctype_digit((string) $maxSize)) {
             $maxSize = (int) $maxSize;
-        } elseif (preg_match('/^(\d++)(' . implode('|', array_keys($factors)) . ')$/', $maxSize, $matches)) {
+        } elseif (preg_match('/^(\d++)('.implode('|', array_keys($factors)).')$/', $maxSize, $matches)) {
             $maxSize = $matches[1] * $factors[$unit = $matches[2]];
         } else {
             throw new InvalidRequestException(sprintf('"%s" is not a valid maximum size.', $size));
@@ -439,20 +450,21 @@ if (!function_exists('validate_file_size')) {
 
         if (0 === $value) {
             $message = 'An empty file is not allowed.';
+
             throw new InvalidRequestException($message);
         }
 
         if ($value > $maxSize) {
-            $message = 'The file is too large. Allowed maximum size is ' . $size . '.';
+            $message = 'The file is too large. Allowed maximum size is '.$size.'.';
+
             throw new InvalidRequestException($message);
         }
     }
 }
 
-if (!function_exists('get_file_root_url')) {
+if (!\function_exists('get_file_root_url')) {
     /**
-     * Get File Root URL
-     *
+     * Get File Root URL.
      *
      * @return string
      */
@@ -460,15 +472,14 @@ if (!function_exists('get_file_root_url')) {
     {
         $container = Application::getInstance()->getContainer();
         $config = $container->get('config');
+
         return $config->get('storage.root_url');
     }
 }
 
-if (!function_exists('get_random_string')) {
+if (!\function_exists('get_random_string')) {
     function get_random_string($limit = 16)
     {
-     return substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0,$limit);
+        return substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, $limit);
     }
 }
-
-

@@ -12,17 +12,15 @@ use Directus\Database\Exception\StatusMappingEmptyException;
 use Directus\Database\Exception\StatusMappingWrongValueTypeException;
 use Directus\Database\Exception\SuppliedArrayAsColumnValue;
 use Directus\Database\Query\Builder;
+use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
-use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGatewayFactory;
 use Directus\Database\SchemaService;
+use Directus\Database\TableGatewayFactory;
 use Directus\Exception\Exception;
 use Directus\Exception\UnprocessableEntityException;
-use function Directus\filename_put_ext;
-use Directus\Filesystem\Files;
 use function Directus\get_directus_setting;
 use Directus\Hook\Emitter;
 use Directus\Permissions\Acl;
@@ -47,11 +45,10 @@ use Zend\Db\Sql\Update;
 use Zend\Db\TableGateway\Feature;
 use Zend\Db\TableGateway\Feature\RowGatewayFeature;
 use Zend\Db\TableGateway\TableGateway;
-use function Directus\get_random_string;
 
 class BaseTableGateway extends TableGateway
 {
-    public $primaryKeyFieldName = null;
+    public $primaryKeyFieldName;
 
     public $memcache;
 
@@ -61,7 +58,7 @@ class BaseTableGateway extends TableGateway
     protected $options = [];
 
     /**
-     * Hook Emitter Instance
+     * Hook Emitter Instance.
      *
      * @var \Directus\Hook\Emitter
      */
@@ -73,28 +70,28 @@ class BaseTableGateway extends TableGateway
     protected static $container;
 
     /**
-     * Acl Instance
+     * Acl Instance.
      *
-     * @var Acl|null
+     * @var null|Acl
      */
-    protected $acl = null;
+    protected $acl;
 
     /**
-     * Schema Manager Instance
+     * Schema Manager Instance.
      *
-     * @var SchemaManager|null
+     * @var null|SchemaManager
      */
-    protected $schemaManager = null;
+    protected $schemaManager;
 
     /**
-     * Table Schema Object
+     * Table Schema Object.
      *
-     * @var Collection|null
+     * @var null|Collection
      */
-    protected $tableSchema = null;
+    protected $tableSchema;
 
     /**
-     * Name of the field flag that mark a record as hard-delete
+     * Name of the field flag that mark a record as hard-delete.
      *
      * Note: temporary is being hold by the base table gateway
      *
@@ -103,15 +100,14 @@ class BaseTableGateway extends TableGateway
     protected $deleteFlag = '$delete';
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param string $table
-     * @param AdapterInterface $adapter
-     * @param Acl|null $acl
-     * @param Feature\AbstractFeature|Feature\FeatureSet|Feature\AbstractFeature[] $features
-     * @param ResultSetInterface $resultSetPrototype
-     * @param Sql $sql
-     * @param string $primaryKeyName
+     * @param string                                                               $table
+     * @param null|Acl                                                             $acl
+     * @param Feature\AbstractFeature|Feature\AbstractFeature[]|Feature\FeatureSet $features
+     * @param ResultSetInterface                                                   $resultSetPrototype
+     * @param Sql                                                                  $sql
+     * @param string                                                               $primaryKeyName
      *
      * @throws \InvalidArgumentException
      */
@@ -122,8 +118,8 @@ class BaseTableGateway extends TableGateway
         $this->acl = $acl;
 
         // @NOTE: temporary, do we need it here?
-        if ($this->primaryKeyFieldName === null) {
-            if ($primaryKeyName !== null) {
+        if (null === $this->primaryKeyFieldName) {
+            if (null !== $primaryKeyName) {
                 $this->primaryKeyFieldName = $primaryKeyName;
             } else {
                 $tableObject = $this->getTableSchema();
@@ -135,11 +131,11 @@ class BaseTableGateway extends TableGateway
 
         // @NOTE: This will be substituted by a new Cache wrapper class
         // $this->memcache = new MemcacheProvider();
-        if ($features === null) {
+        if (null === $features) {
             $features = new Feature\FeatureSet();
-        } else if ($features instanceof Feature\AbstractFeature) {
+        } elseif ($features instanceof Feature\AbstractFeature) {
             $features = [$features];
-        } else if (is_array($features)) {
+        } elseif (\is_array($features)) {
             $features = new Feature\FeatureSet($features);
         }
 
@@ -159,18 +155,22 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Static Factory Methods
+     * Static Factory Methods.
+     *
+     * @param mixed      $table
+     * @param mixed      $adapter
+     * @param null|mixed $acl
      */
 
     /**
-     * Creates a table gateway based on a table's name
+     * Creates a table gateway based on a table's name.
      *
      * Underscore to camelcase table name to namespaced table gateway classname,
      * e.g. directus_users => \Directus\Database\TableGateway\DirectusUsersTableGateway
      *
-     * @param string $table
+     * @param string           $table
      * @param AdapterInterface $adapter
-     * @param null $acl
+     * @param null             $acl
      *
      * @return RelationalTableGateway
      */
@@ -178,38 +178,38 @@ class BaseTableGateway extends TableGateway
     {
         return TableGatewayFactory::create($table, [
             'adapter' => $adapter,
-            'acl' => $acl
+            'acl' => $acl,
         ]);
     }
 
     /**
-     * Make a new table gateway
+     * Make a new table gateway.
      *
-     * @param string $tableName
+     * @param string           $tableName
      * @param AdapterInterface $adapter
-     * @param Acl $acl
+     * @param Acl              $acl
      *
      * @return BaseTableGateway
      */
     public function makeTable($tableName, $adapter = null, $acl = null)
     {
-        $adapter = is_null($adapter) ? $this->adapter : $adapter;
-        $acl = is_null($acl) ? $this->acl : $acl;
+        $adapter = null === $adapter ? $this->adapter : $adapter;
+        $acl = null === $acl ? $this->acl : $acl;
 
         return static::makeTableGatewayFromTableName($tableName, $adapter, $acl);
     }
 
     public function getTableSchema($tableName = null)
     {
-        if ($this->tableSchema !== null && ($tableName === null || $tableName === $this->getTable())) {
+        if (null !== $this->tableSchema && (null === $tableName || $tableName === $this->getTable())) {
             return $this->tableSchema;
         }
 
-        if ($tableName === null) {
+        if (null === $tableName) {
             $tableName = $this->getTable();
         }
 
-        $skipAcl = $this->acl === null;
+        $skipAcl = null === $this->acl;
         $tableSchema = SchemaService::getCollection($tableName, [], false, $skipAcl);
 
         if ($tableName === $this->getTable()) {
@@ -220,7 +220,7 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Gets the column schema (object)
+     * Gets the column schema (object).
      *
      * @param $columnName
      * @param null $tableName
@@ -229,17 +229,17 @@ class BaseTableGateway extends TableGateway
      */
     public function getField($columnName, $tableName = null)
     {
-        if ($tableName === null) {
+        if (null === $tableName) {
             $tableName = $this->getTable();
         }
 
-        $skipAcl = $this->acl === null;
+        $skipAcl = null === $this->acl;
 
         return SchemaService::getField($tableName, $columnName, false, $skipAcl);
     }
 
     /**
-     * Gets the status column name
+     * Gets the status column name.
      *
      * @return string
      */
@@ -254,11 +254,12 @@ class BaseTableGateway extends TableGateway
         foreach ($resultSet as $row) {
             $withKey[$row[$key]] = $row;
         }
+
         return $withKey;
     }
 
     /**
-     * Create a new row
+     * Create a new row.
      *
      * @param null $table
      * @param null $primaryKeyColumn
@@ -267,16 +268,15 @@ class BaseTableGateway extends TableGateway
      */
     public function newRow($table = null, $primaryKeyColumn = null)
     {
-        $table = is_null($table) ? $this->table : $table;
-        $primaryKeyColumn = is_null($primaryKeyColumn) ? $this->primaryKeyFieldName : $primaryKeyColumn;
-        $row = new BaseRowGateway($primaryKeyColumn, $table, $this->adapter, $this->acl);
+        $table = null === $table ? $this->table : $table;
+        $primaryKeyColumn = null === $primaryKeyColumn ? $this->primaryKeyFieldName : $primaryKeyColumn;
 
-        return $row;
+        return new BaseRowGateway($primaryKeyColumn, $table, $this->adapter, $this->acl);
     }
 
     public function find($id, $pk_field_name = null)
     {
-        if ($pk_field_name == null) {
+        if (null === $pk_field_name) {
             $pk_field_name = $this->primaryKeyFieldName;
         }
 
@@ -288,19 +288,22 @@ class BaseTableGateway extends TableGateway
     public function fetchAll($selectModifier = null)
     {
         return $this->select(function (Select $select) use ($selectModifier) {
-            if (is_callable($selectModifier)) {
+            if (\is_callable($selectModifier)) {
                 $selectModifier($select);
             }
         });
     }
 
     /**
-     * @return array All rows in array form with record IDs for the array's keys.
+     * @param null|mixed $selectModifier
+     *
+     * @return array all rows in array form with record IDs for the array's keys
      */
     public function fetchAllWithIdKeys($selectModifier = null)
     {
         $allWithIdKeys = [];
         $all = $this->fetchAll($selectModifier)->toArray();
+
         return $this->withKey('id', $all);
     }
 
@@ -335,7 +338,7 @@ class BaseTableGateway extends TableGateway
 
     public function addOrUpdateRecordByArray(array $recordData, $collectionName = null)
     {
-        $collectionName = is_null($collectionName) ? $this->table : $collectionName;
+        $collectionName = null === $collectionName ? $this->table : $collectionName;
         $this->validateRecordArray($recordData);
 
         $TableGateway = $this->makeTable($collectionName);
@@ -349,7 +352,7 @@ class BaseTableGateway extends TableGateway
             $select = new Select($collectionName);
             $select->columns(['*']);
             $select->where([
-                $primaryKey => $recordData[$primaryKey]
+                $primaryKey => $recordData[$primaryKey],
             ]);
             $select->limit(1);
             $result = $TableGateway->ignoreFilters()->selectWith($select);
@@ -374,7 +377,7 @@ class BaseTableGateway extends TableGateway
 
         $listenerId = null;
         if (static::$emitter && $this->shouldUseFilter()) {
-            $hookName = 'item.create.' . SchemaManager::COLLECTION_FILES;
+            $hookName = 'item.create.'.SchemaManager::COLLECTION_FILES;
             // TODO: Implement once execute. Allowing a hook callback to run once.
             $listenerId = static::$emitter->addAction($hookName, function ($data) use (&$recordData) {
                 $recordData['filename_disk'] = $data['filename_disk'];
@@ -404,7 +407,8 @@ class BaseTableGateway extends TableGateway
         return $TableGateway->fetchAll(function (Select $select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
-                ->limit(1);
+                ->limit(1)
+            ;
             $select->where->equalTo($primaryKey, $recordData[$primaryKey]);
         })->current();
     }
@@ -429,22 +433,24 @@ class BaseTableGateway extends TableGateway
         $Update = new Update($collectionName);
         $Update->set($recordData);
         $Update->where([
-            $primaryKey => $recordId
+            $primaryKey => $recordId,
         ]);
         $TableGateway->updateWith($Update);
 
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($collectionName);
+
         return $TableGateway->fetchAll(function ($select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
-                ->limit(1);
+                ->limit(1)
+            ;
             $select->where->equalTo($primaryKey, $recordData[$primaryKey]);
         })->current();
     }
 
     public function drop($tableName = null)
     {
-        if ($tableName == null) {
+        if (null === $tableName) {
             $tableName = $this->table;
         }
 
@@ -475,7 +481,7 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Stop managing a table by removing privileges, preferences columns and table information
+     * Stop managing a table by removing privileges, preferences columns and table information.
      *
      * @param null $tableName
      *
@@ -483,12 +489,12 @@ class BaseTableGateway extends TableGateway
      */
     public function stopManaging($tableName = null)
     {
-        if ($tableName == null) {
+        if (null === $tableName) {
             $tableName = $this->table;
         }
 
         // Remove table privileges
-        if ($tableName != SchemaManager::COLLECTION_PERMISSIONS) {
+        if (SchemaManager::COLLECTION_PERMISSIONS !== $tableName) {
             $privilegesTableGateway = new TableGateway(SchemaManager::COLLECTION_PERMISSIONS, $this->adapter);
             $privilegesTableGateway->delete(['collection' => $tableName]);
         }
@@ -496,25 +502,25 @@ class BaseTableGateway extends TableGateway
         // Remove columns from directus_columns
         $columnsTableGateway = new TableGateway(SchemaManager::COLLECTION_FIELDS, $this->adapter);
         $columnsTableGateway->delete([
-            'collection' => $tableName
+            'collection' => $tableName,
         ]);
 
         // Remove entries from directus_relations
         $columnsTableGateway = new TableGateway(SchemaManager::COLLECTION_RELATIONS, $this->adapter);
         $columnsTableGateway->delete([
-            'collection_many' => $tableName
+            'collection_many' => $tableName,
         ]);
 
         // Remove table from directus_tables
         $tablesTableGateway = new TableGateway(SchemaManager::COLLECTION_COLLECTIONS, $this->adapter);
         $tablesTableGateway->delete([
-            'collection' => $tableName
+            'collection' => $tableName,
         ]);
 
         // Remove table from directus_collection_presets
         $preferencesTableGateway = new TableGateway(SchemaManager::COLLECTION_COLLECTION_PRESETS, $this->adapter);
         $preferencesTableGateway->delete([
-            'collection' => $tableName
+            'collection' => $tableName,
         ]);
 
         return true;
@@ -522,7 +528,7 @@ class BaseTableGateway extends TableGateway
 
     public function dropField($columnName, $tableName = null)
     {
-        if ($tableName == null) {
+        if (null === $tableName) {
             $tableName = $this->table;
         }
 
@@ -535,7 +541,7 @@ class BaseTableGateway extends TableGateway
         }
 
         // Drop table column if is a non-alias column
-        if (!array_key_exists($columnName, array_flip(SchemaService::getAllAliasCollectionFields($tableName, true)))) {
+        if (!\array_key_exists($columnName, array_flip(SchemaService::getAllAliasCollectionFields($tableName, true)))) {
             $sql = new Sql($this->adapter);
             $alterTable = new Ddl\AlterTable($tableName);
             $dropColumn = $alterTable->dropColumn($columnName);
@@ -550,17 +556,17 @@ class BaseTableGateway extends TableGateway
         $columnsTableGateway = new TableGateway(SchemaManager::COLLECTION_FIELDS, $this->adapter);
         $columnsTableGateway->delete([
             'table_name' => $tableName,
-            'column_name' => $columnName
+            'column_name' => $columnName,
         ]);
 
         // Remove column from sorting column in directus_preferences
         $preferencesTableGateway = new TableGateway(SchemaManager::COLLECTION_COLLECTION_PRESETS, $this->adapter);
         $preferencesTableGateway->update([
             'sort' => $this->primaryKeyFieldName,
-            'sort_order' => 'ASC'
+            'sort_order' => 'ASC',
         ], [
             'table_name' => $tableName,
-            'sort' => $columnName
+            'sort' => $columnName,
         ]);
 
         return true;
@@ -579,10 +585,10 @@ class BaseTableGateway extends TableGateway
         // Hard-coded
         $manytoones = ['single_file', 'many_to_one', 'many_to_one_typeahead', 'MANYTOONE'];
 
-        if (!in_array($relationshipType, $directus_types)) {
+        if (!\in_array($relationshipType, $directus_types, true)) {
             $this->addTableColumn($tableName, $tableData);
             // Temporary solutions to #481, #645
-            if (array_key_exists('ui', $tableData) && in_array($tableData['ui'], $manytoones)) {
+            if (\array_key_exists('ui', $tableData) && \in_array($tableData['ui'], $manytoones, true)) {
                 $tableData['relationship_type'] = 'MANYTOONE';
                 $tableData['junction_key_right'] = $tableData['column_name'];
             }
@@ -594,6 +600,518 @@ class BaseTableGateway extends TableGateway
         return $tableData['column_name'];
     }
 
+    public function castFloatIfNumeric(&$value, $key)
+    {
+        if ('table_name' !== $key) {
+            $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float) $value : $value;
+        }
+    }
+
+    /**
+     * Convenience method for dumping a ZendDb Sql query object as debug output.
+     */
+    public function dumpSql(SqlInterface $query)
+    {
+        $sql = new Sql($this->adapter);
+
+        return $sql->getSqlStringForSqlObject($query, $this->adapter->getPlatform());
+    }
+
+    public function ignoreFilters()
+    {
+        $this->options['filter'] = false;
+
+        return $this;
+    }
+
+    /**
+     * Convert dates to ISO 8601 format.
+     *
+     * @param null $tableName
+     *
+     * @return array|mixed
+     */
+    public function convertDates(array $records, Collection $tableSchema, $tableName = null)
+    {
+        if (!$this->schemaManager->isSystemCollection($this->table)) {
+            return $records;
+        }
+
+        // ==========================================================================
+        // hotfix: records sometimes are no set as an array of rows.
+        // NOTE: this code is duplicate @see: AbstractSchema::parseRecordValuesByType
+        // ==========================================================================
+        $singleRecord = false;
+        if (!ArrayUtils::isNumericKeys($records)) {
+            $records = [$records];
+            $singleRecord = true;
+        }
+
+        foreach ($records as $index => $row) {
+            foreach ($tableSchema->getFields(array_keys($row)) as $column) {
+                if (!DataTypes::isDateTimeType($column->getType()) || !isset($row[$column->getName()])) {
+                    continue;
+                }
+
+                $columnName = $column->getName();
+                $datetime = DateTimeUtils::createFromDefaultFormat($row[$columnName], 'UTC');
+                $records[$index][$columnName] = $datetime->toISO8601Format();
+            }
+        }
+
+        return $singleRecord ? reset($records) : $records;
+    }
+
+    /**
+     * Parse Records values (including format date by ISO 8601) by its column type.
+     *
+     * @param $records
+     * @param null $tableName
+     *
+     * @return array|mixed
+     */
+    public function parseRecord($records, $tableName = null)
+    {
+        // NOTE: Performance spot
+        if (\is_array($records)) {
+            $tableName = null === $tableName ? $this->table : $tableName;
+            $records = $this->parseRecordValuesByType($records, $tableName);
+            $tableSchema = $this->getTableSchema($tableName);
+            $records = $this->convertDates($records, $tableSchema, $tableName);
+        }
+
+        return $records;
+    }
+
+    /**
+     * Enforce permission on Insert.
+     *
+     * @throws \Exception
+     */
+    public function enforceInsertPermission(Insert $insert)
+    {
+        $insertState = $insert->getRawState();
+        $insertTable = $this->getRawTableNameFromQueryStateTable($insertState['table']);
+
+        $statusValue = null;
+        $statusField = $this->getTableSchema()->getStatusField();
+        if ($statusField) {
+            $valueKey = array_search($statusField->getName(), $insertState['columns'], true);
+            if (false !== $valueKey) {
+                $statusValue = ArrayUtils::get($insertState['values'], $valueKey);
+            } else {
+                $statusValue = $statusField->getDefaultValue();
+            }
+        }
+
+        $this->acl->enforceCreate($insertTable, $statusValue);
+    }
+
+    /**
+     * Enforce permission on Update.
+     *
+     * @throws \Exception
+     */
+    public function enforceUpdatePermission(Update $update)
+    {
+        $collectionObject = $this->getTableSchema();
+        $statusField = $collectionObject->getStatusField();
+        $updateState = $update->getRawState();
+        $updateData = $updateState['set'];
+
+        //If a collection has status field then records are not actually deleting, they are soft deleting
+        //Check delete permission for soft delete
+        if (
+            $statusField
+            && ArrayUtils::has($updateData, $statusField->getName())
+            && \in_array(
+                ArrayUtils::get($updateData, $collectionObject->getStatusField()->getName()),
+                $this->getStatusMapping()->getSoftDeleteStatusesValue(),
+                true
+            )
+        ) {
+            $delete = $this->sql->delete();
+            $delete->where($updateState['where']);
+            $this->enforceDeletePermission($delete);
+
+            return;
+        }
+
+        if ($this->acl->canUpdateAll($this->table) && $this->acl->isAdmin()) {
+            return;
+        }
+
+        $currentUserId = $this->acl->getUserId();
+        $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
+        $select = $this->sql->select();
+        $select->where($updateState['where']);
+        $select->limit(1);
+        $item = $this->ignoreFilters()->selectWith($select)->toArray();
+        $item = reset($item);
+        $statusId = null;
+
+        // Item not found, item cannot be updated
+        if (!$item) {
+            throw new ForbiddenCollectionUpdateException($updateTable);
+        }
+
+        // Enforce write field blacklist
+        $this->acl->enforceWriteField($updateTable, array_keys($updateState['set']));
+
+        if ($collectionObject->hasStatusField()) {
+            $statusField = $this->getTableSchema()->getStatusField();
+            $statusId = $item[$statusField->getName()];
+
+            // non-admins cannot update soft-deleted items
+            $status = $this->getStatusMapping()->getByValue($statusId);
+            if ($status && $status->isSoftDelete()) {
+                throw new ForbiddenCollectionUpdateException($updateTable);
+            }
+        }
+
+        // User Created Interface not found, item cannot be updated
+        $itemOwnerField = $this->getTableSchema()->getUserCreatedField();
+        if (!$itemOwnerField) {
+            /* User object dont have a created_by field so we cant get the owner and not able to update
+             * the profile. Thus we need to check manually that whether its update profile or not.
+             */
+            if (SchemaManager::COLLECTION_USERS === $this->table && $item['id'] === $currentUserId) {
+                $this->acl->enforceUpdate($updateTable, $statusId);
+
+                return;
+            }
+
+            /* Object dont have a created_by field so we cant get the owner and not able to fetch
+             *  the bookmarks.
+             */
+            if (SchemaManager::COLLECTION_COLLECTION_PRESETS === $this->table && $item['user'] === $currentUserId) {
+                $this->acl->enforceUpdate($updateTable, $statusId);
+
+                return;
+            }
+            $this->acl->enforceUpdateAll($updateTable, $statusId);
+
+            return;
+        }
+
+        // Owner not found, item cannot be updated
+        $owner = \Directus\get_item_owner($updateTable, $item[$collectionObject->getPrimaryKeyName()]);
+        if (!\is_array($owner)) {
+            throw new ForbiddenCollectionUpdateException($updateTable);
+        }
+
+        $userItem = $currentUserId === $owner['id'];
+        $hasRole = $this->acl->hasRole($owner['role']);
+        if (!$userItem && !$hasRole && !$this->acl->canUpdateAll($updateTable, $statusId)) {
+            throw new ForbiddenCollectionUpdateException($updateTable);
+        }
+
+        if (!$userItem && $hasRole) {
+            $this->acl->enforceUpdateFromRole($updateTable, $statusId);
+        } elseif ($userItem) {
+            $this->acl->enforceUpdate($updateTable, $statusId);
+        }
+    }
+
+    /**
+     * Enforce permission on Delete.
+     *
+     * @throws ForbiddenCollectionDeleteException
+     */
+    public function enforceDeletePermission(Delete $delete)
+    {
+        $collectionObject = $this->getTableSchema();
+        $currentUserId = $this->acl->getUserId();
+        $deleteState = $delete->getRawState();
+        $deleteTable = $this->getRawTableNameFromQueryStateTable($deleteState['table']);
+        // $cmsOwnerColumn = $this->acl->getCmsOwnerColumnByTable($deleteTable);
+        // $canBigDelete = $this->acl->hasTablePrivilege($deleteTable, 'bigdelete');
+        // $canDelete = $this->acl->hasTablePrivilege($deleteTable, 'delete');
+        // $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
+
+        $select = $this->sql->select();
+        $select->where($deleteState['where']);
+        $select->limit(1);
+        $item = $this->ignoreFilters()->selectWith($select)->toArray();
+        $item = reset($item);
+        $statusId = null;
+
+        // Item not found, item cannot be updated
+        if (!$item) {
+            throw new ItemNotFoundException();
+        }
+
+        if ($collectionObject->hasStatusField()) {
+            $statusField = $this->getTableSchema()->getStatusField();
+            $statusId = $item[$statusField->getName()];
+        }
+
+        // User Created Interface not found, item cannot be updated
+        $itemOwnerField = $this->getTableSchema()->getUserCreatedField();
+        if (!$itemOwnerField) {
+            $this->acl->enforceDeleteAll($deleteTable, $statusId);
+
+            return;
+        }
+
+        // Owner not found, item cannot be updated
+        $owner = \Directus\get_item_owner($deleteTable, $item[$collectionObject->getPrimaryKeyName()]);
+        if (!\is_array($owner)) {
+            throw new ForbiddenCollectionDeleteException($deleteTable);
+        }
+
+        $userItem = $currentUserId === $owner['id'];
+        $hasRole = $this->acl->hasRole($owner['role']);
+        if (!$userItem && !$hasRole && !$this->acl->canDeleteAll($deleteTable, $statusId)) {
+            throw new ForbiddenCollectionDeleteException($deleteTable);
+        }
+
+        if (!$userItem && $hasRole) {
+            $this->acl->enforceDeleteFromRole($deleteTable, $statusId);
+        } elseif ($userItem) {
+            $this->acl->enforceDelete($deleteTable, $statusId);
+        }
+
+        // @todo: clean way
+        // @TODO: this doesn't need to be bigdelete
+        //        the user can only delete their own entry
+        // if ($deleteTable === 'directus_bookmarks') {
+        //     $canBigDelete = true;
+        // }
+
+        // @TODO: Update conditions
+        // =============================================================================
+        // Cannot delete if there's no magic owner column and can't big delete
+        // All deletes are "big" deletes if there is no magic owner column.
+        // =============================================================================
+        // if (false === $cmsOwnerColumn && !$canBigDelete) {
+        //     throw new ForbiddenCollectionDeleteException($aclErrorPrefix . 'The table `' . $deleteTable . '` is missing the `user_create_column` within `directus_collections` (BigHardDelete Permission Forbidden)');
+        // } else if (!$canBigDelete) {
+        //     // Who are the owners of these rows?
+        //     list($predicateResultQty, $predicateOwnerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $deleteState['where']);
+        //     if (!in_array($currentUserId, $predicateOwnerIds)) {
+        //         //   $exceptionMessage = "Table harddelete access forbidden on $predicateResultQty `$deleteTable` table records owned by the authenticated CMS user (#$currentUserId).";
+        //         $groupsTableGateway = $this->makeTable('directus_roles');
+        //         $group = $groupsTableGateway->find($this->acl->getGroupId());
+        //         $exceptionMessage = '[' . $group['name'] . '] permissions only allow you to [delete] your own items.';
+        //         //   $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
+        //         throw new  ForbiddenCollectionDeleteException($exceptionMessage);
+        //     }
+        // }
+    }
+
+    /**
+     * Get the column identifier with the specific quote and table prefixed.
+     *
+     * @param string      $column
+     * @param null|string $table
+     *
+     * @return string
+     */
+    public function getColumnIdentifier($column, $table = null)
+    {
+        $platform = $this->getAdapter()->getPlatform();
+
+        // TODO: find a common place to share this code
+        // It is a duplicated code from Builder.php
+        if (false === strpos($column, $platform->getIdentifierSeparator())) {
+            $column = implode($platform->getIdentifierSeparator(), [$table, $column]);
+        }
+
+        return $column;
+    }
+
+    /**
+     * Get the column name from the identifier.
+     *
+     * @param string $column
+     *
+     * @return string
+     */
+    public function getColumnFromIdentifier($column)
+    {
+        $platform = $this->getAdapter()->getPlatform();
+
+        // TODO: find a common place to share this code
+        // It is duplicated code in Builder.php
+        if (false !== strpos($column, $platform->getIdentifierSeparator())) {
+            $identifierParts = explode($platform->getIdentifierSeparator(), $column);
+            $column = array_pop($identifierParts);
+        }
+
+        return $column;
+    }
+
+    /**
+     * Get the table name from the identifier.
+     *
+     * @param string      $column
+     * @param null|string $table
+     *
+     * @return string
+     */
+    public function getTableFromIdentifier($column, $table = null)
+    {
+        $platform = $this->getAdapter()->getPlatform();
+
+        if (null === $table) {
+            $table = $this->getTable();
+        }
+
+        // TODO: find a common place to share this code
+        // It is duplicated code in Builder.php
+        if (false !== strpos($column, $platform->getIdentifierSeparator())) {
+            $identifierParts = explode($platform->getIdentifierSeparator(), $column);
+            $table = array_shift($identifierParts);
+        }
+
+        return $table;
+    }
+
+    /**
+     * Gets schema manager.
+     *
+     * @return null|SchemaManager
+     */
+    public function getSchemaManager()
+    {
+        return $this->schemaManager;
+    }
+
+    /**
+     * Set application container.
+     *
+     * @param $container
+     */
+    public static function setContainer($container)
+    {
+        static::$container = $container;
+    }
+
+    /**
+     * @return Container
+     */
+    public static function getContainer()
+    {
+        return static::$container;
+    }
+
+    public static function setHookEmitter($emitter)
+    {
+        static::$emitter = $emitter;
+    }
+
+    public function runHook($name, $args = null)
+    {
+        if (static::$emitter) {
+            static::$emitter->execute($name, $args);
+        }
+    }
+
+    /**
+     * Apply a list of hook against the given data.
+     *
+     * @param null $data
+     *
+     * @return null|array|\ArrayObject
+     */
+    public function applyHooks(array $names, $data = null, array $attributes = [])
+    {
+        foreach ($names as $name) {
+            $data = $this->applyHook($name, $data, $attributes);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Apply hook against the given data.
+     *
+     * @param $name
+     * @param null $data
+     *
+     * @return null|array|\ArrayObject
+     */
+    public function applyHook($name, $data = null, array $attributes = [])
+    {
+        // TODO: Ability to run multiple hook names
+        // $this->applyHook('hook1,hook2');
+        // $this->applyHook(['hook1', 'hook2']);
+        // ----------------------------------------------------------------------------
+        // TODO: Move this to a separate class to handle common events
+        // $this->applyNewRecord($table, $record);
+        if (static::$emitter && static::$emitter->hasFilterListeners($name)) {
+            $isResultSet = $data instanceof ResultSetInterface;
+            $resultSet = null;
+
+            if ($isResultSet) {
+                $resultSet = $data;
+                $data = $resultSet->toArray();
+            }
+
+            $data = static::$emitter->apply($name, $data, $attributes);
+
+            if ($isResultSet && $resultSet) {
+                $data = new \ArrayObject($data);
+                $resultSet->initialize($data->getIterator());
+                $data = $resultSet;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Gets Directus settings (from DB).
+     *
+     * @param null|string $key
+     *
+     * @return mixed
+     */
+    public function getSettings($key = null)
+    {
+        $settings = [];
+
+        if (!static::$container) {
+            return $settings;
+        }
+
+        if (null !== $key) {
+            $settings = \Directus\get_directus_setting($key);
+        } else {
+            $settings = \Directus\get_kv_directus_settings();
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Get the table statuses.
+     *
+     * @return array
+     */
+    public function getAllStatuses()
+    {
+        $statuses = [];
+        $statusMapping = $this->getStatusMapping();
+
+        if ($statusMapping) {
+            $statuses = $statusMapping->getAllStatusesValue();
+        }
+
+        return $statuses;
+    }
+
+    /**
+     * Gets the table non-soft-delete statuses.
+     *
+     * @return array
+     */
+    public function getNonSoftDeleteStatuses()
+    {
+        return $this->getStatuses('non-soft-delete');
+    }
+
     // @TODO: TableGateway should not be handling table creation
     protected function addTableColumn($tableName, $columnData)
     {
@@ -601,18 +1119,18 @@ class BaseTableGateway extends TableGateway
         $dataType = $columnData['data_type'];
         $comment = $this->getAdapter()->getPlatform()->quoteValue(ArrayUtils::get($columnData, 'comment', ''));
 
-        if (array_key_exists('length', $columnData)) {
+        if (\array_key_exists('length', $columnData)) {
             $charLength = $columnData['length'];
             // SET and ENUM data type has its values in the char_length attribute
             // each value are separated by commas
             // it must be wrap into quotes
-            if (!$this->schemaManager->isFloatingPointType($dataType) && strpos($charLength, ',') !== false) {
+            if (!$this->schemaManager->isFloatingPointType($dataType) && false !== strpos($charLength, ',')) {
                 $charLength = implode(',', array_map(function ($value) {
-                    return '"' . trim($value) . '"';
+                    return '"'.trim($value).'"';
                 }, explode(',', $charLength)));
             }
 
-            $dataType = $dataType . '(' . $charLength . ')';
+            $dataType = $dataType.'('.$charLength.')';
         }
 
         $default = '';
@@ -621,11 +1139,11 @@ class BaseTableGateway extends TableGateway
             $length = ArrayUtils::get($columnData, 'length');
             $defaultValue = $this->schemaManager->castDefaultValue($value, $dataType, $length);
 
-            $default = ' DEFAULT ' . (is_string($defaultValue) ? sprintf('"%s"', $defaultValue) : $defaultValue);
+            $default = ' DEFAULT '.(\is_string($defaultValue) ? sprintf('"%s"', $defaultValue) : $defaultValue);
         }
 
         // TODO: wrap this into an abstract DDL class
-        $sql = 'ALTER TABLE `' . $tableName . '` ADD COLUMN `' . $column_name . '` ' . $dataType . $default . ' COMMENT "' . $comment . '"';
+        $sql = 'ALTER TABLE `'.$tableName.'` ADD COLUMN `'.$column_name.'` '.$dataType.$default.' COMMENT "'.$comment.'"';
 
         $this->adapter->query($sql)->execute();
     }
@@ -639,49 +1157,19 @@ class BaseTableGateway extends TableGateway
         $columnData['sort'] = ArrayUtils::get($columnData, 'sort', 9999);
 
         $data = array_intersect_key($columnData, array_flip($alias_columns));
+
         return $this->addOrUpdateRecordByArray($data, 'directus_columns');
     }
 
-    public function castFloatIfNumeric(&$value, $key)
-    {
-        if ($key != 'table_name') {
-            $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float) $value : $value;
-        }
-    }
-
     /**
-     * Convenience method for dumping a ZendDb Sql query object as debug output.
-     *
-     * @param  SqlInterface $query
-     *
-     * @return null
-     */
-    public function dumpSql(SqlInterface $query)
-    {
-        $sql = new Sql($this->adapter);
-        $query = $sql->getSqlStringForSqlObject($query, $this->adapter->getPlatform());
-        return $query;
-    }
-
-    public function ignoreFilters()
-    {
-        $this->options['filter'] = false;
-
-        return $this;
-    }
-
-    /**
-     * @param Select $select
-     *
-     * @return ResultSet
-     *
      * @throws \Directus\Permissions\Exception\ForbiddenFieldReadException
      * @throws \Directus\Permissions\Exception\ForbiddenFieldWriteException
      * @throws \Exception
+     *
+     * @return ResultSet
      */
     protected function executeSelect(Select $select)
     {
-
         $useFilter = $this->shouldUseFilter();
         unset($this->options['filter']);
 
@@ -695,9 +1183,9 @@ class BaseTableGateway extends TableGateway
         if ($useFilter) {
             $selectState = $this->applyHooks([
                 'item.read:before',
-                'item.read.' . $selectCollectionName . ':before',
+                'item.read.'.$selectCollectionName.':before',
             ], $selectState, [
-                'collection_name' => $selectCollectionName
+                'collection_name' => $selectCollectionName,
             ]);
 
             // NOTE: This can be a "dangerous" hook, so for now we only support columns
@@ -716,10 +1204,10 @@ class BaseTableGateway extends TableGateway
         if ($useFilter) {
             $result = $this->applyHooks([
                 'item.read',
-                'item.read.' . $selectCollectionName
+                'item.read.'.$selectCollectionName,
             ], $result, [
                 'selectState' => $selectState,
-                'collection_name' => $selectCollectionName
+                'collection_name' => $selectCollectionName,
             ]);
         }
 
@@ -727,11 +1215,9 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * @param Insert $insert
+     * @throws \Directus\Database\Exception\InvalidQueryException
      *
      * @return mixed
-     *
-     * @throws \Directus\Database\Exception\InvalidQueryException
      */
     protected function executeInsert(Insert $insert)
     {
@@ -750,12 +1236,12 @@ class BaseTableGateway extends TableGateway
 
         if ($useFilter) {
             $this->runHook('item.create:before', [$insertTable, $insertDataAssoc]);
-            $this->runHook('item.create.' . $insertTable . ':before', [$insertDataAssoc]);
+            $this->runHook('item.create.'.$insertTable.':before', [$insertDataAssoc]);
 
             $newInsertData = $this->applyHook('item.create:before', $insertDataAssoc, [
-                'collection_name' => $insertTable
+                'collection_name' => $insertTable,
             ]);
-            $newInsertData = $this->applyHook('item.create.' . $insertTable . ':before', $newInsertData);
+            $newInsertData = $this->applyHook('item.create.'.$insertTable.':before', $newInsertData);
 
             // NOTE: set the primary key to null
             // to default the value to whatever increment value is next
@@ -771,8 +1257,8 @@ class BaseTableGateway extends TableGateway
             $result = parent::executeInsert($insert);
         } catch (UnexpectedValueException $e) {
             if (
-                strtolower($this->adapter->platform->getName()) === 'mysql'
-                && strpos(strtolower($e->getMessage()), 'duplicate entry') !== false
+                'mysql' === strtolower($this->adapter->platform->getName())
+                && false !== strpos(strtolower($e->getMessage()), 'duplicate entry')
             ) {
                 preg_match("/Duplicate entry '([^']+)' for key '([^']+)'/i", $e->getMessage(), $output);
 
@@ -790,7 +1276,7 @@ class BaseTableGateway extends TableGateway
         $insertTableGateway = $this->makeTable($insertTable);
 
         // hotfix: directus_tables does not have auto generated value primary key
-        if ($this->getTable() === SchemaManager::COLLECTION_COLLECTIONS) {
+        if (SchemaManager::COLLECTION_COLLECTIONS === $this->getTable()) {
             $generatedValue = ArrayUtils::get($insertDataAssoc, $this->primaryKeyFieldName, 'table_name');
         } else {
             $generatedValue = $this->getLastInsertValue();
@@ -800,20 +1286,18 @@ class BaseTableGateway extends TableGateway
 
         if ($useFilter) {
             $this->runHook('item.create', [$insertTable, $resultData]);
-            $this->runHook('item.create.' . $insertTable, [$resultData]);
+            $this->runHook('item.create.'.$insertTable, [$resultData]);
             $this->runHook('item.create:after', [$insertTable, $resultData]);
-            $this->runHook('item.create.' . $insertTable . ':after', [$resultData]);
+            $this->runHook('item.create.'.$insertTable.':after', [$resultData]);
         }
 
         return $result;
     }
 
     /**
-     * @param Update $update
+     * @throws \Directus\Database\Exception\InvalidQueryException
      *
      * @return mixed
-     *
-     * @throws \Directus\Database\Exception\InvalidQueryException
      */
     protected function executeUpdate(Update $update)
     {
@@ -852,7 +1336,7 @@ class BaseTableGateway extends TableGateway
             $config = static::$container->get('config');
             if ($config->get('cache.enabled')) {
                 $cachePool = static::$container->get('cache');
-                $cachePool->invalidateTags(['entity_' . $updateTable . '_' . $result[$this->primaryKeyFieldName]]);
+                $cachePool->invalidateTags(['entity_'.$updateTable.'_'.$result[$this->primaryKeyFieldName]]);
             }
         }
 
@@ -860,11 +1344,9 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * @param Delete $delete
+     * @throws \Directus\Database\Exception\InvalidQueryException
      *
      * @return mixed
-     *
-     * @throws \Directus\Database\Exception\InvalidQueryException
      */
     protected function executeDelete(Delete $delete)
     {
@@ -899,7 +1381,7 @@ class BaseTableGateway extends TableGateway
             foreach ($ids as $id) {
                 $deleteData = [$this->primaryKeyFieldName => $id];
                 $this->runHook('item.delete:before', [$deleteTable, $deleteData]);
-                $this->runHook('item.delete.' . $deleteTable . ':before', [$deleteData]);
+                $this->runHook('item.delete.'.$deleteTable.':before', [$deleteData]);
             }
 
             try {
@@ -911,7 +1393,6 @@ class BaseTableGateway extends TableGateway
                 );
             }
 
-
             //Invalidate individual cache
             if (static::$container) {
                 $config = static::$container->get('config');
@@ -920,15 +1401,13 @@ class BaseTableGateway extends TableGateway
                 $deleteData = $deletedObject[$id];
                 $this->runHook('item.delete', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete:after', [$deleteTable, $deleteData]);
-                $this->runHook('item.delete.' . $deleteTable, [$deleteData]);
-                $this->runHook('item.delete.' . $deleteTable . ':after', [$deleteData]);
+                $this->runHook('item.delete.'.$deleteTable, [$deleteData]);
+                $this->runHook('item.delete.'.$deleteTable.':after', [$deleteData]);
                 if (isset($config) && $config->get('cache.enabled')) {
                     $cachePool = static::$container->get('cache');
-                    $cachePool->invalidateTags(['entity_' . $deleteTable . '_' . $deleteData[$this->primaryKeyFieldName]]);
+                    $cachePool->invalidateTags(['entity_'.$deleteTable.'_'.$deleteData[$this->primaryKeyFieldName]]);
                 }
             }
-
-
 
             return $result;
         }
@@ -936,62 +1415,21 @@ class BaseTableGateway extends TableGateway
 
     protected function getRawTableNameFromQueryStateTable($table)
     {
-        if (is_string($table)) {
+        if (\is_string($table)) {
             return $table;
         }
 
-        if (is_array($table)) {
+        if (\is_array($table)) {
             // The only value is the real table name (key is alias).
             return array_pop($table);
         }
 
-        throw new \InvalidArgumentException('Unexpected parameter of type ' . get_class($table));
+        throw new \InvalidArgumentException('Unexpected parameter of type '.\get_class($table));
     }
 
     /**
-     * Convert dates to ISO 8601 format
+     * Parse records value by its column type.
      *
-     * @param array $records
-     * @param Collection $tableSchema
-     * @param null $tableName
-     *
-     * @return array|mixed
-     */
-    public function convertDates(array $records, Collection $tableSchema, $tableName = null)
-    {
-        if (!$this->schemaManager->isSystemCollection($this->table)) {
-            return $records;
-        }
-
-        // ==========================================================================
-        // hotfix: records sometimes are no set as an array of rows.
-        // NOTE: this code is duplicate @see: AbstractSchema::parseRecordValuesByType
-        // ==========================================================================
-        $singleRecord = false;
-        if (!ArrayUtils::isNumericKeys($records)) {
-            $records = [$records];
-            $singleRecord = true;
-        }
-
-        foreach ($records as $index => $row) {
-            foreach ($tableSchema->getFields(array_keys($row)) as $column) {
-                if (!DataTypes::isDateTimeType($column->getType()) || !isset($row[$column->getName()])) {
-                    continue;
-                }
-
-                $columnName = $column->getName();
-                $datetime = DateTimeUtils::createFromDefaultFormat($row[$columnName], 'UTC');
-                $records[$index][$columnName] = $datetime->toISO8601Format();
-            }
-        }
-
-        return $singleRecord ? reset($records) : $records;
-    }
-
-    /**
-     * Parse records value by its column type
-     *
-     * @param array $records
      * @param null $tableName
      *
      * @return array
@@ -999,7 +1437,7 @@ class BaseTableGateway extends TableGateway
     protected function parseRecordValuesByType(array $records, $tableName = null)
     {
         // NOTE: Performance spot
-        $tableName = $tableName === null ? $this->table : $tableName;
+        $tableName = null === $tableName ? $this->table : $tableName;
         // Get the columns directly from the source
         // otherwise will keep in a circle loop loading Acl Instances
         $columns = SchemaService::getSchemaManagerInstance()->getFields($tableName);
@@ -1008,30 +1446,7 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Parse Records values (including format date by ISO 8601) by its column type
-     *
-     * @param $records
-     * @param null $tableName
-     *
-     * @return array|mixed
-     */
-    public function parseRecord($records, $tableName = null)
-    {
-        // NOTE: Performance spot
-        if (is_array($records)) {
-            $tableName = $tableName === null ? $this->table : $tableName;
-            $records = $this->parseRecordValuesByType($records, $tableName);
-            $tableSchema = $this->getTableSchema($tableName);
-            $records = $this->convertDates($records, $tableSchema, $tableName);
-        }
-
-        return $records;
-    }
-
-    /**
-     * Enforce permission on Select
-     *
-     * @param Select $select
+     * Enforce permission on Select.
      *
      * @throws \Exception
      */
@@ -1049,7 +1464,7 @@ class BaseTableGateway extends TableGateway
             // and only throw and error when all the selected columns are blacklisted
             $this->acl->enforceReadField($table, $selectState['columns']);
         } catch (\Exception $e) {
-            if ($selectState['columns'][0] != '*') {
+            if ('*' !== $selectState['columns'][0]) {
                 throw $e;
             }
 
@@ -1065,34 +1480,6 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Enforce permission on Insert
-     *
-     * @param Insert $insert
-     *
-     * @throws \Exception
-     */
-    public function enforceInsertPermission(Insert $insert)
-    {
-        $insertState = $insert->getRawState();
-        $insertTable = $this->getRawTableNameFromQueryStateTable($insertState['table']);
-
-        $statusValue = null;
-        $statusField = $this->getTableSchema()->getStatusField();
-        if ($statusField) {
-            $valueKey = array_search($statusField->getName(), $insertState['columns']);
-            if ($valueKey !== false) {;
-                $statusValue = ArrayUtils::get($insertState['values'], $valueKey);
-            } else {
-                $statusValue = $statusField->getDefaultValue();
-            }
-        }
-
-        $this->acl->enforceCreate($insertTable, $statusValue);
-    }
-
-    /**
-     * @param Builder $builder
-     *
      * @throws ForbiddenCollectionReadException
      * @throws UnableFindOwnerItemsException
      */
@@ -1108,12 +1495,15 @@ class BaseTableGateway extends TableGateway
         switch ($this->table) {
             case SchemaManager::COLLECTION_ROLES:
                 $field = 'id';
+
                 break;
             case SchemaManager::COLLECTION_ACTIVITY:
                 $field = 'action_by';
+
                 break;
             case SchemaManager::COLLECTION_PERMISSIONS:
                 $field = 'role';
+
                 break;
             default:
                 $field = null;
@@ -1125,12 +1515,13 @@ class BaseTableGateway extends TableGateway
             $rolesIds = [];
 
             // TODO: Implement how to process `role` permission
-            if ($readPermission === Acl::LEVEL_MINE) {
+            if (Acl::LEVEL_MINE === $readPermission) {
                 $rolesIds = $this->acl->getRolesId();
             }
 
             if (!empty($rolesIds)) {
                 $builder->whereIn($field, $rolesIds);
+
                 return;
             }
         }
@@ -1148,6 +1539,7 @@ class BaseTableGateway extends TableGateway
             switch ($this->table) {
                 case SchemaManager::COLLECTION_USERS:
                     $userCreatedField = $collectionObject->getField('id');
+
                     break;
             }
         }
@@ -1160,6 +1552,7 @@ class BaseTableGateway extends TableGateway
         // If there's not user created or status interface, user must have full read permission
         if (!$userCreatedField && !$statusField) {
             $this->acl->enforceReadAll($this->table);
+
             return;
         }
 
@@ -1217,366 +1610,10 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Enforce permission on Update
-     *
-     * @param Update $update
-     *
-     * @throws \Exception
-     */
-    public function enforceUpdatePermission(Update $update)
-    {
-        $collectionObject = $this->getTableSchema();
-        $statusField = $collectionObject->getStatusField();
-        $updateState = $update->getRawState();
-        $updateData = $updateState['set'];
-
-        //If a collection has status field then records are not actually deleting, they are soft deleting
-        //Check delete permission for soft delete
-        if (
-            $statusField
-            && ArrayUtils::has($updateData, $statusField->getName())
-            && in_array(
-                ArrayUtils::get($updateData, $collectionObject->getStatusField()->getName()),
-                $this->getStatusMapping()->getSoftDeleteStatusesValue()
-            )
-        ) {
-            $delete = $this->sql->delete();
-            $delete->where($updateState['where']);
-            $this->enforceDeletePermission($delete);
-            return;
-        }
-
-        if ($this->acl->canUpdateAll($this->table) && $this->acl->isAdmin()) {
-            return;
-        }
-
-        $currentUserId = $this->acl->getUserId();
-        $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
-        $select = $this->sql->select();
-        $select->where($updateState['where']);
-        $select->limit(1);
-        $item = $this->ignoreFilters()->selectWith($select)->toArray();
-        $item = reset($item);
-        $statusId = null;
-
-        // Item not found, item cannot be updated
-        if (!$item) {
-            throw new ForbiddenCollectionUpdateException($updateTable);
-        }
-
-        // Enforce write field blacklist
-        $this->acl->enforceWriteField($updateTable, array_keys($updateState['set']));
-
-        if ($collectionObject->hasStatusField()) {
-            $statusField = $this->getTableSchema()->getStatusField();
-            $statusId = $item[$statusField->getName()];
-
-            // non-admins cannot update soft-deleted items
-            $status = $this->getStatusMapping()->getByValue($statusId);
-            if ($status && $status->isSoftDelete()) {
-                throw new ForbiddenCollectionUpdateException($updateTable);
-            }
-        }
-
-        // User Created Interface not found, item cannot be updated
-        $itemOwnerField = $this->getTableSchema()->getUserCreatedField();
-        if (!$itemOwnerField) {
-
-            /** User object dont have a created_by field so we cant get the owner and not able to update
-             * the profile. Thus we need to check manually that whether its update profile or not.
-             */
-            if ($this->table == SchemaManager::COLLECTION_USERS  && $item['id'] == $currentUserId) {
-                $this->acl->enforceUpdate($updateTable, $statusId);
-                return;
-            }
-
-            /** Object dont have a created_by field so we cant get the owner and not able to fetch
-             *  the bookmarks.
-             */
-            if ($this->table == SchemaManager::COLLECTION_COLLECTION_PRESETS  && $item['user'] == $currentUserId) {
-                $this->acl->enforceUpdate($updateTable, $statusId);
-                return;
-            }
-            $this->acl->enforceUpdateAll($updateTable, $statusId);
-            return;
-        }
-
-        // Owner not found, item cannot be updated
-        $owner = \Directus\get_item_owner($updateTable, $item[$collectionObject->getPrimaryKeyName()]);
-        if (!is_array($owner)) {
-            throw new ForbiddenCollectionUpdateException($updateTable);
-        }
-
-        $userItem = $currentUserId === $owner['id'];
-        $hasRole = $this->acl->hasRole($owner['role']);
-        if (!$userItem && !$hasRole && !$this->acl->canUpdateAll($updateTable, $statusId)) {
-            throw new ForbiddenCollectionUpdateException($updateTable);
-        }
-
-        if (!$userItem && $hasRole) {
-            $this->acl->enforceUpdateFromRole($updateTable, $statusId);
-        } else if ($userItem) {
-            $this->acl->enforceUpdate($updateTable, $statusId);
-        }
-    }
-
-    /**
-     * Enforce permission on Delete
-     *
-     * @param Delete $delete
-     *
-     * @throws ForbiddenCollectionDeleteException
-     */
-    public function enforceDeletePermission(Delete $delete)
-    {
-        $collectionObject = $this->getTableSchema();
-        $currentUserId = $this->acl->getUserId();
-        $deleteState = $delete->getRawState();
-        $deleteTable = $this->getRawTableNameFromQueryStateTable($deleteState['table']);
-        // $cmsOwnerColumn = $this->acl->getCmsOwnerColumnByTable($deleteTable);
-        // $canBigDelete = $this->acl->hasTablePrivilege($deleteTable, 'bigdelete');
-        // $canDelete = $this->acl->hasTablePrivilege($deleteTable, 'delete');
-        // $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-
-        $select = $this->sql->select();
-        $select->where($deleteState['where']);
-        $select->limit(1);
-        $item = $this->ignoreFilters()->selectWith($select)->toArray();
-        $item = reset($item);
-        $statusId = null;
-
-        // Item not found, item cannot be updated
-        if (!$item) {
-            throw new ItemNotFoundException();
-        }
-
-        if ($collectionObject->hasStatusField()) {
-            $statusField = $this->getTableSchema()->getStatusField();
-            $statusId = $item[$statusField->getName()];
-        }
-
-        // User Created Interface not found, item cannot be updated
-        $itemOwnerField = $this->getTableSchema()->getUserCreatedField();
-        if (!$itemOwnerField) {
-            $this->acl->enforceDeleteAll($deleteTable, $statusId);
-            return;
-        }
-
-        // Owner not found, item cannot be updated
-        $owner = \Directus\get_item_owner($deleteTable, $item[$collectionObject->getPrimaryKeyName()]);
-        if (!is_array($owner)) {
-            throw new ForbiddenCollectionDeleteException($deleteTable);
-        }
-
-        $userItem = $currentUserId === $owner['id'];
-        $hasRole = $this->acl->hasRole($owner['role']);
-        if (!$userItem && !$hasRole && !$this->acl->canDeleteAll($deleteTable, $statusId)) {
-            throw new ForbiddenCollectionDeleteException($deleteTable);
-        }
-
-        if (!$userItem && $hasRole) {
-            $this->acl->enforceDeleteFromRole($deleteTable, $statusId);
-        } else if ($userItem) {
-            $this->acl->enforceDelete($deleteTable, $statusId);
-        }
-
-        // @todo: clean way
-        // @TODO: this doesn't need to be bigdelete
-        //        the user can only delete their own entry
-        // if ($deleteTable === 'directus_bookmarks') {
-        //     $canBigDelete = true;
-        // }
-
-        // @TODO: Update conditions
-        // =============================================================================
-        // Cannot delete if there's no magic owner column and can't big delete
-        // All deletes are "big" deletes if there is no magic owner column.
-        // =============================================================================
-        // if (false === $cmsOwnerColumn && !$canBigDelete) {
-        //     throw new ForbiddenCollectionDeleteException($aclErrorPrefix . 'The table `' . $deleteTable . '` is missing the `user_create_column` within `directus_collections` (BigHardDelete Permission Forbidden)');
-        // } else if (!$canBigDelete) {
-        //     // Who are the owners of these rows?
-        //     list($predicateResultQty, $predicateOwnerIds) = $this->acl->getCmsOwnerIdsByTableGatewayAndPredicate($this, $deleteState['where']);
-        //     if (!in_array($currentUserId, $predicateOwnerIds)) {
-        //         //   $exceptionMessage = "Table harddelete access forbidden on $predicateResultQty `$deleteTable` table records owned by the authenticated CMS user (#$currentUserId).";
-        //         $groupsTableGateway = $this->makeTable('directus_roles');
-        //         $group = $groupsTableGateway->find($this->acl->getGroupId());
-        //         $exceptionMessage = '[' . $group['name'] . '] permissions only allow you to [delete] your own items.';
-        //         //   $aclErrorPrefix = $this->acl->getErrorMessagePrefix();
-        //         throw new  ForbiddenCollectionDeleteException($exceptionMessage);
-        //     }
-        // }
-    }
-
-    /**
-     * Get the column identifier with the specific quote and table prefixed
-     *
-     * @param string $column
-     * @param string|null $table
-     *
-     * @return string
-     */
-    public function getColumnIdentifier($column, $table = null)
-    {
-        $platform = $this->getAdapter()->getPlatform();
-
-        // TODO: find a common place to share this code
-        // It is a duplicated code from Builder.php
-        if (strpos($column, $platform->getIdentifierSeparator()) === false) {
-            $column = implode($platform->getIdentifierSeparator(), [$table, $column]);
-        }
-
-        return $column;
-    }
-
-    /**
-     * Get the column name from the identifier
-     *
-     * @param string $column
-     *
-     * @return string
-     */
-    public function getColumnFromIdentifier($column)
-    {
-        $platform = $this->getAdapter()->getPlatform();
-
-        // TODO: find a common place to share this code
-        // It is duplicated code in Builder.php
-        if (strpos($column, $platform->getIdentifierSeparator()) !== false) {
-            $identifierParts = explode($platform->getIdentifierSeparator(), $column);
-            $column = array_pop($identifierParts);
-        }
-
-        return $column;
-    }
-
-    /**
-     * Get the table name from the identifier
-     *
-     * @param string $column
-     * @param string|null $table
-     *
-     * @return string
-     */
-    public function getTableFromIdentifier($column, $table = null)
-    {
-        $platform = $this->getAdapter()->getPlatform();
-
-        if ($table === null) {
-            $table = $this->getTable();
-        }
-
-        // TODO: find a common place to share this code
-        // It is duplicated code in Builder.php
-        if (strpos($column, $platform->getIdentifierSeparator()) !== false) {
-            $identifierParts = explode($platform->getIdentifierSeparator(), $column);
-            $table = array_shift($identifierParts);
-        }
-
-        return $table;
-    }
-
-    /**
-     * Gets schema manager
-     *
-     * @return SchemaManager|null
-     */
-    public function getSchemaManager()
-    {
-        return $this->schemaManager;
-    }
-
-    /**
-     * Set application container
-     *
-     * @param $container
-     */
-    public static function setContainer($container)
-    {
-        static::$container = $container;
-    }
-
-    /**
-     * @return Container
-     */
-    public static function getContainer()
-    {
-        return static::$container;
-    }
-
-    public static function setHookEmitter($emitter)
-    {
-        static::$emitter = $emitter;
-    }
-
-    public function runHook($name, $args = null)
-    {
-        if (static::$emitter) {
-            static::$emitter->execute($name, $args);
-        }
-    }
-
-    /**
-     * Apply a list of hook against the given data
-     *
-     * @param array $names
-     * @param null $data
-     * @param array $attributes
-     *
-     * @return array|\ArrayObject|null
-     */
-    public function applyHooks(array $names, $data = null, array $attributes = [])
-    {
-        foreach ($names as $name) {
-            $data = $this->applyHook($name, $data, $attributes);
-        }
-
-        return $data;
-    }
-
-    /**
-     * Apply hook against the given data
-     *
-     * @param $name
-     * @param null $data
-     * @param array $attributes
-     *
-     * @return \ArrayObject|array|null
-     */
-    public function applyHook($name, $data = null, array $attributes = [])
-    {
-        // TODO: Ability to run multiple hook names
-        // $this->applyHook('hook1,hook2');
-        // $this->applyHook(['hook1', 'hook2']);
-        // ----------------------------------------------------------------------------
-        // TODO: Move this to a separate class to handle common events
-        // $this->applyNewRecord($table, $record);
-        if (static::$emitter && static::$emitter->hasFilterListeners($name)) {
-            $isResultSet = $data instanceof ResultSetInterface;
-            $resultSet = null;
-
-            if ($isResultSet) {
-                $resultSet = $data;
-                $data = $resultSet->toArray();
-            }
-
-            $data = static::$emitter->apply($name, $data, $attributes);
-
-            if ($isResultSet && $resultSet) {
-                $data = new \ArrayObject($data);
-                $resultSet->initialize($data->getIterator());
-                $data = $resultSet;
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * Run before table update hooks and filters
+     * Run before table update hooks and filters.
      *
      * @param string $updateCollectionName
-     * @param array $updateData
+     * @param array  $updateData
      *
      * @return array|\ArrayObject
      */
@@ -1584,19 +1621,19 @@ class BaseTableGateway extends TableGateway
     {
         // Filters
         $updateData = $this->applyHook('item.update:before', $updateData, [
-            'collection_name' => $updateCollectionName
+            'collection_name' => $updateCollectionName,
         ]);
-        $updateData = $this->applyHook('item.update.' . $updateCollectionName . ':before', $updateData);
+        $updateData = $this->applyHook('item.update.'.$updateCollectionName.':before', $updateData);
 
         // Hooks
         $this->runHook('item.update:before', [$updateCollectionName, $updateData]);
-        $this->runHook('item.update.' . $updateCollectionName . ':before', [$updateData]);
+        $this->runHook('item.update.'.$updateCollectionName.':before', [$updateData]);
 
         return $updateData;
     }
 
     /**
-     * Run after table update hooks and filters
+     * Run after table update hooks and filters.
      *
      * @param string $updateTable
      * @param string $updateData
@@ -1605,63 +1642,12 @@ class BaseTableGateway extends TableGateway
     {
         $this->runHook('item.update', [$updateTable, $updateData]);
         $this->runHook('item.update:after', [$updateTable, $updateData]);
-        $this->runHook('item.update.' . $updateTable, [$updateData]);
-        $this->runHook('item.update.' . $updateTable . ':after', [$updateData]);
+        $this->runHook('item.update.'.$updateTable, [$updateData]);
+        $this->runHook('item.update.'.$updateTable.':after', [$updateData]);
     }
 
     /**
-     * Gets Directus settings (from DB)
-     *
-     * @param null|string $key
-     *
-     * @return mixed
-     */
-    public function getSettings($key = null)
-    {
-        $settings = [];
-
-        if (!static::$container) {
-            return $settings;
-        }
-
-        if ($key !== null) {
-            $settings = \Directus\get_directus_setting($key);
-        } else {
-            $settings = \Directus\get_kv_directus_settings();
-        }
-
-        return $settings;
-    }
-
-    /**
-     * Get the table statuses
-     *
-     * @return array
-     */
-    public function getAllStatuses()
-    {
-        $statuses = [];
-        $statusMapping = $this->getStatusMapping();
-
-        if ($statusMapping) {
-            $statuses = $statusMapping->getAllStatusesValue();
-        }
-
-        return $statuses;
-    }
-
-    /**
-     * Gets the table non-soft-delete statuses
-     *
-     * @return array
-     */
-    public function getNonSoftDeleteStatuses()
-    {
-        return $this->getStatuses('non-soft-delete');
-    }
-
-    /**
-     * Gets the table statuses with the given type
+     * Gets the table statuses with the given type.
      *
      * @param $type
      *
@@ -1676,6 +1662,7 @@ class BaseTableGateway extends TableGateway
             switch ($type) {
                 case 'non-soft-delete':
                     $statuses = $statusMapping->getNonSoftDeleteStatusesValue();
+
                     break;
             }
         }
@@ -1684,12 +1671,12 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Gets the collection status mapping
-     *
-     * @return StatusMapping|null
+     * Gets the collection status mapping.
      *
      * @throws CollectionHasNotStatusInterfaceException
      * @throws Exception
+     *
+     * @return null|StatusMapping
      */
     protected function getStatusMapping()
     {
@@ -1712,9 +1699,7 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Validates a status mapping against the field type
-     *
-     * @param StatusMapping $statusMapping
+     * Validates a status mapping against the field type.
      *
      * @throws CollectionHasNotStatusInterfaceException
      * @throws StatusMappingEmptyException
@@ -1737,16 +1722,14 @@ class BaseTableGateway extends TableGateway
         }
 
         foreach ($statusMapping as $status) {
-            if (!call_user_func('is_' . $type, $status->getValue())) {
+            if (!\call_user_func('is_'.$type, $status->getValue())) {
                 throw new StatusMappingWrongValueTypeException($type, $statusField->getName(), $this->table);
             }
         }
     }
 
     /**
-     * Validates a record array
-     *
-     * @param array $record
+     * Validates a record array.
      *
      * @throws SuppliedArrayAsColumnValue
      */
@@ -1758,7 +1741,7 @@ class BaseTableGateway extends TableGateway
             $field = $collectionObject->getField($columnName);
 
             if (
-                ($field && is_array($columnValue)
+                ($field && \is_array($columnValue)
                     && (!DataTypes::isJson($field->getType())
                         && !DataTypes::isArray($field->getType())
                         // The owner of the alias should handle it
@@ -1774,7 +1757,7 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * Checks whether or not null should be sorted last
+     * Checks whether or not null should be sorted last.
      *
      * @return bool
      */
@@ -1788,6 +1771,6 @@ class BaseTableGateway extends TableGateway
      */
     protected function shouldUseFilter()
     {
-        return !is_array($this->options) || ArrayUtils::get($this->options, 'filter', true) !== false;
+        return !\is_array($this->options) || false !== ArrayUtils::get($this->options, 'filter', true);
     }
 }

@@ -10,7 +10,7 @@ class UnknownProjectException extends ErrorException
 
     public function __construct($project, $previous = null)
     {
-        $message = "Unknown project: ${project}";
+        $message = "Unknown project: {$project}";
 
         parent::__construct($message, static::ERROR_CODE, $previous);
     }

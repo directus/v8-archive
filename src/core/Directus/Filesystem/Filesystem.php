@@ -30,13 +30,13 @@ class Filesystem
     }
 
     /**
-     * Reads and returns data from the given location
+     * Reads and returns data from the given location.
      *
      * @param $location
      *
-     * @return bool|false|string
-     *
      * @throws \Exception
+     *
+     * @return bool|false|string
      */
     public function read($location)
     {
@@ -44,7 +44,7 @@ class Filesystem
     }
 
     /**
-     * Writes data to th given location
+     * Writes data to th given location.
      *
      * @param string $location
      * @param $data
@@ -56,17 +56,17 @@ class Filesystem
             throw new ForbiddenException(sprintf('No permission to write: %s', $location));
         };
 
-        if ($replace === true && $this->exists($location)) {
+        if (true === $replace && $this->exists($location)) {
             $this->getAdapter()->delete($location);
         }
 
         try {
-            if (is_object($data)) { // Uploaded file is in resource format. Used when file uploaded in multipart form data.
-                $handle = fopen($data->file, 'rb');
+            if (\is_object($data)) { // Uploaded file is in resource format. Used when file uploaded in multipart form data.
+                $handle = fopen($data->file, 'r');
                 if (!$this->getAdapter()->writeStream($location, $handle)) {
                     $throwException();
                 }
-                if (is_resource($handle)) {
+                if (\is_resource($handle)) {
                     fclose($handle);
                 }
             } else { // Uploaded file is base64 format. Used when file uploaded as base64.
@@ -80,7 +80,7 @@ class Filesystem
     }
 
     /**
-     * Get the filesystem adapter (flysystem object)
+     * Get the filesystem adapter (flysystem object).
      *
      * @return FlysystemInterface
      */
@@ -90,9 +90,10 @@ class Filesystem
     }
 
     /**
-     * Get Filesystem adapter path
+     * Get Filesystem adapter path.
      *
      * @param string $path
+     *
      * @return string
      */
     public function getPath($path = '')

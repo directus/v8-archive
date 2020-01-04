@@ -3,7 +3,7 @@
 namespace Directus\Config\Schema;
 
 /**
- * Value node
+ * Value node.
  */
 interface Types
 {

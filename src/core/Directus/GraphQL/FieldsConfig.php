@@ -2,10 +2,9 @@
 
 namespace Directus\GraphQL;
 
-use Directus\GraphQL\Types;
 use Directus\Application\Application;
-use Directus\Services\TablesService;
 use Directus\Services\RelationsService;
+use Directus\Services\TablesService;
 
 class FieldsConfig
 {
@@ -14,6 +13,7 @@ class FieldsConfig
     private $service;
     private $collectionData;
     private $collectionFields;
+
     public function __construct($collection)
     {
         $this->container = Application::getInstance()->getContainer();
@@ -30,70 +30,85 @@ class FieldsConfig
         $fields = [];
 
         foreach ($this->collectionFields as $k => $v) {
-
             switch (strtolower($v['type'])) {
                 case 'array':
                     $fields[$v['field']] = Types::listOf(Types::string());
+
                     break;
                 case 'boolean':
                     $fields[$v['field']] = Types::boolean();
+
                     break;
                 case 'datetime':
                 case 'datetime_created':
                 case 'datetime_updated':
                     $fields[$v['field']] = Types::datetime();
+
                     break;
                 case 'date':
                     $fields[$v['field']] = Types::date();
+
                     break;
                 case 'file':
                     $fields[$v['field']] = Types::directusFile();
+
                     break;
                 case 'integer':
                     $fields[$v['field']] = Types::int();
                     if ($v['primary_key']) {
                         $fields[$v['field']] = Types::id();
                     }
+
                     break;
                 case 'decimal':
                     $fields[$v['field']] = Types::float();
+
                     break;
                 case 'json':
                     $fields[$v['field']] = Types::json();
+
                     break;
                 case 'm2o':
                     $relation = $this->getRelation('m2o', $v['collection'], $v['field']);
                     $fields[$v['field']] = Types::userCollection($relation['collection_one']);
+
                     break;
                 case 'o2m':
                     $relation = $this->getRelation('o2m', $v['collection'], $v['field']);
                     $temp = [];
                     $temp['type'] = Types::listOf(Types::userCollection($relation['collection_one']));
                      $temp['resolve'] = function ($value, $args, $context, $info) use ($relation) {
-                        $data = [];
-                        foreach ($value[$info->fieldName] as  $v) {
-                            $data[] = $v[$relation['field_many']];
-                        }
-                        return $data;
-                    };
+                         $data = [];
+                         foreach ($value[$info->fieldName] as  $v) {
+                             $data[] = $v[$relation['field_many']];
+                         }
+
+                         return $data;
+                     };
                     $fields[$v['field']] = $temp;
+
                     break;
                 case 'sort':
                     $fields[$v['field']] = Types::int();
+
                     break;
                 case 'status':
                     $fields[$v['field']] = Types::string();
+
                     break;
                 case 'time':
                     $fields[$v['field']] = Types::time();
+
                     break;
                 case 'translation':
                     $relation = $this->getRelation('translation', $v['collection'], $v['field']);
                     $fields[$v['field']] = Types::listOf(Types::userCollection($relation['collection_many']));
+
                     break;
                 case 'user_created':
                 case 'user_updated':
                     $fields[$v['field']] = Types::directusUser();
+
                     break;
                 default:
                     $fields[$v['field']] = Types::string();
@@ -102,6 +117,7 @@ class FieldsConfig
                 $fields[$v['field']] = Types::NonNull($fields[$v['field']]);
             }
         }
+
         return $fields;
     }
 
@@ -110,80 +126,85 @@ class FieldsConfig
         $filters = [];
 
         foreach ($this->collectionFields as $k => $v) {
-
             switch (strtolower($v['type'])) {
                 case 'boolean':
-                    $filters[$v['field'] . '_eq'] = Types::boolean();
+                    $filters[$v['field'].'_eq'] = Types::boolean();
+
                     break;
                 case 'datetime':
                 case 'datetime_created':
                 case 'datetime_updated':
-                    $filters[$v['field'] . '_eq'] = Types::datetime();
-                    $filters[$v['field'] . '_neq'] = Types::datetime();
-                    $filters[$v['field'] . '_lt'] = Types::datetime();
-                    $filters[$v['field'] . '_lte'] = Types::datetime();
-                    $filters[$v['field'] . '_gt'] = Types::datetime();
-                    $filters[$v['field'] . '_gte'] = Types::datetime();
-                    $filters[$v['field'] . '_in'] = Types::datetime();
-                    $filters[$v['field'] . '_nin'] = Types::datetime();
-                    $filters[$v['field'] . '_between'] = Types::string();
-                    $filters[$v['field'] . '_nbetween'] = Types::string();
+                    $filters[$v['field'].'_eq'] = Types::datetime();
+                    $filters[$v['field'].'_neq'] = Types::datetime();
+                    $filters[$v['field'].'_lt'] = Types::datetime();
+                    $filters[$v['field'].'_lte'] = Types::datetime();
+                    $filters[$v['field'].'_gt'] = Types::datetime();
+                    $filters[$v['field'].'_gte'] = Types::datetime();
+                    $filters[$v['field'].'_in'] = Types::datetime();
+                    $filters[$v['field'].'_nin'] = Types::datetime();
+                    $filters[$v['field'].'_between'] = Types::string();
+                    $filters[$v['field'].'_nbetween'] = Types::string();
+
                     break;
                 case 'integer':
-                    $filters[$v['field'] . '_eq'] = Types::int();
-                    $filters[$v['field'] . '_neq'] = Types::int();
-                    $filters[$v['field'] . '_lt'] = Types::int();
-                    $filters[$v['field'] . '_lte'] = Types::int();
-                    $filters[$v['field'] . '_gt'] = Types::int();
-                    $filters[$v['field'] . '_gte'] = Types::int();
-                    $filters[$v['field'] . '_in'] = Types::string();
-                    $filters[$v['field'] . '_nin'] = Types::string();
-                    $filters[$v['field'] . '_between'] = Types::string();
-                    $filters[$v['field'] . '_nbetween'] = Types::string();
+                    $filters[$v['field'].'_eq'] = Types::int();
+                    $filters[$v['field'].'_neq'] = Types::int();
+                    $filters[$v['field'].'_lt'] = Types::int();
+                    $filters[$v['field'].'_lte'] = Types::int();
+                    $filters[$v['field'].'_gt'] = Types::int();
+                    $filters[$v['field'].'_gte'] = Types::int();
+                    $filters[$v['field'].'_in'] = Types::string();
+                    $filters[$v['field'].'_nin'] = Types::string();
+                    $filters[$v['field'].'_between'] = Types::string();
+                    $filters[$v['field'].'_nbetween'] = Types::string();
+
                     break;
                 case 'decimal':
-                    $filters[$v['field'] . '_eq'] = Types::float();
-                    $filters[$v['field'] . '_neq'] = Types::float();
-                    $filters[$v['field'] . '_lt'] = Types::float();
-                    $filters[$v['field'] . '_lte'] = Types::float();
-                    $filters[$v['field'] . '_gt'] = Types::float();
-                    $filters[$v['field'] . '_gte'] = Types::float();
-                    $filters[$v['field'] . '_in'] = Types::string();
-                    $filters[$v['field'] . '_nin'] = Types::string();
-                    $filters[$v['field'] . '_between'] = Types::string();
-                    $filters[$v['field'] . '_nbetween'] = Types::string();
+                    $filters[$v['field'].'_eq'] = Types::float();
+                    $filters[$v['field'].'_neq'] = Types::float();
+                    $filters[$v['field'].'_lt'] = Types::float();
+                    $filters[$v['field'].'_lte'] = Types::float();
+                    $filters[$v['field'].'_gt'] = Types::float();
+                    $filters[$v['field'].'_gte'] = Types::float();
+                    $filters[$v['field'].'_in'] = Types::string();
+                    $filters[$v['field'].'_nin'] = Types::string();
+                    $filters[$v['field'].'_between'] = Types::string();
+                    $filters[$v['field'].'_nbetween'] = Types::string();
+
                     break;
                 case 'time':
-                    $filters[$v['field'] . '_eq'] = Types::string();
-                    $filters[$v['field'] . '_neq'] = Types::string();
-                    $filters[$v['field'] . '_lt'] = Types::string();
-                    $filters[$v['field'] . '_lte'] = Types::string();
-                    $filters[$v['field'] . '_gt'] = Types::string();
-                    $filters[$v['field'] . '_gte'] = Types::string();
-                    $filters[$v['field'] . '_in'] = Types::string();
-                    $filters[$v['field'] . '_nin'] = Types::string();
-                    $filters[$v['field'] . '_between'] = Types::string();
-                    $filters[$v['field'] . '_nbetween'] = Types::string();
+                    $filters[$v['field'].'_eq'] = Types::string();
+                    $filters[$v['field'].'_neq'] = Types::string();
+                    $filters[$v['field'].'_lt'] = Types::string();
+                    $filters[$v['field'].'_lte'] = Types::string();
+                    $filters[$v['field'].'_gt'] = Types::string();
+                    $filters[$v['field'].'_gte'] = Types::string();
+                    $filters[$v['field'].'_in'] = Types::string();
+                    $filters[$v['field'].'_nin'] = Types::string();
+                    $filters[$v['field'].'_between'] = Types::string();
+                    $filters[$v['field'].'_nbetween'] = Types::string();
+
                     break;
                 case 'status':
-                    $filters[$v['field'] . '_eq'] = Types::string();
-                    $filters[$v['field'] . '_neq'] = Types::string();
-                    $filters[$v['field'] . '_in'] = Types::string();
-                    $filters[$v['field'] . '_nin'] = Types::string();
+                    $filters[$v['field'].'_eq'] = Types::string();
+                    $filters[$v['field'].'_neq'] = Types::string();
+                    $filters[$v['field'].'_in'] = Types::string();
+                    $filters[$v['field'].'_nin'] = Types::string();
+
                     break;
                 case 'string':
-                    $filters[$v['field'] . '_eq'] = Types::string();
-                    $filters[$v['field'] . '_neq'] = Types::string();
-                    $filters[$v['field'] . '_contains'] = Types::string();
-                    $filters[$v['field'] . '_ncontains'] = Types::string();
-                    $filters[$v['field'] . '_rlike'] = Types::string();
-                    $filters[$v['field'] . '_nrlike'] = Types::string();
-                    $filters[$v['field'] . '_empty'] = Types::string();
-                    $filters[$v['field'] . '_nempty'] = Types::string();
-                    $filters[$v['field'] . '_null'] = Types::string();
-                    $filters[$v['field'] . '_nnull'] = Types::string();
-                    break;
+                    $filters[$v['field'].'_eq'] = Types::string();
+                    $filters[$v['field'].'_neq'] = Types::string();
+                    $filters[$v['field'].'_contains'] = Types::string();
+                    $filters[$v['field'].'_ncontains'] = Types::string();
+                    $filters[$v['field'].'_rlike'] = Types::string();
+                    $filters[$v['field'].'_nrlike'] = Types::string();
+                    $filters[$v['field'].'_empty'] = Types::string();
+                    $filters[$v['field'].'_nempty'] = Types::string();
+                    $filters[$v['field'].'_null'] = Types::string();
+                    $filters[$v['field'].'_nnull'] = Types::string();
 
+                    break;
                 default:
                     /* As the _has and _all not working properly
                     *  https://github.com/directus/api/issues/576
@@ -208,22 +229,23 @@ class FieldsConfig
         switch ($type) {
             case 'm2o':
                 foreach ($relationsData['data'] as $k => $v) {
-                    if ($v['collection_many'] == $collection && $v['field_many'] == $field) {
+                    if ($v['collection_many'] === $collection && $v['field_many'] === $field) {
                         $relation = $v;
+
                         break;
                     }
                 }
+
                 break;
             case 'o2m':
-                /**
-                 * TODO :: Need to rewrite the code for better readiablity.
-                 */
+                // TODO :: Need to rewrite the code for better readiablity.
                 $firstRelation;
 
                 //1. Find the collection_many
                 foreach ($relationsData['data'] as $k => $v) {
-                    if ($v['collection_one'] == $collection && $v['field_one'] == $field) {
+                    if ($v['collection_one'] === $collection && $v['field_one'] === $field) {
                         $firstRelation = $v;
+
                         break;
                     }
                 }
@@ -232,24 +254,27 @@ class FieldsConfig
 
                 //2. Find the 2nd collection_one
                 foreach ($relationsData['data'] as $k => $v) {
-                    if ($v['collection_many'] == $collectionMany && $v['id'] != $collection1Id) {
+                    if ($v['collection_many'] === $collectionMany && $v['id'] !== $collection1Id) {
                         $relation = $v;
+
                         break;
                     }
                 }
 
-                if (count($relation) == 0) {
+                if (0 === \count($relation)) {
                     $relation = $firstRelation;
                 }
 
                 break;
             case 'translation':
                 foreach ($relationsData['data'] as $k => $v) {
-                    if ($v['collection_one'] == $collection && $v['field_one'] == $field) {
+                    if ($v['collection_one'] === $collection && $v['field_one'] === $field) {
                         $relation = $v;
+
                         break;
                     }
                 }
+
                 break;
         }
 

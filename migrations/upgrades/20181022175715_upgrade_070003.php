@@ -18,9 +18,9 @@ class Upgrade070003 extends AbstractMigration
                 'America/Phoenix' => 'Phoenix (MST)',
                 'America/Los_Angeles' => 'Los Angeles (Pacific)',
                 'America/Anchorage' => 'Anchorage (Alaska)',
-                'Pacific/Honolulu' => 'Honolulu (Hawaii)'
+                'Pacific/Honolulu' => 'Honolulu (Hawaii)',
             ],
-            'placeholder' => 'Choose a timezone...'
+            'placeholder' => 'Choose a timezone...',
         ]);
 
         $this->execute(\Directus\phinx_update(
@@ -48,7 +48,7 @@ class Upgrade070003 extends AbstractMigration
             ],
             [
                 'collection' => 'directus_users',
-                'field' => 'roles'
+                'field' => 'roles',
             ]
         ));
 
@@ -63,7 +63,7 @@ class Upgrade070003 extends AbstractMigration
             ],
             [
                 'collection' => 'directus_users',
-                'field' => 'locale_options'
+                'field' => 'locale_options',
             ]
         ));
 
@@ -78,7 +78,7 @@ class Upgrade070003 extends AbstractMigration
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'logo'
+                'field' => 'logo',
             ]
         ));
 
@@ -93,7 +93,7 @@ class Upgrade070003 extends AbstractMigration
             ],
             [
                 'collection' => 'directus_user_roles',
-                'field' => 'user_id'
+                'field' => 'user_id',
             ]
         ));
 
@@ -108,7 +108,7 @@ class Upgrade070003 extends AbstractMigration
             ],
             [
                 'collection' => 'directus_user_roles',
-                'field' => 'role_id'
+                'field' => 'role_id',
             ]
         ));
 
@@ -123,7 +123,7 @@ class Upgrade070003 extends AbstractMigration
             ],
             [
                 'collection' => 'directus_users',
-                'field' => 'password'
+                'field' => 'password',
             ]
         ));
 
@@ -151,7 +151,7 @@ class Upgrade070003 extends AbstractMigration
                 ],
                 [
                     'collection' => 'directus_users',
-                    'field' => $field
+                    'field' => $field,
                 ]
             ));
         }

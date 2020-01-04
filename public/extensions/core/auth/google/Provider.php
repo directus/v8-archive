@@ -10,31 +10,31 @@ class Provider extends TwoSocialProvider
     /**
      * @var Google
      */
-    protected $provider = null;
+    protected $provider;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getScopes()
     {
         return [
-            'email'
+            'email',
         ];
     }
 
     /**
-     * Creates the Google provider oAuth client
+     * Creates the Google provider oAuth client.
      *
      * @return Google
      */
     protected function createProvider()
     {
         $this->provider = new Google([
-            'clientId'          => $this->config->get('client_id'),
-            'clientSecret'      => $this->config->get('client_secret'),
-            'redirectUri'       => $this->getRedirectUrl(),
-            'hostedDomain'      => $this->config->get('hosted_domain'),
-            'useOidcMode'       => (bool) $this->config->get('use_oidc_mode'),
+            'clientId' => $this->config->get('client_id'),
+            'clientSecret' => $this->config->get('client_secret'),
+            'redirectUri' => $this->getRedirectUrl(),
+            'hostedDomain' => $this->config->get('hosted_domain'),
+            'useOidcMode' => (bool) $this->config->get('use_oidc_mode'),
         ]);
 
         return $this->provider;

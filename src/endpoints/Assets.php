@@ -2,9 +2,9 @@
 
 namespace Directus\Api\Routes;
 
-use Directus\Application\Route;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
+use Directus\Application\Route;
 use Directus\Services\AssetService;
 
 class Assets extends Route
@@ -21,15 +21,15 @@ class Assets extends Route
 
         if (isset($asset['file']) && $asset['mimeType']) {
             $response->setHeader('Content-type', $asset['mimeType']);
-            $response->setHeader('Content-Disposition', 'filename="' . $asset['filename_download'] . '"');
+            $response->setHeader('Content-Disposition', 'filename="'.$asset['filename_download'].'"');
             $response->setHeader('Last-Modified', $asset['last_modified']);
 
             $body = $response->getBody();
             $body->write($asset['file']);
 
             return $response;
-        } else {
-            return $response->withStatus(404);
         }
+
+        return $response->withStatus(404);
     }
 }

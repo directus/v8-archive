@@ -10,7 +10,7 @@ class RevisionInvalidDeltaException extends RuntimeException
 
     public function __construct($id = null)
     {
-        if ($id !== null) {
+        if (null !== $id) {
             $message = sprintf('Revision with Id "%s" has an invalid delta', $id);
         } else {
             $message = 'Revision has an invalid delta';

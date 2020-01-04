@@ -6,5 +6,4 @@ use Directus\Exception\ForbiddenException;
 
 abstract class PermissionException extends ForbiddenException
 {
-
 }

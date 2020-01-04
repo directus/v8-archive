@@ -5,7 +5,7 @@ use Phinx\Migration\AbstractMigration;
 class CreateUsersTable extends AbstractMigration
 {
     /**
-     * Create Users Table
+     * Create Users Table.
      */
     public function change()
     {
@@ -13,37 +13,37 @@ class CreateUsersTable extends AbstractMigration
 
         $table->addColumn('status', 'string', [
             'limit' => 16,
-            'default' => \Directus\Database\TableGateway\DirectusUsersTableGateway::STATUS_DRAFT
+            'default' => \Directus\Database\TableGateway\DirectusUsersTableGateway::STATUS_DRAFT,
         ]);
         $table->addColumn('role', 'integer', [
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('first_name', 'string', [
             'limit' => 50,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('last_name', 'string', [
             'limit' => 50,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('email', 'string', [
             'limit' => 128,
-            'null' => false
+            'null' => false,
         ]);
         $table->addColumn('password', 'string', [
             'limit' => 255,
             'encoding' => 'utf8',
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('token', 'string', [
             'limit' => 255,
             'encoding' => 'utf8',
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('timezone', 'string', [
             'limit' => 32,
@@ -52,72 +52,72 @@ class CreateUsersTable extends AbstractMigration
         $table->addColumn('locale', 'string', [
             'limit' => 8,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('locale_options', 'text', [
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('avatar', 'integer', [
             'signed' => false,
             'limit' => 11,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('company', 'string', [
             'limit' => 191,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('title', 'string', [
             'limit' => 191,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('email_notifications', 'integer', [
             'limit' => 1,
-            'default' => 1
+            'default' => 1,
         ]);
         $table->addColumn('last_access_on', 'datetime', [
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('last_page', 'string', [
             'limit' => 192,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('external_id', 'string', [
             'limit' => 255,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('theme', 'string', [
             'limit' => 100,
             'encoding' => 'utf8',
             'null' => true,
-            'default' => 'auto'
+            'default' => 'auto',
         ]);
         $table->addColumn('2fa_secret', 'string', [
             'limit' => 100,
             'encoding' => 'utf8',
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
 
         $table->addIndex('email', [
             'unique' => true,
-            'name' => 'idx_users_email'
+            'name' => 'idx_users_email',
         ]);
 
         $table->addIndex('token', [
             'unique' => true,
-            'name' => 'idx_users_token'
+            'name' => 'idx_users_token',
         ]);
 
         $table->addIndex('external_id', [
             'unique' => true,
-            'name' => 'idx_users_external_id'
+            'name' => 'idx_users_external_id',
         ]);
 
         $table->create();
@@ -131,7 +131,7 @@ class CreateUsersTable extends AbstractMigration
                 'locked' => 1,
                 'required' => 1,
                 'hidden_detail' => 1,
-                'sort' => 1
+                'sort' => 1,
             ],
             [
                 'collection' => 'directus_users',
@@ -179,12 +179,12 @@ class CreateUsersTable extends AbstractMigration
                             'listing_subdued' => false,
                             'listing_badge' => true,
                             'soft_delete' => true,
-                        ]
-                    ]
+                        ],
+                    ],
                 ]),
                 'locked' => 1,
                 'sort' => 2,
-                'required' => 1
+                'required' => 1,
             ],
             [
                 'collection' => 'directus_users',
@@ -192,12 +192,12 @@ class CreateUsersTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'iconRight' => 'account_circle'
+                    'iconRight' => 'account_circle',
                 ]),
                 'locked' => 1,
                 'required' => 1,
                 'sort' => 3,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_users',
@@ -205,12 +205,12 @@ class CreateUsersTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'iconRight' => 'account_circle'
+                    'iconRight' => 'account_circle',
                 ]),
                 'locked' => 1,
                 'required' => 1,
                 'sort' => 4,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_users',
@@ -218,13 +218,13 @@ class CreateUsersTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'iconRight' => 'alternate_email'
+                    'iconRight' => 'alternate_email',
                 ]),
                 'locked' => 1,
                 'validation' => '$email',
                 'required' => 1,
                 'sort' => 5,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_users',
@@ -233,7 +233,7 @@ class CreateUsersTable extends AbstractMigration
                 'interface' => 'toggle',
                 'locked' => 1,
                 'sort' => 6,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_users',
@@ -243,7 +243,7 @@ class CreateUsersTable extends AbstractMigration
                 'locked' => 1,
                 'required' => 1,
                 'sort' => 7,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_users',
@@ -253,7 +253,7 @@ class CreateUsersTable extends AbstractMigration
                 'locked' => 1,
                 'sort' => 8,
                 'width' => 'half',
-                'required' => 1
+                'required' => 1,
             ],
             [
                 'collection' => 'directus_users',
@@ -261,10 +261,10 @@ class CreateUsersTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'iconRight' => 'location_city'
+                    'iconRight' => 'location_city',
                 ]),
                 'sort' => 9,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_users',
@@ -272,10 +272,10 @@ class CreateUsersTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'iconRight' => 'text_fields'
+                    'iconRight' => 'text_fields',
                 ]),
                 'sort' => 10,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_users',
@@ -428,14 +428,14 @@ class CreateUsersTable extends AbstractMigration
                         'Asia/New_Caledonia' => '(UTC+12:00) New Caledonia',
                         'Asia/Solomon_Is' => '(UTC+12:00) Solomon Is.',
                         'Pacific/Wellington' => '(UTC+12:00) Wellington',
-                        'Pacific/Tongatapu' => '(UTC+13:00) Nuku\'alofa'
+                        'Pacific/Tongatapu' => '(UTC+13:00) Nuku\'alofa',
                     ],
-                    'placeholder' => 'Choose a timezone...'
+                    'placeholder' => 'Choose a timezone...',
                 ]),
                 'locked' => 1,
                 'sort' => 11,
                 'width' => 'half',
-                'required' => 1
+                'required' => 1,
             ],
             [
                 'collection' => 'directus_users',
@@ -443,12 +443,12 @@ class CreateUsersTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'language',
                 'options' => json_encode([
-                    'limit' => true
+                    'limit' => true,
                 ]),
                 'locked' => 1,
                 'sort' => 12,
                 'width' => 'half',
-                'required' => 0
+                'required' => 0,
             ],
             [
                 'collection' => 'directus_users',
@@ -456,7 +456,7 @@ class CreateUsersTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_FILE,
                 'interface' => 'file',
                 'locked' => 1,
-                'sort' => 13
+                'sort' => 13,
             ],
             [
                 'collection' => 'directus_users',
@@ -468,12 +468,12 @@ class CreateUsersTable extends AbstractMigration
                     'choices' => [
                         'auto' => 'Auto',
                         'light' => 'Light',
-                        'dark' => 'Dark'
-                    ]
+                        'dark' => 'Dark',
+                    ],
                 ]),
                 'locked' => 1,
                 'readonly' => 0,
-                'sort' => 14
+                'sort' => 14,
             ],
             [
                 'collection' => 'directus_users',
@@ -482,7 +482,7 @@ class CreateUsersTable extends AbstractMigration
                 'interface' => '2fa-secret',
                 'locked' => 1,
                 'readonly' => 1,
-                'sort' => 15
+                'sort' => 15,
             ],
             [
                 'collection' => 'directus_users',
@@ -492,7 +492,7 @@ class CreateUsersTable extends AbstractMigration
                 'locked' => 1,
                 'hidden_browse' => 1,
                 'hidden_detail' => 1,
-                'sort' => 16
+                'sort' => 16,
             ],
             [
                 'collection' => 'directus_users',
@@ -502,7 +502,7 @@ class CreateUsersTable extends AbstractMigration
                 'locked' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 17
+                'sort' => 17,
             ],
             [
                 'collection' => 'directus_users',
@@ -512,7 +512,7 @@ class CreateUsersTable extends AbstractMigration
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1,
-                'sort' => 18
+                'sort' => 18,
             ],
             [
                 'collection' => 'directus_users',
@@ -523,7 +523,7 @@ class CreateUsersTable extends AbstractMigration
                 'readonly' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 19
+                'sort' => 19,
             ],
             [
                 'collection' => 'directus_users',
@@ -533,20 +533,22 @@ class CreateUsersTable extends AbstractMigration
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'hidden_browse' => 1,
             ],
         ];
 
-        foreach($data as $value){
-            if(!$this->checkFieldExist($value['collection'], $value['field'])){
+        foreach ($data as $value) {
+            if (!$this->checkFieldExist($value['collection'], $value['field'])) {
                 $fileds = $this->table('directus_fields');
                 $fileds->insert($value)->save();
             }
         }
     }
 
-    public function checkFieldExist($collection,$field){
+    public function checkFieldExist($collection, $field)
+    {
         $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
+
         return $this->query($checkSql)->fetch();
     }
 }

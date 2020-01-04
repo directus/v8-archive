@@ -26,11 +26,10 @@ class TransportManager
     protected $config = [];
 
     /**
-     * Register a mailer with a name
+     * Register a mailer with a name.
      *
      * @param string $name
      * @param string $transport
-     * @param array $config
      */
     public function register($name, $transport, array $config = [])
     {
@@ -53,9 +52,9 @@ class TransportManager
     }
 
     /**
-     * Gets the first or "default" adapter
+     * Gets the first or "default" adapter.
      *
-     * @return AbstractTransport|null
+     * @return null|AbstractTransport
      */
     public function getDefault()
     {
@@ -63,7 +62,7 @@ class TransportManager
     }
 
     /**
-     * Returns a transport configuration based on its name
+     * Returns a transport configuration based on its name.
      *
      * @param string $name
      *
@@ -75,7 +74,7 @@ class TransportManager
     }
 
     /**
-     * Returns the default transport configuration
+     * Returns the default transport configuration.
      *
      * @return array
      */
@@ -85,16 +84,16 @@ class TransportManager
     }
 
     /**
-     * Returns the default transport key
+     * Returns the default transport key.
      *
      * @return null|string
      */
     protected function getDefaultKey()
     {
         $key = null;
-        if (array_key_exists('default', $this->transports)) {
+        if (\array_key_exists('default', $this->transports)) {
             $key = 'default';
-        } else if (count($this->transports) > 0) {
+        } elseif (\count($this->transports) > 0) {
             reset($this->transports);
             $key = key($this->transports);
         }
@@ -103,34 +102,33 @@ class TransportManager
     }
 
     /**
-     * Creates a instance of a transport registered with the given name
+     * Creates a instance of a transport registered with the given name.
      *
      * @param string $name
-     * @param array $config
-     *
-     * @return AbstractTransport
      *
      * @throws InvalidTransportException
      * @throws TransportNotFoundException
+     *
+     * @return AbstractTransport
      */
     protected function build($name, array $config = [])
     {
-        if (!array_key_exists($name, $this->transports)) {
+        if (!\array_key_exists($name, $this->transports)) {
             throw new TransportNotFoundException($name);
         }
 
         $transport = $this->transports[$name];
-        if (!is_string($transport) && !is_object($transport) && !is_callable($transport)) {
+        if (!\is_string($transport) && !\is_object($transport) && !\is_callable($transport)) {
             throw new InvalidTransportException($this->transports[$name]);
         }
 
-        if (is_string($transport) && !class_exists($transport)) {
+        if (\is_string($transport) && !class_exists($transport)) {
             throw new InvalidTransportException($this->transports[$name]);
         }
 
-        if (is_callable($transport)) {
-            $instance = call_user_func($transport);
-        } else if (is_string($transport)) {
+        if (\is_callable($transport)) {
+            $instance = \call_user_func($transport);
+        } elseif (\is_string($transport)) {
             $instance = new $transport($config);
         } else {
             $instance = $transport;
@@ -138,7 +136,7 @@ class TransportManager
 
         if (!($instance instanceof AbstractTransport)) {
             throw new RuntimeException(
-                sprintf('%s is not an instance of %s', gettype($instance), AbstractTransport::class)
+                sprintf('%s is not an instance of %s', \gettype($instance), AbstractTransport::class)
             );
         }
 

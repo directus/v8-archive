@@ -23,7 +23,7 @@ class Mailer
     }
 
     /**
-     * Creates a new message instance
+     * Creates a new message instance.
      *
      * @return Message
      */
@@ -64,11 +64,11 @@ class Mailer
         $message->setBody($content, $contentType);
 
         if ($callback) {
-            call_user_func($callback, $message);
+            \call_user_func($callback, $message);
         }
 
-        $transportId = get_class($transport);
-        if (!array_key_exists($transportId, $this->mailers)) {
+        $transportId = \get_class($transport);
+        if (!\array_key_exists($transportId, $this->mailers)) {
             $this->mailers[$transportId] = new \Swift_Mailer($transport->getSwiftTransport());
         }
 

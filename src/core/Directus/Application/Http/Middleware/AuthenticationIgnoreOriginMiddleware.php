@@ -16,6 +16,7 @@ class AuthenticationIgnoreOriginMiddleware extends AbstractMiddleware
         // all other endpoints (global endpoints) should be shared across all projects
         // all projects' users should be able to fetch the extensions information
         $request = $request->withAttribute('ignore_origin', true);
+
         return $next($request, $response);
     }
 }

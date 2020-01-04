@@ -2,7 +2,6 @@
 
 namespace Directus\Database\Schema\Object;
 
-use Directus\Util\ArrayUtils;
 use Directus\Database\SchemaService;
 
 class FieldRelationship extends AbstractObject
@@ -11,7 +10,7 @@ class FieldRelationship extends AbstractObject
     const MANY_TO_ONE = 'M2O';
 
     /**
-     * The field this relationship belongs to
+     * The field this relationship belongs to.
      *
      * @var Field
      */
@@ -21,7 +20,6 @@ class FieldRelationship extends AbstractObject
      * FieldRelationship constructor.
      *
      * @param Field $fromField - Parent field
-     * @param array $attributes
      */
     public function __construct(Field $fromField, array $attributes)
     {
@@ -33,7 +31,7 @@ class FieldRelationship extends AbstractObject
     }
 
     /**
-     * Gets the parent collection
+     * Gets the parent collection.
      *
      * @return string
      */
@@ -41,9 +39,9 @@ class FieldRelationship extends AbstractObject
     {
         return $this->attributes->get('collection_many');
     }
-    
+
     /**
-     * Gets the other collection of M2M relationship
+     * Gets the other collection of M2M relationship.
      *
      * @return string
      */
@@ -51,18 +49,18 @@ class FieldRelationship extends AbstractObject
     {
         $firstCollection = $this->attributes->get('collection_one');
         $junctionCollection = $this->attributes->get('collection_many');
-        
+
         //get alias fields of junction table
         $junctionTableSchema = SchemaService::getCollection($junctionCollection);
-        foreach ($junctionTableSchema->getFields() as $fieldColumnDetails) {            
-            if($fieldColumnDetails->hasRelationship() && $fieldColumnDetails->isManyToOne() && $fieldColumnDetails->getRelationship()->getFieldOne() == $firstCollection){
+        foreach ($junctionTableSchema->getFields() as $fieldColumnDetails) {
+            if ($fieldColumnDetails->hasRelationship() && $fieldColumnDetails->isManyToOne() && $fieldColumnDetails->getRelationship()->getFieldOne() === $firstCollection) {
                 return $fieldColumnDetails->getRelationship()->getCollectionOne();
             }
         }
     }
-    
+
     /**
-     * Get junction field relate to other collection
+     * Get junction field relate to other collection.
      *
      * @return string
      */
@@ -70,18 +68,18 @@ class FieldRelationship extends AbstractObject
     {
         $firstCollection = $this->attributes->get('collection_one');
         $junctionCollection = $this->attributes->get('collection_many');
-        
+
         //get alias fields of junction table
         $junctionTableSchema = SchemaService::getCollection($junctionCollection);
-        foreach ($junctionTableSchema->getFields() as $fieldColumnDetails) {            
-            if($fieldColumnDetails->hasRelationship() && $fieldColumnDetails->isManyToOne() && $fieldColumnDetails->getRelationship()->getFieldOne() == $firstCollection){
+        foreach ($junctionTableSchema->getFields() as $fieldColumnDetails) {
+            if ($fieldColumnDetails->hasRelationship() && $fieldColumnDetails->isManyToOne() && $fieldColumnDetails->getRelationship()->getFieldOne() === $firstCollection) {
                 return $fieldColumnDetails->getName();
             }
         }
     }
 
     /**
-     * Gets the parent field
+     * Gets the parent field.
      *
      * @return string
      */
@@ -101,19 +99,19 @@ class FieldRelationship extends AbstractObject
     }
 
     /**
-     * Checks whether the relationship has a valid type
+     * Checks whether the relationship has a valid type.
      *
      * @return bool
      */
     public function isValid()
     {
-        return $this->getType() !== null;
+        return null !== $this->getType();
     }
 
     /**
-     * Gets the relationship type
+     * Gets the relationship type.
      *
-     * @return string|null
+     * @return null|string
      */
     public function getType()
     {
@@ -121,7 +119,7 @@ class FieldRelationship extends AbstractObject
     }
 
     /**
-     * Checks whether the relatiopship is MANY TO ONE
+     * Checks whether the relatiopship is MANY TO ONE.
      *
      * @return bool
      */
@@ -131,7 +129,7 @@ class FieldRelationship extends AbstractObject
     }
 
     /**
-     * Checks whether the relatiopship is ONE TO MANY
+     * Checks whether the relatiopship is ONE TO MANY.
      *
      * @return bool
      */
@@ -141,7 +139,7 @@ class FieldRelationship extends AbstractObject
     }
 
     /**
-     * Guess the data type
+     * Guess the data type.
      *
      * @return null|string
      */
@@ -158,17 +156,17 @@ class FieldRelationship extends AbstractObject
         $isAlias = $this->fromField->isAlias();
 
         if (
-            !$isAlias                   &&
-            $this->getCollectionOne()   !== null &&
-            $this->getFieldMany()       === $fieldName &&
-            $this->getCollectionMany()  === $fieldCollectionName
+            !$isAlias &&
+            null !== $this->getCollectionOne() &&
+            $this->getFieldMany() === $fieldName &&
+            $this->getCollectionMany() === $fieldCollectionName
         ) {
             $type = static::MANY_TO_ONE;
-        } else if (
-            $isAlias                    &&
-            $this->getCollectionMany()  !== null &&
-            $this->getFieldOne()        === $fieldName &&
-            $this->getCollectionOne()   === $fieldCollectionName
+        } elseif (
+            $isAlias &&
+            null !== $this->getCollectionMany() &&
+            $this->getFieldOne() === $fieldName &&
+            $this->getCollectionOne() === $fieldCollectionName
         ) {
             $type = static::ONE_TO_MANY;
         }

@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 class Container extends \Pimple\Container implements ContainerInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function has($offset)
     {
@@ -16,7 +16,7 @@ class Container extends \Pimple\Container implements ContainerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function get($offset)
     {
@@ -28,7 +28,7 @@ class Container extends \Pimple\Container implements ContainerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function set($offset, $value)
     {

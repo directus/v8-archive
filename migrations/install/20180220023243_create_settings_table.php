@@ -5,7 +5,7 @@ use Phinx\Migration\AbstractMigration;
 class CreateSettingsTable extends AbstractMigration
 {
     /**
-     * Create Settings Table
+     * Create Settings Table.
      */
     public function change()
     {
@@ -13,17 +13,17 @@ class CreateSettingsTable extends AbstractMigration
 
         $table->addColumn('key', 'string', [
             'limit' => 64,
-            'null' => false
+            'null' => false,
         ]);
 
         $table->addColumn('value', 'text', [
             'default' => null,
-            'null' => true
+            'null' => true,
         ]);
 
         $table->addIndex(['key'], [
             'unique' => true,
-            'name' => 'idx_key'
+            'name' => 'idx_key',
         ]);
 
         $table->create();
@@ -35,13 +35,13 @@ class CreateSettingsTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'iconRight' => 'title'
+                    'iconRight' => 'title',
                 ]),
                 'locked' => 1,
                 'required' => 1,
                 'width' => 'half',
                 'note' => 'Logo in the top-left of the App (40x40)',
-                'sort' => 1
+                'sort' => 1,
             ],
             [
                 'collection' => 'directus_settings',
@@ -49,12 +49,12 @@ class CreateSettingsTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'iconRight' => 'link'
+                    'iconRight' => 'link',
                 ]),
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'External link for the App\'s top-left logo',
-                'sort' => 2
+                'sort' => 2,
             ],
             [
                 'collection' => 'directus_settings',
@@ -64,7 +64,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'A 40x40 brand logo, ideally a white SVG/PNG',
-                'sort' => 3
+                'sort' => 3,
             ],
             [
                 'collection' => 'directus_settings',
@@ -74,7 +74,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Color for login background and App\'s logo',
-                'sort' => 4
+                'sort' => 4,
             ],
             [
                 'collection' => 'directus_settings',
@@ -84,7 +84,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Centered image (eg: logo) for the login page',
-                'sort' => 5
+                'sort' => 5,
             ],
             [
                 'collection' => 'directus_settings',
@@ -94,7 +94,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Full-screen background for the login page',
-                'sort' => 6
+                'sort' => 6,
             ],
             [
                 'collection' => 'directus_settings',
@@ -104,7 +104,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'width' => 'full',
                 'note' => 'This value will be shown on the public pages of the app',
-                'sort' => 7
+                'sort' => 7,
             ],
             [
                 'collection' => 'directus_settings',
@@ -116,8 +116,8 @@ class CreateSettingsTable extends AbstractMigration
                 'note' => 'Default locale for Directus Users',
                 'sort' => 8,
                 'options' => json_encode([
-                    'limit' => true
-                ])
+                    'limit' => true,
+                ]),
             ],
             [
                 'collection' => 'directus_settings',
@@ -127,7 +127,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'width' => 'half',
                 'note' => '<a href="https://docs.directus.io/getting-started/concepts.html#telemetry" target="_blank">Learn More</a>',
-                'sort' => 9
+                'sort' => 9,
             ],
             [
                 'collection' => 'directus_settings',
@@ -137,12 +137,12 @@ class CreateSettingsTable extends AbstractMigration
                 'options' => json_encode([
                     'style' => 'large',
                     'title' => 'Data',
-                    'hr' => true
+                    'hr' => true,
                 ]),
                 'locked' => 1,
                 'width' => 'full',
                 'hidden_browse' => 1,
-                'sort' => 11
+                'sort' => 11,
             ],
             [
                 'collection' => 'directus_settings',
@@ -150,13 +150,13 @@ class CreateSettingsTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
                 'options' => json_encode([
-                    'iconRight' => 'keyboard_tab'
+                    'iconRight' => 'keyboard_tab',
                 ]),
                 'locked' => 1,
                 'required' => 1,
                 'width' => 'half',
                 'note' => 'Default item count in API and App responses',
-                'sort' => 12
+                'sort' => 12,
             ],
             [
                 'collection' => 'directus_settings',
@@ -166,7 +166,7 @@ class CreateSettingsTable extends AbstractMigration
                 'locked' => 1,
                 'note' => 'NULL values are sorted last',
                 'width' => 'half',
-                'sort' => 13
+                'sort' => 13,
             ],
             [
                 'collection' => 'directus_settings',
@@ -176,12 +176,12 @@ class CreateSettingsTable extends AbstractMigration
                 'options' => json_encode([
                     'style' => 'large',
                     'title' => 'Security',
-                    'hr' => true
+                    'hr' => true,
                 ]),
                 'locked' => 1,
                 'hidden_browse' => 1,
                 'width' => 'full',
-                'sort' => 20
+                'sort' => 20,
             ],
             [
                 'collection' => 'directus_settings',
@@ -189,13 +189,13 @@ class CreateSettingsTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
                 'options' => json_encode([
-                    'iconRight' => 'timer'
+                    'iconRight' => 'timer',
                 ]),
                 'locked' => 1,
                 'required' => 1,
                 'width' => 'half',
                 'note' => 'Minutes before idle users are signed out',
-                'sort' => 22
+                'sort' => 22,
             ],
             [
                 'collection' => 'directus_settings',
@@ -203,12 +203,12 @@ class CreateSettingsTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_INTEGER,
                 'interface' => 'numeric',
                 'options' => json_encode([
-                    'iconRight' => 'lock'
+                    'iconRight' => 'lock',
                 ]),
                 'locked' => 1,
                 'width' => 'half',
                 'note' => 'Failed login attempts before suspending users',
-                'sort' => 23
+                'sort' => 23,
             ],
             [
                 'collection' => 'directus_settings',
@@ -220,12 +220,12 @@ class CreateSettingsTable extends AbstractMigration
                     'choices' => [
                         '' => 'None',
                         '/^.{8,}$/' => 'Weak',
-                        '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong'
-                    ]
+                        '/(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{\';\'?>.<,])(?!.*\s).*$/' => 'Strong',
+                    ],
                 ]),
                 'sort' => 24,
                 'locked' => 1,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_settings',
@@ -235,12 +235,12 @@ class CreateSettingsTable extends AbstractMigration
                 'options' => json_encode([
                     'style' => 'large',
                     'title' => 'Files & Thumbnails',
-                    'hr' => true
+                    'hr' => true,
                 ]),
                 'locked' => 1,
                 'hidden_browse' => 1,
                 'width' => 'full',
-                'sort' => 30
+                'sort' => 30,
             ],
             [
                 'collection' => 'directus_settings',
@@ -254,9 +254,9 @@ class CreateSettingsTable extends AbstractMigration
                 'options' => json_encode([
                     'choices' => [
                         'uuid' => 'UUID (Obfuscated)',
-                        'file_name' => 'File Name (Readable)'
-                    ]
-                ])
+                        'file_name' => 'File Name (Readable)',
+                    ],
+                ]),
             ],
             [
                 'collection' => 'directus_settings',
@@ -265,11 +265,11 @@ class CreateSettingsTable extends AbstractMigration
                 'interface' => 'text-input',
                 'options' => json_encode([
                     'placeholder' => 'eg: 4MB',
-                    'iconRight' => 'storage'
+                    'iconRight' => 'storage',
                 ]),
                 'locked' => 1,
                 'width' => 'half',
-                'sort' => 32
+                'sort' => 32,
             ],
             [
                 'collection' => 'directus_settings',
@@ -277,11 +277,11 @@ class CreateSettingsTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
                 'options' => json_encode([
-                    'placeholder' => 'Enter a file mimetype then hit enter (eg: image/jpeg)'
+                    'placeholder' => 'Enter a file mimetype then hit enter (eg: image/jpeg)',
                 ]),
                 'locked' => 1,
                 'width' => 'full',
-                'sort' => 33
+                'sort' => 33,
             ],
             [
                 'collection' => 'directus_settings',
@@ -299,7 +299,7 @@ class CreateSettingsTable extends AbstractMigration
                             'interface' => 'slug',
                             'width' => 'half',
                             'type' => 'string',
-                            'required' => true
+                            'required' => true,
                         ],
                         [
                             'field' => 'fit',
@@ -309,24 +309,24 @@ class CreateSettingsTable extends AbstractMigration
                             'options' => [
                                 'choices' => [
                                     'crop' => 'Crop (forces exact size)',
-                                    'contain' => 'Contain (preserve aspect ratio)'
-                                ]
+                                    'contain' => 'Contain (preserve aspect ratio)',
+                                ],
                             ],
-                            'required' => true
+                            'required' => true,
                         ],
                         [
                             'field' => 'width',
                             'interface' => 'numeric',
                             'width' => 'half',
                             'type' => 'integer',
-                            'required' => true
+                            'required' => true,
                         ],
                         [
                             'field' => 'height',
                             'interface' => 'numeric',
                             'width' => 'half',
                             'type' => 'integer',
-                            'required' => true
+                            'required' => true,
                         ],
                         [
                             'field' => 'quality',
@@ -337,12 +337,12 @@ class CreateSettingsTable extends AbstractMigration
                             'options' => [
                                 'min' => 0,
                                 'max' => 100,
-                                'step' => 1
+                                'step' => 1,
                             ],
-                            'required' => true
-                        ]
-                    ]
-                ])
+                            'required' => true,
+                        ],
+                    ],
+                ]),
             ],
             [
                 'collection' => 'directus_settings',
@@ -353,7 +353,7 @@ class CreateSettingsTable extends AbstractMigration
                 'width' => 'half',
                 'hidden_browse' => 1,
                 'hidden_detail' => 1,
-                'sort' => 35
+                'sort' => 35,
             ],
             [
                 'collection' => 'directus_settings',
@@ -361,17 +361,17 @@ class CreateSettingsTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
                 'options' => json_encode([
-                    'iconRight' => 'videocam'
+                    'iconRight' => 'videocam',
                 ]),
                 'locked' => 1,
                 'width' => 'full',
                 'note' => 'Allows fetching more YouTube Embed info',
-                'sort' => 36
+                'sort' => 36,
             ],
         ];
 
-        foreach($data as $value){
-            if(!$this->checkFieldExist($value['collection'], $value['field'])){
+        foreach ($data as $value) {
+            if (!$this->checkFieldExist($value['collection'], $value['field'])) {
                 $fileds = $this->table('directus_fields');
                 $fileds->insert($value)->save();
             }
@@ -380,88 +380,88 @@ class CreateSettingsTable extends AbstractMigration
         // Insert into settings table
         $data = [
             [
-              'key' => 'project_url',
-              'value' => ''
+                'key' => 'project_url',
+                'value' => '',
             ],
             [
-              'key' => 'project_logo',
-              'value' => ''
+                'key' => 'project_logo',
+                'value' => '',
             ],
             [
-              'key' => 'project_color',
-              'value' => '#263238',
+                'key' => 'project_color',
+                'value' => '#263238',
             ],
             [
-              'key' => 'project_foreground',
-              'value' => '',
+                'key' => 'project_foreground',
+                'value' => '',
             ],
             [
-              'key' => 'project_background',
-              'value' => '',
+                'key' => 'project_background',
+                'value' => '',
             ],
             [
-              'key' => 'project_public_note',
-              'value' => '',
+                'key' => 'project_public_note',
+                'value' => '',
             ],
             [
-              'key' => 'default_locale',
-              'value' => 'en-US',
+                'key' => 'default_locale',
+                'value' => 'en-US',
             ],
             [
-              'key' => 'telemetry',
-              'value' => '1',
+                'key' => 'telemetry',
+                'value' => '1',
             ],
             [
-              'key' => 'default_limit',
-              'value' => '200'
+                'key' => 'default_limit',
+                'value' => '200',
             ],
             [
-              'key' => 'sort_null_last',
-              'value' => '1'
+                'key' => 'sort_null_last',
+                'value' => '1',
             ],
             [
-              'key' => 'password_policy',
-              'value' => ''
+                'key' => 'password_policy',
+                'value' => '',
             ],
             [
-              'key' => 'auto_sign_out',
-              'value' => '10080'
+                'key' => 'auto_sign_out',
+                'value' => '10080',
             ],
             [
-              'key' => 'login_attempts_allowed',
-              'value' => '10'
+                'key' => 'login_attempts_allowed',
+                'value' => '10',
             ],
             [
-              'key' => 'trusted_proxies',
-              'value' => ''
+                'key' => 'trusted_proxies',
+                'value' => '',
             ],
             [
-              'key' => 'file_max_size',
-              'value' => '100MB'
+                'key' => 'file_max_size',
+                'value' => '100MB',
             ],
             [
-              'key' => 'file_mimetype_whitelist',
-              'value' => ''
+                'key' => 'file_mimetype_whitelist',
+                'value' => '',
             ],
             [
                 'key' => 'file_naming',
-                'value' => 'uuid'
+                'value' => 'uuid',
             ],
             [
-              'key' => 'youtube_api_key',
-              'value' => ''
+                'key' => 'youtube_api_key',
+                'value' => '',
             ],
             [
                 'key' => 'asset_whitelist',
                 'value' => json_encode([
                     [
-                        "key" => "thumbnail",
-                        "width" => 200,
-                        "height" => 200,
-                        "fit" => "contain",
-                        "quality" => 80
-                    ]
-                ])
+                        'key' => 'thumbnail',
+                        'width' => 200,
+                        'height' => 200,
+                        'fit' => 'contain',
+                        'quality' => 80,
+                    ],
+                ]),
             ],
             [
                 'key' => 'asset_whitelist_system',
@@ -471,53 +471,55 @@ class CreateSettingsTable extends AbstractMigration
                         'width' => 64,
                         'height' => 64,
                         'fit' => 'crop',
-                        'quality' => 80
+                        'quality' => 80,
                     ],
                     [
                         'key' => 'directus-small-contain',
                         'width' => 64,
                         'height' => 64,
                         'fit' => 'contain',
-                        'quality' => 80
+                        'quality' => 80,
                     ],
                     [
                         'key' => 'directus-medium-crop',
                         'width' => 300,
                         'height' => 300,
                         'fit' => 'crop',
-                        'quality' => 80
+                        'quality' => 80,
                     ],
                     [
                         'key' => 'directus-medium-contain',
                         'width' => 300,
                         'height' => 300,
                         'fit' => 'contain',
-                        'quality' => 80
+                        'quality' => 80,
                     ],
                     [
                         'key' => 'directus-large-crop',
                         'width' => 800,
                         'height' => 600,
                         'fit' => 'crop',
-                        'quality' => 80
+                        'quality' => 80,
                     ],
                     [
                         'key' => 'directus-large-contain',
                         'width' => 800,
                         'height' => 600,
                         'fit' => 'contain',
-                        'quality' => 80
-                    ]
-                ])
-            ]
-          ];
+                        'quality' => 80,
+                    ],
+                ]),
+            ],
+        ];
 
-          $groups = $this->table('directus_settings');
-          $groups->insert($data)->save();
+        $groups = $this->table('directus_settings');
+        $groups->insert($data)->save();
     }
 
-    public function checkFieldExist($collection,$field){
+    public function checkFieldExist($collection, $field)
+    {
         $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
+
         return $this->query($checkSql)->fetch();
     }
 }

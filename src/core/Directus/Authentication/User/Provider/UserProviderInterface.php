@@ -9,7 +9,7 @@ use Directus\Database\TableGateway\DirectusUsersTableGateway;
 interface UserProviderInterface
 {
     /**
-     * TODO: This will move to provider repository
+     * TODO: This will move to provider repository.
      *
      * @var int
      */
@@ -17,15 +17,12 @@ interface UserProviderInterface
     const STATUS_SUSPENDED = DirectusUsersTableGateway::STATUS_SUSPENDED;
 
     /**
-
-     * @param array $conditions
-     *
      * @return User
      */
     public function findWhere(array $conditions);
 
     /**
-     * Finds a user by with the given email
+     * Finds a user by with the given email.
      *
      * @param string $email
      *
@@ -34,7 +31,7 @@ interface UserProviderInterface
     public function findByEmail($email);
 
     /**
-     * Finds a user by with the given id
+     * Finds a user by with the given id.
      *
      * @param int $id
      *
@@ -43,10 +40,7 @@ interface UserProviderInterface
     public function find($id);
 
     /**
-     * Updates an user attributes
-     *
-     * @param UserInterface $user
-     * @param array $data
+     * Updates an user attributes.
      *
      * @return bool
      */

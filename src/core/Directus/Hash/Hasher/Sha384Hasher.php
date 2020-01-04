@@ -5,7 +5,7 @@ namespace Directus\Hash\Hasher;
 class Sha384Hasher extends AbstractHashHasher
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getName()
     {

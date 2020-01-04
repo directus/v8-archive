@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'provider' => \Directus\Authentication\Sso\Provider\github\Provider::class
+    'provider' => \Directus\Authentication\Sso\Provider\github\Provider::class,
 ];

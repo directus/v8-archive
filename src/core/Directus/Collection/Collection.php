@@ -7,7 +7,7 @@ use Directus\Util\ArrayUtils;
 class Collection implements CollectionInterface, \Iterator
 {
     /**
-     * Collection items
+     * Collection items.
      *
      * @var array
      */
@@ -24,7 +24,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function toArray()
     {
@@ -32,7 +32,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function set($key, $value)
     {
@@ -40,7 +40,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function get($key, $default = null)
     {
@@ -48,7 +48,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function has($key)
     {
@@ -56,7 +56,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function remove($key)
     {
@@ -66,15 +66,15 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function isEmpty()
     {
-        return $this->count() === 0;
+        return 0 === $this->count();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function clear()
     {
@@ -82,7 +82,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function replace(array $items)
     {
@@ -91,7 +91,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function appendArray(array $items)
     {
@@ -101,15 +101,15 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
-    public function appendCollection(Collection $collection)
+    public function appendCollection(self $collection)
     {
         return $this->appendArray($collection->toArray());
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function offsetExists($offset)
     {
@@ -117,7 +117,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function offsetGet($offset)
     {
@@ -125,7 +125,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function offsetSet($offset, $value)
     {
@@ -133,7 +133,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function offsetUnset($offset)
     {
@@ -141,15 +141,15 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function count()
     {
-        return count($this->items);
+        return \count($this->items);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function current()
     {
@@ -157,7 +157,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function next()
     {
@@ -165,7 +165,7 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function key()
     {
@@ -173,15 +173,15 @@ class Collection implements CollectionInterface, \Iterator
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function valid()
     {
-        return $this->key() !== null;
+        return null !== $this->key();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function rewind()
     {

@@ -3,26 +3,25 @@
 namespace Directus\Util;
 
 use DateTimeZone;
-use function Directus\get_project_config;
 
 class DateTimeUtils extends \DateTime
 {
     /**
-     * Seconds in a minute
+     * Seconds in a minute.
      *
      * @var int
      */
     const MINUTE_IN_SECONDS = 60;
 
     /**
-     * Seconds in a day
+     * Seconds in a day.
      *
      * @var int
      */
     const DAY_IN_SECONDS = 86400;
 
     /**
-     * Seconds in a week
+     * Seconds in a week.
      *
      * @var int
      */
@@ -34,21 +33,21 @@ class DateTimeUtils extends \DateTime
     const DEFAULT_DATETIME_FORMAT = 'Y-m-d H:i:s';
 
     /**
-     * Example: 2019-01-04T16:12:05+00:00
+     * Example: 2019-01-04T16:12:05+00:00.
      *
      * @var string
      */
     const ISO8601_FORMAT_ONE = 'Y-m-d\TH:i:sP';
 
     /**
-     * Example: 2019-01-04T16:12:05Z
+     * Example: 2019-01-04T16:12:05Z.
      *
      * @var string
      */
     const ISO8601_FORMAT_TWO = 'Y-m-d\TH:i:s\Z';
 
     /**
-     * Example: 20190104T161205Z
+     * Example: 20190104T161205Z.
      *
      * @var string
      */
@@ -65,14 +64,14 @@ class DateTimeUtils extends \DateTime
     const DEFAULT_TIME_FORMAT = 'H:i:s';
 
     /**
-     * DateTime modifier format days into the future
+     * DateTime modifier format days into the future.
      *
      * @var string
      */
     const ADD_DAYS_FORMAT = '+%s days';
 
     /**
-     * DateTime modifier format days ago
+     * DateTime modifier format days ago.
      *
      * @var string
      */
@@ -85,13 +84,13 @@ class DateTimeUtils extends \DateTime
         }
 
         parent::__construct($time, $timezone);
-        if ($time === null) {
+        if (null === $time) {
             $this->setTimestamp(time());
         }
     }
 
     /**
-     * Gets the current datetime
+     * Gets the current datetime.
      *
      * @param null $timezone
      *
@@ -108,9 +107,7 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Creates a new DateTimeUtils instance from a \DateTime instance
-     *
-     * @param \DateTime $dateTime
+     * Creates a new DateTimeUtils instance from a \DateTime instance.
      *
      * @return DateTimeUtils
      */
@@ -133,7 +130,7 @@ class DateTimeUtils extends \DateTime
     /**
      * @param string $format
      * @param string $time
-     * @param null $timezone
+     * @param null   $timezone
      *
      * @return DateTimeUtils
      */
@@ -165,9 +162,9 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Creates a timezone object
+     * Creates a timezone object.
      *
-     * @param string|DateTimeZone $timezone
+     * @param DateTimeZone|string $timezone
      *
      * @return DateTimeZone
      */
@@ -177,7 +174,7 @@ class DateTimeUtils extends \DateTime
             return $timezone;
         }
 
-        if ($timezone === null) {
+        if (null === $timezone) {
             return new DateTimeZone(date_default_timezone_get());
         }
 
@@ -188,11 +185,12 @@ class DateTimeUtils extends \DateTime
                 sprintf('Unknown or bad timezone (%s)', $timezone)
             );
         }
+
         return $timezone;
     }
 
     /**
-     * Switch date time to a different timezone
+     * Switch date time to a different timezone.
      *
      * @param $timezone
      *
@@ -206,7 +204,7 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Add days to the current date time
+     * Add days to the current date time.
      *
      * @param int $days
      *
@@ -214,11 +212,11 @@ class DateTimeUtils extends \DateTime
      */
     public function addDays($days)
     {
-        return $this->modify(sprintf(static::ADD_DAYS_FORMAT, (int)$days));
+        return $this->modify(sprintf(static::ADD_DAYS_FORMAT, (int) $days));
     }
 
     /**
-     * Subtract days from teh current date time
+     * Subtract days from teh current date time.
      *
      * @param int $days
      *
@@ -226,11 +224,11 @@ class DateTimeUtils extends \DateTime
      */
     public function subDays($days)
     {
-        return $this->modify(sprintf(static::SUB_DAYS_FORMAT, (int)$days));
+        return $this->modify(sprintf(static::SUB_DAYS_FORMAT, (int) $days));
     }
 
     /**
-     * Gets the datetime in GMT
+     * Gets the datetime in GMT.
      *
      * @return DateTimeUtils
      */
@@ -240,7 +238,7 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Gets the datetime in UTC
+     * Gets the datetime in UTC.
      *
      * @return DateTimeUtils
      */
@@ -250,7 +248,7 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Gets the datetime string in GMT
+     * Gets the datetime string in GMT.
      *
      * @return string
      */
@@ -260,7 +258,7 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Gets the datetime string in UTC
+     * Gets the datetime string in UTC.
      *
      * @param string $format
      *
@@ -272,7 +270,7 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Returns the datetime in ISO 8601 format
+     * Returns the datetime in ISO 8601 format.
      *
      * @return string
      */
@@ -281,11 +279,13 @@ class DateTimeUtils extends \DateTime
         return $this->format('c');
     }
 
-    public function toRFC2616Format() {
+    public function toRFC2616Format()
+    {
         return $this->format('D, d M Y H:i:s T');
     }
+
     /**
-     * Returns a string format of the datetime
+     * Returns a string format of the datetime.
      *
      * @param null $format
      *
@@ -293,7 +293,7 @@ class DateTimeUtils extends \DateTime
      */
     public function toString($format = null)
     {
-        if ($format === null) {
+        if (null === $format) {
             $format = static::DEFAULT_DATETIME_FORMAT;
         }
 
@@ -301,9 +301,9 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Creates a copy of the current datetime to a new timezone
+     * Creates a copy of the current datetime to a new timezone.
      *
-     * @param string|DateTimeZone $timezone
+     * @param DateTimeZone|string $timezone
      *
      * @return DateTimeUtils
      */
@@ -313,7 +313,7 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Gets a copy of the instance
+     * Gets a copy of the instance.
      *
      * @return DateTimeUtils
      */
@@ -323,22 +323,28 @@ class DateTimeUtils extends \DateTime
     }
 
     /**
-     * Check for valid date formate
+     * Check for valid date formate.
      *
-     * @return boolean
+     * @param mixed $date
+     * @param mixed $format
+     *
+     * @return bool
      */
-
-    public static function isValidDate($date, $format= 'Y-m-d'){
-        return $date == date($format, strtotime($date));
+    public static function isValidDate($date, $format = 'Y-m-d')
+    {
+        return $date === date($format, strtotime($date));
     }
 
     /**
-     * Check for valid datetime formate
+     * Check for valid datetime formate.
      *
-     * @return boolean
+     * @param mixed $date
+     * @param mixed $format
+     *
+     * @return bool
      */
-
-    public static function isValidDateTime($date, $format= 'Y-m-d H:i:s'){
-        return $date == date($format, strtotime($date));
+    public static function isValidDateTime($date, $format = 'Y-m-d H:i:s')
+    {
+        return $date === date($format, strtotime($date));
     }
 }

@@ -1,32 +1,33 @@
 <?php
+
 namespace Directus\GraphQL;
 
+use Directus\GraphQL\Type\CollectionType;
 use Directus\GraphQL\Type\Directus\DirectusActivityType;
-use Directus\GraphQL\Type\Directus\DirectusCollectionType;
 use Directus\GraphQL\Type\Directus\DirectusCollectionPresetType;
+use Directus\GraphQL\Type\Directus\DirectusCollectionType;
 use Directus\GraphQL\Type\Directus\DirectusFieldType;
-use Directus\GraphQL\Type\Directus\DirectusFileType;
 use Directus\GraphQL\Type\Directus\DirectusFileThumbnailType;
+use Directus\GraphQL\Type\Directus\DirectusFileType;
 use Directus\GraphQL\Type\Directus\DirectusFolderType;
 use Directus\GraphQL\Type\Directus\DirectusPermissionType;
 use Directus\GraphQL\Type\Directus\DirectusRelationType;
 use Directus\GraphQL\Type\Directus\DirectusRevisionType;
-use Directus\GraphQL\Type\Directus\DirectusUserType;
 use Directus\GraphQL\Type\Directus\DirectusRoleType;
 use Directus\GraphQL\Type\Directus\DirectusSettingType;
-use Directus\GraphQL\Type\MetaType;
-use Directus\GraphQL\Type\CollectionType;
+use Directus\GraphQL\Type\Directus\DirectusUserType;
 use Directus\GraphQL\Type\FieldsType;
-use Directus\GraphQL\Type\QueryType;
+use Directus\GraphQL\Type\FiltersType;
+use Directus\GraphQL\Type\MetaType;
 use Directus\GraphQL\Type\NodeType;
-use Directus\GraphQL\Type\Scalar\DateType;
-use Directus\GraphQL\Type\Scalar\TimeType;
+use Directus\GraphQL\Type\QueryType;
 use Directus\GraphQL\Type\Scalar\DateTimeType;
+use Directus\GraphQL\Type\Scalar\DateType;
 use Directus\GraphQL\Type\Scalar\JSONType;
+use Directus\GraphQL\Type\Scalar\TimeType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use Directus\GraphQL\Type\FiltersType;
 
 class Types
 {
@@ -136,41 +137,46 @@ class Types
 
     public static function collections($type)
     {
-        $key  = is_subclass_of($type, 'GraphQL\Type\Definition\ObjectType') ? $type->name : $type;
-        if (!array_key_exists($key, self::$collections)) {
-            $collectionType =  new CollectionType($type);
+        $key = is_subclass_of($type, 'GraphQL\Type\Definition\ObjectType') ? $type->name : $type;
+        if (!\array_key_exists($key, self::$collections)) {
+            $collectionType = new CollectionType($type);
             self::$collections[$key] = $collectionType;
+
             return $collectionType;
-        } else {
-            return self::$collections[$key];
         }
+
+        return self::$collections[$key];
     }
 
     /**
      * This function creates run-time GraphQL type according to user created collections.
      * If the type is already created, we'll return existing object.
      * Else create a new type and add it to array.
+     *
+     * @param mixed $collection
      */
     public static function userCollection($collection)
     {
-        if (!array_key_exists($collection, self::$userCollections)) {
-            $fieldsType =  new FieldsType($collection);
+        if (!\array_key_exists($collection, self::$userCollections)) {
+            $fieldsType = new FieldsType($collection);
             self::$userCollections[$collection] = $fieldsType;
+
             return $fieldsType;
-        } else {
-            return self::$userCollections[$collection];
         }
+
+        return self::$userCollections[$collection];
     }
 
     public static function filters($collection)
     {
-        if (!array_key_exists($collection, self::$filters)) {
-            $filter =  new FiltersType($collection);
+        if (!\array_key_exists($collection, self::$filters)) {
+            $filter = new FiltersType($collection);
             self::$filters[$collection] = $filter;
+
             return $filter;
-        } else {
-            return self::$filters[$collection];
         }
+
+        return self::$filters[$collection];
     }
 
     /**
@@ -206,6 +212,7 @@ class Types
     }
 
     // Interface types
+
     /**
      * @return NodeType
      */
@@ -219,6 +226,7 @@ class Types
     {
         return Type::boolean();
     }
+
     /**
      * @return \GraphQL\Type\Definition\FloatType
      */
@@ -234,6 +242,7 @@ class Types
     {
         return Type::id();
     }
+
     /**
      * @return \GraphQL\Type\Definition\IntType
      */
@@ -241,6 +250,7 @@ class Types
     {
         return Type::int();
     }
+
     /**
      * @return \GraphQL\Type\Definition\StringType
      */
@@ -248,16 +258,20 @@ class Types
     {
         return Type::string();
     }
+
     /**
      * @param Type $type
+     *
      * @return ListOfType
      */
     public static function listOf($type)
     {
         return new ListOfType($type);
     }
+
     /**
      * @param Type $type
+     *
      * @return NonNull
      */
     public static function nonNull($type)

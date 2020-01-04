@@ -8,7 +8,7 @@ class StatusMappingWrongValueTypeException extends Exception
 {
     /**
      * @param string $type
-     * @param int $field
+     * @param int    $field
      * @param string $collection
      */
     public function __construct($type, $field, $collection)

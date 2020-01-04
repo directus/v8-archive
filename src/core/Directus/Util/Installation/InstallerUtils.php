@@ -17,35 +17,38 @@ use function Directus\generate_uuid4;
 use function Directus\get_default_timezone;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
-use Directus\Util\StringUtils;
 use Directus\Util\DateTimeUtils;
+use Directus\Util\StringUtils;
 use Phinx\Config\Config;
 use Phinx\Migration\Manager;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Zend\Db\Sql\Ddl\DropTable;
-use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Select;
+use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
 class InstallerUtils
 {
     const MIGRATION_CONFIGURATION_PATH = '/migrations/migrations.php';
     const MIGRATION_UPGRADE_CONFIGURATION_PATH = '/migrations/migrations.upgrades.php';
+
     /**
      * Add the upgraded migrations into directus_migration on a fresh installation of project.
      * Upgraded migrations may contain the same queries which is in db [Original] migrations.
      * So in every fresh installtion we have boycott the upgrades.
      * This function will add the upgrades migrations into directus_migrations table; so the current upgraded migrations cant be executed.
      *
-     * @return boolean
+     * @param null|mixed $basePath
+     * @param null|mixed $projectName
+     *
+     * @return bool
      */
     public static function addUpgradeMigrations($basePath = null, $projectName = null)
     {
-
         if (
-            static::isUsingFiles() == false ||
-            (!is_null($basePath) && !is_null($projectName))
+            false === static::isUsingFiles() ||
+            (null !== $basePath && null !== $projectName)
         ) {
             $app = static::createApp($basePath, $projectName);
             $dbConnection = $app->getContainer()->get('database');
@@ -63,38 +66,40 @@ class InstallerUtils
 
         $ignoreableFiles = ['..', '.', '.DS_Store'];
         $scannedDirectory = array_values(array_diff(scandir($basePath.'/migrations/upgrades'), $ignoreableFiles));
-        foreach($scannedDirectory as $fileName){
+        foreach ($scannedDirectory as $fileName) {
             $data = [];
-            $fileNameObject = explode("_", $fileName, 2);
-            $migrationName = explode(".", str_replace(' ', '', ucwords(str_replace('_', ' ', $fileNameObject[1]))), 2);
+            $fileNameObject = explode('_', $fileName, 2);
+            $migrationName = explode('.', str_replace(' ', '', ucwords(str_replace('_', ' ', $fileNameObject[1]))), 2);
 
             $data = [
                 'version' => $fileNameObject[0],
                 'migration_name' => $migrationName[0],
                 'start_time' => DateTimeUtils::nowInUTC()->toString(),
-                'end_time' => DateTimeUtils::nowInUTC()->toString()
+                'end_time' => DateTimeUtils::nowInUTC()->toString(),
             ];
 
-            if(!in_array($data['version'],$alreadyStoredMigrations) && !is_null($data['version']) && !is_null($data['migration_name'])){
+            if (!\in_array($data['version'], $alreadyStoredMigrations, true) && null !== $data['version'] && null !== $data['migration_name']) {
                 $migrationsTableGateway->insert($data);
             }
         }
     }
+
     /**
-     * Check if environment is using files or environment variables
+     * Check if environment is using files or environment variables.
      *
-     * @return boolean
+     * @return bool
      */
     public static function isUsingFiles()
     {
-        return getenv("DIRECTUS_USE_ENV") !== "1";
+        return '1' !== getenv('DIRECTUS_USE_ENV');
     }
 
     /**
-     * Undocumented function
+     * Undocumented function.
      *
      * @param string $basePath
      * @param string $projectName
+     *
      * @return \Directus\Application\Application
      */
     public static function createApp($basePath, $projectName)
@@ -104,22 +109,22 @@ class InstallerUtils
         } else {
             $config = Schema::get()->value(Context::from_env());
         }
+
         return new Application($basePath, $config);
     }
 
     /**
-     * Create a config and configuration file into $path
+     * Create a config and configuration file into $path.
      *
      * @param string $path
-     * @param array $data
-     * @param bool $force
+     * @param bool   $force
      */
     public static function createConfig($path, array $data, $force = false)
     {
         $requiredAttributes = ['db_name', 'db_user'];
         if (!ArrayUtils::contains($data, $requiredAttributes)) {
             throw new \InvalidArgumentException(
-                'Creating config files required: ' . implode(', ', $requiredAttributes)
+                'Creating config files required: '.implode(', ', $requiredAttributes)
             );
         }
 
@@ -130,7 +135,7 @@ class InstallerUtils
 
     public static function createConfigFileContent($data)
     {
-        $configStub = file_get_contents(__DIR__ . '/stubs/config.stub');
+        $configStub = file_get_contents(__DIR__.'/stubs/config.stub');
 
         $configStub = static::replacePlaceholderValues($configStub, $data);
 
@@ -138,65 +143,63 @@ class InstallerUtils
         return static::replacePlaceholderValues($configStub, ArrayUtils::pick($data, 'project'));
     }
 
-
     /**
-     * Creates a api json file to store the superadmin password
+     * Creates a api json file to store the superadmin password.
      *
      * @param string $name
+     * @param mixed  $data
      *
      * @throws NotFoundException
      * @throws UnprocessableEntityException
      */
     public static function createJsonFileContent($data)
     {
-        $configStub = file_get_contents(__DIR__ . '/stubs/api.stub');
+        $configStub = file_get_contents(__DIR__.'/stubs/api.stub');
 
         return static::replacePlaceholderValues($configStub, $data);
     }
 
     /**
-     * Replace placeholder wrapped by {{ }} with $data array
+     * Replace placeholder wrapped by {{ }} with $data array.
      *
      * @param string $content
-     * @param array $data
+     * @param array  $data
      *
      * @return string
      */
     public static function replacePlaceholderValues($content, $data)
     {
-        if (is_array($data)) {
+        if (\is_array($data)) {
             $data = ArrayUtils::dot($data);
         }
 
-        $content = StringUtils::replacePlaceholder($content, $data);
-
-        return $content;
+        return StringUtils::replacePlaceholder($content, $data);
     }
 
     /**
-     * Ensure the tables can be created
+     * Ensure the tables can be created.
      *
      * @param string $path
-     * @param array $data
-     *        The JSON that the user POSTed to the create-project endpoint
-     *        Required in here are the database credentials
-     * @param bool $force
+     * @param array  $data
+     *                      The JSON that the user POSTed to the create-project endpoint
+     *                      Required in here are the database credentials
+     * @param bool   $force
      */
     public static function ensureCanCreateTables($path, array $data, $force = false)
     {
         static::ensureMigrationFileExists($path);
         static::ensureDatabaseConnectionFromData($data);
-        if ($force !== true) {
+        if (true !== $force) {
             static::ensureSystemTablesDoesNotExistsFromData($data);
         }
     }
 
     /**
-     * Create Directus Tables from Migrations
+     * Create Directus Tables from Migrations.
      *
      * @param string $basePath
      * @param string $env
-     * @param bool $force
+     * @param bool   $force
      *
      * @throws \Exception
      */
@@ -204,7 +207,7 @@ class InstallerUtils
     {
         $config = static::getMigrationConfig($basePath, $env);
 
-        if ($force === true) {
+        if (true === $force) {
             static::dropTables($basePath, $env);
         }
 
@@ -217,7 +220,7 @@ class InstallerUtils
     }
 
     /**
-     * Update Directus Tables from Migrations
+     * Update Directus Tables from Migrations.
      *
      * @param string $basePath
      * @param string $env
@@ -232,9 +235,7 @@ class InstallerUtils
     }
 
     /**
-     * Create Directus Tables from Migrations
-     *
-     * @param Config $config
+     * Create Directus Tables from Migrations.
      *
      * @throws \Exception
      */
@@ -242,15 +243,13 @@ class InstallerUtils
     {
         $manager = new Manager($config, new StringInput(''), new NullOutput());
         $manager->migrate('development');
-        if(!empty($config['paths']['seeds'])){
+        if (!empty($config['paths']['seeds'])) {
             $manager->seed('development');
         }
     }
 
     /**
-     * Throws an exception if it can make a database connection
-     *
-     * @param array $data
+     * Throws an exception if it can make a database connection.
      *
      * @throws Exception
      */
@@ -266,9 +265,7 @@ class InstallerUtils
     }
 
     /**
-     * Checks whether there's a single Directus collection in the database using the given data
-     *
-     * @param array $data
+     * Checks whether there's a single Directus collection in the database using the given data.
      *
      * @return bool
      */
@@ -286,7 +283,7 @@ class InstallerUtils
     }
 
     /**
-     * Run the migration files
+     * Run the migration files.
      *
      * @param $directusPath
      */
@@ -299,7 +296,7 @@ class InstallerUtils
     }
 
     /**
-     * Run the seeder files
+     * Run the seeder files.
      *
      * @param $directusPath
      */
@@ -312,10 +309,9 @@ class InstallerUtils
     }
 
     /**
-     * Add Directus default settings
+     * Add Directus default settings.
      *
      * @param string $basePath
-     * @param array $data
      * @param string $projectName
      *
      * @throws \Exception
@@ -335,10 +331,9 @@ class InstallerUtils
     }
 
     /**
-     * Add Directus default user
+     * Add Directus default user.
      *
      * @param string $basePath
-     * @param array $data
      * @param string $projectName
      *
      * @return array
@@ -369,7 +364,7 @@ class InstallerUtils
             'token' => $data['user_token'],
             'timezone' => $data['timezone'],
             'locale' => $data['locale'],
-            'role' => 1
+            'role' => 1,
         ]);
 
         return $data;
@@ -377,20 +372,22 @@ class InstallerUtils
 
     /**
      * Check if the given name is schema template.
+     *
      * @param $name
      * @param $directusPath
+     *
      * @return bool
      */
     public static function schemaTemplateExists($name, $directusPath)
     {
         $directusPath = rtrim($directusPath, '/');
-        $schemaTemplatePath = $directusPath . '/api/migrations/templates/' . $name;
+        $schemaTemplatePath = $directusPath.'/api/migrations/templates/'.$name;
 
         if (!file_exists($schemaTemplatePath)) {
             return false;
         }
 
-        $isEmpty = count(array_diff(scandir($schemaTemplatePath), ['..', '.'])) > 0 ? false : true;
+        $isEmpty = \count(array_diff(scandir($schemaTemplatePath), ['..', '.'])) > 0 ? false : true;
         if (is_readable($schemaTemplatePath) && !$isEmpty) {
             return true;
         }
@@ -399,7 +396,7 @@ class InstallerUtils
     }
 
     /**
-     * Install the given schema template name
+     * Install the given schema template name.
      *
      * @param $name
      * @param $directusPath
@@ -409,8 +406,8 @@ class InstallerUtils
     public static function installSchema($name, $directusPath)
     {
         $directusPath = rtrim($directusPath, '/');
-        $templatePath = $directusPath . '/api/migrations/templates/' . $name;
-        $sqlImportPath = $templatePath . '/import.sql';
+        $templatePath = $directusPath.'/api/migrations/templates/'.$name;
+        $sqlImportPath = $templatePath.'/import.sql';
 
         if (file_exists($sqlImportPath)) {
             static::installSchemaFromSQL(file_get_contents($sqlImportPath));
@@ -420,7 +417,7 @@ class InstallerUtils
     }
 
     /**
-     * Executes the template migration
+     * Executes the template migration.
      *
      * @param string $name
      * @param string $directusPath
@@ -437,7 +434,7 @@ class InstallerUtils
     }
 
     /**
-     * Execute a sql query string
+     * Execute a sql query string.
      *
      * NOTE: This is not recommended at all
      *       we are doing this because we are trained pro
@@ -455,24 +452,25 @@ class InstallerUtils
     }
 
     /**
-     * Returns the config name based on its environment
+     * Returns the config name based on its environment.
      *
      * @param $projectName
+     * @param mixed $private
      *
      * @return string
      */
-    public static function getConfigName($projectName,$private=false)
+    public static function getConfigName($projectName, $private = false)
     {
-        $text = $private ? "private.%s" : "%s";
+        $text = $private ? 'private.%s' : '%s';
+
         return sprintf($text, $projectName);
     }
 
     /**
-     * Throws an exception if it can create a config file
+     * Throws an exception if it can create a config file.
      *
      * @param string $path
-     * @param array $data
-     * @param bool $force
+     * @param bool   $force
      */
     public static function ensureCanCreateConfig($path, array $data, $force = false)
     {
@@ -480,16 +478,16 @@ class InstallerUtils
         $configPath = static::createConfigPathFromData($path, $input);
 
         static::ensureDirectoryIsWritable($path);
-        if ($force !== true) {
+        if (true !== $force) {
             static::ensureFileDoesNotExists($configPath);
         }
     }
 
     /**
-     * Deletes the given config file
+     * Deletes the given config file.
      *
-     * @param string $path
-     * @param string|null $projectName
+     * @param string      $path
+     * @param null|string $projectName
      */
     public static function deleteConfigFile($path, $projectName = null)
     {
@@ -502,24 +500,25 @@ class InstallerUtils
     }
 
     /**
-     * Creates a config path for the given environment
+     * Creates a config path for the given environment.
      *
-     * @param string $path
-     * @param string $projectName
+     * @param string     $path
+     * @param string     $projectName
+     * @param null|mixed $private
      *
      * @return string
      */
-    public static function createConfigPath($path, $projectName, $private=null)
+    public static function createConfigPath($path, $projectName, $private = null)
     {
-        if(!is_null($private)){
-            $configName = static::getConfigName($projectName,$private);
-        }else{
+        if (null !== $private) {
+            $configName = static::getConfigName($projectName, $private);
+        } else {
             $publicConfig = static::getConfigName($projectName);
-            $privateConfig = static::getConfigName($projectName,true);
-            $configName = file_exists($path . '/config/' . $privateConfig . '.php') ? $privateConfig : $publicConfig;
+            $privateConfig = static::getConfigName($projectName, true);
+            $configName = file_exists($path.'/config/'.$privateConfig.'.php') ? $privateConfig : $publicConfig;
         }
 
-        return $path . '/config/' . $configName . '.php';
+        return $path.'/config/'.$configName.'.php';
     }
 
     public static function getDefaultPermissions()
@@ -654,17 +653,16 @@ class InstallerUtils
                     'delete' => Acl::LEVEL_NONE,
                     'comment' => Acl::COMMENT_LEVEL_NONE,
                     'explain' => Acl::EXPLAIN_LEVEL_NONE,
-                ]
+                ],
             ],
-
         ];
     }
 
     /**
-     * Check if the api configuration file exists
+     * Check if the api configuration file exists.
      *
      * @param string $basePath
-     * @param null $projectName
+     * @param null   $projectName
      *
      * @throws \Exception
      */
@@ -686,10 +684,9 @@ class InstallerUtils
     }
 
     /**
-     * Creates a config path from data
+     * Creates a config path from data.
      *
      * @param string $path
-     * @param array $data
      *
      * @return string
      */
@@ -699,11 +696,10 @@ class InstallerUtils
     }
 
     /**
-     * Create config file into $path
+     * Create config file into $path.
      *
      * @param string $path
-     * @param array $data
-     * @param bool $force
+     * @param bool   $force
      */
     private static function createConfigFile($path, array $data, $force = false)
     {
@@ -716,9 +712,9 @@ class InstallerUtils
     }
 
     /**
-     * @param string $basePath
-     * @param string $projectName
-     * @param string|null $migrationName
+     * @param string      $basePath
+     * @param string      $projectName
+     * @param null|string $migrationName
      *
      * @return Config
      */
@@ -728,7 +724,7 @@ class InstallerUtils
         static::ensureMigrationFileExists($basePath);
 
         $configPath = static::createConfigPath($basePath, $projectName);
-        $migrationPath = $basePath . '/migrations/' . $migrationName;
+        $migrationPath = $basePath.'/migrations/'.$migrationName;
 
         if (self::isUsingFiles()) {
             $apiConfig = ArrayUtils::get(require $configPath, 'database', []);
@@ -743,7 +739,7 @@ class InstallerUtils
         ArrayUtils::rename($apiConfig, 'socket', 'unix_socket');
         $apiConfig['charset'] = ArrayUtils::get($apiConfig, 'database.charset', 'utf8mb4');
 
-        $configArray = $migrationName == "install" ? require $basePath.self::MIGRATION_CONFIGURATION_PATH :require $basePath.self::MIGRATION_UPGRADE_CONFIGURATION_PATH;
+        $configArray = 'install' === $migrationName ? require $basePath.self::MIGRATION_CONFIGURATION_PATH : require $basePath.self::MIGRATION_UPGRADE_CONFIGURATION_PATH;
         $configArray['paths']['migrations'] = $migrationPath;
         $configArray['environments']['development'] = $apiConfig;
 
@@ -751,8 +747,10 @@ class InstallerUtils
     }
 
     /**
-     * Get Directus default settings
+     * Get Directus default settings.
+     *
      * @param $data
+     *
      * @return array
      */
     private static function getDefaultSettings($data)
@@ -760,17 +758,17 @@ class InstallerUtils
         return [
             [
                 'key' => 'project_name',
-                'value' => isset($data['project_name']) ? $data['project_name'] : 'Directus'
+                'value' => isset($data['project_name']) ? $data['project_name'] : 'Directus',
             ],
             [
                 'key' => 'app_url',
-                'value' => isset($data['app_url']) ? $data['app_url'] : ''
+                'value' => isset($data['app_url']) ? $data['app_url'] : '',
             ],
         ];
     }
 
     /**
-     * Checks if the migration configuration file exists
+     * Checks if the migration configuration file exists.
      *
      * @param string $basePath
      *
@@ -778,7 +776,7 @@ class InstallerUtils
      */
     private static function ensureMigrationFileExists($basePath)
     {
-        $migrationConfigPath = $basePath . self::MIGRATION_CONFIGURATION_PATH;
+        $migrationConfigPath = $basePath.self::MIGRATION_CONFIGURATION_PATH;
 
         if (!file_exists($migrationConfigPath)) {
             throw new InvalidPathException(
@@ -788,7 +786,7 @@ class InstallerUtils
     }
 
     /**
-     * Throws an exception when the given directory is not writable
+     * Throws an exception when the given directory is not writable.
      *
      * @param string $path
      *
@@ -804,7 +802,7 @@ class InstallerUtils
     }
 
     /**
-     * Throws an exception when the given file path cannot be deleted
+     * Throws an exception when the given file path cannot be deleted.
      *
      * @param string $path
      *
@@ -820,7 +818,7 @@ class InstallerUtils
     }
 
     /**
-     * Throws an exception when file exists
+     * Throws an exception when file exists.
      *
      * @param string $path
      *
@@ -834,9 +832,7 @@ class InstallerUtils
     }
 
     /**
-     * Checks if there is not a single system table in the database
-     *
-     * @param array $data
+     * Checks if there is not a single system table in the database.
      *
      * @throws Exception
      */
@@ -850,10 +846,7 @@ class InstallerUtils
     }
 
     /**
-     * Loop through all Directus tables using the given connection data
-     *
-     * @param array $data
-     * @param \Closure $callback
+     * Loop through all Directus tables using the given connection data.
      */
     private static function getDirectusTablesFromData(array $data, \Closure $callback)
     {
@@ -862,7 +855,7 @@ class InstallerUtils
 
         foreach (SchemaManager::getSystemCollections() as $table) {
             if ($schemaManager->collectionExists($table)) {
-                if ($callback($db, $table) === false) {
+                if (false === $callback($db, $table)) {
                     break;
                 }
             }
@@ -870,9 +863,7 @@ class InstallerUtils
     }
 
     /**
-     * Creates a database connection from data
-     *
-     * @param array $data
+     * Creates a database connection from data.
      *
      * @return Connection
      */
@@ -882,7 +873,7 @@ class InstallerUtils
         $charset = ArrayUtils::get($data, 'db_charset', 'utf8mb4');
 
         $dbConfig = [
-            'driver' => 'Pdo_' . ArrayUtils::get($data, 'db_type'),
+            'driver' => 'Pdo_'.ArrayUtils::get($data, 'db_type'),
             'host' => ArrayUtils::get($data, 'db_host'),
             'port' => ArrayUtils::get($data, 'db_port'),
             'database' => ArrayUtils::get($data, 'db_name'),
@@ -890,7 +881,7 @@ class InstallerUtils
             'password' => ArrayUtils::get($data, 'db_password'),
             'charset' => $charset,
             \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-            \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+            \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset),
         ];
 
         if (ArrayUtils::get($data, 'db_socket')) {
@@ -902,16 +893,13 @@ class InstallerUtils
     }
 
     /**
-     * Creates a Schema Manager adapter
-     *
-     * @param array $data
-     * @param Connection|null $db
+     * Creates a Schema Manager adapter.
      *
      * @return SchemaManager
      */
     private static function createSchemaManagerFromData(array $data, Connection $db = null)
     {
-        if ($db === null) {
+        if (null === $db) {
             $db = static::createDatabaseConnectionFromData($data);
         }
 
@@ -920,7 +908,7 @@ class InstallerUtils
     }
 
     /**
-     * Drop all system tables
+     * Drop all system tables.
      *
      * @param string $basePath
      * @param string $projectName
@@ -950,9 +938,7 @@ class InstallerUtils
     }
 
     /**
-     * Add the default attributes to config data
-     *
-     * @param array $data
+     * Add the default attributes to config data.
      *
      * @return array
      */
@@ -971,7 +957,7 @@ class InstallerUtils
             'db_socket' => '',
             'mail_from' => 'admin@example.com',
             'timezone' => get_default_timezone(),
-            'logs_path' => __DIR__ . '/../../../../../logs',
+            'logs_path' => __DIR__.'/../../../../../logs',
             'cache' => [
                 'enabled' => false,
                 'response_ttl' => 3600,
@@ -1013,7 +999,7 @@ class InstallerUtils
             'auth' => [
                 'secret' => $authSecret,
                 'public' => $authPublic,
-            ]
+            ],
         ], $data);
     }
 }

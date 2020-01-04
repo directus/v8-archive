@@ -11,25 +11,24 @@ use Directus\Authentication\Provider;
 use Directus\Database\Exception\InvalidQueryException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Schema\SchemaManager;
-use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use Directus\Database\TableGateway\DirectusUsersTableGateway;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\ForbiddenLastAdminException;
+use function Directus\get_directus_setting;
 use Directus\Permissions\Acl;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
+use Directus\Validator\Exception\InvalidRequestException;
 use PragmaRX\Google2FA\Google2FA;
 use Zend\Db\Sql\Delete;
 use Zend\Db\Sql\Select;
-use function Directus\get_directus_setting;
-use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
 
 class UsersService extends AbstractService
 {
-
     const PASSWORD_FIELD = 'password';
 
     /**
@@ -67,15 +66,15 @@ class UsersService extends AbstractService
         $this->validatePayload($this->collection, array_keys($payload), $payload, $params);
 
         $passwordValidation = get_directus_setting('password_policy');
-        if(!empty($passwordValidation)){
-            $this->validate($payload,[static::PASSWORD_FIELD => ['regex:'.$passwordValidation ]]);
+        if (!empty($passwordValidation)) {
+            $this->validate($payload, [static::PASSWORD_FIELD => ['regex:'.$passwordValidation]]);
         }
 
         $this->checkItemExists($this->collection, $id);
 
         $tableGateway = $this->createTableGateway($this->collection);
         $status = $this->getSchemaManager()->getCollection($this->collection)->getStatusField();
-        if (ArrayUtils::has($payload, $status->getName()) && (string) ArrayUtils::get($payload, $status->getName()) != DirectusUsersTableGateway::STATUS_ACTIVE) {
+        if (ArrayUtils::has($payload, $status->getName()) && DirectusUsersTableGateway::STATUS_ACTIVE !== (string) ArrayUtils::get($payload, $status->getName())) {
             $this->enforceLastAdmin($id);
         }
 
@@ -87,7 +86,7 @@ class UsersService extends AbstractService
         );
         $newRecord = $tableGateway->updateRecord($id, $payload, $this->getCRUDParams($params));
 
-        if(!is_null(ArrayUtils::get($payload, $status->getName()))){
+        if (null !== ArrayUtils::get($payload, $status->getName())) {
             $activityTableGateway = $this->createTableGateway(SchemaManager::COLLECTION_ACTIVITY);
             $activityTableGateway->recordAction(
                 $id,
@@ -109,9 +108,8 @@ class UsersService extends AbstractService
     }
 
     /**
-     * @param int $id
+     * @param int    $id
      * @param string $lastPage
-     * @param array $params
      *
      * @return array
      */
@@ -119,11 +117,11 @@ class UsersService extends AbstractService
     {
         $data = [
             'last_page' => $lastPage,
-            'last_access_on' => DateTimeUtils::now()->toString()
+            'last_access_on' => DateTimeUtils::now()->toString(),
         ];
 
         $this->createTableGateway($this->collection, false)->update($data, [
-            'id' => $this->getUserId($id)
+            'id' => $this->getUserId($id),
         ]);
 
         return $this->find($this->getUserId($id), $params);
@@ -165,7 +163,7 @@ class UsersService extends AbstractService
         // this avoids an indirect reveal of an item the user is not allowed to see
         $delete = new Delete($this->collection);
         $delete->where([
-            'id' => $id
+            'id' => $id,
         ]);
         $tableGateway->enforceDeletePermission($delete);
 
@@ -177,8 +175,6 @@ class UsersService extends AbstractService
     }
 
     /**
-     * @param array $params
-     *
      * @return array
      */
     public function findAll(array $params = [])
@@ -192,7 +188,7 @@ class UsersService extends AbstractService
             throw new ForbiddenException('Inviting user was denied');
         }
 
-        if (!is_array($emails)) {
+        if (!\is_array($emails)) {
             $emails = [$emails];
         }
 
@@ -208,13 +204,13 @@ class UsersService extends AbstractService
         return $this->findAll([
             'status' => false,
             'filter' => [
-                'email' => ['in' => $emails]
-            ]
+                'email' => ['in' => $emails],
+            ],
         ]);
     }
 
     /**
-     * Gets the user table gateway
+     * Gets the user table gateway.
      *
      * @return RelationalTableGateway
      */
@@ -228,51 +224,15 @@ class UsersService extends AbstractService
     }
 
     /**
-     * @param string $email
-     */
-    protected function sendInvitationTo($email)
-    {
-        // TODO: Builder/Service to get table gateway
-        // $usersRepository = $repositoryCollection->get('users');
-        // $usersRepository->add();
-        $tableGateway = $this->createTableGateway($this->collection);
-        $user = $tableGateway->findOneBy('email', $email);
-
-        // TODO: Throw exception when email exists
-        // Probably resend if the email exists?
-        // TODO: Add activity
-        if (!$user) {
-            /** @var Provider $auth */
-            $auth = $this->container->get('auth');
-            $datetime = DateTimeUtils::nowInUTC();
-            $invitationToken = $auth->generateInvitationToken([
-                'date' => $datetime->toString(),
-                'exp' => $datetime->inDays(30)->getTimestamp(),
-                'email' => $email,
-                'sender' => $this->getAcl()->getUserId()
-            ]);
-
-            $result = $tableGateway->insert([
-                'status' => DirectusUsersTableGateway::STATUS_INVITED,
-                'email' => $email
-            ]);
-
-            if ($result) {
-                // TODO: This should be a moved to a hook
-                \Directus\send_user_invitation_email($email, $invitationToken);
-            }
-        }
-    }
-
-    /**
-     * Enables a user using a invitation token
+     * Enables a user using a invitation token.
      *
      * @param string $token
-     * @return array
      *
      * @throws ExpiredTokenException
      * @throws InvalidTokenException
      * @throws UserNotFoundException
+     *
+     * @return array
      */
     public function enableUserWithInvitation($token)
     {
@@ -296,7 +256,7 @@ class UsersService extends AbstractService
         $this->getAcl()->setPermissions([
             'directus_users' => [
                 [
-                    Acl::ACTION_READ   => Acl::LEVEL_FULL,
+                    Acl::ACTION_READ => Acl::LEVEL_FULL,
                     Acl::ACTION_UPDATE => Acl::LEVEL_FULL,
                 ],
             ],
@@ -306,12 +266,13 @@ class UsersService extends AbstractService
         $auth->validatePayloadOrigin($payload);
 
         $tableGateway = $this->getTableGateway();
+
         try {
             $result = $this->findOne([
                 'filter' => [
                     'email' => $payload->email,
-                    'status' => DirectusUsersTableGateway::STATUS_INVITED
-                ]
+                    'status' => DirectusUsersTableGateway::STATUS_INVITED,
+                ],
             ]);
         } catch (ItemNotFoundException $e) {
             throw new UserNotFoundException();
@@ -321,52 +282,13 @@ class UsersService extends AbstractService
 
         $tableGateway
             ->update([
-                'status' => DirectusUsersTableGateway::STATUS_ACTIVE
+                'status' => DirectusUsersTableGateway::STATUS_ACTIVE,
             ], [
-                'id' => $user['id']
-            ]);
+                'id' => $user['id'],
+            ])
+        ;
 
         return $result;
-    }
-
-    /**
-     * Replace "me" with the authenticated user
-     *
-     * @param null $id
-     *
-     * @return int|null
-     */
-    protected function getUserId($id = null)
-    {
-        if ($id === 'me') {
-            $id = $this->getAcl()->getUserId();
-        }
-
-        return $id;
-    }
-
-    /**
-     * Checks whether the given ID is the last admin
-     *
-     * @param int $id
-     *
-     * @return bool
-     */
-    protected function isLastAdmin($id)
-    {
-        $result = $this->createTableGateway(SchemaManager::COLLECTION_USERS, false)->fetchAll(function (Select $select) use ($id) {
-            $select->columns(['role']);
-            $select->where(['role' => 1]);
-        });
-
-        $usersIds = [];
-        while ($result->valid()) {
-            $item = $result->current();
-            $usersIds[] = $item['user'];
-            $result->next();
-        }
-
-        return in_array($id, $usersIds) && count($usersIds) === 1;
     }
 
     /**
@@ -394,7 +316,7 @@ class UsersService extends AbstractService
                 ['ur' => $subSelect],
                 'r.id = ur.role',
                 [
-                    'role'
+                    'role',
                 ]
             );
 
@@ -402,9 +324,9 @@ class UsersService extends AbstractService
 
             if (empty($result)) {
                 return false;
-            } else {
-                return true;
             }
+
+            return true;
         } catch (InvalidQueryException $e) {
             // Column enforce_2fa doesn't exist in directus_roles
             return false;
@@ -412,28 +334,15 @@ class UsersService extends AbstractService
     }
 
     /**
-     * Throws an exception if the user is the last admin
+     * Activate 2FA for the given user id if the OTP is valid for the given 2FA secret.
      *
-     * @param int $id
-     *
-     * @throws ForbiddenLastAdminException
-     */
-    protected function enforceLastAdmin($id)
-    {
-        if ($this->isLastAdmin($id)) {
-            throw new ForbiddenLastAdminException();
-        }
-    }
-
-    /**
-     * Activate 2FA for the given user id if the OTP is valid for the given 2FA secret
      * @param $id
      * @param $tfa_secret
      * @param $otp
      *
-     * @return array
-     *
      * @throws InvalidOTPException
+     *
+     * @return array
      */
     public function activate2FA($id, $tfa_secret, $otp)
     {
@@ -444,25 +353,23 @@ class UsersService extends AbstractService
 
         $ga = new Google2FA();
 
-        if (!$ga->verifyKey($tfa_secret, $otp, 2)){
+        if (!$ga->verifyKey($tfa_secret, $otp, 2)) {
             throw new InvalidOTPException();
         }
 
         return $this->update($id, ['2fa_secret' => $tfa_secret]);
     }
 
-     /**
+    /**
      * @param $collection
-     * @param array $items
-     * @param array $params
-     *
-     * @return array
      *
      * @throws InvalidRequestException
+     *
+     * @return array
      */
     public function batchCreate(array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch create expect an array of items');
         }
 
@@ -474,7 +381,7 @@ class UsersService extends AbstractService
         $allItems = [];
         foreach ($items as $data) {
             $item = $this->create($data, $params);
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }
@@ -488,16 +395,14 @@ class UsersService extends AbstractService
 
     /**
      * @param $collection
-     * @param array $items
-     * @param array $params
-     *
-     * @return array
      *
      * @throws InvalidRequestException
+     *
+     * @return array
      */
     public function batchUpdate(array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch update expect an array of items');
         }
 
@@ -513,7 +418,7 @@ class UsersService extends AbstractService
             $id = $data[$collectionObject->getPrimaryKeyName()];
             $item = $this->update($id, $data, $params);
 
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }
@@ -527,9 +432,6 @@ class UsersService extends AbstractService
 
     /**
      * @param $collection
-     * @param array $ids
-     * @param array $payload
-     * @param array $params
      *
      * @return array
      */
@@ -555,8 +457,6 @@ class UsersService extends AbstractService
 
     /**
      * @param $collection
-     * @param array $ids
-     * @param array $params
      *
      * @throws ForbiddenException
      */
@@ -564,6 +464,97 @@ class UsersService extends AbstractService
     {
         foreach ($ids as $id) {
             $this->delete($id, $params);
+        }
+    }
+
+    /**
+     * @param string $email
+     */
+    protected function sendInvitationTo($email)
+    {
+        // TODO: Builder/Service to get table gateway
+        // $usersRepository = $repositoryCollection->get('users');
+        // $usersRepository->add();
+        $tableGateway = $this->createTableGateway($this->collection);
+        $user = $tableGateway->findOneBy('email', $email);
+
+        // TODO: Throw exception when email exists
+        // Probably resend if the email exists?
+        // TODO: Add activity
+        if (!$user) {
+            /** @var Provider $auth */
+            $auth = $this->container->get('auth');
+            $datetime = DateTimeUtils::nowInUTC();
+            $invitationToken = $auth->generateInvitationToken([
+                'date' => $datetime->toString(),
+                'exp' => $datetime->inDays(30)->getTimestamp(),
+                'email' => $email,
+                'sender' => $this->getAcl()->getUserId(),
+            ]);
+
+            $result = $tableGateway->insert([
+                'status' => DirectusUsersTableGateway::STATUS_INVITED,
+                'email' => $email,
+            ]);
+
+            if ($result) {
+                // TODO: This should be a moved to a hook
+                \Directus\send_user_invitation_email($email, $invitationToken);
+            }
+        }
+    }
+
+    /**
+     * Replace "me" with the authenticated user.
+     *
+     * @param null $id
+     *
+     * @return null|int
+     */
+    protected function getUserId($id = null)
+    {
+        if ('me' === $id) {
+            $id = $this->getAcl()->getUserId();
+        }
+
+        return $id;
+    }
+
+    /**
+     * Checks whether the given ID is the last admin.
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    protected function isLastAdmin($id)
+    {
+        $result = $this->createTableGateway(SchemaManager::COLLECTION_USERS, false)->fetchAll(function (Select $select) use ($id) {
+            $select->columns(['role']);
+            $select->where(['role' => 1]);
+        });
+
+        $usersIds = [];
+        while ($result->valid()) {
+            $item = $result->current();
+            $usersIds[] = $item['user'];
+            $result->next();
+        }
+
+        return \in_array($id, $usersIds, true) && 1 === \count($usersIds);
+    }
+
+    /**
+     * Throws an exception if the user is the last admin.
+     *
+     * @param int $id
+     *
+     * @throws ForbiddenLastAdminException
+     */
+    protected function enforceLastAdmin($id)
+    {
+        if ($this->isLastAdmin($id)) {
+            throw new ForbiddenLastAdminException();
         }
     }
 }

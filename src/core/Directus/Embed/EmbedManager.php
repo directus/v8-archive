@@ -7,16 +7,20 @@ use Directus\Embed\Provider\ProviderInterface;
 class EmbedManager
 {
     /**
-     * List of registered provider
+     * List of registered provider.
+     *
      * @var ProviderInterface[]
      */
     protected $providers = [];
 
     /**
-     * Parse a given url with all the registered providers
+     * Parse a given url with all the registered providers.
+     *
      * @param $url
-     * @return array
+     *
      * @throws \Exception
+     *
+     * @return array
      */
     public function parse($url)
     {
@@ -30,13 +34,13 @@ class EmbedManager
     }
 
     /**
-     * Register a provider
-     * @param ProviderInterface $provider
+     * Register a provider.
+     *
      * @return ProviderInterface
      */
     public function register(ProviderInterface $provider)
     {
-        if (!array_key_exists($provider->getName(), $this->providers)) {
+        if (!\array_key_exists($provider->getName(), $this->providers)) {
             $this->providers[$provider->getName()] = $provider;
         }
 
@@ -44,19 +48,23 @@ class EmbedManager
     }
 
     /**
-     * Get a registered provider
+     * Get a registered provider.
+     *
      * @param $name
-     * @return ProviderInterface|null
+     *
+     * @return null|ProviderInterface
      */
     public function get($name)
     {
-        return array_key_exists($name, $this->providers) ? $this->providers[$name] : null;
+        return \array_key_exists($name, $this->providers) ? $this->providers[$name] : null;
     }
 
     /**
-     * Get a registered provider by embed type
+     * Get a registered provider by embed type.
+     *
      * @param $type
-     * @return ProviderInterface|null
+     *
+     * @return null|ProviderInterface
      */
     public function getByType($type)
     {

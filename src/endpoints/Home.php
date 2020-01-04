@@ -11,6 +11,7 @@ class Home extends Route
     public function __invoke(Request $request, Response $response)
     {
         $response = $response->withRedirect('./admin/');
+
         return $this->responseWithData($request, $response, []);
     }
 }

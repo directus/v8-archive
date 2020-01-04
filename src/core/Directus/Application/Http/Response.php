@@ -4,16 +4,14 @@ namespace Directus\Application\Http;
 
 class Response extends \Slim\Http\Response
 {
-    const HTTP_NOT_CONTENT          = 204;
-    const HTTP_NOT_FOUND            = 404;
-    const HTTP_METHOD_NOT_ALLOWED   = 405;
+    const HTTP_NOT_CONTENT = 204;
+    const HTTP_NOT_FOUND = 404;
+    const HTTP_METHOD_NOT_ALLOWED = 405;
 
-    const HTTP_SERVICE_UNAVAILABLE  = 503;
+    const HTTP_SERVICE_UNAVAILABLE = 503;
 
     /**
-     * Sets multiple headers
-     *
-     * @param array $headers
+     * Sets multiple headers.
      *
      * @return $this
      */
@@ -27,10 +25,10 @@ class Response extends \Slim\Http\Response
     }
 
     /**
-     * Sets key-value header information
+     * Sets key-value header information.
      *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return $this
      */
@@ -47,10 +45,12 @@ class Response extends \Slim\Http\Response
      * This method prepares the response object to return an HTTP Json
      * response to the client.
      *
-     * @param  mixed  $data   The data
-     * @param  int    $status The HTTP status code.
-     * @param  int    $encodingOptions Json encoding options
+     * @param mixed $data            The data
+     * @param int   $status          the HTTP status code
+     * @param int   $encodingOptions Json encoding options
+     *
      * @throws \RuntimeException
+     *
      * @return static
      */
     public function withScimJson($data, $status = null, $encodingOptions = 0)

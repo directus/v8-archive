@@ -19,7 +19,7 @@ class Payload extends Collection
     }
 
     /**
-     * Gets an attribute
+     * Gets an attribute.
      *
      * @param $key
      *
@@ -39,7 +39,7 @@ class Payload extends Collection
     }
 
     /**
-     * Gets all the data
+     * Gets all the data.
      *
      * @return array
      */

@@ -6,21 +6,18 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Database\Exception\FieldNotFoundException;
 use Directus\Database\Exception\CollectionNotFoundException;
+use Directus\Database\Exception\FieldNotFoundException;
+use Directus\Database\Schema\DataTypes;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
-use Directus\Services\TablesService;
 use Directus\Services\PermissionsService;
+use Directus\Services\TablesService;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
-use Directus\Database\Schema\DataTypes;
 
 class Fields extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->post('/{collection}', [$this, 'create']);
@@ -33,12 +30,9 @@ class Fields extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws UnauthorizedException
      *
      * @return Response
-     *
-     * @throws UnauthorizedException
      */
     public function create(Request $request, Response $response)
     {
@@ -58,14 +52,11 @@ class Fields extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     *
      * @throws FieldNotFoundException
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
+     *
+     * @return Response
      */
     public function read(Request $request, Response $response)
     {
@@ -74,7 +65,7 @@ class Fields extends Route
         $fieldsName = StringUtils::csv((string) $fieldName);
 
         $service = new TablesService($this->container);
-        if (count($fieldsName) > 1) {
+        if (\count($fieldsName) > 1) {
             $responseData = $service->findFields($collectionName, $fieldsName, $request->getQueryParams());
         } else {
             $responseData = $service->findField($collectionName, $fieldName, $request->getQueryParams());
@@ -84,12 +75,9 @@ class Fields extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws UnauthorizedException
      *
      * @return Response
-     *
-     * @throws UnauthorizedException
      */
     public function update(Request $request, Response $response)
     {
@@ -99,7 +87,7 @@ class Fields extends Route
         $payload = $request->getParsedBody();
 
         if (
-            (isset($payload[0]) && is_array($payload[0]))
+            (isset($payload[0]) && \is_array($payload[0]))
             || strpos($field, ',') > 0
         ) {
             return $this->batch($request, $response);
@@ -116,15 +104,12 @@ class Fields extends Route
     }
 
     /**
-     * Get all fields that belong to a given collection
-     *
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
+     * Get all fields that belong to a given collection.
      *
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
+     *
+     * @return Response
      */
     public function allByCollection(Request $request, Response $response)
     {
@@ -138,15 +123,12 @@ class Fields extends Route
     }
 
     /**
-     * Get all fields across the system
-     *
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
+     * Get all fields across the system.
      *
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
+     *
+     * @return Response
      */
     public function all(Request $request, Response $response)
     {
@@ -159,20 +141,16 @@ class Fields extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     *
      * @throws ErrorException
      * @throws UnauthorizedException
+     *
+     * @return Response
      */
     public function delete(Request $request, Response $response)
     {
-
         $service = new TablesService($this->container);
 
-        $field = $service->getFieldObject($request->getAttribute('collection'),$request->getAttribute('field'));
+        $field = $service->getFieldObject($request->getAttribute('collection'), $request->getAttribute('field'));
 
         $service->deleteField(
             $request->getAttribute('collection'),
@@ -180,15 +158,13 @@ class Fields extends Route
             $request->getQueryParams()
         );
 
-        /**
-         * If the field is status then remove the status related permission.
-         */
+        // If the field is status then remove the status related permission.
 
         if (DataTypes::isStatusType($field->getType())) {
             $permissionService = new PermissionsService($this->container);
             $filter['filter']['collection'] = $request->getAttribute('collection');
-            $filter['filter']['status']['neq'] = "";
-            $collectionsPermission  = $permissionService->findAll($filter);
+            $filter['filter']['status']['neq'] = '';
+            $collectionsPermission = $permissionService->findAll($filter);
             $permissionId = array_column($collectionsPermission['data'], 'id');
             $permissionService->batchDeleteWithIds($permissionId);
         }
@@ -197,12 +173,9 @@ class Fields extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws \Exception
      *
      * @return Response
-     *
-     * @throws \Exception
      */
     protected function batch(Request $request, Response $response)
     {

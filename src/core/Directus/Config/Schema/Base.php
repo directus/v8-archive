@@ -3,51 +3,59 @@
 namespace Directus\Config\Schema;
 
 /**
- * Group node
+ * Group node.
  */
 abstract class Base implements Node
 {
     /**
-     * Node key
+     * Node key.
+     *
      * @var string
      */
-    private $_key = null;
+    private $_key;
 
     /**
-     * Node name
+     * Node name.
+     *
      * @var string
      */
-    private $_name = null;
+    private $_name;
 
     /**
-     * Node children
+     * Node children.
+     *
      * @var Node[]
      */
-    private $_children = null;
+    private $_children;
 
     /**
-     * Node parent
+     * Node parent.
+     *
      * @var Node
      */
-    private $_parent = null;
+    private $_parent;
 
     /**
-     * Node is optional
-     * @var boolean
+     * Node is optional.
+     *
+     * @var bool
      */
-    private $_optional = null;
+    private $_optional;
 
     /**
-     * Constructor
+     * Constructor.
+     *
+     * @param mixed $name
+     * @param mixed $children
      */
     public function __construct($name, $children)
     {
-        $this->_optional = substr($name, -1) == '?';
+        $this->_optional = '?' === substr($name, -1);
         if ($this->_optional) {
             $name = substr($name, 0, -1);
         }
         $this->_name = $name;
-        $this->_key = str_replace("-", "", str_replace("_", "", strtolower($name)));
+        $this->_key = str_replace('-', '', str_replace('_', '', strtolower($name)));
         $this->_children = $children;
         $this->_parent = null;
         foreach ($children as &$child) {
@@ -56,7 +64,8 @@ abstract class Base implements Node
     }
 
     /**
-     * Returns the node key
+     * Returns the node key.
+     *
      * @return string
      */
     public function key()
@@ -65,7 +74,8 @@ abstract class Base implements Node
     }
 
     /**
-     * Returns the node name
+     * Returns the node name.
+     *
      * @return string
      */
     public function name()
@@ -74,54 +84,69 @@ abstract class Base implements Node
     }
 
     /**
-     * Returns the parent node
+     * Returns the parent node.
+     *
+     * @param mixed $value
+     *
      * @return Node
      */
     public function parent($value = false)
     {
-        if ($value !== false) {
+        if (false !== $value) {
             $this->_parent = $value;
-            if ($this->_parent !== null) {
-                if ($this->_parent->optional() === true) {
+            if (null !== $this->_parent) {
+                if (true === $this->_parent->optional()) {
                     $this->_optional = true;
                 }
             }
         }
+
         return $this->_parent;
     }
 
     /**
-     * Returns the children nodes
+     * Returns the children nodes.
+     *
+     * @param mixed $value
+     *
      * @return Node[]
      */
     public function children($value = false)
     {
-        if ($value !== false) {
+        if (false !== $value) {
             $this->_children = $value;
         }
+
         return $this->_children;
     }
 
     /**
-     * Returns wether the node is optional or not
-     * @return boolean
+     * Returns wether the node is optional or not.
+     *
+     * @param null|mixed $value
+     *
+     * @return bool
      */
     public function optional($value = null)
     {
-        if ($value !== null) {
+        if (null !== $value) {
             $this->_optional = $value;
         }
+
         return $this->_optional;
     }
 
     /**
      * Returns the $context with normalized array keys.
+     *
      * @param $context
+     *
      * @return mixed
      */
-    protected function normalize($context) {
+    protected function normalize($context)
+    {
         foreach ($context as $context_key => $context_value) {
-            $context[strtolower(str_replace("-", "", str_replace("_", "", $context_key)))] = $context_value;
+            $context[strtolower(str_replace('-', '', str_replace('_', '', $context_key)))] = $context_value;
         }
 
         return $context;

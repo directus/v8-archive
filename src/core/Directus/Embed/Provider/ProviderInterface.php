@@ -5,7 +5,7 @@ namespace Directus\Embed\Provider;
 interface ProviderInterface
 {
     /**
-     * Check whether the given URL is supported
+     * Check whether the given URL is supported.
      *
      * @param $url
      *
@@ -14,7 +14,7 @@ interface ProviderInterface
     public function validateURL($url);
 
     /**
-     * Parse a given url
+     * Parse a given url.
      *
      * @param $url
      *
@@ -23,7 +23,7 @@ interface ProviderInterface
     public function parse($url);
 
     /**
-     * Parse a given embed id
+     * Parse a given embed id.
      *
      * @param $embedID
      *
@@ -32,28 +32,28 @@ interface ProviderInterface
     public function parseID($embedID);
 
     /**
-     * Get the provider name
+     * Get the provider name.
      *
      * @return string
      */
     public function getName();
 
     /**
-     * Get the provider type
+     * Get the provider type.
      *
      * @return string
      */
     public function getProviderType();
 
     /**
-     * Get the embed type
+     * Get the embed type.
      *
      * @return string
      */
     public function getType();
 
     /**
-     * Get the embed html code
+     * Get the embed html code.
      *
      * @param $data
      *
@@ -62,7 +62,7 @@ interface ProviderInterface
     public function getCode($data);
 
     /**
-     * Get the embed url
+     * Get the embed url.
      *
      * @param $data
      *
@@ -71,7 +71,7 @@ interface ProviderInterface
     public function getUrl($data);
 
     /**
-     * Gets the embed url format
+     * Gets the embed url format.
      *
      * @return string
      */

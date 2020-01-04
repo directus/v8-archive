@@ -30,7 +30,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         'comment',
         'explain',
         'read_field_blacklist',
-        'write_field_blacklist'
+        'write_field_blacklist',
     ];
 
     public function __construct(AdapterInterface $adapter, Acl $acl = null)
@@ -50,7 +50,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
             ['ur' => $subSelect],
             'p.role = ur.role',
             [
-                'role'
+                'role',
             ],
             $select::JOIN_RIGHT
         );
@@ -74,49 +74,9 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         return $this->parsePermissions($result);
     }
 
-    protected function parsePermissions($result)
-    {
-        $permissionsByCollection = [];
-        foreach ($result as $permission) {
-            foreach ($permission as $field => &$value) {
-                if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
-                    $value = array_filter(explode(',', $value));
-                }
-            }
-
-            $permissionsByCollection[$permission['collection']][] = $this->parseRecord($permission);
-        }
-
-        return $permissionsByCollection;
-    }
-
-    // @TODO: move it to another object.
-    private function isCurrentUserAdmin()
-    {
-        if (!$this->acl) {
-            return true;
-        }
-
-        //Dont let non-admins have alter privilege
-        return ($this->acl->getGroupId() == 1) ? true : false;
-    }
-
-    private function verifyPrivilege($attributes)
-    {
-        // Making sure alter is set for admin only.
-        if (array_key_exists('allow_alter', $attributes)) {
-            if ($this->isCurrentUserAdmin()) {
-                $attributes['allow_alter'] = 1;
-            } else {
-                $attributes['allow_alter'] = 0;
-            }
-        }
-
-        return $attributes;
-    }
-
     /**
-     * Get Permissions for the given Group ID
+     * Get Permissions for the given Group ID.
+     *
      * @param $groupId
      *
      * @return array
@@ -131,8 +91,8 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $select = new Select($this->table);
         $select->where->equalTo('group', $groupId);
 
-        if ($statusId !== false) {
-            if ($statusId === null) {
+        if (false !== $statusId) {
+            if (null === $statusId) {
                 $select->where->isNull('status');
             } else {
                 $select->where->equalTo('status', $statusId);
@@ -145,7 +105,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $privilegesByTable = [];
         foreach ($rowset as $row) {
             foreach ($row as $field => &$value) {
-                if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
+                if (\in_array($field, ['read_field_blacklist', 'write_field_blacklist'], true)) {
                     $value = explode(',', $value);
                 }
             }
@@ -166,8 +126,12 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         return $this->parseRecord(current($rowset));
     }
 
-    // @todo This currently only supports permissions,
-    // include blacklists when there is a UI for it
+    /**
+     * @todo This currently only supports permissions,
+     * include blacklists when there is a UI for it
+     *
+     * @param mixed $attributes
+     */
     public function insertPrivilege($attributes)
     {
         $attributes = $this->verifyPrivilege($attributes);
@@ -177,7 +141,8 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $insert = new Insert($this->getTable());
         $insert
             ->columns(array_keys($attributes))
-            ->values($attributes);
+            ->values($attributes)
+        ;
         $this->insertWith($insert);
 
         $privilegeId = $this->lastInsertValue;
@@ -190,8 +155,12 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         return $data = array_intersect_key($attributes, array_flip($this->fillable));
     }
 
-    // @todo This currently only supports permissions,
-    // include blacklists when there is a UI for it
+    /**
+     * @todo This currently only supports permissions,
+     * include blacklists when there is a UI for it
+     *
+     * @param mixed $attributes
+     */
     public function updatePrivilege($attributes)
     {
         $attributes = $this->verifyPrivilege($attributes);
@@ -225,7 +194,6 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         );*/
         $blacklist = [];
 
-
         $select = new Select($this->table);
         if (!empty($columns)) {
             // Force the primary key
@@ -234,7 +202,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         }
 
         $select->where->equalTo('group', $groupId);
-        if (!is_null($tableName)) {
+        if (null !== $tableName) {
             $select->where->equalTo('collection', $tableName);
             $select->limit(1);
         }
@@ -247,7 +215,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $privilegesHash = [];
 
         foreach ($rowset as $item) {
-            if (in_array($item['collection'], $blacklist)) {
+            if (\in_array($item['collection'], $blacklist, true)) {
                 continue;
             }
 
@@ -260,15 +228,15 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         }
 
         foreach ($tables as $table) {
-            if (in_array($table, $blacklist)) {
+            if (\in_array($table, $blacklist, true)) {
                 continue;
             }
 
-            if (array_key_exists($table['name'], $privilegesHash)) {
+            if (\array_key_exists($table['name'], $privilegesHash)) {
                 continue;
             }
 
-            if (!is_null($tableName)) {
+            if (null !== $tableName) {
                 continue;
             }
 
@@ -282,7 +250,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
             return strcmp($a['collection'], $b['collection']);
         });
 
-        $privileges = is_null($tableName) ? $privileges : reset($privileges);
+        $privileges = null === $tableName ? $privileges : reset($privileges);
 
         return $this->parseRecord($privileges);
     }
@@ -303,9 +271,52 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $select->where
             ->equalTo('collection', $collection)
             ->equalTo('group', $group_id)
-            ->equalTo('status', $status_id);
+            ->equalTo('status', $status_id)
+        ;
         $rowset = $this->selectWith($select);
         $rowset = $rowset->toArray();
+
         return current($rowset);
+    }
+
+    protected function parsePermissions($result)
+    {
+        $permissionsByCollection = [];
+        foreach ($result as $permission) {
+            foreach ($permission as $field => &$value) {
+                if (\in_array($field, ['read_field_blacklist', 'write_field_blacklist'], true)) {
+                    $value = array_filter(explode(',', $value));
+                }
+            }
+
+            $permissionsByCollection[$permission['collection']][] = $this->parseRecord($permission);
+        }
+
+        return $permissionsByCollection;
+    }
+
+    // @TODO: move it to another object.
+    private function isCurrentUserAdmin()
+    {
+        if (!$this->acl) {
+            return true;
+        }
+
+        //Dont let non-admins have alter privilege
+        return (1 === $this->acl->getGroupId()) ? true : false;
+    }
+
+    private function verifyPrivilege($attributes)
+    {
+        // Making sure alter is set for admin only.
+        if (\array_key_exists('allow_alter', $attributes)) {
+            if ($this->isCurrentUserAdmin()) {
+                $attributes['allow_alter'] = 1;
+            } else {
+                $attributes['allow_alter'] = 0;
+            }
+        }
+
+        return $attributes;
     }
 }

@@ -10,10 +10,10 @@ class Provider extends TwoSocialProvider
     /**
      * @var Okta
      */
-    protected $provider = null;
+    protected $provider;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getScopes()
     {
@@ -21,17 +21,17 @@ class Provider extends TwoSocialProvider
     }
 
     /**
-     * Creates the GitHub provider oAuth client
+     * Creates the GitHub provider oAuth client.
      *
      * @return Okta
      */
     protected function createProvider()
     {
         $this->provider = new Okta([
-            'baseUrl'           => $this->config->get('base_url'),
-            'clientId'          => $this->config->get('client_id'),
-            'clientSecret'      => $this->config->get('client_secret'),
-            'redirectUri'       => $this->getRedirectUrl()
+            'baseUrl' => $this->config->get('base_url'),
+            'clientId' => $this->config->get('client_id'),
+            'clientSecret' => $this->config->get('client_secret'),
+            'redirectUri' => $this->getRedirectUrl(),
         ]);
 
         return $this->provider;

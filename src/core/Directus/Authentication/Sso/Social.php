@@ -8,7 +8,7 @@ use Directus\Util\ArrayUtils;
 class Social
 {
     /**
-     * Register providers
+     * Register providers.
      *
      * @var array
      */
@@ -22,16 +22,16 @@ class Social
     }
 
     /**
-     * Register a provider
+     * Register a provider.
      *
-     * @param string $key
+     * @param string                  $key
      * @param SocialProviderInterface $provider
      *
      * @return $this
      */
     public function register($key, $provider)
     {
-        if (!$key || !is_string($key)) {
+        if (!$key || !\is_string($key)) {
             throw new \RuntimeException('Social Login name must be a string');
         }
 
@@ -43,7 +43,8 @@ class Social
             throw new RuntimeException(
                 sprintf(
                     'Single Sign On provider must be a instance of %s, instead %s was given',
-                    SocialProviderInterface::class, gettype($provider)
+                    SocialProviderInterface::class,
+                    \gettype($provider)
                 )
             );
         }
@@ -54,17 +55,17 @@ class Social
     }
 
     /**
-     * Gets a provider by its key
+     * Gets a provider by its key.
      *
      * @param $key
      *
      * @throws \Exception
      *
-     * @return mixed|null
+     * @return null|mixed
      */
     public function get($key)
     {
-        if (!array_key_exists($key, $this->providers)) {
+        if (!\array_key_exists($key, $this->providers)) {
             throw new \Exception(sprintf('auth provider "%s" does not exist.', $key));
         }
 
@@ -72,7 +73,7 @@ class Social
     }
 
     /**
-     * Get all registered providers
+     * Get all registered providers.
      *
      * @return SocialProviderInterface[]
      */

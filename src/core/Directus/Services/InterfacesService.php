@@ -13,8 +13,8 @@ class InterfacesService extends AbstractExtensionsController
         $basePath = $this->container->get('path_base');
 
         $this->paths = [
-            $basePath . '/public/extensions/core/interfaces',
-            $basePath . '/public/extensions/custom/interfaces',
+            $basePath.'/public/extensions/core/interfaces',
+            $basePath.'/public/extensions/custom/interfaces',
         ];
     }
 

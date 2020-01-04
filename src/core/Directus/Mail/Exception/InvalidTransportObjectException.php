@@ -16,7 +16,7 @@ class InvalidTransportObjectException extends Exception implements ErrorExceptio
             sprintf(
                 'Mailer Transport instance must be an instance of "%s" instead "%s" was given.',
                 AbstractTransport::class,
-                get_class($object)
+                \get_class($object)
             ),
             static::ERROR_CODE
         );

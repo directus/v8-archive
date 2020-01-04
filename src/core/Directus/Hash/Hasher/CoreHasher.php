@@ -5,7 +5,7 @@ namespace Directus\Hash\Hasher;
 class CoreHasher implements HasherInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -13,7 +13,7 @@ class CoreHasher implements HasherInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function hash($string, array $options = [])
     {

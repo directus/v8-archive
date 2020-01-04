@@ -8,37 +8,33 @@ use Directus\Collection\Collection;
 interface SocialProviderInterface
 {
     /**
-     * Returns the authentication request url
+     * Returns the authentication request url.
      *
      * @return string
      */
     public function getRequestAuthorizationUrl();
 
     /**
-     * Redirects to the authentication request url
-     *
-     * @return void
+     * Redirects to the authentication request url.
      */
     public function request();
 
     /**
-     * @return UserInterface
-     *
      * @throws \Exception
+     *
+     * @return UserInterface
      */
     public function handle();
 
     /**
-     * Gets the provider config object
+     * Gets the provider config object.
      *
      * @return Collection
      */
     public function getConfig();
 
     /**
-     * Gets user object using the authorization code
-     *
-     * @param array $data
+     * Gets user object using the authorization code.
      *
      * @return SocialUser
      */

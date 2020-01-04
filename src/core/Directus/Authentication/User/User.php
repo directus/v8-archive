@@ -8,7 +8,7 @@ use Directus\Util\ArrayUtils;
 class User implements UserInterface
 {
     /**
-     * User attributes
+     * User attributes.
      *
      * @var array
      */
@@ -20,7 +20,26 @@ class User implements UserInterface
     }
 
     /**
-     * Gets the attribute with the given name
+     * Access the attribute as property.
+     *
+     * @param $name
+     *
+     * @throws UnknownUserAttributeException
+     *
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        if (!\array_key_exists($name, $this->attributes)) {
+            throw new UnknownUserAttributeException(sprintf('Property "%s" does not exist.', $name));
+        }
+
+        // TODO: Omit sensitive data
+        return $this->attributes[$name];
+    }
+
+    /**
+     * Gets the attribute with the given name.
      *
      * @param $name
      *
@@ -32,7 +51,7 @@ class User implements UserInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getId()
     {
@@ -40,7 +59,7 @@ class User implements UserInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getEmail()
     {
@@ -48,7 +67,7 @@ class User implements UserInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function get2FASecret()
     {
@@ -56,7 +75,7 @@ class User implements UserInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getGroupId()
     {
@@ -64,26 +83,7 @@ class User implements UserInterface
     }
 
     /**
-     * Access the attribute as property
-     *
-     * @param $name
-     *
-     * @return mixed
-     *
-     * @throws UnknownUserAttributeException
-     */
-    public function __get($name)
-    {
-        if (!array_key_exists($name, $this->attributes)) {
-            throw new UnknownUserAttributeException(sprintf('Property "%s" does not exist.', $name));
-        }
-
-        // TODO: Omit sensitive data
-        return $this->attributes[$name];
-    }
-
-    /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toArray()
     {

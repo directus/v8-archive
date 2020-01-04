@@ -9,15 +9,14 @@ use Firebase\JWT\JWT;
 
 class JWTUtils
 {
-    const TYPE_AUTH                 = 'auth';
-    const TYPE_SSO_REQUEST_TOKEN    = 'request_token';
-    const TYPE_INVITATION           = 'invitation';
-    const TYPE_RESET_PASSWORD       = 'reset_password';
+    const TYPE_AUTH = 'auth';
+    const TYPE_SSO_REQUEST_TOKEN = 'request_token';
+    const TYPE_INVITATION = 'invitation';
+    const TYPE_RESET_PASSWORD = 'reset_password';
 
     /**
      * @param string $jwt
      * @param string $key
-     * @param array $allowed_algs
      *
      * @throws Exception
      *
@@ -31,6 +30,7 @@ class JWTUtils
             switch ($e->getMessage()) {
                 case 'Expired token':
                     $exception = new ExpiredTokenException();
+
                     break;
                 default:
                     $exception = new InvalidTokenException();
@@ -44,10 +44,10 @@ class JWTUtils
 
     /**
      * @param array|object $payload
-     * @param string $key
-     * @param string $alg
-     * @param null $keyId
-     * @param null $head
+     * @param string       $key
+     * @param string       $alg
+     * @param null         $keyId
+     * @param null         $head
      *
      * @return string
      */
@@ -57,7 +57,7 @@ class JWTUtils
     }
 
     /**
-     * Checks whether a token is a JWT token
+     * Checks whether a token is a JWT token.
      *
      * @param $token
      *
@@ -65,12 +65,12 @@ class JWTUtils
      */
     public static function isJWT($token)
     {
-        if (!is_string($token)) {
+        if (!\is_string($token)) {
             return false;
         }
 
         $parts = explode('.', $token);
-        if (count($parts) != 3) {
+        if (3 !== \count($parts)) {
             return false;
         }
 
@@ -79,11 +79,11 @@ class JWTUtils
             return false;
         }
 
-        return $header->typ === 'JWT';
+        return 'JWT' === $header->typ;
     }
 
     /**
-     * Checks whether or not the payload has the given type
+     * Checks whether or not the payload has the given type.
      *
      * @param string $type
      * @param object $payload
@@ -96,7 +96,7 @@ class JWTUtils
     }
 
     /**
-     * Checks whether or not the payload has the given key
+     * Checks whether or not the payload has the given key.
      *
      * @param string $key
      * @param object $payload
@@ -109,7 +109,7 @@ class JWTUtils
     }
 
     /**
-     * Checks whether or not the payload has the given project name
+     * Checks whether or not the payload has the given project name.
      *
      * @param string $project
      * @param object $payload
@@ -122,21 +122,21 @@ class JWTUtils
     }
 
     /**
-     * Checks whether or not the payload has the given attribute
+     * Checks whether or not the payload has the given attribute.
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      * @param object $payload
      *
      * @return bool
      */
     public static function hasPayloadAttr($key, $value, $payload)
     {
-        return is_object($payload) && property_exists($payload, $key) && $payload->{$key} === $value;
+        return \is_object($payload) && property_exists($payload, $key) && $payload->{$key} === $value;
     }
 
     /**
-     * Get the token payload object
+     * Get the token payload object.
      *
      * @param string $token
      * @param string $attribute
@@ -145,12 +145,12 @@ class JWTUtils
      */
     public static function getPayload($token, $attribute = null)
     {
-        if (!is_string($token)) {
+        if (!\is_string($token)) {
             return null;
         }
 
         $parts = explode('.', $token);
-        if (count($parts) != 3) {
+        if (3 !== \count($parts)) {
             return null;
         }
 
@@ -158,11 +158,11 @@ class JWTUtils
 
         $payload = JWT::jsonDecode(JWT::urlsafeB64Decode($bodyb64));
 
-        if ($attribute === null) {
+        if (null === $attribute) {
             return $payload;
         }
 
-        if (!is_string($attribute) || !property_exists($payload, $attribute)) {
+        if (!\is_string($attribute) || !property_exists($payload, $attribute)) {
             return null;
         }
 
@@ -170,11 +170,11 @@ class JWTUtils
     }
 
     /**
-     * Checks whether the token has expired
+     * Checks whether the token has expired.
      *
      * @param $token
      *
-     * @return bool|null
+     * @return null|bool
      */
     public static function hasExpired($token)
     {

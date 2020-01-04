@@ -16,7 +16,7 @@ class InvalidQueryException extends ErrorException
     /**
      * UnexpectedValueException constructor.
      *
-     * @param string $query
+     * @param string                $query
      * @param \Exception|\Throwable $previous
      */
     public function __construct($query, $previous = null)

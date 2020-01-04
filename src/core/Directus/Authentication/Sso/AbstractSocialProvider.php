@@ -20,18 +20,15 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     /**
      * @var mixed
      */
-    protected $provider = null;
+    protected $provider;
 
     /**
      * @var string
      */
-    protected $token = null;
+    protected $token;
 
     /**
      * AbstractSocialProvider constructor.
-     *
-     * @param Container $container
-     * @param array $config
      */
     public function __construct(Container $container, array $config)
     {
@@ -42,7 +39,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     }
 
     /**
-     * Gets provider instance
+     * Gets provider instance.
      *
      * @return mixed
      */
@@ -56,7 +53,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getConfig()
     {
@@ -64,9 +61,9 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     }
 
     /**
-     * Gets authorization token
+     * Gets authorization token.
      *
-     * @return string|null
+     * @return null|string
      */
     public function getToken()
     {
@@ -74,7 +71,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     }
 
     /**
-     * Gets the redirect url for the given service name
+     * Gets the redirect url for the given service name.
      *
      * @return string
      */
@@ -84,7 +81,7 @@ abstract class AbstractSocialProvider implements SocialProviderInterface
     }
 
     /**
-     * Creates the provider oAuth client
+     * Creates the provider oAuth client.
      *
      * @return mixed
      */

@@ -5,8 +5,6 @@ namespace Directus\Services;
 use Directus\Application\Application;
 use Directus\Exception\UnauthorizedException;
 use function Directus\get_project_info;
-use Directus\Services\UsersService;
-use Directus\Util\StringUtils;
 
 class ServerService extends AbstractService
 {
@@ -16,12 +14,12 @@ class ServerService extends AbstractService
     const INFO_SETTINGS_RUNTIME = 2;
 
     /**
-     * @param bool $global
-     * @param int|null $configuration
-     *
-     * @return array
+     * @param bool     $global
+     * @param null|int $configuration
      *
      * @throws UnauthorizedException
+     *
+     * @return array
      */
     public function findAllInfo($global = true, $configuration = null)
     {
@@ -29,21 +27,21 @@ class ServerService extends AbstractService
         $usersService = new UsersService($this->container);
         $tfa_enforced = $usersService->has2FAEnforced($acl->getUserId());
 
-        if ($configuration === null) {
+        if (null === $configuration) {
             $configuration = self::INFO_SETTINGS_RUNTIME;
         }
 
         $data = [
             'api' => [
                 'version' => Application::DIRECTUS_VERSION,
-                'requires2FA' => $tfa_enforced
+                'requires2FA' => $tfa_enforced,
             ],
             'server' => [
-                'max_upload_size' => \Directus\get_max_upload_size($configuration === self::INFO_SETTINGS_CORE),
+                'max_upload_size' => \Directus\get_max_upload_size(self::INFO_SETTINGS_CORE === $configuration),
             ],
         ];
 
-        if ($global !== true) {
+        if (true !== $global) {
             $config = $this->getContainer()->get('config');
             $data['api']['database'] = $config->get('database.type');
             $data['api'] = array_merge($data['api'], $this->getPublicInfo());
@@ -51,18 +49,20 @@ class ServerService extends AbstractService
 
         if ($this->getAcl()->isAdmin()) {
             $data['server']['general'] = [
-                'php_version' => phpversion(),
-                'php_api' => php_sapi_name()
+                'php_version' => PHP_VERSION,
+                'php_api' => \PHP_SAPI,
             ];
         }
 
         return [
-            'data' => $data
+            'data' => $data,
         ];
     }
 
     /**
-     * Return Project public data
+     * Return Project public data.
+     *
+     * @param mixed $data
      *
      * @return array
      */
@@ -76,20 +76,19 @@ class ServerService extends AbstractService
 
         $superadminFilePath = $basePath.'/config/__api.json';
 
-        if(!empty($projectNames)){
+        if (!empty($projectNames)) {
             $this->validate($data, [
-                'super_admin_token' => 'required'
+                'super_admin_token' => 'required',
             ]);
             $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
             if ($data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
                 throw new UnauthorizedException('Permission denied: Superadmin Only');
             }
         }
-
     }
 
     /**
-     * Return Project public data
+     * Return Project public data.
      *
      * @return array
      */

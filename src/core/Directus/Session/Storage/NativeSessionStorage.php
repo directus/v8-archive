@@ -5,41 +5,39 @@ namespace Directus\Session\Storage;
 class NativeSessionStorage implements SessionStorageInterface
 {
     /**
-     * Session Name
+     * Session Name.
      *
      * @var string
      */
     protected $sessionName;
 
     /**
-     * Session was started
+     * Session was started.
      *
      * @var bool
      */
     protected $started = false;
 
     /**
-     * All items
+     * All items.
      *
      * @var array
      */
     protected $items = [];
 
     /**
-     * Options list
+     * Options list.
      *
      * @var array
      */
     protected $options = [];
 
     /**
-     * Constructor
-     *
-     * @param array $options
+     * Constructor.
      */
     public function __construct(array $options = [])
     {
-        if (array_key_exists('name', $options) && !is_string($options['name'])) {
+        if (\array_key_exists('name', $options) && !\is_string($options['name'])) {
             throw new \InvalidArgumentException('Session name must be string value');
         }
 
@@ -50,7 +48,7 @@ class NativeSessionStorage implements SessionStorageInterface
 
         $this->options = $options;
         $cacheLimiter = '';
-        if (array_key_exists('cache_limiter', $this->options)) {
+        if (\array_key_exists('cache_limiter', $this->options)) {
             $cacheLimiter = $this->options['cache_limiter'];
         }
 
@@ -119,7 +117,7 @@ class NativeSessionStorage implements SessionStorageInterface
     {
         $key = (string) $key;
 
-        return array_key_exists($key, $this->items) ? $this->items[$key] : null;
+        return \array_key_exists($key, $this->items) ? $this->items[$key] : null;
     }
 
     public function getItems()

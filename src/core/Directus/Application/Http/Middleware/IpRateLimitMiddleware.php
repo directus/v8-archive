@@ -7,7 +7,7 @@ use RateLimit\Middleware\Identity\IpAddressIdentityResolver;
 class IpRateLimitMiddleware extends AbstractRateLimitMiddleware
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getIdentityResolver()
     {

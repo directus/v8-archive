@@ -2,9 +2,9 @@
 
 namespace Directus;
 
-if (!function_exists('get_max_upload_size')) {
+if (!\function_exists('get_max_upload_size')) {
     /**
-     * Get the maximum upload size in bytes
+     * Get the maximum upload size in bytes.
      *
      * @param bool $global
      *
@@ -20,12 +20,12 @@ if (!function_exists('get_max_upload_size')) {
         // To check whether the system is using a configuration file,
         // try retrieving the value of the cfg_file_path configuration setting.
         // If this is available, a configuration file is being used.
-        if ($global === true && get_cfg_var('cfg_file_path')) {
+        if (true === $global && get_cfg_var('cfg_file_path')) {
             $function = 'get_cfg_var';
         }
 
-        $maxUploadSize = convert_shorthand_size_to_bytes(call_user_func($function, 'upload_max_filesize'));
-        $maxPostSize = convert_shorthand_size_to_bytes(call_user_func($function, 'post_max_size'));
+        $maxUploadSize = convert_shorthand_size_to_bytes(\call_user_func($function, 'upload_max_filesize'));
+        $maxPostSize = convert_shorthand_size_to_bytes(\call_user_func($function, 'post_max_size'));
 
         return min($maxUploadSize, $maxPostSize);
     }

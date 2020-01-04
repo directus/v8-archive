@@ -15,13 +15,13 @@ use Directus\Database\Exception\InvalidFieldException;
 use Directus\Database\Exception\ItemNotFoundException;
 use Directus\Database\Exception\UnknownTypeException;
 use Directus\Database\RowGateway\BaseRowGateway;
-use Directus\Database\SchemaService;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\Object\Collection;
 use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\FieldRelationship;
 use Directus\Database\Schema\SchemaFactory;
 use Directus\Database\Schema\SchemaManager;
+use Directus\Database\SchemaService;
 use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnauthorizedException;
@@ -174,7 +174,7 @@ class TablesService extends AbstractService
             throw $e;
         }
 
-        if ($result['data'] === null) {
+        if (null === $result['data']) {
             throw new CollectionNotFoundException($name);
         }
 
@@ -287,36 +287,33 @@ class TablesService extends AbstractService
             'field' => 'required|string',
         ]);
 
-        $tableService = new TablesService($this->container);
+        $tableService = new self($this->container);
 
         /** @var Emitter $hookEmitter */
         $hookEmitter = $this->container->get('hook_emitter');
         $hookEmitter->run('field.delete:before', [$collection, $field]);
-        $hookEmitter->run('field.delete.' . $collection . ':before', [$field]);
+        $hookEmitter->run('field.delete.'.$collection.':before', [$field]);
 
         $tableService->dropColumn($collection, $field, $params);
 
         $hookEmitter->run('field.delete', [$collection, $field]);
-        $hookEmitter->run('field.delete.' . $collection, [$field]);
+        $hookEmitter->run('field.delete.'.$collection, [$field]);
         $hookEmitter->run('field.delete:after', [$collection, $field]);
-        $hookEmitter->run('field.delete.' . $collection . ':after', [$field]);
+        $hookEmitter->run('field.delete.'.$collection.':after', [$field]);
 
         return true;
     }
 
     /**
-     *
      * @param string $name
-     * @param array $data
-     * @param array $params
-     *
-     * @return array
      *
      * @throws ErrorException
      * @throws InvalidRequestException
      * @throws CollectionAlreadyExistsException
      * @throws UnauthorizedException
      * @throws UnprocessableEntityException
+     *
+     * @return array
      */
     public function createTable($name, array $data = [], array $params = [])
     {
@@ -406,18 +403,16 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Updates a table
+     * Updates a table.
      *
      * @param $name
-     * @param array $data
-     * @param array $params
-     *
-     * @return array
      *
      * @throws CollectionNotManagedException
      * @throws ErrorException
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
+     *
+     * @return array
      */
     public function updateTable($name, array $data, array $params = [])
     {
@@ -511,18 +506,16 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Adds a column to an existing table
+     * Adds a column to an existing table.
      *
      * @param string $collectionName
      * @param string $columnName
-     * @param array $data
-     * @param array $params
-     *
-     * @return array
      *
      * @throws FieldAlreadyExistsException
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
+     *
+     * @return array
      */
     public function addColumn($collectionName, $columnName, array $data, array $params = [])
     {
@@ -552,7 +545,7 @@ class TablesService extends AbstractService
         /** @var Emitter $hookEmitter */
         $hookEmitter = $this->container->get('hook_emitter');
         $hookEmitter->run('field.create:before', [$collectionName, $columnName, $data]);
-        $hookEmitter->run('field.create.' . $collectionName . ':before', [$columnName, $data]);
+        $hookEmitter->run('field.create.'.$collectionName.':before', [$columnName, $data]);
 
         // TODO: Only call this when necessary
         $this->updateTableSchema($collection, [
@@ -564,26 +557,24 @@ class TablesService extends AbstractService
         $this->addFieldInfo($collectionName, $columnName, $columnData);
 
         $hookEmitter->run('field.create', [$collectionName, $columnName, $data]);
-        $hookEmitter->run('field.create.' . $collectionName, [$columnName, $data]);
+        $hookEmitter->run('field.create.'.$collectionName, [$columnName, $data]);
         $hookEmitter->run('field.create:after', [$collectionName, $columnName, $data]);
-        $hookEmitter->run('field.create.' . $collectionName . ':after', [$columnName, $data]);
+        $hookEmitter->run('field.create.'.$collectionName.':after', [$columnName, $data]);
 
         return $this->findField($collectionName, $columnName, $params);
     }
 
     /**
-     * Adds a column to an existing table
+     * Adds a column to an existing table.
      *
      * @param string $collectionName
      * @param string $fieldName
-     * @param array $data
-     * @param array $params
-     *
-     * @return array
      *
      * @throws FieldNotFoundException
      * @throws CollectionNotFoundException
      * @throws UnauthorizedException
+     *
+     * @return array
      */
     public function changeColumn($collectionName, $fieldName, array $data, array $params = [])
     {
@@ -616,7 +607,7 @@ class TablesService extends AbstractService
         /** @var Emitter $hookEmitter */
         $hookEmitter = $this->container->get('hook_emitter');
         $hookEmitter->run('field.update:before', [$collectionName, $fieldName, $data]);
-        $hookEmitter->run('field.update.' . $collectionName . ':before', [$fieldName, $data]);
+        $hookEmitter->run('field.update.'.$collectionName.':before', [$fieldName, $data]);
 
         if ($this->shouldUpdateSchema($data)) {
             $this->updateTableSchema($collection, [
@@ -629,9 +620,9 @@ class TablesService extends AbstractService
         // ----------------------------------------------------------------------------
 
         $hookEmitter->run('field.update', [$collectionName, $fieldName, $data]);
-        $hookEmitter->run('field.update.' . $collectionName, [$fieldName, $data]);
+        $hookEmitter->run('field.update.'.$collectionName, [$fieldName, $data]);
         $hookEmitter->run('field.update:after', [$collectionName, $fieldName, $data]);
-        $hookEmitter->run('field.update.' . $collectionName . ':after', [$fieldName, $data]);
+        $hookEmitter->run('field.update.'.$collectionName.':after', [$fieldName, $data]);
 
         return $this->getFieldsTableGateway()->wrapData(
             $resultData,
@@ -641,40 +632,17 @@ class TablesService extends AbstractService
     }
 
     /**
-     * @param array $data
-     *
-     * @return bool
-     */
-    protected function shouldUpdateSchema(array $data)
-    {
-        // NOTE: If any of these attributes exists the database needs to update the column
-        return ArrayUtils::containsSome($data, [
-            'type',
-            'datatype',
-            'unique',
-            'primary_key',
-            'auto_increment',
-            'length',
-            'note',
-            'signed',
-            'nullable',
-        ]);
-    }
-
-    /**
-     * Updates a list of fields with different data each
+     * Updates a list of fields with different data each.
      *
      * @param string $collectionName
-     * @param array $payload
-     * @param array $params
-     *
-     * @return array
      *
      * @throws InvalidRequestException
+     *
+     * @return array
      */
     public function batchUpdateField($collectionName, array $payload, array $params = [])
     {
-        if (!isset($payload[0]) || !is_array($payload[0])) {
+        if (!isset($payload[0]) || !\is_array($payload[0])) {
             throw new InvalidRequestException('batch update expect an array of items');
         }
 
@@ -688,7 +656,7 @@ class TablesService extends AbstractService
             $fieldName = ArrayUtils::get($data, 'field');
             $item = $this->changeColumn($collectionName, $fieldName, $data, $params);
 
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }
@@ -701,12 +669,9 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Updates a list of fields with the same data
+     * Updates a list of fields with the same data.
      *
      * @param $collectionName
-     * @param array $fieldNames
-     * @param array $payload
-     * @param array $params
      *
      * @return array
      */
@@ -742,11 +707,11 @@ class TablesService extends AbstractService
             throw new FieldNotFoundException($fieldName);
         }
 
-        if (count($tableObject->getFields()) === 1) {
+        if (1 === \count($tableObject->getFields())) {
             throw new UnprocessableEntityException('Cannot delete the last field');
         }
 
-        if ($columnObject->isAlias() === false) {
+        if (false === $columnObject->isAlias()) {
             if (!$this->dropColumnSchema($collectionName, $fieldName)) {
                 throw new ErrorException('Error deleting the field');
             }
@@ -755,24 +720,22 @@ class TablesService extends AbstractService
         if (
             $columnObject->hasRelationship() &&
             // Don't remove relational columns for native relationships (users / files)
-            DataTypes::isUsersType($columnObject->getType()) === false &&
-            DataTypes::isFilesType($columnObject->getType()) === false
+            false === DataTypes::isUsersType($columnObject->getType()) &&
+            false === DataTypes::isFilesType($columnObject->getType())
         ) {
             $this->removeColumnRelationship($columnObject, $params);
         }
 
         if ($columnObject->isManaged()) {
-            /**
-             * Remove O2M field if M2O interface deleted as O2M will only work if M2O exist
-             */
+            // Remove O2M field if M2O interface deleted as O2M will only work if M2O exist
 
-            if(
+            if (
                 $columnObject->isManyToOne() &&
                 // Don't remove relational columns for native relationships (users / files)
-                DataTypes::isUsersType($columnObject->getType()) === false &&
-                DataTypes::isFilesType($columnObject->getType()) === false
+                false === DataTypes::isUsersType($columnObject->getType()) &&
+                false === DataTypes::isFilesType($columnObject->getType())
             ) {
-              $this->removeRelatedColumnInfo($columnObject);
+                $this->removeRelatedColumnInfo($columnObject);
             }
 
             $this->removeColumnInfo($collectionName, $fieldName);
@@ -789,15 +752,15 @@ class TablesService extends AbstractService
     {
         $relationship = $field->getRelationship();
 
-        if ($field->getName() === $relationship->getFieldMany() && !is_null($relationship->getFieldOne())) {
+        if ($field->getName() === $relationship->getFieldMany() && null !== $relationship->getFieldOne()) {
             $this->removeColumnInfo($relationship->getCollectionOne(), $relationship->getFieldOne());
         }
     }
+
     /**
-     * Add columns information to the fields table
+     * Add columns information to the fields table.
      *
      * @param $collectionName
-     * @param array $columns
      *
      * @return BaseRowGateway[]
      */
@@ -812,11 +775,192 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Adds or update a field data
+     * @param $collectionName
+     * @param $fieldName
+     *
+     * @return int
+     */
+    public function removeColumnInfo($collectionName, $fieldName)
+    {
+        $fieldsTableGateway = $this->getFieldsTableGateway();
+
+        return $fieldsTableGateway->delete([
+            'collection' => $collectionName,
+            'field' => $fieldName,
+        ]);
+    }
+
+    /**
+     * Removes the relationship of a given field.
+     *
+     * @return bool|int
+     */
+    public function removeColumnRelationship(Field $field, array $params = [])
+    {
+        if (!$field->hasRelationship()) {
+            return false;
+        }
+
+        if ($this->shouldRemoveRelationshipRecord($field)) {
+            $result = $this->removeRelationshipRecord($field);
+        } else {
+            $result = $this->removeRelationshipFromRecord($field, $params);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Drops the given table and its table and columns information.
+     *
+     * @param $name
+     *
+     * @throws CollectionNotFoundException
+     *
+     * @return bool
+     */
+    public function dropTable($name)
+    {
+        if (!$this->getSchemaManager()->collectionExists($name)) {
+            throw new CollectionNotFoundException($name);
+        }
+
+        $tableGateway = $this->createTableGateway($name);
+
+        return $tableGateway->drop();
+    }
+
+    /**
+     * Checks whether the given name is a valid clean collection name.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function isValidCollectionName($name)
+    {
+        $isTableNameAlphanumeric = preg_match('/[a-z0-9]+/i', $name);
+        $zeroOrMoreUnderscoresDashes = preg_match('/[_-]*/i', $name);
+
+        return $isTableNameAlphanumeric && $zeroOrMoreUnderscoresDashes;
+    }
+
+    /**
+     * Throws an exception when the collection name is invalid.
+     *
+     * @param string $name
+     *
+     * @throws InvalidRequestException
+     */
+    public function enforceValidCollectionName($name)
+    {
+        if (!$this->isValidCollectionName($name)) {
+            throw new InvalidRequestException('Invalid collection name');
+        }
+
+        if (StringUtils::startsWith($name, 'directus_')) {
+            throw new InvalidRequestException('Collection name cannot begin with "directus_"');
+        }
+    }
+
+    /**
+     * Gets the table object representation.
+     *
+     * @param $tableName
+     *
+     * @return \Directus\Database\Object\Collection
+     */
+    public function getTableObject($tableName)
+    {
+        return SchemaService::getCollection($tableName);
+    }
+
+    /**
+     * Checks that at least one of the fields has primary_key set to true.
+     *
+     * @return bool
+     */
+    public function hasPrimaryField(array $fields)
+    {
+        return $this->hasFieldAttributeWith($fields, 'primary_key', true, null, 1);
+    }
+
+    /**
+     * Checks that a maximum of 1 field has the primary_key field set to true. This will succeed if there are 0
+     * or 1 fields set as the primary key.
+     *
+     * @return bool
+     */
+    public function hasUniquePrimaryField(array $fields)
+    {
+        return $this->hasFieldAttributeWith($fields, 'primary_key', true);
+    }
+
+    /**
+     * Checks that at most one of the fields has auto_increment set to true.
+     *
+     * @return bool
+     */
+    public function hasUniqueAutoIncrementField(array $fields)
+    {
+        return $this->hasFieldAttributeWith($fields, 'auto_increment', true);
+    }
+
+    /**
+     * Checks that all fields name are unique.
+     *
+     * @return bool
+     */
+    public function hasUniqueFieldsName(array $fields)
+    {
+        $fieldsName = [];
+        $unique = true;
+
+        foreach ($fields as $field) {
+            $fieldName = ArrayUtils::get($field, 'field');
+            if (\in_array($fieldName, $fieldsName, true)) {
+                $unique = false;
+
+                break;
+            }
+
+            $fieldsName[] = $fieldName;
+        }
+
+        return $unique;
+    }
+
+    public function getFieldObject($collection, $field)
+    {
+        $collectionObject = $this->getSchemaManager()->getCollection($collection);
+
+        return $collectionObject->getField($field);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function shouldUpdateSchema(array $data)
+    {
+        // NOTE: If any of these attributes exists the database needs to update the column
+        return ArrayUtils::containsSome($data, [
+            'type',
+            'datatype',
+            'unique',
+            'primary_key',
+            'auto_increment',
+            'length',
+            'note',
+            'signed',
+            'nullable',
+        ]);
+    }
+
+    /**
+     * Adds or update a field data.
      *
      * @param string $collectionName
      * @param string $fieldName
-     * @param array $data
      *
      * @return array
      */
@@ -861,7 +1005,7 @@ class TablesService extends AbstractService
         ]);
 
         // Get the Directus based on the source type
-        if (ArrayUtils::get($data, 'type') === null) {
+        if (null === ArrayUtils::get($data, 'type')) {
             $fieldObject = $this->getSchemaManager()->getField($collection, $field);
 
             if ($fieldObject) {
@@ -890,47 +1034,7 @@ class TablesService extends AbstractService
     }
 
     /**
-     * @param $collectionName
-     * @param $fieldName
-     *
-     * @return int
-     */
-    public function removeColumnInfo($collectionName, $fieldName)
-    {
-        $fieldsTableGateway = $this->getFieldsTableGateway();
-
-        return $fieldsTableGateway->delete([
-            'collection' => $collectionName,
-            'field' => $fieldName,
-        ]);
-    }
-
-    /**
-     * Removes the relationship of a given field
-     *
-     * @param Field $field
-     *
-     * @return bool|int
-     */
-    public function removeColumnRelationship(Field $field, array $params = [])
-    {
-        if (!$field->hasRelationship()) {
-            return false;
-        }
-
-        if ($this->shouldRemoveRelationshipRecord($field)) {
-            $result = $this->removeRelationshipRecord($field);
-        } else {
-            $result = $this->removeRelationshipFromRecord($field, $params);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Checks whether or not the relationship record should be removed
-     *
-     * @param Field $field
+     * Checks whether or not the relationship record should be removed.
      *
      * @return bool
      */
@@ -938,13 +1042,11 @@ class TablesService extends AbstractService
     {
         $relationship = $field->getRelationship();
 
-        return ($field->getName() === $relationship->getFieldMany());
+        return $field->getName() === $relationship->getFieldMany();
     }
 
     /**
-     * Removes the relationship record of a given field
-     *
-     * @param Field $field
+     * Removes the relationship record of a given field.
      *
      * @return int
      */
@@ -952,13 +1054,12 @@ class TablesService extends AbstractService
     {
         $tableGateway = $this->getRelationsTableGateway();
         $conditions = $this->getRemoveRelationshipConditions($field);
+
         return $tableGateway->delete($conditions['values']);
     }
 
     /**
-     * Removes the relationship data of a given field
-     *
-     * @param Field $field
+     * Removes the relationship data of a given field.
      *
      * @return int
      */
@@ -969,7 +1070,7 @@ class TablesService extends AbstractService
         $relationship = $field->getRelationship();
 
         /**
-         * Remove the junction fields
+         * Remove the junction fields.
          */
         $junctionConditions = [
             'junction_field' => $relationship->getFieldMany(),
@@ -982,27 +1083,22 @@ class TablesService extends AbstractService
             $conditions['field'] => null,
         ];
 
-        /**
-         * Delete the junction entries(For M2M) and update the values for (O2M)
-         */
+        // Delete the junction entries(For M2M) and update the values for (O2M)
         if (!empty($junctionEntries['data'])) {
             $tableGateway->delete($junctionConditions);
 
-            if(isset($params['delete_junction'])){
+            if (isset($params['delete_junction'])) {
                 $this->dropTable($relationship->getCollectionMany());
             }
 
             return $tableGateway->delete($conditions['values']);
-        } else {
-            return $tableGateway->update($data, $conditions['values']);
         }
 
+        return $tableGateway->update($data, $conditions['values']);
     }
 
     /**
-     * Returns the conditions values to remove a given field relationship
-     *
-     * @param Field $field
+     * Returns the conditions values to remove a given field relationship.
      *
      * @return array
      */
@@ -1028,9 +1124,7 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Returns the relationship attribute suffix
-     *
-     * @param Field $field
+     * Returns the relationship attribute suffix.
      *
      * @return string
      */
@@ -1065,140 +1159,12 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Drops the given table and its table and columns information
+     * Checks that a set of fields has at least $min and at most $max attribute with the value of $value.
      *
-     * @param $name
-     *
-     * @return bool
-     *
-     * @throws CollectionNotFoundException
-     */
-    public function dropTable($name)
-    {
-        if (!$this->getSchemaManager()->collectionExists($name)) {
-            throw new CollectionNotFoundException($name);
-        }
-
-        $tableGateway = $this->createTableGateway($name);
-
-        return $tableGateway->drop();
-    }
-
-    /**
-     * Checks whether the given name is a valid clean collection name
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function isValidCollectionName($name)
-    {
-        $isTableNameAlphanumeric = preg_match("/[a-z0-9]+/i", $name);
-        $zeroOrMoreUnderscoresDashes = preg_match("/[_-]*/i", $name);
-
-        return $isTableNameAlphanumeric && $zeroOrMoreUnderscoresDashes;
-    }
-
-    /**
-     * Throws an exception when the collection name is invalid
-     *
-     * @param string $name
-     *
-     * @throws InvalidRequestException
-     */
-    public function enforceValidCollectionName($name)
-    {
-        if (!$this->isValidCollectionName($name)) {
-            throw new InvalidRequestException('Invalid collection name');
-        }
-
-        if (StringUtils::startsWith($name, 'directus_')) {
-            throw new InvalidRequestException('Collection name cannot begin with "directus_"');
-        }
-    }
-
-    /**
-     * Gets the table object representation
-     *
-     * @param $tableName
-     *
-     * @return \Directus\Database\Object\Collection
-     */
-    public function getTableObject($tableName)
-    {
-        return SchemaService::getCollection($tableName);
-    }
-
-    /**
-     * Checks that at least one of the fields has primary_key set to true.
-     *
-     * @param array $fields
-     *
-     * @return bool
-     */
-    public function hasPrimaryField(array $fields)
-    {
-        return $this->hasFieldAttributeWith($fields, 'primary_key', true, null, 1);
-    }
-
-    /**
-     * Checks that a maximum of 1 field has the primary_key field set to true. This will succeed if there are 0
-     * or 1 fields set as the primary key.
-     *
-     * @param array $fields
-     *
-     * @return bool
-     */
-    public function hasUniquePrimaryField(array $fields)
-    {
-        return $this->hasFieldAttributeWith($fields, 'primary_key', true);
-    }
-
-    /**
-     * Checks that at most one of the fields has auto_increment set to true
-     *
-     * @param array $fields
-     *
-     * @return bool
-     */
-    public function hasUniqueAutoIncrementField(array $fields)
-    {
-        return $this->hasFieldAttributeWith($fields, 'auto_increment', true);
-    }
-
-    /**
-     * Checks that all fields name are unique
-     *
-     * @param array $fields
-     *
-     * @return bool
-     */
-    public function hasUniqueFieldsName(array $fields)
-    {
-        $fieldsName = [];
-        $unique = true;
-
-        foreach ($fields as $field) {
-            $fieldName = ArrayUtils::get($field, 'field');
-            if (in_array($fieldName, $fieldsName)) {
-                $unique = false;
-                break;
-            }
-
-            $fieldsName[] = $fieldName;
-        }
-
-        return $unique;
-    }
-
-    /**
-     * Checks that a set of fields has at least $min and at most $max attribute with the value of $value
-     *
-     * @param array $fields
-     * @param string  $attribute
-     * @param mixed $value
-     * @param int $max
-     * @param int $min
+     * @param string $attribute
+     * @param mixed  $value
+     * @param int    $max
+     * @param int    $min
      *
      * @return bool
      */
@@ -1210,19 +1176,19 @@ class TablesService extends AbstractService
         foreach ($fields as $field) {
             // use equal operator instead of identical
             // to avoid true == 1 or false == 0 comparison
-            if (ArrayUtils::get($field, $attribute) == $value) {
-                $count++;
+            if (ArrayUtils::get($field, $attribute) === $value) {
+                ++$count;
             }
         }
 
-        $ignoreMax = is_null($max);
-        $ignoreMin = is_null($min);
+        $ignoreMax = null === $max;
+        $ignoreMin = null === $min;
 
         if ($ignoreMax && $ignoreMin) {
             $result = $count >= 1;
-        } else if ($ignoreMax) {
+        } elseif ($ignoreMax) {
             $result = $count >= $min;
-        } else if ($ignoreMin) {
+        } elseif ($ignoreMin) {
             $result = $count <= $max;
         } else {
             $result = $count >= $min && $count <= $max;
@@ -1233,7 +1199,6 @@ class TablesService extends AbstractService
 
     /**
      * @param string $name
-     * @param array $data
      *
      * @return bool
      */
@@ -1256,9 +1221,6 @@ class TablesService extends AbstractService
     }
 
     /**
-     * @param Collection $collection
-     * @param array $data
-     *
      * @return bool
      */
     protected function updateTableSchema(Collection $collection, array $data)
@@ -1282,11 +1244,11 @@ class TablesService extends AbstractService
                 $fullFieldData = array_merge($field->toArray(), $fieldData);
                 // NOTE: To avoid the table builder to add another primary or unique key constraint
                 //       the primary_key and unique flag should be remove if the field already has primary or unique key
-                if ($field->hasPrimaryKey() && $fullFieldData['primary_key'] === true) {
+                if ($field->hasPrimaryKey() && true === $fullFieldData['primary_key']) {
                     unset($fullFieldData['primary_key']);
                 }
 
-                if ($field->hasUniqueKey() && $fullFieldData['unique'] === true) {
+                if ($field->hasUniqueKey() && true === $fullFieldData['unique']) {
                     unset($fullFieldData['unique']);
                 }
 
@@ -1297,7 +1259,7 @@ class TablesService extends AbstractService
 
                 if (!$field->isAlias() && DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
                     $toDrop[] = $field->getName();
-                } else if ($field->isAlias() && !DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
+                } elseif ($field->isAlias() && !DataTypes::isAliasType(ArrayUtils::get($fieldData, 'type'))) {
                     $toAdd[] = $fullFieldData;
                 } else {
                     $toChange[] = $fullFieldData;
@@ -1352,6 +1314,7 @@ class TablesService extends AbstractService
                 $data['collection_one'] = $collectionBName;
                 $data['store_key_a'] = $column['field'];
                 $data['store_key_b'] = $collectionBObject->getPrimaryKeyName();
+
                 break;
             case FieldRelationship::ONE_TO_MANY:
                 $data['relationship_type'] = FieldRelationship::ONE_TO_MANY;
@@ -1359,6 +1322,7 @@ class TablesService extends AbstractService
                 $data['collection_one'] = $collectionBName;
                 $data['store_key_a'] = $collectionBObject->getPrimaryKeyName();
                 $data['store_key_b'] = $column['field'];
+
                 break;
         }
 
@@ -1375,13 +1339,10 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Validates the collection payload
+     * Validates the collection payload.
      *
      * @param string $name
-     * @param array $data
-     * @param array|null $fields
-     * @param boolean $update
-     * @param array $params
+     * @param bool   $update
      *
      * @throws InvalidRequestException
      */
@@ -1399,10 +1360,6 @@ class TablesService extends AbstractService
     }
 
     /**
-     * @param array $data
-     * @param array|null $fields
-     * @param array $params
-     *
      * @throws UnprocessableEntityException
      */
     protected function validateFieldPayload(array $data, array $fields = null, array $params = [])
@@ -1449,9 +1406,7 @@ class TablesService extends AbstractService
 
     /**
      * @param string $collectionName
-     * @param array $fieldsData
-     * @param bool $update
-     * @param array $params
+     * @param bool   $update
      *
      * @throws UnprocessableEntityException
      */
@@ -1465,8 +1420,6 @@ class TablesService extends AbstractService
     }
 
     /**
-     * @param array $columns
-     *
      * @throws InvalidRequestException
      */
     protected function validateSystemFields(array $columns)
@@ -1480,7 +1433,7 @@ class TablesService extends AbstractService
                     $found[$type] = 0;
                 }
 
-                $found[$type]++;
+                ++$found[$type];
             }
         }
 
@@ -1493,17 +1446,15 @@ class TablesService extends AbstractService
 
         if (!empty($types)) {
             throw new InvalidRequestException(
-                'Only one system field permitted per table: ' . implode(', ', $types)
+                'Only one system field permitted per table: '.implode(', ', $types)
             );
         }
     }
 
     /**
-     * @param array $columns
+     * @throws InvalidRequestException
      *
      * @return array
-     *
-     * @throws InvalidRequestException
      */
     protected function parseColumns(array $columns)
     {
@@ -1520,10 +1471,7 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Merges a list of missing Schema Attributes into Directus Attributes
-     *
-     * @param array $collectionNames
-     * @param array $collectionsData
+     * Merges a list of missing Schema Attributes into Directus Attributes.
      *
      * @return array
      */
@@ -1567,10 +1515,8 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Merges a list of missing Schema Attributes into Directus Attributes
+     * Merges a list of missing Schema Attributes into Directus Attributes.
      *
-     * @param Collection $collection
-     * @param array $fieldsData
      * @param array $onlyFields
      *
      * @return array
@@ -1597,7 +1543,7 @@ class TablesService extends AbstractService
         }
 
         foreach ($missingFields as $missingField) {
-            if (!is_array($onlyFields) || in_array($missingField->getName(), $onlyFields)) {
+            if (!\is_array($onlyFields) || \in_array($missingField->getName(), $onlyFields, true)) {
                 $missingFieldsData[] = $this->mergeSchemaField($missingField);
             }
         }
@@ -1606,10 +1552,7 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Merges a Field data with an Field object
-     *
-     * @param Collection $collection
-     * @param array $fieldData
+     * Merges a Field data with an Field object.
      *
      * @return array
      */
@@ -1627,10 +1570,7 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Parses Schema Attributes into Directus Attributes
-     *
-     * @param Field $field
-     * @param array $fieldData
+     * Parses Schema Attributes into Directus Attributes.
      *
      * @return array
      */
@@ -1646,13 +1586,11 @@ class TablesService extends AbstractService
             $fieldsAttributes
         );
 
-        $result = $tableGateway->parseRecord($data);
-
-        return $result;
+        return $tableGateway->parseRecord($data);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function unknownFieldsAllowed()
     {
@@ -1668,10 +1606,9 @@ class TablesService extends AbstractService
     }
 
     /**
-     * Parses Collection Schema Attributes into Directus Attributes
+     * Parses Collection Schema Attributes into Directus Attributes.
      *
      * @param string $collectionName
-     * @param array $collectionData
      *
      * @return array
      */
@@ -1746,7 +1683,7 @@ class TablesService extends AbstractService
     {
         $newParams = [];
         $sort = ArrayUtils::get($params, 'sort');
-        if ($sort && !is_array($sort)) {
+        if ($sort && !\is_array($sort)) {
             $sort = StringUtils::csv((string) $sort);
         }
 
@@ -1770,12 +1707,5 @@ class TablesService extends AbstractService
         }
 
         return $newParams;
-    }
-
-    public function getFieldObject($collection, $field)
-    {
-        $collectionObject = $this->getSchemaManager()->getCollection($collection);
-        $fieldObject = $collectionObject->getField($field);
-        return $fieldObject;
     }
 }

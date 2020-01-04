@@ -28,7 +28,22 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         'collection_presets',
         'permissions',
         'settings',
-        'collections'
+        'collections',
+    ];
+
+    public static $defaultPreferencesValues = [
+        'sort' => 'id',
+        'sort_order' => 'ASC',
+        'status' => '1,2',
+        'title' => null,
+    ];
+
+    public static $defaultPreferencesValuesByTable = [
+        'directus_files' => [
+            'sort' => 'date_uploaded',
+            'sort_order' => 'DESC',
+            'columns_visible' => 'name,title,caption,type,size,user,date_uploaded',
+        ],
     ];
 
     public function __construct(AdapterInterface $adapter, Acl $acl = null)
@@ -36,25 +51,10 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         parent::__construct(self::$_tableName, $adapter, $acl);
     }
 
-    public static $defaultPreferencesValues = [
-        'sort' => 'id',
-        'sort_order' => 'ASC',
-        'status' => '1,2',
-        'title' => null
-    ];
-
-    public static $defaultPreferencesValuesByTable = [
-        'directus_files' => [
-            'sort' => 'date_uploaded',
-            'sort_order' => 'DESC',
-            'columns_visible' => 'name,title,caption,type,size,user,date_uploaded'
-        ]
-    ];
-
     public function applyDefaultPreferences($table, $preferences)
     {
         // Table-specific default values
-        if (array_key_exists($table, self::$defaultPreferencesValuesByTable)) {
+        if (\array_key_exists($table, self::$defaultPreferencesValuesByTable)) {
             $tableDefaultPreferences = self::$defaultPreferencesValuesByTable[$table];
             foreach ($tableDefaultPreferences as $field => $defaultValue) {
                 if (!isset($preferences[$field])) {
@@ -99,13 +99,14 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             }
 
             $preferencesDefaultsApplied = $this->applyDefaultPreferences($table, $preferences);
-            if (count(array_diff($preferences, $preferencesDefaultsApplied))) {
+            if (\count(array_diff($preferences, $preferencesDefaultsApplied))) {
                 $newPreferencesData = true;
             }
             $preferences = $preferencesDefaultsApplied;
             if ($newPreferencesData) {
                 $id = $this->addOrUpdateRecordByArray($preferences);
             }
+
             return $preferences;
         }
 
@@ -117,7 +118,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             'user' => $user_id,
             'columns_visible' => implode(',', $columns_visible),
             'table_name' => $table,
-            'title' => $title
+            'title' => $title,
         ];
 
         if (SchemaService::hasCollectionSortField($table)) {
@@ -127,7 +128,8 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         $data = $this->applyDefaultPreferences($table, $data);
 
         $insert
-            ->values($data);
+            ->values($data)
+        ;
 
         $this->insertWith($insert);
 
@@ -146,7 +148,8 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         $select
             ->where
             ->equalTo('table_name', $table)
-            ->equalTo('user', $user_id);
+            ->equalTo('user', $user_id)
+        ;
 
         if ($title) {
             $select->where->equalTo('title', $title);
@@ -156,7 +159,8 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
 
         $preferences = $this
             ->selectWith($select)
-            ->current();
+            ->current()
+        ;
 
         if ($preferences) {
             $preferences = $preferences->toArray();
@@ -175,21 +179,22 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
 
     /**
      * @deprecated
+     *
      * @param $user_id
      * @param $title
+     *
      * @return array
      */
     public function fetchByUserAndTitle($user_id, $title)
     {
         $result = $this->fetchEntityByUserAndTitle($user_id, $title);
-        return (isset($result['data'])) ? $result['data'] : [];
 
+        return (isset($result['data'])) ? $result['data'] : [];
     }
 
     /**
-     * @param int $user_id
+     * @param int    $user_id
      * @param string $title
-     * @param array $params
      *
      * @return array|mixed
      */
@@ -198,7 +203,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         // TODO: Merge with fetchByUserAndTableAndTitle
         $fields = ArrayUtils::get($params, 'fields');
         if (!empty($fields)) {
-            if (!is_array($fields)) {
+            if (!\is_array($fields)) {
                 $fields = StringUtils::csv($fields);
             }
 
@@ -209,8 +214,8 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             'single' => true,
             'filters' => [
                 'user' => $user_id,
-                'title' => $title
-            ]
+                'title' => $title,
+            ],
         ]));
 
         $result = $result
@@ -240,11 +245,13 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         $select
             ->where
             ->equalTo('table_name', $table)
-            ->equalTo('user', $user_id);
+            ->equalTo('user', $user_id)
+        ;
 
         $preferences = $this
             ->selectWith($select)
-            ->current();
+            ->current()
+        ;
 
         if (!$preferences) {
             return $this->constructPreferences($user_id, $table);
@@ -264,22 +271,21 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
     public function updateDefaultByName($user_id, $table, $data)
     {
         $update = new Update($this->table);
-        unset($data['id']);
-        unset($data['title']);
-        unset($data['table_name']);
-        unset($data['user']);
-        if (!isset($data) || !is_array($data)) {
+        unset($data['id'], $data['title'], $data['table_name'], $data['user']);
+
+        if (!isset($data) || !\is_array($data)) {
             $data = [];
         }
         $update->set($data)
             ->where
             ->equalTo('table_name', $table)
             ->equalTo('user', $user_id)
-            ->isNull('title');
+            ->isNull('title')
+        ;
         $this->updateWith($update);
     }
 
-    // @param $assoc return associative array with table_name as keys
+    /** @param $assoc return associative array with table_name as keys */
     public function fetchAllByUser($user_id, $assoc = false)
     {
         $select = new Select($this->table);
@@ -293,11 +299,12 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             'status',
             'title',
             'search_string',
-            'list_view_options'
+            'list_view_options',
         ]);
 
         $select->where->equalTo('user', $user_id)
-            ->isNull('title');
+            ->isNull('title')
+        ;
 
         $coreTables = $this->schemaManager->getDirectusTables(static::$IGNORED_TABLES);
 
@@ -350,10 +357,12 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             ->where
             ->equalTo('table_name', $table)
             ->equalTo('user', $user_id)
-            ->isNotNull('title');
+            ->isNotNull('title')
+        ;
 
         $preferences = $this
-            ->selectWith($select);
+            ->selectWith($select)
+        ;
 
         if ($preferences) {
             $preferences = $preferences->toArray();

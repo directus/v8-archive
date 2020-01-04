@@ -2,9 +2,9 @@
 
 namespace Directus;
 
-if (!function_exists('request_get_contents')) {
+if (!\function_exists('request_get_contents')) {
     /**
-     * Get content from an URL
+     * Get content from an URL.
      *
      * @param $url
      * @param $headers
@@ -30,12 +30,11 @@ if (!function_exists('request_get_contents')) {
     }
 }
 
-if (!function_exists('request_get_json')) {
+if (!\function_exists('request_get_json')) {
     /**
-     * Get json from an url
+     * Get json from an url.
      *
      * @param $url
-     * @param array $headers
      *
      * @return mixed
      */
@@ -47,15 +46,13 @@ if (!function_exists('request_get_json')) {
     }
 }
 
-if (!function_exists('request_send')) {
+if (!\function_exists('request_send')) {
     /**
-     * Make a request
+     * Make a request.
      *
      * @param string $method
      * @param string $url
-     * @param mixed $body
-     * @param array $params
-     * @param array $headers
+     * @param mixed  $body
      *
      * @return mixed
      */
@@ -64,7 +61,7 @@ if (!function_exists('request_send')) {
         $ch = curl_init();
 
         if ($params) {
-            $url .= '?' . http_build_query($params);
+            $url .= '?'.http_build_query($params);
         }
 
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -84,15 +81,13 @@ if (!function_exists('request_send')) {
     }
 }
 
-if (!function_exists('request_send_json')) {
+if (!\function_exists('request_send_json')) {
     /**
-     * Make a request with a json body
+     * Make a request with a json body.
      *
      * @param string $method
      * @param string $url
-     * @param mixed $body
-     * @param array $params
-     * @param array $headers
+     * @param mixed  $body
      *
      * @return mixed
      */
@@ -100,7 +95,7 @@ if (!function_exists('request_send_json')) {
     {
         $headers = array_merge($headers, ['Content-Type: application/json']);
 
-        if (!is_string($body)) {
+        if (!\is_string($body)) {
             $body = json_encode($body);
         }
 

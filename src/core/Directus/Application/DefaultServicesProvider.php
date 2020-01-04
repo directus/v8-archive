@@ -15,11 +15,11 @@ class DefaultServicesProvider extends \Slim\DefaultServicesProvider
     /**
      * Register Slim's default services.
      *
-     * @param Container $container A DI container implementing ArrayAccess and container-interop.
+     * @param Container $container a DI container implementing ArrayAccess and container-interop
      */
     public function register($container)
     {
-        /**
+        /*
          * @param Container $container
          *
          * @return ServerRequestInterface
@@ -28,7 +28,7 @@ class DefaultServicesProvider extends \Slim\DefaultServicesProvider
             return  Request::createFromEnvironment($container->get('environment'));
         };
 
-        /**
+        /*
          * @param Container $container
          *
          * @return ResponseInterface

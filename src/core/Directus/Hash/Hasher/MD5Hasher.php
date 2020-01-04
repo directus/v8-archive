@@ -5,7 +5,7 @@ namespace Directus\Hash\Hasher;
 class MD5Hasher extends AbstractHashHasher
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getName()
     {

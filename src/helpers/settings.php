@@ -7,9 +7,9 @@ use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Database\TableGatewayFactory;
 use Directus\Util\StringUtils;
 
-if (!function_exists('get_directus_settings')) {
+if (!\function_exists('get_directus_settings')) {
     /**
-     * Returns an array of directus settings
+     * Returns an array of directus settings.
      *
      * @return array
      */
@@ -21,12 +21,12 @@ if (!function_exists('get_directus_settings')) {
     }
 }
 
-if (!function_exists('get_directus_setting')) {
+if (!\function_exists('get_directus_setting')) {
     /**
-     * Returns a directus settings by key
+     * Returns a directus settings by key.
      *
      * @param string $key
-     * @param null $default
+     * @param null   $default
      *
      * @return mixed
      */
@@ -36,8 +36,9 @@ if (!function_exists('get_directus_setting')) {
         $value = $default;
 
         foreach ($settings as $setting) {
-            if ($setting['key'] == $key) {
+            if ($setting['key'] === $key) {
                 $value = $setting['value'];
+
                 break;
             }
         }
@@ -46,9 +47,9 @@ if (!function_exists('get_directus_setting')) {
     }
 }
 
-if (!function_exists('get_kv_directus_settings')) {
+if (!\function_exists('get_kv_directus_settings')) {
     /**
-     * Returns the settings in a key-value format
+     * Returns the settings in a key-value format.
      *
      * @return array
      */
@@ -65,9 +66,9 @@ if (!function_exists('get_kv_directus_settings')) {
     }
 }
 
-if (!function_exists('get_directus_files_settings')) {
+if (!\function_exists('get_directus_files_settings')) {
     /**
-     * Get all directus files settings
+     * Get all directus files settings.
      *
      * @return array
      */
@@ -80,9 +81,9 @@ if (!function_exists('get_directus_files_settings')) {
     }
 }
 
-if (!function_exists('get_directus_thumbnail_settings')) {
+if (!\function_exists('get_directus_thumbnail_settings')) {
     /**
-     * Get all directus files settings
+     * Get all directus files settings.
      *
      * @return array
      */
@@ -90,14 +91,14 @@ if (!function_exists('get_directus_thumbnail_settings')) {
     {
         return get_directus_settings_by_keys([
             'asset_whitelist',
-            'asset_whitelist_system'
+            'asset_whitelist_system',
         ]);
     }
 }
 
-if (!function_exists('get_directus_proxy_downloads_settings')) {
+if (!\function_exists('get_directus_proxy_downloads_settings')) {
     /**
-     * Get all directus files settings
+     * Get all directus files settings.
      *
      * @return array
      */
@@ -110,11 +111,9 @@ if (!function_exists('get_directus_proxy_downloads_settings')) {
     }
 }
 
-if (!function_exists('get_directus_settings_by_keys')) {
+if (!\function_exists('get_directus_settings_by_keys')) {
     /**
-     * Get all directus files settings
-     *
-     * @param array $keys
+     * Get all directus files settings.
      *
      * @return array
      */
@@ -124,7 +123,7 @@ if (!function_exists('get_directus_settings_by_keys')) {
         $filesSettings = [];
 
         foreach ($settings as $setting) {
-            if (in_array($setting['key'], $keys)) {
+            if (\in_array($setting['key'], $keys, true)) {
                 $filesSettings[$setting['key']] = $setting['value'];
             }
         }
@@ -133,7 +132,7 @@ if (!function_exists('get_directus_settings_by_keys')) {
     }
 }
 
-if (!function_exists('get_trusted_proxies')) {
+if (!\function_exists('get_trusted_proxies')) {
     /**
      * @return array
      */
@@ -145,9 +144,9 @@ if (!function_exists('get_trusted_proxies')) {
     }
 }
 
-if (!function_exists('get_project_info')) {
+if (!\function_exists('get_project_info')) {
     /**
-     * Returns the project information
+     * Returns the project information.
      *
      * @return array
      */
@@ -161,7 +160,7 @@ if (!function_exists('get_project_info')) {
             'project_background',
             'project_public_note',
             'default_locale',
-            'telemetry'
+            'telemetry',
         ]);
 
         // TODO:
@@ -195,7 +194,7 @@ if (!function_exists('get_project_info')) {
     }
 }
 
-if (!function_exists('get_file_data')) {
+if (!\function_exists('get_file_data')) {
     /**
      * @param int $id
      *
