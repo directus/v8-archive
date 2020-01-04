@@ -12,15 +12,15 @@ class VimeoProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function validateURL($url)
     {
-        return strpos($url, 'vimeo.com') !== false;
+        return false !== strpos($url, 'vimeo.com');
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getFormatUrl()
     {
@@ -28,7 +28,7 @@ class VimeoProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function parseURL($url)
     {
@@ -45,8 +45,10 @@ class VimeoProvider extends AbstractProvider
     }
 
     /**
-     * Fetch Video information
+     * Fetch Video information.
+     *
      * @param $videoID
+     *
      * @return array
      */
     protected function fetchInfo($videoID)
@@ -59,7 +61,7 @@ class VimeoProvider extends AbstractProvider
         $info['height'] = 540;
 
         // Get Data
-        $url = 'http://vimeo.com/api/v2/video/' . $videoID . '.json';
+        $url = 'http://vimeo.com/api/v2/video/'.$videoID.'.json';
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
@@ -84,8 +86,10 @@ class VimeoProvider extends AbstractProvider
     }
 
     /**
-     * Fetch Video thumbnail data
+     * Fetch Video thumbnail data.
+     *
      * @param $thumb - url
+     *
      * @return string
      */
     protected function getThumbnail($thumb)
@@ -94,14 +98,14 @@ class VimeoProvider extends AbstractProvider
         $thumbnail = '';
 
         if ($content) {
-            $thumbnail = 'data:image/jpeg;base64,' . base64_encode($content);
+            $thumbnail = 'data:image/jpeg;base64,'.base64_encode($content);
         }
 
         return $thumbnail;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getFormatTemplate()
     {

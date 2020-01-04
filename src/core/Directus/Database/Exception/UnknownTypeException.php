@@ -10,6 +10,6 @@ class UnknownTypeException extends UnprocessableEntityException
 
     public function __construct($type)
     {
-        parent::__construct('Unknown type: ' . (string)$type);
+        parent::__construct('Unknown type: '.(string) $type);
     }
 }

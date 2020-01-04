@@ -73,7 +73,7 @@ class CollectionPresetsService extends AbstractService
         // this avoids an indirect reveal of an item the user is not allowed to see
         $delete = new Delete($this->collection);
         $delete->where([
-            'id' => $id
+            'id' => $id,
         ]);
         $tableGateway->enforceDeletePermission($delete);
 

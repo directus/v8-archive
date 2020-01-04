@@ -6,8 +6,8 @@ use Directus\Permissions\Acl;
 use Directus\Util\DateTimeUtils;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Insert;
-use Zend\Db\Sql\Update;
 use Zend\Db\Sql\Select;
+use Zend\Db\Sql\Update;
 
 class DirectusUserSessionsTableGateway extends RelationalTableGateway
 {
@@ -21,7 +21,6 @@ class DirectusUserSessionsTableGateway extends RelationalTableGateway
     /**
      * DirectusUserSessionTableGateway constructor.
      *
-     * @param AdapterInterface $adapter
      * @param Acl $acl
      */
     public function __construct(AdapterInterface $adapter, $acl = null)
@@ -38,23 +37,25 @@ class DirectusUserSessionsTableGateway extends RelationalTableGateway
             'token_expired_at' => $data['token_expired_at'],
             'created_on' => DateTimeUtils::now()->toString(),
             'ip_address' => \Directus\get_request_ip(),
-            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
+            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
         ];
-        
+
         $insert = new Insert($this->getTable());
         $insert
-            ->values($sessionData);
+            ->values($sessionData)
+        ;
 
         $this->insertWith($insert);
+
         return $this->getLastInsertValue();
     }
 
-    public function updateSession($id,$data)
+    public function updateSession($id, $data)
     {
         $update = new Update($this->getTable());
         $update->set($data);
         $update->where([
-            'id' => $id
+            'id' => $id,
         ]);
         $this->updateWith($update);
     }
@@ -65,7 +66,7 @@ class DirectusUserSessionsTableGateway extends RelationalTableGateway
         $select->columns(['*']);
         $select->where($condition);
         $select->limit(1);
+
         return $this->selectWith($select)->current();
     }
-
 }

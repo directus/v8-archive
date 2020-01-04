@@ -32,7 +32,7 @@ class OneToManyRelation extends Builder
     public function all(array $values)
     {
         $this->columns([]);
-        $this->whereIn($this->table . '.' . $this->column, $values);
+        $this->whereIn($this->table.'.'.$this->column, $values);
         $this->groupBy($this->columnRight);
         $this->having(new Expression('COUNT(*) = ?', count($values)));
 
@@ -51,7 +51,7 @@ class OneToManyRelation extends Builder
     public function whereLike($column, $value, $not = false, $logical = 'and')
     {
         $this->columns([]);
-        parent::whereLike($this->table . '.' . $column, $value, $not, $logical);
+        parent::whereLike($this->table.'.'.$column, $value, $not, $logical);
 
         return $this;
     }

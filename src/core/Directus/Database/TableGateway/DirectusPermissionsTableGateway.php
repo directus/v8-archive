@@ -30,7 +30,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         'comment',
         'explain',
         'read_field_blacklist',
-        'write_field_blacklist'
+        'write_field_blacklist',
     ];
 
     public function __construct(AdapterInterface $adapter, Acl $acl = null)
@@ -50,7 +50,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
             ['ur' => $subSelect],
             'p.role = ur.role',
             [
-                'role'
+                'role',
             ],
             $select::JOIN_RIGHT
         );
@@ -74,49 +74,9 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         return $this->parsePermissions($result);
     }
 
-    protected function parsePermissions($result)
-    {
-        $permissionsByCollection = [];
-        foreach ($result as $permission) {
-            foreach ($permission as $field => &$value) {
-                if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
-                    $value = array_filter(explode(',', $value));
-                }
-            }
-
-            $permissionsByCollection[$permission['collection']][] = $this->parseRecord($permission);
-        }
-
-        return $permissionsByCollection;
-    }
-
-    // @TODO: move it to another object.
-    private function isCurrentUserAdmin()
-    {
-        if (!$this->acl) {
-            return true;
-        }
-
-        //Dont let non-admins have alter privilege
-        return ($this->acl->getGroupId() == 1) ? true : false;
-    }
-
-    private function verifyPrivilege($attributes)
-    {
-        // Making sure alter is set for admin only.
-        if (array_key_exists('allow_alter', $attributes)) {
-            if ($this->isCurrentUserAdmin()) {
-                $attributes['allow_alter'] = 1;
-            } else {
-                $attributes['allow_alter'] = 0;
-            }
-        }
-
-        return $attributes;
-    }
-
     /**
-     * Get Permissions for the given Group ID
+     * Get Permissions for the given Group ID.
+     *
      * @param $groupId
      *
      * @return array
@@ -131,8 +91,8 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $select = new Select($this->table);
         $select->where->equalTo('group', $groupId);
 
-        if ($statusId !== false) {
-            if ($statusId === null) {
+        if (false !== $statusId) {
+            if (null === $statusId) {
                 $select->where->isNull('status');
             } else {
                 $select->where->equalTo('status', $statusId);
@@ -177,7 +137,8 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $insert = new Insert($this->getTable());
         $insert
             ->columns(array_keys($attributes))
-            ->values($attributes);
+            ->values($attributes)
+        ;
         $this->insertWith($insert);
 
         $privilegeId = $this->lastInsertValue;
@@ -224,7 +185,6 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
             'directus_users_copy'
         );*/
         $blacklist = [];
-
 
         $select = new Select($this->table);
         if (!empty($columns)) {
@@ -303,9 +263,52 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $select->where
             ->equalTo('collection', $collection)
             ->equalTo('group', $group_id)
-            ->equalTo('status', $status_id);
+            ->equalTo('status', $status_id)
+        ;
         $rowset = $this->selectWith($select);
         $rowset = $rowset->toArray();
+
         return current($rowset);
+    }
+
+    protected function parsePermissions($result)
+    {
+        $permissionsByCollection = [];
+        foreach ($result as $permission) {
+            foreach ($permission as $field => &$value) {
+                if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
+                    $value = array_filter(explode(',', $value));
+                }
+            }
+
+            $permissionsByCollection[$permission['collection']][] = $this->parseRecord($permission);
+        }
+
+        return $permissionsByCollection;
+    }
+
+    // @TODO: move it to another object.
+    private function isCurrentUserAdmin()
+    {
+        if (!$this->acl) {
+            return true;
+        }
+
+        //Dont let non-admins have alter privilege
+        return (1 == $this->acl->getGroupId()) ? true : false;
+    }
+
+    private function verifyPrivilege($attributes)
+    {
+        // Making sure alter is set for admin only.
+        if (array_key_exists('allow_alter', $attributes)) {
+            if ($this->isCurrentUserAdmin()) {
+                $attributes['allow_alter'] = 1;
+            } else {
+                $attributes['allow_alter'] = 0;
+            }
+        }
+
+        return $attributes;
     }
 }

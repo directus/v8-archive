@@ -5,7 +5,7 @@ namespace Directus\Application\Http;
 class Request extends \Slim\Http\Request
 {
     /**
-     * Get Request Origin
+     * Get Request Origin.
      *
      * @return mixed
      */
@@ -15,7 +15,7 @@ class Request extends \Slim\Http\Request
     }
 
     /**
-     * Returns the Request Referer Url
+     * Returns the Request Referer Url.
      *
      * @return mixed
      */

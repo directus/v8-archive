@@ -18,10 +18,10 @@ use Zend\Db\Sql\Where;
 
 class MySQLSchema extends AbstractSchema
 {
-    protected $isMariaDb = null;
+    protected $isMariaDb;
 
     /**
-     * Database connection adapter
+     * Database connection adapter.
      *
      * @var \Zend\DB\Adapter\Adapter
      */
@@ -38,7 +38,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * Get the schema name
+     * Get the schema name.
      *
      * @return string
      */
@@ -56,7 +56,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getCollections(array $params = [])
     {
@@ -65,7 +65,7 @@ class MySQLSchema extends AbstractSchema
             'collection' => 'TABLE_NAME',
             'date_created' => 'CREATE_TIME',
             'collation' => 'TABLE_COLLATION',
-            'schema_comment' => 'TABLE_COMMENT'
+            'schema_comment' => 'TABLE_COMMENT',
         ]);
         $select->from(['ST' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')]);
         $select->join(
@@ -75,14 +75,14 @@ class MySQLSchema extends AbstractSchema
                 'note',
                 'hidden' => new Expression('IFNULL(`DT`.`hidden`, 0)'),
                 'single' => new Expression('IFNULL(`DT`.`single`, 0)'),
-                'managed' => new Expression('IF(ISNULL(`DT`.`collection`), 0, `DT`.`managed`)')
+                'managed' => new Expression('IF(ISNULL(`DT`.`collection`), 0, `DT`.`managed`)'),
             ],
             $select::JOIN_LEFT
         );
 
         $condition = [
             'ST.TABLE_SCHEMA' => $this->adapter->getCurrentSchema(),
-            'ST.TABLE_TYPE' => 'BASE TABLE'
+            'ST.TABLE_TYPE' => 'BASE TABLE',
         ];
 
         $select->where($condition);
@@ -98,13 +98,12 @@ class MySQLSchema extends AbstractSchema
 
         $sql = new Sql($this->adapter);
         $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
 
-        return $result;
+        return $statement->execute();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function collectionExists($collectionsName)
     {
@@ -117,7 +116,7 @@ class MySQLSchema extends AbstractSchema
         $select->from(['T' => new TableIdentifier('TABLES', 'INFORMATION_SCHEMA')]);
         $select->where([
             new In('T.TABLE_NAME', $collectionsName),
-            'T.TABLE_SCHEMA' => $this->adapter->getCurrentSchema()
+            'T.TABLE_SCHEMA' => $this->adapter->getCurrentSchema(),
         ]);
 
         $sql = new Sql($this->adapter);
@@ -128,7 +127,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getCollection($collectionName)
     {
@@ -136,7 +135,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFields($tableName, array $params = [])
     {
@@ -144,7 +143,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getAllFields(array $params = [])
     {
@@ -177,7 +176,7 @@ class MySQLSchema extends AbstractSchema
                 'id' => new Expression('IF(ISNULL(DF.id), NULL, DF.id)'),
                 'type',
                 'sort',
-                'managed' =>  new Expression('IF(ISNULL(DF.id),0,1)'),
+                'managed' => new Expression('IF(ISNULL(DF.id),0,1)'),
                 'interface',
                 'hidden_detail' => new Expression('IF(DF.hidden_detail=1,1,0)'),
                 'hidden_browse' => new Expression('IF(DF.hidden_browse=1,1,0)'),
@@ -235,7 +234,7 @@ class MySQLSchema extends AbstractSchema
             'id',
             'type' => new Expression('UCASE(type)'),
             'sort',
-            'managed' =>  new Expression('IF(ISNULL(DF2.id),0,1)'),
+            'managed' => new Expression('IF(ISNULL(DF2.id),0,1)'),
             'interface',
             'hidden_detail',
             'hidden_browse',
@@ -284,13 +283,12 @@ class MySQLSchema extends AbstractSchema
         }
 
         $statement = $sql->prepareStatementForSqlObject($selectUnion);
-        $result = $statement->execute();
 
-        return $result;
+        return $statement->execute();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function hasField($tableName, $columnName)
     {
@@ -298,7 +296,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getField($tableName, $columnName)
     {
@@ -306,7 +304,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAllRelations()
     {
@@ -321,7 +319,7 @@ class MySQLSchema extends AbstractSchema
             'collection_many',
             'field_many',
             'collection_one',
-            'field_one'
+            'field_one',
         ]);
 
         $selectOne->from('directus_relations');
@@ -334,13 +332,12 @@ class MySQLSchema extends AbstractSchema
 
         $sql = new Sql($this->adapter);
         $statement = $sql->prepareStatementForSqlObject($selectOne);
-        $result = $statement->execute();
 
-        return $result;
+        return $statement->execute();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function hasPrimaryKey($tableName)
     {
@@ -348,7 +345,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getPrimaryKey($tableName)
     {
@@ -358,13 +355,13 @@ class MySQLSchema extends AbstractSchema
         // @todo: make this part of loadSchema
         // without the need to use acl and create a infinite nested function call
         $select->columns([
-            'column_name' => 'COLUMN_NAME'
+            'column_name' => 'COLUMN_NAME',
         ]);
         $select->from(new TableIdentifier('COLUMNS', 'INFORMATION_SCHEMA'));
         $select->where([
             'TABLE_NAME' => $tableName,
             'TABLE_SCHEMA' => $this->adapter->getCurrentSchema(),
-            'COLUMN_KEY' => 'PRI'
+            'COLUMN_KEY' => 'PRI',
         ]);
 
         $sql = new Sql($this->adapter);
@@ -381,7 +378,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFullSchema()
     {
@@ -389,7 +386,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getColumnUI($column)
     {
@@ -397,14 +394,14 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * Add primary key to an existing column
+     * Add primary key to an existing column.
      *
      * @param $table
      * @param $column
      *
-     * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
-     *
      * @throws Exception
+     *
+     * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
      */
     public function addPrimaryKey($table, $column)
     {
@@ -435,7 +432,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function dropPrimaryKey($table, $column)
     {
@@ -477,6 +474,7 @@ class MySQLSchema extends AbstractSchema
             case 'bool':
             case 'boolean':
                 $data = boolval($data);
+
                 break;
             case 'tinyjson':
             case 'json':
@@ -487,11 +485,13 @@ class MySQLSchema extends AbstractSchema
                 } else {
                     $data = null;
                 }
+
                 break;
             case 'blob':
             case 'mediumblob':
                 // NOTE: Do we really need to encode the blob?
                 $data = base64_encode($data);
+
                 break;
             case 'year':
             case 'tinyint':
@@ -507,19 +507,21 @@ class MySQLSchema extends AbstractSchema
                 if (is_numeric($data)) {
                     $data = (int) $data;
                 }
+
                 break;
             case 'numeric':
             case 'float':
             case 'real':
             case 'decimal':
             case 'double':
-                $data = (float)$data;
+                $data = (float) $data;
+
                 break;
             case 'date':
             case 'datetime':
                 $format = 'Y-m-d';
                 $zeroData = '0000-00-00';
-                if ($type === 'datetime') {
+                if ('datetime' === $type) {
                     $format .= ' H:i:s';
                     $zeroData .= ' 00:00:00';
                 }
@@ -529,10 +531,12 @@ class MySQLSchema extends AbstractSchema
                 }
                 $datetime = \DateTime::createFromFormat($format, $data);
                 $data = $datetime ? $datetime->format($format) : null;
+
                 break;
             case 'time':
                 // NOTE: Assuming this are all valid formatted data
                 $data = !empty($data) ? $data : null;
+
                 break;
             case 'char':
             case 'varchar':
@@ -553,7 +557,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getFloatingPointTypes()
     {
@@ -570,7 +574,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getIntegerTypes()
     {
@@ -582,12 +586,12 @@ class MySQLSchema extends AbstractSchema
             'int',
             'integer', // alias of int
             'long',
-            'tinyint'
+            'tinyint',
         ];
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getNumericTypes()
     {
@@ -595,7 +599,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isFloatingPointType($type)
     {
@@ -603,7 +607,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isIntegerType($type)
     {
@@ -611,7 +615,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isNumericType($type)
     {
@@ -619,7 +623,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getStringTypes()
     {
@@ -632,12 +636,12 @@ class MySQLSchema extends AbstractSchema
             'tinytext',
             'text',
             'mediumtext',
-            'longtext'
+            'longtext',
         ];
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isStringType($type)
     {
@@ -645,7 +649,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getDateAndTimeTypes()
     {
@@ -658,7 +662,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isDateAndTimeTypes($type)
     {
@@ -666,7 +670,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getTypesRequireLength()
     {
@@ -676,12 +680,12 @@ class MySQLSchema extends AbstractSchema
             'enum',
             'set',
             'decimal',
-            'char'
+            'char',
         ];
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getTypesAllowLength()
     {
@@ -692,7 +696,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isTypeLengthRequired($type)
     {
@@ -700,7 +704,7 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isTypeLengthAllowed($type)
     {
@@ -708,17 +712,17 @@ class MySQLSchema extends AbstractSchema
     }
 
     /**
-     * Checks whether the connection is to a MariaDB server
+     * Checks whether the connection is to a MariaDB server.
      *
      * @return bool
      */
     public function isMariaDb()
     {
-        if ($this->isMariaDb === null) {
+        if (null === $this->isMariaDb) {
             $this->isMariaDb = false;
             $result = $this->adapter->query('SHOW VARIABLES WHERE Variable_Name LIKE "version" OR Variable_Name LIKE "version_comment";')->execute();
             while ($result->valid() && !$this->isMariaDb) {
-                $this->isMariaDb = $result->current() && strpos(strtolower(ArrayUtils::get($result->current(), 'Value', '')), 'mariadb') !== false;
+                $this->isMariaDb = $result->current() && false !== strpos(strtolower(ArrayUtils::get($result->current(), 'Value', '')), 'mariadb');
                 $result->next();
             }
         }

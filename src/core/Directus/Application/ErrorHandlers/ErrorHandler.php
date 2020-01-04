@@ -22,14 +22,14 @@ use Slim\Handlers\AbstractHandler;
 class ErrorHandler extends AbstractHandler
 {
     /**
-     * Hook Emitter Instance
+     * Hook Emitter Instance.
      *
      * @var \Directus\Hook\Emitter
      */
     protected $emitter;
 
     /**
-     * Error handler settings
+     * Error handler settings.
      *
      * @var array
      */
@@ -56,10 +56,8 @@ class ErrorHandler extends AbstractHandler
     }
 
     /**
-     * Handles the error
+     * Handles the error.
      *
-     * @param Request $request
-     * @param Response $response
      * @param \Exception|\Throwable $exception
      *
      * @return Response
@@ -69,7 +67,7 @@ class ErrorHandler extends AbstractHandler
         $data = $this->processException($exception);
 
         $response = $response->withStatus($data['http_status_code']);
-       
+
         $this->triggerResponseAction($request, $response, $data);
 
         if ($this->isMessageSCIM($response)) {
@@ -77,17 +75,19 @@ class ErrorHandler extends AbstractHandler
                 ->withJson([
                     'schemas' => [ScimService::SCHEMA_ERROR],
                     'status' => $data['http_status_code'],
-                    'detail' => $data['error']['message']
-                ]);
+                    'detail' => $data['error']['message'],
+                ])
+            ;
         }
 
         return $response
             ->withJson(['error' => $data['error']])
-            ->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'));
+            ->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'))
+        ;
     }
 
     /**
-     * Returns an exception error and http status code information
+     * Returns an exception error and http status code information.
      *
      * http_status_code and error key returned in the array
      *
@@ -97,7 +97,7 @@ class ErrorHandler extends AbstractHandler
      */
     public function processException($exception)
     {
-        $productionMode = ArrayUtils::get($this->settings, 'env', 'development') === 'production';
+        $productionMode = 'production' === ArrayUtils::get($this->settings, 'env', 'development');
         $this->trigger($exception);
 
         $message = $exception->getMessage() ?: 'Unknown Error';
@@ -108,7 +108,7 @@ class ErrorHandler extends AbstractHandler
         }
 
         if (!$productionMode && ($previous = $exception->getPrevious())) {
-            $message .= ' ' . $previous->getMessage();
+            $message .= ' '.$previous->getMessage();
         }
 
         if ($exception instanceof \PDOException) {
@@ -125,23 +125,23 @@ class ErrorHandler extends AbstractHandler
         // TODO: Implement a method/property that returns the exception type/status
         if ($exception instanceof BadRequestExceptionInterface) {
             $httpStatusCode = 400;
-        } else if ($exception instanceof NotFoundExceptionInterface) {
+        } elseif ($exception instanceof NotFoundExceptionInterface) {
             $httpStatusCode = 404;
-        } else if ($exception instanceof UnauthorizedExceptionInterface) {
+        } elseif ($exception instanceof UnauthorizedExceptionInterface) {
             $httpStatusCode = 401;
-        } else if ($exception instanceof ForbiddenException) {
+        } elseif ($exception instanceof ForbiddenException) {
             $httpStatusCode = 403;
-        } else if ($exception instanceof ConflictExceptionInterface) {
+        } elseif ($exception instanceof ConflictExceptionInterface) {
             $httpStatusCode = 409;
-        } else if ($exception instanceof UnprocessableEntityExceptionInterface) {
+        } elseif ($exception instanceof UnprocessableEntityExceptionInterface) {
             $httpStatusCode = 422;
-        } else if ($exception instanceof ServiceUnavailableInterface) {
+        } elseif ($exception instanceof ServiceUnavailableInterface) {
             $httpStatusCode = 503;
         }
 
         $data = [
             'code' => $code,
-            'message' => $message
+            'message' => $message,
         ];
 
         if ($exception instanceof InvalidQueryException) {
@@ -165,12 +165,12 @@ class ErrorHandler extends AbstractHandler
 
         return [
             'http_status_code' => $httpStatusCode,
-            'error' => $data
+            'error' => $data,
         ];
     }
 
     /**
-     * Checks whether the exception is an error
+     * Checks whether the exception is an error.
      *
      * @param $exception
      *
@@ -183,7 +183,7 @@ class ErrorHandler extends AbstractHandler
     }
 
     /**
-     * Triggers application error event
+     * Triggers application error event.
      *
      * @param \Throwable $e
      */
@@ -195,8 +195,6 @@ class ErrorHandler extends AbstractHandler
     }
 
     /**
-     * @param MessageInterface $message
-     *
      * @return mixed|string
      */
     protected function isMessageSCIM(MessageInterface $message)
@@ -211,7 +209,7 @@ class ErrorHandler extends AbstractHandler
     }
 
     /**
-     * Clean Database warning/error message
+     * Clean Database warning/error message.
      *
      * @param Exception|\Throwable $exception
      *
@@ -236,14 +234,13 @@ class ErrorHandler extends AbstractHandler
     }
 
     /**
-     * Trigger a response action
-     * @param  Request  $request
-     * @param  Response $response
-     * @return void
+     * Trigger a response action.
      */
-    protected function triggerResponseAction(Request $request, Response $response, array $data) {
-        if (!$this->emitter) return;
-
+    protected function triggerResponseAction(Request $request, Response $response, array $data)
+    {
+        if (!$this->emitter) {
+            return;
+        }
         $uri = $request->getUri();
 
         $responseInfo = [
@@ -257,9 +254,9 @@ class ErrorHandler extends AbstractHandler
             // array instead of the JSON object. Converting it to JSON before
             // counting would introduce too much latency and the difference in
             // length between the JSON and PHP array is insignificant
-            'size' => mb_strlen(serialize((array) $data), '8bit')
+            'size' => mb_strlen(serialize((array) $data), '8bit'),
         ];
 
-        $this->emitter->run("response", [$responseInfo, $data]);
+        $this->emitter->run('response', [$responseInfo, $data]);
     }
 }

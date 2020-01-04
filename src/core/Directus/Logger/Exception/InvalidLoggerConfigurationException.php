@@ -11,7 +11,7 @@ class InvalidLoggerConfigurationException extends ErrorException
 
     public function __construct($variable)
     {
-        parent::__construct('Invalid Configuration for logger "' . $variable . '" variable.', static::ERROR_CODE);
+        parent::__construct('Invalid Configuration for logger "'.$variable.'" variable.', static::ERROR_CODE);
     }
 
     public function getStatusCode()

@@ -23,9 +23,6 @@ class PermissionsService extends AbstractService
     }
 
     /**
-     * @param array $data
-     * @param array $params
-     *
      * @return array
      */
     public function create(array $data, array $params = [])
@@ -44,9 +41,6 @@ class PermissionsService extends AbstractService
     }
 
     /**
-     * @param array $data
-     * @param array $params
-     *
      * @return array
      */
     public function batchCreate(array $data, array $params = [])
@@ -83,9 +77,6 @@ class PermissionsService extends AbstractService
     }
 
     /**
-     * @param array $items
-     * @param array $params
-     *
      * @return mixed
      */
     public function batchUpdate(array $items, array $params = [])
@@ -94,10 +85,6 @@ class PermissionsService extends AbstractService
     }
 
     /**
-     * @param array $ids
-     * @param array $data
-     * @param array $params
-     *
      * @return array
      */
     public function batchUpdateWithIds(array $ids, array $data, array $params = [])
@@ -111,7 +98,7 @@ class PermissionsService extends AbstractService
         $this->validate(['id' => $id], $this->createConstraintFor($this->collection, ['id']));
         $tableGateway = $this->getTableGateway();
         $this->getItemsAndSetResponseCacheTags($tableGateway, [
-            'id' => $id
+            'id' => $id,
         ]);
 
         $tableGateway->deleteRecord($id, $this->getCRUDParams($params));
@@ -119,12 +106,6 @@ class PermissionsService extends AbstractService
         return true;
     }
 
-    /**
-     * @param array $ids
-     * @param array $params
-     *
-     * @return void
-     */
     public function batchDeleteWithIds(array $ids, array $params = [])
     {
         $this->itemsService->batchDeleteWithIds($this->collection, $ids, $params);
@@ -143,7 +124,7 @@ class PermissionsService extends AbstractService
         $acl = $this->container->get('acl');
 
         return [
-            'data' => $acl->getAllPermissions()
+            'data' => $acl->getAllPermissions(),
         ];
     }
 
@@ -162,7 +143,7 @@ class PermissionsService extends AbstractService
         }
 
         return [
-            'data' => $permissions
+            'data' => $permissions,
         ];
     }
 

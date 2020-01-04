@@ -5,7 +5,7 @@ namespace Directus\Hash\Hasher;
 abstract class AbstractHashHasher implements HasherInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function hash($string, array $options = [])
     {
@@ -13,7 +13,7 @@ abstract class AbstractHashHasher implements HasherInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function verify($string, $hash, array $options = [])
     {

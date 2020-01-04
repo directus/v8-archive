@@ -4,36 +4,36 @@ namespace Directus\Database\Schema;
 
 final class DataTypes
 {
-    const TYPE_ALIAS                = 'alias';
-    const TYPE_ARRAY                = 'array';
-    const TYPE_BOOLEAN              = 'boolean';
-    const TYPE_BINARY               = 'binary';
-    const TYPE_DATETIME             = 'datetime';
-    const TYPE_DATE                 = 'date';
-    const TYPE_TIME                 = 'time';
-    const TYPE_FILE                 = 'file';
-    const TYPE_HASH                 = 'hash';
-    const TYPE_GROUP                = 'group';
-    const TYPE_INTEGER              = 'integer';
-    const TYPE_DECIMAL              = 'decimal';
-    const TYPE_JSON                 = 'json';
-    const TYPE_LANG                 = 'lang';
-    const TYPE_M2O                  = 'm2o';
-    const TYPE_O2M                  = 'o2m';
-    const TYPE_SLUG                 = 'slug';
-    const TYPE_SORT                 = 'sort';
-    const TYPE_STATUS               = 'status';
-    const TYPE_STRING               = 'string';
-    const TYPE_TRANSLATION          = 'translation';
-    const TYPE_UUID                 = 'uuid';
-    const TYPE_DATETIME_CREATED     = 'datetime_created';
-    const TYPE_DATETIME_UPDATED     = 'datetime_updated';
-    const TYPE_USER_CREATED         = 'user_created';
-    const TYPE_USER_UPDATED         = 'user_updated';
-    const TYPE_USER                 = 'user';
+    const TYPE_ALIAS = 'alias';
+    const TYPE_ARRAY = 'array';
+    const TYPE_BOOLEAN = 'boolean';
+    const TYPE_BINARY = 'binary';
+    const TYPE_DATETIME = 'datetime';
+    const TYPE_DATE = 'date';
+    const TYPE_TIME = 'time';
+    const TYPE_FILE = 'file';
+    const TYPE_HASH = 'hash';
+    const TYPE_GROUP = 'group';
+    const TYPE_INTEGER = 'integer';
+    const TYPE_DECIMAL = 'decimal';
+    const TYPE_JSON = 'json';
+    const TYPE_LANG = 'lang';
+    const TYPE_M2O = 'm2o';
+    const TYPE_O2M = 'o2m';
+    const TYPE_SLUG = 'slug';
+    const TYPE_SORT = 'sort';
+    const TYPE_STATUS = 'status';
+    const TYPE_STRING = 'string';
+    const TYPE_TRANSLATION = 'translation';
+    const TYPE_UUID = 'uuid';
+    const TYPE_DATETIME_CREATED = 'datetime_created';
+    const TYPE_DATETIME_UPDATED = 'datetime_updated';
+    const TYPE_USER_CREATED = 'user_created';
+    const TYPE_USER_UPDATED = 'user_updated';
+    const TYPE_USER = 'user';
 
     /**
-     * Returns a list all data types
+     * Returns a list all data types.
      *
      * @return array
      */
@@ -71,7 +71,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a array type
+     * Checks whether or not the given type is a array type.
      *
      * @param string $type
      *
@@ -83,7 +83,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a boolean type
+     * Checks whether or not the given type is a boolean type.
      *
      * @param string $type
      *
@@ -95,7 +95,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a json type
+     * Checks whether or not the given type is a json type.
      *
      * @param string $type
      *
@@ -107,7 +107,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a string type
+     * Checks whether or not the given type is a string type.
      *
      * @param string $type
      *
@@ -119,7 +119,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a slug type
+     * Checks whether or not the given type is a slug type.
      *
      * @param string $type
      *
@@ -131,7 +131,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a hash type
+     * Checks whether or not the given type is a hash type.
      *
      * @param string $type
      *
@@ -143,7 +143,7 @@ final class DataTypes
     }
 
     /**
-     * Returns a list of Date/Time data types
+     * Returns a list of Date/Time data types.
      *
      * @return array
      */
@@ -155,7 +155,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a datetime type
+     * Checks whether or not the given type is a datetime type.
      *
      * @param string $type
      *
@@ -167,7 +167,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a date type
+     * Checks whether or not the given type is a date type.
      *
      * @param string $type
      *
@@ -179,7 +179,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a time type
+     * Checks whether or not the given type is a time type.
      *
      * @param string $type
      *
@@ -191,7 +191,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a numeric type
+     * Checks whether or not the given type is a numeric type.
      *
      * @param string $type
      *
@@ -203,7 +203,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a integer type
+     * Checks whether or not the given type is a integer type.
      *
      * @param string $type
      *
@@ -215,7 +215,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is a decimal type
+     * Checks whether or not the given type is a decimal type.
      *
      * @param string $type
      *
@@ -227,7 +227,7 @@ final class DataTypes
     }
 
     /**
-     * Returns all numeric types
+     * Returns all numeric types.
      *
      * @return array
      */
@@ -240,7 +240,7 @@ final class DataTypes
     }
 
     /**
-     * Returns all the alias data types
+     * Returns all the alias data types.
      *
      * @return array
      */
@@ -250,12 +250,12 @@ final class DataTypes
             static::TYPE_ALIAS,
             static::TYPE_O2M,
             static::TYPE_GROUP,
-            static::TYPE_TRANSLATION
+            static::TYPE_TRANSLATION,
         ];
     }
 
     /**
-     * Checks whether the given type is an alias type
+     * Checks whether the given type is an alias type.
      *
      * @param string $type
      *
@@ -267,7 +267,7 @@ final class DataTypes
     }
 
     /**
-     * Returns all the o2m data types
+     * Returns all the o2m data types.
      *
      * @return array
      */
@@ -275,12 +275,12 @@ final class DataTypes
     {
         return [
             static::TYPE_O2M,
-            static::TYPE_TRANSLATION
+            static::TYPE_TRANSLATION,
         ];
     }
 
     /**
-     * Checks whether the given type is an o2m type
+     * Checks whether the given type is an o2m type.
      *
      * @param string $type
      *
@@ -292,19 +292,19 @@ final class DataTypes
     }
 
     /**
-     * Returns all the files type
+     * Returns all the files type.
      *
      * @return array
      */
     public static function getFilesType()
     {
         return [
-            static::TYPE_FILE
+            static::TYPE_FILE,
         ];
     }
 
     /**
-     * Checks whether or not the given type is file type
+     * Checks whether or not the given type is file type.
      *
      * @param string $type
      *
@@ -316,7 +316,7 @@ final class DataTypes
     }
 
     /**
-     * Returns all the system datetime types
+     * Returns all the system datetime types.
      *
      * @return array
      */
@@ -324,11 +324,12 @@ final class DataTypes
     {
         return [
             static::TYPE_DATETIME_CREATED,
-            static::TYPE_DATETIME_UPDATED
+            static::TYPE_DATETIME_UPDATED,
         ];
     }
+
     /**
-     * Returns all the system user types
+     * Returns all the system user types.
      *
      * @return array
      */
@@ -336,12 +337,12 @@ final class DataTypes
     {
         return [
             static::TYPE_USER_CREATED,
-            static::TYPE_USER_UPDATED
+            static::TYPE_USER_UPDATED,
         ];
     }
 
     /**
-     * Checks whether or not the given type is system datetime type
+     * Checks whether or not the given type is system datetime type.
      *
      * @param string $type
      *
@@ -353,7 +354,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is system user type
+     * Checks whether or not the given type is system user type.
      *
      * @param string $type
      *
@@ -365,7 +366,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is status type
+     * Checks whether or not the given type is status type.
      *
      * @param string $type
      *
@@ -377,7 +378,7 @@ final class DataTypes
     }
 
     /**
-     * Returns all the unique data types
+     * Returns all the unique data types.
      *
      * Only one of these types can exists per collection
      *
@@ -405,7 +406,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether the given type is translations type
+     * Checks whether the given type is translations type.
      *
      * @param string $type
      *
@@ -417,7 +418,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether the given type is lang type
+     * Checks whether the given type is lang type.
      *
      * @param string $type
      *
@@ -429,7 +430,7 @@ final class DataTypes
     }
 
     /**
-     * Returns all users type
+     * Returns all users type.
      *
      * @return array
      */
@@ -443,7 +444,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not the given type is user type
+     * Checks whether or not the given type is user type.
      *
      * @param string $type
      *
@@ -455,7 +456,7 @@ final class DataTypes
     }
 
     /**
-     * Checks whether or not a given type exists
+     * Checks whether or not a given type exists.
      *
      * @param string $type
      *
@@ -467,7 +468,7 @@ final class DataTypes
     }
 
     /**
-     * Compare if two types are equal
+     * Compare if two types are equal.
      *
      * @param string $typeA
      * @param string $typeB

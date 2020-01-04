@@ -10,7 +10,7 @@ use Directus\Util\ArrayUtils;
 abstract class AbstractRepository implements RepositoryInterface
 {
     /**
-     * TODO: We should implement compound primary key
+     * TODO: We should implement compound primary key.
      *
      * @var string
      */
@@ -41,7 +41,8 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * @param string $attribute
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return mixed
      */
     public function findOneBy($attribute, $value)
@@ -51,6 +52,7 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * @param int|string $id
+     *
      * @return mixed
      */
     public function find($id)

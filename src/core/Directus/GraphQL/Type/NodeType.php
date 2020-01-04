@@ -1,8 +1,9 @@
 <?php
+
 namespace Directus\GraphQL\Type;
 
-use GraphQL\Type\Definition\InterfaceType;
 use Directus\GraphQL\Types;
+use GraphQL\Type\Definition\InterfaceType;
 
 class NodeType extends InterfaceType
 {
@@ -11,14 +12,15 @@ class NodeType extends InterfaceType
         $config = [
             'name' => 'Node',
             'fields' => [
-                'id' => Types::id()
+                'id' => Types::id(),
             ],
-            'resolveType' => [$this, 'resolveNodeType']
+            'resolveType' => [$this, 'resolveNodeType'],
         ];
         parent::__construct($config);
     }
+
     public function resolveNodeType($object)
     {
-      return Types::DirectusFile();
+        return Types::DirectusFile();
     }
 }

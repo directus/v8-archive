@@ -1,10 +1,11 @@
 <?php
+
 namespace Directus\GraphQL\Type;
 
+use Directus\GraphQL\Collection\DirectusCollectionList;
+use Directus\GraphQL\Collection\UserCollectionList;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use Directus\GraphQL\Collection\UserCollectionList;
-use Directus\GraphQL\Collection\DirectusCollectionList;
 
 class QueryType extends ObjectType
 {
@@ -19,7 +20,7 @@ class QueryType extends ObjectType
             'fields' => $fields,
             'resolveField' => function ($val, $args, $context, ResolveInfo $info) {
                 return $this->{$info->fieldName}($val, $args, $context, $info);
-            }
+            },
         ];
         parent::__construct($config);
     }

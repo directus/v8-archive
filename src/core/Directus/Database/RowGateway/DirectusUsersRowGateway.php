@@ -29,5 +29,4 @@ class DirectusUsersRowGateway extends BaseRowGateway
 
         return $rowData;
     }
-
 }

@@ -4,7 +4,6 @@ namespace Directus\Services;
 
 use Directus\Hash\HashManager;
 use Directus\Util\StringUtils;
-use League\OAuth2\Client\Provider\Google;
 use PragmaRX\Google2FA\Google2FA;
 
 class UtilsService extends AbstractService
@@ -12,9 +11,9 @@ class UtilsService extends AbstractService
     public function hashString($string, $hasher, array $options = [])
     {
         $this->validate([
-            'string' => $string
+            'string' => $string,
         ], [
-            'string' => 'required|string'
+            'string' => 'required|string',
         ]);
 
         $options['hasher'] = $hasher;
@@ -24,8 +23,8 @@ class UtilsService extends AbstractService
 
         return [
             'data' => [
-                'hash' => $hashedString
-            ]
+                'hash' => $hashedString,
+            ],
         ];
     }
 
@@ -33,10 +32,10 @@ class UtilsService extends AbstractService
     {
         $this->validate([
             'string' => $string,
-            'hash' => $hash
+            'hash' => $hash,
         ], [
             'string' => 'required|string',
-            'hash' => 'required|string'
+            'hash' => 'required|string',
         ]);
 
         $options['hasher'] = $hasher;
@@ -46,8 +45,8 @@ class UtilsService extends AbstractService
 
         return [
             'data' => [
-                'valid' => $valid
-            ]
+                'valid' => $valid,
+            ],
         ];
     }
 
@@ -60,8 +59,8 @@ class UtilsService extends AbstractService
 
         return [
             'data' => [
-                'random' => $randomString
-            ]
+                'random' => $randomString,
+            ],
         ];
     }
 
@@ -69,10 +68,11 @@ class UtilsService extends AbstractService
     {
         $ga = new Google2FA();
         $tfa_secret = $ga->generateSecretKey();
+
         return [
             'data' => [
-                '2fa_secret' => $tfa_secret
-            ]
+                '2fa_secret' => $tfa_secret,
+            ],
         ];
     }
 }

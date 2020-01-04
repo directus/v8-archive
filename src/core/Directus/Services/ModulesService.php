@@ -12,8 +12,8 @@ class ModulesService extends AbstractExtensionsController
 
         $basePath = $this->container->get('path_base');
         $this->paths = [
-            $basePath . '/public/extensions/core/modules',
-            $basePath . '/public/extensions/custom/modules',
+            $basePath.'/public/extensions/core/modules',
+            $basePath.'/public/extensions/custom/modules',
         ];
     }
 

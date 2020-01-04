@@ -9,13 +9,13 @@ use Directus\Util\ArrayUtils;
 
 class ScimService extends AbstractService
 {
-    const SCHEMA_LIST  = 'urn:ietf:params:scim:api:messages:2.0:ListResponse';
+    const SCHEMA_LIST = 'urn:ietf:params:scim:api:messages:2.0:ListResponse';
     const SCHEMA_GROUP = 'urn:ietf:params:scim:schemas:core:2.0:Group';
-    const SCHEMA_USER  = 'urn:ietf:params:scim:schemas:core:2.0:User';
+    const SCHEMA_USER = 'urn:ietf:params:scim:schemas:core:2.0:User';
     const SCHEMA_ERROR = 'urn:ietf:params:scim:api:messages:2.0:Error';
 
     const RESOURCE_GROUP = 'Group';
-    const RESOURCE_USER  = 'User';
+    const RESOURCE_USER = 'User';
 
     /**
      * @var UsersService
@@ -65,8 +65,8 @@ class ScimService extends AbstractService
             'fields' => 'id',
             'single' => true,
             'filter' => [
-                'external_id' => $id
-            ]
+                'external_id' => $id,
+            ],
         ]);
 
         $parsedData = $this->parseScimUserData($data);
@@ -87,8 +87,8 @@ class ScimService extends AbstractService
             'fields' => 'id',
             'single' => true,
             'filter' => [
-                'external_id' => $id
-            ]
+                'external_id' => $id,
+            ],
         ]);
 
         $parsedData = $this->parseScimGroupData($data);
@@ -104,13 +104,13 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Returns the data of the give user id
+     * Returns the data of the give user id.
      *
      * @param mixed $id
-     * @param array $params
-     * @return array
      *
      * @throws UnprocessableEntityException
+     *
+     * @return array
      */
     public function findUser($id, array $params = [])
     {
@@ -121,7 +121,7 @@ class ScimService extends AbstractService
         $userData = $this->usersService->findOne(
             [
                 'single' => true,
-                'filter' => ['external_id' => $id]
+                'filter' => ['external_id' => $id],
             ]
         );
 
@@ -129,13 +129,13 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Returns the data of the give group id
+     * Returns the data of the give group id.
      *
      * @param mixed $id
-     * @param array $params
-     * @return array
      *
      * @throws UnprocessableEntityException
+     *
+     * @return array
      */
     public function findGroup($id, array $params = [])
     {
@@ -149,8 +149,8 @@ class ScimService extends AbstractService
                 'filter' => ['external_id' => $id],
                 'fields' => [
                     '*',
-                    'users.*.*'
-                ]
+                    'users.*.*',
+                ],
             ]
         );
 
@@ -158,9 +158,7 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Returns a list of users
-     *
-     * @param array $scimParams
+     * Returns a list of users.
      *
      * @return array
      */
@@ -177,9 +175,7 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Returns a list of groups
-     *
-     * @param array $scimParams
+     * Returns a list of groups.
      *
      * @return array
      */
@@ -189,8 +185,8 @@ class ScimService extends AbstractService
         $items = $this->rolesService->findAll(array_merge($parameters, [
             'fields' => [
                 '*',
-                'users.*.*'
-            ]
+                'users.*.*',
+            ],
         ]));
 
         return $this->parseGroupsData(
@@ -202,7 +198,6 @@ class ScimService extends AbstractService
 
     /**
      * @param mixed $id
-     * @param array $params
      *
      * @return bool
      */
@@ -212,92 +207,22 @@ class ScimService extends AbstractService
             'fields' => 'id',
             'single' => true,
             'filter' => [
-                'external_id' => $id
-            ]
+                'external_id' => $id,
+            ],
         ]);
 
         return $this->rolesService->delete(ArrayUtils::get($role, 'data.id'));
     }
 
     /**
-     * Parse Scim parameters into Directus parameters
-     *
-     * @param string $resourceType
-     * @param array $scimParams
-     *
-     * @return array
-     */
-    protected function parseListParameters($resourceType, array $scimParams)
-    {
-        $filter = $this->getFilter($resourceType, ArrayUtils::get($scimParams, 'filter'));
-
-        $parameters = [
-            'filter' => $filter
-        ];
-
-        if (ArrayUtils::has($scimParams, 'startIndex')) {
-            $offset = (int)ArrayUtils::get($scimParams, 'startIndex', 1);
-            $parameters['offset'] =  $offset - 1;
-        }
-
-        if (ArrayUtils::has($scimParams, 'count')) {
-            $limit  = (int)ArrayUtils::get($scimParams, 'count', 0);
-            $parameters['limit'] = $limit > 0 ? $limit : 0;
-        }
-
-        $parameters['meta'] = '*';
-
-        return $parameters;
-    }
-
-    /**
-     * @param string $filter
-     *
-     * @param string $resourceType
-     *
-     * @return array
-     *
-     * @throws UnprocessableEntityException
-     */
-    protected function getFilter($resourceType, $filter)
-    {
-        if (empty($filter)) {
-            return [];
-        }
-
-        if (!is_string($filter)) {
-            throw new UnprocessableEntityException('Filter must be a string');
-        }
-
-        $filterParts = preg_split('/\s+/', $filter);
-
-        if (count($filterParts) !== 3) {
-            throw new UnprocessableEntityException('Filter must be: <attribute> <operator> <value>');
-        }
-
-        $attribute = $filterParts[0];
-        $operator = $filterParts[1];
-        $value = trim($filterParts[2], '"');
-        if (!$this->isOperatorSupported($operator)) {
-            throw new UnprocessableEntityException(
-                sprintf('Unsupported operator "%s"', $operator)
-            );
-        }
-
-        return [
-            $this->convertFilterAttribute($resourceType, $attribute) => [$operator => $value]
-        ];
-    }
-
-    /**
-     * Converts scim user attribute to directus's user attribute
+     * Converts scim user attribute to directus's user attribute.
      *
      * @param string $resourceType
      * @param string $attribute
      *
-     * @return string
-     *
      * @throws UnprocessableEntityException
+     *
+     * @return string
      */
     public function convertFilterAttribute($resourceType, $attribute)
     {
@@ -314,9 +239,7 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Parse Scim user data
-     *
-     * @param array $data
+     * Parse Scim user data.
      *
      * @return array
      */
@@ -353,7 +276,7 @@ class ScimService extends AbstractService
             $email = null;
             foreach ($data['emails'] as $emailData) {
                 $email = ArrayUtils::get($emailData, 'value');
-                if (isset($emailData['primary']) && $emailData['primary'] === true) {
+                if (isset($emailData['primary']) && true === $emailData['primary']) {
                     break;
                 }
             }
@@ -372,7 +295,7 @@ class ScimService extends AbstractService
         }
 
         if (ArrayUtils::has($data, 'active')) {
-            $userData['status'] = $data['active'] === true
+            $userData['status'] = true === $data['active']
                                     ? DirectusUsersTableGateway::STATUS_ACTIVE
                                     : DirectusUsersTableGateway::STATUS_DRAFT;
         }
@@ -381,9 +304,7 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Parse Scim group data
-     *
-     * @param array $data
+     * Parse Scim group data.
      *
      * @return array
      */
@@ -403,7 +324,7 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Attributes mapping from scim schema to directus users schema
+     * Attributes mapping from scim schema to directus users schema.
      *
      * @return array
      */
@@ -418,13 +339,13 @@ class ScimService extends AbstractService
                 'userName' => 'email',
                 'externalId' => 'external_id',
                 'id' => 'id',
-                'emails.value' => 'email'
-            ]
+                'emails.value' => 'email',
+            ],
         ];
     }
 
     /**
-     * Checks whether the given operator is supported
+     * Checks whether the given operator is supported.
      *
      * @param string $operator
      *
@@ -436,23 +357,19 @@ class ScimService extends AbstractService
     }
 
     /**
-     * List of supported operators
+     * List of supported operators.
      *
      * @return array
      */
     public function getOperators()
     {
         return [
-            'eq'
+            'eq',
         ];
     }
 
     /**
-     * Parses a list of users data into a SCIM schema
-     *
-     * @param array $list
-     * @param array $meta
-     * @param array $parameters
+     * Parses a list of users data into a SCIM schema.
      *
      * @return array
      */
@@ -467,11 +384,7 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Parses a list of users data into a SCIM schema
-     *
-     * @param array $list
-     * @param array $meta
-     * @param array $parameters
+     * Parses a list of users data into a SCIM schema.
      *
      * @return array
      */
@@ -486,9 +399,7 @@ class ScimService extends AbstractService
     }
 
     /**
-     * Parses an user data into a SCIM schema
-     *
-     * @param array $data
+     * Parses an user data into a SCIM schema.
      *
      * @return array
      */
@@ -504,7 +415,7 @@ class ScimService extends AbstractService
         $lastName = ArrayUtils::get($data, 'last_name');
         $location = \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_user', [
             'project' => \Directus\get_api_project_from_request(),
-            'id' => $externalId
+            'id' => $externalId,
         ]));
 
         return [
@@ -516,12 +427,12 @@ class ScimService extends AbstractService
                 // 'created' => null,
                 // 'lastModified' => null,
                 'location' => $location,
-                'version' => sprintf('W/"%s"', md5($lastName . $firstName . $email))
+                'version' => sprintf('W/"%s"', md5($lastName.$firstName.$email)),
             ],
             'name' => [
                 // 'formatted' => sprintf('%s %s', $firstName, $lastName),
                 'familyName' => $lastName,
-                'givenName' => $firstName
+                'givenName' => $firstName,
             ],
             'userName' => $email,
             // 'phoneNumbers' => [],
@@ -529,19 +440,17 @@ class ScimService extends AbstractService
                 [
                     'value' => $email,
                     'type' => 'work',
-                    'primary' => true
-                ]
+                    'primary' => true,
+                ],
             ],
             'locale' => ArrayUtils::get($data, 'locale'),
             'timezone' => ArrayUtils::get($data, 'timezone'),
-            'active' => ArrayUtils::get($data, 'status') === DirectusUsersTableGateway::STATUS_ACTIVE
+            'active' => DirectusUsersTableGateway::STATUS_ACTIVE === ArrayUtils::get($data, 'status'),
         ];
     }
 
     /**
-     * Parses an group data into a SCIM schema
-     *
-     * @param array $data
+     * Parses an group data into a SCIM schema.
      *
      * @return array
      */
@@ -557,31 +466,33 @@ class ScimService extends AbstractService
         // $lastName = ArrayUtils::get($data, 'last_name');
         $location = \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_group', [
             'project' => \Directus\get_api_project_from_request(),
-            'id' => $externalId
+            'id' => $externalId,
         ]));
 
         $eTag = sprintf(
             'W/"%s"',
             md5(
                 ArrayUtils::get($data, 'ip_whitelist')
-                . ArrayUtils::get($data, 'name')
-                . ArrayUtils::get($data, 'nav_blacklist')
+                .ArrayUtils::get($data, 'name')
+                .ArrayUtils::get($data, 'nav_blacklist')
             )
         );
 
         $users = ArrayUtils::get($data, 'users', []);
         $members = array_map(function ($junction) {
             $user = $junction['user'];
+
             return [
                 'value' => ArrayUtils::get($user, 'email'),
                 '$ref' => \Directus\get_url($this->container->get('router')->pathFor('scim_v2_read_user', [
                     'project' => \Directus\get_api_project_from_request(),
-                    'id' => ArrayUtils::get($user, 'id')
+                    'id' => ArrayUtils::get($user, 'id'),
                 ])),
                 'display' => sprintf(
                     '%s %s',
-                    ArrayUtils::get($user, 'first_name'), ArrayUtils::get($user, 'last_name')
-                )
+                    ArrayUtils::get($user, 'first_name'),
+                    ArrayUtils::get($user, 'last_name')
+                ),
             ];
         }, $users);
 
@@ -594,26 +505,90 @@ class ScimService extends AbstractService
                 // 'created' => null,
                 // 'lastModified' => null,
                 'location' => $location,
-                'version' => $eTag
+                'version' => $eTag,
             ],
             'displayName' => ArrayUtils::get($data, 'name'),
-            'members' => $members
+            'members' => $members,
         ];
     }
 
     /**
-     * Adds Schema List attributes such as totalResults
+     * Parse Scim parameters into Directus parameters.
      *
-     * @param array $items
-     * @param array $meta
-     * @param array $parameters
+     * @param string $resourceType
+     *
+     * @return array
+     */
+    protected function parseListParameters($resourceType, array $scimParams)
+    {
+        $filter = $this->getFilter($resourceType, ArrayUtils::get($scimParams, 'filter'));
+
+        $parameters = [
+            'filter' => $filter,
+        ];
+
+        if (ArrayUtils::has($scimParams, 'startIndex')) {
+            $offset = (int) ArrayUtils::get($scimParams, 'startIndex', 1);
+            $parameters['offset'] = $offset - 1;
+        }
+
+        if (ArrayUtils::has($scimParams, 'count')) {
+            $limit = (int) ArrayUtils::get($scimParams, 'count', 0);
+            $parameters['limit'] = $limit > 0 ? $limit : 0;
+        }
+
+        $parameters['meta'] = '*';
+
+        return $parameters;
+    }
+
+    /**
+     * @param string $filter
+     * @param string $resourceType
+     *
+     * @throws UnprocessableEntityException
+     *
+     * @return array
+     */
+    protected function getFilter($resourceType, $filter)
+    {
+        if (empty($filter)) {
+            return [];
+        }
+
+        if (!is_string($filter)) {
+            throw new UnprocessableEntityException('Filter must be a string');
+        }
+
+        $filterParts = preg_split('/\s+/', $filter);
+
+        if (3 !== count($filterParts)) {
+            throw new UnprocessableEntityException('Filter must be: <attribute> <operator> <value>');
+        }
+
+        $attribute = $filterParts[0];
+        $operator = $filterParts[1];
+        $value = trim($filterParts[2], '"');
+        if (!$this->isOperatorSupported($operator)) {
+            throw new UnprocessableEntityException(
+                sprintf('Unsupported operator "%s"', $operator)
+            );
+        }
+
+        return [
+            $this->convertFilterAttribute($resourceType, $attribute) => [$operator => $value],
+        ];
+    }
+
+    /**
+     * Adds Schema List attributes such as totalResults.
      *
      * @return array
      */
     protected function addSchemaListAttributes(array $items, array $meta, array $parameters)
     {
         $result = [
-            'schemas' => [static::SCHEMA_LIST]
+            'schemas' => [static::SCHEMA_LIST],
         ];
 
         if (ArrayUtils::has($parameters, 'offset')) {
@@ -636,8 +611,6 @@ class ScimService extends AbstractService
     }
 
     /**
-     * @param array $params
-     *
      * @return array
      */
     protected function getFieldsParams(array $params)
@@ -647,7 +620,7 @@ class ScimService extends AbstractService
 
         if (!empty($excludedAttributes)) {
             $excludedAttributes = array_map(function ($attribute) {
-                return '-' . $attribute;
+                return '-'.$attribute;
             }, $excludedAttributes);
         }
 

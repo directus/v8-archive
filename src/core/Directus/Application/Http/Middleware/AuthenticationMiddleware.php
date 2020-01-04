@@ -2,6 +2,7 @@
 
 namespace Directus\Application\Http\Middleware;
 
+use Directus\Api\Routes\Roles;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Authentication\Exception\TFAEnforcedException;
@@ -17,20 +18,15 @@ use Directus\Services\AuthService;
 use Directus\Services\UsersService;
 use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
-use Directus\Api\Routes\Roles;
 
 class AuthenticationMiddleware extends AbstractMiddleware
 {
     /**
-     * @param Request $request
-     * @param Response $response
-     * @param callable $next
-     *
-     * @return Response
-     *
      * @throws UnauthorizedLocationException
      * @throws UserNotAuthenticatedException
      * @throws TFAEnforcedException
+     *
+     * @return Response
      */
     public function __invoke(Request $request, Response $response, callable $next)
     {
@@ -47,29 +43,29 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
         try {
             $user = $this->authenticate($request);
-           
+
             $hookEmitter = $this->container->get('hook_emitter');
             if (!$user && !$publicRoleId) {
-           
                 $exception = new UserNotAuthenticatedException();
                 $hookEmitter->run('auth.fail', [$exception]);
+
                 throw $exception;
             }
-           
+
             if (!is_null($user)) {
-           
                 $rolesIpWhitelist = $this->getUserRolesIPWhitelist($user->getId());
-              
+
                 $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());
-                
+
                 /** @var UsersService $usersService */
                 $usersService = new UsersService($this->container);
                 $tfa_enforced = $usersService->has2FAEnforced($user->getId());
                 $isUserEdit = $this->targetIsUserEdit($request, $user->getId());
 
-                if ($tfa_enforced && $user->get2FASecret() == null && !$isUserEdit) {
+                if ($tfa_enforced && null == $user->get2FASecret() && !$isUserEdit) {
                     $exception = new TFAEnforcedException();
                     $hookEmitter->run('auth.fail', [$exception]);
+
                     throw $exception;
                 }
 
@@ -79,7 +75,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
                     // NOTE: 0 will not represent a "guest" or the "public" user
                     // To prevent the issue where user column on activity table can't be null
                     $user = new User([
-                        'id' => 0
+                        'id' => 0,
                     ]);
 
                     $acl->setPublic(true);
@@ -93,7 +89,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
                 // NOTE: 0 will not represent a "guest" or the "public" user
                 // To prevent the issue where user column on activity table can't be null
                 $user = new User([
-                    'id' => 0
+                    'id' => 0,
                 ]);
 
                 $acl->setPublic(true);
@@ -111,6 +107,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
         if (!$acl->isIpAllowed(\Directus\get_request_ip())) {
             $exception = new UnauthorizedLocationException();
             $hookEmitter->run('auth.fail', [$exception]);
+
             throw $exception;
         }
 
@@ -119,15 +116,13 @@ class AuthenticationMiddleware extends AbstractMiddleware
         // TODO: Make sure that the group is not empty
         $acl->setUserId($user->getId());
         $acl->setUserEmail($user->getEmail());
-        $acl->setUserFullName($user->get('first_name') . ' ' . $user->get('last_name'));
+        $acl->setUserFullName($user->get('first_name').' '.$user->get('last_name'));
 
         return $next($request, $response);
     }
 
     /**
-     * Tries to authenticate the user based on the HTTP Request
-     *
-     * @param Request $request
+     * Tries to authenticate the user based on the HTTP Request.
      *
      * @return UserInterface
      */
@@ -147,20 +142,21 @@ class AuthenticationMiddleware extends AbstractMiddleware
     }
 
     /**
-     * Gets the authentication token from the request
-     *
-     * @param Request $request
+     * Gets the authentication token from the request.
      *
      * @return string
      */
     protected function getAuthToken(Request $request)
     {
         $authToken = get_request_authorization_token($request);
+
         return get_static_token_based_on_type($authToken);
     }
 
     /**
-     * Gets IP whitelist
+     * Gets IP whitelist.
+     *
+     * @param mixed $userId
      *
      * @return array
      */
@@ -179,13 +175,13 @@ class AuthenticationMiddleware extends AbstractMiddleware
             ['ur' => $subSelect],
             'r.id = ur.role',
             [
-                'role'
+                'role',
             ],
             $select::JOIN_RIGHT
         );
 
         $result = $directusGroupsTableGateway->selectWith($select);
- 
+
         $list = [];
         foreach ($result as $row) {
             $list[$row['id']] = array_filter(preg_split('/,\s*/', $row['ip_whitelist']));
@@ -209,15 +205,12 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
     /**
      * Returns true if the request is a user update for the given id
-     * A user edit will submit a PATCH to both the user update endpoint
-     *
-     * @param Request $request
-     * @param int $id
+     * A user edit will submit a PATCH to both the user update endpoint.
      *
      * @return bool
      */
-    protected function targetIsUserEdit(Request $request, int $id) {
-
+    protected function targetIsUserEdit(Request $request, int $id)
+    {
         $target_array = explode('/', $request->getRequestTarget());
         $num_elements = count($target_array);
 
@@ -226,12 +219,12 @@ class AuthenticationMiddleware extends AbstractMiddleware
         }
 
         if ($num_elements > 3
-            &&$target_array[$num_elements - 3] == 'users'
+            && 'users' == $target_array[$num_elements - 3]
             && (
                 $target_array[$num_elements - 2] == strval($id) ||
-                $target_array[$num_elements - 2] == 'me'
+                'me' == $target_array[$num_elements - 2]
             )
-            && $target_array[$num_elements - 1] == 'activate_2fa') {
+            && 'activate_2fa' == $target_array[$num_elements - 1]) {
             return true;
         }
 

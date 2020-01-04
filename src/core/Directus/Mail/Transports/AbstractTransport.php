@@ -17,7 +17,7 @@ abstract class AbstractTransport
     }
 
     /**
-     * Returns the configuration object
+     * Returns the configuration object.
      *
      * @return Collection
      */

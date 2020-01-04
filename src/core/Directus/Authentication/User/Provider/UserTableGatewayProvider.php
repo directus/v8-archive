@@ -21,7 +21,7 @@ class UserTableGatewayProvider implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function findWhere(array $conditions)
     {
@@ -33,9 +33,10 @@ class UserTableGatewayProvider implements UserProviderInterface
 
         /** @var BaseRowGateway $row */
         $row = $this->tableGateway
-                    ->ignoreFilters()
-                    ->selectWith($select)
-                    ->current();
+            ->ignoreFilters()
+            ->selectWith($select)
+            ->current()
+        ;
 
         if ($row) {
             $user = new User($row->toArray());
@@ -45,7 +46,7 @@ class UserTableGatewayProvider implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function find($id)
     {
@@ -53,7 +54,7 @@ class UserTableGatewayProvider implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function findByEmail($email)
     {
@@ -61,14 +62,14 @@ class UserTableGatewayProvider implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(UserInterface $user, array $data)
     {
         $condition = [
-            $this->tableGateway->primaryKeyFieldName => $user->id
+            $this->tableGateway->primaryKeyFieldName => $user->id,
         ];
 
-        return (bool)$this->tableGateway->ignoreFilters()->update($data, $condition);
+        return (bool) $this->tableGateway->ignoreFilters()->update($data, $condition);
     }
 }

@@ -5,7 +5,7 @@ namespace Directus\Hash\Hasher;
 class Sha512Hasher extends AbstractHashHasher
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getName()
     {

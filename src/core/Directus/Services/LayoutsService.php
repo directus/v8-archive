@@ -12,8 +12,8 @@ class LayoutsService extends AbstractExtensionsController
 
         $basePath = $this->container->get('path_base');
         $this->paths = [
-            $basePath . '/public/extensions/core/layouts',
-            $basePath . '/public/extensions/custom/layouts',
+            $basePath.'/public/extensions/core/layouts',
+            $basePath.'/public/extensions/custom/layouts',
         ];
     }
 

@@ -2,26 +2,29 @@
 
 namespace Directus\Config\Schema;
 
-use Directus\Config\Schema\Types;
 use Directus\Config\Schema\Exception\OmitException;
 
 /**
- * Value node
+ * Value node.
  */
 class Value extends Base implements Node
 {
     /**
-     * Value type
+     * Value type.
      */
     private $_type = 'string';
 
     /**
-     * Default value
+     * Default value.
      */
-    private $_default = null;
+    private $_default;
 
     /**
-     * Construct
+     * Construct.
+     *
+     * @param mixed      $name
+     * @param mixed      $type
+     * @param null|mixed $default
      */
     public function __construct($name, $type, $default = null)
     {
@@ -31,7 +34,9 @@ class Value extends Base implements Node
     }
 
     /**
-     * Gets a value from leaf node
+     * Gets a value from leaf node.
+     *
+     * @param mixed $context
      */
     public function value($context)
     {
@@ -40,9 +45,9 @@ class Value extends Base implements Node
         if (!isset($context) || !isset($context[$this->key()])) {
             if ($this->optional()) {
                 throw new OmitException();
-            } else {
-                return $this->_default;
             }
+
+            return $this->_default;
         }
 
         $value = $context[$this->key()];
@@ -52,13 +57,15 @@ class Value extends Base implements Node
                 return intval($value);
             case Types::BOOLEAN:
                 $value = strtolower($value);
-                return $value === "true" || $value ===  "1" || $value === "on" || $value === "yes" || boolval($value);
+
+                return 'true' === $value || '1' === $value || 'on' === $value || 'yes' === $value || boolval($value);
             case Types::FLOAT:
                 return floatval($value);
             case Types::ARRAY:
                 if (!is_array($value)) {
                     return $this->_default;
                 }
+                // no break
             case Types::STRING:
             default:
                 return $value;

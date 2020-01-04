@@ -46,7 +46,7 @@ abstract class AbstractRateLimitMiddleware extends AbstractMiddleware
      */
     public function isEnabled()
     {
-        return $this->options->get('enabled') === true;
+        return true === $this->options->get('enabled');
     }
 
     /**
@@ -74,9 +74,9 @@ abstract class AbstractRateLimitMiddleware extends AbstractMiddleware
     }
 
     /**
-     * @return RateLimiterInterface
-     *
      * @throws RuntimeException
+     *
+     * @return RateLimiterInterface
      */
     public function createAdapter()
     {
@@ -89,11 +89,13 @@ abstract class AbstractRateLimitMiddleware extends AbstractMiddleware
                 $adapter = RateLimiterFactory::createRedisBackedRateLimiter([
                     'host' => $this->options->get('host', '127.0.0.1'),
                     'port' => $this->options->get('port', 6379),
-                    'timeout' => $this->options->get('timeout', 0.0)
+                    'timeout' => $this->options->get('timeout', 0.0),
                 ], $limit, $window);
+
                 break;
             case 'memory':
                 $adapter = RateLimiterFactory::createInMemoryRateLimiter($limit, $window);
+
                 break;
             default:
                 throw new RuntimeException(

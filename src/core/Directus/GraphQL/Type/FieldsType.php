@@ -1,11 +1,12 @@
 <?php
+
 namespace Directus\GraphQL\Type;
 
-use GraphQL\Type\Definition\ObjectType;
-use Directus\GraphQL\Types;
-use GraphQL\Type\Definition\ResolveInfo;
 use Directus\GraphQL\FieldsConfig;
+use Directus\GraphQL\Types;
 use Directus\Util\StringUtils;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 
 class FieldsType extends ObjectType
 {
@@ -13,21 +14,21 @@ class FieldsType extends ObjectType
     {
         $fieldConfig = new FieldsConfig($collectionName);
         $config = [
-            'name' => StringUtils::toPascalCase($collectionName . 'Item'),
+            'name' => StringUtils::toPascalCase($collectionName.'Item'),
             'fields' => function () use ($fieldConfig) {
                 return $fieldConfig->getFields();
             },
             'interfaces' => [
-                Types::node()
+                Types::node(),
             ],
             'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
-                $method = 'resolve' . ucfirst($info->fieldName);
+                $method = 'resolve'.ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($value, $args, $context, $info);
-                } else {
-                    return $value[$info->fieldName];
                 }
-            }
+
+                return $value[$info->fieldName];
+            },
         ];
         parent::__construct($config);
     }

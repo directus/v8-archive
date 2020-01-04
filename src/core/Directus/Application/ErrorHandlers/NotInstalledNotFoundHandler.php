@@ -9,12 +9,9 @@ use Directus\Exception\NotInstalledException;
 class NotInstalledNotFoundHandler
 {
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws NotInstalledException
      *
      * @return Response
-     *
-     * @throws NotInstalledException
      */
     public function __invoke(Request $request, Response $response)
     {

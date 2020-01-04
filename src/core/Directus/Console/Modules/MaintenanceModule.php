@@ -2,11 +2,6 @@
 
 namespace Directus\Console\Modules;
 
-use Directus\Console\Exception\WrongArgumentsException;
-use function Directus\find_log_files;
-use Directus\Util\ArrayUtils;
-use Directus\Util\DateTimeUtils;
-
 class MaintenanceModule extends ModuleBase
 {
     protected $__module_name = 'maintenance';
@@ -21,11 +16,12 @@ class MaintenanceModule extends ModuleBase
         $this->help = $this->commands_help = [
             'on' => 'maintenance:on enable maintenance mode',
             'off' => 'maintenance:off disable maintenance mode',
-            'status' => 'maintenance:status tells if maintenance mode is on or off.'
+            'status' => 'maintenance:status tells if maintenance mode is on or off.',
         ];
     }
 
-    public function cmdStatus($args, $extra) {
+    public function cmdStatus($args, $extra)
+    {
         $fileFlag = $this->getFileFlag();
 
         $message = 'maintenance mode is off.';
@@ -33,7 +29,7 @@ class MaintenanceModule extends ModuleBase
             $message = 'maintenance mode is on.';
         }
 
-        echo PHP_EOL . $message . PHP_EOL;
+        echo PHP_EOL.$message.PHP_EOL;
     }
 
     public function cmdOn($args, $extra)
@@ -41,22 +37,24 @@ class MaintenanceModule extends ModuleBase
         $fileFlag = $this->getFileFlag();
 
         if (!file_exists($fileFlag)) {
-            fopen($fileFlag, "w");
+            fopen($fileFlag, 'w');
         }
 
-        echo PHP_EOL . 'maintenance mode activated.' . PHP_EOL;
+        echo PHP_EOL.'maintenance mode activated.'.PHP_EOL;
     }
 
-    public function cmdOff($args, $extra) {
+    public function cmdOff($args, $extra)
+    {
         $fileFlag = $this->getFileFlag();
 
         if (file_exists($fileFlag)) {
             unlink($fileFlag);
         }
-        echo PHP_EOL . 'maintenance mode deactivated.' . PHP_EOL;
+        echo PHP_EOL.'maintenance mode deactivated.'.PHP_EOL;
     }
 
-    public function getFileFlag() {
-        return $this->getBasePath() . '/logs/maintenance';
+    public function getFileFlag()
+    {
+        return $this->getBasePath().'/logs/maintenance';
     }
 }

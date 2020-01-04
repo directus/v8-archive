@@ -2,7 +2,6 @@
 
 namespace Directus\Application\ErrorHandlers;
 
-use Directus\Application\ErrorHandlers\ErrorHandler;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Exception\NotFoundException;
@@ -10,8 +9,6 @@ use Directus\Exception\NotFoundException;
 class NotFoundHandler extends ErrorHandler
 {
     /**
-     * @param Request $request
-     * @param Response $response
      * @param \Exception|\Throwable $exception
      *
      * @return Response
@@ -23,8 +20,8 @@ class NotFoundHandler extends ErrorHandler
         $data = [
             'error' => [
                 'code' => NotFoundException::ERROR_CODE,
-                'message' => 'Not Found'
-            ]
+                'message' => 'Not Found',
+            ],
         ];
 
         $this->triggerResponseAction($request, $response, $data);

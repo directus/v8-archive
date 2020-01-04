@@ -37,7 +37,7 @@ class StatusMapping extends Collection
     }
 
     /**
-     * Get status by value
+     * Get status by value.
      *
      * @param mixed $value
      *
@@ -53,7 +53,7 @@ class StatusMapping extends Collection
     }
 
     /**
-     * Returns a list of required status values
+     * Returns a list of required status values.
      *
      * @return array
      */
@@ -61,8 +61,9 @@ class StatusMapping extends Collection
     {
         return $this->getStatusesValue('required_fields', true);
     }
+
     /**
-     * Returns a list of soft delete status values
+     * Returns a list of soft delete status values.
      *
      * @return array
      */
@@ -72,17 +73,17 @@ class StatusMapping extends Collection
     }
 
     /**
-     * Returns a list of non-soft-delete status values
+     * Returns a list of non-soft-delete status values.
      *
      * @return array
      */
     public function getNonSoftDeleteStatusesValue()
     {
-        return $this->getStatusesValue('soft_delete', [false,null]);
+        return $this->getStatusesValue('soft_delete', [false, null]);
     }
 
     /**
-     * Get all statuses value
+     * Get all statuses value.
      *
      * @return array
      */
@@ -98,21 +99,21 @@ class StatusMapping extends Collection
     }
 
     /**
-     * Get statuses list by the given type
+     * Get statuses list by the given type.
      *
      * @param string $type
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return array
      */
     protected function getStatusesValue($type, $value)
     {
         $statuses = [];
-        if(!is_array($value)){
+        if (!is_array($value)) {
             $value = [$value];
         }
         foreach ($this->items as $status) {
-            if (in_array($status->getAttribute($type),$value)) {
+            if (in_array($status->getAttribute($type), $value)) {
                 $statuses[] = $status->getValue();
             }
         }

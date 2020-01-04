@@ -3,12 +3,72 @@
 namespace Directus\Config;
 
 /**
- * Config context interface
+ * Config context interface.
  */
 class Context
 {
     /**
-     * Transforms an array of strings into a complex object
+     * Source.
+     *
+     * @param mixed $source
+     */
+    public static function from_map($source)
+    {
+        $target = [];
+        ksort($source);
+        foreach ($source as $key => $value) {
+            Context::expand($target, explode('_', strtolower($key)), $value);
+        }
+        Context::normalize($target);
+
+        return $target;
+    }
+
+    /**
+     * Create.
+     */
+    public static function from_env()
+    {
+        if (empty($_ENV)) {
+            throw new \Error('No environment variables available. Check php_ini "variables_order" value.');
+        }
+
+        return Context::from_map($_ENV);
+    }
+
+    /**
+     * Loads variables from PHP file.
+     *
+     * @param mixed $file
+     */
+    public static function from_file($file)
+    {
+        return require $file;
+    }
+
+    /**
+     * Loads variables from PHP file.
+     *
+     * @param mixed $array
+     */
+    public static function from_array($array)
+    {
+        return $array;
+    }
+
+    /**
+     * Loads variables from JSON file.
+     *
+     * @param mixed $file
+     */
+    public static function from_json($file)
+    {
+        return json_decode(file_get_contents($file));
+    }
+
+    /**
+     * Transforms an array of strings into a complex object.
+     *
      * @example
      *  $obj = Context::expand(['a', 'b', 'c'], 12345);
      *  $obj == [
@@ -18,11 +78,15 @@ class Context
      *      ]
      *    ]
      *  ];
+     *
+     * @param mixed $target
+     * @param mixed $path
+     * @param mixed $value
      */
     private static function expand(&$target, $path, $value)
     {
         $segment = array_shift($path);
-        if (sizeof($path) === 0) { // leaf
+        if (0 === sizeof($path)) { // leaf
             if (!is_array($target)) {
                 // TODO: raise warning - overwriting value
                 $target = [];
@@ -31,6 +95,7 @@ class Context
                 // TODO: raise warning - overwriting group
             }
             $target[$segment] = $value;
+
             return;
         }
         if (!isset($target[$segment])) {
@@ -43,9 +108,12 @@ class Context
     }
 
     /**
-     * Normalize the array indexes
+     * Normalize the array indexes.
+     *
+     * @param mixed $target
      */
-    private static function normalize(&$target) {
+    private static function normalize(&$target)
+    {
         if (!is_array($target)) {
             return;
         }
@@ -62,50 +130,5 @@ class Context
             // vs.
             //$target = array_values($target);
         }
-    }
-
-    /**
-     * Source
-     */
-    public static function from_map($source) {
-        $target = [];
-        ksort($source);
-        foreach ($source as $key => $value) {
-            Context::expand($target, explode('_', strtolower($key)), $value);
-        }
-        Context::normalize($target);
-        return $target;
-    }
-
-    /**
-     * Create
-     */
-    public static function from_env()
-    {
-        if (empty($_ENV)) {
-            throw new \Error('No environment variables available. Check php_ini "variables_order" value.');
-        }
-        return Context::from_map($_ENV);
-    }
-
-    /**
-     * Loads variables from PHP file
-     */
-    public static function from_file($file) {
-        return require $file;
-    }
-
-    /**
-     * Loads variables from PHP file
-     */
-    public static function from_array($array) {
-        return $array;
-    }
-
-    /**
-     * Loads variables from JSON file
-     */
-    public static function from_json($file) {
-        return json_decode(file_get_contents($file));
     }
 }

@@ -23,11 +23,9 @@ class RevisionsService extends AbstractService
     }
 
     /**
-     * Returns all items from revisions
+     * Returns all items from revisions.
      *
      * Result count will be limited by the rows per page setting
-     *
-     * @param array $params
      *
      * @return array|mixed
      */
@@ -42,12 +40,11 @@ class RevisionsService extends AbstractService
     }
 
     /**
-     * Returns all revisions for a specific collection
+     * Returns all revisions for a specific collection.
      *
      * Result count will be limited by the rows per page setting
      *
      * @param $collection
-     * @param array $params
      *
      * @return array|mixed
      */
@@ -62,10 +59,9 @@ class RevisionsService extends AbstractService
     }
 
     /**
-     * Returns one revision with the given id
+     * Returns one revision with the given id.
      *
      * @param int $id
-     * @param array $params
      *
      * @return array
      */
@@ -80,10 +76,9 @@ class RevisionsService extends AbstractService
     }
 
     /**
-     * Returns one or more revision with the given ids
+     * Returns one or more revision with the given ids.
      *
      * @param int $id
-     * @param array $params
      *
      * @return array
      */
@@ -95,11 +90,10 @@ class RevisionsService extends AbstractService
     }
 
     /**
-     * Returns all revision from a given item
+     * Returns all revision from a given item.
      *
      * @param string $collection
-     * @param mixed $item
-     * @param array $params
+     * @param mixed  $item
      *
      * @return array
      */
@@ -116,8 +110,7 @@ class RevisionsService extends AbstractService
     /**
      * @param string $collection
      * @param string $item
-     * @param int $offset
-     * @param array $params
+     * @param int    $offset
      *
      * @return array|mixed
      */
@@ -138,7 +131,7 @@ class RevisionsService extends AbstractService
                     'filter' => ['item' => $item, 'collection' => $collection],
                     'single' => true,
                     'limit' => 1,
-                    'offset' => (int)$offset
+                    'offset' => (int) $offset,
                 ]
             )]
         );

@@ -2,7 +2,6 @@
 
 namespace Directus\Application\ErrorHandlers;
 
-use Directus\Application\ErrorHandlers\ErrorHandler;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Exception\MethodNotAllowedException;
@@ -10,8 +9,6 @@ use Directus\Exception\MethodNotAllowedException;
 class MethodNotAllowedHandler extends ErrorHandler
 {
     /**
-     * @param Request $request
-     * @param Response $response
      * @param array $allowed methods
      *
      * @return Response
@@ -23,8 +20,8 @@ class MethodNotAllowedHandler extends ErrorHandler
         $data = [
             'error' => [
                 'code' => MethodNotAllowedException::ERROR_CODE,
-                'message' => 'Method Not Allowed'
-            ]
+                'message' => 'Method Not Allowed',
+            ],
         ];
 
         $this->triggerResponseAction($request, $response, $data);

@@ -1,15 +1,14 @@
 <?php
+
 namespace Directus\GraphQL\Collection;
 
 use Directus\GraphQL\Types;
-use GraphQL\Type\Definition\ResolveInfo;
 use Directus\Services\ItemsService;
 use Directus\Services\TablesService;
-use Directus\GraphQL\Collection\CollectionList;
+use GraphQL\Type\Definition\ResolveInfo;
 
 class UserCollectionList extends CollectionList
 {
-
     public $list;
 
     public function __construct()
@@ -23,7 +22,6 @@ class UserCollectionList extends CollectionList
         $itemsService = new ItemsService($this->container);
         foreach ($collectionData['data'] as  $value) {
             if ($value['managed']) {
-
                 $type = Types::userCollection($value['collection']);
                 //Add the list of collection
                 $this->list[$value['collection']] = [
@@ -34,13 +32,14 @@ class UserCollectionList extends CollectionList
                         $responseData = [];
                         if (isset($args['id'])) {
                             // Convert JSON of the single item into array.
-                            $responseData['data'][0] =  $itemsService->find($value['collection'], $args['id'], $this->param)['data'];
+                            $responseData['data'][0] = $itemsService->find($value['collection'], $args['id'], $this->param)['data'];
                         } else {
                             $this->convertArgsToFilter($args);
                             $responseData = $itemsService->findAll($value['collection'], $this->param);
                         }
+
                         return $responseData;
-                    }
+                    },
                 ];
             }
         }

@@ -6,14 +6,13 @@ use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\BadRequestException;
 use Directus\Exception\BatchUploadNotAllowedException;
-use function Directus\is_a_url;
-use function Directus\validate_file;
 use function Directus\get_directus_setting;
+use function Directus\get_random_string;
+use function Directus\is_a_url;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
+use function Directus\validate_file;
 use Directus\Validator\Exception\InvalidRequestException;
-use function Directus\get_random_string;
-use Directus\Application\Application;
 
 class FilesServices extends AbstractService
 {
@@ -41,21 +40,20 @@ class FilesServices extends AbstractService
         // Do not validate filename when uploading files using URL
         // The filename will be generate automatically if not defined
         if (is_a_url(ArrayUtils::get($data, 'data'))) {
-            unset($validationConstraints['filename_disk']);
-            unset($validationConstraints['filename_download']);
+            unset($validationConstraints['filename_disk'], $validationConstraints['filename_download']);
         }
 
         $this->validate($data, array_merge(['data' => 'required'], $validationConstraints));
 
         $files = $this->container->get('files');
-        $result=$files->getFileSizeType($data['data']);
+        $result = $files->getFileSizeType($data['data']);
 
-        if(get_directus_setting('file_mimetype_whitelist') != null){
-            validate_file($result['mimeType'],'mimeTypes');
+        if (null != get_directus_setting('file_mimetype_whitelist')) {
+            validate_file($result['mimeType'], 'mimeTypes');
         }
 
-        if(get_directus_setting('file_max_size') != null){
-            validate_file($result['size'],'maxSize');
+        if (null != get_directus_setting('file_max_size')) {
+            validate_file($result['size'], 'maxSize');
         }
 
         $recordData = $this->getSaveData($data, false);
@@ -69,7 +67,8 @@ class FilesServices extends AbstractService
         );
     }
 
-    public function getSaveData($data, $isUpdate){
+    public function getSaveData($data, $isUpdate)
+    {
         $dataInfo = [];
         $files = $this->container->get('files');
 
@@ -79,13 +78,13 @@ class FilesServices extends AbstractService
             $data['data'] = ArrayUtils::get($dataInfo, 'data');
             $data['filename_disk'] = ArrayUtils::get($dataInfo, 'filename');
             $data['filename_download'] = ArrayUtils::get($dataInfo, 'filename');
-        } else if (array_key_exists('data', $data) && !is_object($data['data'])) {
+        } elseif (array_key_exists('data', $data) && !is_object($data['data'])) {
             $dataInfo = $files->getDataInfo($data['data']);
         }
 
         $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
 
-        if (strpos($type, 'embed/') === 0) {
+        if (0 === strpos($type, 'embed/')) {
             $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename_disk'])));
         } else {
             $newFileContents = array_key_exists('data', $data) ? $data['data'] : null;
@@ -100,20 +99,11 @@ class FilesServices extends AbstractService
             'location',
         ]));
 
-        if(!$isUpdate){
+        if (!$isUpdate) {
             $recordData['private_hash'] = get_random_string();
         }
 
-        return ArrayUtils::omit(array_merge($data,$recordData),['data','html']);
-    }
-
-    protected function findByPrivateHash($hash)
-    {
-        $result = $this->createTableGateway(SchemaManager::COLLECTION_FILES, false)->fetchAll(function (Select $select) use ($hash) {
-            $select->columns(['filename_disk']);
-            $select->where(['private_hash' => $hash]);
-        })->current()->toArray();
-        return $result;
+        return ArrayUtils::omit(array_merge($data, $recordData), ['data', 'html']);
     }
 
     public function find($id, array $params = [])
@@ -121,14 +111,14 @@ class FilesServices extends AbstractService
         $tableGateway = $this->createTableGateway($this->collection);
         $params['id'] = $id;
 
-        return $this->getItemsAndSetResponseCacheTags($tableGateway , $params);
+        return $this->getItemsAndSetResponseCacheTags($tableGateway, $params);
     }
 
     public function findByIds($id, array $params = [])
     {
         $tableGateway = $this->createTableGateway($this->collection);
 
-        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway , $id, $params);
+        return $this->getItemsByIdsAndSetResponseCacheTags($tableGateway, $id, $params);
     }
 
     public function update($id, array $data, array $params = [])
@@ -140,14 +130,14 @@ class FilesServices extends AbstractService
 
         $files = $this->container->get('files');
 
-        if(isset($data['data'])){
-            $result=$files->getFileSizeType($data['data']);
+        if (isset($data['data'])) {
+            $result = $files->getFileSizeType($data['data']);
 
-            if(get_directus_setting('file_mimetype_whitelist') != null){
-                validate_file($result['mimeType'],'mimeTypes');
+            if (null != get_directus_setting('file_mimetype_whitelist')) {
+                validate_file($result['mimeType'], 'mimeTypes');
             }
-            if(get_directus_setting('file_max_size') != null){
-                validate_file($result['size'],'maxSize');
+            if (null != get_directus_setting('file_max_size')) {
+                validate_file($result['size'], 'maxSize');
             }
         }
 
@@ -162,8 +152,8 @@ class FilesServices extends AbstractService
 
             try {
                 $this->container->get('filesystem')->getAdapter()->rename($oldFilePath, $newFilePath);
-            } catch(Exception $e) {
-               throw new InvalidRequestException($e);
+            } catch (Exception $e) {
+                throw new InvalidRequestException($e);
             }
         }
 
@@ -203,7 +193,7 @@ class FilesServices extends AbstractService
         $files->delete($file);
 
         // Delete file record
-        return $tableGateway->deleteRecord($id,$this->getCRUDParams($params));
+        return $tableGateway->deleteRecord($id, $this->getCRUDParams($params));
     }
 
     public function findAll(array $params = [])
@@ -214,12 +204,9 @@ class FilesServices extends AbstractService
     }
 
     /**
-     * @param array $items
-     * @param array $params
+     * @throws InvalidRequestException
      *
      * @return array
-     *
-     * @throws InvalidRequestException
      */
     public function batchUpdate(array $items, array $params = [])
     {
@@ -254,10 +241,6 @@ class FilesServices extends AbstractService
     }
 
     /**
-     * @param array $ids
-     * @param array $payload
-     * @param array $params
-     *
      * @return array
      */
     public function batchUpdateWithIds(array $ids, array $payload, array $params = [])
@@ -281,10 +264,6 @@ class FilesServices extends AbstractService
         return $allItems;
     }
 
-    /**
-     * @param array $ids
-     * @param array $params
-     */
     public function batchDeleteWithIds(array $ids, array $params = [])
     {
         foreach ($ids as $id) {
@@ -292,10 +271,18 @@ class FilesServices extends AbstractService
         }
     }
 
+    protected function findByPrivateHash($hash)
+    {
+        $result = $this->createTableGateway(SchemaManager::COLLECTION_FILES, false)->fetchAll(function (Select $select) use ($hash) {
+            $select->columns(['filename_disk']);
+            $select->where(['private_hash' => $hash]);
+        })->current()->toArray();
+
+        return $result;
+    }
+
     /**
-     * Throws exception if data property exists
-     *
-     * @param array $payload
+     * Throws exception if data property exists.
      *
      * @throws BadRequestException
      */

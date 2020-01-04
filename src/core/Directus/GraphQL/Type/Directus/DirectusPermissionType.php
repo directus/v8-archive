@@ -1,4 +1,5 @@
 <?php
+
 namespace Directus\GraphQL\Type\Directus;
 
 use Directus\Application\Application;
@@ -9,12 +10,13 @@ use GraphQL\Type\Definition\ResolveInfo;
 class DirectusPermissionType extends ObjectType
 {
     private $container;
+
     public function __construct()
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
             'name' => 'DirectusPermissionItem',
-            'fields' =>  function () {
+            'fields' => function () {
                 return [
                     'id' => Types::id(),
                     'collection' => Types::string(), //TODO:: change to m2o relation with DirectusCollectionType.
@@ -28,20 +30,20 @@ class DirectusPermissionType extends ObjectType
                     'explain' => Types::string(),
                     'status_blacklist' => Types::listOf(Types::string()),
                     'read_field_blacklist' => Types::listOf(Types::string()),
-                    'write_field_blacklist' => Types::listOf(Types::string())
+                    'write_field_blacklist' => Types::listOf(Types::string()),
                 ];
             },
             'interfaces' => [
-                Types::node()
+                Types::node(),
             ],
             'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
-                $method = 'resolve' . ucfirst($info->fieldName);
+                $method = 'resolve'.ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($value, $args, $context, $info);
-                } else {
-                    return $value[$info->fieldName];
                 }
-            }
+
+                return $value[$info->fieldName];
+            },
         ];
         parent::__construct($config);
     }

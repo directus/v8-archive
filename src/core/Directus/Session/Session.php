@@ -7,14 +7,14 @@ use Directus\Session\Storage\SessionStorageInterface;
 class Session
 {
     /**
-     * Session Storage
+     * Session Storage.
      *
      * @var SessionStorageInterface
      */
-    protected $storage = null;
+    protected $storage;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param SessionStorageInterface $storage Session Storage Adapter
      */
@@ -24,25 +24,25 @@ class Session
     }
 
     /**
-     * Get Session storage
+     * Proxy all undefined method to the storage.
      *
-     * @return SessionStorageInterface
-     */
-    public function getStorage()
-    {
-        return $this->storage;
-    }
-
-    /**
-     * Proxy all undefined method to the storage
-     *
-     * @param  string $method
-     * @param  array $arguments
+     * @param string $method
+     * @param array  $arguments
      *
      * @return mixed
      */
     public function __call($method, $arguments)
     {
         return call_user_func_array([$this->storage, $method], $arguments);
+    }
+
+    /**
+     * Get Session storage.
+     *
+     * @return SessionStorageInterface
+     */
+    public function getStorage()
+    {
+        return $this->storage;
     }
 }

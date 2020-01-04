@@ -6,5 +6,4 @@ use Directus\Exception\Exception;
 
 class InvalidInvitationCodeException extends Exception
 {
-
 }

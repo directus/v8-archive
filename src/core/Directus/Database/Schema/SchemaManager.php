@@ -3,8 +3,8 @@
 namespace Directus\Database\Schema;
 
 use Directus\Database\Exception\CollectionNotFoundException;
-use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Object\Collection;
+use Directus\Database\Schema\Object\Field;
 use Directus\Database\Schema\Sources\MySQLSchema;
 use Directus\Database\Schema\Sources\SchemaInterface;
 use function Directus\is_valid_datetime;
@@ -14,45 +14,45 @@ use Directus\Util\DateTimeUtils;
 class SchemaManager
 {
     // Tables
-    const COLLECTION_ACTIVITY            = 'directus_activity';
-    const COLLECTION_COLLECTIONS         = 'directus_collections';
-    const COLLECTION_COLLECTION_PRESETS  = 'directus_collection_presets';
-    const COLLECTION_FIELDS              = 'directus_fields';
-    const COLLECTION_FILES               = 'directus_files';
-    const COLLECTION_FOLDERS             = 'directus_folders';
-    const COLLECTION_MIGRATIONS          = 'directus_migrations';
-    const COLLECTION_ROLES               = 'directus_roles';
-    const COLLECTION_PERMISSIONS         = 'directus_permissions';
-    const COLLECTION_RELATIONS           = 'directus_relations';
-    const COLLECTION_REVISIONS           = 'directus_revisions';
-    const COLLECTION_SETTINGS            = 'directus_settings';
-    const COLLECTION_USERS               = 'directus_users';
-    const COLLECTION_WEBHOOKS            = 'directus_webhooks';
-    const COLLECTION_USER_SESSIONS       = 'directus_user_sessions';
+    const COLLECTION_ACTIVITY = 'directus_activity';
+    const COLLECTION_COLLECTIONS = 'directus_collections';
+    const COLLECTION_COLLECTION_PRESETS = 'directus_collection_presets';
+    const COLLECTION_FIELDS = 'directus_fields';
+    const COLLECTION_FILES = 'directus_files';
+    const COLLECTION_FOLDERS = 'directus_folders';
+    const COLLECTION_MIGRATIONS = 'directus_migrations';
+    const COLLECTION_ROLES = 'directus_roles';
+    const COLLECTION_PERMISSIONS = 'directus_permissions';
+    const COLLECTION_RELATIONS = 'directus_relations';
+    const COLLECTION_REVISIONS = 'directus_revisions';
+    const COLLECTION_SETTINGS = 'directus_settings';
+    const COLLECTION_USERS = 'directus_users';
+    const COLLECTION_WEBHOOKS = 'directus_webhooks';
+    const COLLECTION_USER_SESSIONS = 'directus_user_sessions';
 
     /**
-     * Schema source instance
+     * Schema source instance.
      *
      * @var \Directus\Database\Schema\Sources\SchemaInterface
      */
     protected $source;
 
     /**
-     * Schema data information
+     * Schema data information.
      *
      * @var array
      */
     protected $data = [];
 
     /**
-     * System table prefix
+     * System table prefix.
      *
      * @var string
      */
     protected $prefix = 'directus_';
 
     /**
-     * Directus System tables
+     * Directus System tables.
      *
      * @var array
      */
@@ -72,7 +72,7 @@ class SchemaManager
         'roles',
         'settings',
         'user_roles',
-        'users'
+        'users',
     ];
 
     public function __construct(SchemaInterface $source)
@@ -81,7 +81,7 @@ class SchemaManager
     }
 
     /**
-     * Adds a primary key to the given column
+     * Adds a primary key to the given column.
      *
      * @param $table
      * @param $column
@@ -94,7 +94,7 @@ class SchemaManager
     }
 
     /**
-     * Removes the primary key of the given column
+     * Removes the primary key of the given column.
      *
      * @param $table
      * @param $column
@@ -107,11 +107,12 @@ class SchemaManager
     }
 
     /**
-     * Get the table schema information
+     * Get the table schema information.
      *
      * @param string $tableName
      * @param array  $params
      * @param bool   $skipCache
+     * @param mixed  $collectionName
      *
      * @throws CollectionNotFoundException
      *
@@ -119,7 +120,7 @@ class SchemaManager
      */
     public function getCollection($collectionName, $params = [], $skipCache = false)
     {
-        $collection = ArrayUtils::get($this->data, 'collections.' . $collectionName, null);
+        $collection = ArrayUtils::get($this->data, 'collections.'.$collectionName, null);
         if (!$collection || $skipCache) {
             // Get the table schema data from the source
             $collectionResult = $this->source->getCollection($collectionName);
@@ -131,7 +132,7 @@ class SchemaManager
 
             // Create a table object based of the table schema data
             $collection = $this->createCollectionFromArray(array_merge($collectionData, [
-                'schema' => $this->source->getSchemaName()
+                'schema' => $this->source->getSchemaName(),
             ]));
             $this->addCollection($collectionName, $collection);
         }
@@ -150,7 +151,7 @@ class SchemaManager
     }
 
     /**
-     * Gets column schema
+     * Gets column schema.
      *
      * @param $tableName
      * @param $columnName
@@ -160,7 +161,7 @@ class SchemaManager
      */
     public function getField($tableName, $columnName, $skipCache = false)
     {
-        $columnSchema = ArrayUtils::get($this->data, 'fields.' . $tableName . '.' . $columnName, null);
+        $columnSchema = ArrayUtils::get($this->data, 'fields.'.$tableName.'.'.$columnName, null);
 
         if (!$columnSchema || $skipCache) {
             // Get the column schema data from the source
@@ -175,7 +176,7 @@ class SchemaManager
     }
 
     /**
-     * Check if the given name is a system table
+     * Check if the given name is a system table.
      *
      * @param $name
      *
@@ -187,7 +188,7 @@ class SchemaManager
     }
 
     /**
-     * Check if a collection exists
+     * Check if a collection exists.
      *
      * @param string $collectionName
      *
@@ -199,9 +200,7 @@ class SchemaManager
     }
 
     /**
-     * Gets list of table
-     *
-     * @param array $params
+     * Gets list of table.
      *
      * @return Collection[]
      */
@@ -220,7 +219,7 @@ class SchemaManager
         foreach ($collections as $collection) {
             // Create a table object based of the table schema data
             $tableSchema = $this->createCollectionFromArray(array_merge($collection, [
-                'schema' => $this->source->getSchemaName()
+                'schema' => $this->source->getSchemaName(),
             ]));
             $tableName = $tableSchema->getName();
             $this->addCollection($tableName, $tableSchema);
@@ -232,9 +231,7 @@ class SchemaManager
     }
 
     /**
-     * Returns a list of all collections names
-     *
-     * @param array $params
+     * Returns a list of all collections names.
      *
      * @return array
      */
@@ -249,11 +246,11 @@ class SchemaManager
     }
 
     /**
-     * Get all columns in the given table name
+     * Get all columns in the given table name.
      *
      * @param $tableName
      * @param array $params
-     * @param bool $skipCache
+     * @param bool  $skipCache
      *
      * @return \Directus\Database\Schema\Object\Field[]
      */
@@ -261,7 +258,7 @@ class SchemaManager
     {
         // TODO: filter black listed fields on services level
 
-        $columnsSchema = ArrayUtils::get($this->data, 'columns.' . $tableName, null);
+        $columnsSchema = ArrayUtils::get($this->data, 'columns.'.$tableName, null);
         if (!$columnsSchema || $skipCache) {
             $columnsResult = $this->source->getFields($tableName, $params);
 
@@ -289,9 +286,7 @@ class SchemaManager
     }
 
     /**
-     * Get all the columns
-     *
-     * @param array $params
+     * Get all the columns.
      *
      * @return Field[]
      */
@@ -300,7 +295,7 @@ class SchemaManager
         $allColumns = $this->source->getAllFields($params);
 
         $columns = [];
-        foreach($allColumns as $column) {
+        foreach ($allColumns as $column) {
             $columns[] = $this->createFieldFromArray($column);
         }
 
@@ -308,7 +303,7 @@ class SchemaManager
     }
 
     /**
-     * Get a list of columns table grouped by table name
+     * Get a list of columns table grouped by table name.
      *
      * @return array
      */
@@ -350,7 +345,7 @@ class SchemaManager
     }
 
     /**
-     * Cast value against a database type
+     * Cast value against a database type.
      *
      * NOTE: it only works with MySQL data types
      *
@@ -366,7 +361,7 @@ class SchemaManager
     }
 
     /**
-     * Checks whether the given type is numeric type
+     * Checks whether the given type is numeric type.
      *
      * @param $type
      *
@@ -378,7 +373,7 @@ class SchemaManager
     }
 
     /**
-     * Checks whether the given type is string type
+     * Checks whether the given type is string type.
      *
      * @param $type
      *
@@ -390,7 +385,7 @@ class SchemaManager
     }
 
     /**
-     * Checks whether the given type is integer type
+     * Checks whether the given type is integer type.
      *
      * @param $type
      *
@@ -402,7 +397,7 @@ class SchemaManager
     }
 
     /**
-     * Checks whether the given type is decimal type
+     * Checks whether the given type is decimal type.
      *
      * @param $type
      *
@@ -414,7 +409,7 @@ class SchemaManager
     }
 
     /**
-     * Cast default value
+     * Cast default value.
      *
      * @param $value
      * @param $type
@@ -424,7 +419,7 @@ class SchemaManager
      */
     public function castDefaultValue($value, $type, $length = null)
     {
-        if (strtolower($value) === 'null') {
+        if ('null' === strtolower($value)) {
             $value = null;
         } else {
             $value = $this->castValue($value, $type, $length);
@@ -434,7 +429,7 @@ class SchemaManager
     }
 
     /**
-     * Get the schema adapter
+     * Get the schema adapter.
      *
      * @return SchemaInterface
      */
@@ -444,7 +439,7 @@ class SchemaManager
     }
 
     /**
-     * List of supported databases
+     * List of supported databases.
      *
      * @return array
      */
@@ -453,7 +448,7 @@ class SchemaManager
         return [
             'mysql' => [
                 'id' => 'mysql',
-                'name' => 'MySQL/Percona'
+                'name' => 'MySQL/Percona',
             ],
         ];
     }
@@ -467,7 +462,7 @@ class SchemaManager
             'api',
             'migrations',
             'templates',
-            '*'
+            '*',
         ]);
 
         $templatesDirs = glob($path, GLOB_ONLYDIR);
@@ -476,7 +471,7 @@ class SchemaManager
             $key = basename($dir);
             $templatesData[$key] = [
                 'id' => $key,
-                'name' => \Directus\uc_convert($key)
+                'name' => \Directus\uc_convert($key),
             ];
         }
 
@@ -484,7 +479,7 @@ class SchemaManager
     }
 
     /**
-     * Returns all directus system collections name
+     * Returns all directus system collections name.
      *
      * @return array
      */
@@ -505,12 +500,13 @@ class SchemaManager
             static::COLLECTION_SETTINGS,
             static::COLLECTION_USERS,
             static::COLLECTION_WEBHOOKS,
-            static::COLLECTION_USER_SESSIONS
+            static::COLLECTION_USER_SESSIONS,
         ];
     }
 
     /**
-     * Gets a collection object from an array attributes data
+     * Gets a collection object from an array attributes data.
+     *
      * @param $data
      *
      * @return Collection
@@ -525,7 +521,7 @@ class SchemaManager
     }
 
     /**
-     * Creates a column object from the given array
+     * Creates a column object from the given array.
      *
      * @param array $column
      *
@@ -534,7 +530,7 @@ class SchemaManager
     public function createFieldFromArray($column)
     {
         $dataType = ArrayUtils::get($column, 'datatype');
-        if (ArrayUtils::get($column, 'type') === null) {
+        if (null === ArrayUtils::get($column, 'type')) {
             $column['type'] = $this->source->getTypeFromSource($dataType);
         }
 
@@ -560,7 +556,7 @@ class SchemaManager
 
         if ($this->isFloatingPointType($dataType)) {
             $column['length'] = sprintf('%d,%d', $column['precision'], $column['scale']);
-        } else if ($this->source->isIntegerType($dataType)) {
+        } elseif ($this->source->isIntegerType($dataType)) {
             $column['length'] = $column['precision'];
         } else {
             $column['length'] = $column['char_length'];
@@ -591,7 +587,7 @@ class SchemaManager
     }
 
     /**
-     * @param string $collectionName
+     * @param string  $collectionName
      * @param Field[] $fields
      *
      * @return array|Field[]
@@ -633,9 +629,103 @@ class SchemaManager
     }
 
     /**
-     * Sets System Field Type relationship
+     * Checks whether the given type is a unique type.
      *
-     * @param Field $field
+     * @param $type
+     *
+     * @return bool
+     */
+    public function isUniqueFieldType($type)
+    {
+        return DataTypes::isUniqueType($type);
+    }
+
+    /**
+     * Checks if a field is a numeric type.
+     *
+     * @return bool
+     */
+    public function isFieldNumericType(Field $field)
+    {
+        if ($field->getType()) {
+            return DataTypes::isNumericType($field->getType());
+        }
+
+        return $this->getSource()->isNumericType($field->getDataType());
+    }
+
+    /**
+     * Checks if a field is a string type.
+     *
+     * @return bool
+     */
+    public function isFieldStringType(Field $field)
+    {
+        if ($field->getType()) {
+            return DataTypes::isStringType($field->getType());
+        }
+
+        return $this->getSource()->isStringType($field->getDataType());
+    }
+
+    /**
+     * Checks if a given type requires length.
+     *
+     * @param string $type
+     *
+     * @return mixed
+     */
+    public function isTypeLengthRequired($type)
+    {
+        return $this->getSource()->isTypeLengthRequired($type);
+    }
+
+    /**
+     * Checks if a given type allows length.
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function isTypeLengthAllowed($type)
+    {
+        return $this->getSource()->isTypeLengthAllowed($type);
+    }
+
+    /**
+     * Checks if the given type allows or requires length.
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public function canTypeUseLength($type)
+    {
+        return $this->isTypeLengthRequired($type) || $this->isTypeLengthAllowed($type);
+    }
+
+    /**
+     * @param $type
+     *
+     * @return int
+     */
+    public function getFieldDefaultLength($type)
+    {
+        return $this->source->getColumnDefaultLength($type);
+    }
+
+    /**
+     * Gets the source schema adapter.
+     *
+     * @return SchemaInterface
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * Sets System Field Type relationship.
      */
     protected function setSystemTypeRelationship(Field $field)
     {
@@ -645,26 +735,23 @@ class SchemaManager
                 'collection_many' => $field->getCollectionName(),
                 'field_many' => $field->getName(),
                 'collection_one' => static::COLLECTION_FILES,
-                'field_one' => 'id'
+                'field_one' => 'id',
             ]);
-        } else if (DataTypes::isUsersType($field->getType())) {
+        } elseif (DataTypes::isUsersType($field->getType())) {
             $field->setRelationship([
                 'collection_many' => $field->getCollectionName(),
                 'field_many' => $field->getName(),
                 'collection_one' => static::COLLECTION_USERS,
-                'field_one' => 'id'
+                'field_one' => 'id',
             ]);
         }
     }
 
-    /**
-     * @param array $field
-     */
     protected function setFieldDataDefaultValue(array &$field)
     {
         // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
         // We reserved the word "NULL" on nullable data type to be actually null
-        if ($field['nullable'] === true && $field['default_value'] == 'NULL') {
+        if (true === $field['nullable'] && 'NULL' == $field['default_value']) {
             $field['default_value'] = null;
         }
 
@@ -674,7 +761,7 @@ class SchemaManager
                 // Those characters are the quote wrapping the default value
                 // As a default string can have quotes as default (defined by the user) We should avoid to remove those
                 $field['default_value'] = substr($field['default_value'], 1, -1);
-            } else if ($this->source->isDateAndTimeTypes($field['datatype'])) {
+            } elseif ($this->source->isDateAndTimeTypes($field['datatype'])) {
                 // All date types shouldn't have any quotes
                 // Trim all quotes should be safe as the database doesn't support invalidate values
                 // Unless it's a function such as `current_timestamp()` which again shouldn't have quotes
@@ -704,86 +791,6 @@ class SchemaManager
         return $fieldsRelation;
     }
 
-    /**
-     * Checks whether the given type is a unique type
-     *
-     * @param $type
-     *
-     * @return bool
-     */
-    public function isUniqueFieldType($type)
-    {
-        return DataTypes::isUniqueType($type);
-    }
-
-    /**
-     * Checks if a field is a numeric type
-     *
-     * @param Field $field
-     *
-     * @return bool
-     */
-    public function isFieldNumericType(Field $field)
-    {
-        if ($field->getType()) {
-            return DataTypes::isNumericType($field->getType());
-        }
-
-        return $this->getSource()->isNumericType($field->getDataType());
-    }
-
-    /**
-     * Checks if a field is a string type
-     *
-     * @param Field $field
-     *
-     * @return bool
-     */
-    public function isFieldStringType(Field $field)
-    {
-        if ($field->getType()) {
-            return DataTypes::isStringType($field->getType());
-        }
-
-        return $this->getSource()->isStringType($field->getDataType());
-    }
-
-    /**
-     * Checks if a given type requires length
-     *
-     * @param string $type
-     *
-     * @return mixed
-     */
-    public function isTypeLengthRequired($type)
-    {
-        return $this->getSource()->isTypeLengthRequired($type);
-    }
-
-    /**
-     * Checks if a given type allows length
-     *
-     * @param string $type
-     *
-     * @return bool
-     */
-    public function isTypeLengthAllowed($type)
-    {
-        return $this->getSource()->isTypeLengthAllowed($type);
-    }
-
-    /**
-     * Checks if the given type allows or requires length
-     *
-     * @param string $type
-     *
-     * @return bool
-     */
-    public function canTypeUseLength($type)
-    {
-        return $this->isTypeLengthRequired($type) || $this->isTypeLengthAllowed($type);
-    }
-
     protected function addCollection($name, $schema)
     {
         // save the column into the data
@@ -797,27 +804,5 @@ class SchemaManager
         $tableName = $column->getCollectionName();
         $columnName = $column->getName();
         $this->data['fields'][$tableName][$columnName] = $column;
-    }
-
-    /**
-     *
-     *
-     * @param $type
-     *
-     * @return integer
-     */
-    public function getFieldDefaultLength($type)
-    {
-        return $this->source->getColumnDefaultLength($type);
-    }
-
-    /**
-     * Gets the source schema adapter
-     *
-     * @return SchemaInterface
-     */
-    public function getSource()
-    {
-        return $this->source;
     }
 }

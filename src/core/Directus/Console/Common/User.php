@@ -2,12 +2,11 @@
 
 namespace Directus\Console\Common;
 
-use Directus\Application\Application;
 use Directus\Console\Common\Exception\PasswordChangeException;
 use Directus\Console\Common\Exception\UserUpdateException;
-use Zend\Db\TableGateway\TableGateway;
-use Directus\Util\Installation\InstallerUtils;
 use function Directus\get_directus_setting;
+use Directus\Util\Installation\InstallerUtils;
+use Zend\Db\TableGateway\TableGateway;
 
 class User
 {
@@ -18,7 +17,7 @@ class User
 
     public function __construct($base_path, $projectName = null)
     {
-        if ($base_path == null) {
+        if (null == $base_path) {
             $base_path = \Directus\base_path();
         }
 
@@ -30,29 +29,31 @@ class User
     }
 
     /**
-     * Check the existance of user in the system
+     * Check the existance of user in the system.
      *
      * The function will check the user of given their e-mail address exist in
      * the system or not.
+     *
+     * @param mixed $email
      */
     public function userExists($email)
     {
         try {
             $rowset = $this->usersTableGateway->select([
-                'email' => $email
+                'email' => $email,
             ]);
             if ($rowset->count() > 0) {
                 return true;
             }
+
             return false;
         } catch (\PDOException $ex) {
             return false;
         }
     }
 
-
     /**
-     *  Change the password of a user given their e-mail address
+     *  Change the password of a user given their e-mail address.
      *
      *  The function will change the password of a user given their e-mail
      *  address. If there are multiple users with the same e-mail address, and
@@ -60,18 +61,14 @@ class User
      *
      *  The function will generate a new salt for every password change.
      *
-     * @param string $email The e-mail of the user whose password is being
-     *         changed.
-     * @param string $password The new password.
+     * @param string $email    the e-mail of the user whose password is being
+     *                         changed
+     * @param string $password the new password
      *
-     * @return void
-     *
-     * @throws PasswordChangeException Thrown when password change has failed.
-     *
+     * @throws PasswordChangeException thrown when password change has failed
      */
     public function changePassword($email, $password)
     {
-
         $auth = $this->app->getContainer()->get('auth');
 
         $passwordValidation = get_directus_setting('password_policy');
@@ -90,15 +87,15 @@ class User
 
         try {
             $update = [
-                'password' => $hash
+                'password' => $hash,
             ];
 
             $changed = $this->usersTableGateway->update($update, ['email' => $email]);
-            if ($changed == 0) {
-                throw new PasswordChangeException('Could not change password for ' . $email . ': ' . 'e-mail not found.');
+            if (0 == $changed) {
+                throw new PasswordChangeException('Could not change password for '.$email.': '.'e-mail not found.');
             }
         } catch (\PDOException $ex) {
-            throw new PasswordChangeException('Failed to change password' . ': ' . str($ex));
+            throw new PasswordChangeException('Failed to change password'.': '.str($ex));
         }
     }
 
@@ -109,26 +106,21 @@ class User
      *  undesired effects, this function is mainly useful during the setup/install
      *  phase.
      *
+     * @param string $id    the ID of the user whose e-mail address we want to change
+     * @param string $email the new e-mail address for the use
      *
-     * @param string $id The ID of the user whose e-mail address we want to change.
-     * @param string $email The new e-mail address for the use.
-     *
-     * @return void
-     *
-     * @throws UserUpdateException Thrown when the e-mail address change fails.
-     *
+     * @throws UserUpdateException thrown when the e-mail address change fails
      */
     public function changeEmail($id, $email)
     {
-
         $update = [
-            'email' => $email
+            'email' => $email,
         ];
 
         try {
             $this->usersTableGateway->update($update, ['id' => $id]);
         } catch (\PDOException $ex) {
-            throw new PasswordChangeException('Could not change email for ID ' . $id . ': ' . str($ex));
+            throw new PasswordChangeException('Could not change email for ID '.$id.': '.str($ex));
         }
     }
 }

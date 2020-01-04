@@ -1,4 +1,5 @@
 <?php
+
 namespace Directus\GraphQL\Type\Scalar;
 
 use GraphQL\Language\AST\BooleanValueNode;
@@ -36,22 +37,21 @@ class JSONType extends ScalarType
 
     public function parseLiteral($valueNode, array $variables = null)
     {
-
         switch ($valueNode) {
-            case ($valueNode instanceof StringValueNode):
-            case ($valueNode instanceof BooleanValueNode):
+            case $valueNode instanceof StringValueNode:
+            case $valueNode instanceof BooleanValueNode:
                 return $valueNode->value;
-            case ($valueNode instanceof IntValueNode):
-            case ($valueNode instanceof FloatValueNode):
+            case $valueNode instanceof IntValueNode:
+            case $valueNode instanceof FloatValueNode:
                 return floatval($valueNode->value);
-            case ($valueNode instanceof ObjectValueNode): {
+            case $valueNode instanceof ObjectValueNode:
                     $value = [];
                     foreach ($valueNode->fields as $field) {
                         $value[$field->name->value] = $this->parseLiteral($field->value);
                     }
+
                     return $value;
-                }
-            case ($valueNode instanceof ListValueNode):
+            case $valueNode instanceof ListValueNode:
                 return array_map([$this, 'parseLiteral'], $valueNode->values);
             default:
                 return null;

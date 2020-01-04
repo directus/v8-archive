@@ -2,26 +2,22 @@
 
 namespace Directus\Application\Http\Middleware;
 
-use Directus\Cache\Response as CacheResponse;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
-use Directus\Util\StringUtils;
-use Slim\Http\Cookies;
-use function Directus\get_directus_setting;
+use Directus\Cache\Response as CacheResponse;
+use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
 use function Directus\decrypt_static_token;
+use function Directus\get_directus_setting;
 use function Directus\get_project_session_cookie_name;
 use function Directus\get_request_authorization_token;
 use Directus\Services\UserSessionService;
-use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
 use Directus\Util\DateTimeUtils;
+use Directus\Util\StringUtils;
+use Slim\Http\Cookies;
 
 class ResponseCacheMiddleware extends AbstractMiddleware
 {
     /**
-     * @param Request $request
-     * @param Response $response
-     * @param callable $next
-     *
      * @return $this|Response
      */
     public function __invoke(Request $request, Response $response, callable $next)
@@ -41,8 +37,8 @@ class ResponseCacheMiddleware extends AbstractMiddleware
 
             $requestPath = $request->getUri()->getPath();
 
-            $key = md5($container->get('acl')->getUserId() . '@' . $requestPath . '?' . http_build_query($parameters));
-        } else if ($request->isPost() && StringUtils::endsWith($request->getUri()->getPath(), '/gql')) {
+            $key = md5($container->get('acl')->getUserId().'@'.$requestPath.'?'.http_build_query($parameters));
+        } elseif ($request->isPost() && StringUtils::endsWith($request->getUri()->getPath(), '/gql')) {
             // Handle caching for GraphQL query that are POST.
             // TODO:: Add support for ACL and Mutation
             $body = $request->getBody();
@@ -71,14 +67,15 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         $authorizationTokenObject = get_request_authorization_token($request);
 
         $accessToken = null;
+
         try {
             if (!empty($authorizationTokenObject['token'])) {
                 $userSessionService = new UserSessionService($container);
                 $userSessionService->destroy([
-                    'token_expired_at < ?' => DateTimeUtils::now()->toString()
+                    'token_expired_at < ?' => DateTimeUtils::now()->toString(),
                 ]);
-                $expirationMinutes =  get_directus_setting('auto_sign_out');
-                $expiry = new \DateTimeImmutable('now + ' . $expirationMinutes . 'minutes');
+                $expirationMinutes = get_directus_setting('auto_sign_out');
+                $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
 
                 switch ($authorizationTokenObject['type']) {
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE:
@@ -92,14 +89,16 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                                 'value' => $authorizationTokenObject['token'],
                                 'expires' => $expiryAt,
                                 'path' => '/',
-                                'httponly' => true
+                                'httponly' => true,
                             ]
                         );
 
-                        $response =  $response->withAddedHeader('Set-Cookie', $cookie->toHeaders());
+                        $response = $response->withAddedHeader('Set-Cookie', $cookie->toHeaders());
+
                         break;
                     default:
                         $userSession = $userSessionService->find(['token' => $authorizationTokenObject['token']]);
+
                         break;
                 }
             }
@@ -115,11 +114,11 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                     'value' => $authorizationTokenObject['token'],
                     'expires' => DateTimeUtils::now()->toString(),
                     'path' => '/',
-                    'httponly' => true
+                    'httponly' => true,
                 ]
             );
 
-            $response =  $response->withAddedHeader('Set-Cookie', $cookie->toHeaders());
+            $response = $response->withAddedHeader('Set-Cookie', $cookie->toHeaders());
         }
 
         $response = $response->withHeader('Access-Control-Allow-Origin', $request->getHeader('Origin'));
@@ -127,6 +126,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         if ($config->get('cors.credentials')) {
             $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
         }
+
         return $response;
     }
 }

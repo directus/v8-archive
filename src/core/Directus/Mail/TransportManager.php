@@ -26,11 +26,10 @@ class TransportManager
     protected $config = [];
 
     /**
-     * Register a mailer with a name
+     * Register a mailer with a name.
      *
      * @param string $name
      * @param string $transport
-     * @param array $config
      */
     public function register($name, $transport, array $config = [])
     {
@@ -53,9 +52,9 @@ class TransportManager
     }
 
     /**
-     * Gets the first or "default" adapter
+     * Gets the first or "default" adapter.
      *
-     * @return AbstractTransport|null
+     * @return null|AbstractTransport
      */
     public function getDefault()
     {
@@ -63,7 +62,7 @@ class TransportManager
     }
 
     /**
-     * Returns a transport configuration based on its name
+     * Returns a transport configuration based on its name.
      *
      * @param string $name
      *
@@ -75,7 +74,7 @@ class TransportManager
     }
 
     /**
-     * Returns the default transport configuration
+     * Returns the default transport configuration.
      *
      * @return array
      */
@@ -85,7 +84,7 @@ class TransportManager
     }
 
     /**
-     * Returns the default transport key
+     * Returns the default transport key.
      *
      * @return null|string
      */
@@ -94,7 +93,7 @@ class TransportManager
         $key = null;
         if (array_key_exists('default', $this->transports)) {
             $key = 'default';
-        } else if (count($this->transports) > 0) {
+        } elseif (count($this->transports) > 0) {
             reset($this->transports);
             $key = key($this->transports);
         }
@@ -103,15 +102,14 @@ class TransportManager
     }
 
     /**
-     * Creates a instance of a transport registered with the given name
+     * Creates a instance of a transport registered with the given name.
      *
      * @param string $name
-     * @param array $config
-     *
-     * @return AbstractTransport
      *
      * @throws InvalidTransportException
      * @throws TransportNotFoundException
+     *
+     * @return AbstractTransport
      */
     protected function build($name, array $config = [])
     {
@@ -130,7 +128,7 @@ class TransportManager
 
         if (is_callable($transport)) {
             $instance = call_user_func($transport);
-        } else if (is_string($transport)) {
+        } elseif (is_string($transport)) {
             $instance = new $transport($config);
         } else {
             $instance = $transport;

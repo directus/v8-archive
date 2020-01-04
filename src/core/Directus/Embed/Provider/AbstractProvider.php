@@ -7,20 +7,21 @@ use Directus\Util\StringUtils;
 abstract class AbstractProvider implements ProviderInterface
 {
     /**
-     * Embed Service name
+     * Embed Service name.
+     *
      * @var string
      */
     protected $name = 'unknown';
 
     /**
-     * Files Config
+     * Files Config.
+     *
      * @var array
      */
     protected $config = [];
 
     /**
      * AbstractProvider constructor.
-     * @param array $config
      */
     public function __construct(array $config = [])
     {
@@ -28,8 +29,10 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
-     * Parse a given URL
+     * Parse a given URL.
+     *
      * @param $url
+     *
      * @return mixed
      */
     public function parse($url)
@@ -50,7 +53,8 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
-     * Get the embed provider name
+     * Get the embed provider name.
+     *
      * @return string
      */
     public function getName()
@@ -59,16 +63,17 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
-     * Get the embed type
+     * Get the embed type.
+     *
      * @return string
      */
     public function getType()
     {
-        return 'embed/' . $this->getName();
+        return 'embed/'.$this->getName();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getCode($data)
     {
@@ -76,7 +81,7 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getUrl($data)
     {
@@ -84,17 +89,10 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
-     * Get the HTML embed format template
-     * @return mixed
-     */
-    protected function getFormatTemplate()
-    {
-        return '';
-    }
-
-    /**
-     * Parse an embed ID
+     * Parse an embed ID.
+     *
      * @param $embedID
+     *
      * @return array
      */
     public function parseID($embedID)
@@ -102,8 +100,8 @@ abstract class AbstractProvider implements ProviderInterface
         $defaultInfo = [
             'embed' => $embedID,
             'filesize' => 0,
-            'filename' => $this->getName() . '_' . $embedID . '.jpg',
-            'type' => $this->getType()
+            'filename' => $this->getName().'_'.$embedID.'.jpg',
+            'type' => $this->getType(),
         ];
 
         $info = array_merge($defaultInfo, $this->fetchInfo($embedID));
@@ -113,7 +111,24 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
-     * Returns the default embed title
+     * Get the provider type.
+     *
+     * @return mixed
+     */
+    abstract public function getProviderType();
+
+    /**
+     * Get the HTML embed format template.
+     *
+     * @return mixed
+     */
+    protected function getFormatTemplate()
+    {
+        return '';
+    }
+
+    /**
+     * Returns the default embed title.
      *
      * @param mixed $id
      *
@@ -125,23 +140,22 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
-     * Get the provider type
-     * @return mixed
-     */
-    abstract public function getProviderType();
-
-    /**
      * Parsing the url and returning the provider ID
-     * This is a method use for the extended class
+     * This is a method use for the extended class.
+     *
      * @param $url
-     * @return string
+     *
      * @throws \Exception
+     *
+     * @return string
      */
     abstract protected function parseURL($url);
 
     /**
-     * Fetch the embed information
+     * Fetch the embed information.
+     *
      * @param $embedID
+     *
      * @return array
      */
     abstract protected function fetchInfo($embedID);

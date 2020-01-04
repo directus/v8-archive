@@ -4,5 +4,4 @@ namespace Directus\Exception;
 
 interface ErrorExceptionInterface
 {
-
 }

@@ -2,19 +2,19 @@
 
 namespace Directus\Permissions;
 
+use Directus\Exception\UnauthorizedException;
 use Directus\Permissions\Exception\ForbiddenCommentCreateException;
 use Directus\Permissions\Exception\ForbiddenCommentDeleteException;
 use Directus\Permissions\Exception\ForbiddenCommentUpdateException;
 use Directus\Permissions\Exception\ForbiddenFieldReadException;
 use Directus\Permissions\Exception\ForbiddenFieldWriteException;
-use Directus\Exception\UnauthorizedException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 
 class Acl
 {
     const ACTION_CREATE = 'create';
-    const ACTION_READ   = 'read';
+    const ACTION_READ = 'read';
     const ACTION_UPDATE = 'update';
     const ACTION_DELETE = 'delete';
 
@@ -23,12 +23,12 @@ class Acl
     const LEVEL_ROLE = 'role';
     const LEVEL_FULL = 'full';
 
-    const COMMENT_LEVEL_NONE   = 'none';
+    const COMMENT_LEVEL_NONE = 'none';
     const COMMENT_LEVEL_CREATE = 'create';
     const COMMENT_LEVEL_UPDATE = 'update';
-    const COMMENT_LEVEL_FULL   = 'full';
+    const COMMENT_LEVEL_FULL = 'full';
 
-    const EXPLAIN_LEVEL_NONE   = 'none';
+    const EXPLAIN_LEVEL_NONE = 'none';
     const EXPLAIN_LEVEL_CREATE = 'create';
     const EXPLAIN_LEVEL_UPDATE = 'update';
     const EXPLAIN_LEVEL_ALWAYS = 'always';
@@ -38,80 +38,80 @@ class Acl
 
     const PERMISSION_FULL = [
         self::ACTION_CREATE => self::LEVEL_FULL,
-        self::ACTION_READ   => self::LEVEL_FULL,
+        self::ACTION_READ => self::LEVEL_FULL,
         self::ACTION_UPDATE => self::LEVEL_FULL,
-        self::ACTION_DELETE => self::LEVEL_FULL
+        self::ACTION_DELETE => self::LEVEL_FULL,
     ];
 
     const PERMISSION_NONE = [
         self::ACTION_CREATE => self::LEVEL_NONE,
-        self::ACTION_READ   => self::LEVEL_NONE,
+        self::ACTION_READ => self::LEVEL_NONE,
         self::ACTION_UPDATE => self::LEVEL_NONE,
-        self::ACTION_DELETE => self::LEVEL_NONE
+        self::ACTION_DELETE => self::LEVEL_NONE,
     ];
 
     const PERMISSION_READ = [
         self::ACTION_CREATE => self::LEVEL_NONE,
-        self::ACTION_READ   => self::LEVEL_FULL,
+        self::ACTION_READ => self::LEVEL_FULL,
         self::ACTION_UPDATE => self::LEVEL_NONE,
-        self::ACTION_DELETE => self::LEVEL_NONE
+        self::ACTION_DELETE => self::LEVEL_NONE,
     ];
 
     const PERMISSION_WRITE = [
         self::ACTION_CREATE => self::LEVEL_FULL,
-        self::ACTION_READ   => self::LEVEL_NONE,
+        self::ACTION_READ => self::LEVEL_NONE,
         self::ACTION_UPDATE => self::LEVEL_FULL,
-        self::ACTION_DELETE => self::LEVEL_NONE
+        self::ACTION_DELETE => self::LEVEL_NONE,
     ];
 
     const PERMISSION_READ_WRITE = [
         self::ACTION_CREATE => self::LEVEL_FULL,
-        self::ACTION_READ   => self::LEVEL_FULL,
+        self::ACTION_READ => self::LEVEL_FULL,
         self::ACTION_UPDATE => self::LEVEL_FULL,
-        self::ACTION_DELETE => self::LEVEL_NONE
+        self::ACTION_DELETE => self::LEVEL_NONE,
     ];
 
     protected $permissionLevelsMapping = [
         self::LEVEL_NONE => 0,
         self::LEVEL_MINE => 1,
         self::LEVEL_ROLE => 2,
-        self::LEVEL_FULL => 3
+        self::LEVEL_FULL => 3,
     ];
 
     protected $commentLevelsMapping = [
         self::COMMENT_LEVEL_NONE => 0,
         self::COMMENT_LEVEL_CREATE => 1,
         self::COMMENT_LEVEL_UPDATE => 2,
-        self::COMMENT_LEVEL_FULL => 3
+        self::COMMENT_LEVEL_FULL => 3,
     ];
 
     /**
-     * Permissions by status grouped by collection
+     * Permissions by status grouped by collection.
      *
      * @var array
      */
     protected $statusPermissions = [];
 
     /**
-     * Permissions grouped by collection
+     * Permissions grouped by collection.
      *
      * @var array
      */
     protected $globalPermissions = [];
 
     /**
-     * Permissions by custom "status" grouped by collections
+     * Permissions by custom "status" grouped by collections.
      *
      * @var array
      */
     protected $customPermissions = [];
 
     /**
-     * Authenticated user id
+     * Authenticated user id.
      *
-     * @var int|null
+     * @var null|int
      */
-    protected $userId = null;
+    protected $userId;
 
     /**
      * @var string
@@ -124,25 +124,25 @@ class Acl
     protected $userFullName;
 
     /**
-     * List of roles id the user beings to
+     * List of roles id the user beings to.
      *
      * @var array
      */
     protected $roleIds = [];
 
     /**
-     * List of allowed IPs by role
+     * List of allowed IPs by role.
      *
      * @var array
      */
     protected $rolesIpWhitelist = [];
 
     /**
-     * Flag to determine whether the user is public or not
+     * Flag to determine whether the user is public or not.
      *
      * @var bool
      */
-    protected $isPublic = null;
+    protected $isPublic;
 
     public function __construct(array $permissions = [])
     {
@@ -150,7 +150,7 @@ class Acl
     }
 
     /**
-     * Sets the authenticated user id
+     * Sets the authenticated user id.
      *
      * @param $userId
      */
@@ -160,7 +160,7 @@ class Acl
     }
 
     /**
-     * Sets the authenticated user email
+     * Sets the authenticated user email.
      *
      * @param string $email
      */
@@ -170,7 +170,7 @@ class Acl
     }
 
     /**
-     * Sets the authenticated user full name
+     * Sets the authenticated user full name.
      *
      * @param string $name
      */
@@ -180,7 +180,7 @@ class Acl
     }
 
     /**
-     * Sets whether the authenticated user is public
+     * Sets whether the authenticated user is public.
      *
      * @param $public
      */
@@ -190,9 +190,9 @@ class Acl
     }
 
     /**
-     * Gets the authenticated user id
+     * Gets the authenticated user id.
      *
-     * @return int|null
+     * @return null|int
      */
     public function getUserId()
     {
@@ -200,7 +200,7 @@ class Acl
     }
 
     /**
-     * Returns authenticated user email
+     * Returns authenticated user email.
      *
      * @return string
      */
@@ -210,7 +210,7 @@ class Acl
     }
 
     /**
-     * Returns authenticated user full name
+     * Returns authenticated user full name.
      *
      * @return string
      */
@@ -220,17 +220,17 @@ class Acl
     }
 
     /**
-     * Gets whether the authenticated user is public
+     * Gets whether the authenticated user is public.
      *
      * @return bool
      */
     public function isPublic()
     {
-        return $this->isPublic === true;
+        return true === $this->isPublic;
     }
 
     /**
-     * Gets whether the authenticated user is admin
+     * Gets whether the authenticated user is admin.
      *
      * @return bool
      */
@@ -240,7 +240,7 @@ class Acl
     }
 
     /**
-     * Checks whether or not the user has admin role
+     * Checks whether or not the user has admin role.
      *
      * @return bool
      */
@@ -250,7 +250,7 @@ class Acl
     }
 
     /**
-     * Checks whether or not the user has the given role id
+     * Checks whether or not the user has the given role id.
      *
      * @param int $roleId
      *
@@ -262,7 +262,7 @@ class Acl
     }
 
     /**
-     * Get all role IDs
+     * Get all role IDs.
      *
      * @return array
      */
@@ -272,9 +272,7 @@ class Acl
     }
 
     /**
-     * Sets the user roles ip whitelist
-     *
-     * @param array $rolesIpWhitelist
+     * Sets the user roles ip whitelist.
      */
     public function setRolesIpWhitelist(array $rolesIpWhitelist)
     {
@@ -288,7 +286,7 @@ class Acl
     }
 
     /**
-     * Checks whether or not the given ip is allowed in one of the roles
+     * Checks whether or not the given ip is allowed in one of the roles.
      *
      * @param $ip
      *
@@ -300,6 +298,7 @@ class Acl
         foreach ($this->rolesIpWhitelist as $list) {
             if (!empty($list) && !in_array($ip, $list)) {
                 $allowed = false;
+
                 break;
             }
         }
@@ -308,9 +307,7 @@ class Acl
     }
 
     /**
-     * Sets the group permissions
-     *
-     * @param array $permissions
+     * Sets the group permissions.
      *
      * @return $this
      */
@@ -332,10 +329,9 @@ class Acl
     }
 
     /**
-     * Sets permissions to the given collection
+     * Sets permissions to the given collection.
      *
      * @param string $collection
-     * @param array $permissions
      */
     public function setCollectionPermissions($collection, array $permissions)
     {
@@ -345,10 +341,9 @@ class Acl
     }
 
     /**
-     * Sets a collection permission
+     * Sets a collection permission.
      *
      * @param $collection
-     * @param array $permission
      *
      * @return $this
      */
@@ -358,9 +353,9 @@ class Acl
 
         if (is_null($status) && !isset($this->globalPermissions[$collection])) {
             $this->globalPermissions[$collection] = $permission;
-        } else if (!is_null($status) && StringUtils::startsWith($status, '$')) {
+        } elseif (!is_null($status) && StringUtils::startsWith($status, '$')) {
             $this->customPermissions[$collection][$status] = $permission;
-        } else if (!is_null($status) && !isset($this->statusPermissions[$collection][$status])) {
+        } elseif (!is_null($status) && !isset($this->statusPermissions[$collection][$status])) {
             $this->statusPermissions[$collection][$status] = $permission;
             unset($this->globalPermissions[$collection]);
         }
@@ -369,7 +364,7 @@ class Acl
     }
 
     /**
-     * Gets the group permissions
+     * Gets the group permissions.
      *
      * @return array
      */
@@ -379,7 +374,7 @@ class Acl
     }
 
     /**
-     * Returns all permissions no grouped by collection or statuses
+     * Returns all permissions no grouped by collection or statuses.
      *
      * @return array
      */
@@ -410,7 +405,7 @@ class Acl
     }
 
     /**
-     * Gets a collection permissions
+     * Gets a collection permissions.
      *
      * @param string $collection
      *
@@ -420,7 +415,8 @@ class Acl
     {
         if (array_key_exists($collection, $this->statusPermissions)) {
             return $this->statusPermissions[$collection];
-        } else if (array_key_exists($collection, $this->globalPermissions)) {
+        }
+        if (array_key_exists($collection, $this->globalPermissions)) {
             return $this->globalPermissions[$collection];
         }
 
@@ -428,9 +424,9 @@ class Acl
     }
 
     /**
-     * Gets a collection permission
+     * Gets a collection permission.
      *
-     * @param string $collection
+     * @param string          $collection
      * @param null|int|string $status
      *
      * @return array
@@ -442,7 +438,7 @@ class Acl
 
         if (is_null($status) && $hasStatusPermissions) {
             $permissions = [];
-        } else if ($hasStatusPermissions) {
+        } elseif ($hasStatusPermissions) {
             $permissions = ArrayUtils::get($permissions, $status, []);
         }
 
@@ -450,7 +446,7 @@ class Acl
     }
 
     /**
-     * Checks whether or not the collection has permissions by status
+     * Checks whether or not the collection has permissions by status.
      *
      * @param string $collection
      *
@@ -462,11 +458,11 @@ class Acl
     }
 
     /**
-     * Gets the given type (read/write) field blacklist
+     * Gets the given type (read/write) field blacklist.
      *
      * @param string $type
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return array
      */
@@ -477,9 +473,11 @@ class Acl
         switch ($type) {
             case static::FIELD_READ_BLACKLIST:
                 $fields = ArrayUtils::get($permission, static::FIELD_READ_BLACKLIST);
+
                 break;
             case static::FIELD_WRITE_BLACKLIST:
                 $fields = ArrayUtils::get($permission, static::FIELD_WRITE_BLACKLIST);
+
                 break;
             default:
                 $fields = [];
@@ -489,10 +487,10 @@ class Acl
     }
 
     /**
-     * Gets the read field blacklist
+     * Gets the read field blacklist.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return array
      */
@@ -502,10 +500,10 @@ class Acl
     }
 
     /**
-     * Gets the write field blacklist
+     * Gets the write field blacklist.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return array|mixed
      */
@@ -515,10 +513,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can add an item in the given collection
+     * Checks whether the user can add an item in the given collection.
      *
-     * @param string $collection
-     * @param string|int|null $status
+     * @param string          $collection
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -528,11 +526,11 @@ class Acl
     }
 
     /**
-     * Checks whether the user can view an item in the given collection
+     * Checks whether the user can view an item in the given collection.
      *
      * @param int $level
      * @param $collection
-     * @param string|int|null $status
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -542,10 +540,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can read at least their own items in the given collection
+     * Checks whether the user can read at least their own items in the given collection.
      *
      * @param $collection
-     * @param string|int|null $status
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -555,7 +553,7 @@ class Acl
     }
 
     /**
-     * Checks whether the user can read at least in one permission level no matter the status
+     * Checks whether the user can read at least in one permission level no matter the status.
      *
      * @param string $collection
      *
@@ -567,10 +565,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can read their own items in the given collection
+     * Checks whether the user can read their own items in the given collection.
      *
      * @param $collection
-     * @param string|int|null $status
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -580,10 +578,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can read items owned by a user in the same user role in the given collection
+     * Checks whether the user can read items owned by a user in the same user role in the given collection.
      *
      * @param $collection
-     * @param string|int|null $status
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -593,10 +591,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can read any items in the given collection
+     * Checks whether the user can read any items in the given collection.
      *
      * @param $collection
-     * @param string|int|null $status
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -606,11 +604,11 @@ class Acl
     }
 
     /**
-     * Checks whether the user can update an item in the given collection
+     * Checks whether the user can update an item in the given collection.
      *
-     * @param int $level
+     * @param int    $level
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return bool
      */
@@ -620,10 +618,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can update at least their own items in the given collection
+     * Checks whether the user can update at least their own items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return bool
      */
@@ -633,10 +631,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can update their own items in the given collection
+     * Checks whether the user can update their own items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return bool
      */
@@ -646,10 +644,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can update items owned by a user of the same user role in the given collection
+     * Checks whether the user can update items owned by a user of the same user role in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return bool
      */
@@ -659,10 +657,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can update all items in the given collection
+     * Checks whether the user can update all items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return bool
      */
@@ -672,11 +670,11 @@ class Acl
     }
 
     /**
-     * Checks whether the user can delete an item in the given collection
+     * Checks whether the user can delete an item in the given collection.
      *
-     * @param int $level
-     * @param string $collection
-     * @param string|int|null $status
+     * @param int             $level
+     * @param string          $collection
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -686,10 +684,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can delete at least their own items in the given collection
+     * Checks whether the user can delete at least their own items in the given collection.
      *
-     * @param string $collection
-     * @param string|int|null $status
+     * @param string          $collection
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -699,10 +697,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can delete its own items in the given collection
+     * Checks whether the user can delete its own items in the given collection.
      *
-     * @param string $collection
-     * @param string|int|null $status
+     * @param string          $collection
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -712,10 +710,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can delete items that belongs to an user in the same role in the given collection
+     * Checks whether the user can delete items that belongs to an user in the same role in the given collection.
      *
-     * @param string $collection
-     * @param string|int|null $status
+     * @param string          $collection
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -725,10 +723,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can delete any items in the given collection
+     * Checks whether the user can delete any items in the given collection.
      *
-     * @param string $collection
-     * @param string|int|null $status
+     * @param string          $collection
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -738,7 +736,7 @@ class Acl
     }
 
     /**
-     * Checks whether the user can alter the given table
+     * Checks whether the user can alter the given table.
      *
      * @param $collection
      *
@@ -750,10 +748,10 @@ class Acl
     }
 
     /**
-     * Checks whether or not the user has permission to create comments
+     * Checks whether or not the user has permission to create comments.
      *
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @return bool
      */
@@ -763,10 +761,10 @@ class Acl
     }
 
     /**
-     * Throws exception when user cannot create comments
+     * Throws exception when user cannot create comments.
      *
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @throws ForbiddenCommentCreateException
      */
@@ -778,10 +776,10 @@ class Acl
     }
 
     /**
-     * Checks whether or not the user has permission to update their comments
+     * Checks whether or not the user has permission to update their comments.
      *
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @return bool
      */
@@ -791,10 +789,10 @@ class Acl
     }
 
     /**
-     * Throws exception when user cannot update their comments
+     * Throws exception when user cannot update their comments.
      *
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @throws ForbiddenCommentUpdateException
      */
@@ -806,10 +804,10 @@ class Acl
     }
 
     /**
-     * Checks whether or not the user can update any comments
+     * Checks whether or not the user can update any comments.
      *
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @return bool
      */
@@ -819,10 +817,10 @@ class Acl
     }
 
     /**
-     * Throws exception when user cannot update any comments
+     * Throws exception when user cannot update any comments.
      *
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @throws ForbiddenCommentUpdateException
      */
@@ -834,10 +832,10 @@ class Acl
     }
 
     /**
-     * Checks whether or not the user can delete their comments
+     * Checks whether or not the user can delete their comments.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return bool
      */
@@ -847,10 +845,10 @@ class Acl
     }
 
     /**
-     * Throws exception when user cannot delete their comments
+     * Throws exception when user cannot delete their comments.
      *
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @throws ForbiddenCommentDeleteException
      */
@@ -862,10 +860,10 @@ class Acl
     }
 
     /**
-     * Checks whether or not the user can delete any comments
+     * Checks whether or not the user can delete any comments.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @return bool
      */
@@ -875,10 +873,10 @@ class Acl
     }
 
     /**
-     * Throws exception when user cannot delete any comments
+     * Throws exception when user cannot delete any comments.
      *
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @throws ForbiddenCommentDeleteException
      */
@@ -890,10 +888,10 @@ class Acl
     }
 
     /**
-     * Checks whether a given collection requires explanation message
+     * Checks whether a given collection requires explanation message.
      *
-     * @param string $collection
-     * @param string|int|null $status
+     * @param string          $collection
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -913,10 +911,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot read their own items in the given collection
+     * Throws an exception if the user cannot read their own items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionReadException
      */
@@ -930,10 +928,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot read items that belongs to an user in the same role in the given collection
+     * Throws an exception if the user cannot read items that belongs to an user in the same role in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionReadException
      */
@@ -947,10 +945,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot read all items in the given collection
+     * Throws an exception if the user cannot read all items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionReadException
      */
@@ -964,10 +962,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot create a item in the given collection
+     * Throws an exception if the user cannot create a item in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionReadException
      */
@@ -977,31 +975,31 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot read a item in any level or status
+     * Throws an exception if the user cannot read a item in any level or status.
      *
      * @param string $collection
      *
      * @throws Exception\ForbiddenCollectionReadException
      */
     public function enforceReadOnce($collection)
-    { 
+    {
         if (!$this->canReadOnce($collection)) {
             // If a collection can't be accessed by the public group and user not logged in, ACL will return the unauthorized exception otherwise it will return forbidden error.
-            if($this->isPublic()){
+            if ($this->isPublic()) {
                 throw new UnauthorizedException('Unauthorized request');
-            }else{
-                throw new Exception\ForbiddenCollectionReadException(
+            }
+
+            throw new Exception\ForbiddenCollectionReadException(
                     $collection
                 );
-            }
         }
     }
 
     /**
-     * Throws an exception if the user cannot create a item in the given collection
+     * Throws an exception if the user cannot create a item in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionCreateException
      */
@@ -1015,7 +1013,7 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot alter the given collection
+     * Throws an exception if the user cannot alter the given collection.
      *
      * @param $collection
      *
@@ -1031,10 +1029,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot update their own items in the given collection
+     * Throws an exception if the user cannot update their own items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionUpdateException
      */
@@ -1048,10 +1046,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot update items that longs to an user in the same role in the given collection
+     * Throws an exception if the user cannot update items that longs to an user in the same role in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionUpdateException
      */
@@ -1065,10 +1063,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot update all items in the given collection
+     * Throws an exception if the user cannot update all items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionUpdateException
      */
@@ -1082,10 +1080,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot update an item in the given collection
+     * Throws an exception if the user cannot update an item in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionUpdateException
      */
@@ -1095,10 +1093,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot delete their own items in the given collection
+     * Throws an exception if the user cannot delete their own items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionDeleteException
      */
@@ -1112,10 +1110,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot delete items that belongs to an user in the same role in the given collection
+     * Throws an exception if the user cannot delete items that belongs to an user in the same role in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionDeleteException
      */
@@ -1129,10 +1127,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot delete all items in the given collection
+     * Throws an exception if the user cannot delete all items in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionDeleteException
      */
@@ -1146,10 +1144,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user cannot delete an item in the given collection
+     * Throws an exception if the user cannot delete an item in the given collection.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
      *
      * @throws Exception\ForbiddenCollectionDeleteException
      */
@@ -1159,11 +1157,11 @@ class Acl
     }
 
     /**
-     * Checks whether the user can see the given column
+     * Checks whether the user can see the given column.
      *
-     * @param string $collection
-     * @param string $field
-     * @param null|string|int $status
+     * @param string          $collection
+     * @param string          $field
+     * @param null|int|string $status
      *
      * @return bool
      */
@@ -1175,10 +1173,10 @@ class Acl
     }
 
     /**
-     * Checks whether the user can see the given column
+     * Checks whether the user can see the given column.
      *
-     * @param string $collection
-     * @param string $field
+     * @param string          $collection
+     * @param string          $field
      * @param null|int|string $status
      *
      * @return bool
@@ -1191,10 +1189,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user has not permission to read from the given field
+     * Throws an exception if the user has not permission to read from the given field.
      *
-     * @param string $collection
-     * @param string|array $fields
+     * @param string          $collection
+     * @param array|string    $fields
      * @param null|int|string $status
      *
      * @throws ForbiddenFieldReadException
@@ -1213,10 +1211,10 @@ class Acl
     }
 
     /**
-     * Throws an exception if the user has not permission to write to the given field
+     * Throws an exception if the user has not permission to write to the given field.
      *
-     * @param string $collection
-     * @param string|array $fields
+     * @param string          $collection
+     * @param array|string    $fields
      * @param null|int|string $status
      *
      * @throws ForbiddenFieldWriteException
@@ -1244,9 +1242,9 @@ class Acl
      * @param int $level
      * @param mixed $status
      *
-     * @return boolean
+     * @return bool
      */
-   public function allowTo($action, $level, $collection, $status = null)
+    public function allowTo($action, $level, $collection, $status = null)
     {
         if ($this->isAdmin()) {
             return true;
@@ -1254,25 +1252,27 @@ class Acl
 
         $permission = $this->getPermission($collection, $status);
 
-        if (count($permission) === 0) {
+        if (0 === count($permission)) {
             $statuses = $this->getCollectionStatuses($collection);
 
             $allowed = false;
-            if($statuses){
+            if ($statuses) {
                 foreach ($statuses as $status) {
                     $permission = $this->getPermission($collection, $status);
                     $permissionLevel = ArrayUtils::get($permission, $action);
                     if ($this->can($permissionLevel, $level)) {
                         $allowed = true;
+
                         break;
                     }
                 }
             }
+
             return $allowed;
-        } else {
-            $permissionLevel = ArrayUtils::get($permission, $action);
-            return $this->can($permissionLevel, $level);
         }
+        $permissionLevel = ArrayUtils::get($permission, $action);
+
+        return $this->can($permissionLevel, $level);
     }
 
     public function allowToOnce($action, $collection)
@@ -1284,7 +1284,7 @@ class Acl
         $permissions = [];
         if (array_key_exists($collection, $this->statusPermissions)) {
             $permissions = $this->statusPermissions[$collection];
-        } else if (array_key_exists($collection, $this->globalPermissions)) {
+        } elseif (array_key_exists($collection, $this->globalPermissions)) {
             $permissions = [$this->globalPermissions[$collection]];
         }
 
@@ -1294,18 +1294,20 @@ class Acl
 
             if ($this->can($permissionLevel, static::LEVEL_MINE)) {
                 $allowed = true;
+
                 break;
             }
         }
 
         return $allowed;
     }
-    
+
     /**
-     * Gets the statuses on which field has been blacklisted
+     * Gets the statuses on which field has been blacklisted.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
+     * @param mixed  $field
      *
      * @return array
      */
@@ -1314,31 +1316,33 @@ class Acl
         $blackListStatuses = [];
         $collectionPermission = $this->getCollectionPermissions($collection);
         $statuses = $this->getCollectionStatuses($collection);
-        if($statuses){
-            foreach($statuses as $status){
+        if ($statuses) {
+            foreach ($statuses as $status) {
                 $readFieldBlackList = isset($collectionPermission[$status]['read_field_blacklist']) ? $collectionPermission[$status]['read_field_blacklist'] : [];
-                if($readFieldBlackList && in_array($field, $readFieldBlackList)){                    
+                if ($readFieldBlackList && in_array($field, $readFieldBlackList)) {
                     $blackListStatuses['statuses'][] = $status;
                 }
             }
             //Set flag for field which is blacklist for all statuses
-            if(isset($blackListStatuses['statuses']) && count($blackListStatuses['statuses']) == count($statuses)){
+            if (isset($blackListStatuses['statuses']) && count($blackListStatuses['statuses']) == count($statuses)) {
                 $blackListStatuses['isReadBlackList'] = true;
             }
-        }else{
+        } else {
             $readFieldBlackList = isset($collectionPermission['read_field_blacklist']) ? $collectionPermission['read_field_blacklist'] : [];
-            if($readFieldBlackList && in_array($field, $readFieldBlackList)){
+            if ($readFieldBlackList && in_array($field, $readFieldBlackList)) {
                 $blackListStatuses['isReadBlackList'] = true;
             }
         }
+
         return $blackListStatuses;
     }
-    
+
     /**
-     * Gets the statuses on which field has been write blacklisted
+     * Gets the statuses on which field has been write blacklisted.
      *
      * @param string $collection
-     * @param mixed $status
+     * @param mixed  $status
+     * @param mixed  $field
      *
      * @return array
      */
@@ -1347,28 +1351,29 @@ class Acl
         $blackListStatuses = [];
         $collectionPermission = $this->getCollectionPermissions($collection);
         $statuses = $this->getCollectionStatuses($collection);
-        if($statuses){
-            foreach($statuses as $status){
+        if ($statuses) {
+            foreach ($statuses as $status) {
                 $writeFieldBlackList = isset($collectionPermission[$status]['write_field_blacklist']) ? $collectionPermission[$status]['write_field_blacklist'] : [];
-                if($writeFieldBlackList && in_array($field, $writeFieldBlackList)){                    
+                if ($writeFieldBlackList && in_array($field, $writeFieldBlackList)) {
                     $blackListStatuses['statuses'][] = $status;
                 }
             }
             //Set flag for field which is blacklist for all statuses
-            if(isset($blackListStatuses['statuses']) && count($blackListStatuses['statuses']) == count($statuses)){
+            if (isset($blackListStatuses['statuses']) && count($blackListStatuses['statuses']) == count($statuses)) {
                 $blackListStatuses['isWriteBlackList'] = true;
             }
-        }else{
+        } else {
             $writeFieldBlackList = isset($collectionPermission['write_field_blacklist']) ? $collectionPermission['write_field_blacklist'] : [];
-            if($writeFieldBlackList && in_array($field, $writeFieldBlackList)){
+            if ($writeFieldBlackList && in_array($field, $writeFieldBlackList)) {
                 $blackListStatuses['isWriteBlackList'] = true;
             }
         }
+
         return $blackListStatuses;
     }
-    
+
     /**
-     * Returns a list of status the given collection has permission to read
+     * Returns a list of status the given collection has permission to read.
      *
      * @param string $collection
      *
@@ -1392,7 +1397,7 @@ class Acl
                     $statuses[] = $status;
                 }
             }
-        } else if (array_key_exists($collection, $this->globalPermissions)) {
+        } elseif (array_key_exists($collection, $this->globalPermissions)) {
             $permission = $this->globalPermissions[$collection];
             $permissionLevel = ArrayUtils::get($permission, static::ACTION_READ);
 
@@ -1405,7 +1410,7 @@ class Acl
     }
 
     /**
-     * Checks whether or not a permission level has equal or higher level
+     * Checks whether or not a permission level has equal or higher level.
      *
      * @param string $permissionLevel
      * @param string $level
@@ -1429,18 +1434,18 @@ class Acl
     }
 
     /**
-     * Check whether the user has permission to a permission level in the given collection
+     * Check whether the user has permission to a permission level in the given collection.
      *
      * @param string $level
      * @param string $collection
-     * @param null $status
+     * @param null   $status
      *
      * @return bool
      */
     protected function canComment($level, $collection, $status = null)
     {
         $permission = $this->getPermission($collection, $status);
-        if (!array_key_exists('comment', $permission) || $permission['comment'] === null) {
+        if (!array_key_exists('comment', $permission) || null === $permission['comment']) {
             return true;
         }
 

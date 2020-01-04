@@ -2,37 +2,31 @@
 
 namespace Directus\Util;
 
-use function Directus\filename_put_ext;
-
 class Formatting
 {
-
     public static function fileNameToFileTitle($fileName)
     {
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        $name = strtolower(basename($fileName, '.' . $ext));
+        $name = strtolower(basename($fileName, '.'.$ext));
         $name = str_replace(['_', '-'], [' ', ' '], $name);
-        $name = ucwords($name);
 
-        return $name;
+        return ucwords($name);
     }
-
 
     public static function underscoreToCamelCase($string)
     {
         $filtered = preg_replace_callback(
-            "/(_)(.)/",
+            '/(_)(.)/',
             function ($matches) {
                 return strtoupper($matches[2]);
             },
             $string
         );
 
-        $filtered = ucfirst($filtered);
-        return $filtered;
+        return ucfirst($filtered);
     }
 
-    /**
+    /*
      * Credit: WORDPRESS 3.6-BETA3
      * http://wpseek.com/sanitize_title_with_dashes/
      *

@@ -19,7 +19,7 @@ class LogModule extends ModuleBase
         parent::__construct($basePath);
 
         $this->help = $this->commands_help = [
-            'prune' => 'remove logs older than x days. Default 30 days'
+            'prune' => 'remove logs older than x days. Default 30 days',
         ];
     }
 
@@ -28,10 +28,10 @@ class LogModule extends ModuleBase
         $days = (int) ArrayUtils::get($extra, 0, 30);
 
         if ($days <= 0) {
-            throw new WrongArgumentsException($this->__module_name . ':prune ' . ' days must be greater than 0');
+            throw new WrongArgumentsException($this->__module_name.':prune '.' days must be greater than 0');
         }
 
-        $logs = find_log_files($this->getBasePath() . '/logs');
+        $logs = find_log_files($this->getBasePath().'/logs');
 
         foreach ($logs as $path) {
             $time = (time() - filemtime($path)) / DateTimeUtils::DAY_IN_SECONDS;

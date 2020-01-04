@@ -5,7 +5,7 @@ namespace Directus\Collection;
 interface Arrayable
 {
     /**
-     * Get the instance object as an array
+     * Get the instance object as an array.
      *
      * @return array
      */

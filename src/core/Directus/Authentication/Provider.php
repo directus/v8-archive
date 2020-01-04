@@ -10,18 +10,18 @@ use Directus\Authentication\Exception\Missing2FAPasswordException;
 use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\Exception\UserNotFoundException;
-use Directus\Authentication\Exception\UserWithEmailNotFoundException;
 use Directus\Authentication\Exception\UserSuspendedException;
-use Directus\Database\TableGatewayFactory;
+use Directus\Authentication\Exception\UserWithEmailNotFoundException;
+use Directus\Authentication\User\Provider\UserProviderInterface;
+use Directus\Authentication\User\UserInterface;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
 use Directus\Database\TableGateway\DirectusUsersTableGateway;
-use Directus\Authentication\User\Provider\UserProviderInterface;
-use Directus\Authentication\User\UserInterface;
+use Directus\Database\TableGatewayFactory;
 use Directus\Exception\Exception;
 use function Directus\get_api_project_from_request;
-use function Directus\get_project_config;
 use function Directus\get_directus_setting;
+use function Directus\get_project_config;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
@@ -32,26 +32,26 @@ class Provider
     /**
      * The user ID of the public API user.
      *
-     * @var integer
+     * @var int
      */
     const PUBLIC_USER_ID = 0;
 
     /**
-     * Whether the user has been authenticated or not
+     * Whether the user has been authenticated or not.
      *
      * @var bool
      */
     protected $authenticated = false;
 
     /**
-     * Authenticated user information
+     * Authenticated user information.
      *
      * @var UserInterface
      */
     protected $user;
 
     /**
-     * User Provider
+     * User Provider.
      *
      * @var UserProviderInterface
      */
@@ -68,7 +68,7 @@ class Provider
     protected $publicKey;
 
     /**
-     * JWT time to live in minutes
+     * JWT time to live in minutes.
      *
      * @var int
      */
@@ -89,31 +89,19 @@ class Provider
         $this->user = null;
         $this->secretKey = $options['secret_key'];
         $this->publicKey = ArrayUtils::get($options, 'public_key');
-        $this->ttl = (int)$ttl;
+        $this->ttl = (int) $ttl;
     }
 
     /**
-     * @throws UserNotAuthenticatedException
-     */
-    protected function enforceUserIsAuthenticated()
-    {
-        if (!$this->check()) {
-            throw new UserNotAuthenticatedException('Attempting to inspect a non-authenticated user');
-        }
-    }
-
-    /**
-     * Signing In a user
+     * Signing In a user.
      *
      * Creating the user token and resetting previous token
-     *
-     * @param array $credentials
-     *
-     * @return UserInterface
      *
      * @throws InvalidUserCredentialsException
      * @throws Missing2FAPasswordException
      * @throws UserInactiveException
+     *
+     * @return UserInterface
      */
     public function login(array $credentials)
     {
@@ -132,13 +120,12 @@ class Provider
     }
 
     /**
-     * Finds a user with the given conditions
-     *
-     * @param array $conditions
-     * @return User\User
+     * Finds a user with the given conditions.
      *
      * @throws UserInactiveException
      * @throws UserNotFoundException
+     *
+     * @return User\User
      */
     public function findUserWithConditions(array $conditions)
     {
@@ -150,18 +137,19 @@ class Provider
     }
 
     /**
-     * Returns a user if the credentials matches
+     * Returns a user if the credentials matches.
      *
-     * @param string $email
-     * @param string $password
-     *
-     * @return UserInterface
+     * @param string     $email
+     * @param string     $password
+     * @param null|mixed $otp
      *
      * @throws InvalidUserCredentialsException
      * @throws InvalidOTPException
      * @throws Missing2FAPasswordException
+     *
+     * @return UserInterface
      */
-    public function findUserWithCredentials($email, $password, $otp=null)
+    public function findUserWithCredentials($email, $password, $otp = null)
     {
         try {
             $user = $this->findUserWithEmail($email);
@@ -171,8 +159,8 @@ class Provider
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
         if (!password_verify($password, $user->get('password'))) {
-
             $this->recordActivityAndCheckLoginAttempt($user);
+
             throw new InvalidUserCredentialsException();
         }
 
@@ -181,11 +169,11 @@ class Provider
         if ($tfa_secret) {
             $ga = new Google2FA();
 
-            if ($otp == null) {
+            if (null == $otp) {
                 throw new Missing2FAPasswordException();
             }
 
-            if (!$ga->verifyKey($tfa_secret, $otp, 2)){
+            if (!$ga->verifyKey($tfa_secret, $otp, 2)) {
                 throw new InvalidOTPException();
             }
         }
@@ -197,6 +185,8 @@ class Provider
 
     /**
      * Record invalid credentials action and throw exception if the maximum invalid login attempts reached.
+     *
+     * @param mixed $user
      */
     public function recordActivityAndCheckLoginAttempt($user)
     {
@@ -208,25 +198,24 @@ class Provider
 
         $loginAttemptsAllowed = get_directus_setting('login_attempts_allowed');
 
-        if(!empty($loginAttemptsAllowed)){
-
+        if (!empty($loginAttemptsAllowed)) {
             // We added 'Invalid credentials' entry before this condition so need to increase this counter with 1
             $totalLoginAttemptsAllowed = $loginAttemptsAllowed + 1;
 
             $invalidLoginAttempts = $activityTableGateway->getInvalidLoginAttempts($userId, $totalLoginAttemptsAllowed);
-            if(!empty($invalidLoginAttempts)){
+            if (!empty($invalidLoginAttempts)) {
                 $lastInvalidCredentialsEntry = current($invalidLoginAttempts);
                 $firstInvalidCredentialsEntry = end($invalidLoginAttempts);
 
                 $lastLoginAttempt = $activityTableGateway->getLastLoginOrStatusUpdateAttempt($userId);
 
-                if(!empty($lastLoginAttempt) && !in_array($lastLoginAttempt['id'], range($firstInvalidCredentialsEntry['id'], $lastInvalidCredentialsEntry['id'])) &&  count($invalidLoginAttempts) > $loginAttemptsAllowed){
-
+                if (!empty($lastLoginAttempt) && !in_array($lastLoginAttempt['id'], range($firstInvalidCredentialsEntry['id'], $lastInvalidCredentialsEntry['id'])) && count($invalidLoginAttempts) > $loginAttemptsAllowed) {
                     $tableGateway = TableGatewayFactory::create(SchemaManager::COLLECTION_USERS, ['acl' => false]);
                     $update = [
-                        'status' => DirectusUsersTableGateway::STATUS_SUSPENDED
+                        'status' => DirectusUsersTableGateway::STATUS_SUSPENDED,
                     ];
                     $tableGateway->update($update, ['id' => $userId]);
+
                     throw new UserSuspendedException();
                 }
             }
@@ -235,13 +224,13 @@ class Provider
 
     /**
      * Returns a user with the given email if exists
-     * Otherwise throw an UserNotFoundException
+     * Otherwise throw an UserNotFoundException.
      *
      * @param $email
      *
-     * @return User\User
-     *
      * @throws UserWithEmailNotFoundException
+     *
+     * @return User\User
      */
     public function findUserWithEmail($email)
     {
@@ -257,9 +246,7 @@ class Provider
     }
 
     /**
-     * Checks if the user is active
-     *
-     * @param UserInterface $user
+     * Checks if the user is active.
      *
      * @return bool
      */
@@ -272,9 +259,7 @@ class Provider
     }
 
     /**
-     * Checks if the user is suspended
-     *
-     * @param UserInterface $user
+     * Checks if the user is suspended.
      *
      * @return bool
      */
@@ -287,14 +272,14 @@ class Provider
     }
 
     /**
-     * Authenticate an user using a JWT Token
+     * Authenticate an user using a JWT Token.
      *
      * @param string $token
-     * @param bool $ignoreOrigin
-     *
-     * @return UserInterface
+     * @param bool   $ignoreOrigin
      *
      * @throws InvalidTokenException
+     *
+     * @return UserInterface
      */
     public function authenticateWithToken($token, $ignoreOrigin = false)
     {
@@ -331,18 +316,18 @@ class Provider
     }
 
     /**
-     * Authenticate an user using a private token
+     * Authenticate an user using a private token.
      *
      * @param string $token
      *
-     * @return UserInterface
-     *
      * @throws UserInactiveException
+     *
+     * @return UserInterface
      */
     public function authenticateWithPrivateToken($token)
     {
         $user = $this->findUserWithConditions([
-            'token' => $token
+            'token' => $token,
         ]);
 
         if ($user) {
@@ -353,15 +338,15 @@ class Provider
     }
 
     /**
-     * Force a user id to be the logged user
+     * Force a user id to be the logged user.
      *
      * TODO: Change this method name
      *
-     * @param UserInterface $user The User account's ID.
-     *
-     * @return UserInterface
+     * @param UserInterface $user the User account's ID
      *
      * @throws UserNotFoundException
+     *
+     * @return UserInterface
      */
     public function forceUserLogin(UserInterface $user)
     {
@@ -373,7 +358,7 @@ class Provider
     /**
      * Check if a user is logged in.
      *
-     * @return boolean
+     * @return bool
      */
     public function check()
     {
@@ -385,16 +370,16 @@ class Provider
      *
      * @param null|string $attribute
      *
-     * @return mixed|array Authenticated user metadata.
+     * @throws \Directus\Authentication\Exception\UserNotAuthenticatedException
      *
-     * @throws  \Directus\Authentication\Exception\UserNotAuthenticatedException
+     * @return array|mixed authenticated user metadata
      */
     public function getUserAttributes($attribute = null)
     {
         $this->enforceUserIsAuthenticated();
         $user = $this->user->toArray();
 
-        if ($attribute !== null) {
+        if (null !== $attribute) {
             return array_key_exists($attribute, $user) ? $user[$attribute] : null;
         }
 
@@ -402,9 +387,9 @@ class Provider
     }
 
     /**
-     * Gets authenticated user object
+     * Gets authenticated user object.
      *
-     * @return UserInterface|null
+     * @return null|UserInterface
      */
     public function getUser()
     {
@@ -412,7 +397,7 @@ class Provider
     }
 
     /**
-     * Gets the user provider
+     * Gets the user provider.
      *
      * @return UserProviderInterface
      */
@@ -422,9 +407,7 @@ class Provider
     }
 
     /**
-     * Generates a new access token
-     *
-     * @param UserInterface $user
+     * Generates a new access token.
      *
      * @param bool $needs2FA Whether the User needs 2FA
      *
@@ -435,17 +418,14 @@ class Provider
         $payload = [
             'id' => (int) $user->getId(),
             // 'group' => $user->getGroupId(),
-            'exp' => $this->getNewExpirationTime()
+            'exp' => $this->getNewExpirationTime(),
         ];
-
 
         return $this->generateToken(JWTUtils::TYPE_AUTH, $payload);
     }
 
     /**
-     * Generates a new request token used to SSO to request an Access Token
-     *
-     * @param UserInterface $user
+     * Generates a new request token used to SSO to request an Access Token.
      *
      * @return string
      */
@@ -457,16 +437,14 @@ class Provider
             // 'group' => (int) $user->getGroupId(),
             'exp' => time() + (20 * DateTimeUtils::MINUTE_IN_SECONDS),
             'url' => \Directus\get_url(),
-            'project' => \Directus\get_api_project_from_request()
+            'project' => \Directus\get_api_project_from_request(),
         ];
 
         return $this->generateToken(JWTUtils::TYPE_SSO_REQUEST_TOKEN, $payload);
     }
 
     /**
-     * Generates a new reset password token
-     *
-     * @param UserInterface $user
+     * Generates a new reset password token.
      *
      * @return string
      */
@@ -476,16 +454,14 @@ class Provider
             'id' => (int) $user->getId(),
             'email' => $user->getEmail(),
             // TODO: Separate time expiration for reset password token
-            'exp' => $this->getNewExpirationTime()
+            'exp' => $this->getNewExpirationTime(),
         ];
 
         return $this->generateToken(JWTUtils::TYPE_RESET_PASSWORD, $payload);
     }
 
     /**
-     * Generate invitation token
-     *
-     * @param array $payload
+     * Generate invitation token.
      *
      * @return string
      */
@@ -495,16 +471,15 @@ class Provider
     }
 
     /**
-     * Generates a new JWT token
+     * Generates a new JWT token.
      *
      * @param string $type
-     * @param array $payload
      *
      * @return string
      */
     public function generateToken($type, array $payload)
     {
-        $payload['type'] = (string)$type;
+        $payload['type'] = (string) $type;
         $payload['key'] = $this->getPublicKey();
         $payload['project'] = get_api_project_from_request();
 
@@ -512,14 +487,15 @@ class Provider
     }
 
     /**
-     * Refresh valid token expiration
+     * Refresh valid token expiration.
      *
      * @param $token
-     *
-     * @return string
+     * @param mixed $needs2FA
      *
      * @throws ExpiredTokenException
      * @throws InvalidTokenException
+     *
+     * @return string
      */
     public function refreshToken($token, $needs2FA = false)
     {
@@ -537,7 +513,7 @@ class Provider
     }
 
     /**
-     * Checks if the payload matches the public key
+     * Checks if the payload matches the public key.
      *
      * @param object $payload
      *
@@ -549,7 +525,7 @@ class Provider
     }
 
     /**
-     * Checks if the payload matches the project name
+     * Checks if the payload matches the project name.
      *
      * @param object $payload
      *
@@ -561,7 +537,7 @@ class Provider
     }
 
     /**
-     * Checks if the origin of the token in from this project configuration
+     * Checks if the origin of the token in from this project configuration.
      *
      * @param object $payload
      *
@@ -573,7 +549,7 @@ class Provider
     }
 
     /**
-     * Throws an exception if the payload origin doesn't match this project configuration
+     * Throws an exception if the payload origin doesn't match this project configuration.
      *
      * @param object $payload
      *
@@ -589,7 +565,7 @@ class Provider
     /**
      * Run the hashing algorithm on a password and salt value.
      *
-     * @param  string $password
+     * @param string $password
      *
      * @return string
      */
@@ -600,7 +576,7 @@ class Provider
     }
 
     /**
-     * Authentication secret key
+     * Authentication secret key.
      *
      * @param string $project
      *
@@ -618,7 +594,7 @@ class Provider
     }
 
     /**
-     * Authentication public key
+     * Authentication public key.
      *
      * @return string
      */
@@ -636,21 +612,31 @@ class Provider
     }
 
     /**
-     * Verifies and Returns the payload if valid
+     * @throws UserNotAuthenticatedException
+     */
+    protected function enforceUserIsAuthenticated()
+    {
+        if (!$this->check()) {
+            throw new UserNotAuthenticatedException('Attempting to inspect a non-authenticated user');
+        }
+    }
+
+    /**
+     * Verifies and Returns the payload if valid.
      *
      * @param string $token
-     * @param bool $ignoreOrigin
-     *
-     * @return object
+     * @param bool   $ignoreOrigin
      *
      * @throws InvalidTokenException
+     *
+     * @return object
      */
     protected function getTokenPayload($token, $ignoreOrigin = false)
     {
         $projectName = $ignoreOrigin ? JWTUtils::getPayload($token, 'project') : null;
         $payload = JWTUtils::decode($token, $this->getSecretKey($projectName), [$this->getTokenAlgorithm()]);
 
-        if ($ignoreOrigin !== true && !$this->isPayloadLocal($payload)) {
+        if (true !== $ignoreOrigin && !$this->isPayloadLocal($payload)) {
             // Empty payload, log this as debug?
             throw new InvalidTokenException();
         }
@@ -659,7 +645,7 @@ class Provider
     }
 
     /**
-     * Return the token encoding algorithm
+     * Return the token encoding algorithm.
      *
      * @return string
      */
@@ -669,9 +655,7 @@ class Provider
     }
 
     /**
-     * Sets the given user as authenticated
-     *
-     * @param UserInterface $user
+     * Sets the given user as authenticated.
      *
      * @throws UserInactiveException
      * @throws UserNotFoundException
@@ -685,9 +669,9 @@ class Provider
     }
 
     /**
-     * Validates an user object
+     * Validates an user object.
      *
-     * @param UserInterface|null $user
+     * @param null|UserInterface $user
      *
      * @throws UserInactiveException
      * @throws UserNotFoundException

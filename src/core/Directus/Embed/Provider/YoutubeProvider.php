@@ -12,15 +12,15 @@ class YoutubeProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function validateURL($url)
     {
-        return (bool) preg_match("@^(https?\:\/\/)?(www\.)|(m\.)?(youtube\.com|youtu\.?be)\/.+$@", $url);
+        return (bool) preg_match('@^(https?\\:\\/\\/)?(www\\.)|(m\\.)?(youtube\\.com|youtu\\.?be)\\/.+$@', $url);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getFormatUrl()
     {
@@ -28,12 +28,12 @@ class YoutubeProvider extends AbstractProvider
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function parseURL($url)
     {
         // Get ID from URL
-        if(strpos($url, 'youtu.be')) {
+        if (strpos($url, 'youtu.be')) {
             $urlElements = parse_url($url);
             $videoID = isset($urlElements['path']) && strlen($urlElements['path']) > 1 ? ltrim($urlElements['path'], '/') : false;
         } else {
@@ -49,10 +49,13 @@ class YoutubeProvider extends AbstractProvider
     }
 
     /**
-     * Fetch Video information
+     * Fetch Video information.
+     *
      * @param $videoID
-     * @return array
+     *
      * @throws \Exception
+     *
+     * @return array
      */
     protected function fetchInfo($videoID)
     {
@@ -107,24 +110,26 @@ class YoutubeProvider extends AbstractProvider
     }
 
     /**
-     * Fetch Video thumbnail data
+     * Fetch Video thumbnail data.
+     *
      * @param $videoID
+     *
      * @return string
      */
     protected function getThumbnail($videoID)
     {
-        $content = @file_get_contents('http://img.youtube.com/vi/' . $videoID . '/0.jpg');
+        $content = @file_get_contents('http://img.youtube.com/vi/'.$videoID.'/0.jpg');
 
         $thumbnail = '';
         if ($content) {
-            $thumbnail = 'data:image/jpeg;base64,' . base64_encode($content);
+            $thumbnail = 'data:image/jpeg;base64,'.base64_encode($content);
         }
 
         return $thumbnail;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getFormatTemplate()
     {

@@ -12,7 +12,8 @@ class RequiredValidator extends ConstraintValidator
         if (null === $value || [] === $value || '' === $value) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $this->formatValue($value))
-                ->addViolation();
+                ->addViolation()
+            ;
         }
     }
 }

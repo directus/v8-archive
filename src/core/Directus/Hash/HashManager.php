@@ -31,10 +31,9 @@ class HashManager
     }
 
     /**
-     * Hash a given string into the given algorithm
+     * Hash a given string into the given algorithm.
      *
      * @param string $string
-     * @param array $options
      *
      * @return string
      */
@@ -46,11 +45,10 @@ class HashManager
     }
 
     /**
-     * Verifies whether a given string match a hash in the given algorithm
+     * Verifies whether a given string match a hash in the given algorithm.
      *
      * @param string $string
      * @param string $hash
-     * @param array $options
      *
      * @return string
      */
@@ -62,9 +60,7 @@ class HashManager
     }
 
     /**
-     * Register a hasher
-     *
-     * @param HasherInterface $hasher
+     * Register a hasher.
      */
     public function register(HasherInterface $hasher)
     {
@@ -81,7 +77,7 @@ class HashManager
             Sha224Hasher::class,
             Sha256Hasher::class,
             Sha384Hasher::class,
-            Sha512Hasher::class
+            Sha512Hasher::class,
         ];
 
         foreach ($hashers as $hasher) {
@@ -92,9 +88,9 @@ class HashManager
     /**
      * @param $name
      *
-     * @return HasherInterface
-     *
      * @throws HasherNotFoundException
+     *
+     * @return HasherInterface
      */
     public function get($name)
     {

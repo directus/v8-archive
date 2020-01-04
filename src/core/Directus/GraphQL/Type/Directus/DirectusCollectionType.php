@@ -1,4 +1,5 @@
 <?php
+
 namespace Directus\GraphQL\Type\Directus;
 
 use Directus\Application\Application;
@@ -9,12 +10,13 @@ use GraphQL\Type\Definition\ResolveInfo;
 class DirectusCollectionType extends ObjectType
 {
     private $container;
+
     public function __construct()
     {
         $this->container = Application::getInstance()->getContainer();
         $config = [
             'name' => 'DirectusCollectionItem',
-            'fields' =>  function () {
+            'fields' => function () {
                 return [
                     'collection' => Types::string(),
                     'fields' => Types::listOf(Types::directusField()),
@@ -23,20 +25,20 @@ class DirectusCollectionType extends ObjectType
                     'hidden' => Types::boolean(),
                     'single' => Types::boolean(),
                     'translation' => Types::string(),
-                    'icon' => Types::string()
+                    'icon' => Types::string(),
                 ];
             },
             'interfaces' => [
-                Types::node()
+                Types::node(),
             ],
             'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
-                $method = 'resolve' . ucfirst($info->fieldName);
+                $method = 'resolve'.ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
                     return $this->{$method}($value, $args, $context, $info);
-                } else {
-                    return $value[$info->fieldName];
                 }
-            }
+
+                return $value[$info->fieldName];
+            },
         ];
         parent::__construct($config);
     }

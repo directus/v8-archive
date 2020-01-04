@@ -33,7 +33,7 @@ class Builder
     /**
      * @var Sql
      */
-    protected $sql = null;
+    protected $sql;
 
     /**
      * @var array
@@ -41,12 +41,12 @@ class Builder
     protected $columns = ['*'];
 
     /**
-     * @var string|null
+     * @var null|string
      */
     protected $from;
 
     /**
-     * @var array|null
+     * @var null|array
      */
     protected $joins;
 
@@ -63,27 +63,25 @@ class Builder
     /**
      * @var null|int
      */
-    protected $offset = null;
+    protected $offset;
 
     /**
      * @var null|int
      */
-    protected $limit = null;
+    protected $limit;
 
     /**
      * @var null|array
      */
-    protected $groupBys = null;
+    protected $groupBys;
 
     /**
      * @var null|array
      */
-    protected $havings = null;
+    protected $havings;
 
     /**
      * Builder constructor.
-     *
-     * @param AdapterInterface $connection
      */
     public function __construct(AdapterInterface $connection)
     {
@@ -91,9 +89,7 @@ class Builder
     }
 
     /**
-     * Sets the columns list to be selected
-     *
-     * @param array $columns
+     * Sets the columns list to be selected.
      *
      * @return $this
      */
@@ -105,7 +101,7 @@ class Builder
     }
 
     /**
-     * Gets the selected columns
+     * Gets the selected columns.
      *
      * @return array
      */
@@ -115,7 +111,7 @@ class Builder
     }
 
     /**
-     * Sets the from table
+     * Sets the from table.
      *
      * @param $from
      *
@@ -129,7 +125,7 @@ class Builder
     }
 
     /**
-     * Gets the from table value
+     * Gets the from table value.
      *
      * @return null|string
      */
@@ -151,7 +147,7 @@ class Builder
     }
 
     /**
-     * Sets a condition to the query
+     * Sets a condition to the query.
      *
      * @param $column
      * @param $operator
@@ -175,9 +171,8 @@ class Builder
     }
 
     /**
-     * Creates a nested condition
+     * Creates a nested condition.
      *
-     * @param \Closure $callback
      * @param string $logical
      *
      * @return $this
@@ -201,7 +196,7 @@ class Builder
     }
 
     /**
-     * Create a condition where the given column is empty (NULL or empty string)
+     * Create a condition where the given column is empty (NULL or empty string).
      *
      * @param $column
      *
@@ -209,14 +204,14 @@ class Builder
      */
     public function whereEmpty($column)
     {
-        return $this->nestWhere(function(Builder $query) use ($column) {
+        return $this->nestWhere(function (Builder $query) use ($column) {
             $query->orWhereNull($column);
             $query->orWhereEqualTo($column, '');
         });
     }
 
     /**
-     * Create a condition where the given column is NOT empty (NULL or empty string)
+     * Create a condition where the given column is NOT empty (NULL or empty string).
      *
      * @param $column
      *
@@ -224,19 +219,19 @@ class Builder
      */
     public function whereNotEmpty($column)
     {
-        return $this->nestWhere(function(Builder $query) use ($column) {
+        return $this->nestWhere(function (Builder $query) use ($column) {
             $query->whereNotNull($column);
             $query->whereNotEqualTo($column, '');
         }, 'and');
     }
 
     /**
-     * Sets a "where in" condition
+     * Sets a "where in" condition.
      *
      * @param $column
      * @param array|Builder $values
-     * @param bool $not
-     * @param string $logical
+     * @param bool          $not
+     * @param string        $logical
      *
      * @return Builder
      */
@@ -246,11 +241,11 @@ class Builder
     }
 
     /**
-     * Sets a "where or in" condition
+     * Sets a "where or in" condition.
      *
      * @param $column
      * @param array|Builder $values
-     * @param bool $not
+     * @param bool          $not
      *
      * @return Builder
      */
@@ -260,10 +255,11 @@ class Builder
     }
 
     /**
-     * Sets an "where not in" condition
+     * Sets an "where not in" condition.
      *
      * @param $column
-     * @param array $values
+     * @param mixed $not
+     * @param mixed $logical
      *
      * @return Builder
      */
@@ -349,7 +345,7 @@ class Builder
 
     public function whereAll($column, $table, $columnLeft, $columnRight, $values)
     {
-        if ($columnLeft === null) {
+        if (null === $columnLeft) {
             $relation = new OneToManyRelation($this, $column, $table, $columnRight, $this->getFrom());
         } else {
             $relation = new ManyToManyRelation($this, $table, $columnLeft, $columnRight);
@@ -395,7 +391,7 @@ class Builder
             $columnRight = $columnLeft;
             $columnLeft = null;
             $relation = new ManyToOneRelation($this, $columnRight, $table);
-        } else if (is_null($columnLeft)) {
+        } elseif (is_null($columnLeft)) {
             $relation = new OneToManyRelation($this, $column, $table, $columnRight, $this->getFrom());
         } else {
             $relation = new ManyToManyRelation($this, $table, $columnLeft, $columnRight);
@@ -412,7 +408,7 @@ class Builder
     }
 
     /**
-     * Gets the query conditions
+     * Gets the query conditions.
      *
      * @return array
      */
@@ -422,11 +418,11 @@ class Builder
     }
 
     /**
-     * Order the query by the given table
+     * Order the query by the given table.
      *
      * @param string $column
      * @param string $direction
-     * @param bool $nullLast
+     * @param bool   $nullLast
      *
      * @return Builder
      */
@@ -435,14 +431,14 @@ class Builder
         $this->order[] = [
             (string) $column,
             (string) $direction,
-            (bool) $nullLast
+            (bool) $nullLast,
         ];
 
         return $this;
     }
 
     /**
-     * Gets the sorts
+     * Gets the sorts.
      *
      * @return array
      */
@@ -452,7 +448,7 @@ class Builder
     }
 
     /**
-     * Clears the order list
+     * Clears the order list.
      */
     public function clearOrder()
     {
@@ -460,7 +456,7 @@ class Builder
     }
 
     /**
-     * Sets the number of records to skip
+     * Sets the number of records to skip.
      *
      * @param $value
      *
@@ -474,7 +470,7 @@ class Builder
     }
 
     /**
-     * Alias of Builder::offset
+     * Alias of Builder::offset.
      *
      * @param $value
      *
@@ -486,9 +482,9 @@ class Builder
     }
 
     /**
-     * Gets the query offset
+     * Gets the query offset.
      *
-     * @return int|null
+     * @return null|int
      */
     public function getOffset()
     {
@@ -496,9 +492,9 @@ class Builder
     }
 
     /**
-     * Alias of Builder::getOffset
+     * Alias of Builder::getOffset.
      *
-     * @return int|null
+     * @return null|int
      */
     public function getSkip()
     {
@@ -506,7 +502,7 @@ class Builder
     }
 
     /**
-     * Sets the query result limit
+     * Sets the query result limit.
      *
      * @param $value
      *
@@ -529,9 +525,9 @@ class Builder
     }
 
     /**
-     * Gets the query result limit
+     * Gets the query result limit.
      *
-     * @return int|null
+     * @return null|int
      */
     public function getLimit()
     {
@@ -539,7 +535,7 @@ class Builder
     }
 
     /**
-     * Sets Group by columns
+     * Sets Group by columns.
      *
      * @param array|string $columns
      */
@@ -549,17 +545,17 @@ class Builder
             $columns = [$columns];
         }
 
-        if ($this->groupBys === null) {
+        if (null === $this->groupBys) {
             $this->groupBys = [];
         }
 
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             $this->groupBys[] = $column;
         }
     }
 
     /**
-     * Sets having
+     * Sets having.
      *
      * @param $column
      * @param $operator
@@ -575,9 +571,9 @@ class Builder
     }
 
     /**
-     * Gets havings
+     * Gets havings.
      *
-     * @return array|null
+     * @return null|array
      */
     public function getHavings()
     {
@@ -585,7 +581,7 @@ class Builder
     }
 
     /**
-     * Build the Select Object
+     * Build the Select Object.
      *
      * @return \Zend\Db\Sql\Select
      */
@@ -595,17 +591,17 @@ class Builder
         $select->columns($this->getColumns());
         $select->order($this->buildOrder());
 
-        if ($this->getJoins() !== null) {
-            foreach($this->getJoins() as $join) {
+        if (null !== $this->getJoins()) {
+            foreach ($this->getJoins() as $join) {
                 $select->join($join['table'], $join['on'], $join['columns'], $join['type']);
             }
         }
 
-        if ($this->getOffset() !== null && $this->getLimit() !== null) {
+        if (null !== $this->getOffset() && null !== $this->getLimit()) {
             $select->offset($this->getOffset());
         }
 
-        if ($this->getLimit() !== null) {
+        if (null !== $this->getLimit()) {
             $select->limit($this->getLimit());
         }
 
@@ -613,7 +609,7 @@ class Builder
             $this->buildCondition($select->where, $condition);
         }
 
-        if ($this->groupBys !== null) {
+        if (null !== $this->groupBys) {
             $groupBys = [];
 
             foreach ($this->groupBys as $groupBy) {
@@ -623,15 +619,15 @@ class Builder
             $select->group($groupBys);
         }
 
-        if ($this->getHavings() !== null) {
+        if (null !== $this->getHavings()) {
             foreach ($this->getHavings() as $having) {
                 if ($having['column'] instanceof Expression) {
                     $expression = $having['column'];
-                    $callback = function(Having $having) use ($expression) {
+                    $callback = function (Having $having) use ($expression) {
                         $having->addPredicate($expression);
                     };
                 } else {
-                    $callback = function(Having $havingObject) use ($having) {
+                    $callback = function (Having $havingObject) use ($having) {
                         $havingObject->addPredicate(new Operator($having['column'], $having['operator'], $having['value']));
                     };
                 }
@@ -644,7 +640,7 @@ class Builder
     }
 
     /**
-     * Executes the query
+     * Executes the query.
      *
      * @return AbstractResultSet
      */
@@ -663,7 +659,7 @@ class Builder
     }
 
     /**
-     * Gets the query string
+     * Gets the query string.
      *
      * @return string
      */
@@ -676,19 +672,36 @@ class Builder
     }
 
     /**
-     * Build the condition expressions
+     * Gets a new instance of the query builder.
      *
-     * @param Predicate $where
-     * @param array $condition
+     * @return \Directus\Database\Query\Builder
+     */
+    public function newQuery()
+    {
+        return new self($this->connection);
+    }
+
+    /**
+     * Gets the connection.
+     *
+     * @return AdapterInterface
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * Build the condition expressions.
      */
     protected function buildCondition(Predicate $where, array $condition)
     {
         $logical = strtoupper(ArrayUtils::get($condition, 'logical', 'and'));
 
-        if (ArrayUtils::get($condition, 'type') === 'nest') {
+        if ('nest' === ArrayUtils::get($condition, 'type')) {
             /** @var Builder $query */
             $query = ArrayUtils::get($condition, 'query');
-            if ($logical === 'OR') {
+            if ('OR' === $logical) {
                 $where->or;
             }
 
@@ -713,10 +726,10 @@ class Builder
             $orderDirection = $options[1];
             $nullLast = $options[2];
 
-            if ($orderBy === '?') {
+            if ('?' === $orderBy) {
                 $expression = new Expression('RAND()');
             } else {
-                if ($nullLast === true) {
+                if (true === $nullLast) {
                     $order[] = new IsNull($this->getIdentifier($orderBy));
                 }
 
@@ -730,7 +743,7 @@ class Builder
     }
 
     /**
-     * Get the column identifier (table name prepended)
+     * Get the column identifier (table name prepended).
      *
      * @param string $column
      *
@@ -741,7 +754,7 @@ class Builder
         $platform = $this->getConnection()->getPlatform();
         $table = $this->getFrom();
 
-        if (is_string ($column) && strpos($column, $platform->getIdentifierSeparator()) === false) {
+        if (is_string($column) && false === strpos($column, $platform->getIdentifierSeparator())) {
             $column = implode($platform->getIdentifierSeparator(), [$table, $column]);
         }
 
@@ -750,13 +763,13 @@ class Builder
 
     protected function buildConditionExpression($condition)
     {
-        $not = ArrayUtils::get($condition, 'not', false) === true;
+        $not = true === ArrayUtils::get($condition, 'not', false);
         $notChar = '';
-        if ($not === true) {
-            $notChar = $condition['operator'] === '=' ? '!' : 'n';
+        if (true === $not) {
+            $notChar = '=' === $condition['operator'] ? '!' : 'n';
         }
 
-        $operator = $notChar . $condition['operator'];
+        $operator = $notChar.$condition['operator'];
 
         $column = $condition['column'];
         $identifier = $this->getIdentifier($column);
@@ -769,27 +782,35 @@ class Builder
         switch ($operator) {
             case 'in':
                 $expression = new In($identifier, $value);
+
                 break;
             case 'nin':
                 $expression = new NotIn($identifier, $value);
+
                 break;
             case 'like':
                 $expression = new Like($identifier, $value);
+
                 break;
             case 'nlike':
                 $expression = new NotLike($identifier, $value);
+
                 break;
             case 'null':
                 $expression = new IsNull($identifier);
+
                 break;
             case 'nnull':
                 $expression = new IsNotNull($identifier);
+
                 break;
             case 'between':
                 $expression = new Between($identifier, array_shift($value), array_pop($value));
+
                 break;
             case 'nbetween':
                 $expression = new  NotBetween($identifier, array_shift($value), array_pop($value));
+
                 break;
             default:
                 $expression = new Operator($identifier, $operator, $value);
@@ -800,30 +821,10 @@ class Builder
 
     protected function getSqlObject()
     {
-        if ($this->sql === null) {
+        if (null === $this->sql) {
             $this->sql = new Sql($this->connection);
         }
 
         return $this->sql;
-    }
-
-    /**
-     * Gets a new instance of the query builder
-     *
-     * @return \Directus\Database\Query\Builder
-     */
-    public function newQuery()
-    {
-        return new self($this->connection);
-    }
-
-    /**
-     * Gets the connection
-     *
-     * @return AdapterInterface
-     */
-    public function getConnection()
-    {
-        return $this->connection;
     }
 }

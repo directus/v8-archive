@@ -14,9 +14,8 @@ abstract class AbstractSchema implements SchemaInterface
     protected $datetimeFormat = 'Y-m-d H:i:s';
 
     /**
-     * Cast records values by its column data type
+     * Cast records values by its column data type.
      *
-     * @param array    $records
      * @param Field[] $fields
      *
      * @return array
@@ -45,11 +44,10 @@ abstract class AbstractSchema implements SchemaInterface
     }
 
     /**
-     * Parse records value by its column data type
+     * Parse records value by its column data type.
      *
      * @see AbastractSchema::castRecordValues
      *
-     * @param array $records
      * @param $columns
      *
      * @return array
@@ -60,7 +58,7 @@ abstract class AbstractSchema implements SchemaInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getDefaultLengths()
     {
@@ -104,7 +102,7 @@ abstract class AbstractSchema implements SchemaInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getColumnDefaultLength($type)
     {
@@ -112,7 +110,7 @@ abstract class AbstractSchema implements SchemaInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isType($type, array $list)
     {
@@ -120,7 +118,7 @@ abstract class AbstractSchema implements SchemaInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getTypeFromSource($sourceType)
     {
@@ -135,6 +133,7 @@ abstract class AbstractSchema implements SchemaInterface
             case 'int': // alias: integer
             case 'year':
                 $type = DataTypes::TYPE_INTEGER;
+
                 break;
             case 'decimal': // alias: dec, fixed
             case 'numeric':
@@ -142,26 +141,32 @@ abstract class AbstractSchema implements SchemaInterface
             case 'float': // alias: real
             case 'double': // alias: double precision, real
                 $type = DataTypes::TYPE_DECIMAL;
+
                 break;
             case 'bool':
             case 'boolean':
                 $type = DataTypes::TYPE_BOOLEAN;
+                // no break
             case 'blob':
             case 'longblob':
             case 'bit':
             case 'binary':
             case 'varbinary':
                 $type = DataTypes::TYPE_BINARY;
+
                 break;
             case 'datetime':
             case 'timestamp':
                 $type = DataTypes::TYPE_DATETIME;
+
                 break;
             case 'date':
                 $type = DataTypes::TYPE_DATE;
+
                 break;
             case 'time':
                 $type = DataTypes::TYPE_TIME;
+
                 break;
             case 'char':
             case 'varchar':
@@ -172,9 +177,11 @@ abstract class AbstractSchema implements SchemaInterface
             case 'mediumtext':
             case 'longtext':
                 $type = DataTypes::TYPE_STRING;
+
                 break;
             case 'json':
                 $type = DataTypes::TYPE_JSON;
+
                 break;
         }
 
@@ -182,7 +189,7 @@ abstract class AbstractSchema implements SchemaInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getDateTimeFormat()
     {

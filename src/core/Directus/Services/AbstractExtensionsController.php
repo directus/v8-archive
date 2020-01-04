@@ -36,7 +36,7 @@ abstract class AbstractExtensionsController extends AbstractService
                 'id' => basename(dirname($addOnsPath)),
                 // NOTE: This is a temporary solution until we implement core config
                 // In this case /public is the public root path
-                'path' => trim(substr($path, strlen($directusBasePath) + strlen('/public')), '/')
+                'path' => trim(substr($path, strlen($directusBasePath) + strlen('/public')), '/'),
             ];
 
             $meta = @json_decode(file_get_contents($path), true);

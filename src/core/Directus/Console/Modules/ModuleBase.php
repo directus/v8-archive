@@ -36,7 +36,7 @@ class ModuleBase implements ModuleInterface
 
     public function getInfo()
     {
-        return $this->__module_name . ': ' . $this->__module_description;
+        return $this->__module_name.': '.$this->__module_description;
     }
 
     public function getCommands()
@@ -47,36 +47,37 @@ class ModuleBase implements ModuleInterface
     public function getCommandHelp($command)
     {
         if (!array_key_exists($command, $this->help)) {
-            throw new UnsupportedCommandException($this->__module_name . ':' . $command . ' command does not exist!');
+            throw new UnsupportedCommandException($this->__module_name.':'.$command.' command does not exist!');
         }
+
         return $this->help[$command];
     }
 
     public function runCommand($command, $args, $extra)
     {
-        $cmd_name = 'cmd' . ucwords($command);
+        $cmd_name = 'cmd'.ucwords($command);
         if (!method_exists($this, $cmd_name)) {
-            throw new UnsupportedCommandException($this->__module_name . ':' . $command . ' command does not exist!');
+            throw new UnsupportedCommandException($this->__module_name.':'.$command.' command does not exist!');
         }
-        $this->$cmd_name($args, $extra);
+        $this->{$cmd_name}($args, $extra);
     }
 
     public function cmdHelp($args, $extra)
     {
-        if (count($extra) == 0) {
-            throw new WrongArgumentsException($this->__module_name . ':help ' . 'missing command to show help for!');
+        if (0 == count($extra)) {
+            throw new WrongArgumentsException($this->__module_name.':help '.'missing command to show help for!');
         }
 
-        echo PHP_EOL . 'Directus Command ' . $this->__module_name . ':' . $extra[0] . ' help' . PHP_EOL . PHP_EOL;
-        echo "\t" . $this->commands_help[$extra[0]] . PHP_EOL;
-        if(trim($this->getCommandHelp($extra[0]))) {
-            echo "\t" . 'Options: ' . PHP_EOL . $this->getCommandHelp($extra[0]);
+        echo PHP_EOL.'Directus Command '.$this->__module_name.':'.$extra[0].' help'.PHP_EOL.PHP_EOL;
+        echo "\t".$this->commands_help[$extra[0]].PHP_EOL;
+        if (trim($this->getCommandHelp($extra[0]))) {
+            echo "\t".'Options: '.PHP_EOL.$this->getCommandHelp($extra[0]);
         }
-        echo PHP_EOL . PHP_EOL;
+        echo PHP_EOL.PHP_EOL;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getOptions($command)
     {

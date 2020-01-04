@@ -3,32 +3,30 @@
 namespace Directus\Application;
 
 use Directus\Config\Config;
-use Directus\Util\ArrayUtils;
 use Slim\App;
 
 class Application extends App
 {
     /**
-     * Directus version
+     * Directus version.
      *
      * @var string
      */
     const DIRECTUS_VERSION = '8.3.1';
 
     /**
-     * NOT USED
+     * NOT USED.
      *
      * @var bool
      */
     protected $booted = false;
 
     /**
-     * NOT USED
+     * NOT USED.
      *
      * @var array
      */
     protected $providers = [
-
     ];
 
     /**
@@ -47,8 +45,6 @@ class Application extends App
      * Application constructor.
      *
      * @param string $basePath
-     * @param array $config
-     * @param array $values
      */
     public function __construct($basePath, array $config = [], array $values = [])
     {
@@ -69,7 +65,7 @@ class Application extends App
     }
 
     /**
-     * Gets the application instance (singleton)
+     * Gets the application instance (singleton).
      *
      * This is a temporary solution until we get rid of the Bootstrap object
      *
@@ -81,7 +77,7 @@ class Application extends App
     }
 
     /**
-     * Gets an item from the application container
+     * Gets an item from the application container.
      *
      * @param string $key
      *
@@ -93,7 +89,7 @@ class Application extends App
     }
 
     /**
-     * Sets the application base path
+     * Sets the application base path.
      *
      * @param $path
      */
@@ -104,14 +100,8 @@ class Application extends App
         $this->updatePaths();
     }
 
-    protected function updatePaths()
-    {
-        $container = $this->getContainer();
-        $container['path_base'] = $this->basePath;
-    }
-
     /**
-     * Application configuration object
+     * Application configuration object.
      *
      * @return Config
      */
@@ -121,9 +111,7 @@ class Application extends App
     }
 
     /**
-     * Sets the function that checks the requirements
-     *
-     * @param \Closure $function
+     * Sets the function that checks the requirements.
      */
     public function setCheckRequirementsFunction(\Closure $function)
     {
@@ -131,26 +119,7 @@ class Application extends App
     }
 
     /**
-     * Creates the user configuration based on its configuration
-     *
-     * Mainly just separating the Slim settings with the Directus settings and adding paths
-     *
-     * @param array $appConfig
-     *
-     * @return array
-     */
-    protected function createConfig(array $appConfig)
-    {
-        return [
-            'settings' => isset($appConfig['settings']) ? $appConfig['settings'] : [],
-            'config' => function () use ($appConfig) {
-                return new Config($appConfig);
-            }
-        ];
-    }
-
-    /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function run($silent = false)
     {
@@ -173,7 +142,7 @@ class Application extends App
     }
 
     /**
-     * Get the Directus Version
+     * Get the Directus Version.
      *
      * @return string
      */
@@ -183,7 +152,7 @@ class Application extends App
     }
 
     /**
-     * Trigger Filter by name with its payload
+     * Trigger Filter by name with its payload.
      *
      * @param $name
      * @param $payload
@@ -196,12 +165,10 @@ class Application extends App
     }
 
     /**
-     * Trigger given action name
+     * Trigger given action name.
      *
      * @param $name
      * @param $params
-     *
-     * @return void
      */
     public function triggerAction($name, $params = [])
     {
@@ -215,11 +182,9 @@ class Application extends App
     }
 
     /**
-     * Calls the given callable if there are missing requirements
-     *
-     * @param callable $callback
+     * Calls the given callable if there are missing requirements.
      */
-    public function onMissingRequirements(Callable $callback)
+    public function onMissingRequirements(callable $callback)
     {
         $errors = $this->checkRequirementsFunction
             ? call_user_func($this->checkRequirementsFunction)
@@ -228,5 +193,28 @@ class Application extends App
         if ($errors) {
             $callback($errors);
         }
+    }
+
+    protected function updatePaths()
+    {
+        $container = $this->getContainer();
+        $container['path_base'] = $this->basePath;
+    }
+
+    /**
+     * Creates the user configuration based on its configuration.
+     *
+     * Mainly just separating the Slim settings with the Directus settings and adding paths
+     *
+     * @return array
+     */
+    protected function createConfig(array $appConfig)
+    {
+        return [
+            'settings' => isset($appConfig['settings']) ? $appConfig['settings'] : [],
+            'config' => function () use ($appConfig) {
+                return new Config($appConfig);
+            },
+        ];
     }
 }

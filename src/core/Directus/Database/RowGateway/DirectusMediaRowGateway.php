@@ -13,10 +13,11 @@ class DirectusFilesRowGateway extends BaseRowGateway
             // $cmsOwnerColumnName = $this->acl->getCmsOwnerColumnByTable($this->table);
             // $rowData[$cmsOwnerColumnName] = $currentUser['id'];
         } else {
-            if (array_key_exists('date_uploaded', $rowData))
+            if (array_key_exists('date_uploaded', $rowData)) {
                 unset($rowData['date_uploaded']);
+            }
         }
+
         return $rowData;
     }
-
 }

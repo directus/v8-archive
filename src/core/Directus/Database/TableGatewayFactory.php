@@ -19,7 +19,7 @@ class TableGatewayFactory
     }
 
     /**
-     * Create a new table gateway
+     * Create a new table gateway.
      *
      * e.g. directus_users => \Directus\Database\TableGateway\DirectusUsersTableGateway
      *
@@ -30,19 +30,19 @@ class TableGatewayFactory
      */
     public static function create($tableName, $options = [])
     {
-        $tableGatewayClassName = Formatting::underscoreToCamelCase($tableName) . 'TableGateway';
-        $namespace = __NAMESPACE__ . '\\TableGateway\\';
-        $tableGatewayClassName = $namespace . $tableGatewayClassName;
+        $tableGatewayClassName = Formatting::underscoreToCamelCase($tableName).'TableGateway';
+        $namespace = __NAMESPACE__.'\\TableGateway\\';
+        $tableGatewayClassName = $namespace.$tableGatewayClassName;
 
         $acl = ArrayUtils::get($options, 'acl');
         $dbConnection = ArrayUtils::get($options, 'connection');
 
         if (static::$container) {
-            if ($acl === null) {
+            if (null === $acl) {
                 $acl = static::$container->get('acl');
             }
 
-            if ($dbConnection === null) {
+            if (null === $dbConnection) {
                 // TODO: Replace "database" for "connection"
                 $dbConnection = static::$container->get('database');
             }

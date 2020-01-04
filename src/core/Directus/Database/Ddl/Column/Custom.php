@@ -19,9 +19,9 @@ class Custom extends AbstractPrecisionColumn
     }
 
     /**
-     * Sets the column length
+     * Sets the column length.
      *
-     * @param int|array $length
+     * @param array|int $length
      *
      * @return $this
      */

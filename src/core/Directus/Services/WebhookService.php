@@ -1,18 +1,18 @@
 <?php
+
 namespace Directus\Services;
 
-use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Application\Container;
 use Directus\Database\Schema\SchemaManager;
-use Zend\Db\Sql\Delete;
+use Directus\Database\TableGateway\RelationalTableGateway;
 use Directus\Util\ArrayUtils;
 use Directus\Validator\Exception\InvalidRequestException;
+use Zend\Db\Sql\Delete;
 
 class WebhookService extends AbstractService
 {
-
-    const HTTP_ACTION_GET = "get";
-    const HTTP_ACTION_POST = "post";
+    const HTTP_ACTION_GET = 'get';
+    const HTTP_ACTION_POST = 'post';
 
     /**
      * @var string
@@ -22,12 +22,12 @@ class WebhookService extends AbstractService
      * @var string
      */
     protected $collection;
-   
-      /**
+
+    /**
      * @var ItemsService
      */
     protected $itemsService;
-    
+
     public function __construct(Container $container)
     {
         parent::__construct($container);
@@ -36,18 +36,16 @@ class WebhookService extends AbstractService
     }
 
     /**
-     * @param array $params
+     * @param mixed $acl
      *
      * @return array
      */
-    public function findAll(array $params = [],$acl = false)
+    public function findAll(array $params = [], $acl = false)
     {
         return $this->getItemsAndSetResponseCacheTags($this->getTableGateway($acl), $params);
     }
 
     /**
-     * @param array $data
-     *
      * @return array
      */
     public function create(array $data, array $params = [])
@@ -67,7 +65,7 @@ class WebhookService extends AbstractService
         $this->validatePayload($this->collection, array_keys($payload), $payload, $params);
 
         $this->getTableGateway()->updateRecord($id, $payload, $this->getCRUDParams($params));
-        
+
         try {
             $item = $this->find(
                 $id,
@@ -79,7 +77,7 @@ class WebhookService extends AbstractService
 
         return $item;
     }
-   
+
     public function find($id, array $params = [])
     {
         return $this->itemsService->find(
@@ -88,7 +86,7 @@ class WebhookService extends AbstractService
             $params
         );
     }
-    
+
     public function findByIds($id, array $params = [])
     {
         return $this->itemsService->findByIds(
@@ -115,7 +113,7 @@ class WebhookService extends AbstractService
         // this avoids an indirect reveal of an item the user is not allowed to see
         $delete = new Delete($this->collection);
         $delete->where([
-            'id' => $id
+            'id' => $id,
         ]);
         $tableGateway->enforceDeletePermission($delete);
 
@@ -123,28 +121,29 @@ class WebhookService extends AbstractService
 
         return true;
     }
-     /**
-     * Gets the webhook table gateway
+
+    /**
+     * Gets the webhook table gateway.
+     *
+     * @param mixed $acl
      *
      * @return RelationalTableGateway
      */
-    public function getTableGateway($acl=true)
+    public function getTableGateway($acl = true)
     {
         if (!$this->tableGateway) {
-            $this->tableGateway = $this->createTableGateway($this->collection,$acl);
+            $this->tableGateway = $this->createTableGateway($this->collection, $acl);
         }
 
         return $this->tableGateway;
     }
 
-       /**
+    /**
      * @param $collection
-     * @param array $items
-     * @param array $params
-     *
-     * @return array
      *
      * @throws InvalidRequestException
+     *
+     * @return array
      */
     public function batchCreate(array $items, array $params = [])
     {
@@ -174,12 +173,10 @@ class WebhookService extends AbstractService
 
     /**
      * @param $collection
-     * @param array $items
-     * @param array $params
-     *
-     * @return array
      *
      * @throws InvalidRequestException
+     *
+     * @return array
      */
     public function batchUpdate(array $items, array $params = [])
     {
@@ -213,9 +210,6 @@ class WebhookService extends AbstractService
 
     /**
      * @param $collection
-     * @param array $ids
-     * @param array $payload
-     * @param array $params
      *
      * @return array
      */
@@ -241,8 +235,6 @@ class WebhookService extends AbstractService
 
     /**
      * @param $collection
-     * @param array $ids
-     * @param array $params
      *
      * @throws ForbiddenException
      */
@@ -252,5 +244,4 @@ class WebhookService extends AbstractService
             $this->delete($id, $params);
         }
     }
-
 }

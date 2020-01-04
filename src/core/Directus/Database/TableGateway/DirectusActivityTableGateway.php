@@ -26,28 +26,28 @@ class DirectusActivityTableGateway extends RelationalTableGateway
 
     public $primaryKeyFieldName = 'id';
 
+    /**
+     * DirectusActivityTableGateway constructor.
+     *
+     * @param Acl $acl
+     */
+    public function __construct(AdapterInterface $adapter, $acl = null)
+    {
+        parent::__construct(self::$_tableName, $adapter, $acl);
+    }
+
     public static function makeLogActionFromTableName($table, $action)
     {
         $action = strtolower($action);
 
         switch ($table) {
             case 'directus_files':
-                $action = $action === self::ACTION_CREATE ? self::ACTION_UPLOAD : $action;
+                $action = self::ACTION_CREATE === $action ? self::ACTION_UPLOAD : $action;
+
                 break;
         }
 
         return $action;
-    }
-
-    /**
-     * DirectusActivityTableGateway constructor.
-     *
-     * @param AdapterInterface $adapter
-     * @param Acl $acl
-     */
-    public function __construct(AdapterInterface $adapter, $acl = null)
-    {
-        parent::__construct(self::$_tableName, $adapter, $acl);
     }
 
     public function recordLogin($userId)
@@ -59,12 +59,13 @@ class DirectusActivityTableGateway extends RelationalTableGateway
             'item' => $userId,
             'action_on' => DateTimeUtils::now()->toString(),
             'ip' => \Directus\get_request_host(),
-            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
+            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
         ];
 
         $insert = new Insert($this->getTable());
         $insert
-            ->values($logData);
+            ->values($logData)
+        ;
 
         $this->insertWith($insert);
     }
@@ -79,12 +80,13 @@ class DirectusActivityTableGateway extends RelationalTableGateway
             'action_on' => DateTimeUtils::now()->toString(),
             'ip' => \Directus\get_request_host(),
             'comment' => $comment,
-            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''
+            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
         ];
 
         $insert = new Insert($this->getTable());
         $insert
-            ->values($logData);
+            ->values($logData)
+        ;
 
         $this->insertWith($insert);
     }
@@ -97,6 +99,7 @@ class DirectusActivityTableGateway extends RelationalTableGateway
         $select->order('id DESC');
         $select->limit($loginAttemptsAllowed);
         $invalidLoginAttempts = $this->selectWith($select)->toArray();
+
         return $this->parseRecord($invalidLoginAttempts);
     }
 
@@ -104,10 +107,11 @@ class DirectusActivityTableGateway extends RelationalTableGateway
     {
         $select = new Select($this->getTable());
         $select->where->equalTo('action_by', $userId);
-        $select->where('action = "' . self::ACTION_AUTHENTICATE . '" OR action = "' . self::ACTION_UPDATE_USER_STATUS . '"');
+        $select->where('action = "'.self::ACTION_AUTHENTICATE.'" OR action = "'.self::ACTION_UPDATE_USER_STATUS.'"');
         $select->order('id DESC');
         $select->limit(1);
         $lastLoginAttempt = $this->selectWith($select)->toArray();
+
         return $this->parseRecord(current($lastLoginAttempt));
     }
 }

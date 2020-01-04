@@ -5,12 +5,15 @@ namespace Directus\Config\Schema;
 use Directus\Config\Schema\Exception\OmitException;
 
 /**
- * Group node
+ * Group node.
  */
 class Group extends Base implements Node
 {
     /**
-     * Constructor
+     * Constructor.
+     *
+     * @param mixed $name
+     * @param mixed $nodes
      */
     public function __construct($name, $nodes)
     {
@@ -18,7 +21,9 @@ class Group extends Base implements Node
     }
 
     /**
-     * Returns the value from context
+     * Returns the value from context.
+     *
+     * @param mixed $context
      */
     public function value($context)
     {
@@ -44,7 +49,7 @@ class Group extends Base implements Node
         }
 
         if (empty($value)) {
-            if ($this->parent() !== null && $this->optional()) {
+            if (null !== $this->parent() && $this->optional()) {
                 throw new OmitException();
             }
         }

@@ -20,14 +20,14 @@ class UserModule extends ModuleBase
 
         $this->help = [
             'password' => ''
-                . PHP_EOL . "\t\t-e " . 'User e-mail address.'
-                . PHP_EOL . "\t\t-p " . 'New password for the user.'
-                . PHP_EOL . "\t\t-d " . 'Directus path. Default: ' . $this->getBasePath()
+                .PHP_EOL."\t\t-e ".'User e-mail address.'
+                .PHP_EOL."\t\t-p ".'New password for the user.'
+                .PHP_EOL."\t\t-d ".'Directus path. Default: '.$this->getBasePath(),
         ];
 
         $this->commands_help = [
-            'password' => 'Change User Password: ' . PHP_EOL . PHP_EOL . "\t\t"
-                . $this->__module_name . ':password -e user_email -p new_password -d directus_path' . PHP_EOL
+            'password' => 'Change User Password: '.PHP_EOL.PHP_EOL."\t\t"
+                .$this->__module_name.':password -e user_email -p new_password -d directus_path'.PHP_EOL,
         ];
 
         $this->__module_name = 'user';
@@ -44,30 +44,33 @@ class UserModule extends ModuleBase
             switch ($key) {
                 case 'e':
                     $data['user_email'] = $value;
+
                     break;
                 case 'p':
                     $data['user_password'] = $value;
+
                     break;
                 case 'd':
                     $directus_path = $value;
+
                     break;
             }
         }
 
         if (!isset($data['user_email'])) {
-            throw new WrongArgumentsException($this->__module_name . ':password ' . 'missing user e-mail to change password for!');
+            throw new WrongArgumentsException($this->__module_name.':password '.'missing user e-mail to change password for!');
         }
 
         if (!isset($data['user_password'])) {
-            throw new WrongArgumentsException($this->__module_name . ':password ' . 'missing new password for user!');
+            throw new WrongArgumentsException($this->__module_name.':password '.'missing new password for user!');
         }
 
         $user = new User($directus_path);
+
         try {
             $user->changePassword($data['user_email'], $data['user_password']);
         } catch (PasswordChangeException $ex) {
-            throw new CommandFailedException('Error changing user password' . ': ' . $ex->getMessage());
+            throw new CommandFailedException('Error changing user password'.': '.$ex->getMessage());
         }
-
     }
 }

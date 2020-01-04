@@ -5,7 +5,7 @@ namespace Directus\Filesystem;
 class Thumbnail
 {
     /**
-     * Thumbnail default format
+     * Thumbnail default format.
      *
      * @var string
      */
@@ -16,11 +16,11 @@ class Thumbnail
         'jpeg',
         'gif',
         'png',
-	    'webp'
+        'webp',
     ];
 
     /**
-     * List of non-image supported extension/formats
+     * List of non-image supported extension/formats.
      *
      * @var array
      */
@@ -49,7 +49,7 @@ class Thumbnail
 
         $img = imagecreatefromstring($targetContent);
 
-        if ($img === false) {
+        if (false === $img) {
             return false;
         }
 
@@ -90,7 +90,7 @@ class Thumbnail
         }
 
         // Preserve transperancy for gifs and pngs
-        if ($format == 'gif' || $format == 'png' || $format == 'webp') {
+        if ('gif' == $format || 'png' == $format || 'webp' == $format) {
             imagealphablending($imgResized, false);
             imagesavealpha($imgResized, true);
             $transparent = imagecolorallocatealpha($imgResized, 255, 255, 255, 127);
@@ -100,11 +100,12 @@ class Thumbnail
         imagecopyresampled($imgResized, $img, $x1, $y1, 0, 0, $newW, $newH, $w, $h);
 
         imagedestroy($img);
+
         return $imgResized;
     }
 
     /**
-     * Create a image from a non image file content. (Ex. PDF, PSD or TIFF)
+     * Create a image from a non image file content. (Ex. PDF, PSD or TIFF).
      *
      * @param $content
      * @param string $format
@@ -121,17 +122,16 @@ class Thumbnail
         $image->setIteratorIndex(0);
         $image->setImageFormat($format);
         $image->setImageBackgroundColor('#ffffff');
-        
+
         // Only Imagick 3.4.4 contains the ALPHACHANNEL_REMOVE constant
-        if(\Imagick::IMAGICK_EXTNUM >= 30404){
+        if (\Imagick::IMAGICK_EXTNUM >= 30404) {
             $image->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
-        }
-        else{
+        } else {
             $image->setImageAlphaChannel(12);
         }
-        
+
         $image = $image->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
-        
+
         return $image->getImageBlob();
     }
 
@@ -139,33 +139,39 @@ class Thumbnail
     {
         ob_start();
         // force $path to be NULL to dump writeImage on the stream
-        $path = NULL;
+        $path = null;
         switch (strtolower($extension)) {
             case 'jpg':
             case 'jpeg':
                 imagejpeg($img, $path, $quality);
+
                 break;
             case 'gif':
                 imagegif($img, $path);
+
                 break;
             case 'png':
                 imagepng($img, $path);
+
                 break;
-	        case 'webp':
+            case 'webp':
                 imagewebp($img, $path, $quality);
+
                 break;
             case 'pdf':
             case 'psd':
             case 'tif':
             case 'tiff':
                 imagejpeg($img, $path, $quality);
+
                 break;
         }
+
         return ob_get_clean();
     }
 
     /**
-     * Gets the default thumbnail format
+     * Gets the default thumbnail format.
      *
      * @return string
      */
@@ -175,7 +181,7 @@ class Thumbnail
     }
 
     /**
-     * Gets supported formats
+     * Gets supported formats.
      *
      * @return array
      */
@@ -185,7 +191,7 @@ class Thumbnail
     }
 
     /**
-     * Gets image supported formats
+     * Gets image supported formats.
      *
      * @return array
      */
@@ -195,7 +201,7 @@ class Thumbnail
     }
 
     /**
-     * Gets non-image supported formats
+     * Gets non-image supported formats.
      *
      * @return array
      */
@@ -205,7 +211,7 @@ class Thumbnail
     }
 
     /**
-     * If a given format/extension is a non-image supported to generate thumbnail
+     * If a given format/extension is a non-image supported to generate thumbnail.
      *
      * @param $format
      *

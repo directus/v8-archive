@@ -19,12 +19,12 @@ class ActivityService extends AbstractService
     /**
      * @var BaseRowGateway
      */
-    protected $lastGroup = null;
+    protected $lastGroup;
 
     /**
      * @var DirectusRolesTableGateway
      */
-    protected $tableGateway = null;
+    protected $tableGateway;
 
     /**
      * @var string
@@ -95,7 +95,7 @@ class ActivityService extends AbstractService
         $data = [
             'id' => $id,
             'comment' => $comment,
-            'edited_on' => DateTimeUtils::now()->toString()
+            'edited_on' => DateTimeUtils::now()->toString(),
         ];
 
         $this->enforcepermissionsOnExisting(Acl::ACTION_UPDATE, $id, $params);
@@ -116,15 +116,14 @@ class ActivityService extends AbstractService
 
         $tableGateway = $this->getTableGateway();
         $tableGateway->updateRecord($id, [
-            'comment_deleted_on' => DateTimeUtils::now()->toString()
+            'comment_deleted_on' => DateTimeUtils::now()->toString(),
         ]);
     }
 
     /**
-     * Finds a group by the given ID in the database
+     * Finds a group by the given ID in the database.
      *
      * @param int $id
-     * @param array $params
      *
      * @return array
      */
@@ -136,10 +135,9 @@ class ActivityService extends AbstractService
     }
 
     /**
-     * Gets a single or multiple activity
+     * Gets a single or multiple activity.
      *
      * @param mixed $ids
-     * @param array $params
      *
      * @return array
      */
@@ -171,20 +169,17 @@ class ActivityService extends AbstractService
     }
 
     /**
-     * Validates the comment payload
-     *
-     * @param array $payload
-     * @param array $params
+     * Validates the comment payload.
      */
     protected function validateCommentsPayload(array $payload, array $params = [])
     {
         $this->validatePayload($this->collection, null, $payload, $params);
         $this->validate([
             'collection' => ArrayUtils::get($payload, 'collection'),
-            'item' => ArrayUtils::get($payload, 'item')
+            'item' => ArrayUtils::get($payload, 'item'),
         ], [
             'collection' => 'required',
-            'item' => 'required'
+            'item' => 'required',
         ]);
     }
 
@@ -192,9 +187,8 @@ class ActivityService extends AbstractService
      * Gets the data status value, if any.
      *
      * @param string $collectionName
-     * @param array $data
      *
-     * @return mixed|null
+     * @return null|mixed
      */
     protected function getStatusValue($collectionName, array $data)
     {
@@ -209,11 +203,9 @@ class ActivityService extends AbstractService
     }
 
     /**
-     * Throws exception if failed enforcing a set of permissions on create
+     * Throws exception if failed enforcing a set of permissions on create.
      *
      * @param string $collectionName
-     * @param array $data
-     * @param array $params
      */
     protected function enforcePermissionsOnCreate($collectionName, array $data, array $params = [])
     {
@@ -226,12 +218,10 @@ class ActivityService extends AbstractService
     }
 
     /**
-     * Throws exception if failed enforcing a set of permissions on update
+     * Throws exception if failed enforcing a set of permissions on update.
      *
-     * @param mixed $id
+     * @param mixed  $id
      * @param string $collectionName
-     * @param array $data
-     * @param array $params
      */
     protected function enforcePermissionsOnUpdate($id, $collectionName, array $data, array $params = [])
     {
@@ -253,12 +243,10 @@ class ActivityService extends AbstractService
     }
 
     /**
-     * Throws exception if failed enforcing a set of permissions on delete
+     * Throws exception if failed enforcing a set of permissions on delete.
      *
-     * @param mixed $id
+     * @param mixed  $id
      * @param string $collectionName
-     * @param array $data
-     * @param array $params
      */
     protected function enforcePermissionsOnDelete($id, $collectionName, array $data, array $params = [])
     {
@@ -280,18 +268,17 @@ class ActivityService extends AbstractService
     }
 
     /**
-     * Throws exception if failed enforcing a set of permissions on update or delete
+     * Throws exception if failed enforcing a set of permissions on update or delete.
      *
      * @param string $action
-     * @param mixed $id
-     * @param array $params
+     * @param mixed  $id
      *
      * @throws ItemNotFoundException
      */
     protected function enforcePermissionsOnExisting($action, $id, array $params = [])
     {
         $commentItem = $this->fetchItem($this->collection, $id, ['collection', 'item'], [
-            'action' => DirectusActivityTableGateway::ACTION_COMMENT
+            'action' => DirectusActivityTableGateway::ACTION_COMMENT,
         ]);
 
         if (!$commentItem) {
@@ -309,9 +296,9 @@ class ActivityService extends AbstractService
         $itemId = $commentItem['item'];
         $data = $item->toArray();
 
-        if ($action === Acl::ACTION_DELETE) {
+        if (Acl::ACTION_DELETE === $action) {
             $this->enforcePermissionsOnDelete($itemId, $collectionName, $data, $params);
-        } else if ($action == Acl::ACTION_UPDATE) {
+        } elseif (Acl::ACTION_UPDATE == $action) {
             $this->enforcePermissionsOnUpdate($itemId, $collectionName, $data, $params);
         }
     }

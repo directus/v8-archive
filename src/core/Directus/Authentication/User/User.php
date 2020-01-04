@@ -8,7 +8,7 @@ use Directus\Util\ArrayUtils;
 class User implements UserInterface
 {
     /**
-     * User attributes
+     * User attributes.
      *
      * @var array
      */
@@ -20,57 +20,13 @@ class User implements UserInterface
     }
 
     /**
-     * Gets the attribute with the given name
+     * Access the attribute as property.
      *
      * @param $name
-     *
-     * @return mixed
-     */
-    public function get($name)
-    {
-        return ArrayUtils::get($this->attributes, $name);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getId()
-    {
-        return $this->get('id');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getEmail()
-    {
-        return $this->get('email');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function get2FASecret()
-    {
-        return $this->get('2fa_secret');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getGroupId()
-    {
-        return $this->get('group');
-    }
-
-    /**
-     * Access the attribute as property
-     *
-     * @param $name
-     *
-     * @return mixed
      *
      * @throws UnknownUserAttributeException
+     *
+     * @return mixed
      */
     public function __get($name)
     {
@@ -83,7 +39,51 @@ class User implements UserInterface
     }
 
     /**
-     * @inheritdoc
+     * Gets the attribute with the given name.
+     *
+     * @param $name
+     *
+     * @return mixed
+     */
+    public function get($name)
+    {
+        return ArrayUtils::get($this->attributes, $name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return $this->get('id');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEmail()
+    {
+        return $this->get('email');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get2FASecret()
+    {
+        return $this->get('2fa_secret');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGroupId()
+    {
+        return $this->get('group');
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function toArray()
     {

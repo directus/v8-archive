@@ -8,9 +8,9 @@ class InvalidRequestException extends UnprocessableEntityException
 {
     protected $uploadedError = 4;
 
-    public function __construct($message = '', $errorCode = "")
+    public function __construct($message = '', $errorCode = '')
     {
-        $this->uploadedError = $errorCode ?: $this->uploadedError ;
+        $this->uploadedError = $errorCode ?: $this->uploadedError;
         parent::__construct($message, $this->uploadedError);
     }
 

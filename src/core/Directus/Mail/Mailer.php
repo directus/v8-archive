@@ -23,7 +23,7 @@ class Mailer
     }
 
     /**
-     * Creates a new message instance
+     * Creates a new message instance.
      *
      * @return Message
      */

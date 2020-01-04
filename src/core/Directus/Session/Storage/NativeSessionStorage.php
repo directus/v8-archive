@@ -5,37 +5,35 @@ namespace Directus\Session\Storage;
 class NativeSessionStorage implements SessionStorageInterface
 {
     /**
-     * Session Name
+     * Session Name.
      *
      * @var string
      */
     protected $sessionName;
 
     /**
-     * Session was started
+     * Session was started.
      *
      * @var bool
      */
     protected $started = false;
 
     /**
-     * All items
+     * All items.
      *
      * @var array
      */
     protected $items = [];
 
     /**
-     * Options list
+     * Options list.
      *
      * @var array
      */
     protected $options = [];
 
     /**
-     * Constructor
-     *
-     * @param array $options
+     * Constructor.
      */
     public function __construct(array $options = [])
     {

@@ -5,15 +5,13 @@ namespace Directus\Services;
 use Directus\GraphQL\Types;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
-use GraphQL\Error\Debug;
 
 class GraphQLService extends AbstractService
 {
     public function index($inputs)
     {
-
         $schema = new Schema([
-            'query' => Types::query()
+            'query' => Types::query(),
         ]);
 
         $inputs = json_decode($inputs, true);
@@ -28,11 +26,12 @@ class GraphQLService extends AbstractService
             $responseData = [
                 'errors' => [
                     [
-                        'message' => $e->getMessage()
-                    ]
-                ]
+                        'message' => $e->getMessage(),
+                    ],
+                ],
             ];
         }
+
         return $responseData;
     }
 }

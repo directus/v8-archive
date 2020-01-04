@@ -6,9 +6,9 @@ interface ModuleInterface
 {
     /**
      *  Get the name of the module.
-     *   *
-     * @return string The name this module should be known for.
+     *   *.
      *
+     * @return string the name this module should be known for
      */
     public function getModuleName();
 
@@ -18,8 +18,7 @@ interface ModuleInterface
      *  Provides information about a module fit to create a brief description of
      *  the module to be presented to the user.
      *
-     * @return string A brief description of the module.
-     *
+     * @return string a brief description of the module
      */
     public function getInfo();
 
@@ -39,8 +38,7 @@ interface ModuleInterface
      *  );
      *  </code>
      *
-     * @return array[string]string A brief description of the module commands.
-     *
+     * @return array[string]string A brief description of the module commands
      */
     public function getCommands();
 
@@ -49,16 +47,16 @@ interface ModuleInterface
      *
      *  Provides help text for a specific command implemented by this module.
      *
-     * @param string $command The command to get help for.
+     * @param string $command the command to get help for
      *
-     * @return string A brief description of the module command.
+     * @throws UnsupportedCommand thrown when a module does not support a command
      *
-     * @throws UnsupportedCommand Thrown when a module does not support a command.
+     * @return string a brief description of the module command
      */
     public function getCommandHelp($command);
 
     /**
-     *  Executed a command provided by this module
+     *  Executed a command provided by this module.
      *
      *  Executes a command provided by this module with the arguments passed to the
      *  function.
@@ -75,21 +73,19 @@ interface ModuleInterface
      *
      *  Extra - unamed - arguments are passed in a simple array of strings.
      *
-     * @param string $command The command to execute.
-     * @param array [string]string $args The arguments for the command.
-     * @param array [string] $extra Un-named arguments passed to the command.
+     * @param string               $command the command to execute
+     * @param array [string]string $args    The arguments for the command
+     * @param array [string]       $extra   Un-named arguments passed to the command
      *
-     * @return void This function does not return a value.
-     *
-     * @throws UnsupportedCommand if the module does not support a command.
-     * @throws WrongArguments if the arguments passed to the command are not
-     *          sufficient or correct to execute the command.
-     * @throws CommandFailed if the module failed to execute a command.
+     * @throws UnsupportedCommand if the module does not support a command
+     * @throws WrongArguments     if the arguments passed to the command are not
+     *                            sufficient or correct to execute the command
+     * @throws CommandFailed      if the module failed to execute a command
      */
     public function runCommand($command, $args, $extra);
 
     /**
-     * Returns the given command options
+     * Returns the given command options.
      *
      * @param string $command
      *

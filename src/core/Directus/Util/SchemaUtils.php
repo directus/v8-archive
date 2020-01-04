@@ -5,8 +5,10 @@ namespace Directus\Util;
 class SchemaUtils
 {
     /**
-     * Clean identifier name to into a cleaner name
+     * Clean identifier name to into a cleaner name.
+     *
      * @param $name
+     *
      * @return string
      */
     public static function cleanIdentifier($name)
@@ -15,8 +17,10 @@ class SchemaUtils
     }
 
     /**
-     * Clean column name to into a cleaner name
+     * Clean column name to into a cleaner name.
+     *
      * @param $name
+     *
      * @return mixed
      */
     public static function cleanColumnName($name)
@@ -25,8 +29,10 @@ class SchemaUtils
     }
 
     /**
-     * Clean table name to into a cleaner name
+     * Clean table name to into a cleaner name.
+     *
      * @param $name
+     *
      * @return string
      */
     public static function cleanTableName($name)

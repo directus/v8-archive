@@ -3,41 +3,50 @@
 namespace Directus\Config\Schema;
 
 /**
- * Node interface
+ * Node interface.
  */
-interface Node {
+interface Node
+{
     /**
-     * Returns the node key
+     * Returns the node key.
+     *
      * @return string
      */
     public function key();
 
     /**
-     * Returns the node name
+     * Returns the node name.
+     *
      * @return string
      */
     public function name();
 
     /**
-     * Returns the parent node
+     * Returns the parent node.
+     *
      * @return Node
      */
     public function parent();
 
     /**
-     * Returns the child nodes
+     * Returns the child nodes.
+     *
      * @return Node[]
      */
     public function children();
 
     /**
-     * Returns whether this node is optional
-     * @return boolean
+     * Returns whether this node is optional.
+     *
+     * @return bool
      */
     public function optional();
 
     /**
-     * Returns the node value from context object
+     * Returns the node value from context object.
+     *
+     * @param mixed $context
+     *
      * @return mixed
      */
     public function value($context);

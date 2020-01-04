@@ -3010,7 +3010,7 @@ class MimeTypeUtils
     ];
 
     /**
-     * Returns the MIME type for the given extension
+     * Returns the MIME type for the given extension.
      *
      * @param string $extension
      *
@@ -3022,7 +3022,7 @@ class MimeTypeUtils
     }
 
     /**
-     * Returns the extension for a given MIME type
+     * Returns the extension for a given MIME type.
      *
      * @param string $type
      *
@@ -3034,7 +3034,7 @@ class MimeTypeUtils
     }
 
     /**
-     * Returns the MIME for a given filename
+     * Returns the MIME for a given filename.
      *
      * @param string $filename
      *
@@ -3043,15 +3043,15 @@ class MimeTypeUtils
     public static function getFromFilename($filename)
     {
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
         return self::getFromExtension($extension);
     }
 
     /**
-     * @param array $list
      * @param string $key
-     * @param null $default
+     * @param null   $default
      *
-     * @return string|null
+     * @return null|string
      */
     protected static function get(array $list, $key, $default = null)
     {

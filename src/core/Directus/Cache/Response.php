@@ -8,7 +8,7 @@ class Response extends Cache
 
     public function tag($tags)
     {
-        $this->tags = array_merge($this->tags, (array)$tags);
+        $this->tags = array_merge($this->tags, (array) $tags);
 
         return $this;
     }

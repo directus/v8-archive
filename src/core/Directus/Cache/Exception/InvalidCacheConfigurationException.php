@@ -11,7 +11,7 @@ class InvalidCacheConfigurationException extends ErrorException
 
     public function __construct($adapter)
     {
-        parent::__construct('Invalid Configuration for "' . $adapter . '" cache adapter.', static::ERROR_CODE);
+        parent::__construct('Invalid Configuration for "'.$adapter.'" cache adapter.', static::ERROR_CODE);
     }
 
     public function getStatusCode()

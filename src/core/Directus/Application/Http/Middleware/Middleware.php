@@ -8,29 +8,22 @@ use Slim\Slim;
 
 class Middleware
 {
-
     public static $refusalResponseTypes = ['redirect', 'json'];
-
-    protected static function validateResponseType($responseType)
-    {
-        if (!in_array($responseType, self::$refusalResponseTypes)) {
-            throw new \RuntimeException('Invalid refusal $responseType: ' . $responseType);
-        }
-    }
 
     public static function refuseWithErrorMessage($errorMessage, $responseType = 'redirect', $errorCode = '403 Forbidden')
     {
-        header('HTTP/1.1 ' . $errorCode);
+        header('HTTP/1.1 '.$errorCode);
         $app = Slim::getInstance();
         switch ($responseType) {
             case 'json':
                 $jsonResponse = [
                     'success' => false,
-                    'message' => $errorMessage
+                    'message' => $errorMessage,
                 ];
                 $view = $app->view();
                 $view->setData('jsonResponse', $jsonResponse);
                 \Directus\Slim\Middleware::renderJson();
+
                 break;
             case 'redirect':
             default:
@@ -47,6 +40,7 @@ class Middleware
     public static function refuseUnauthenticatedUsers($responseType = 'redirect')
     {
         self::validateResponseType($responseType);
+
         return function () use ($responseType) {
             if (Auth::loggedIn()) {
                 return true;
@@ -59,6 +53,7 @@ class Middleware
     public static function refuseAuthenticatedUsers($responseType = 'redirect')
     {
         self::validateResponseType($responseType);
+
         return function () use ($responseType) {
             if (!Auth::loggedIn()) {
                 return true;
@@ -79,4 +74,10 @@ class Middleware
         JsonView::render($viewData['jsonResponse']);
     }
 
+    protected static function validateResponseType($responseType)
+    {
+        if (!in_array($responseType, self::$refusalResponseTypes)) {
+            throw new \RuntimeException('Invalid refusal $responseType: '.$responseType);
+        }
+    }
 }
