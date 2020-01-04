@@ -25,7 +25,7 @@ class UpdateDirectusRoles extends AbstractMigration
         // -------------------------------------------------------------------------
         // Add module_listing column
         // -------------------------------------------------------------------------
-        if (false == $rolesTable->hasColumn('module_listing')) {
+        if (false === $rolesTable->hasColumn('module_listing')) {
             $rolesTable->addColumn('module_listing', 'string', [
                 'null' => true,
                 'default' => null,
@@ -35,7 +35,7 @@ class UpdateDirectusRoles extends AbstractMigration
         // -------------------------------------------------------------------------
         // Add collection_listing column
         // -------------------------------------------------------------------------
-        if (false == $rolesTable->hasColumn('collection_listing')) {
+        if (false === $rolesTable->hasColumn('collection_listing')) {
             $rolesTable->addColumn('collection_listing', 'string', [
                 'null' => true,
                 'default' => null,
@@ -45,7 +45,7 @@ class UpdateDirectusRoles extends AbstractMigration
         // -------------------------------------------------------------------------
         // Add enforce_2fa column
         // -------------------------------------------------------------------------
-        if (false == $rolesTable->hasColumn('enforce_2fa')) {
+        if (false === $rolesTable->hasColumn('enforce_2fa')) {
             $rolesTable->addColumn('enforce_2fa', 'integer', [
                 'null' => true,
                 'default' => false,

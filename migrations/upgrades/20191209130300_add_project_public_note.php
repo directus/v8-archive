@@ -34,49 +34,49 @@ class AddProjectPublicNote extends AbstractMigration
         ]);
 
         $this->execute(\Directus\phinx_update(
-        $this->getAdapter(),
-        'directus_fields',
-        [
-            'sort' => 8,
-        ],
-        ['collection' => 'directus_settings', 'field' => 'default_locale']
-    ));
+            $this->getAdapter(),
+            'directus_fields',
+            [
+                'sort' => 8,
+            ],
+            ['collection' => 'directus_settings', 'field' => 'default_locale']
+        ));
 
         $this->execute(\Directus\phinx_update(
-        $this->getAdapter(),
-        'directus_fields',
-        [
-            'sort' => 9,
-        ],
-        ['collection' => 'directus_settings', 'field' => 'telemetry']
-    ));
+            $this->getAdapter(),
+            'directus_fields',
+            [
+                'sort' => 9,
+            ],
+            ['collection' => 'directus_settings', 'field' => 'telemetry']
+        ));
 
         $this->execute(\Directus\phinx_update(
-        $this->getAdapter(),
-        'directus_fields',
-        [
-            'sort' => 10,
-        ],
-        ['collection' => 'directus_settings', 'field' => 'data_divider']
-    ));
+            $this->getAdapter(),
+            'directus_fields',
+            [
+                'sort' => 10,
+            ],
+            ['collection' => 'directus_settings', 'field' => 'data_divider']
+        ));
 
         $this->execute(\Directus\phinx_update(
-        $this->getAdapter(),
-        'directus_fields',
-        [
-            'sort' => 11,
-        ],
-        ['collection' => 'directus_settings', 'field' => 'default_limit']
-    ));
+            $this->getAdapter(),
+            'directus_fields',
+            [
+                'sort' => 11,
+            ],
+            ['collection' => 'directus_settings', 'field' => 'default_limit']
+        ));
 
         $this->execute(\Directus\phinx_update(
-        $this->getAdapter(),
-        'directus_fields',
-        [
-            'sort' => 12,
-        ],
-        ['collection' => 'directus_settings', 'field' => 'sort_null_last']
-    ));
+            $this->getAdapter(),
+            'directus_fields',
+            [
+                'sort' => 12,
+            ],
+            ['collection' => 'directus_settings', 'field' => 'sort_null_last']
+        ));
 
         $fieldsTable->save();
         $settingsTable->save();

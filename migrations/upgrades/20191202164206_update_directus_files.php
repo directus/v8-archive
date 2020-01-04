@@ -19,7 +19,7 @@ class UpdateDirectusFiles extends AbstractMigration
         // -------------------------------------------------------------------------
         // Add filename_download column
         // -------------------------------------------------------------------------
-        if (false == $filesTable->hasColumn('filename_download')) {
+        if (false === $filesTable->hasColumn('filename_download')) {
             $filesTable->addColumn('filename_download', 'string', [
                 'limit' => 255,
                 'null' => false,
@@ -29,7 +29,7 @@ class UpdateDirectusFiles extends AbstractMigration
         // -------------------------------------------------------------------------
         // Add private hash column
         // -------------------------------------------------------------------------
-        if (false == $filesTable->hasColumn('private_hash')) {
+        if (false === $filesTable->hasColumn('private_hash')) {
             $filesTable->addColumn('private_hash', 'string', [
                 'limit' => 16,
                 'null' => true,
@@ -46,11 +46,11 @@ class UpdateDirectusFiles extends AbstractMigration
 
         foreach ($filesWithoutPrivateHash as $key => $value) {
             $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_files',
-            ['private_hash' => get_random_string()],
-            ['id' => $value['id']]
-        ));
+                $this->getAdapter(),
+                'directus_files',
+                ['private_hash' => get_random_string()],
+                ['id' => $value['id']]
+            ));
         }
 
         // -------------------------------------------------------------------------

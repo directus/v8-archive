@@ -16,11 +16,11 @@ class AddHashFiledownloadIfEmpty extends AbstractMigration
 
         foreach ($filesWithoutPrivateHash as $key => $value) {
             $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_files',
-            ['private_hash' => get_random_string()],
-            ['id' => $value['id']]
-        ));
+                $this->getAdapter(),
+                'directus_files',
+                ['private_hash' => get_random_string()],
+                ['id' => $value['id']]
+            ));
         }
 
         // -------------------------------------------------------------------------
@@ -30,11 +30,11 @@ class AddHashFiledownloadIfEmpty extends AbstractMigration
 
         foreach ($filesWithoutFiledownload as $key => $value) {
             $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_files',
-            ['filename_download' => $value['filename_disk']],
-            ['id' => $value['id']]
-        ));
+                $this->getAdapter(),
+                'directus_files',
+                ['filename_download' => $value['filename_disk']],
+                ['id' => $value['id']]
+            ));
         }
 
         // -------------------------------------------------------------------------

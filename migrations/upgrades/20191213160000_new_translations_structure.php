@@ -52,11 +52,11 @@ class NewTranslationsStructure extends AbstractMigration
             }
 
             $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_fields',
-            ['options' => json_encode($newOptions)],
-            ['collection' => $field['collection'], 'field' => $field['field']]
-        ));
+                $this->getAdapter(),
+                'directus_fields',
+                ['options' => json_encode($newOptions)],
+                ['collection' => $field['collection'], 'field' => $field['field']]
+            ));
         }
 
         $fieldsTable->save();

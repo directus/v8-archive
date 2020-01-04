@@ -23,11 +23,11 @@ class UpdateDirectusSettings extends AbstractMigration
         // -------------------------------------------------------------------------
         if ($this->hasSetting('logo')) {
             $this->execute(\Directus\phinx_update(
-            $this->getAdapter(),
-            'directus_settings',
-            ['key' => 'project_logo'],
-            ['key' => 'logo']
-        ));
+                $this->getAdapter(),
+                'directus_settings',
+                ['key' => 'project_logo'],
+                ['key' => 'logo']
+            ));
         }
 
         // -------------------------------------------------------------------------
@@ -108,7 +108,7 @@ class UpdateDirectusSettings extends AbstractMigration
         ];
 
         foreach ($newSettings as $setting) {
-            if (false == $this->hasSetting($setting['key'])) {
+            if (false === $this->hasSetting($setting['key'])) {
                 $settingsTable->insert($setting);
             }
         }

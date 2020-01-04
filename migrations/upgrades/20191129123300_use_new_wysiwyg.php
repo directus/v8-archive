@@ -10,16 +10,16 @@ class UseNewWysiwyg extends AbstractMigration
         // Change all uses of the wysiwyg_advanced interface to wysiwyg
         // -------------------------------------------------------------------------
         $this->execute(\Directus\phinx_update(
-        $this->getAdapter(),
-        'directus_fields',
-        ['interface' => 'wysiwyg'],
-        ['interface' => 'wysiwyg_advanced']
-    ));
+            $this->getAdapter(),
+            'directus_fields',
+            ['interface' => 'wysiwyg'],
+            ['interface' => 'wysiwyg_advanced']
+        ));
         $this->execute(\Directus\phinx_update(
-        $this->getAdapter(),
-        'directus_fields',
-        ['interface' => 'wysiwyg'],
-        ['interface' => 'wysiwyg_full']
-    ));
+            $this->getAdapter(),
+            'directus_fields',
+            ['interface' => 'wysiwyg'],
+            ['interface' => 'wysiwyg_full']
+        ));
     }
 }

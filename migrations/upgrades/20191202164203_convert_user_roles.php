@@ -11,7 +11,7 @@ class ConvertUserRoles extends AbstractMigration
         // -------------------------------------------------------------------------
         // Add role column to directus_users
         // -------------------------------------------------------------------------
-        if (false == $usersTable->hasColumn('role')) {
+        if (false === $usersTable->hasColumn('role')) {
             $usersTable->addColumn('role', 'integer', [
                 'null' => true,
                 'default' => null,
