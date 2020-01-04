@@ -10,7 +10,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_activity', 'interface' => 'code']
         ));
@@ -19,7 +19,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_activity_seen', 'interface' => 'code']
         ));
@@ -28,7 +28,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_collection_presets', 'interface' => 'code']
         ));
@@ -37,7 +37,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_collections', 'interface' => 'code']
         ));
@@ -46,7 +46,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_fields', 'interface' => 'code']
         ));
@@ -55,7 +55,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_files', 'interface' => 'code']
         ));
@@ -64,7 +64,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_folders', 'interface' => 'code']
         ));
@@ -73,7 +73,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_migrations', 'interface' => 'code']
         ));
@@ -82,7 +82,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_permissions', 'interface' => 'code']
         ));
@@ -91,7 +91,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_relations', 'interface' => 'code']
         ));
@@ -100,7 +100,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_revisions', 'interface' => 'code']
         ));
@@ -109,7 +109,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_roles', 'interface' => 'code']
         ));
@@ -118,7 +118,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_settings', 'interface' => 'code']
         ));
@@ -127,7 +127,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_user_roles', 'interface' => 'code']
         ));
@@ -136,7 +136,7 @@ class UseJson extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'interface' => 'json'
+                'interface' => 'json',
             ],
             ['collection' => 'directus_users', 'interface' => 'code']
         ));

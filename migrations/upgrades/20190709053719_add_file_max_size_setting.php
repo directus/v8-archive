@@ -1,6 +1,5 @@
 <?php
 
-
 use Phinx\Migration\AbstractMigration;
 
 class AddFileMaxSizeSetting extends AbstractMigration
@@ -11,7 +10,7 @@ class AddFileMaxSizeSetting extends AbstractMigration
             'field' => 'file_max_size',
             'type' => 'string',
             'interface' => 'text-input',
-            'options'   => json_encode(['placeholder' => 'i.e. 10KB or 10MB or 10GB']),
+            'options' => json_encode(['placeholder' => 'i.e. 10KB or 10MB or 10GB']),
             'note' => 'i.e. 10KB ,10MB ,10GB.',
         ];
         $collection = 'directus_settings';
@@ -24,6 +23,5 @@ class AddFileMaxSizeSetting extends AbstractMigration
             $insertSql = sprintf($insertSqlFormat, $collection, $fieldObject['field'], $fieldObject['type'], $fieldObject['interface'], $fieldObject['options'], $fieldObject['note']);
             $this->execute($insertSql);
         }
-
     }
 }

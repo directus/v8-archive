@@ -1,6 +1,5 @@
 <?php
 
-
 use Phinx\Migration\AbstractMigration;
 
 class RemoveScope extends AbstractMigration
@@ -18,10 +17,11 @@ class RemoveScope extends AbstractMigration
             }
 
             $table->removeColumn('scope')
-                ->save();
+                ->save()
+            ;
             $table->addIndex(['key'], [
                 'unique' => true,
-                'name' => 'idx_key'
+                'name' => 'idx_key',
             ]);
         }
     }

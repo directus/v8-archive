@@ -155,9 +155,9 @@ class TimezoneChoices extends AbstractMigration
                 'Asia/New_Caledonia' => '(UTC+12:00) New Caledonia',
                 'Asia/Solomon_Is' => '(UTC+12:00) Solomon Is.',
                 'Pacific/Wellington' => '(UTC+12:00) Wellington',
-                'Pacific/Tongatapu' => '(UTC+13:00) Nuku\'alofa'
+                'Pacific/Tongatapu' => '(UTC+13:00) Nuku\'alofa',
             ],
-            'placeholder' => 'Choose a timezone...'
+            'placeholder' => 'Choose a timezone...',
         ]);
 
         $this->execute(\Directus\phinx_update(

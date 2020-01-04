@@ -5,7 +5,7 @@ use Phinx\Migration\AbstractMigration;
 class CreateRolesTable extends AbstractMigration
 {
     /**
-     * Create Roles Table
+     * Create Roles Table.
      */
     public function change()
     {
@@ -13,43 +13,43 @@ class CreateRolesTable extends AbstractMigration
 
         $table->addColumn('name', 'string', [
             'limit' => 100,
-            'null' => false
+            'null' => false,
         ]);
         $table->addColumn('description', 'string', [
             'limit' => 500,
             'null' => true,
-            'default' => NULL
+            'default' => null,
         ]);
         $table->addColumn('ip_whitelist', 'text', [
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('external_id', 'string', [
             'limit' => 255,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('module_listing', 'text', [
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('collection_listing', 'text', [
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('enforce_2fa', 'boolean', [
             'null' => true,
-            'default' => false
+            'default' => false,
         ]);
 
         $table->addIndex('name', [
             'unique' => true,
-            'name' => 'idx_group_name'
+            'name' => 'idx_group_name',
         ]);
 
         $table->addIndex('external_id', [
             'unique' => true,
-            'name' => 'idx_roles_external_id'
+            'name' => 'idx_roles_external_id',
         ]);
 
         $table->create();
@@ -61,7 +61,7 @@ class CreateRolesTable extends AbstractMigration
                 'interface' => 'primary-key',
                 'locked' => 1,
                 'required' => 1,
-                'hidden_detail' => 1
+                'hidden_detail' => 1,
             ],
             [
                 'collection' => 'directus_roles',
@@ -71,7 +71,7 @@ class CreateRolesTable extends AbstractMigration
                 'locked' => 1,
                 'readonly' => 1,
                 'hidden_detail' => 1,
-                'hidden_browse' => 1
+                'hidden_browse' => 1,
             ],
             [
                 'collection' => 'directus_roles',
@@ -81,7 +81,7 @@ class CreateRolesTable extends AbstractMigration
                 'locked' => 1,
                 'sort' => 1,
                 'width' => 'half',
-                'required' => 1
+                'required' => 1,
             ],
             [
                 'collection' => 'directus_roles',
@@ -90,7 +90,7 @@ class CreateRolesTable extends AbstractMigration
                 'interface' => 'text-input',
                 'locked' => 1,
                 'sort' => 2,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_roles',
@@ -98,16 +98,16 @@ class CreateRolesTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_ARRAY,
                 'interface' => 'tags',
                 'options' => json_encode([
-                    '' => 'Add an IP address...'
+                    '' => 'Add an IP address...',
                 ]),
-                'locked' => 1
+                'locked' => 1,
             ],
             [
                 'collection' => 'directus_roles',
                 'field' => 'enforce_2fa',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
                 'interface' => 'toggle',
-                'locked' => 1
+                'locked' => 1,
             ],
             [
                 'collection' => 'directus_roles',
@@ -116,8 +116,8 @@ class CreateRolesTable extends AbstractMigration
                 'interface' => 'one-to-many',
                 'locked' => 1,
                 'options' => json_encode([
-                    'fields' => "first_name,last_name"
-                ])
+                    'fields' => 'first_name,last_name',
+                ]),
             ],
             [
                 'collection' => 'directus_roles',
@@ -125,7 +125,7 @@ class CreateRolesTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'repeater',
                 'locked' => 1,
-                'options' => '{"template":"{{ name }}","createItemText":"Add Module","fields":[{"field":"name","interface":"text-input","type":"string","width":"half"},{"field":"link","interface":"text-input","type":"string","width":"half"},{"field":"icon","interface":"icon","type":"string","width":"full"}]}'
+                'options' => '{"template":"{{ name }}","createItemText":"Add Module","fields":[{"field":"name","interface":"text-input","type":"string","width":"half"},{"field":"link","interface":"text-input","type":"string","width":"half"},{"field":"icon","interface":"icon","type":"string","width":"full"}]}',
             ],
             [
                 'collection' => 'directus_roles',
@@ -133,14 +133,12 @@ class CreateRolesTable extends AbstractMigration
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'repeater',
                 'locked' => 1,
-                'options' => '{"template":"{{ group_name }}","createItemText":"Add Group","fields":[{"field":"group_name","width":"full","interface":"text-input","type":"string"},{"field":"collections","interface":"repeater","type":"JSON","options":{"createItemText":"Add Collection","fields":[{"field":"collection","type":"string","interface":"collections","width":"full"}]}}]}'
+                'options' => '{"template":"{{ group_name }}","createItemText":"Add Group","fields":[{"field":"group_name","width":"full","interface":"text-input","type":"string"},{"field":"collections","interface":"repeater","type":"JSON","options":{"createItemText":"Add Collection","fields":[{"field":"collection","type":"string","interface":"collections","width":"full"}]}}]}',
             ],
         ];
 
-
-
-        foreach($data as $value){
-            if(!$this->checkFieldExist($value['collection'], $value['field'])){
+        foreach ($data as $value) {
+            if (!$this->checkFieldExist($value['collection'], $value['field'])) {
                 $fileds = $this->table('directus_fields');
                 $fileds->insert($value)->save();
             }
@@ -150,21 +148,23 @@ class CreateRolesTable extends AbstractMigration
             [
                 'id' => 1,
                 'name' => 'Administrator',
-                'description' => 'Admins have access to all managed data within the system by default'
+                'description' => 'Admins have access to all managed data within the system by default',
             ],
             [
                 'id' => 2,
                 'name' => 'Public',
-                'description' => 'Controls what API data is publicly available without authenticating'
-            ]
+                'description' => 'Controls what API data is publicly available without authenticating',
+            ],
         ];
 
         $groups = $this->table('directus_roles');
         $groups->insert($rolesData)->save();
     }
 
-    public function checkFieldExist($collection,$field){
+    public function checkFieldExist($collection, $field)
+    {
         $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
+
         return $this->query($checkSql)->fetch();
     }
 }

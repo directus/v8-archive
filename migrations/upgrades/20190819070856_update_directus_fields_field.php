@@ -1,6 +1,5 @@
 <?php
 
-
 use Phinx\Migration\AbstractMigration;
 
 class UpdateDirectusFieldsField extends AbstractMigration
@@ -11,12 +10,10 @@ class UpdateDirectusFieldsField extends AbstractMigration
             $this->getAdapter(),
             'directus_fields',
             [
-              'readonly' => 0,
-              'note' => 'Duration must be in seconds'
+                'readonly' => 0,
+                'note' => 'Duration must be in seconds',
             ],
             ['collection' => 'directus_files', 'field' => 'duration']
         ));
-
-
     }
 }

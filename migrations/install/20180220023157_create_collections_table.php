@@ -5,47 +5,47 @@ use Phinx\Migration\AbstractMigration;
 class CreateCollectionsTable extends AbstractMigration
 {
     /**
-     * Create Collections Table
+     * Create Collections Table.
      */
     public function change()
     {
         $table = $this->table('directus_collections', [
             'id' => false,
-            'primary_key' => 'collection'
+            'primary_key' => 'collection',
         ]);
 
         $table->addColumn('collection', 'string', [
             'limit' => 64,
-            'null' => false
+            'null' => false,
         ]);
         $table->addColumn('managed', 'boolean', [
             'signed' => false,
             'null' => false,
-            'default' => true
+            'default' => true,
         ]);
         $table->addColumn('hidden', 'boolean', [
             'signed' => false,
             'null' => false,
-            'default' => false
+            'default' => false,
         ]);
         $table->addColumn('single', 'boolean', [
             'signed' => false,
             'null' => false,
-            'default' => false
+            'default' => false,
         ]);
         $table->addColumn('icon', 'string', [
             'limit' => 30,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('note', 'string', [
             'limit' => 255,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
         $table->addColumn('translation', 'text', [
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
 
         $table->create();
@@ -58,7 +58,7 @@ class CreateCollectionsTable extends AbstractMigration
                 'locked' => 1,
                 'hidden_detail' => 1,
                 'hidden_browse' => 1,
-                'sort' => 1
+                'sort' => 1,
             ],
             [
                 'collection' => 'directus_collections',
@@ -69,7 +69,7 @@ class CreateCollectionsTable extends AbstractMigration
                 'readonly' => 1,
                 'required' => 1,
                 'sort' => 2,
-                'width' => 'half'
+                'width' => 'half',
             ],
             [
                 'collection' => 'directus_collections',
@@ -79,7 +79,7 @@ class CreateCollectionsTable extends AbstractMigration
                 'locked' => 1,
                 'sort' => 3,
                 'width' => 'half',
-                'note' => 'An internal description.'
+                'note' => 'An internal description.',
             ],
             [
                 'collection' => 'directus_collections',
@@ -90,7 +90,7 @@ class CreateCollectionsTable extends AbstractMigration
                 'sort' => 4,
                 'width' => 'half',
                 'hidden_detail' => 1,
-                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#managing-collections).'
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#managing-collections).',
             ],
             [
                 'collection' => 'directus_collections',
@@ -100,7 +100,7 @@ class CreateCollectionsTable extends AbstractMigration
                 'locked' => 1,
                 'sort' => 5,
                 'width' => 'half',
-                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#hidden).'
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#hidden).',
             ],
             [
                 'collection' => 'directus_collections',
@@ -110,7 +110,7 @@ class CreateCollectionsTable extends AbstractMigration
                 'locked' => 1,
                 'sort' => 6,
                 'width' => 'half',
-                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#single).'
+                'note' => '[Learn More](https://docs.directus.io/guides/collections.html#single).',
             ],
             [
                 'collection' => 'directus_collections',
@@ -138,7 +138,7 @@ class CreateCollectionsTable extends AbstractMigration
                             "width": "half"
                         }
                     ]
-                }'
+                }',
             ],
             [
                 'collection' => 'directus_collections',
@@ -147,21 +147,22 @@ class CreateCollectionsTable extends AbstractMigration
                 'interface' => 'icon',
                 'locked' => 1,
                 'sort' => 8,
-                'note' => 'The icon shown in the App\'s navigation sidebar.'
+                'note' => 'The icon shown in the App\'s navigation sidebar.',
             ],
-
         ];
 
-        foreach($data as $value){
-            if(!$this->checkFieldExist($value['collection'], $value['field'])){
+        foreach ($data as $value) {
+            if (!$this->checkFieldExist($value['collection'], $value['field'])) {
                 $fileds = $this->table('directus_fields');
                 $fileds->insert($value)->save();
             }
         }
     }
 
-    public function checkFieldExist($collection,$field){
+    public function checkFieldExist($collection, $field)
+    {
         $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
+
         return $this->query($checkSql)->fetch();
     }
 }

@@ -11,7 +11,7 @@ class IncreaseUsersLastPageLength extends AbstractMigration
         $table->changeColumn('last_page', 'string', [
             'limit' => 192,
             'null' => true,
-            'default' => null
+            'default' => null,
         ]);
     }
 }

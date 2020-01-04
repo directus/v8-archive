@@ -1,6 +1,5 @@
 <?php
 
-
 use Phinx\Migration\AbstractMigration;
 
 class AddNavOverride extends AbstractMigration
@@ -10,7 +9,7 @@ class AddNavOverride extends AbstractMigration
         $table = $this->table('directus_roles');
         if (!$table->hasColumn('nav_override')) {
             $table->addColumn('nav_override', 'text', [
-                'null' => true
+                'null' => true,
             ]);
 
             $table->save();
