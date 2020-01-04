@@ -40,7 +40,7 @@ class EmbedManager
      */
     public function register(ProviderInterface $provider)
     {
-        if (!array_key_exists($provider->getName(), $this->providers)) {
+        if (!\array_key_exists($provider->getName(), $this->providers)) {
             $this->providers[$provider->getName()] = $provider;
         }
 
@@ -56,7 +56,7 @@ class EmbedManager
      */
     public function get($name)
     {
-        return array_key_exists($name, $this->providers) ? $this->providers[$name] : null;
+        return \array_key_exists($name, $this->providers) ? $this->providers[$name] : null;
     }
 
     /**

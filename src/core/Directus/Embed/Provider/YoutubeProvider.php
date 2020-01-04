@@ -35,7 +35,7 @@ class YoutubeProvider extends AbstractProvider
         // Get ID from URL
         if (strpos($url, 'youtu.be')) {
             $urlElements = parse_url($url);
-            $videoID = isset($urlElements['path']) && strlen($urlElements['path']) > 1 ? ltrim($urlElements['path'], '/') : false;
+            $videoID = isset($urlElements['path']) && \strlen($urlElements['path']) > 1 ? ltrim($urlElements['path'], '/') : false;
         } else {
             parse_str(parse_url($url, PHP_URL_QUERY), $urlParameters);
             $videoID = isset($urlParameters['v']) ? $urlParameters['v'] : false;
@@ -89,7 +89,7 @@ class YoutubeProvider extends AbstractProvider
             throw new \Exception('Bad YouTube API Key');
         }
 
-        if (property_exists($content, 'items') && count($content->items) > 0) {
+        if (property_exists($content, 'items') && \count($content->items) > 0) {
             $videoDataSnippet = $content->items[0]->snippet;
 
             $info['title'] = $videoDataSnippet->title;

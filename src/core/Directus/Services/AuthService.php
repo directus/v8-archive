@@ -87,8 +87,8 @@ class AuthService extends AbstractService
         }
         $responseObject['data'] = $responseData;
 
-        if (!is_null($user)) {
-            $needs2FA = $tfa_enforced && null == $user['2fa_secret'];
+        if (null !== $user) {
+            $needs2FA = $tfa_enforced && null === $user['2fa_secret'];
             if ($needs2FA) {
                 $responseObject['error'] = [
                     'code' => TFAEnforcedException::ERROR_CODE,
@@ -456,7 +456,7 @@ class AuthService extends AbstractService
 
         $tfa_enforced = $usersService->has2FAEnforced($user->getId());
 
-        if ($tfa_enforced && null == $user->get2FASecret()) {
+        if ($tfa_enforced && null === $user->get2FASecret()) {
             $new_token = $auth->refreshToken($token, true);
         } else {
             $new_token = $auth->refreshToken($token);

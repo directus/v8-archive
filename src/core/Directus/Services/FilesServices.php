@@ -48,11 +48,11 @@ class FilesServices extends AbstractService
         $files = $this->container->get('files');
         $result = $files->getFileSizeType($data['data']);
 
-        if (null != get_directus_setting('file_mimetype_whitelist')) {
+        if (null !== get_directus_setting('file_mimetype_whitelist')) {
             validate_file($result['mimeType'], 'mimeTypes');
         }
 
-        if (null != get_directus_setting('file_max_size')) {
+        if (null !== get_directus_setting('file_max_size')) {
             validate_file($result['size'], 'maxSize');
         }
 
@@ -72,13 +72,13 @@ class FilesServices extends AbstractService
         $dataInfo = [];
         $files = $this->container->get('files');
 
-        if (array_key_exists('data', $data) && is_a_url($data['data'])) {
+        if (\array_key_exists('data', $data) && is_a_url($data['data'])) {
             $dataInfo = $files->getLink($data['data']);
             // Set the URL payload data
             $data['data'] = ArrayUtils::get($dataInfo, 'data');
             $data['filename_disk'] = ArrayUtils::get($dataInfo, 'filename');
             $data['filename_download'] = ArrayUtils::get($dataInfo, 'filename');
-        } elseif (array_key_exists('data', $data) && !is_object($data['data'])) {
+        } elseif (\array_key_exists('data', $data) && !\is_object($data['data'])) {
             $dataInfo = $files->getDataInfo($data['data']);
         }
 
@@ -87,7 +87,7 @@ class FilesServices extends AbstractService
         if (0 === strpos($type, 'embed/')) {
             $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename_disk'])));
         } else {
-            $newFileContents = array_key_exists('data', $data) ? $data['data'] : null;
+            $newFileContents = \array_key_exists('data', $data) ? $data['data'] : null;
             $recordData = $files->saveData($newFileContents, $data['filename_disk'], $isUpdate);
         }
 
@@ -133,10 +133,10 @@ class FilesServices extends AbstractService
         if (isset($data['data'])) {
             $result = $files->getFileSizeType($data['data']);
 
-            if (null != get_directus_setting('file_mimetype_whitelist')) {
+            if (null !== get_directus_setting('file_mimetype_whitelist')) {
                 validate_file($result['mimeType'], 'mimeTypes');
             }
-            if (null != get_directus_setting('file_max_size')) {
+            if (null !== get_directus_setting('file_max_size')) {
                 validate_file($result['size'], 'maxSize');
             }
         }
@@ -146,7 +146,7 @@ class FilesServices extends AbstractService
         $currentItem = $tableGateway->getOneData($id);
         $currentFileName = ArrayUtils::get($currentItem, 'filename_disk');
 
-        if (array_key_exists('filename_disk', $data) && $data['filename_disk'] !== $currentFileName) {
+        if (\array_key_exists('filename_disk', $data) && $data['filename_disk'] !== $currentFileName) {
             $oldFilePath = $currentFileName;
             $newFilePath = $data['filename_disk'];
 
@@ -162,7 +162,7 @@ class FilesServices extends AbstractService
 
         // If the user provided their own filename, the file has been renamed above. In that case, pass on
         // the new filename
-        if (array_key_exists('filename_disk', $data)) {
+        if (\array_key_exists('filename_disk', $data)) {
             $fileName = $data['filename_disk'];
         }
 
@@ -210,7 +210,7 @@ class FilesServices extends AbstractService
      */
     public function batchUpdate(array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch update expect an array of items');
         }
 
@@ -228,7 +228,7 @@ class FilesServices extends AbstractService
             $id = $data[$collectionObject->getPrimaryKeyName()];
             $item = $this->update($id, $data, $params);
 
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }

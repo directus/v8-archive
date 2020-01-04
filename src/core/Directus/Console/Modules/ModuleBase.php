@@ -46,7 +46,7 @@ class ModuleBase implements ModuleInterface
 
     public function getCommandHelp($command)
     {
-        if (!array_key_exists($command, $this->help)) {
+        if (!\array_key_exists($command, $this->help)) {
             throw new UnsupportedCommandException($this->__module_name.':'.$command.' command does not exist!');
         }
 
@@ -64,7 +64,7 @@ class ModuleBase implements ModuleInterface
 
     public function cmdHelp($args, $extra)
     {
-        if (0 == count($extra)) {
+        if (0 === \count($extra)) {
             throw new WrongArgumentsException($this->__module_name.':help '.'missing command to show help for!');
         }
 

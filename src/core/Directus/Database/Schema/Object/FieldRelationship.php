@@ -53,7 +53,7 @@ class FieldRelationship extends AbstractObject
         //get alias fields of junction table
         $junctionTableSchema = SchemaService::getCollection($junctionCollection);
         foreach ($junctionTableSchema->getFields() as $fieldColumnDetails) {
-            if ($fieldColumnDetails->hasRelationship() && $fieldColumnDetails->isManyToOne() && $fieldColumnDetails->getRelationship()->getFieldOne() == $firstCollection) {
+            if ($fieldColumnDetails->hasRelationship() && $fieldColumnDetails->isManyToOne() && $fieldColumnDetails->getRelationship()->getFieldOne() === $firstCollection) {
                 return $fieldColumnDetails->getRelationship()->getCollectionOne();
             }
         }
@@ -72,7 +72,7 @@ class FieldRelationship extends AbstractObject
         //get alias fields of junction table
         $junctionTableSchema = SchemaService::getCollection($junctionCollection);
         foreach ($junctionTableSchema->getFields() as $fieldColumnDetails) {
-            if ($fieldColumnDetails->hasRelationship() && $fieldColumnDetails->isManyToOne() && $fieldColumnDetails->getRelationship()->getFieldOne() == $firstCollection) {
+            if ($fieldColumnDetails->hasRelationship() && $fieldColumnDetails->isManyToOne() && $fieldColumnDetails->getRelationship()->getFieldOne() === $firstCollection) {
                 return $fieldColumnDetails->getName();
             }
         }

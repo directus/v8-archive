@@ -43,7 +43,7 @@ abstract class AbstractProvider implements ProviderInterface
 
         if (!$this->validateURL($url)) {
             throw new \InvalidArgumentException(
-                sprintf('URL: "%s" cannot be parsed by "%s"', $url, get_class($this))
+                sprintf('URL: "%s" cannot be parsed by "%s"', $url, \get_class($this))
             );
         }
 

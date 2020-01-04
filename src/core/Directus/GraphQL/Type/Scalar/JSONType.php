@@ -43,7 +43,7 @@ class JSONType extends ScalarType
                 return $valueNode->value;
             case $valueNode instanceof IntValueNode:
             case $valueNode instanceof FloatValueNode:
-                return floatval($valueNode->value);
+                return (float) ($valueNode->value);
             case $valueNode instanceof ObjectValueNode:
                     $value = [];
                     foreach ($valueNode->fields as $field) {

@@ -287,7 +287,7 @@ class TablesService extends AbstractService
             'field' => 'required|string',
         ]);
 
-        $tableService = new TablesService($this->container);
+        $tableService = new self($this->container);
 
         /** @var Emitter $hookEmitter */
         $hookEmitter = $this->container->get('hook_emitter');
@@ -642,7 +642,7 @@ class TablesService extends AbstractService
      */
     public function batchUpdateField($collectionName, array $payload, array $params = [])
     {
-        if (!isset($payload[0]) || !is_array($payload[0])) {
+        if (!isset($payload[0]) || !\is_array($payload[0])) {
             throw new InvalidRequestException('batch update expect an array of items');
         }
 
@@ -656,7 +656,7 @@ class TablesService extends AbstractService
             $fieldName = ArrayUtils::get($data, 'field');
             $item = $this->changeColumn($collectionName, $fieldName, $data, $params);
 
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }
@@ -707,7 +707,7 @@ class TablesService extends AbstractService
             throw new FieldNotFoundException($fieldName);
         }
 
-        if (1 === count($tableObject->getFields())) {
+        if (1 === \count($tableObject->getFields())) {
             throw new UnprocessableEntityException('Cannot delete the last field');
         }
 
@@ -752,7 +752,7 @@ class TablesService extends AbstractService
     {
         $relationship = $field->getRelationship();
 
-        if ($field->getName() === $relationship->getFieldMany() && !is_null($relationship->getFieldOne())) {
+        if ($field->getName() === $relationship->getFieldMany() && null !== $relationship->getFieldOne()) {
             $this->removeColumnInfo($relationship->getCollectionOne(), $relationship->getFieldOne());
         }
     }
@@ -918,7 +918,7 @@ class TablesService extends AbstractService
 
         foreach ($fields as $field) {
             $fieldName = ArrayUtils::get($field, 'field');
-            if (in_array($fieldName, $fieldsName)) {
+            if (\in_array($fieldName, $fieldsName, true)) {
                 $unique = false;
 
                 break;
@@ -1176,13 +1176,13 @@ class TablesService extends AbstractService
         foreach ($fields as $field) {
             // use equal operator instead of identical
             // to avoid true == 1 or false == 0 comparison
-            if (ArrayUtils::get($field, $attribute) == $value) {
+            if (ArrayUtils::get($field, $attribute) === $value) {
                 ++$count;
             }
         }
 
-        $ignoreMax = is_null($max);
-        $ignoreMin = is_null($min);
+        $ignoreMax = null === $max;
+        $ignoreMin = null === $min;
 
         if ($ignoreMax && $ignoreMin) {
             $result = $count >= 1;
@@ -1543,7 +1543,7 @@ class TablesService extends AbstractService
         }
 
         foreach ($missingFields as $missingField) {
-            if (!is_array($onlyFields) || in_array($missingField->getName(), $onlyFields)) {
+            if (!\is_array($onlyFields) || \in_array($missingField->getName(), $onlyFields, true)) {
                 $missingFieldsData[] = $this->mergeSchemaField($missingField);
             }
         }
@@ -1683,7 +1683,7 @@ class TablesService extends AbstractService
     {
         $newParams = [];
         $sort = ArrayUtils::get($params, 'sort');
-        if ($sort && !is_array($sort)) {
+        if ($sort && !\is_array($sort)) {
             $sort = StringUtils::csv((string) $sort);
         }
 

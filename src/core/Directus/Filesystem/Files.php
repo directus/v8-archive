@@ -151,7 +151,7 @@ class Files
      */
     public function strposarray($haystack, $needle)
     {
-        if (!is_array($needle)) {
+        if (!\is_array($needle)) {
             $needle = [$needle];
         }
         foreach ($needle as $query) {
@@ -177,7 +177,7 @@ class Files
             $data = $parts[1];
         }
 
-        $info = $this->getFileInfoFromData(base64_decode($data));
+        $info = $this->getFileInfoFromData(base64_decode($data, true));
 
         return array_merge(['data' => $data], $info);
     }
@@ -202,13 +202,13 @@ class Files
 
         $title = $fileName;
 
-        if (is_object($fileData)) {
+        if (\is_object($fileData)) {
             $size = $fileData->getSize();
             $checksum = hash_file('md5', $fileData->file);
         } else {
-            $fileData = base64_decode($this->getDataInfo($fileData)['data']);
+            $fileData = base64_decode($this->getDataInfo($fileData)['data'], true);
             $checksum = md5($fileData);
-            $size = strlen($fileData);
+            $size = \strlen($fileData);
         }
         // @TODO: merge with upload()
         $fileName = $this->getFileName($fileName, true !== $replace);
@@ -227,7 +227,7 @@ class Files
 
         //open local tmp file since s3 bucket is private
         if (isset($fileData->file)) {
-            $handle = fopen($fileData->file, 'rb');
+            $handle = fopen($fileData->file, 'r');
             $tmp = tempnam(sys_get_temp_dir(), $fileName);
             file_put_contents($tmp, $handle);
         }
@@ -292,7 +292,7 @@ class Files
      */
     public function saveEmbedData(array $fileInfo)
     {
-        if (!array_key_exists('type', $fileInfo) || 0 !== strpos($fileInfo['type'], 'embed/')) {
+        if (!\array_key_exists('type', $fileInfo) || 0 !== strpos($fileInfo['type'], 'embed/')) {
             return [];
         }
 
@@ -335,7 +335,7 @@ class Files
 
         $typeTokens = explode('/', $mime);
 
-        if ('image' == $typeTokens[0]) {
+        if ('image' === $typeTokens[0]) {
             $buffer = $this->filesystem->getAdapter()->read($path);
             $info = $this->getFileInfoFromData($buffer);
         } else {
@@ -369,12 +369,12 @@ class Files
             'type' => $mime,
             'format' => $typeTokens[1],
             'charset' => $charset,
-            'size' => strlen($data),
+            'size' => \strlen($data),
             'width' => null,
             'height' => null,
         ];
 
-        if ('image' == $typeTokens[0]) {
+        if ('image' === $typeTokens[0]) {
             $meta = [];
             // @TODO: use this as fallback for finfo?
             $imageInfo = getimagesizefromstring($data, $meta);
@@ -389,7 +389,7 @@ class Files
                     $info['caption'] = $iptc['2#120'][0];
                 }
 
-                if (isset($iptc['2#005']) && '' != $iptc['2#005'][0]) {
+                if (isset($iptc['2#005']) && '' !== $iptc['2#005'][0]) {
                     $info['title'] = $iptc['2#005'][0];
                 }
 
@@ -398,15 +398,15 @@ class Files
                 }
 
                 $location = [];
-                if (isset($iptc['2#090']) && '' != $iptc['2#090'][0]) {
+                if (isset($iptc['2#090']) && '' !== $iptc['2#090'][0]) {
                     $location[] = $iptc['2#090'][0];
                 }
 
-                if (isset($iptc['2#095'][0]) && '' != $iptc['2#095'][0]) {
+                if (isset($iptc['2#095'][0]) && '' !== $iptc['2#095'][0]) {
                     $location[] = $iptc['2#095'][0];
                 }
 
-                if (isset($iptc['2#101']) && '' != $iptc['2#101'][0]) {
+                if (isset($iptc['2#101']) && '' !== $iptc['2#101'][0]) {
                     $location[] = $iptc['2#101'][0];
                 }
 
@@ -431,7 +431,7 @@ class Files
         if (!$key) {
             return $this->filesSettings;
         }
-        if (array_key_exists($key, $this->filesSettings)) {
+        if (\array_key_exists($key, $this->filesSettings)) {
             return $this->filesSettings[$key];
         }
 
@@ -450,7 +450,7 @@ class Files
         if (!$key) {
             return $this->config;
         }
-        if (array_key_exists($key, $this->config)) {
+        if (\array_key_exists($key, $this->config)) {
             return $this->config[$key];
         }
 
@@ -556,13 +556,13 @@ class Files
             $dataInfo = $this->getLink($data);
             $result['mimeType'] = isset($dataInfo['type']) ? $dataInfo['type'] : null;
             $result['size'] = isset($dataInfo['filesize']) ? $dataInfo['filesize'] : (isset($dataInfo['size']) ? $dataInfo['size'] : null);
-        } elseif (is_object($data)) {
+        } elseif (\is_object($data)) {
             $result['mimeType'] = $data->getClientMediaType();
             $result['size'] = $data->getSize();
         } elseif (0 === strpos($data, 'data:')) {
             $parts = explode(',', $data);
             $file = $parts[1];
-            $dataInfo = $this->getFileInfoFromData(base64_decode($file));
+            $dataInfo = $this->getFileInfoFromData(base64_decode($file, true));
             $result['mimeType'] = isset($dataInfo['type']) ? $dataInfo['type'] : null;
             $result['size'] = isset($dataInfo['size']) ? $dataInfo['size'] : null;
         }
@@ -585,7 +585,7 @@ class Files
             $contentType = array_map('trim', explode(';', $contentType));
         }
 
-        if (is_array($contentType)) {
+        if (\is_array($contentType)) {
             $contentType = $contentType[0];
         }
 
@@ -618,7 +618,7 @@ class Files
         $info = [];
 
         $contentType = $urlHeaders['Content-Type'];
-        if (is_array($contentType)) {
+        if (\is_array($contentType)) {
             $contentType = array_shift($contentType);
         }
 
@@ -677,9 +677,9 @@ class Files
         $finalPath = rtrim($mediaPath, '/').'/'.$targetName;
         $data = file_get_contents($filePath);
 
-        $this->emitter->run('file.save', ['name' => $targetName, 'size' => strlen($data)]);
+        $this->emitter->run('file.save', ['name' => $targetName, 'size' => \strlen($data)]);
         $this->write($targetName, $data);
-        $this->emitter->run('file.save:after', ['name' => $targetName, 'size' => strlen($data)]);
+        $this->emitter->run('file.save:after', ['name' => $targetName, 'size' => \strlen($data)]);
 
         $fileData['name'] = basename($finalPath);
         $fileData['date_uploaded'] = DateTimeUtils::nowInUTC()->toString();
@@ -761,10 +761,10 @@ class Files
     {
         $string = ' '.$string;
         $ini = strpos($string, $start);
-        if (0 == $ini) {
+        if (0 === $ini) {
             return '';
         }
-        $ini += strlen($start);
+        $ini += \strlen($start);
         $len = strpos($string, $end, $ini) - $ini;
 
         return substr($string, $ini, $len);

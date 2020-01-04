@@ -21,7 +21,7 @@ class StringUtils
     public static function contains($haystack, $needles)
     {
         foreach ((array) $needles as $needle) {
-            if ('' != $needle && false !== mb_strpos($haystack, $needle)) {
+            if ('' !== $needle && false !== mb_strpos($haystack, $needle)) {
                 return true;
             }
         }
@@ -57,7 +57,7 @@ class StringUtils
     public static function startsWith($haystack, $needle)
     {
         // search backwards starting from haystack length characters from the end
-        return '' === $needle || false !== strrpos($haystack, $needle, -strlen($haystack));
+        return '' === $needle || false !== strrpos($haystack, $needle, -\strlen($haystack));
     }
 
     /**
@@ -72,7 +72,7 @@ class StringUtils
     {
         // search forward starting from end minus needle length characters
         return '' === $needle
-            || (($temp = strlen($haystack) - strlen($needle)) >= 0 && false !== strpos($haystack, $needle, $temp));
+            || (($temp = \strlen($haystack) - \strlen($needle)) >= 0 && false !== strpos($haystack, $needle, $temp));
     }
 
     /**
@@ -103,15 +103,15 @@ class StringUtils
             throw new \InvalidArgumentException('Random length must be greater than zero');
         }
 
-        if (function_exists('random_bytes')) {
+        if (\function_exists('random_bytes')) {
             try {
                 $random = random_bytes($length);
             } catch (\Exception $e) {
                 $random = static::randomString($length);
             }
-        } elseif (function_exists('openssl_random_pseudo_bytes')) {
+        } elseif (\function_exists('openssl_random_pseudo_bytes')) {
             $string = '';
-            while (($len = strlen($string)) < $length) {
+            while (($len = \strlen($string)) < $length) {
                 $size = $length - $len;
                 $bytes = openssl_random_pseudo_bytes($size);
                 $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
@@ -221,19 +221,19 @@ class StringUtils
         };
 
         foreach ($data as $key => $value) {
-            $isString = is_string($value);
+            $isString = \is_string($value);
 
-            if (is_bool($value)) {
+            if (\is_bool($value)) {
                 $value = $value ? 'true' : 'false';
-            } elseif (is_null($value)) {
+            } elseif (null === $value) {
                 $value = 'null';
-            } elseif (is_array($value)) {
+            } elseif (\is_array($value)) {
                 $value = var_export($value, true);
                 // make the array as one-liner to avoid bad indentation
                 // $value = str_replace("\n", '', $value);
             }
 
-            if (is_scalar($value) || is_null($value)) {
+            if (is_scalar($value) || null === $value) {
                 $string = str_replace(
                     sprintf('{{optional(%s)}}', $key),
                     sprintf(
@@ -273,7 +273,7 @@ class StringUtils
      */
     public static function csv($csv, $trim = true)
     {
-        if (!is_string($csv)) {
+        if (!\is_string($csv)) {
             throw new \InvalidArgumentException('$cvs must be a string');
         }
 
@@ -298,8 +298,8 @@ class StringUtils
     public static function safeCvs($string, $trim = true, $split = true)
     {
         $result = $string;
-        if (is_string($string) && StringUtils::has($string, ',')) {
-            $result = StringUtils::csv((string) $string, $trim);
+        if (\is_string($string) && self::has($string, ',')) {
+            $result = self::csv((string) $string, $trim);
         } elseif ($split) {
             $result = [$string];
         }

@@ -103,7 +103,7 @@ class Collection implements CollectionInterface, \Iterator
     /**
      * {@inheritdoc}
      */
-    public function appendCollection(Collection $collection)
+    public function appendCollection(self $collection)
     {
         return $this->appendArray($collection->toArray());
     }
@@ -145,7 +145,7 @@ class Collection implements CollectionInterface, \Iterator
      */
     public function count()
     {
-        return count($this->items);
+        return \count($this->items);
     }
 
     /**

@@ -37,7 +37,7 @@ class ArraySessionStorage implements SessionStorageInterface
      */
     public function __construct(array $options = [])
     {
-        if (array_key_exists('name', $options) && !is_string($options['name'])) {
+        if (\array_key_exists('name', $options) && !\is_string($options['name'])) {
             throw new \InvalidArgumentException('Session name must be string value');
         }
 
@@ -95,7 +95,7 @@ class ArraySessionStorage implements SessionStorageInterface
     {
         $key = (string) $key;
 
-        return array_key_exists($key, $this->items) ? $this->items[$key] : null;
+        return \array_key_exists($key, $this->items) ? $this->items[$key] : null;
     }
 
     public function getItems()

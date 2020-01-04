@@ -172,13 +172,13 @@ class Application extends App
      */
     public function triggerAction($name, $params = [])
     {
-        if (!is_array($params)) {
+        if (!\is_array($params)) {
             $params = [$params];
         }
 
         array_unshift($params, $name);
 
-        call_user_func_array([$this->getContainer()->get('hook_emitter'), 'run'], $params);
+        \call_user_func_array([$this->getContainer()->get('hook_emitter'), 'run'], $params);
     }
 
     /**
@@ -187,7 +187,7 @@ class Application extends App
     public function onMissingRequirements(callable $callback)
     {
         $errors = $this->checkRequirementsFunction
-            ? call_user_func($this->checkRequirementsFunction)
+            ? \call_user_func($this->checkRequirementsFunction)
             : \Directus\get_missing_requirements();
 
         if ($errors) {

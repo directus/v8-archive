@@ -43,11 +43,11 @@ class ErrorHandler extends AbstractHandler
 
         if ($emitter && !($emitter instanceof Emitter)) {
             throw new \InvalidArgumentException(
-                sprintf('Emitter must be a instance of \Directus\Hook\Emitter, %s passed instead', get_class($emitter))
+                sprintf('Emitter must be a instance of \Directus\Hook\Emitter, %s passed instead', \get_class($emitter))
             );
         }
 
-        if (!is_array($settings)) {
+        if (!\is_array($settings)) {
             throw new \InvalidArgumentException('Settings must be an array');
         }
 
@@ -150,7 +150,7 @@ class ErrorHandler extends AbstractHandler
 
         if (!$productionMode) {
             $data = array_merge($data, [
-                'class' => get_class($exception),
+                'class' => \get_class($exception),
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 // Do not output the trace

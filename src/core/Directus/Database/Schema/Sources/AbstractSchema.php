@@ -114,7 +114,7 @@ abstract class AbstractSchema implements SchemaInterface
      */
     public function isType($type, array $list)
     {
-        return in_array(strtolower($type), $list);
+        return \in_array(strtolower($type), $list, true);
     }
 
     /**

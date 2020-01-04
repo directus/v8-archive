@@ -114,7 +114,7 @@ class BaseRowGateway extends RowGateway
         $rowGatewayClassName = Formatting::underscoreToCamelCase($table).'RowGateway';
         $rowGatewayClassName = __NAMESPACE__.'\\'.$rowGatewayClassName;
         if (!class_exists($rowGatewayClassName)) {
-            $rowGatewayClassName = get_called_class();
+            $rowGatewayClassName = static::class;
         }
 
         return new $rowGatewayClassName($primaryKeyColumn, $table, $adapter, $acl);

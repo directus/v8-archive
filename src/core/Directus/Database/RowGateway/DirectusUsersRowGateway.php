@@ -13,7 +13,7 @@ class DirectusUsersRowGateway extends BaseRowGateway
             $TableGateway = new BaseTableGateway($this->table, $this->sql->getAdapter(), $this->acl);
             $dbRecord = $TableGateway->find($rowData['id']);
             if (false === $dbRecord) {
-                // @todo is it better to throw an exception here?
+                /** @todo is it better to throw an exception here? */
                 $rowExistsInDatabase = false;
             }
         }
@@ -22,7 +22,7 @@ class DirectusUsersRowGateway extends BaseRowGateway
         // Corresponds to a ping indicating their last activity.
         // Updated their "last_access" value.
         if ($this->acl) {
-            if (isset($rowData['id']) && $rowData['id'] == $this->acl->getUserId()) {
+            if (isset($rowData['id']) && $rowData['id'] === $this->acl->getUserId()) {
                 $rowData['last_access_on'] = DateTimeUtils::nowInUTC()->toString();
             }
         }

@@ -29,10 +29,10 @@ class ResultSet implements \Iterator, ResultInterface
      */
     public function initialize($dataSource)
     {
-        if (is_array($dataSource)) {
+        if (\is_array($dataSource)) {
             $first = current($dataSource);
             reset($dataSource);
-            $this->fieldCount = count($first);
+            $this->fieldCount = \count($first);
             $this->dataSource = new \ArrayIterator($dataSource);
         } else {
             $this->dataSource = $dataSource;

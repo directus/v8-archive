@@ -14,7 +14,7 @@ class Setting
 
     public function __construct($base_path, $projectName = null)
     {
-        if (null == $base_path) {
+        if (null === $base_path) {
             $base_path = \Directus\base_path();
         }
 

@@ -45,7 +45,7 @@ class Thumbnailer
      *
      * @throws Exception
      */
-    public function __construct(Filesystem $main, Filesystem $thumb, array $config, $path = '', array $params)
+    public function __construct(Filesystem $main, Filesystem $thumb, array $config, $path, array $params)
     {
         try {
             // $this->files = $files;
@@ -66,7 +66,7 @@ class Thumbnailer
             $otherParams = $params;
             unset($otherParams['width'],$otherParams['height'],$otherParams['fit'],$otherParams['quality']);
 
-            if (count($otherParams) > 0) {
+            if (\count($otherParams) > 0) {
                 ksort($otherParams);
                 $paramsString = '';
                 foreach ($otherParams as $key => $value) {
@@ -256,16 +256,16 @@ class Thumbnailer
             'width' => filter_var($params['width'], FILTER_SANITIZE_NUMBER_INT),
         ];
 
-        if (null == $thumbnailParams['width'] || '' == $thumbnailParams['width']) {
+        if (null === $thumbnailParams['width'] || '' === $thumbnailParams['width']) {
             throw new Exception('No width is provided.');
         }
-        if (null == $thumbnailParams['height'] || '' == $thumbnailParams['height']) {
+        if (null === $thumbnailParams['height'] || '' === $thumbnailParams['height']) {
             throw new Exception('No height is provided.');
         }
-        if (null == $thumbnailParams['fit'] || '' == $thumbnailParams['fit']) {
+        if (null === $thumbnailParams['fit'] || '' === $thumbnailParams['fit']) {
             throw new Exception('No fit is provided.');
         }
-        if (null == $thumbnailParams['quality'] || '' == $thumbnailParams['quality']) {
+        if (null === $thumbnailParams['quality'] || '' === $thumbnailParams['quality']) {
             throw new Exception('No quality is provided.');
         }
 
@@ -323,10 +323,10 @@ class Thumbnailer
             $result = false;
             foreach ($userWhitelist as $key => $value) {
                 if (
-                  $value['width'] == $params['width'] &&
-                  $value['height'] == $params['height'] &&
-                  $value['fit'] == $params['fit'] &&
-                  $value['quality'] == $params['quality']
+                  $value['width'] === $params['width'] &&
+                  $value['height'] === $params['height'] &&
+                  $value['fit'] === $params['fit'] &&
+                  $value['quality'] === $params['quality']
                 ) {
                     $result = true;
                 }
@@ -363,7 +363,7 @@ class Thumbnailer
      */
     public function isSupportedFileExtension($ext)
     {
-        return in_array(strtolower($ext), $this->getSupportedFileExtensions());
+        return \in_array(strtolower($ext), $this->getSupportedFileExtensions(), true);
     }
 
     /**
@@ -386,7 +386,7 @@ class Thumbnailer
      */
     public function isSupportedThumbnailDimension($width, $height)
     {
-        return in_array($width.'x'.$height, $this->getSupportedThumbnailDimensions());
+        return \in_array($width.'x'.$height, $this->getSupportedThumbnailDimensions(), true);
     }
 
     /**
@@ -454,7 +454,7 @@ class Thumbnailer
         ];
 
         $qualityTags = ArrayUtils::get($this->getConfig(), 'thumbnail_quality_tags') ?: [];
-        if (is_string($qualityTags)) {
+        if (\is_string($qualityTags)) {
             $qualityTags = json_decode($qualityTags, true);
         }
 
@@ -481,7 +481,7 @@ class Thumbnailer
     public function getActions()
     {
         $actions = ArrayUtils::get($this->getConfig(), 'thumbnail_actions');
-        if (is_string($actions) && !empty($actions)) {
+        if (\is_string($actions) && !empty($actions)) {
             $actions = json_decode($actions, true);
         }
 
@@ -533,7 +533,7 @@ class Thumbnailer
      */
     protected function parseCSV($value)
     {
-        if (is_string($value)) {
+        if (\is_string($value)) {
             $value = StringUtils::csv(
                 $value
             );

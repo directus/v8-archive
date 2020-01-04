@@ -31,7 +31,7 @@ abstract class CollectionLength extends Column
     public function setLength($length)
     {
         $values = $length;
-        if (!is_array($length)) {
+        if (!\is_array($length)) {
             $values = explode(',', $values);
         }
 

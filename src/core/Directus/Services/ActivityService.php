@@ -298,7 +298,7 @@ class ActivityService extends AbstractService
 
         if (Acl::ACTION_DELETE === $action) {
             $this->enforcePermissionsOnDelete($itemId, $collectionName, $data, $params);
-        } elseif (Acl::ACTION_UPDATE == $action) {
+        } elseif (Acl::ACTION_UPDATE === $action) {
             $this->enforcePermissionsOnUpdate($itemId, $collectionName, $data, $params);
         }
     }

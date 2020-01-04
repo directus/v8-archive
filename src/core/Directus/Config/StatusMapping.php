@@ -18,7 +18,7 @@ class StatusMapping extends Collection
         $items = [];
 
         foreach ($mapping as $value => $status) {
-            if (!is_array($status) || !ArrayUtils::contains($status, 'name')) {
+            if (!\is_array($status) || !ArrayUtils::contains($status, 'name')) {
                 throw new InvalidStatusException('status must be an array with a name attribute');
             }
 
@@ -46,7 +46,7 @@ class StatusMapping extends Collection
     public function getByValue($value)
     {
         foreach ($this->items as $item) {
-            if ($item->getValue() == $value) {
+            if ($item->getValue() === $value) {
                 return $item;
             }
         }
@@ -109,11 +109,11 @@ class StatusMapping extends Collection
     protected function getStatusesValue($type, $value)
     {
         $statuses = [];
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             $value = [$value];
         }
         foreach ($this->items as $status) {
-            if (in_array($status->getAttribute($type), $value)) {
+            if (\in_array($status->getAttribute($type), $value, true)) {
                 $statuses[] = $status->getValue();
             }
         }

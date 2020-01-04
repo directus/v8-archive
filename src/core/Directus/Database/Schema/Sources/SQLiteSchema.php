@@ -115,12 +115,15 @@ class SQLiteSchema extends AbstractSchema
     public function getColumns($tableName, $params = null)
     {
         $columnsInfo = $this->metadata->getColumns($tableName);
-        // OLD FILTER
-        // @TODO this should be a job for the SchemaManager
+        /**
+         * OLD FILTER.
+         *
+         * @TODO this should be a job for the SchemaManager
+         */
         $columnName = isset($params['column_name']) ? $params['column_name'] : -1;
-        if (-1 != $columnName) {
+        if (-1 !== $columnName) {
             foreach ($columnsInfo as $index => $column) {
-                if ($column->getName() == $columnName) {
+                if ($column->getName() === $columnName) {
                     unset($columnsInfo[$index]);
 
                     break;
@@ -260,7 +263,7 @@ class SQLiteSchema extends AbstractSchema
         foreach ($tablesObject as $tableObject) {
             $directusTableInfo = [];
             foreach ($directusTablesInfo as $index => $table) {
-                if ($table['table_name'] == $tableObject->getName()) {
+                if ($table['table_name'] === $tableObject->getName()) {
                     $directusTableInfo = $table;
                     unset($directusTablesInfo[$index]);
                 }
@@ -301,7 +304,7 @@ class SQLiteSchema extends AbstractSchema
         foreach ($columnsInfo as $columnInfo) {
             $directusColumnInfo = [];
             foreach ($directusColumnsInfo as $index => $column) {
-                if ($column['column_name'] == $columnInfo->getName()) {
+                if ($column['column_name'] === $columnInfo->getName()) {
                     $directusColumnInfo = $column;
                     unset($directusColumnsInfo[$index]);
                 }
@@ -326,7 +329,7 @@ class SQLiteSchema extends AbstractSchema
             'type' => $dataType,
             'char_length' => $columnInfo->getCharacterMaximumLength(),
             'is_nullable' => $columnInfo->getIsNullable() ? 'YES' : 'NO',
-            'default_value' => 'NULL' == $columnInfo->getColumnDefault() ? null : $columnInfo->getColumnDefault(),
+            'default_value' => 'NULL' === $columnInfo->getColumnDefault() ? null : $columnInfo->getColumnDefault(),
             'comment' => '',
             'sort' => $columnInfo->getOrdinalPosition(),
             'column_type' => $columnInfo->getDataType(),
@@ -389,11 +392,11 @@ class SQLiteSchema extends AbstractSchema
         // ->unnest()
         // ->addPredicate(new IsNotNull('data_type'));
 
-        if (-1 != $columnName) {
+        if (-1 !== $columnName) {
             $where->equalTo('column_name', $columnName);
         }
 
-        if (count($blacklist)) {
+        if (\count($blacklist)) {
             $where->addPredicate(new NotIn('COLUMN_NAME', $blacklist));
         }
 

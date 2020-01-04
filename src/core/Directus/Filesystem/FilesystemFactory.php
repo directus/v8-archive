@@ -58,7 +58,7 @@ class FilesystemFactory
         ];
 
         if (isset($config['key'])) {
-            if (!array_key_exists('secret', $config)) {
+            if (!\array_key_exists('secret', $config)) {
                 throw new \InvalidArgumentException('Filesystem: S3 Adapter missing secret key');
             }
 

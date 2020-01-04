@@ -17,7 +17,7 @@ class User
 
     public function __construct($base_path, $projectName = null)
     {
-        if (null == $base_path) {
+        if (null === $base_path) {
             $base_path = \Directus\base_path();
         }
 
@@ -91,7 +91,7 @@ class User
             ];
 
             $changed = $this->usersTableGateway->update($update, ['email' => $email]);
-            if (0 == $changed) {
+            if (0 === $changed) {
                 throw new PasswordChangeException('Could not change password for '.$email.': '.'e-mail not found.');
             }
         } catch (\PDOException $ex) {

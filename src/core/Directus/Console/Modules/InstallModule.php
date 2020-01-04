@@ -143,7 +143,7 @@ class InstallModule extends ModuleBase
         } else {
             $requiredAttributes = ['db_name', 'db_user', 'super_admin_token'];
             $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
-            if (!is_null($data['super_admin_token']) && $data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
+            if (null !== $data['super_admin_token'] && $data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
                 throw new UnauthorizedException('Permission denied: Superadmin Only');
             }
         }
@@ -217,7 +217,7 @@ class InstallModule extends ModuleBase
 
     public function cmdSeeder($args, $extra)
     {
-        $directus_path = $this->getBasePath().DIRECTORY_SEPARATOR;
+        $directus_path = $this->getBasePath().\DIRECTORY_SEPARATOR;
 
         InstallerUtils::runSeeder($directus_path);
     }
@@ -226,7 +226,7 @@ class InstallModule extends ModuleBase
     {
         $data = [];
         $projectName = null;
-        $directus_path = $this->getBasePath().DIRECTORY_SEPARATOR;
+        $directus_path = $this->getBasePath().\DIRECTORY_SEPARATOR;
 
         foreach ($args as $key => $value) {
             switch ($key) {

@@ -34,7 +34,7 @@ class OneToManyRelation extends Builder
         $this->columns([]);
         $this->whereIn($this->table.'.'.$this->column, $values);
         $this->groupBy($this->columnRight);
-        $this->having(new Expression('COUNT(*) = ?', count($values)));
+        $this->having(new Expression('COUNT(*) = ?', \count($values)));
 
         return $this;
     }

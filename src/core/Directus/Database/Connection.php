@@ -42,7 +42,7 @@ class Connection extends Adapter
      */
     public function connect()
     {
-        return call_user_func_array([$this->getDriver()->getConnection(), 'connect'], func_get_args());
+        return \call_user_func_array([$this->getDriver()->getConnection(), 'connect'], \func_get_args());
     }
 
     /**
@@ -72,7 +72,7 @@ class Connection extends Adapter
         $modes = explode(',', $modesEnabled['modes']);
         foreach ($modes as $name) {
             $modeName = strtoupper(trim($name));
-            if (in_array($modeName, $strictModes)) {
+            if (\in_array($modeName, $strictModes, true)) {
                 return true;
             }
         }

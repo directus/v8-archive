@@ -75,14 +75,14 @@ class AssetService extends AbstractService
         $select->limit(1);
         $result = $tableGateway->ignoreFilters()->selectWith($select);
 
-        if (0 == $result->count()) {
+        if (0 === $result->count()) {
             throw new ItemNotFoundException();
         }
 
         $file = $result->current()->toArray();
 
         // Get original image
-        if (0 == count($params)) {
+        if (0 === \count($params)) {
             $lastModified = $this->filesystem->getAdapter()->getTimestamp($file['filename_disk']);
             $lastModified = new DateTimeUtils(date('c', $lastModified));
 
@@ -168,7 +168,7 @@ class AssetService extends AbstractService
         $systemWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'asset_whitelist_system'), true);
 
         // If the whitelist is set and therefore mandatory
-        $whitelistEnabled = false == empty($userWhitelist);
+        $whitelistEnabled = false === empty($userWhitelist);
 
         // All available sizes in the system
         $allSizes = $whitelistEnabled ? array_merge($systemWhitelist, $userWhitelist) : $systemWhitelist;
@@ -178,7 +178,7 @@ class AssetService extends AbstractService
             $exists = false;
 
             foreach ($allSizes as $key => $value) {
-                if ($value['key'] == $params['key']) {
+                if ($value['key'] === $params['key']) {
                     $exists = true;
                     $params = [
                         'w' => $value['width'],
@@ -190,7 +190,7 @@ class AssetService extends AbstractService
                 }
             }
 
-            if (false == $exists) {
+            if (false === $exists) {
                 throw new Exception(sprintf("Key doesn't exist."));
             }
 
@@ -198,7 +198,7 @@ class AssetService extends AbstractService
         }
 
         // We require all the params to be there when the key param isn't used
-        if (false == $usesKey) {
+        if (false === $usesKey) {
             $this->validate(
                 [
                     'w' => isset($params['w']) ? $params['w'] : '',
@@ -223,10 +223,10 @@ class AssetService extends AbstractService
 
             foreach ($allSizes as $key => $value) {
                 if (
-                    $value['width'] == $params['w'] &&
-                    $value['height'] == $params['h'] &&
-                    $value['fit'] == $params['f'] &&
-                    $value['quality'] == $params['q']
+                    $value['width'] === $params['w'] &&
+                    $value['height'] === $params['h'] &&
+                    $value['fit'] === $params['f'] &&
+                    $value['quality'] === $params['q']
                 ) {
                     $exists = true;
                 }
@@ -259,8 +259,8 @@ class AssetService extends AbstractService
             null !== $this->thumbnailParams['format'] &&
             strtolower($ext) !== $this->thumbnailParams['format'] &&
             !(
-                ('jpeg' == $this->thumbnailParams['format'] || 'jpg' == $this->thumbnailParams['format']) &&
-                ('jpeg' == strtolower($ext) || 'jpg' == strtolower($ext))
+                ('jpeg' === $this->thumbnailParams['format'] || 'jpg' === $this->thumbnailParams['format']) &&
+                ('jpeg' === strtolower($ext) || 'jpg' === strtolower($ext))
             )
         ) {
             $this->thumbnailParams['thumbnailFileName'] = $name.'.'.$this->thumbnailParams['format'];
@@ -278,7 +278,7 @@ class AssetService extends AbstractService
      */
     public function isSupportedFileExtension($ext)
     {
-        return in_array(strtolower($ext), $this->getSupportedFileExtensions());
+        return \in_array(strtolower($ext), $this->getSupportedFileExtensions(), true);
     }
 
     /**
@@ -393,7 +393,7 @@ class AssetService extends AbstractService
     {
         $basePath = $this->container->get('path_base');
         $filePath = ArrayUtils::get($this->config, 'thumbnail_not_found_location');
-        if (is_string($filePath) && !empty($filePath) && '/' !== $filePath[0]) {
+        if (\is_string($filePath) && !empty($filePath) && '/' !== $filePath[0]) {
             $filePath = $basePath.'/'.$filePath;
         }
 
@@ -413,7 +413,7 @@ class AssetService extends AbstractService
     {
         try {
             if ($this->filesystemThumb->exists($path.'/'.$fileName)) {
-                if ('webp' == strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
+                if ('webp' === strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
                     return 'image/webp';
                 }
                 $img = Image::make($this->filesystemThumb->read($path.'/'.$fileName));

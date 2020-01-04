@@ -184,7 +184,7 @@ class SchemaManager
      */
     public function isSystemCollection($name)
     {
-        return in_array($name, $this->getSystemCollections());
+        return \in_array($name, $this->getSystemCollections(), true);
     }
 
     /**
@@ -457,7 +457,7 @@ class SchemaManager
     {
         // @TODO: SchemaManager shouldn't be a class with static methods anymore
         // the UI templates list will be provided by a container or bootstrap.
-        $path = implode(DIRECTORY_SEPARATOR, [
+        $path = implode(\DIRECTORY_SEPARATOR, [
             \Directus\base_path(),
             'api',
             'migrations',
@@ -596,7 +596,7 @@ class SchemaManager
     {
         $fieldsRelation = $this->getRelationshipsData($collectionName);
 
-        if (count($fieldsRelation) > 0) {
+        if (\count($fieldsRelation) > 0) {
             $fieldsByName = [];
 
             foreach ($fields as $field) {
@@ -751,7 +751,7 @@ class SchemaManager
     {
         // NOTE: MariaDB store "NULL" as a string on some data types such as VARCHAR.
         // We reserved the word "NULL" on nullable data type to be actually null
-        if (true === $field['nullable'] && 'NULL' == $field['default_value']) {
+        if (true === $field['nullable'] && 'NULL' === $field['default_value']) {
             $field['default_value'] = null;
         }
 

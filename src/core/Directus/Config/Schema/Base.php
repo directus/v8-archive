@@ -50,7 +50,7 @@ abstract class Base implements Node
      */
     public function __construct($name, $children)
     {
-        $this->_optional = '?' == substr($name, -1);
+        $this->_optional = '?' === substr($name, -1);
         if ($this->_optional) {
             $name = substr($name, 0, -1);
         }

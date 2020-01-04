@@ -82,7 +82,7 @@ class SchemaFactory
         foreach ($columnsData as $column) {
             if (ArrayUtils::get($column, 'primary_key', false)) {
                 $table->addConstraint(new PrimaryKey($column['field']));
-            } elseif (true == ArrayUtils::get($column, 'unique')) {
+            } elseif (true === ArrayUtils::get($column, 'unique')) {
                 $table->addConstraint(new UniqueKey($column['field']));
             }
         }
@@ -113,14 +113,14 @@ class SchemaFactory
             $table->addColumn($column);
 
             $options = $column->getOptions();
-            if (!is_array($options)) {
+            if (!\is_array($options)) {
                 continue;
             }
 
-            if (true == ArrayUtils::get($options, 'primary_key')) {
+            if (true === ArrayUtils::get($options, 'primary_key')) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
             }
-            if (true == ArrayUtils::get($options, 'unique')) {
+            if (true === ArrayUtils::get($options, 'unique')) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -131,14 +131,14 @@ class SchemaFactory
             $table->changeColumn($column->getName(), $column);
 
             $options = $column->getOptions();
-            if (!is_array($options)) {
+            if (!\is_array($options)) {
                 continue;
             }
 
-            if (true == ArrayUtils::get($options, 'primary_key')) {
+            if (true === ArrayUtils::get($options, 'primary_key')) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
             }
-            if (true == ArrayUtils::get($options, 'unique')) {
+            if (true === ArrayUtils::get($options, 'unique')) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -201,7 +201,7 @@ class SchemaFactory
 
         // CollectionLength are SET or ENUM data type
         if ($column instanceof AbstractPrecisionColumn) {
-            $parts = !is_array($length) ? explode(',', $length) : $length;
+            $parts = !\is_array($length) ? explode(',', $length) : $length;
             $column->setDigits($parts[0]);
             $column->setDecimal(isset($parts[1]) ? $parts[1] : 0);
         } elseif ($column instanceof AbstractLengthColumn || $column instanceof CollectionLength) {
@@ -418,7 +418,7 @@ class SchemaFactory
             }
         }
 
-        if (count($messages) > 0) {
+        if (\count($messages) > 0) {
             throw new InvalidRequestException(implode(' ', $messages));
         }
     }

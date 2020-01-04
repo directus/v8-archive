@@ -76,7 +76,7 @@ class Provider
 
     public function __construct(UserProviderInterface $userProvider, array $options = [])
     {
-        if (!isset($options['secret_key']) || !is_string($options['secret_key'])) {
+        if (!isset($options['secret_key']) || !\is_string($options['secret_key'])) {
             throw new Exception('auth: secret key is required and it must be a string');
         }
 
@@ -169,7 +169,7 @@ class Provider
         if ($tfa_secret) {
             $ga = new Google2FA();
 
-            if (null == $otp) {
+            if (null === $otp) {
                 throw new Missing2FAPasswordException();
             }
 
@@ -209,7 +209,7 @@ class Provider
 
                 $lastLoginAttempt = $activityTableGateway->getLastLoginOrStatusUpdateAttempt($userId);
 
-                if (!empty($lastLoginAttempt) && !in_array($lastLoginAttempt['id'], range($firstInvalidCredentialsEntry['id'], $lastInvalidCredentialsEntry['id'])) && count($invalidLoginAttempts) > $loginAttemptsAllowed) {
+                if (!empty($lastLoginAttempt) && !\in_array($lastLoginAttempt['id'], range($firstInvalidCredentialsEntry['id'], $lastInvalidCredentialsEntry['id']), true) && \count($invalidLoginAttempts) > $loginAttemptsAllowed) {
                     $tableGateway = TableGatewayFactory::create(SchemaManager::COLLECTION_USERS, ['acl' => false]);
                     $update = [
                         'status' => DirectusUsersTableGateway::STATUS_SUSPENDED,
@@ -255,7 +255,7 @@ class Provider
         $userProvider = $this->userProvider;
 
         // TODO: Cast attributes values
-        return $user->get('status') == $userProvider::STATUS_ACTIVE;
+        return $user->get('status') === $userProvider::STATUS_ACTIVE;
     }
 
     /**
@@ -268,7 +268,7 @@ class Provider
         $userProvider = $this->userProvider;
 
         // TODO: Cast attributes values
-        return $user->get('status') == $userProvider::STATUS_SUSPENDED;
+        return $user->get('status') === $userProvider::STATUS_SUSPENDED;
     }
 
     /**
@@ -380,7 +380,7 @@ class Provider
         $user = $this->user->toArray();
 
         if (null !== $attribute) {
-            return array_key_exists($attribute, $user) ? $user[$attribute] : null;
+            return \array_key_exists($attribute, $user) ? $user[$attribute] : null;
         }
 
         return $user;

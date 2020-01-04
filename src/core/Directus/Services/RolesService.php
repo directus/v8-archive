@@ -153,7 +153,7 @@ class RolesService extends AbstractService
             $group = $this->lastGroup;
         }
 
-        return !(!$group || ROLES::ADMIN == $group['id'] || ROLES::PUBLIC == $group['id']);
+        return !(!$group || ROLES::ADMIN === $group['id'] || ROLES::PUBLIC === $group['id']);
     }
 
     /**

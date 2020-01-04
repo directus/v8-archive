@@ -37,7 +37,7 @@ abstract class Route
      */
     public function responseWithData(Request $request, Response $response, $data, array $options = [])
     {
-        if (!is_array($data) || is_empty($data)) {
+        if (!\is_array($data) || is_empty($data)) {
             $data = [];
         }
 

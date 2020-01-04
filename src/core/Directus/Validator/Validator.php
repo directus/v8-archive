@@ -44,7 +44,7 @@ class Validator
             $message = $e->getMessage();
 
             preg_match('/Expected argument of type "(.*)", "(.*)" given/', $message, $matches);
-            if (3 === count($matches)) {
+            if (3 === \count($matches)) {
                 $message = 'This value should be of type '.$matches[1];
             }
 

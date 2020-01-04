@@ -61,12 +61,12 @@ class Filesystem
         }
 
         try {
-            if (is_object($data)) { // Uploaded file is in resource format. Used when file uploaded in multipart form data.
-                $handle = fopen($data->file, 'rb');
+            if (\is_object($data)) { // Uploaded file is in resource format. Used when file uploaded in multipart form data.
+                $handle = fopen($data->file, 'r');
                 if (!$this->getAdapter()->writeStream($location, $handle)) {
                     $throwException();
                 }
-                if (is_resource($handle)) {
+                if (\is_resource($handle)) {
                     fclose($handle);
                 }
             } else { // Uploaded file is base64 format. Used when file uploaded as base64.

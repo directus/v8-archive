@@ -49,8 +49,8 @@ class ServerService extends AbstractService
 
         if ($this->getAcl()->isAdmin()) {
             $data['server']['general'] = [
-                'php_version' => phpversion(),
-                'php_api' => php_sapi_name(),
+                'php_version' => PHP_VERSION,
+                'php_api' => \PHP_SAPI,
             ];
         }
 

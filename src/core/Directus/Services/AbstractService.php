@@ -88,7 +88,7 @@ abstract class AbstractService
     {
         /** @var SchemaManager $schemaManager */
         $schemaManager = $this->container->get('schema_manager');
-        if (in_array($name, $schemaManager->getSystemCollections())) {
+        if (\in_array($name, $schemaManager->getSystemCollections(), true)) {
             throw new ForbiddenSystemTableDirectAccessException($name);
         }
     }
@@ -141,7 +141,7 @@ abstract class AbstractService
         $violations = [];
 
         foreach ($constraints as $field => $constraint) {
-            if (is_string($constraint)) {
+            if (\is_string($constraint)) {
                 $constraint = explode('|', $constraint);
             }
             $violations[$field] = $this->validator->validate(ArrayUtils::get($data, $field), $constraint);
@@ -178,7 +178,7 @@ abstract class AbstractService
             }
         }
 
-        if (count($results) > 0) {
+        if (\count($results) > 0) {
             throw new InvalidRequestException(implode(' ', $results), $errorCode);
         }
     }
@@ -207,7 +207,7 @@ abstract class AbstractService
         foreach ($collectionObject->getFields($fields) as $field) {
             //This condition is placed to skip alias validation field which is related to parent collection,
             //to avoid nested payload validation for O2M and M2O collections
-            if ($field->hasRelationship() && !empty($skipRelatedCollectionField) && (($field->getRelationship()->isManyToOne() && $field->getRelationship()->getCollectionOne() == $skipRelatedCollectionField) || ($field->getRelationship()->isOneToMany() && $field->getRelationship()->getCollectionMany() == $skipRelatedCollectionField))) {
+            if ($field->hasRelationship() && !empty($skipRelatedCollectionField) && (($field->getRelationship()->isManyToOne() && $field->getRelationship()->getCollectionOne() === $skipRelatedCollectionField) || ($field->getRelationship()->isOneToMany() && $field->getRelationship()->getCollectionMany() === $skipRelatedCollectionField))) {
                 continue;
             }
             $columnConstraints = [];
@@ -220,7 +220,7 @@ abstract class AbstractService
                 continue;
             }
 
-            if ('password' == $field->getName() && isset($params['select_existing_or_update'])) {
+            if ('password' === $field->getName() && isset($params['select_existing_or_update'])) {
                 continue;
             }
 
@@ -232,9 +232,9 @@ abstract class AbstractService
                 $isRequired = false;
             }
 
-            if ($isRequired || (!$field->isNullable() && null == $field->getDefaultValue())) {
+            if ($isRequired || (!$field->isNullable() && null === $field->getDefaultValue())) {
                 $columnConstraints[] = 'required';
-            } elseif (in_array($field->getName(), $fields) && !$field->isNullable()) {
+            } elseif (\in_array($field->getName(), $fields, true) && !$field->isNullable()) {
                 $columnConstraints[] = 'notnullable';
             }
 
@@ -302,7 +302,7 @@ abstract class AbstractService
     {
         $container = $this->container;
 
-        if (is_array($callable) && $callable[0] instanceof RelationalTableGateway) {
+        if (\is_array($callable) && $callable[0] instanceof RelationalTableGateway) {
             /** @var RelationalTableGateway $callable[0] */
             $pkName = $callable[0]->primaryKeyFieldName;
         }
@@ -333,7 +333,7 @@ abstract class AbstractService
             $listenerId = $hookEmitter->addFilter('item.read', $setIdTags, Emitter::P_LOW);
         }
 
-        $result = call_user_func_array($callable, $callableParams);
+        $result = \call_user_func_array($callable, $callableParams);
 
         if ($cacheEnabled & $listenerId) {
             $hookEmitter->removeListenerWithIndex($listenerId);
@@ -344,7 +344,7 @@ abstract class AbstractService
 
     protected function getCRUDParams(array $params)
     {
-        $activityLoggingDisabled = 1 == ArrayUtils::get($params, 'activity_skip', 0);
+        $activityLoggingDisabled = 1 === ArrayUtils::get($params, 'activity_skip', 0);
         $activityMode = $activityLoggingDisabled
                         ? RelationalTableGateway::ACTIVITY_ENTRY_MODE_DISABLED
                         : RelationalTableGateway::ACTIVITY_ENTRY_MODE_PARENT;
@@ -372,7 +372,7 @@ abstract class AbstractService
         // If the user PATCH, POST or PUT with empty body, must throw an exception to avoid continue the execution
         // with the exception of POST, that can use the default value instead
         // TODO: Crate a email interface for the sake of validation
-        if (is_array($fields)) {
+        if (\is_array($fields)) {
             $columnsToValidate = $fields;
         }
 
@@ -418,7 +418,7 @@ abstract class AbstractService
             $statusName = $statusField->getName();
             $statusMapping = $collection->getStatusMapping();
             $requiredStatus = $statusMapping->getRequiredStatusesValue();
-            if (ArrayUtils::get($payload, $statusName) && $requiredStatus && !in_array(ArrayUtils::get($payload, $statusName), $requiredStatus)) {
+            if (ArrayUtils::get($payload, $statusName) && $requiredStatus && !\in_array(ArrayUtils::get($payload, $statusName), $requiredStatus, true)) {
                 return false;
             }
         }
@@ -511,13 +511,13 @@ abstract class AbstractService
             return;
         }
 
-        if ('decimal' == $field->getType()) {
+        if ('decimal' === $field->getType()) {
             $precision = $field->getPrecision();
             $scale = $field->getScale();
             $number = $precision - $scale;
             $input = explode('.', $value);
-            $inputLengthScale = isset($input[1]) ? strlen($input[1]) : 0;
-            $inputLengthNumber = isset($input[0]) ? strlen($input[0]) : 0;
+            $inputLengthScale = isset($input[1]) ? \strlen($input[1]) : 0;
+            $inputLengthNumber = isset($input[0]) ? \strlen($input[0]) : 0;
             $inputLengthPrecision = $inputLengthScale + $inputLengthNumber;
 
             if ($inputLengthNumber > $number || $inputLengthScale > $scale) {
@@ -526,9 +526,9 @@ abstract class AbstractService
                 );
             }
         } else {
-            if (!is_null($field['length']) && ((is_array($value) && $field['length'] < strlen(json_encode($value))) || (!is_array($value) && $field['length'] < mb_strlen($value, 'UTF-8')))) {
+            if (null !== $field['length'] && ((\is_array($value) && $field['length'] < \strlen(json_encode($value))) || (!\is_array($value) && $field['length'] < mb_strlen($value, 'UTF-8')))) {
                 throw new UnprocessableEntityException(
-                    sprintf("The value submitted (%s) for '%s' is longer than the field's supported length (%s). Please submit a shorter value or ask an Admin to increase the length.", !is_array($value) ? $value : 'Json / Array', $field->getFormatisedName(), $field['length'])
+                    sprintf("The value submitted (%s) for '%s' is longer than the field's supported length (%s). Please submit a shorter value or ask an Admin to increase the length.", !\is_array($value) ? $value : 'Json / Array', $field->getFormatisedName(), $field['length'])
                 );
             }
         }

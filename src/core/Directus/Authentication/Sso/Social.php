@@ -31,7 +31,7 @@ class Social
      */
     public function register($key, $provider)
     {
-        if (!$key || !is_string($key)) {
+        if (!$key || !\is_string($key)) {
             throw new \RuntimeException('Social Login name must be a string');
         }
 
@@ -44,7 +44,7 @@ class Social
                 sprintf(
                     'Single Sign On provider must be a instance of %s, instead %s was given',
                     SocialProviderInterface::class,
-                    gettype($provider)
+                    \gettype($provider)
                 )
             );
         }
@@ -65,7 +65,7 @@ class Social
      */
     public function get($key)
     {
-        if (!array_key_exists($key, $this->providers)) {
+        if (!\array_key_exists($key, $this->providers)) {
             throw new \Exception(sprintf('auth provider "%s" does not exist.', $key));
         }
 

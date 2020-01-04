@@ -163,7 +163,7 @@ final class DataTypes
      */
     public static function isDateTimeType($type)
     {
-        return in_array(strtolower($type), static::getDateTimeTypes());
+        return \in_array(strtolower($type), static::getDateTimeTypes(), true);
     }
 
     /**
@@ -199,7 +199,7 @@ final class DataTypes
      */
     public static function isNumericType($type)
     {
-        return in_array(strtolower($type), static::getNumericTypes());
+        return \in_array(strtolower($type), static::getNumericTypes(), true);
     }
 
     /**
@@ -263,7 +263,7 @@ final class DataTypes
      */
     public static function isAliasType($type)
     {
-        return in_array(strtolower($type), static::getAliasTypes());
+        return \in_array(strtolower($type), static::getAliasTypes(), true);
     }
 
     /**
@@ -288,7 +288,7 @@ final class DataTypes
      */
     public static function isO2MType($type)
     {
-        return in_array(strtolower($type), static::getO2MTypes());
+        return \in_array(strtolower($type), static::getO2MTypes(), true);
     }
 
     /**
@@ -312,7 +312,7 @@ final class DataTypes
      */
     public static function isFilesType($type)
     {
-        return in_array(strtolower($type), static::getFilesType());
+        return \in_array(strtolower($type), static::getFilesType(), true);
     }
 
     /**
@@ -350,7 +350,7 @@ final class DataTypes
      */
     public static function isSystemDateTimeType($type)
     {
-        return in_array(strtolower($type), static::getSystemDateTimeTypes());
+        return \in_array(strtolower($type), static::getSystemDateTimeTypes(), true);
     }
 
     /**
@@ -362,7 +362,7 @@ final class DataTypes
      */
     public static function isSystemUserType($type)
     {
-        return in_array(strtolower($type), static::getSystemUserType());
+        return \in_array(strtolower($type), static::getSystemUserType(), true);
     }
 
     /**
@@ -402,7 +402,7 @@ final class DataTypes
      */
     public static function isUniqueType($type)
     {
-        return in_array(strtolower($type), static::getUniqueTypes());
+        return \in_array(strtolower($type), static::getUniqueTypes(), true);
     }
 
     /**
@@ -452,7 +452,7 @@ final class DataTypes
      */
     public static function isUsersType($type)
     {
-        return in_array(strtolower($type), static::getUsersType());
+        return \in_array(strtolower($type), static::getUsersType(), true);
     }
 
     /**
@@ -464,7 +464,7 @@ final class DataTypes
      */
     public static function exists($type)
     {
-        return in_array(strtolower($type), static::getAllTypes());
+        return \in_array(strtolower($type), static::getAllTypes(), true);
     }
 
     /**

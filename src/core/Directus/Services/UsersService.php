@@ -74,7 +74,7 @@ class UsersService extends AbstractService
 
         $tableGateway = $this->createTableGateway($this->collection);
         $status = $this->getSchemaManager()->getCollection($this->collection)->getStatusField();
-        if (ArrayUtils::has($payload, $status->getName()) && DirectusUsersTableGateway::STATUS_ACTIVE != (string) ArrayUtils::get($payload, $status->getName())) {
+        if (ArrayUtils::has($payload, $status->getName()) && DirectusUsersTableGateway::STATUS_ACTIVE !== (string) ArrayUtils::get($payload, $status->getName())) {
             $this->enforceLastAdmin($id);
         }
 
@@ -86,7 +86,7 @@ class UsersService extends AbstractService
         );
         $newRecord = $tableGateway->updateRecord($id, $payload, $this->getCRUDParams($params));
 
-        if (!is_null(ArrayUtils::get($payload, $status->getName()))) {
+        if (null !== ArrayUtils::get($payload, $status->getName())) {
             $activityTableGateway = $this->createTableGateway(SchemaManager::COLLECTION_ACTIVITY);
             $activityTableGateway->recordAction(
                 $id,
@@ -188,7 +188,7 @@ class UsersService extends AbstractService
             throw new ForbiddenException('Inviting user was denied');
         }
 
-        if (!is_array($emails)) {
+        if (!\is_array($emails)) {
             $emails = [$emails];
         }
 
@@ -369,7 +369,7 @@ class UsersService extends AbstractService
      */
     public function batchCreate(array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch create expect an array of items');
         }
 
@@ -381,7 +381,7 @@ class UsersService extends AbstractService
         $allItems = [];
         foreach ($items as $data) {
             $item = $this->create($data, $params);
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }
@@ -402,7 +402,7 @@ class UsersService extends AbstractService
      */
     public function batchUpdate(array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch update expect an array of items');
         }
 
@@ -418,7 +418,7 @@ class UsersService extends AbstractService
             $id = $data[$collectionObject->getPrimaryKeyName()];
             $item = $this->update($id, $data, $params);
 
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }
@@ -541,7 +541,7 @@ class UsersService extends AbstractService
             $result->next();
         }
 
-        return in_array($id, $usersIds) && 1 === count($usersIds);
+        return \in_array($id, $usersIds, true) && 1 === \count($usersIds);
     }
 
     /**

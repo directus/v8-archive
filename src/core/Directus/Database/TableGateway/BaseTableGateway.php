@@ -135,7 +135,7 @@ class BaseTableGateway extends TableGateway
             $features = new Feature\FeatureSet();
         } elseif ($features instanceof Feature\AbstractFeature) {
             $features = [$features];
-        } elseif (is_array($features)) {
+        } elseif (\is_array($features)) {
             $features = new Feature\FeatureSet($features);
         }
 
@@ -193,8 +193,8 @@ class BaseTableGateway extends TableGateway
      */
     public function makeTable($tableName, $adapter = null, $acl = null)
     {
-        $adapter = is_null($adapter) ? $this->adapter : $adapter;
-        $acl = is_null($acl) ? $this->acl : $acl;
+        $adapter = null === $adapter ? $this->adapter : $adapter;
+        $acl = null === $acl ? $this->acl : $acl;
 
         return static::makeTableGatewayFromTableName($tableName, $adapter, $acl);
     }
@@ -268,15 +268,15 @@ class BaseTableGateway extends TableGateway
      */
     public function newRow($table = null, $primaryKeyColumn = null)
     {
-        $table = is_null($table) ? $this->table : $table;
-        $primaryKeyColumn = is_null($primaryKeyColumn) ? $this->primaryKeyFieldName : $primaryKeyColumn;
+        $table = null === $table ? $this->table : $table;
+        $primaryKeyColumn = null === $primaryKeyColumn ? $this->primaryKeyFieldName : $primaryKeyColumn;
 
         return new BaseRowGateway($primaryKeyColumn, $table, $this->adapter, $this->acl);
     }
 
     public function find($id, $pk_field_name = null)
     {
-        if (null == $pk_field_name) {
+        if (null === $pk_field_name) {
             $pk_field_name = $this->primaryKeyFieldName;
         }
 
@@ -288,7 +288,7 @@ class BaseTableGateway extends TableGateway
     public function fetchAll($selectModifier = null)
     {
         return $this->select(function (Select $select) use ($selectModifier) {
-            if (is_callable($selectModifier)) {
+            if (\is_callable($selectModifier)) {
                 $selectModifier($select);
             }
         });
@@ -338,7 +338,7 @@ class BaseTableGateway extends TableGateway
 
     public function addOrUpdateRecordByArray(array $recordData, $collectionName = null)
     {
-        $collectionName = is_null($collectionName) ? $this->table : $collectionName;
+        $collectionName = null === $collectionName ? $this->table : $collectionName;
         $this->validateRecordArray($recordData);
 
         $TableGateway = $this->makeTable($collectionName);
@@ -450,7 +450,7 @@ class BaseTableGateway extends TableGateway
 
     public function drop($tableName = null)
     {
-        if (null == $tableName) {
+        if (null === $tableName) {
             $tableName = $this->table;
         }
 
@@ -489,12 +489,12 @@ class BaseTableGateway extends TableGateway
      */
     public function stopManaging($tableName = null)
     {
-        if (null == $tableName) {
+        if (null === $tableName) {
             $tableName = $this->table;
         }
 
         // Remove table privileges
-        if (SchemaManager::COLLECTION_PERMISSIONS != $tableName) {
+        if (SchemaManager::COLLECTION_PERMISSIONS !== $tableName) {
             $privilegesTableGateway = new TableGateway(SchemaManager::COLLECTION_PERMISSIONS, $this->adapter);
             $privilegesTableGateway->delete(['collection' => $tableName]);
         }
@@ -528,7 +528,7 @@ class BaseTableGateway extends TableGateway
 
     public function dropField($columnName, $tableName = null)
     {
-        if (null == $tableName) {
+        if (null === $tableName) {
             $tableName = $this->table;
         }
 
@@ -541,7 +541,7 @@ class BaseTableGateway extends TableGateway
         }
 
         // Drop table column if is a non-alias column
-        if (!array_key_exists($columnName, array_flip(SchemaService::getAllAliasCollectionFields($tableName, true)))) {
+        if (!\array_key_exists($columnName, array_flip(SchemaService::getAllAliasCollectionFields($tableName, true)))) {
             $sql = new Sql($this->adapter);
             $alterTable = new Ddl\AlterTable($tableName);
             $dropColumn = $alterTable->dropColumn($columnName);
@@ -585,10 +585,10 @@ class BaseTableGateway extends TableGateway
         // Hard-coded
         $manytoones = ['single_file', 'many_to_one', 'many_to_one_typeahead', 'MANYTOONE'];
 
-        if (!in_array($relationshipType, $directus_types)) {
+        if (!\in_array($relationshipType, $directus_types, true)) {
             $this->addTableColumn($tableName, $tableData);
             // Temporary solutions to #481, #645
-            if (array_key_exists('ui', $tableData) && in_array($tableData['ui'], $manytoones)) {
+            if (\array_key_exists('ui', $tableData) && \in_array($tableData['ui'], $manytoones, true)) {
                 $tableData['relationship_type'] = 'MANYTOONE';
                 $tableData['junction_key_right'] = $tableData['column_name'];
             }
@@ -602,7 +602,7 @@ class BaseTableGateway extends TableGateway
 
     public function castFloatIfNumeric(&$value, $key)
     {
-        if ('table_name' != $key) {
+        if ('table_name' !== $key) {
             $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float) $value : $value;
         }
     }
@@ -673,7 +673,7 @@ class BaseTableGateway extends TableGateway
     public function parseRecord($records, $tableName = null)
     {
         // NOTE: Performance spot
-        if (is_array($records)) {
+        if (\is_array($records)) {
             $tableName = null === $tableName ? $this->table : $tableName;
             $records = $this->parseRecordValuesByType($records, $tableName);
             $tableSchema = $this->getTableSchema($tableName);
@@ -696,7 +696,7 @@ class BaseTableGateway extends TableGateway
         $statusValue = null;
         $statusField = $this->getTableSchema()->getStatusField();
         if ($statusField) {
-            $valueKey = array_search($statusField->getName(), $insertState['columns']);
+            $valueKey = array_search($statusField->getName(), $insertState['columns'], true);
             if (false !== $valueKey) {
                 $statusValue = ArrayUtils::get($insertState['values'], $valueKey);
             } else {
@@ -724,9 +724,10 @@ class BaseTableGateway extends TableGateway
         if (
             $statusField
             && ArrayUtils::has($updateData, $statusField->getName())
-            && in_array(
+            && \in_array(
                 ArrayUtils::get($updateData, $collectionObject->getStatusField()->getName()),
-                $this->getStatusMapping()->getSoftDeleteStatusesValue()
+                $this->getStatusMapping()->getSoftDeleteStatusesValue(),
+                true
             )
         ) {
             $delete = $this->sql->delete();
@@ -774,7 +775,7 @@ class BaseTableGateway extends TableGateway
             /* User object dont have a created_by field so we cant get the owner and not able to update
              * the profile. Thus we need to check manually that whether its update profile or not.
              */
-            if (SchemaManager::COLLECTION_USERS == $this->table && $item['id'] == $currentUserId) {
+            if (SchemaManager::COLLECTION_USERS === $this->table && $item['id'] === $currentUserId) {
                 $this->acl->enforceUpdate($updateTable, $statusId);
 
                 return;
@@ -783,7 +784,7 @@ class BaseTableGateway extends TableGateway
             /* Object dont have a created_by field so we cant get the owner and not able to fetch
              *  the bookmarks.
              */
-            if (SchemaManager::COLLECTION_COLLECTION_PRESETS == $this->table && $item['user'] == $currentUserId) {
+            if (SchemaManager::COLLECTION_COLLECTION_PRESETS === $this->table && $item['user'] === $currentUserId) {
                 $this->acl->enforceUpdate($updateTable, $statusId);
 
                 return;
@@ -795,7 +796,7 @@ class BaseTableGateway extends TableGateway
 
         // Owner not found, item cannot be updated
         $owner = \Directus\get_item_owner($updateTable, $item[$collectionObject->getPrimaryKeyName()]);
-        if (!is_array($owner)) {
+        if (!\is_array($owner)) {
             throw new ForbiddenCollectionUpdateException($updateTable);
         }
 
@@ -855,7 +856,7 @@ class BaseTableGateway extends TableGateway
 
         // Owner not found, item cannot be updated
         $owner = \Directus\get_item_owner($deleteTable, $item[$collectionObject->getPrimaryKeyName()]);
-        if (!is_array($owner)) {
+        if (!\is_array($owner)) {
             throw new ForbiddenCollectionDeleteException($deleteTable);
         }
 
@@ -1118,7 +1119,7 @@ class BaseTableGateway extends TableGateway
         $dataType = $columnData['data_type'];
         $comment = $this->getAdapter()->getPlatform()->quoteValue(ArrayUtils::get($columnData, 'comment', ''));
 
-        if (array_key_exists('length', $columnData)) {
+        if (\array_key_exists('length', $columnData)) {
             $charLength = $columnData['length'];
             // SET and ENUM data type has its values in the char_length attribute
             // each value are separated by commas
@@ -1138,7 +1139,7 @@ class BaseTableGateway extends TableGateway
             $length = ArrayUtils::get($columnData, 'length');
             $defaultValue = $this->schemaManager->castDefaultValue($value, $dataType, $length);
 
-            $default = ' DEFAULT '.(is_string($defaultValue) ? sprintf('"%s"', $defaultValue) : $defaultValue);
+            $default = ' DEFAULT '.(\is_string($defaultValue) ? sprintf('"%s"', $defaultValue) : $defaultValue);
         }
 
         // TODO: wrap this into an abstract DDL class
@@ -1414,16 +1415,16 @@ class BaseTableGateway extends TableGateway
 
     protected function getRawTableNameFromQueryStateTable($table)
     {
-        if (is_string($table)) {
+        if (\is_string($table)) {
             return $table;
         }
 
-        if (is_array($table)) {
+        if (\is_array($table)) {
             // The only value is the real table name (key is alias).
             return array_pop($table);
         }
 
-        throw new \InvalidArgumentException('Unexpected parameter of type '.get_class($table));
+        throw new \InvalidArgumentException('Unexpected parameter of type '.\get_class($table));
     }
 
     /**
@@ -1463,7 +1464,7 @@ class BaseTableGateway extends TableGateway
             // and only throw and error when all the selected columns are blacklisted
             $this->acl->enforceReadField($table, $selectState['columns']);
         } catch (\Exception $e) {
-            if ('*' != $selectState['columns'][0]) {
+            if ('*' !== $selectState['columns'][0]) {
                 throw $e;
             }
 
@@ -1721,7 +1722,7 @@ class BaseTableGateway extends TableGateway
         }
 
         foreach ($statusMapping as $status) {
-            if (!call_user_func('is_'.$type, $status->getValue())) {
+            if (!\call_user_func('is_'.$type, $status->getValue())) {
                 throw new StatusMappingWrongValueTypeException($type, $statusField->getName(), $this->table);
             }
         }
@@ -1740,7 +1741,7 @@ class BaseTableGateway extends TableGateway
             $field = $collectionObject->getField($columnName);
 
             if (
-                ($field && is_array($columnValue)
+                ($field && \is_array($columnValue)
                     && (!DataTypes::isJson($field->getType())
                         && !DataTypes::isArray($field->getType())
                         // The owner of the alias should handle it
@@ -1770,6 +1771,6 @@ class BaseTableGateway extends TableGateway
      */
     protected function shouldUseFilter()
     {
-        return !is_array($this->options) || false !== ArrayUtils::get($this->options, 'filter', true);
+        return !\is_array($this->options) || false !== ArrayUtils::get($this->options, 'filter', true);
     }
 }

@@ -14,7 +14,7 @@ class ArrayUtils
     {
         $keys = explode('.', $key);
 
-        while (count($keys) > 1) {
+        while (\count($keys) > 1) {
             $key = array_shift($keys);
             if (!isset($array[$key])) {
                 $array[$key] = [];
@@ -63,9 +63,9 @@ class ArrayUtils
     public static function pull(array &$array, $key, $default = null)
     {
         // TODO: Implement access by separator (example dot-notation)
-        $value = ArrayUtils::get($array, $key, $default);
+        $value = self::get($array, $key, $default);
 
-        ArrayUtils::remove($array, $key);
+        self::remove($array, $key);
 
         return $value;
     }
@@ -87,7 +87,7 @@ class ArrayUtils
 
     public static function exists($array, $key)
     {
-        return array_key_exists($key, $array);
+        return \array_key_exists($key, $array);
     }
 
     /**
@@ -103,12 +103,12 @@ class ArrayUtils
     {
         $result = [];
 
-        if (is_string($keys)) {
+        if (\is_string($keys)) {
             $keys = [$keys];
         }
 
         foreach ($array as $key => $value) {
-            $condition = in_array($key, $keys);
+            $condition = \in_array($key, $keys, true);
             if ($omit) {
                 $condition = !$condition;
             }
@@ -156,12 +156,12 @@ class ArrayUtils
      */
     public static function contains(array $array, $keys)
     {
-        if (!is_array($keys)) {
+        if (!\is_array($keys)) {
             $keys = [$keys];
         }
 
         foreach ($keys as $key) {
-            if (!array_key_exists($key, $array)) {
+            if (!\array_key_exists($key, $array)) {
                 return false;
             }
         }
@@ -231,7 +231,7 @@ class ArrayUtils
         $results = [];
 
         foreach ($array as $key => $value) {
-            if (is_array($value) && !empty($value)) {
+            if (\is_array($value) && !empty($value)) {
                 $results = array_merge($results, static::flatKey($separator, $value, $prepend.$key.$separator));
             }
 
@@ -262,14 +262,14 @@ class ArrayUtils
             while ($keys) {
                 $k = array_shift($keys);
 
-                if (!array_key_exists($k, $value)) {
+                if (!\array_key_exists($k, $value)) {
                     break;
                 }
 
                 $value = $value[$k];
                 $keysPath[] = $k;
 
-                if ($key == implode($separator, $keysPath)) {
+                if ($key === implode($separator, $keysPath)) {
                     $result = [
                         'key' => $key,
                         'value' => $value,
@@ -277,7 +277,7 @@ class ArrayUtils
                 }
 
                 // stop the search if the next value is not an array
-                if (!is_array($value)) {
+                if (!\is_array($value)) {
                     break;
                 }
             }
@@ -320,7 +320,7 @@ class ArrayUtils
         $values = [];
 
         foreach ($arrayTwo as $value) {
-            if (in_array($value, $arrayOne) === !$without) {
+            if (\in_array($value, $arrayOne, true) === !$without) {
                 $values[] = $value;
             }
         }
@@ -361,7 +361,7 @@ class ArrayUtils
                 continue;
             }
 
-            if (is_array($value) && array_key_exists($key, $defaultArray) && is_array($defaultArray[$key])) {
+            if (\is_array($value) && \array_key_exists($key, $defaultArray) && \is_array($defaultArray[$key])) {
                 $newArray[$key] = static::defaults($newArray[$key], $value);
             } else {
                 $newArray[$key] = $value;
@@ -380,8 +380,8 @@ class ArrayUtils
     {
         $newArray = [];
         foreach ($array as $key => $value) {
-            if (in_array($key, $aliases)) {
-                $newArray[array_search($key, $aliases)] = $value;
+            if (\in_array($key, $aliases, true)) {
+                $newArray[array_search($key, $aliases, true)] = $value;
             } else {
                 $newArray[$key] = $value;
             }
@@ -398,12 +398,12 @@ class ArrayUtils
      */
     public static function rename(array &$array, $from, $to)
     {
-        if (ArrayUtils::exists($array, $from)) {
-            $value = ArrayUtils::get($array, $from);
+        if (self::exists($array, $from)) {
+            $value = self::get($array, $from);
 
             $array[$to] = $value;
 
-            ArrayUtils::remove($array, $from);
+            self::remove($array, $from);
         }
     }
 
@@ -429,8 +429,8 @@ class ArrayUtils
      */
     public static function swap(array &$array, $from, $to)
     {
-        $temp = ArrayUtils::get($array, $from);
-        $array[$from] = ArrayUtils::get($array, $to);
+        $temp = self::get($array, $from);
+        $array[$from] = self::get($array, $to);
         $array[$to] = $temp;
     }
 
@@ -485,7 +485,7 @@ class ArrayUtils
      */
     public static function remove(array &$array, $keys)
     {
-        if (!is_array($keys)) {
+        if (!\is_array($keys)) {
             $keys = [$keys];
         }
 
@@ -508,7 +508,7 @@ class ArrayUtils
         $depth = 0;
 
         foreach ($array as $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $depth = max(static::deepLevel($value) + 1, $depth);
             }
         }
@@ -526,12 +526,12 @@ class ArrayUtils
     public static function pluck(array $array, $key)
     {
         return array_map(function ($value) use ($key) {
-            return is_array($value) ? static::get($value, $key) : null;
+            return \is_array($value) ? static::get($value, $key) : null;
         }, $array);
     }
 
-    /*
-     * Creates an array from CSV value
+    /**
+     * Creates an array from CSV value.
      *
      * @param mixed $value
      *
@@ -539,11 +539,11 @@ class ArrayUtils
      */
     public static function createFromCSV($value)
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return $value;
         }
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return StringUtils::csv($value);
         }
 

@@ -47,8 +47,8 @@ class InstallerUtils
     public static function addUpgradeMigrations($basePath = null, $projectName = null)
     {
         if (
-            false == static::isUsingFiles() ||
-            (!is_null($basePath) && !is_null($projectName))
+            false === static::isUsingFiles() ||
+            (null !== $basePath && null !== $projectName)
         ) {
             $app = static::createApp($basePath, $projectName);
             $dbConnection = $app->getContainer()->get('database');
@@ -78,7 +78,7 @@ class InstallerUtils
                 'end_time' => DateTimeUtils::nowInUTC()->toString(),
             ];
 
-            if (!in_array($data['version'], $alreadyStoredMigrations) && !is_null($data['version']) && !is_null($data['migration_name'])) {
+            if (!\in_array($data['version'], $alreadyStoredMigrations, true) && null !== $data['version'] && null !== $data['migration_name']) {
                 $migrationsTableGateway->insert($data);
             }
         }
@@ -169,7 +169,7 @@ class InstallerUtils
      */
     public static function replacePlaceholderValues($content, $data)
     {
-        if (is_array($data)) {
+        if (\is_array($data)) {
             $data = ArrayUtils::dot($data);
         }
 
@@ -387,7 +387,7 @@ class InstallerUtils
             return false;
         }
 
-        $isEmpty = count(array_diff(scandir($schemaTemplatePath), ['..', '.'])) > 0 ? false : true;
+        $isEmpty = \count(array_diff(scandir($schemaTemplatePath), ['..', '.'])) > 0 ? false : true;
         if (is_readable($schemaTemplatePath) && !$isEmpty) {
             return true;
         }
@@ -510,7 +510,7 @@ class InstallerUtils
      */
     public static function createConfigPath($path, $projectName, $private = null)
     {
-        if (!is_null($private)) {
+        if (null !== $private) {
             $configName = static::getConfigName($projectName, $private);
         } else {
             $publicConfig = static::getConfigName($projectName);
@@ -739,7 +739,7 @@ class InstallerUtils
         ArrayUtils::rename($apiConfig, 'socket', 'unix_socket');
         $apiConfig['charset'] = ArrayUtils::get($apiConfig, 'database.charset', 'utf8mb4');
 
-        $configArray = 'install' == $migrationName ? require $basePath.self::MIGRATION_CONFIGURATION_PATH : require $basePath.self::MIGRATION_UPGRADE_CONFIGURATION_PATH;
+        $configArray = 'install' === $migrationName ? require $basePath.self::MIGRATION_CONFIGURATION_PATH : require $basePath.self::MIGRATION_UPGRADE_CONFIGURATION_PATH;
         $configArray['paths']['migrations'] = $migrationPath;
         $configArray['environments']['development'] = $apiConfig;
 

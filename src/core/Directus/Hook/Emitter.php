@@ -211,7 +211,7 @@ class Emitter
      */
     protected function addListener($name, $listener, $priority = null, $type = self::TYPE_ACTION)
     {
-        if (is_string($listener) && class_exists($listener)) {
+        if (\is_string($listener) && class_exists($listener)) {
             $listener = new $listener();
         }
 
@@ -223,7 +223,7 @@ class Emitter
 
         $index = array_push($this->listenersList, $listener) - 1;
 
-        $arrayName = (self::TYPE_FILTER == $type) ? 'filter' : 'action';
+        $arrayName = (self::TYPE_FILTER === $type) ? 'filter' : 'action';
         $this->{$arrayName.'Listeners'}[$name][$priority][] = $index;
 
         return $index;
@@ -236,7 +236,7 @@ class Emitter
      */
     protected function validateListener($listener)
     {
-        if (!is_callable($listener) && !($listener instanceof HookInterface)) {
+        if (!\is_callable($listener) && !($listener instanceof HookInterface)) {
             throw new \InvalidArgumentException('Listener needs to be a callable or an instance of \Directus\Hook\HookInterface');
         }
     }
@@ -251,10 +251,10 @@ class Emitter
     protected function getListeners(array $items, $name)
     {
         $functions = [];
-        if (array_key_exists($name, $items)) {
+        if (\array_key_exists($name, $items)) {
             $listeners = $items[$name];
             krsort($listeners);
-            $functions = call_user_func_array('array_merge', $listeners);
+            $functions = \call_user_func_array('array_merge', $listeners);
         }
 
         return $functions;
@@ -270,7 +270,7 @@ class Emitter
      */
     protected function executeListeners(array $listenersIds, $data = null, $listenerType = self::TYPE_ACTION)
     {
-        $isFilterType = (self::TYPE_FILTER == $listenerType);
+        $isFilterType = (self::TYPE_FILTER === $listenerType);
         foreach ($listenersIds as $index) {
             $listener = $this->listenersList[$index];
 
@@ -279,11 +279,11 @@ class Emitter
                     $listener = [$listener, 'handle'];
                 }
 
-                if (!is_array($data)) {
+                if (!\is_array($data)) {
                     $data = [$data];
                 }
 
-                $returnedValue = call_user_func_array($listener, $data);
+                $returnedValue = \call_user_func_array($listener, $data);
                 if ($isFilterType) {
                     $data = $returnedValue;
                 }

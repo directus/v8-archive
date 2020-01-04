@@ -105,7 +105,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $privilegesByTable = [];
         foreach ($rowset as $row) {
             foreach ($row as $field => &$value) {
-                if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
+                if (\in_array($field, ['read_field_blacklist', 'write_field_blacklist'], true)) {
                     $value = explode(',', $value);
                 }
             }
@@ -126,8 +126,12 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         return $this->parseRecord(current($rowset));
     }
 
-    // @todo This currently only supports permissions,
-    // include blacklists when there is a UI for it
+    /**
+     * @todo This currently only supports permissions,
+     * include blacklists when there is a UI for it
+     *
+     * @param mixed $attributes
+     */
     public function insertPrivilege($attributes)
     {
         $attributes = $this->verifyPrivilege($attributes);
@@ -151,8 +155,12 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         return $data = array_intersect_key($attributes, array_flip($this->fillable));
     }
 
-    // @todo This currently only supports permissions,
-    // include blacklists when there is a UI for it
+    /**
+     * @todo This currently only supports permissions,
+     * include blacklists when there is a UI for it
+     *
+     * @param mixed $attributes
+     */
     public function updatePrivilege($attributes)
     {
         $attributes = $this->verifyPrivilege($attributes);
@@ -194,7 +202,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         }
 
         $select->where->equalTo('group', $groupId);
-        if (!is_null($tableName)) {
+        if (null !== $tableName) {
             $select->where->equalTo('collection', $tableName);
             $select->limit(1);
         }
@@ -207,7 +215,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $privilegesHash = [];
 
         foreach ($rowset as $item) {
-            if (in_array($item['collection'], $blacklist)) {
+            if (\in_array($item['collection'], $blacklist, true)) {
                 continue;
             }
 
@@ -220,15 +228,15 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         }
 
         foreach ($tables as $table) {
-            if (in_array($table, $blacklist)) {
+            if (\in_array($table, $blacklist, true)) {
                 continue;
             }
 
-            if (array_key_exists($table['name'], $privilegesHash)) {
+            if (\array_key_exists($table['name'], $privilegesHash)) {
                 continue;
             }
 
-            if (!is_null($tableName)) {
+            if (null !== $tableName) {
                 continue;
             }
 
@@ -242,7 +250,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
             return strcmp($a['collection'], $b['collection']);
         });
 
-        $privileges = is_null($tableName) ? $privileges : reset($privileges);
+        $privileges = null === $tableName ? $privileges : reset($privileges);
 
         return $this->parseRecord($privileges);
     }
@@ -276,7 +284,7 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         $permissionsByCollection = [];
         foreach ($result as $permission) {
             foreach ($permission as $field => &$value) {
-                if (in_array($field, ['read_field_blacklist', 'write_field_blacklist'])) {
+                if (\in_array($field, ['read_field_blacklist', 'write_field_blacklist'], true)) {
                     $value = array_filter(explode(',', $value));
                 }
             }
@@ -295,13 +303,13 @@ class DirectusPermissionsTableGateway extends RelationalTableGateway
         }
 
         //Dont let non-admins have alter privilege
-        return (1 == $this->acl->getGroupId()) ? true : false;
+        return (1 === $this->acl->getGroupId()) ? true : false;
     }
 
     private function verifyPrivilege($attributes)
     {
         // Making sure alter is set for admin only.
-        if (array_key_exists('allow_alter', $attributes)) {
+        if (\array_key_exists('allow_alter', $attributes)) {
             if ($this->isCurrentUserAdmin()) {
                 $attributes['allow_alter'] = 1;
             } else {

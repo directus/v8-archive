@@ -75,12 +75,12 @@ class Collection extends AbstractObject
     public function setFields(array $fields)
     {
         foreach ($fields as $field) {
-            if (is_array($field)) {
+            if (\is_array($field)) {
                 $field = new Field($field);
             }
 
             if (!($field instanceof Field)) {
-                throw new \InvalidArgumentException('Invalid field object. '.gettype($field).' given instead');
+                throw new \InvalidArgumentException('Invalid field object. '.\gettype($field).' given instead');
             }
 
             // @NOTE: This is a temporary solution
@@ -120,7 +120,7 @@ class Collection extends AbstractObject
 
         if ($names) {
             $fields = array_filter($fields, function (Field $field) use ($names) {
-                return in_array($field->getName(), $names);
+                return \in_array($field->getName(), $names, true);
             });
         }
 
@@ -138,7 +138,7 @@ class Collection extends AbstractObject
 
         if ($names) {
             $fields = array_filter($fields, function (Field $field) use ($names) {
-                return !in_array($field->getName(), $names);
+                return !\in_array($field->getName(), $names, true);
             });
         }
 
@@ -167,7 +167,7 @@ class Collection extends AbstractObject
      */
     public function isManaged()
     {
-        return 1 == $this->attributes->get('managed');
+        return 1 === $this->attributes->get('managed');
     }
 
     /**
@@ -329,7 +329,7 @@ class Collection extends AbstractObject
      */
     public function hasField($name)
     {
-        return array_key_exists($name, $this->fields);
+        return \array_key_exists($name, $this->fields);
     }
 
     /**
@@ -431,11 +431,11 @@ class Collection extends AbstractObject
             return $mapping;
         }
 
-        if (!is_array($mapping)) {
+        if (!\is_array($mapping)) {
             $mapping = @json_decode($mapping, true);
         }
 
-        if (is_array($mapping)) {
+        if (\is_array($mapping)) {
             $this->attributes->set('status_mapping', new StatusMapping($mapping));
 
             $mapping = $this->attributes->get('status_mapping');

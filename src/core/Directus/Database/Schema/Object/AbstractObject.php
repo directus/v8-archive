@@ -46,7 +46,7 @@ abstract class AbstractObject implements \ArrayAccess, Arrayable, \JsonSerializa
      */
     public function offsetSet($offset, $value)
     {
-        throw new ErrorException('Cannot set any value in '.get_class($this));
+        throw new ErrorException('Cannot set any value in '.\get_class($this));
     }
 
     /**
@@ -56,7 +56,7 @@ abstract class AbstractObject implements \ArrayAccess, Arrayable, \JsonSerializa
      */
     public function offsetUnset($offset)
     {
-        throw new ErrorException('Cannot unset any attribute in '.get_class($this));
+        throw new ErrorException('Cannot unset any attribute in '.\get_class($this));
     }
 
     /**

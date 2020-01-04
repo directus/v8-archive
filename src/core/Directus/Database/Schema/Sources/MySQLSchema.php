@@ -107,7 +107,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function collectionExists($collectionsName)
     {
-        if (is_string($collectionsName)) {
+        if (\is_string($collectionsName)) {
             $collectionsName = [$collectionsName];
         }
 
@@ -260,7 +260,7 @@ class MySQLSchema extends AbstractSchema
         $selectOne->combine($selectTwo);
 
         $sorts = ArrayUtils::get($params, 'sort', 'collection');
-        if (is_string($sorts)) {
+        if (\is_string($sorts)) {
             $sorts = StringUtils::csv($sorts);
         }
 
@@ -473,7 +473,7 @@ class MySQLSchema extends AbstractSchema
         switch ($type) {
             case 'bool':
             case 'boolean':
-                $data = boolval($data);
+                $data = (bool) $data;
 
                 break;
             case 'tinyjson':
@@ -481,7 +481,7 @@ class MySQLSchema extends AbstractSchema
             case 'mediumjson':
             case 'longjson':
                 if ($data) {
-                    $data = is_string($data) ? json_decode($data) : $data;
+                    $data = \is_string($data) ? json_decode($data) : $data;
                 } else {
                     $data = null;
                 }
@@ -619,7 +619,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function isNumericType($type)
     {
-        return in_array(strtolower($type), $this->getNumericTypes());
+        return \in_array(strtolower($type), $this->getNumericTypes(), true);
     }
 
     /**
@@ -645,7 +645,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function isStringType($type)
     {
-        return in_array(strtolower($type), $this->getStringTypes());
+        return \in_array(strtolower($type), $this->getStringTypes(), true);
     }
 
     /**
@@ -666,7 +666,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function isDateAndTimeTypes($type)
     {
-        return in_array(strtolower($type), $this->getDateAndTimeTypes());
+        return \in_array(strtolower($type), $this->getDateAndTimeTypes(), true);
     }
 
     /**
@@ -700,7 +700,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function isTypeLengthRequired($type)
     {
-        return in_array(strtolower($type), $this->getTypesRequireLength());
+        return \in_array(strtolower($type), $this->getTypesRequireLength(), true);
     }
 
     /**
@@ -708,7 +708,7 @@ class MySQLSchema extends AbstractSchema
      */
     public function isTypeLengthAllowed($type)
     {
-        return in_array(strtolower($type), $this->getTypesAllowLength());
+        return \in_array(strtolower($type), $this->getTypesAllowLength(), true);
     }
 
     /**

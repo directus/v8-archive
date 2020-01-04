@@ -65,12 +65,12 @@ class JWTUtils
      */
     public static function isJWT($token)
     {
-        if (!is_string($token)) {
+        if (!\is_string($token)) {
             return false;
         }
 
         $parts = explode('.', $token);
-        if (3 != count($parts)) {
+        if (3 !== \count($parts)) {
             return false;
         }
 
@@ -132,7 +132,7 @@ class JWTUtils
      */
     public static function hasPayloadAttr($key, $value, $payload)
     {
-        return is_object($payload) && property_exists($payload, $key) && $payload->{$key} === $value;
+        return \is_object($payload) && property_exists($payload, $key) && $payload->{$key} === $value;
     }
 
     /**
@@ -145,12 +145,12 @@ class JWTUtils
      */
     public static function getPayload($token, $attribute = null)
     {
-        if (!is_string($token)) {
+        if (!\is_string($token)) {
             return null;
         }
 
         $parts = explode('.', $token);
-        if (3 != count($parts)) {
+        if (3 !== \count($parts)) {
             return null;
         }
 
@@ -162,7 +162,7 @@ class JWTUtils
             return $payload;
         }
 
-        if (!is_string($attribute) || !property_exists($payload, $attribute)) {
+        if (!\is_string($attribute) || !property_exists($payload, $attribute)) {
             return null;
         }
 

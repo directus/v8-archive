@@ -229,7 +229,7 @@ class ScimService extends AbstractService
         $resourcesMapping = $this->getFilterAttributesMapping();
         $mapping = ArrayUtils::get($resourcesMapping, $resourceType, []);
 
-        if (!array_key_exists($attribute, $mapping)) {
+        if (!\array_key_exists($attribute, $mapping)) {
             throw new UnprocessableEntityException(
                 sprintf('Unknown attribute "%s"', $attribute)
             );
@@ -256,7 +256,7 @@ class ScimService extends AbstractService
         }
 
         if (ArrayUtils::has($data, 'name')) {
-            if (is_array($data['name']) && !empty($data['name'])) {
+            if (\is_array($data['name']) && !empty($data['name'])) {
                 $name = $data['name'];
                 $firstName = ArrayUtils::get($name, 'givenName');
                 $lastName = ArrayUtils::get($name, 'familyName');
@@ -270,7 +270,7 @@ class ScimService extends AbstractService
 
         if (
             ArrayUtils::has($data, 'emails')
-            && is_array($data['emails'])
+            && \is_array($data['emails'])
             && ArrayUtils::isNumericKeys($data['emails'])
         ) {
             $email = null;
@@ -353,7 +353,7 @@ class ScimService extends AbstractService
      */
     public function isOperatorSupported($operator)
     {
-        return in_array(strtolower($operator), $this->getOperators());
+        return \in_array(strtolower($operator), $this->getOperators(), true);
     }
 
     /**
@@ -556,13 +556,13 @@ class ScimService extends AbstractService
             return [];
         }
 
-        if (!is_string($filter)) {
+        if (!\is_string($filter)) {
             throw new UnprocessableEntityException('Filter must be a string');
         }
 
         $filterParts = preg_split('/\s+/', $filter);
 
-        if (3 !== count($filterParts)) {
+        if (3 !== \count($filterParts)) {
             throw new UnprocessableEntityException('Filter must be: <attribute> <operator> <value>');
         }
 
@@ -598,9 +598,9 @@ class ScimService extends AbstractService
 
         if (ArrayUtils::has($parameters, 'limit')) {
             $totalResults = ArrayUtils::get($meta, 'total_count');
-            $result['itemsPerPage'] = count($items);
+            $result['itemsPerPage'] = \count($items);
         } else {
-            $totalResults = count($items);
+            $totalResults = \count($items);
         }
 
         $result['totalResults'] = $totalResults;

@@ -54,7 +54,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
     public function applyDefaultPreferences($table, $preferences)
     {
         // Table-specific default values
-        if (array_key_exists($table, self::$defaultPreferencesValuesByTable)) {
+        if (\array_key_exists($table, self::$defaultPreferencesValuesByTable)) {
             $tableDefaultPreferences = self::$defaultPreferencesValuesByTable[$table];
             foreach ($tableDefaultPreferences as $field => $defaultValue) {
                 if (!isset($preferences[$field])) {
@@ -99,7 +99,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
             }
 
             $preferencesDefaultsApplied = $this->applyDefaultPreferences($table, $preferences);
-            if (count(array_diff($preferences, $preferencesDefaultsApplied))) {
+            if (\count(array_diff($preferences, $preferencesDefaultsApplied))) {
                 $newPreferencesData = true;
             }
             $preferences = $preferencesDefaultsApplied;
@@ -203,7 +203,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         // TODO: Merge with fetchByUserAndTableAndTitle
         $fields = ArrayUtils::get($params, 'fields');
         if (!empty($fields)) {
-            if (!is_array($fields)) {
+            if (!\is_array($fields)) {
                 $fields = StringUtils::csv($fields);
             }
 
@@ -273,7 +273,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         $update = new Update($this->table);
         unset($data['id'], $data['title'], $data['table_name'], $data['user']);
 
-        if (!isset($data) || !is_array($data)) {
+        if (!isset($data) || !\is_array($data)) {
             $data = [];
         }
         $update->set($data)
@@ -285,7 +285,7 @@ class DirectusCollectionPresetsTableGateway extends RelationalTableGateway
         $this->updateWith($update);
     }
 
-    // @param $assoc return associative array with table_name as keys
+    /** @param $assoc return associative array with table_name as keys */
     public function fetchAllByUser($user_id, $assoc = false)
     {
         $select = new Select($this->table);

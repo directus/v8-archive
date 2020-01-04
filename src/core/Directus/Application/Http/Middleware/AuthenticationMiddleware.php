@@ -52,7 +52,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
                 throw $exception;
             }
 
-            if (!is_null($user)) {
+            if (null !== $user) {
                 $rolesIpWhitelist = $this->getUserRolesIPWhitelist($user->getId());
 
                 $permissionsByCollection = $permissionsTable->getUserPermissions($user->getId());
@@ -62,7 +62,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
                 $tfa_enforced = $usersService->has2FAEnforced($user->getId());
                 $isUserEdit = $this->targetIsUserEdit($request, $user->getId());
 
-                if ($tfa_enforced && null == $user->get2FASecret() && !$isUserEdit) {
+                if ($tfa_enforced && null === $user->get2FASecret() && !$isUserEdit) {
                     $exception = new TFAEnforcedException();
                     $hookEmitter->run('auth.fail', [$exception]);
 
@@ -71,7 +71,7 @@ class AuthenticationMiddleware extends AbstractMiddleware
 
                 $hookEmitter->run('auth.success', [$user]);
             } else {
-                if (is_null($user) && $publicRoleId) {
+                if (null === $user && $publicRoleId) {
                     // NOTE: 0 will not represent a "guest" or the "public" user
                     // To prevent the issue where user column on activity table can't be null
                     $user = new User([
@@ -212,19 +212,19 @@ class AuthenticationMiddleware extends AbstractMiddleware
     protected function targetIsUserEdit(Request $request, int $id)
     {
         $target_array = explode('/', $request->getRequestTarget());
-        $num_elements = count($target_array);
+        $num_elements = \count($target_array);
 
         if (!$request->isPost()) {
             return false;
         }
 
         if ($num_elements > 3
-            && 'users' == $target_array[$num_elements - 3]
+            && 'users' === $target_array[$num_elements - 3]
             && (
-                $target_array[$num_elements - 2] == strval($id) ||
-                'me' == $target_array[$num_elements - 2]
+                $target_array[$num_elements - 2] === (string) $id ||
+                'me' === $target_array[$num_elements - 2]
             )
-            && 'activate_2fa' == $target_array[$num_elements - 1]) {
+            && 'activate_2fa' === $target_array[$num_elements - 1]) {
             return true;
         }
 

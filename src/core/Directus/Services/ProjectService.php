@@ -138,7 +138,7 @@ class ProjectService extends AbstractService
         }
         $name = $request->getAttribute('name');
 
-        if (!is_string($name) || !$name) {
+        if (!\is_string($name) || !$name) {
             throw new UnprocessableEntityException('Invalid project name');
         }
 

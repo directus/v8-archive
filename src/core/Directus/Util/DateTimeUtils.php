@@ -332,7 +332,7 @@ class DateTimeUtils extends \DateTime
      */
     public static function isValidDate($date, $format = 'Y-m-d')
     {
-        return $date == date($format, strtotime($date));
+        return $date === date($format, strtotime($date));
     }
 
     /**
@@ -345,6 +345,6 @@ class DateTimeUtils extends \DateTime
      */
     public static function isValidDateTime($date, $format = 'Y-m-d H:i:s')
     {
-        return $date == date($format, strtotime($date));
+        return $date === date($format, strtotime($date));
     }
 }

@@ -229,7 +229,7 @@ class FieldsConfig
         switch ($type) {
             case 'm2o':
                 foreach ($relationsData['data'] as $k => $v) {
-                    if ($v['collection_many'] == $collection && $v['field_many'] == $field) {
+                    if ($v['collection_many'] === $collection && $v['field_many'] === $field) {
                         $relation = $v;
 
                         break;
@@ -243,7 +243,7 @@ class FieldsConfig
 
                 //1. Find the collection_many
                 foreach ($relationsData['data'] as $k => $v) {
-                    if ($v['collection_one'] == $collection && $v['field_one'] == $field) {
+                    if ($v['collection_one'] === $collection && $v['field_one'] === $field) {
                         $firstRelation = $v;
 
                         break;
@@ -254,21 +254,21 @@ class FieldsConfig
 
                 //2. Find the 2nd collection_one
                 foreach ($relationsData['data'] as $k => $v) {
-                    if ($v['collection_many'] == $collectionMany && $v['id'] != $collection1Id) {
+                    if ($v['collection_many'] === $collectionMany && $v['id'] !== $collection1Id) {
                         $relation = $v;
 
                         break;
                     }
                 }
 
-                if (0 == count($relation)) {
+                if (0 === \count($relation)) {
                     $relation = $firstRelation;
                 }
 
                 break;
             case 'translation':
                 foreach ($relationsData['data'] as $k => $v) {
-                    if ($v['collection_one'] == $collection && $v['field_one'] == $field) {
+                    if ($v['collection_one'] === $collection && $v['field_one'] === $field) {
                         $relation = $v;
 
                         break;

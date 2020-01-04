@@ -258,7 +258,7 @@ class Acl
      */
     public function hasRole($roleId)
     {
-        return in_array($roleId, $this->getRolesId());
+        return \in_array($roleId, $this->getRolesId(), true);
     }
 
     /**
@@ -277,7 +277,7 @@ class Acl
     public function setRolesIpWhitelist(array $rolesIpWhitelist)
     {
         foreach ($rolesIpWhitelist as $role => $ipList) {
-            if (!is_array($ipList)) {
+            if (!\is_array($ipList)) {
                 $ipList = explode(',', $ipList);
             }
 
@@ -296,7 +296,7 @@ class Acl
     {
         $allowed = true;
         foreach ($this->rolesIpWhitelist as $list) {
-            if (!empty($list) && !in_array($ip, $list)) {
+            if (!empty($list) && !\in_array($ip, $list, true)) {
                 $allowed = false;
 
                 break;
@@ -317,7 +317,7 @@ class Acl
             foreach ($collectionPermissions as $permission) {
                 $roleId = ArrayUtils::get($permission, 'role');
 
-                if (!in_array($roleId, $this->roleIds)) {
+                if (!\in_array($roleId, $this->roleIds, true)) {
                     $this->roleIds[] = $roleId;
                 }
             }
@@ -351,11 +351,11 @@ class Acl
     {
         $status = ArrayUtils::get($permission, 'status');
 
-        if (is_null($status) && !isset($this->globalPermissions[$collection])) {
+        if (null === $status && !isset($this->globalPermissions[$collection])) {
             $this->globalPermissions[$collection] = $permission;
-        } elseif (!is_null($status) && StringUtils::startsWith($status, '$')) {
+        } elseif (null !== $status && StringUtils::startsWith($status, '$')) {
             $this->customPermissions[$collection][$status] = $permission;
-        } elseif (!is_null($status) && !isset($this->statusPermissions[$collection][$status])) {
+        } elseif (null !== $status && !isset($this->statusPermissions[$collection][$status])) {
             $this->statusPermissions[$collection][$status] = $permission;
             unset($this->globalPermissions[$collection]);
         }
@@ -413,10 +413,10 @@ class Acl
      */
     public function getCollectionPermissions($collection)
     {
-        if (array_key_exists($collection, $this->statusPermissions)) {
+        if (\array_key_exists($collection, $this->statusPermissions)) {
             return $this->statusPermissions[$collection];
         }
-        if (array_key_exists($collection, $this->globalPermissions)) {
+        if (\array_key_exists($collection, $this->globalPermissions)) {
             return $this->globalPermissions[$collection];
         }
 
@@ -434,9 +434,9 @@ class Acl
     public function getPermission($collection, $status = null)
     {
         $permissions = $this->getCollectionPermissions($collection);
-        $hasStatusPermissions = array_key_exists($collection, $this->statusPermissions);
+        $hasStatusPermissions = \array_key_exists($collection, $this->statusPermissions);
 
-        if (is_null($status) && $hasStatusPermissions) {
+        if (null === $status && $hasStatusPermissions) {
             $permissions = [];
         } elseif ($hasStatusPermissions) {
             $permissions = ArrayUtils::get($permissions, $status, []);
@@ -454,7 +454,7 @@ class Acl
      */
     public function hasWorkflowEnabled($collection)
     {
-        return array_key_exists($collection, $this->statusPermissions);
+        return \array_key_exists($collection, $this->statusPermissions);
     }
 
     /**
@@ -903,7 +903,7 @@ class Acl
     public function requireExplanationAt($action, $collection, $status = null)
     {
         $permission = $this->getPermission($collection, $status);
-        if (!array_key_exists('explain', $permission)) {
+        if (!\array_key_exists('explain', $permission)) {
             return false;
         }
 
@@ -990,8 +990,8 @@ class Acl
             }
 
             throw new Exception\ForbiddenCollectionReadException(
-                    $collection
-                );
+                $collection
+            );
         }
     }
 
@@ -1169,7 +1169,7 @@ class Acl
     {
         $fields = $this->getReadFieldBlacklist($collection, $status);
 
-        return !in_array($field, $fields);
+        return !\in_array($field, $fields, true);
     }
 
     /**
@@ -1185,7 +1185,7 @@ class Acl
     {
         $fields = $this->getWriteFieldBlacklist($collection, $status);
 
-        return !in_array($field, $fields);
+        return !\in_array($field, $fields, true);
     }
 
     /**
@@ -1199,7 +1199,7 @@ class Acl
      */
     public function enforceReadField($collection, $fields, $status = null)
     {
-        if (!is_array($fields)) {
+        if (!\is_array($fields)) {
             $fields = [$fields];
         }
 
@@ -1221,7 +1221,7 @@ class Acl
      */
     public function enforceWriteField($collection, $fields, $status = null)
     {
-        if (!is_array($fields)) {
+        if (!\is_array($fields)) {
             $fields = [$fields];
         }
 
@@ -1239,8 +1239,8 @@ class Acl
      *
      * @param string $action
      * @param string $collection
-     * @param int $level
-     * @param mixed $status
+     * @param int    $level
+     * @param mixed  $status
      *
      * @return bool
      */
@@ -1252,7 +1252,7 @@ class Acl
 
         $permission = $this->getPermission($collection, $status);
 
-        if (0 === count($permission)) {
+        if (0 === \count($permission)) {
             $statuses = $this->getCollectionStatuses($collection);
 
             $allowed = false;
@@ -1282,9 +1282,9 @@ class Acl
         }
 
         $permissions = [];
-        if (array_key_exists($collection, $this->statusPermissions)) {
+        if (\array_key_exists($collection, $this->statusPermissions)) {
             $permissions = $this->statusPermissions[$collection];
-        } elseif (array_key_exists($collection, $this->globalPermissions)) {
+        } elseif (\array_key_exists($collection, $this->globalPermissions)) {
             $permissions = [$this->globalPermissions[$collection]];
         }
 
@@ -1319,17 +1319,17 @@ class Acl
         if ($statuses) {
             foreach ($statuses as $status) {
                 $readFieldBlackList = isset($collectionPermission[$status]['read_field_blacklist']) ? $collectionPermission[$status]['read_field_blacklist'] : [];
-                if ($readFieldBlackList && in_array($field, $readFieldBlackList)) {
+                if ($readFieldBlackList && \in_array($field, $readFieldBlackList, true)) {
                     $blackListStatuses['statuses'][] = $status;
                 }
             }
             //Set flag for field which is blacklist for all statuses
-            if (isset($blackListStatuses['statuses']) && count($blackListStatuses['statuses']) == count($statuses)) {
+            if (isset($blackListStatuses['statuses']) && \count($blackListStatuses['statuses']) === \count($statuses)) {
                 $blackListStatuses['isReadBlackList'] = true;
             }
         } else {
             $readFieldBlackList = isset($collectionPermission['read_field_blacklist']) ? $collectionPermission['read_field_blacklist'] : [];
-            if ($readFieldBlackList && in_array($field, $readFieldBlackList)) {
+            if ($readFieldBlackList && \in_array($field, $readFieldBlackList, true)) {
                 $blackListStatuses['isReadBlackList'] = true;
             }
         }
@@ -1354,17 +1354,17 @@ class Acl
         if ($statuses) {
             foreach ($statuses as $status) {
                 $writeFieldBlackList = isset($collectionPermission[$status]['write_field_blacklist']) ? $collectionPermission[$status]['write_field_blacklist'] : [];
-                if ($writeFieldBlackList && in_array($field, $writeFieldBlackList)) {
+                if ($writeFieldBlackList && \in_array($field, $writeFieldBlackList, true)) {
                     $blackListStatuses['statuses'][] = $status;
                 }
             }
             //Set flag for field which is blacklist for all statuses
-            if (isset($blackListStatuses['statuses']) && count($blackListStatuses['statuses']) == count($statuses)) {
+            if (isset($blackListStatuses['statuses']) && \count($blackListStatuses['statuses']) === \count($statuses)) {
                 $blackListStatuses['isWriteBlackList'] = true;
             }
         } else {
             $writeFieldBlackList = isset($collectionPermission['write_field_blacklist']) ? $collectionPermission['write_field_blacklist'] : [];
-            if ($writeFieldBlackList && in_array($field, $writeFieldBlackList)) {
+            if ($writeFieldBlackList && \in_array($field, $writeFieldBlackList, true)) {
                 $blackListStatuses['isWriteBlackList'] = true;
             }
         }
@@ -1387,7 +1387,7 @@ class Acl
 
         $statuses = false;
 
-        if (array_key_exists($collection, $this->statusPermissions)) {
+        if (\array_key_exists($collection, $this->statusPermissions)) {
             $statuses = [];
 
             foreach ($this->statusPermissions[$collection] as $status => $permission) {
@@ -1397,7 +1397,7 @@ class Acl
                     $statuses[] = $status;
                 }
             }
-        } elseif (array_key_exists($collection, $this->globalPermissions)) {
+        } elseif (\array_key_exists($collection, $this->globalPermissions)) {
             $permission = $this->globalPermissions[$collection];
             $permissionLevel = ArrayUtils::get($permission, static::ACTION_READ);
 
@@ -1445,7 +1445,7 @@ class Acl
     protected function canComment($level, $collection, $status = null)
     {
         $permission = $this->getPermission($collection, $status);
-        if (!array_key_exists('comment', $permission) || null === $permission['comment']) {
+        if (!\array_key_exists('comment', $permission) || null === $permission['comment']) {
             return true;
         }
 

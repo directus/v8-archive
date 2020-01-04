@@ -30,7 +30,7 @@ class CollectionList
             $filters = [];
             foreach ($this->param['filter'] as $filter => $value) {
                 // TODO :: Need to rewrite the code for better readiablity.
-                if ('or' == $filter || 'and' == $filter) {
+                if ('or' === $filter || 'and' === $filter) {
                     $c = 0;
                     foreach ($value as $innerFilters) {
                         $innerFilter = array_keys($innerFilters)[0];

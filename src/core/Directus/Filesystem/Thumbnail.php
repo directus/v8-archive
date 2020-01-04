@@ -39,7 +39,7 @@ class Thumbnail
             $targetContent = static::createImageFromNonImage($targetContent, $format);
         }
 
-        if (!in_array(strtolower($format), static::$imageFormatsSupported)) {
+        if (!\in_array(strtolower($format), static::$imageFormatsSupported, true)) {
             return false;
         }
 
@@ -90,7 +90,7 @@ class Thumbnail
         }
 
         // Preserve transperancy for gifs and pngs
-        if ('gif' == $format || 'png' == $format || 'webp' == $format) {
+        if ('gif' === $format || 'png' === $format || 'webp' === $format) {
             imagealphablending($imgResized, false);
             imagesavealpha($imgResized, true);
             $transparent = imagecolorallocatealpha($imgResized, 255, 255, 255, 127);
@@ -114,7 +114,7 @@ class Thumbnail
      */
     public static function createImageFromNonImage($content, $format = 'jpeg')
     {
-        if (!extension_loaded('imagick')) {
+        if (!\extension_loaded('imagick')) {
             return false;
         }
         $image = new \Imagick();
@@ -197,7 +197,7 @@ class Thumbnail
      */
     public static function getImageFormatSupported()
     {
-        return Thumbnail::$imageFormatsSupported;
+        return self::$imageFormatsSupported;
     }
 
     /**
@@ -219,6 +219,6 @@ class Thumbnail
      */
     public static function isNonImageFormatSupported($format)
     {
-        return in_array(strtolower($format), static::$nonImageFormatsSupported);
+        return \in_array(strtolower($format), static::$nonImageFormatsSupported, true);
     }
 }

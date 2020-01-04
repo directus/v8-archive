@@ -127,22 +127,22 @@ class CoreServicesProvider
                 $path = $config->get('logger.path');
             }
 
-            $pathIsStream = 'php://stdout' == $path || 'php://stderr' == $path;
+            $pathIsStream = 'php://stdout' === $path || 'php://stderr' === $path;
             if (!$pathIsStream) {
                 if (file_exists($path)) {
                     if (is_file($path)) {
-                        $path = dirname($path);
+                        $path = \dirname($path);
                     }
                 } else {
                     mkdir($path, 0777, true);
                 }
 
-                if (!is_dir($path) || !is_writeable($path)) {
+                if (!is_dir($path) || !is_writable($path)) {
                     throw new InvalidLoggerConfigurationException('path');
                 }
 
-                if ('/' == substr($path, -1)) {
-                    $path = substr($path, 0, strlen($path) - 1);
+                if ('/' === substr($path, -1)) {
+                    $path = substr($path, 0, \strlen($path) - 1);
                 }
             }
 
@@ -316,7 +316,7 @@ class CoreServicesProvider
             };
             $emitter->addFilter('item.read.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
-                if (!in_array('filename_disk', $columns)) {
+                if (!\in_array('filename_disk', $columns, true)) {
                     $columns[] = 'filename_disk';
                     $payload->set('columns', $columns);
                 }
@@ -345,7 +345,7 @@ class CoreServicesProvider
                         if (empty($value) && !is_numeric($value)) {
                             $value = [];
                         } else {
-                            $value = !is_array($value) ? explode(',', $value) : $value;
+                            $value = !\is_array($value) ? explode(',', $value) : $value;
                         }
 
                         return $value;
@@ -353,7 +353,7 @@ class CoreServicesProvider
 
                     // convert array into string
                     $encodeFn = function ($value) {
-                        return is_array($value) ? implode(',', $value) : $value;
+                        return \is_array($value) ? implode(',', $value) : $value;
                     };
 
                     // NOTE: If the array has value with comma it will be treat as a separate value
@@ -381,7 +381,7 @@ class CoreServicesProvider
                     }
 
                     $key = $field->getName();
-                    $data[$key] = boolval($data[$key]);
+                    $data[$key] = (bool) ($data[$key]);
                 }
 
                 return $data;
@@ -400,9 +400,9 @@ class CoreServicesProvider
                     $value = $data[$key];
 
                     if (true === $decode) {
-                        $value = is_string($value) ? json_decode($value) : $value;
+                        $value = \is_string($value) ? json_decode($value) : $value;
                     } elseif (null !== $value) {
-                        $value = !is_string($value) ? json_encode($value) : $value;
+                        $value = !\is_string($value) ? json_encode($value) : $value;
                     }
 
                     $data[$key] = $value;
@@ -553,7 +553,7 @@ class CoreServicesProvider
                         continue;
                     }
 
-                    if (array_key_exists($key, $slugMirrorFields) && !$payload->has($slugMirrorFields[$key]->getName())) {
+                    if (\array_key_exists($key, $slugMirrorFields) && !$payload->has($slugMirrorFields[$key]->getName())) {
                         /** @var Slugify $slugify */
                         $slugify = $container->get('slugify');
 
@@ -763,7 +763,7 @@ class CoreServicesProvider
 
             $ssoProviders = array_merge($coreSso, $customSso);
             foreach ($providersConfig as $providerName => $providerConfig) {
-                if (!is_array($providerConfig)) {
+                if (!\is_array($providerConfig)) {
                     continue;
                 }
 
@@ -771,7 +771,7 @@ class CoreServicesProvider
                     continue;
                 }
 
-                if (array_key_exists($providerName, $ssoProviders) && isset($ssoProviders[$providerName]['provider'])) {
+                if (\array_key_exists($providerName, $ssoProviders) && isset($ssoProviders[$providerName]['provider'])) {
                     $providerInfo = $ssoProviders[$providerName];
                     $class = array_get($providerInfo, 'provider');
                     $custom = array_get($providerInfo, 'custom');
@@ -835,7 +835,7 @@ class CoreServicesProvider
             $config = $container->get('config');
             $poolConfig = $config->get('cache.pool');
 
-            if (!$poolConfig || (!is_object($poolConfig) && empty($poolConfig['adapter']))) {
+            if (!$poolConfig || (!\is_object($poolConfig) && empty($poolConfig['adapter']))) {
                 $poolConfig = ['adapter' => 'void'];
             }
 
@@ -844,29 +844,29 @@ class CoreServicesProvider
             if (!$config->get('cache.enabled')) {
                 return $pool;
             }
-            if (is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
+            if (\is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
                 $pool = $poolConfig;
             } else {
-                if (!in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'memcache', 'redis', 'rediscluster', 'void'])) {
+                if (!\in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'memcache', 'redis', 'rediscluster', 'void'], true)) {
                     throw new InvalidCacheAdapterException();
                 }
 
                 $adapter = $poolConfig['adapter'];
 
-                if ('apc' == $adapter) {
+                if ('apc' === $adapter) {
                     $pool = new ApcCachePool();
                 }
 
-                if ('apcu' == $adapter) {
+                if ('apcu' === $adapter) {
                     $pool = new ApcuCachePool();
                 }
 
-                if ('array' == $adapter) {
+                if ('array' === $adapter) {
                     $pool = new ArrayCachePool();
                 }
 
-                if ('filesystem' == $adapter) {
-                    if (empty($poolConfig['path']) || !is_string($poolConfig['path'])) {
+                if ('filesystem' === $adapter) {
+                    if (empty($poolConfig['path']) || !\is_string($poolConfig['path'])) {
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
@@ -882,16 +882,16 @@ class CoreServicesProvider
                     $pool = new FilesystemCachePool($filesystem);
                 }
 
-                if ('memcached' == $adapter || 'memcache' == $adapter) {
-                    if ('memcached' == $adapter && !extension_loaded('memcached')) {
+                if ('memcached' === $adapter || 'memcache' === $adapter) {
+                    if ('memcached' === $adapter && !\extension_loaded('memcached')) {
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
-                    if ('memcache' == $adapter && !extension_loaded('memcache')) {
+                    if ('memcache' === $adapter && !\extension_loaded('memcache')) {
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
-                    $client = 'memcached' == $adapter ? new \Memcached() : new \Memcache();
+                    $client = 'memcached' === $adapter ? new \Memcached() : new \Memcache();
                     if (isset($poolConfig['url'])) {
                         $urls = explode(';', $poolConfig['url']);
                         if (false === $urls) {
@@ -910,18 +910,18 @@ class CoreServicesProvider
 
                         $client->addServer($host, $port);
                     }
-                    $pool = 'memcached' == $adapter ? new MemcachedCachePool($client) : new MemcacheCachePool($client);
+                    $pool = 'memcached' === $adapter ? new MemcachedCachePool($client) : new MemcacheCachePool($client);
                 }
 
-                if ('redis' == $adapter || 'rediscluster' == $adapter) {
-                    if (!extension_loaded('redis')) {
+                if ('redis' === $adapter || 'rediscluster' === $adapter) {
+                    if (!\extension_loaded('redis')) {
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
                     $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
                     $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 6379;
                     $socket = (isset($poolConfig['socket'])) ? $poolConfig['socket'] : null;
-                    if ('rediscluster' == $adapter) {
+                    if ('rediscluster' === $adapter) {
                         $client = new \RedisCluster(null, ["{$host}:{$port}"]);
                     } else {
                         $client = new \Redis();
@@ -1006,7 +1006,7 @@ class CoreServicesProvider
             $hashManager = new HashManager();
             $basePath = $container->get('path_base');
 
-            $path = implode(DIRECTORY_SEPARATOR, [
+            $path = implode(\DIRECTORY_SEPARATOR, [
                 $basePath,
                 'custom',
                 'hashers',
@@ -1075,7 +1075,7 @@ class CoreServicesProvider
             foreach ($mailConfigs as $name => $mailConfig) {
                 $transport = ArrayUtils::get($mailConfig, 'transport');
 
-                if (array_key_exists($transport, $transports)) {
+                if (\array_key_exists($transport, $transports)) {
                     $transport = $transports[$transport];
                 }
 
@@ -1117,11 +1117,11 @@ class CoreServicesProvider
         return function (Container $container) {
             $statusMapping = get_directus_setting('status_mapping');
 
-            if (is_string($statusMapping)) {
+            if (\is_string($statusMapping)) {
                 $statusMapping = json_decode($statusMapping, true);
             }
 
-            if (!is_array($statusMapping)) {
+            if (!\is_array($statusMapping)) {
                 $statusMapping = [];
             }
 
@@ -1188,7 +1188,7 @@ class CoreServicesProvider
                 '\Directus\Embed\Provider\YoutubeProvider',
             ];
 
-            $path = implode(DIRECTORY_SEPARATOR, [
+            $path = implode(\DIRECTORY_SEPARATOR, [
                 $app->getContainer()->get('path_base'),
                 'custom',
                 'embeds',

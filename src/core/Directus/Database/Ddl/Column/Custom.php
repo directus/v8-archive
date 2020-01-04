@@ -27,7 +27,7 @@ class Custom extends AbstractPrecisionColumn
      */
     public function setLength($length)
     {
-        if (is_array($length)) {
+        if (\is_array($length)) {
             $length = implode(',', array_map(function ($value) {
                 // add slashes in case the value has quotes
                 return sprintf('"%s"', addslashes($value));

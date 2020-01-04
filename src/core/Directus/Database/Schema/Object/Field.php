@@ -168,7 +168,7 @@ class Field extends AbstractObject
      */
     public function isNullable()
     {
-        return boolval($this->attributes->get('nullable'));
+        return (bool) ($this->attributes->get('nullable'));
     }
 
     /**
@@ -255,7 +255,7 @@ class Field extends AbstractObject
             $options = $this->attributes->get('options');
         }
 
-        if (null !== $key && is_array($options)) {
+        if (null !== $key && \is_array($options)) {
             $options = ArrayUtils::get($options, $key);
         }
 
@@ -509,7 +509,7 @@ class Field extends AbstractObject
      */
     public function isManaged()
     {
-        return 1 == $this->attributes->get('managed');
+        return 1 === $this->attributes->get('managed');
     }
 
     /**

@@ -91,9 +91,9 @@ class TransportManager
     protected function getDefaultKey()
     {
         $key = null;
-        if (array_key_exists('default', $this->transports)) {
+        if (\array_key_exists('default', $this->transports)) {
             $key = 'default';
-        } elseif (count($this->transports) > 0) {
+        } elseif (\count($this->transports) > 0) {
             reset($this->transports);
             $key = key($this->transports);
         }
@@ -113,22 +113,22 @@ class TransportManager
      */
     protected function build($name, array $config = [])
     {
-        if (!array_key_exists($name, $this->transports)) {
+        if (!\array_key_exists($name, $this->transports)) {
             throw new TransportNotFoundException($name);
         }
 
         $transport = $this->transports[$name];
-        if (!is_string($transport) && !is_object($transport) && !is_callable($transport)) {
+        if (!\is_string($transport) && !\is_object($transport) && !\is_callable($transport)) {
             throw new InvalidTransportException($this->transports[$name]);
         }
 
-        if (is_string($transport) && !class_exists($transport)) {
+        if (\is_string($transport) && !class_exists($transport)) {
             throw new InvalidTransportException($this->transports[$name]);
         }
 
-        if (is_callable($transport)) {
-            $instance = call_user_func($transport);
-        } elseif (is_string($transport)) {
+        if (\is_callable($transport)) {
+            $instance = \call_user_func($transport);
+        } elseif (\is_string($transport)) {
             $instance = new $transport($config);
         } else {
             $instance = $transport;
@@ -136,7 +136,7 @@ class TransportManager
 
         if (!($instance instanceof AbstractTransport)) {
             throw new RuntimeException(
-                sprintf('%s is not an instance of %s', gettype($instance), AbstractTransport::class)
+                sprintf('%s is not an instance of %s', \gettype($instance), AbstractTransport::class)
             );
         }
 

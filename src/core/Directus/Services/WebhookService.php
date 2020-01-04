@@ -147,7 +147,7 @@ class WebhookService extends AbstractService
      */
     public function batchCreate(array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch create expect an array of items');
         }
 
@@ -159,7 +159,7 @@ class WebhookService extends AbstractService
         $allItems = [];
         foreach ($items as $data) {
             $item = $this->create($data, $params);
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }
@@ -180,7 +180,7 @@ class WebhookService extends AbstractService
      */
     public function batchUpdate(array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch update expect an array of items');
         }
 
@@ -196,7 +196,7 @@ class WebhookService extends AbstractService
             $id = $data[$collectionObject->getPrimaryKeyName()];
             $item = $this->update($id, $data, $params);
 
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }

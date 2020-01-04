@@ -30,7 +30,7 @@ class Cli
 
         $this->command = array_shift($argv);
 
-        if ('help' == $this->command) {
+        if ('help' === $this->command) {
             $this->help_module = array_shift($argv);
         }
 
@@ -44,7 +44,7 @@ class Cli
         switch ($this->command) {
             case 'help':
             case '':
-                if ('' != $this->help_module) {
+                if ('' !== $this->help_module) {
                     $this->showModuleHelp();
                 } else {
                     $this->showHelp();
@@ -60,7 +60,7 @@ class Cli
 
     private function loadModules()
     {
-        foreach (glob(dirname(__FILE__).DIRECTORY_SEPARATOR.'Modules'.DIRECTORY_SEPARATOR.'*Module.php') as $moduleFile) {
+        foreach (glob(__DIR__.\DIRECTORY_SEPARATOR.'Modules'.\DIRECTORY_SEPARATOR.'*Module.php') as $moduleFile) {
             $moduleName = 'Directus\Console\Modules\\'.basename($moduleFile, '.php');
             require $moduleFile;
             $moduleInstance = new $moduleName($this->directusPath);
@@ -80,7 +80,7 @@ class Cli
             exit(1);
         }
 
-        if (!array_key_exists($module, $this->cmd_modules)) {
+        if (!\array_key_exists($module, $this->cmd_modules)) {
             echo PHP_EOL.PHP_EOL.'Module '.$module.': does not exist!'.PHP_EOL.PHP_EOL;
             exit(1);
         }
@@ -104,7 +104,7 @@ class Cli
     private function handlePdoException(\PDOException $e)
     {
         $expected = "Duplicate entry 'directus_activity-id' for key 'idx_collection_field'";
-        if (23000 == (int) $e->errorInfo[0] && $e->errorInfo[2] == $expected) {
+        if (23000 === (int) $e->errorInfo[0] && $e->errorInfo[2] === $expected) {
             echo 'The Database for '.$this->directusPath." had already been deployed.\n";
             echo 'You may use option -f to enforce the overwriting of existing data.';
         } else {
@@ -124,7 +124,7 @@ class Cli
 
     private function showModuleHelp()
     {
-        if (!array_key_exists($this->help_module, $this->cmd_modules)) {
+        if (!\array_key_exists($this->help_module, $this->cmd_modules)) {
             echo PHP_EOL.PHP_EOL.'Module '.$this->help_module.': does not exist!'.PHP_EOL.PHP_EOL;
 
             return;
@@ -141,7 +141,7 @@ class Cli
     {
         $options = [];
 
-        $num_args = count($argv);
+        $num_args = \count($argv);
         $arg_idx = 0;
         while ($num_args > 0) {
             $arg = $argv[$arg_idx];

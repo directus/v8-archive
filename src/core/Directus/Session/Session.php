@@ -33,7 +33,7 @@ class Session
      */
     public function __call($method, $arguments)
     {
-        return call_user_func_array([$this->storage, $method], $arguments);
+        return \call_user_func_array([$this->storage, $method], $arguments);
     }
 
     /**

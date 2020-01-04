@@ -17,9 +17,9 @@ class Context
         $target = [];
         ksort($source);
         foreach ($source as $key => $value) {
-            Context::expand($target, explode('_', strtolower($key)), $value);
+            self::expand($target, explode('_', strtolower($key)), $value);
         }
-        Context::normalize($target);
+        self::normalize($target);
 
         return $target;
     }
@@ -33,7 +33,7 @@ class Context
             throw new \Error('No environment variables available. Check php_ini "variables_order" value.');
         }
 
-        return Context::from_map($_ENV);
+        return self::from_map($_ENV);
     }
 
     /**
@@ -86,12 +86,12 @@ class Context
     private static function expand(&$target, $path, $value)
     {
         $segment = array_shift($path);
-        if (0 === sizeof($path)) { // leaf
-            if (!is_array($target)) {
+        if (0 === \count($path)) { // leaf
+            if (!\is_array($target)) {
                 // TODO: raise warning - overwriting value
                 $target = [];
             }
-            if (array_key_exists($segment, $target)) {
+            if (\array_key_exists($segment, $target)) {
                 // TODO: raise warning - overwriting group
             }
             $target[$segment] = $value;
@@ -101,10 +101,10 @@ class Context
         if (!isset($target[$segment])) {
             $target[$segment] = [];
         }
-        if (!is_array($target[$segment])) {
+        if (!\is_array($target[$segment])) {
             $target[$segment] = [];
         }
-        Context::expand($target[$segment], $path, $value);
+        self::expand($target[$segment], $path, $value);
     }
 
     /**
@@ -114,13 +114,13 @@ class Context
      */
     private static function normalize(&$target)
     {
-        if (!is_array($target)) {
+        if (!\is_array($target)) {
             return;
         }
 
         $sort = false;
         foreach ($target as $key => $value) {
-            Context::normalize($target[$key]);
+            self::normalize($target[$key]);
             $sort |= is_numeric($key);
         }
 

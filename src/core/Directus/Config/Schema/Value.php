@@ -54,15 +54,15 @@ class Value extends Base implements Node
 
         switch ($this->_type) {
             case Types::INTEGER:
-                return intval($value);
+                return (int) $value;
             case Types::BOOLEAN:
                 $value = strtolower($value);
 
-                return 'true' === $value || '1' === $value || 'on' === $value || 'yes' === $value || boolval($value);
+                return 'true' === $value || '1' === $value || 'on' === $value || 'yes' === $value || (bool) $value;
             case Types::FLOAT:
-                return floatval($value);
+                return (float) $value;
             case Types::ARRAY:
-                if (!is_array($value)) {
+                if (!\is_array($value)) {
                     return $this->_default;
                 }
                 // no break

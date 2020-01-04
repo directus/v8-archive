@@ -168,7 +168,7 @@ class CorsMiddleware extends AbstractMiddleware
         $header = null;
 
         $methods = $options->get('methods', []);
-        if (is_array($methods)) {
+        if (\is_array($methods)) {
             $methods = implode(',', $methods);
         }
 
@@ -192,7 +192,7 @@ class CorsMiddleware extends AbstractMiddleware
         $header = null;
 
         $allowedHeaders = $options->get('headers', []);
-        if (is_array($allowedHeaders)) {
+        if (\is_array($allowedHeaders)) {
             $allowedHeaders = implode(',', $allowedHeaders);
         }
 
@@ -222,7 +222,7 @@ class CorsMiddleware extends AbstractMiddleware
         $options = $this->getOptions();
 
         $headers = $options->get('exposed_headers', []);
-        if (is_array($headers)) {
+        if (\is_array($headers)) {
             $headers = implode(',', $headers);
         }
 

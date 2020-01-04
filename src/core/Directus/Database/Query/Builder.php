@@ -180,9 +180,9 @@ class Builder
     public function nestWhere(\Closure $callback, $logical = 'and')
     {
         $query = $this->newQuery();
-        call_user_func($callback, $query);
+        \call_user_func($callback, $query);
 
-        if (count($query->getWheres())) {
+        if (\count($query->getWheres())) {
             $type = 'nest';
             $this->wheres[] = compact('type', 'query', 'logical');
         }
@@ -204,7 +204,7 @@ class Builder
      */
     public function whereEmpty($column)
     {
-        return $this->nestWhere(function (Builder $query) use ($column) {
+        return $this->nestWhere(function (self $query) use ($column) {
             $query->orWhereNull($column);
             $query->orWhereEqualTo($column, '');
         });
@@ -219,7 +219,7 @@ class Builder
      */
     public function whereNotEmpty($column)
     {
-        return $this->nestWhere(function (Builder $query) use ($column) {
+        return $this->nestWhere(function (self $query) use ($column) {
             $query->whereNotNull($column);
             $query->whereNotEqualTo($column, '');
         }, 'and');
@@ -358,7 +358,7 @@ class Builder
 
     public function whereHas($column, $table, $columnLeft, $columnRight, $count = 1, $not = false)
     {
-        if (is_null($columnLeft)) {
+        if (null === $columnLeft) {
             $relation = new OneToManyRelation($this, $column, $table, $columnRight, $this->getFrom());
         } else {
             $relation = new ManyToManyRelation($this, $table, $columnLeft, $columnRight);
@@ -383,7 +383,7 @@ class Builder
 
     public function whereRelational($column, $table, $columnLeft, $columnRight = null, \Closure $callback = null, $logical = 'and')
     {
-        if (is_callable($columnRight)) {
+        if (\is_callable($columnRight)) {
             // $column: Relational Column
             // $table: Related table
             // $columnRight: Related table that points to $column
@@ -391,13 +391,13 @@ class Builder
             $columnRight = $columnLeft;
             $columnLeft = null;
             $relation = new ManyToOneRelation($this, $columnRight, $table);
-        } elseif (is_null($columnLeft)) {
+        } elseif (null === $columnLeft) {
             $relation = new OneToManyRelation($this, $column, $table, $columnRight, $this->getFrom());
         } else {
             $relation = new ManyToManyRelation($this, $table, $columnLeft, $columnRight);
         }
 
-        call_user_func($callback, $relation);
+        \call_user_func($callback, $relation);
 
         return $this->whereIn($column, $relation, false, $logical);
     }
@@ -541,7 +541,7 @@ class Builder
      */
     public function groupBy($columns)
     {
-        if (!is_array($columns)) {
+        if (!\is_array($columns)) {
             $columns = [$columns];
         }
 
@@ -754,7 +754,7 @@ class Builder
         $platform = $this->getConnection()->getPlatform();
         $table = $this->getFrom();
 
-        if (is_string($column) && false === strpos($column, $platform->getIdentifierSeparator())) {
+        if (\is_string($column) && false === strpos($column, $platform->getIdentifierSeparator())) {
             $column = implode($platform->getIdentifierSeparator(), [$table, $column]);
         }
 
@@ -775,7 +775,7 @@ class Builder
         $identifier = $this->getIdentifier($column);
         $value = $condition['value'];
 
-        if ($value instanceof Builder) {
+        if ($value instanceof self) {
             $value = $value->buildSelect();
         }
 

@@ -32,7 +32,7 @@ class ItemsService extends AbstractService
         $this->validatePayload($collection, null, $payload, $params);
 
         // Validate Password if password policy settled in the system settings.
-        if (SchemaManager::COLLECTION_USERS == $collection) {
+        if (SchemaManager::COLLECTION_USERS === $collection) {
             $passwordValidation = get_directus_setting('password_policy');
             if (!empty($passwordValidation)) {
                 $this->validate($payload, [static::PASSWORD_FIELD => ['regex:'.$passwordValidation]]);
@@ -130,7 +130,7 @@ class ItemsService extends AbstractService
                 $this->getAcl()->enforceRead($collection, $statusValue);
             }
         } catch (ForbiddenCollectionReadException $e) {
-            if (is_array($ids) && count($ids) > 1) {
+            if (\is_array($ids) && \count($ids) > 1) {
                 throw $e;
             }
 
@@ -172,10 +172,10 @@ class ItemsService extends AbstractService
         $collectionFields = $payload;
 
         foreach ($tableColumns as $key => $column) {
-            if (!empty($recordData) && array_key_exists($column->getName(), $recordData)) {
+            if (!empty($recordData) && \array_key_exists($column->getName(), $recordData)) {
                 $columnName = $column->getName();
 
-                $collectionFields[$columnName] = array_key_exists($columnName, $collectionFields) ? $collectionFields[$columnName] : (DataTypes::isJson($column->getType()) ? (array) $recordData[$columnName] : $recordData[$columnName]);
+                $collectionFields[$columnName] = \array_key_exists($columnName, $collectionFields) ? $collectionFields[$columnName] : (DataTypes::isJson($column->getType()) ? (array) $recordData[$columnName] : $recordData[$columnName]);
             }
         }
         $this->validatePayload($collection, null, $collectionFields, $params);
@@ -213,14 +213,14 @@ class ItemsService extends AbstractService
                              *  If datatype of the primary key is INT; if ID exists in the payload then the system will consider it as an update/select existing otherwise it will be considered as a create request.
                              * */
 
-                            if (!empty($validatePayload[$relationalCollectionPrimaryKey]) && $relationalCollectionPrimaryKeyObject->hasAutoIncrement() && 'INT' == $relationalCollectionPrimaryKeyObject->getDataType()) {
+                            if (!empty($validatePayload[$relationalCollectionPrimaryKey]) && $relationalCollectionPrimaryKeyObject->hasAutoIncrement() && 'INT' === $relationalCollectionPrimaryKeyObject->getDataType()) {
                                 $relationalCollectionData = $this->findByIds($relationalCollectionName, $validatePayload[$relationalCollectionPrimaryKey], $params);
-                                $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName] : (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+                                $validatePayload[$columnName] = \array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName] : (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
                                 $params['select_existing_or_update'] = true;
                             } elseif (!empty($validatePayload[$relationalCollectionPrimaryKey]) && !$relationalCollectionPrimaryKeyObject->hasAutoIncrement()) {
                                 try {
                                     $relationalCollectionData = $this->findByIds($relationalCollectionName, $validatePayload[$relationalCollectionPrimaryKey], $params);
-                                    $validatePayload[$columnName] = array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName] : (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+                                    $validatePayload[$columnName] = \array_key_exists($columnName, $validatePayload) ? $validatePayload[$columnName] : (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
                                     $params['select_existing_or_update'] = true;
                                 } catch (\Exception $e) {
                                     continue;
@@ -269,7 +269,7 @@ class ItemsService extends AbstractService
                                 $individual[$relationalCollectionPrimaryKey],
                                 $params
                             );
-                            $individual[$columnName] = array_key_exists($columnName, $individual) ? $individual[$columnName] : (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
+                            $individual[$columnName] = \array_key_exists($columnName, $individual) ? $individual[$columnName] : (isset($relationalCollectionData['data'][$columnName]) ? ((DataTypes::isJson($column->getType()) ? (array) $relationalCollectionData['data'][$columnName] : $relationalCollectionData['data'][$columnName])) : null);
                         }
                     }
                     // only add parent id's to items that are lacking the parent column
@@ -296,23 +296,23 @@ class ItemsService extends AbstractService
         $deletedData = 0;
         foreach ($tableColumns as $column) {
             // Check if field is O2M and required
-            if ($column->hasRelationship() && $column->isOneToMany() && ($column->isRequired() || (!$column->isNullable() && null == $column->getDefaultValue()))) {
+            if ($column->hasRelationship() && $column->isOneToMany() && ($column->isRequired() || (!$column->isNullable() && null === $column->getDefaultValue()))) {
                 if (!empty($recordData)) {
                     $columnName = $column->getName();
 
-                    if (isset($recordData[$columnName], $payload[$columnName]) && count($recordData[$columnName]) == count($payload[$columnName])) {
+                    if (isset($recordData[$columnName], $payload[$columnName]) && \count($recordData[$columnName]) === \count($payload[$columnName])) {
                         $fieldMany = $column->getRelationship()->getFieldMany();
                         $collectionMany = SchemaService::getCollection($column->getRelationship()->getCollectionMany());
                         $primaryKeyCollectionMany = $collectionMany->getPrimaryKeyName();
                         $alreadyStoredEntries = array_column($recordData[$columnName], $primaryKeyCollectionMany);
                         foreach ($payload[$columnName] as $payloadData) {
-                            if (isset($payloadData[$primaryKeyCollectionMany]) && in_array($payloadData[$primaryKeyCollectionMany], $alreadyStoredEntries)) {
-                                if (isset($payloadData['$delete']) || (array_key_exists($fieldMany, $payloadData) && is_null($payloadData[$fieldMany]))) {
+                            if (isset($payloadData[$primaryKeyCollectionMany]) && \in_array($payloadData[$primaryKeyCollectionMany], $alreadyStoredEntries, true)) {
+                                if (isset($payloadData['$delete']) || (\array_key_exists($fieldMany, $payloadData) && null === $payloadData[$fieldMany])) {
                                     ++$deletedData;
                                 }
                             }
                         }
-                        if ($deletedData == count($recordData[$columnName])) {
+                        if ($deletedData === \count($recordData[$columnName])) {
                             throw new UnprocessableEntityException($columnName.': This value should not be blank.');
                         }
                     }
@@ -397,7 +397,7 @@ class ItemsService extends AbstractService
      */
     public function batchCreate($collection, array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch create expect an array of items');
         }
 
@@ -409,7 +409,7 @@ class ItemsService extends AbstractService
         $allItems = [];
         foreach ($items as $data) {
             $item = $this->createItem($collection, $data, $params);
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }
@@ -430,7 +430,7 @@ class ItemsService extends AbstractService
      */
     public function batchUpdate($collection, array $items, array $params = [])
     {
-        if (!isset($items[0]) || !is_array($items[0])) {
+        if (!isset($items[0]) || !\is_array($items[0])) {
             throw new InvalidRequestException('batch update expect an array of items');
         }
 
@@ -446,7 +446,7 @@ class ItemsService extends AbstractService
             $id = $data[$collectionObject->getPrimaryKeyName()];
             $item = $this->update($collection, $id, $data, $params);
 
-            if (!is_null($item)) {
+            if (null !== $item) {
                 $allItems[] = $item['data'];
             }
         }

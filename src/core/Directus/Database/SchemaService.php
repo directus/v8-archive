@@ -269,7 +269,7 @@ class SchemaService
 
         $has = false;
         foreach ($relationalColumns as $column) {
-            if (in_array($column, $columns)) {
+            if (\in_array($column, $columns, true)) {
                 $has = true;
 
                 break;
@@ -352,7 +352,7 @@ class SchemaService
 
         $tableObject = static::getCollection($tableName);
         $columnObject = $tableObject->getField($columnName);
-        if (FieldRelationship::ONE_TO_MANY == $columnObject->getRelationship()->getType()) {
+        if (FieldRelationship::ONE_TO_MANY === $columnObject->getRelationship()->getType()) {
             return $columnObject->getRelationship()->getCollectionMany();
         }
 
@@ -384,7 +384,7 @@ class SchemaService
         $readFieldBlacklist = $acl->getReadFieldBlacklist($tableName);
 
         return array_filter($columns, function (Field $column) use ($readFieldBlacklist) {
-            return !in_array($column->getName(), $readFieldBlacklist);
+            return !\in_array($column->getName(), $readFieldBlacklist, true);
         });
     }
 
@@ -568,7 +568,7 @@ class SchemaService
             $columns = array_merge($columns, $tableObject->getAliasFieldsName());
         }
 
-        if (in_array($column, $columns)) {
+        if (\in_array($column, $columns, true)) {
             return true;
         }
 
