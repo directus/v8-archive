@@ -43,7 +43,7 @@ class Provider extends TwoSocialProvider
             return true === ArrayUtils::get($item, 'verified');
         });
 
-        if (is_array($response) && count($response) > 0) {
+        if (\is_array($response) && \count($response) > 0) {
             // fallback to the first email on the list
             $ownerEmail = $response[0]['email'];
 
@@ -65,9 +65,9 @@ class Provider extends TwoSocialProvider
         // Third try: pick the primary email if exists
         // Fourth try: pick the first email on the list
         // Fifth try: fallback to null
-        if (in_array($primary, $visible)) {
+        if (\in_array($primary, $visible, true)) {
             $ownerEmail = $primary;
-        } elseif (count($visible) > 0) {
+        } elseif (\count($visible) > 0) {
             $ownerEmail = array_shift($visible);
         } elseif ($primary) {
             $ownerEmail = $primary;

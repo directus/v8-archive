@@ -42,7 +42,7 @@ return [
                                     sprintf(
                                         'Unknown: %. Options available: %s',
                                         $when,
-                                        implode(['today', 'yesterday', 'tomorrow'])
+                                        implode('', ['today', 'yesterday', 'tomorrow'])
                                     )
                                 );
                             }

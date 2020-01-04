@@ -26,7 +26,7 @@ $filesystem = $app->getContainer()->get('filesystem')->getAdapter();
 
 //Remove the project name from the URL
 $path = urldecode(\Directus\get_virtual_path());
-if (substr($path, 0, strlen($projectName)) == $projectName) {
+if (substr($path, 0, strlen($projectName)) === $projectName) {
     $path = substr($path, strlen($projectName));
 }
 
