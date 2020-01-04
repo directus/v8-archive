@@ -65,7 +65,7 @@ class Fields extends Route
         $fieldsName = StringUtils::csv((string) $fieldName);
 
         $service = new TablesService($this->container);
-        if (count($fieldsName) > 1) {
+        if (\count($fieldsName) > 1) {
             $responseData = $service->findFields($collectionName, $fieldsName, $request->getQueryParams());
         } else {
             $responseData = $service->findField($collectionName, $fieldName, $request->getQueryParams());
@@ -87,7 +87,7 @@ class Fields extends Route
         $payload = $request->getParsedBody();
 
         if (
-            (isset($payload[0]) && is_array($payload[0]))
+            (isset($payload[0]) && \is_array($payload[0]))
             || strpos($field, ',') > 0
         ) {
             return $this->batch($request, $response);

@@ -2,7 +2,7 @@
 
 namespace Directus;
 
-if (!function_exists('convert_shorthand_size_to_bytes')) {
+if (!\function_exists('convert_shorthand_size_to_bytes')) {
     /**
      * Convert shorthand size into bytes.
      *
@@ -13,7 +13,7 @@ if (!function_exists('convert_shorthand_size_to_bytes')) {
     function convert_shorthand_size_to_bytes($size)
     {
         $unit = strtolower(preg_replace('/[0-9]/', '', $size));
-        $size = intval($size);
+        $size = (int) $size;
 
         if ($unit) {
             $size *= pow(1024, stripos('bkmgtpezy', $unit[0]));

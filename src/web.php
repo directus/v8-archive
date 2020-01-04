@@ -41,7 +41,7 @@ if (file_exists($maintenanceFlagPath)) {
 try {
     $app = \Directus\create_app_with_project_name($basePath, $projectName);
 } catch (ErrorException $e) {
-    if (Directus\Config\Exception\UnknownProjectException::ERROR_CODE == $e->getCode()) {
+    if (Directus\Config\Exception\UnknownProjectException::ERROR_CODE === $e->getCode()) {
         return \Directus\create_unknown_project_app($basePath);
     }
     http_response_code($e->getStatusCode());

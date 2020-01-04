@@ -44,7 +44,7 @@ require __DIR__.'/sorting.php';
 require __DIR__.'/url.php';
 require __DIR__.'/uuid.php';
 
-if (!function_exists('uc_convert')) {
+if (!\function_exists('uc_convert')) {
     /**
      * Converts a string to title.
      *
@@ -98,7 +98,7 @@ if (!function_exists('uc_convert')) {
     }
 }
 
-if (!function_exists('get_directus_path')) {
+if (!\function_exists('get_directus_path')) {
     /**
      * Gets the Directus path (subdirectory based on the host).
      *
@@ -117,7 +117,7 @@ if (!function_exists('get_directus_path')) {
     }
 }
 
-if (!function_exists('normalize_path')) {
+if (!\function_exists('normalize_path')) {
     /**
      * Normalize a filesystem path.
      *
@@ -138,7 +138,7 @@ if (!function_exists('normalize_path')) {
     }
 }
 
-if (!function_exists('get_url')) {
+if (!\function_exists('get_url')) {
     /**
      * Get Directus URL.
      *
@@ -152,7 +152,7 @@ if (!function_exists('get_url')) {
     }
 }
 
-if (!function_exists('get_base_path')) {
+if (!\function_exists('get_base_path')) {
     /**
      * Get Directus' base path.
      *
@@ -167,7 +167,7 @@ if (!function_exists('get_base_path')) {
     }
 }
 
-if (!function_exists('create_request_from_global')) {
+if (!\function_exists('create_request_from_global')) {
     /**
      * Create a Request object from global variables.
      *
@@ -195,7 +195,7 @@ if (!function_exists('create_request_from_global')) {
         if (
             !$ignorePayload
             && 'POST' === $method
-            && in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
+            && \in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'], true)
         ) {
             // parsed body must be $_POST
             $request = $request->withParsedBody($_POST);
@@ -210,7 +210,7 @@ if (!function_exists('create_request_from_global')) {
     }
 }
 
-if (!function_exists('create_uri_from_global')) {
+if (!\function_exists('create_uri_from_global')) {
     /**
      * Creates a uri object based on $_SERVER.
      *
@@ -231,7 +231,7 @@ if (!function_exists('create_uri_from_global')) {
     }
 }
 
-if (!function_exists('get_virtual_path')) {
+if (!\function_exists('get_virtual_path')) {
     /**
      * Gets the virtual request path.
      *
@@ -243,7 +243,7 @@ if (!function_exists('get_virtual_path')) {
     }
 }
 
-if (!function_exists('get_api_project_from_request')) {
+if (!\function_exists('get_api_project_from_request')) {
     /**
      * Gets the project name from the request uri.
      *
@@ -258,7 +258,7 @@ if (!function_exists('get_api_project_from_request')) {
 
         // Fetch project name from the request if request path is root
         // or a reserved name
-        if (!$name || in_array($name, $reservedNames)) {
+        if (!$name || \in_array($name, $reservedNames, true)) {
             $request = create_request_from_global([
                 'ignore_payload' => true,
                 'check_proxy' => false,
@@ -268,11 +268,11 @@ if (!function_exists('get_api_project_from_request')) {
                 $authorizationHeader = $request->getHeader('Authorization');
 
                 // If there's multiple Authorization header, pick first, ignore the rest
-                if (is_array($authorizationHeader)) {
+                if (\is_array($authorizationHeader)) {
                     $authorizationHeader = array_shift($authorizationHeader);
                 }
 
-                if (is_string($authorizationHeader) && preg_match('/Bearer\\s+(.*)$/i', $authorizationHeader, $matches)) {
+                if (\is_string($authorizationHeader) && preg_match('/Bearer\\s+(.*)$/i', $authorizationHeader, $matches)) {
                     $authToken = $matches[1];
                 }
             }
@@ -288,7 +288,7 @@ if (!function_exists('get_api_project_from_request')) {
     }
 }
 
-if (!function_exists('get_request_authorization_token')) {
+if (!\function_exists('get_request_authorization_token')) {
     /**
      * Returns the authorization token from a request object.
      *
@@ -306,11 +306,11 @@ if (!function_exists('get_request_authorization_token')) {
             $authUser = $request->getHeader('Php-Auth-User');
             $authPassword = $request->getHeader('Php-Auth-Pw');
 
-            if (is_array($authUser)) {
+            if (\is_array($authUser)) {
                 $authUser = array_shift($authUser);
             }
 
-            if (is_array($authPassword)) {
+            if (\is_array($authPassword)) {
                 $authPassword = array_shift($authPassword);
             }
 
@@ -322,11 +322,11 @@ if (!function_exists('get_request_authorization_token')) {
             $authorizationHeader = $request->getHeader('Authorization');
 
             // If there's multiple Authorization header, pick first, ignore the rest
-            if (is_array($authorizationHeader)) {
+            if (\is_array($authorizationHeader)) {
                 $authorizationHeader = array_shift($authorizationHeader);
             }
 
-            if (is_string($authorizationHeader) && preg_match('/Bearer\\s+(.*)$/i', $authorizationHeader, $matches)) {
+            if (\is_string($authorizationHeader) && preg_match('/Bearer\\s+(.*)$/i', $authorizationHeader, $matches)) {
                 $response['token'] = $matches[1];
             }
         } elseif ($request->hasHeader('Cookie')) {
@@ -339,7 +339,7 @@ if (!function_exists('get_request_authorization_token')) {
     }
 }
 
-if (!function_exists('get_project_session_cookie_name')) {
+if (!\function_exists('get_project_session_cookie_name')) {
     /**
      * Returns the session cookie name of current project.
      *
@@ -355,7 +355,7 @@ if (!function_exists('get_project_session_cookie_name')) {
     }
 }
 
-if (!function_exists('get_static_token_based_on_type')) {
+if (!\function_exists('get_static_token_based_on_type')) {
     /**
      * Returns the static token of users table from a encrypted token of sessions table.
      *
@@ -393,7 +393,7 @@ if (!function_exists('get_static_token_based_on_type')) {
     }
 }
 
-if (!function_exists('encrypt_static_token')) {
+if (!\function_exists('encrypt_static_token')) {
     /**
      * Returns the encrypted static token.
      *
@@ -411,7 +411,7 @@ if (!function_exists('encrypt_static_token')) {
     }
 }
 
-if (!function_exists('decrypt_static_token')) {
+if (!\function_exists('decrypt_static_token')) {
     /**
      * Returns the decrypted static token.
      *
@@ -429,7 +429,7 @@ if (!function_exists('decrypt_static_token')) {
     }
 }
 
-if (!function_exists('get_request_project_name')) {
+if (!\function_exists('get_request_project_name')) {
     /**
      * Returns the project name from a request object.
      *
@@ -444,11 +444,11 @@ if (!function_exists('get_request_project_name')) {
             $name = $request->getHeader('X-Directus-Project');
         }
 
-        return is_array($name) ? array_shift($name) : $name;
+        return \is_array($name) ? array_shift($name) : $name;
     }
 }
 
-if (!function_exists('create_config_path')) {
+if (!\function_exists('create_config_path')) {
     /**
      * Creates the configuration path for a project.
      *
@@ -463,7 +463,7 @@ if (!function_exists('create_config_path')) {
     }
 }
 
-if (!function_exists('create_maintenanceflag_path')) {
+if (!\function_exists('create_maintenanceflag_path')) {
     /**
      * Returns the path for the maintenance flag file.
      *
@@ -477,7 +477,7 @@ if (!function_exists('create_maintenanceflag_path')) {
     }
 }
 
-if (!function_exists('get_reserved_endpoint_names')) {
+if (!\function_exists('get_reserved_endpoint_names')) {
     /**
      * Returns a list of reserved endpoint names.
      *
@@ -496,7 +496,7 @@ if (!function_exists('get_reserved_endpoint_names')) {
     }
 }
 
-if (!function_exists('get_file_info')) {
+if (!\function_exists('get_file_info')) {
     /**
      * Get info about a file, return extensive information about images (more to come).
      *
@@ -512,7 +512,7 @@ if (!function_exists('get_file_info')) {
 
         $type_str = explode('/', $info['type']);
 
-        if ('image' == $type_str[0]) {
+        if ('image' === $type_str[0]) {
             $size = getimagesize($file, $meta);
             $info['width'] = $size[0];
             $info['height'] = $size[1];
@@ -521,7 +521,7 @@ if (!function_exists('get_file_info')) {
                 $iptc = iptcparse($meta['APP13']);
                 $info['caption'] = $iptc['2#120'][0];
                 $info['title'] = $iptc['2#005'][0];
-                $info['tags'] = implode($iptc['2#025'], ',');
+                $info['tags'] = implode(',', $iptc['2#025']);
             }
         }
 
@@ -529,7 +529,7 @@ if (!function_exists('get_file_info')) {
     }
 }
 
-if (!function_exists('template')) {
+if (!\function_exists('template')) {
     /**
      * Renders a single line. Looks for {{ var }}.
      *
@@ -547,7 +547,7 @@ if (!function_exists('template')) {
     }
 }
 
-if (!function_exists('to_name_value')) {
+if (!\function_exists('to_name_value')) {
     function to_name_value($array, $keys = null)
     {
         $data = [];
@@ -563,33 +563,33 @@ if (!function_exists('to_name_value')) {
     }
 }
 
-if (!function_exists('find')) {
+if (!\function_exists('find')) {
     function find($array, $key, $value)
     {
         foreach ($array as $item) {
-            if (isset($item[$key]) && ($item[$key] == $value)) {
+            if (isset($item[$key]) && ($item[$key] === $value)) {
                 return $item;
             }
         }
     }
 }
 
-if (!function_exists('is_numeric_array')) {
+if (!\function_exists('is_numeric_array')) {
     // http://stackoverflow.com/questions/902857/php-getting-array-type
     function is_numeric_array($array)
     {
-        return $array == array_values($array);
+        return $array === array_values($array);
     }
 }
 
-if (!function_exists('is_numeric_keys_array')) {
+if (!\function_exists('is_numeric_keys_array')) {
     function is_numeric_keys_array($array)
     {
         return ArrayUtils::isNumericKeys($array);
     }
 }
 
-if (!function_exists('debug')) {
+if (!\function_exists('debug')) {
     function debug($data, $title = null)
     {
         echo '<div style="padding:10px;">';
@@ -601,7 +601,7 @@ if (!function_exists('debug')) {
     }
 }
 
-if (!function_exists('register_global_hooks')) {
+if (!\function_exists('register_global_hooks')) {
     /**
      * Register all the hooks from the configuration file.
      */
@@ -612,7 +612,7 @@ if (!function_exists('register_global_hooks')) {
     }
 }
 
-if (!function_exists('register_extensions_hooks')) {
+if (!\function_exists('register_extensions_hooks')) {
     /**
      * Register all extensions hooks.
      */
@@ -635,7 +635,7 @@ if (!function_exists('register_extensions_hooks')) {
     }
 }
 
-if (!function_exists('register_webhooks')) {
+if (!\function_exists('register_webhooks')) {
     /**
      * Register all the hooks from the directus_webhooks table.
      */
@@ -653,7 +653,7 @@ if (!function_exists('register_webhooks')) {
                 $result['hooks']['actions'][$action[0].'.'.$hook['collection'].':'.$action[1]] = function ($data) use ($hook) {
                     $client = new \GuzzleHttp\Client();
                     $response = [];
-                    if (WebhookService::HTTP_ACTION_POST == $hook['http_action']) {
+                    if (WebhookService::HTTP_ACTION_POST === $hook['http_action']) {
                         $response['json'] = ($data);
                     }
                     $client->request($hook['http_action'], $hook['url'], $response);
@@ -666,7 +666,7 @@ if (!function_exists('register_webhooks')) {
     }
 }
 
-if (!function_exists('register_hooks_list')) {
+if (!\function_exists('register_hooks_list')) {
     /**
      * Register an array of hooks (containing a list of actions and filters).
      */
@@ -679,7 +679,7 @@ if (!function_exists('register_hooks_list')) {
     }
 }
 
-if (!function_exists('register_hooks')) {
+if (!\function_exists('register_hooks')) {
     /**
      * Load one or multiple listeners.
      *
@@ -690,12 +690,12 @@ if (!function_exists('register_hooks')) {
     {
         $hookEmitter = $app->getContainer()->get('hook_emitter');
 
-        if (!is_array($listeners)) {
+        if (!\is_array($listeners)) {
             $listeners = [$listeners];
         }
 
         foreach ($listeners as $event => $handlers) {
-            if (!is_array($handlers)) {
+            if (!\is_array($handlers)) {
                 $handlers = [$handlers];
             }
 
@@ -706,7 +706,7 @@ if (!function_exists('register_hooks')) {
     }
 }
 
-if (!function_exists('register_hook')) {
+if (!\function_exists('register_hook')) {
     /**
      * Register a hook listeners.
      *
@@ -725,7 +725,7 @@ if (!function_exists('register_hook')) {
     }
 }
 
-if (!function_exists('register_action_hook')) {
+if (!\function_exists('register_action_hook')) {
     /**
      * Register a hook action.
      *
@@ -739,7 +739,7 @@ if (!function_exists('register_action_hook')) {
     }
 }
 
-if (!function_exists('register_hook_filter')) {
+if (!\function_exists('register_hook_filter')) {
     /**
      * Register a hook action.
      *
@@ -753,7 +753,7 @@ if (!function_exists('register_hook_filter')) {
     }
 }
 
-if (!function_exists('get_default_timezone')) {
+if (!\function_exists('get_default_timezone')) {
     /**
      * Returns the default timezone.
      *
@@ -767,7 +767,7 @@ if (!function_exists('get_default_timezone')) {
     }
 }
 
-if (!function_exists('get_user_timezone')) {
+if (!\function_exists('get_user_timezone')) {
     function get_user_timezone()
     {
         $userTimeZone = get_auth_timezone();
@@ -780,7 +780,7 @@ if (!function_exists('get_user_timezone')) {
     }
 }
 
-if (!function_exists('get_auth_info')) {
+if (!\function_exists('get_auth_info')) {
     function get_auth_info($attribute)
     {
         $app = Application::getInstance();
@@ -796,21 +796,21 @@ if (!function_exists('get_auth_info')) {
     }
 }
 
-if (!function_exists('get_auth_timezone')) {
+if (!\function_exists('get_auth_timezone')) {
     function get_auth_timezone()
     {
         return get_auth_info('timezone');
     }
 }
 
-if (!function_exists('base_path')) {
+if (!\function_exists('base_path')) {
     function base_path($suffix = '')
     {
         $app = Application::getInstance();
 
         $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__.'/../../');
 
-        if (!is_string($suffix)) {
+        if (!\is_string($suffix)) {
             throw new Exception('suffix must be a string');
         }
 
@@ -822,7 +822,7 @@ if (!function_exists('base_path')) {
     }
 }
 
-if (!function_exists('get_fake_timezones')) {
+if (!\function_exists('get_fake_timezones')) {
     /**
      * Gets the list of fake timezone map to an real one.
      *
@@ -857,7 +857,7 @@ if (!function_exists('get_fake_timezones')) {
     }
 }
 
-if (!function_exists('get_real_timezone')) {
+if (!\function_exists('get_real_timezone')) {
     /**
      * Gets the real name of the timezone name.
      *
@@ -875,7 +875,7 @@ if (!function_exists('get_real_timezone')) {
     }
 }
 
-if (!function_exists('get_timezone_list')) {
+if (!\function_exists('get_timezone_list')) {
     /**
      * @return array
      */
@@ -1032,7 +1032,7 @@ if (!function_exists('get_timezone_list')) {
     }
 }
 
-if (!function_exists('get_country_list')) {
+if (!\function_exists('get_country_list')) {
     /**
      * @return array
      */
@@ -1306,7 +1306,7 @@ if (!function_exists('get_country_list')) {
     }
 }
 
-if (!function_exists('find_directories')) {
+if (!\function_exists('find_directories')) {
     /**
      * Gets directories inside the given path.
      *
@@ -1324,7 +1324,7 @@ if (!function_exists('find_directories')) {
     }
 }
 
-if (!function_exists('find_files')) {
+if (!\function_exists('find_files')) {
     /**
      * Find files inside $paths, directories and file name starting with "_" will be ignored.
      *
@@ -1338,7 +1338,7 @@ if (!function_exists('find_files')) {
      */
     function find_files($searchPaths, $flags = 0, $pattern = '', $includeSubDirectories = false)
     {
-        if (!is_array($searchPaths)) {
+        if (!\is_array($searchPaths)) {
             $searchPaths = [$searchPaths];
         }
 
@@ -1372,7 +1372,7 @@ if (!function_exists('find_files')) {
     }
 }
 
-if (!function_exists('find_js_files')) {
+if (!\function_exists('find_js_files')) {
     /**
      * Find JS files in the given path.
      *
@@ -1387,7 +1387,7 @@ if (!function_exists('find_js_files')) {
     }
 }
 
-if (!function_exists('find_json_files')) {
+if (!\function_exists('find_json_files')) {
     /**
      * Find JSON files in the given path.
      *
@@ -1402,7 +1402,7 @@ if (!function_exists('find_json_files')) {
     }
 }
 
-if (!function_exists('find_log_files')) {
+if (!\function_exists('find_log_files')) {
     /**
      * Find .log files in the given path.
      *
@@ -1417,7 +1417,7 @@ if (!function_exists('find_log_files')) {
     }
 }
 
-if (!function_exists('find_php_files')) {
+if (!\function_exists('find_php_files')) {
     /**
      * Find PHP files in the given path.
      *
@@ -1432,7 +1432,7 @@ if (!function_exists('find_php_files')) {
     }
 }
 
-if (!function_exists('find_html_files')) {
+if (!\function_exists('find_html_files')) {
     /**
      * Find HTML files in the given path.
      *
@@ -1447,7 +1447,7 @@ if (!function_exists('find_html_files')) {
     }
 }
 
-if (!function_exists('find_twig_files')) {
+if (!\function_exists('find_twig_files')) {
     /**
      * Find Twig files in the given path.
      *
@@ -1462,7 +1462,7 @@ if (!function_exists('find_twig_files')) {
     }
 }
 
-if (!function_exists('get_request_ip')) {
+if (!\function_exists('get_request_ip')) {
     function get_request_ip()
     {
         if (isset($_SERVER['X_FORWARDED_FOR'])) {
@@ -1476,7 +1476,7 @@ if (!function_exists('get_request_ip')) {
     }
 }
 
-if (!function_exists('get_request_host')) {
+if (!\function_exists('get_request_host')) {
     function get_request_host()
     {
         /**
@@ -1486,11 +1486,11 @@ if (!function_exists('get_request_host')) {
          */
         $ip = get_request_ip();
 
-        return in_array($ip, ['127.0.0.1', '::1']) ? 'localhost' : $ip;
+        return \in_array($ip, ['127.0.0.1', '::1'], true) ? 'localhost' : $ip;
     }
 }
 
-if (!function_exists('get_missing_requirements')) {
+if (!\function_exists('get_missing_requirements')) {
     /**
      * Gets an array of errors message when there's a missing requirements.
      *
@@ -1504,23 +1504,23 @@ if (!function_exists('get_missing_requirements')) {
             $errors[] = 'Your host needs to use PHP 7.1.0 or higher to run this version of Directus!';
         }
 
-        if (!defined('PDO::ATTR_DRIVER_NAME')) {
+        if (!\defined('PDO::ATTR_DRIVER_NAME')) {
             $errors[] = 'Your host needs to have PDO enabled to run this version of Directus!';
         }
 
-        if (defined('PDO::ATTR_DRIVER_NAME') && !in_array('mysql', \PDO::getAvailableDrivers())) {
+        if (\defined('PDO::ATTR_DRIVER_NAME') && !\in_array('mysql', \PDO::getAvailableDrivers(), true)) {
             $errors[] = 'Your host needs to have PDO MySQL Driver enabled to run this version of Directus!';
         }
 
-        if (!extension_loaded('gd') || !function_exists('gd_info')) {
+        if (!\extension_loaded('gd') || !\function_exists('gd_info')) {
             $errors[] = 'Your host needs to have GD Library enabled to run this version of Directus!';
         }
 
-        if (!extension_loaded('fileinfo') || !class_exists('finfo')) {
+        if (!\extension_loaded('fileinfo') || !class_exists('finfo')) {
             $errors[] = 'Your host needs to have File Information extension enabled to run this version of Directus!';
         }
 
-        if (!extension_loaded('curl') || !function_exists('curl_init')) {
+        if (!\extension_loaded('curl') || !\function_exists('curl_init')) {
             $errors[] = 'Your host needs to have cURL extension enabled to run this version of Directus!';
         }
 
@@ -1532,7 +1532,7 @@ if (!function_exists('get_missing_requirements')) {
     }
 }
 
-if (!function_exists('display_missing_requirements_html')) {
+if (!\function_exists('display_missing_requirements_html')) {
     /**
      * Display an html error page.
      *
@@ -1552,7 +1552,7 @@ if (!function_exists('display_missing_requirements_html')) {
     }
 }
 
-if (!function_exists('define_constant')) {
+if (!\function_exists('define_constant')) {
     /**
      * Define a constant if it does not exist.
      *
@@ -1565,8 +1565,8 @@ if (!function_exists('define_constant')) {
     {
         $defined = true;
 
-        if (!defined($name)) {
-            define($name, $value);
+        if (!\defined($name)) {
+            \define($name, $value);
             $defined = false;
         }
 
@@ -1574,7 +1574,7 @@ if (!function_exists('define_constant')) {
     }
 }
 
-if (!function_exists('get_columns_flat_at')) {
+if (!\function_exists('get_columns_flat_at')) {
     /**
      * Get all the columns name in the given level.
      *
@@ -1598,7 +1598,7 @@ if (!function_exists('get_columns_flat_at')) {
     }
 }
 
-if (!function_exists('get_csv_flat_columns')) {
+if (!\function_exists('get_csv_flat_columns')) {
     /**
      * Gets a CSV flat columns list from the given array.
      *
@@ -1612,7 +1612,7 @@ if (!function_exists('get_csv_flat_columns')) {
         $prefix = null === $prefix ? '' : $prefix.'.';
 
         foreach ($columns as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $value = get_csv_flat_columns($value, $prefix.$key);
             } else {
                 $value = $prefix.$key;
@@ -1625,7 +1625,7 @@ if (!function_exists('get_csv_flat_columns')) {
     }
 }
 
-if (!function_exists('get_array_flat_columns')) {
+if (!\function_exists('get_array_flat_columns')) {
     /**
      * Gets an array flat columns list from the given array.
      *
@@ -1644,7 +1644,7 @@ if (!function_exists('get_array_flat_columns')) {
     }
 }
 
-if (!function_exists('get_unflat_columns')) {
+if (!\function_exists('get_unflat_columns')) {
     /**
      * Gets the unflat version of flat (dot-notated) column list.
      *
@@ -1656,7 +1656,7 @@ if (!function_exists('get_unflat_columns')) {
     {
         $names = [];
 
-        if (!is_array($columns)) {
+        if (!\is_array($columns)) {
             $columns = explode(',', $columns);
         }
 
@@ -1689,7 +1689,7 @@ if (!function_exists('get_unflat_columns')) {
     }
 }
 
-if (!function_exists('column_identifier_reverse')) {
+if (!\function_exists('column_identifier_reverse')) {
     /**
      * Reverse a dot notation column identifier.
      *
@@ -1711,7 +1711,7 @@ if (!function_exists('column_identifier_reverse')) {
     }
 }
 
-if (!function_exists('compact_sort_to_array')) {
+if (!\function_exists('compact_sort_to_array')) {
     /**
      * Converts compact sorting column to array.
      *
@@ -1725,8 +1725,8 @@ if (!function_exists('compact_sort_to_array')) {
      */
     function compact_sort_to_array($field)
     {
-        if (!is_string($field)) {
-            throw new Exception(sprintf('field is expected to be string, %s given.', gettype($field)));
+        if (!\is_string($field)) {
+            throw new Exception(sprintf('field is expected to be string, %s given.', \gettype($field)));
         }
 
         $order = 'ASC';
@@ -1741,14 +1741,14 @@ if (!function_exists('compact_sort_to_array')) {
     }
 }
 
-if (!function_exists('convert_param_columns')) {
+if (!\function_exists('convert_param_columns')) {
     function convert_param_columns($columns)
     {
-        if (is_array($columns)) {
+        if (\is_array($columns)) {
             return $columns;
         }
 
-        if (is_string($columns)) {
+        if (\is_string($columns)) {
             // remove all 'falsy' columns name
             $columns = array_filter(StringUtils::csv($columns, true));
         } else {
@@ -1759,7 +1759,7 @@ if (!function_exists('convert_param_columns')) {
     }
 }
 
-if (!function_exists('is_valid_regex_pattern')) {
+if (!\function_exists('is_valid_regex_pattern')) {
     /**
      * Checks whether the given pattern is a valid regex.
      *
@@ -1771,7 +1771,7 @@ if (!function_exists('is_valid_regex_pattern')) {
     {
         $valid = false;
 
-        if (is_string($pattern) && false !== @preg_match($pattern, null)) {
+        if (\is_string($pattern) && false !== @preg_match($pattern, null)) {
             $valid = true;
         }
 
@@ -1779,7 +1779,7 @@ if (!function_exists('is_valid_regex_pattern')) {
     }
 }
 
-if (!function_exists('is_custom_validation')) {
+if (!\function_exists('is_custom_validation')) {
     /**
      * Checks whether the given value is a custom validation.
      *
@@ -1789,13 +1789,13 @@ if (!function_exists('is_custom_validation')) {
      */
     function is_custom_validation($value)
     {
-        return in_array(strtolower((string) $value), [
+        return \in_array(strtolower((string) $value), [
             '$email',
-        ]);
+        ], true);
     }
 }
 
-if (!function_exists('get_custom_validation_name')) {
+if (!\function_exists('get_custom_validation_name')) {
     /**
      * Returns the custom validation constraint name.
      *
@@ -1809,7 +1809,7 @@ if (!function_exists('get_custom_validation_name')) {
     }
 }
 
-if (!function_exists('env')) {
+if (!\function_exists('env')) {
     /**
      * Returns an environment variable.
      *
@@ -1830,7 +1830,7 @@ if (!function_exists('env')) {
     }
 }
 
-if (!function_exists('phinx_update')) {
+if (!\function_exists('phinx_update')) {
     /**
      * @param string $table
      *
@@ -1841,7 +1841,7 @@ if (!function_exists('phinx_update')) {
         $processColumns = function ($data, $glue = ',') use ($adapter) {
             $list = [];
             foreach ($data as $column => $value) {
-                if (is_string($value)) {
+                if (\is_string($value)) {
                     $value = sprintf('%s', $adapter->getConnection()->quote($value));
                 }
 
@@ -1858,7 +1858,7 @@ if (!function_exists('phinx_update')) {
     }
 }
 
-if (!function_exists('is_valid_datetime')) {
+if (!\function_exists('is_valid_datetime')) {
     /**
      * Checks if the given datetime string has the given datetime format.
      *
@@ -1875,7 +1875,7 @@ if (!function_exists('is_valid_datetime')) {
     }
 }
 
-if (!function_exists('is_iso8601_datetime')) {
+if (!\function_exists('is_iso8601_datetime')) {
     /**
      * Checks if the given datetime string is a ISO 8601 datetime format.
      *
@@ -1892,7 +1892,7 @@ if (!function_exists('is_iso8601_datetime')) {
     }
 }
 
-if (!function_exists('is_iso8601_format_one')) {
+if (!\function_exists('is_iso8601_format_one')) {
     /**
      * Checks whether the given string is a iso format (1).
      *
@@ -1907,13 +1907,13 @@ if (!function_exists('is_iso8601_format_one')) {
         $datetime = substr($value, 0, 19);
         $offset = substr($value, -5, 5);
 
-        return 25 === strlen($value)
+        return 25 === \strlen($value)
             && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
             && is_valid_datetime($offset, 'H:i');
     }
 }
 
-if (!function_exists('is_iso8601_format_two')) {
+if (!\function_exists('is_iso8601_format_two')) {
     /**
      * Checks whether the given string is a iso format (2).
      *
@@ -1928,13 +1928,13 @@ if (!function_exists('is_iso8601_format_two')) {
         $datetime = substr($value, 0, 19);
         $offset = strtolower(substr($value, -1, 1));
 
-        return 20 === strlen($value)
+        return 20 === \strlen($value)
             && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
             && 'z' === $offset;
     }
 }
 
-if (!function_exists('is_iso8601_format_three')) {
+if (!\function_exists('is_iso8601_format_three')) {
     /**
      * Checks whether the given string is a iso format (3).
      *
@@ -1949,13 +1949,13 @@ if (!function_exists('is_iso8601_format_three')) {
         $datetime = substr($value, 0, 15);
         $offset = strtolower(substr($value, -1, 1));
 
-        return 16 === strlen($value)
+        return 16 === \strlen($value)
             && is_valid_datetime($datetime, 'Ymd\THis')
             && 'z' === $offset;
     }
 }
 
-if (!function_exists('is_iso8601_format_four')) {
+if (!\function_exists('is_iso8601_format_four')) {
     /**
      * Checks whether the given string is a iso format (4).
      *
@@ -1970,13 +1970,13 @@ if (!function_exists('is_iso8601_format_four')) {
         $datetime = substr($value, 0, 19);
         $offset = substr($value, -4, 4);
 
-        return 24 === strlen($value)
+        return 24 === \strlen($value)
             && is_valid_datetime($datetime, 'Y-m-d\TH:i:s')
             && is_valid_datetime($offset, 'Hi');
     }
 }
 
-if (!function_exists('get_iso8601_format')) {
+if (!\function_exists('get_iso8601_format')) {
     /**
      * Returns the iso format based on the datetime value.
      *
@@ -1988,7 +1988,7 @@ if (!function_exists('get_iso8601_format')) {
     {
         $format = null;
 
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             return $format;
         }
 
@@ -2006,7 +2006,7 @@ if (!function_exists('get_iso8601_format')) {
     }
 }
 
-if (!function_exists('normalize_exception')) {
+if (!\function_exists('normalize_exception')) {
     /**
      * @param \Exception|\Throwable $e
      *
@@ -2019,7 +2019,7 @@ if (!function_exists('normalize_exception')) {
         }
 
         $stack = [
-            sprintf("%s: %s in %s:%d\nStack trace:", get_class($e), $e->getMessage(), $e->getFile(), $e->getLine()),
+            sprintf("%s: %s in %s:%d\nStack trace:", \get_class($e), $e->getMessage(), $e->getFile(), $e->getLine()),
         ];
 
         // format: stack index - filename - line - call
@@ -2047,7 +2047,7 @@ if (!function_exists('normalize_exception')) {
     }
 }
 
-if (!function_exists('is_empty')) {
+if (!\function_exists('is_empty')) {
     /**
      * Checks whether or not the value is empty|null.
      *
@@ -2057,6 +2057,6 @@ if (!function_exists('is_empty')) {
      */
     function is_empty($value)
     {
-        return !$value || empty($value) || (is_object($value) && empty((array) $value));
+        return !$value || empty($value) || (\is_object($value) && empty((array) $value));
     }
 }

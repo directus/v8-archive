@@ -4,7 +4,7 @@ namespace Directus;
 
 use Ramsey\Uuid\Uuid;
 
-if (!function_exists('generate_uuid1')) {
+if (!\function_exists('generate_uuid1')) {
     /**
      * Generates a UUID v1 string.
      *
@@ -16,7 +16,7 @@ if (!function_exists('generate_uuid1')) {
     }
 }
 
-if (!function_exists('generate_uuid3')) {
+if (!\function_exists('generate_uuid3')) {
     /**
      * Generates a UUID v3 string.
      *
@@ -34,7 +34,7 @@ if (!function_exists('generate_uuid3')) {
     }
 }
 
-if (!function_exists('generate_uuid4')) {
+if (!\function_exists('generate_uuid4')) {
     /**
      * Generates a UUID v4 string.
      *
@@ -46,7 +46,7 @@ if (!function_exists('generate_uuid4')) {
     }
 }
 
-if (!function_exists('generate_uuid5')) {
+if (!\function_exists('generate_uuid5')) {
     /**
      * Generates a UUID v5 string.
      *

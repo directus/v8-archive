@@ -6,7 +6,7 @@ use Directus\Application\Application;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 
-if (!function_exists('get_custom_x')) {
+if (!\function_exists('get_custom_x')) {
     /**
      * @param string $type
      * @param string $path
@@ -32,7 +32,7 @@ if (!function_exists('get_custom_x')) {
         }
 
         foreach ($files as $file) {
-            $relativePath = substr($file, strlen($extensionsPath));
+            $relativePath = substr($file, \strlen($extensionsPath));
             $pathInfo = pathinfo($relativePath);
             $dirname = $pathInfo['dirname'];
             $extensionName = $pathInfo['filename'];
@@ -42,7 +42,7 @@ if (!function_exists('get_custom_x')) {
             $isDirectory = '/' !== $dirname && '\\' !== $dirname;
 
             // TODO: Need to improve logic
-            if (in_array($dirname, $ignoredDirectories)) {
+            if (\in_array($dirname, $ignoredDirectories, true)) {
                 continue;
             }
 
@@ -56,12 +56,12 @@ if (!function_exists('get_custom_x')) {
             }
 
             $extensionInfo = require $file;
-            if (!is_array($extensionInfo)) {
+            if (!\is_array($extensionInfo)) {
                 throw new Exception(
                     sprintf(
                         'information for "%s" must be an array. "%s" was given instead in %s',
                         $type,
-                        gettype($extensionInfo),
+                        \gettype($extensionInfo),
                         $relativePath
                     )
                 );
@@ -82,7 +82,7 @@ if (!function_exists('get_custom_x')) {
     }
 }
 
-if (!function_exists('get_custom_endpoints')) {
+if (!\function_exists('get_custom_endpoints')) {
     /**
      * Get the list of custom endpoints information.
      *
@@ -99,7 +99,7 @@ if (!function_exists('get_custom_endpoints')) {
     }
 }
 
-if (!function_exists('create_group_route_from_array')) {
+if (!\function_exists('create_group_route_from_array')) {
     /**
      * Creates a grouped routes in the given app.
      *
@@ -125,7 +125,7 @@ if (!function_exists('create_group_route_from_array')) {
     }
 }
 
-if (!function_exists('create_route_from_array')) {
+if (!\function_exists('create_route_from_array')) {
     /**
      * Add a route to the given application.
      *
@@ -136,14 +136,14 @@ if (!function_exists('create_route_from_array')) {
     function create_route_from_array(Application $app, $routePath, array $options)
     {
         $methods = ArrayUtils::get($options, 'method', ['GET']);
-        if (!is_array($methods)) {
+        if (!\is_array($methods)) {
             $methods = [$methods];
         }
 
         $handler = ArrayUtils::get($options, 'handler');
-        if (!is_callable($handler) && !class_exists($handler)) {
+        if (!\is_callable($handler) && !class_exists($handler)) {
             throw new Exception(
-                sprintf('Endpoints handler must be a callable, but %s was given', gettype($handler))
+                sprintf('Endpoints handler must be a callable, but %s was given', \gettype($handler))
             );
         }
 
@@ -156,7 +156,7 @@ if (!function_exists('create_route_from_array')) {
     }
 }
 
-if (!function_exists('get_custom_hooks')) {
+if (!\function_exists('get_custom_hooks')) {
     /**
      * Get a list of hooks in the given path.
      *

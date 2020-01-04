@@ -2,7 +2,7 @@
 
 namespace Directus;
 
-if (!function_exists('sorting_by_key')) {
+if (!\function_exists('sorting_by_key')) {
     /**
      * Sorting callable helper.
      *

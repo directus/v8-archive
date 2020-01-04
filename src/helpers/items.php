@@ -7,7 +7,7 @@ use Directus\Database\TableGatewayFactory;
 use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
 
-if (!function_exists('get_item_owner')) {
+if (!\function_exists('get_item_owner')) {
     /**
      * Gets the item's owner ID.
      *
@@ -65,7 +65,7 @@ if (!function_exists('get_item_owner')) {
     }
 }
 
-if (!function_exists('get_user_ids_in_group')) {
+if (!\function_exists('get_user_ids_in_group')) {
     function get_user_ids_in_group(array $roleIds)
     {
         $id = array_shift($roleIds);

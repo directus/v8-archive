@@ -2,7 +2,7 @@
 
 namespace Directus;
 
-if (!function_exists('unparse_url')) {
+if (!\function_exists('unparse_url')) {
     /**
      * Unparse URL.
      *
@@ -26,7 +26,7 @@ if (!function_exists('unparse_url')) {
     }
 }
 
-if (!function_exists('parse_url_file')) {
+if (!\function_exists('parse_url_file')) {
     /**
      * Get the info of a file from a url.
      *

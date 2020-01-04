@@ -39,7 +39,7 @@ class Relations extends Route
     {
         $this->validateRequestPayload($request);
         $payload = $request->getParsedBody();
-        if (isset($payload[0]) && is_array($payload[0])) {
+        if (isset($payload[0]) && \is_array($payload[0])) {
             return $this->batch($request, $response);
         }
 

@@ -57,7 +57,7 @@ class Users extends Route
     {
         $this->validateRequestPayload($request);
         $payload = $request->getParsedBody();
-        if (isset($payload[0]) && is_array($payload[0])) {
+        if (isset($payload[0]) && \is_array($payload[0])) {
             return $this->batch($request, $response);
         }
         $service = new UsersService($this->container);
@@ -108,7 +108,7 @@ class Users extends Route
         $service = new UsersService($this->container);
 
         $payload = $request->getParsedBody();
-        if (isset($payload[0]) && is_array($payload[0])) {
+        if (isset($payload[0]) && \is_array($payload[0])) {
             return $this->batch($request, $response);
         }
 

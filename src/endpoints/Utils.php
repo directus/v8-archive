@@ -27,7 +27,7 @@ class Utils extends Route
         $service = new UtilsService($this->container);
 
         $options = $request->getParsedBodyParam('options', []);
-        if (!is_array($options)) {
+        if (!\is_array($options)) {
             $options = [$options];
         }
 
@@ -49,7 +49,7 @@ class Utils extends Route
         $service = new UtilsService($this->container);
 
         $options = $request->getParsedBodyParam('options', []);
-        if (!is_array($options)) {
+        if (!\is_array($options)) {
             $options = [$options];
         }
 

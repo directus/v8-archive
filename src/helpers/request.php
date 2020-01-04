@@ -2,7 +2,7 @@
 
 namespace Directus;
 
-if (!function_exists('request_get_contents')) {
+if (!\function_exists('request_get_contents')) {
     /**
      * Get content from an URL.
      *
@@ -30,7 +30,7 @@ if (!function_exists('request_get_contents')) {
     }
 }
 
-if (!function_exists('request_get_json')) {
+if (!\function_exists('request_get_json')) {
     /**
      * Get json from an url.
      *
@@ -46,7 +46,7 @@ if (!function_exists('request_get_json')) {
     }
 }
 
-if (!function_exists('request_send')) {
+if (!\function_exists('request_send')) {
     /**
      * Make a request.
      *
@@ -81,7 +81,7 @@ if (!function_exists('request_send')) {
     }
 }
 
-if (!function_exists('request_send_json')) {
+if (!\function_exists('request_send_json')) {
     /**
      * Make a request with a json body.
      *
@@ -95,7 +95,7 @@ if (!function_exists('request_send_json')) {
     {
         $headers = array_merge($headers, ['Content-Type: application/json']);
 
-        if (!is_string($body)) {
+        if (!\is_string($body)) {
             $body = json_encode($body);
         }
 

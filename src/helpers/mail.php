@@ -8,7 +8,7 @@ use Directus\Mail\Message;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 
-if (!function_exists('send_mail_with_template')) {
+if (!\function_exists('send_mail_with_template')) {
     /**
      * Sends a new email.
      *
@@ -24,7 +24,7 @@ if (!function_exists('send_mail_with_template')) {
     }
 }
 
-if (!function_exists('send_mail_with_layout')) {
+if (!\function_exists('send_mail_with_layout')) {
     /**
      * Sends a email using a layout for the given template.
      *
@@ -41,14 +41,14 @@ if (!function_exists('send_mail_with_layout')) {
     }
 }
 
-if (!function_exists('send_mail_with_content')) {
+if (!\function_exists('send_mail_with_content')) {
     /**
      * Sends a new email with the given content.
      *
      * @param string $body
      * @param string $contentType
      */
-    function send_mail_with_content($body, $contentType = 'text/html', callable $callback)
+    function send_mail_with_content($body, $contentType, callable $callback)
     {
         $app = Application::getInstance();
         /** @var Mailer $mailer */
@@ -58,7 +58,7 @@ if (!function_exists('send_mail_with_content')) {
     }
 }
 
-if (!function_exists('parse_body')) {
+if (!\function_exists('parse_body')) {
     /**
      * Parses body content.
      *
@@ -68,7 +68,7 @@ if (!function_exists('parse_body')) {
      */
     function parse_body($content, array $data = [])
     {
-        if (is_array($data)) {
+        if (\is_array($data)) {
             $data = ArrayUtils::dot($data);
         }
 
@@ -78,7 +78,7 @@ if (!function_exists('parse_body')) {
     }
 }
 
-if (!function_exists('get_safe_tags')) {
+if (!\function_exists('get_safe_tags')) {
     /**
      * Get a list of safe tags.
      *
@@ -92,7 +92,7 @@ if (!function_exists('get_safe_tags')) {
     }
 }
 
-if (!function_exists('parse_twig')) {
+if (!\function_exists('parse_twig')) {
     /**
      * Parse twig view.
      *
@@ -128,7 +128,7 @@ if (!function_exists('parse_twig')) {
     }
 }
 
-if (!function_exists('send_forgot_password_email')) {
+if (!\function_exists('send_forgot_password_email')) {
     /**
      * Sends a new reset password email.
      *
@@ -150,7 +150,7 @@ if (!function_exists('send_forgot_password_email')) {
     }
 }
 
-if (!function_exists('send_new_install_email')) {
+if (!\function_exists('send_new_install_email')) {
     /**
      * Sends a new installation email.
      */
@@ -165,7 +165,7 @@ if (!function_exists('send_new_install_email')) {
     }
 }
 
-if (!function_exists('send_user_invitation_email')) {
+if (!\function_exists('send_user_invitation_email')) {
     /**
      * Sends a invitation email.
      *
@@ -184,7 +184,7 @@ if (!function_exists('send_user_invitation_email')) {
     }
 }
 
-if (!function_exists('get_user_full_name')) {
+if (!\function_exists('get_user_full_name')) {
     /**
      * Returns the user full name based on the data.first_name and data.last_name.
      *

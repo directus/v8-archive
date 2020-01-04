@@ -19,7 +19,7 @@ use Directus\Util\Installation\InstallerUtils;
 use Directus\Util\StringUtils;
 use Slim\Http\Body;
 
-if (!function_exists('create_app')) {
+if (!\function_exists('create_app')) {
     /**
      * Creates an api application.
      *
@@ -37,7 +37,7 @@ if (!function_exists('create_app')) {
     }
 }
 
-if (!function_exists('create_app_with_project_name')) {
+if (!\function_exists('create_app_with_project_name')) {
     /**
      * Creates an api application with the given environment.
      *
@@ -54,7 +54,7 @@ if (!function_exists('create_app_with_project_name')) {
     }
 }
 
-if (!function_exists('get_project_config')) {
+if (!\function_exists('get_project_config')) {
     /**
      * Returns the configuration for a given project.
      *
@@ -99,7 +99,7 @@ if (!function_exists('get_project_config')) {
     }
 }
 
-if (!function_exists('get_app_base_path')) {
+if (!\function_exists('get_app_base_path')) {
     /**
      * Returns the application base path.
      *
@@ -113,7 +113,7 @@ if (!function_exists('get_app_base_path')) {
     }
 }
 
-if (!function_exists('scan_folder')) {
+if (!\function_exists('scan_folder')) {
     /**
      * Scan folder and return the php files (Project Configurations).
      *
@@ -130,8 +130,8 @@ if (!function_exists('scan_folder')) {
             foreach ($scannedDirectory as $fileName) {
                 $fileObject = explode('.', $fileName);
 
-                if ('php' == end($fileObject)) {
-                    if (1 == strlen($fileObject[0]) || false === StringUtils::startsWith($fileName, '_')) {
+                if ('php' === end($fileObject)) {
+                    if (1 === \strlen($fileObject[0]) || false === StringUtils::startsWith($fileName, '_')) {
                         $projectNames[] = implode('.', $fileObject);
                     }
                 }
@@ -142,7 +142,7 @@ if (!function_exists('scan_folder')) {
     }
 }
 
-if (!function_exists('ping_route')) {
+if (!\function_exists('ping_route')) {
     /**
      * Returns a ping route.
      *
@@ -168,7 +168,7 @@ if (!function_exists('ping_route')) {
     }
 }
 
-if (!function_exists('create_ping_route')) {
+if (!\function_exists('create_ping_route')) {
     /**
      * Create a new ping the server route.
      *
@@ -186,7 +186,7 @@ if (!function_exists('create_ping_route')) {
     }
 }
 
-if (!function_exists('create_install_route')) {
+if (!\function_exists('create_install_route')) {
     /**
      * Create a new install route.
      *
@@ -200,7 +200,7 @@ if (!function_exists('create_install_route')) {
     }
 }
 
-if (!function_exists('create_ping_server')) {
+if (!\function_exists('create_ping_server')) {
     /**
      * Creates a simple app.
      *
@@ -224,7 +224,7 @@ if (!function_exists('create_ping_server')) {
     }
 }
 
-if (!function_exists('create_default_app')) {
+if (!\function_exists('create_default_app')) {
     /**
      * Creates a simple app.
      *
@@ -257,7 +257,7 @@ if (!function_exists('create_default_app')) {
     }
 }
 
-if (!function_exists('create_unknown_project_app')) {
+if (!\function_exists('create_unknown_project_app')) {
     /**
      * Creates a simple Application when the project name is unknown.
      *
@@ -277,7 +277,7 @@ if (!function_exists('create_unknown_project_app')) {
     }
 }
 
-if (!function_exists('ping_server')) {
+if (!\function_exists('ping_server')) {
     /**
      * Ping the API Server.
      *

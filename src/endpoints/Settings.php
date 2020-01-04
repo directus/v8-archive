@@ -33,7 +33,7 @@ class Settings extends Route
         $this->validateRequestPayload($request);
 
         $payload = $request->getParsedBody();
-        if (isset($payload[0]) && is_array($payload[0])) {
+        if (isset($payload[0]) && \is_array($payload[0])) {
             return $this->batch($request, $response);
         }
         $fieldData = $service->findAllFields(
@@ -152,15 +152,15 @@ class Settings extends Route
     {
         $inputData = $request->getParsedBody();
         foreach ($fieldData['data'] as $key => $value) {
-            if ($value['field'] == $setting) {
-                if (null != $inputData['value']) {
+            if ($value['field'] === $setting) {
+                if (null !== $inputData['value']) {
                     switch ($value['type']) {
                         case 'file':
                             $inputData['value'] = isset($inputData['value']['id']) ? $inputData['value']['id'] : $inputData['value'];
 
                             break;
                         case 'array':
-                            $inputData['value'] = is_array($inputData['value']) ? implode(',', $inputData['value']) : $inputData['value'];
+                            $inputData['value'] = \is_array($inputData['value']) ? implode(',', $inputData['value']) : $inputData['value'];
 
                             break;
                         case 'json':
@@ -191,8 +191,8 @@ class Settings extends Route
         $fileService = new FilesServices($this->container);
         $response = $setting['value'];
         foreach ($fieldData['data'] as $value) {
-            if ($value['field'] == $setting['key']) {
-                if (null != $setting['value']) {
+            if ($value['field'] === $setting['key']) {
+                if (null !== $setting['value']) {
                     switch ($value['type']) {
                         case 'file':
                             $responseData = $fileService->findByIds($setting['value'], []);
@@ -217,7 +217,7 @@ class Settings extends Route
         $payload = $request->getParsedBody();
         $id = $request->getAttribute('id');
 
-        if (false !== strpos($id, ',') || (isset($payload[0]) && is_array($payload[0]))) {
+        if (false !== strpos($id, ',') || (isset($payload[0]) && \is_array($payload[0]))) {
             return $this->batch($request, $response);
         }
 

@@ -4,7 +4,7 @@ namespace Directus;
 
 use Directus\Util\StringUtils;
 
-if (!function_exists('cors_get_allowed_origin')) {
+if (!\function_exists('cors_get_allowed_origin')) {
     /**
      * Returns the allowed origin based on the allowed origins list.
      *
@@ -19,21 +19,21 @@ if (!function_exists('cors_get_allowed_origin')) {
      */
     function cors_get_allowed_origin($allowedOrigins, $requestedOrigin)
     {
-        if (is_array($requestedOrigin)) {
+        if (\is_array($requestedOrigin)) {
             $requestedOrigin = array_shift($requestedOrigin);
         }
 
-        if (!is_array($allowedOrigins)) {
-            if (is_string($allowedOrigins)) {
+        if (!\is_array($allowedOrigins)) {
+            if (\is_string($allowedOrigins)) {
                 $allowedOrigins = StringUtils::csv($allowedOrigins);
             } else {
                 $allowedOrigins = [$allowedOrigins];
             }
         }
 
-        if (in_array($requestedOrigin, $allowedOrigins)) {
+        if (\in_array($requestedOrigin, $allowedOrigins, true)) {
             $allowedOrigin = $requestedOrigin;
-        } elseif (in_array('*', $allowedOrigins)) {
+        } elseif (\in_array('*', $allowedOrigins, true)) {
             $allowedOrigin = !empty($requestedOrigin) ? $requestedOrigin : '*';
         } else {
             $allowedOrigin = null;
@@ -43,7 +43,7 @@ if (!function_exists('cors_get_allowed_origin')) {
     }
 }
 
-if (!function_exists('cors_is_origin_allowed')) {
+if (!\function_exists('cors_is_origin_allowed')) {
     /**
      * Checks whether an requested host is allowed.
      *

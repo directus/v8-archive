@@ -87,7 +87,7 @@ class Auth extends Route
         $responseData = [];
         $authorizationTokenObject = get_request_authorization_token($request);
         if (isset($authorizationTokenObject['type'])) {
-            $accessToken = DirectusUserSessionsTableGateway::TOKEN_COOKIE == $authorizationTokenObject['type'] ? decrypt_static_token($authorizationTokenObject['token']) : $authorizationTokenObject['token'];
+            $accessToken = DirectusUserSessionsTableGateway::TOKEN_COOKIE === $authorizationTokenObject['type'] ? decrypt_static_token($authorizationTokenObject['token']) : $authorizationTokenObject['token'];
             $userSessionService = new UserSessionService($this->container);
             $userSession = $userSessionService->find(['token' => $accessToken]);
             if ($userSession) {
@@ -174,7 +174,7 @@ class Auth extends Route
     public function logout(Request $request, Response $response)
     {
         $authorizationTokenObject = get_request_authorization_token($request);
-        $accessToken = DirectusUserSessionsTableGateway::TOKEN_COOKIE == $authorizationTokenObject['type'] ? decrypt_static_token($authorizationTokenObject['token']) : $authorizationTokenObject['token'];
+        $accessToken = DirectusUserSessionsTableGateway::TOKEN_COOKIE === $authorizationTokenObject['type'] ? decrypt_static_token($authorizationTokenObject['token']) : $authorizationTokenObject['token'];
         $userSessionService = new UserSessionService($this->container);
         $userSessionService->destroy(['token' => $accessToken]);
 
@@ -310,7 +310,7 @@ class Auth extends Route
         $session->set('mode', $request->getParam('mode'));
         $session->set('redirect_url', $request->getParam('redirect_url'));
         if (\Directus\cors_is_origin_allowed($allowedOrigins, $origin)) {
-            if (is_array($origin)) {
+            if (\is_array($origin)) {
                 $origin = array_shift($origin);
             }
             $session->set('sso_origin_url', $origin);
@@ -401,7 +401,7 @@ class Auth extends Route
             $redirectUrlParts = explode('?', $redirectUrl);
             $redirectUrl = $redirectUrlParts[0];
             parse_str($redirectQueryString, $redirectQueryParams);
-            if (is_array($redirectQueryParams)) {
+            if (\is_array($redirectQueryParams)) {
                 $urlParams = array_merge($redirectQueryParams, $urlParams);
             }
 
