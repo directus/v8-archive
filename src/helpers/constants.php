@@ -1,9 +1,8 @@
 <?php
 
 /**
- * Data sizes in bytes
+ * Data sizes in bytes.
  */
-
 if (!defined('KB_IN_BYTES')) {
     define('KB_IN_BYTES', 1024);
 }

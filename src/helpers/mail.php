@@ -10,11 +10,9 @@ use Directus\Util\StringUtils;
 
 if (!function_exists('send_mail_with_template')) {
     /**
-     * Sends a new email
+     * Sends a new email.
      *
      * @param string $viewPath
-     * @param array $data
-     * @param callable $callback
      */
     function send_mail_with_template($viewPath, array $data, callable $callback)
     {
@@ -28,13 +26,11 @@ if (!function_exists('send_mail_with_template')) {
 
 if (!function_exists('send_mail_with_layout')) {
     /**
-     * Sends a email using a layout for the given template
+     * Sends a email using a layout for the given template.
      *
      * @param string $layout
      * @param string $template
-     * @param array $data
      * @param string $contentType
-     * @param callable|null $callback
      */
     function send_mail_with_layout($layout, $template, array $data = [], $contentType = 'text/html', callable $callback = null)
     {
@@ -47,11 +43,10 @@ if (!function_exists('send_mail_with_layout')) {
 
 if (!function_exists('send_mail_with_content')) {
     /**
-     * Sends a new email with the given content
+     * Sends a new email with the given content.
      *
      * @param string $body
      * @param string $contentType
-     * @param callable $callback
      */
     function send_mail_with_content($body, $contentType = 'text/html', callable $callback)
     {
@@ -65,10 +60,9 @@ if (!function_exists('send_mail_with_content')) {
 
 if (!function_exists('parse_body')) {
     /**
-     * Parses body content
+     * Parses body content.
      *
      * @param string $content
-     * @param array $data
      *
      * @return string
      */
@@ -86,24 +80,23 @@ if (!function_exists('parse_body')) {
 
 if (!function_exists('get_safe_tags')) {
     /**
-     * Get a list of safe tags
+     * Get a list of safe tags.
      *
      * @return array
      */
     function get_safe_tags()
     {
         return array_map(function ($tagName) {
-            return '<' . $tagName . '>';
+            return '<'.$tagName.'>';
         }, ['b', 'i', 'a', 'p', 'br', 'hr', 'button', 'h1', 'h2', 'h3', 'h4', 'h5', 'table', 'thead', 'tbody', 'tfoot', 'th', 'tr', 'td']);
     }
 }
 
 if (!function_exists('parse_twig')) {
     /**
-     * Parse twig view
+     * Parse twig view.
      *
      * @param string $viewPath
-     * @param array $data
      *
      * @return string
      */
@@ -126,9 +119,9 @@ if (!function_exists('parse_twig')) {
                 $mailDefaultSettings,
                 // Remove NULL and Empty values
                 array_filter($mailSettings, function ($v) {
-                    return $v !== null && $v !== '';
+                    return null !== $v && '' !== $v;
                 })
-            )
+            ),
         ], $data);
 
         return $app->getContainer()->get('mail_view')->fetch($viewPath, $data);
@@ -137,10 +130,10 @@ if (!function_exists('parse_twig')) {
 
 if (!function_exists('send_forgot_password_email')) {
     /**
-     * Sends a new reset password email
+     * Sends a new reset password email.
      *
-     * @param array $user
      * @param string $token
+     * @param mixed  $url
      */
     function send_forgot_password_email(array $user, $url)
     {
@@ -148,7 +141,7 @@ if (!function_exists('send_forgot_password_email')) {
             'reset_url' => $url,
             'user_full_name' => get_user_full_name($user),
         ];
-        send_mail_with_template('reset-password.twig', $data, function (Message  $message) use ($user) {
+        send_mail_with_template('reset-password.twig', $data, function (Message $message) use ($user) {
             $message->setSubject(
                 sprintf('Password Reset Request: %s', get_directus_setting('project_name', ''))
             );
@@ -159,9 +152,7 @@ if (!function_exists('send_forgot_password_email')) {
 
 if (!function_exists('send_new_install_email')) {
     /**
-     * Sends a new installation email
-     *
-     * @param array $data
+     * Sends a new installation email.
      */
     function send_new_install_email(array $data)
     {
@@ -176,7 +167,7 @@ if (!function_exists('send_new_install_email')) {
 
 if (!function_exists('send_user_invitation_email')) {
     /**
-     * Sends a invitation email
+     * Sends a invitation email.
      *
      * @param string $email
      * @param string $token
@@ -195,9 +186,7 @@ if (!function_exists('send_user_invitation_email')) {
 
 if (!function_exists('get_user_full_name')) {
     /**
-     * Returns the user full name based on the data.first_name and data.last_name
-     *
-     * @param array $data
+     * Returns the user full name based on the data.first_name and data.last_name.
      *
      * @return string
      */

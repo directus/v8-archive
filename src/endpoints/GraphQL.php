@@ -10,23 +10,16 @@ use Directus\Services\GraphQLService;
 
 class GraphQL extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'index']);
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function index(Request $request, Response $response)
     {
-
         $graphQLService = new GraphQLService($this->container);
         $rawInput = $request->getBody();
         $responseData = $graphQLService->index(

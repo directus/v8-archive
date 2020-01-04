@@ -4,7 +4,7 @@ namespace Directus;
 
 if (!function_exists('convert_shorthand_size_to_bytes')) {
     /**
-     * Convert shorthand size into bytes
+     * Convert shorthand size into bytes.
      *
      * @param $size - shorthand size
      *

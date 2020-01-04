@@ -10,9 +10,6 @@ use Directus\Services\UtilsService;
 
 class Utils extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->post('/hash', [$this, 'hash']);
@@ -22,9 +19,6 @@ class Utils extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function hash(Request $request, Response $response)
@@ -47,9 +41,6 @@ class Utils extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function matchHash(Request $request, Response $response)
@@ -73,9 +64,6 @@ class Utils extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function randomString(Request $request, Response $response)
@@ -91,8 +79,6 @@ class Utils extends Route
     }
 
     /** Endpoint to generate a 2FA secret
-     * @param Request $request
-     * @param Response $response
      *
      * @return Response
      */
@@ -100,6 +86,7 @@ class Utils extends Route
     {
         $service = new UtilsService($this->container);
         $responseData = $service->generate2FASecret();
+
         return $this->responseWithData($request, $response, $responseData);
     }
 }

@@ -12,9 +12,6 @@ use Directus\Util\ArrayUtils;
 
 class Collections extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->get('', [$this, 'all']);
@@ -25,12 +22,9 @@ class Collections extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws \Exception
      *
      * @return Response
-     *
-     * @throws \Exception
      */
     public function create(Request $request, Response $response)
     {
@@ -46,9 +40,6 @@ class Collections extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function all(Request $request, Response $response)
@@ -61,9 +52,6 @@ class Collections extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function read(Request $request, Response $response)
@@ -78,12 +66,9 @@ class Collections extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws UnauthorizedException
      *
      * @return Response
-     *
-     * @throws UnauthorizedException
      */
     public function update(Request $request, Response $response)
     {
@@ -99,9 +84,6 @@ class Collections extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function delete(Request $request, Response $response)

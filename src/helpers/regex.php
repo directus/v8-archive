@@ -2,10 +2,9 @@
 
 namespace Directus;
 
-if (!function_exists('regex_ids'))
-{
+if (!function_exists('regex_ids')) {
     /**
-     * Returns a regular expression pattern for a CSV of IDs
+     * Returns a regular expression pattern for a CSV of IDs.
      *
      * @param string $typePattern
      *
@@ -17,10 +16,9 @@ if (!function_exists('regex_ids'))
     }
 }
 
-if (!function_exists('regex_numeric_ids'))
-{
+if (!function_exists('regex_numeric_ids')) {
     /**
-     * Returns a numeric regular expression pattern for a CSV of IDs
+     * Returns a numeric regular expression pattern for a CSV of IDs.
      *
      * @return string
      */

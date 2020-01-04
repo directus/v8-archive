@@ -16,6 +16,7 @@ class ProjectsCreate extends Route
         $installService = new ProjectService($this->container);
         $installService->create($request->getParsedBody());
         InstallerUtils::addUpgradeMigrations();
+
         return $this->responseWithData($request, $response, []);
     }
 }

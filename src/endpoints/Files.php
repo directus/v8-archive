@@ -10,7 +10,6 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\BatchUploadNotAllowedException;
 use Directus\Exception\Exception;
 use Directus\Filesystem\Exception\FailedUploadException;
-use function Directus\regex_numeric_ids;
 use Directus\Services\FilesServices;
 use Directus\Services\RevisionsService;
 use Directus\Util\ArrayUtils;
@@ -19,9 +18,6 @@ use Slim\Http\UploadedFile;
 
 class Files extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
@@ -37,12 +33,9 @@ class Files extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws Exception
      *
      * @return Response
-     *
-     * @throws Exception
      */
     public function create(Request $request, Response $response)
     {
@@ -79,9 +72,6 @@ class Files extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function read(Request $request, Response $response)
@@ -96,9 +86,6 @@ class Files extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function update(Request $request, Response $response)
@@ -111,7 +98,7 @@ class Files extends Route
         }
 
         $id = $request->getAttribute('id');
-        if (strpos($id, ',') !== false) {
+        if (false !== strpos($id, ',')) {
             return $this->batch($request, $response);
         }
 
@@ -121,13 +108,14 @@ class Files extends Route
             $request->getParsedBody(),
             $request->getQueryParams()
         );
+
         return $this->responseWithData($request, $response, $responseData);
     }
 
     public function delete(Request $request, Response $response)
     {
         $id = $request->getAttribute('id');
-        if (strpos($id, ',') !== false) {
+        if (false !== strpos($id, ',')) {
             return $this->batch($request, $response);
         }
 
@@ -141,9 +129,6 @@ class Files extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function all(Request $request, Response $response)
@@ -155,9 +140,6 @@ class Files extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function fileRevisions(Request $request, Response $response)
@@ -173,9 +155,6 @@ class Files extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function oneFileRevision(Request $request, Response $response)
@@ -192,9 +171,6 @@ class Files extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function fileRevert(Request $request, Response $response)
@@ -211,12 +187,9 @@ class Files extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws \Exception
      *
      * @return Response
-     *
-     * @throws \Exception
      */
     protected function batch(Request $request, Response $response)
     {
@@ -232,7 +205,7 @@ class Files extends Route
             } else {
                 $responseData = $filesService->batchUpdate($payload, $params);
             }
-        } else if ($request->isDelete()) {
+        } elseif ($request->isDelete()) {
             $ids = explode(',', $request->getAttribute('id'));
             $filesService->batchDeleteWithIds($ids, $params);
         }

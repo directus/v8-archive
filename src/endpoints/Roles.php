@@ -13,9 +13,7 @@ class Roles extends Route
 {
     const ADMIN = 1;
     const PUBLIC = 2;
-    /**
-     * @param Application $app
-     */
+
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
@@ -26,9 +24,6 @@ class Roles extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function create(Request $request, Response $response)
@@ -44,9 +39,6 @@ class Roles extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function read(Request $request, Response $response)
@@ -61,9 +53,6 @@ class Roles extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function update(Request $request, Response $response)
@@ -80,9 +69,6 @@ class Roles extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function all(Request $request, Response $response)
@@ -94,9 +80,6 @@ class Roles extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function delete(Request $request, Response $response)

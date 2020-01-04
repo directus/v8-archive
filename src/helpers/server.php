@@ -4,7 +4,7 @@ namespace Directus;
 
 if (!function_exists('get_max_upload_size')) {
     /**
-     * Get the maximum upload size in bytes
+     * Get the maximum upload size in bytes.
      *
      * @param bool $global
      *
@@ -20,7 +20,7 @@ if (!function_exists('get_max_upload_size')) {
         // To check whether the system is using a configuration file,
         // try retrieving the value of the cfg_file_path configuration setting.
         // If this is available, a configuration file is being used.
-        if ($global === true && get_cfg_var('cfg_file_path')) {
+        if (true === $global && get_cfg_var('cfg_file_path')) {
             $function = 'get_cfg_var';
         }
 

@@ -15,9 +15,6 @@ class ScimTwo extends Route
      */
     protected $service;
 
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         // Users
@@ -35,9 +32,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function createUser(Request $request, Response $response)
@@ -56,9 +50,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function createGroup(Request $request, Response $response)
@@ -77,9 +68,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function updateUser(Request $request, Response $response)
@@ -97,9 +85,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function updateGroup(Request $request, Response $response)
@@ -117,9 +102,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function oneUser(Request $request, Response $response)
@@ -139,9 +121,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function oneGroup(Request $request, Response $response)
@@ -161,9 +140,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function listUsers(Request $request, Response $response)
@@ -179,9 +155,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function listGroups(Request $request, Response $response)
@@ -197,9 +170,6 @@ class ScimTwo extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function deleteGroup(Request $request, Response $response)
@@ -215,7 +185,7 @@ class ScimTwo extends Route
     }
 
     /**
-     * Gets the users service
+     * Gets the users service.
      *
      * @return ScimService
      */

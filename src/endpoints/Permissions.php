@@ -15,19 +15,16 @@ class Permissions extends Route
     public function __invoke(Application $app)
     {
         $app->post('', [$this, 'create']);
-        $app->get('/{id:' . regex_numeric_ids() . '}', [$this, 'read']);
+        $app->get('/{id:'.regex_numeric_ids().'}', [$this, 'read']);
         $app->get('/me', [$this, 'readUser']);
         $app->get('/me/{collection}', [$this, 'readUserCollection']);
-        $app->patch('/{id:' . regex_numeric_ids() . '}', [$this, 'update']);
+        $app->patch('/{id:'.regex_numeric_ids().'}', [$this, 'update']);
         $app->patch('', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
         $app->get('', [$this, 'all']);
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function create(Request $request, Response $response)
@@ -48,9 +45,6 @@ class Permissions extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function read(Request $request, Response $response)
@@ -66,10 +60,7 @@ class Permissions extends Route
     }
 
     /**
-     * Fetch authenticated user permissions
-     *
-     * @param Request $request
-     * @param Response $response
+     * Fetch authenticated user permissions.
      *
      * @return Response
      */
@@ -82,10 +73,7 @@ class Permissions extends Route
     }
 
     /**
-     * Fetch authenticated user permission of a given collection
-     *
-     * @param Request $request
-     * @param Response $response
+     * Fetch authenticated user permission of a given collection.
      *
      * @return Response
      */
@@ -98,9 +86,6 @@ class Permissions extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function update(Request $request, Response $response)
@@ -112,7 +97,7 @@ class Permissions extends Route
         }
 
         $id = $request->getAttribute('id');
-        if (strpos($id, ',') !== false) {
+        if (false !== strpos($id, ',')) {
             return $this->batch($request, $response);
         }
 
@@ -127,9 +112,6 @@ class Permissions extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function delete(Request $request, Response $response)
@@ -142,10 +124,8 @@ class Permissions extends Route
 
         return $this->responseWithData($request, $response, []);
     }
+
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function all(Request $request, Response $response)
@@ -159,12 +139,9 @@ class Permissions extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
+     * @throws \Exception
      *
      * @return Response
-     *
-     * @throws \Exception
      */
     protected function batch(Request $request, Response $response)
     {
@@ -179,14 +156,14 @@ class Permissions extends Route
         $responseData = null;
         if ($request->isPost()) {
             $responseData = $permissionService->batchCreate($payload, $params);
-        } else if ($request->isPatch()) {
+        } elseif ($request->isPatch()) {
             if ($request->getAttribute('id')) {
                 $ids = explode(',', $request->getAttribute('id'));
                 $responseData = $permissionService->batchUpdateWithIds($ids, $payload, $params);
             } else {
                 $responseData = $permissionService->batchUpdate($payload, $params);
             }
-        } else if ($request->isDelete()) {
+        } elseif ($request->isDelete()) {
             $ids = explode(',', $request->getAttribute('id'));
             $permissionService->batchDeleteWithIds($ids, $params);
         }

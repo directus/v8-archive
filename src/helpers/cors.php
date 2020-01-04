@@ -6,14 +6,14 @@ use Directus\Util\StringUtils;
 
 if (!function_exists('cors_get_allowed_origin')) {
     /**
-     * Returns the allowed origin based on the allowed origins list
+     * Returns the allowed origin based on the allowed origins list.
      *
      * Ex:* 1. null - $requestedOrigin not allowed
      *      2. '*' - $requestedOrigin allowed by wildcard
      *      3. host - $requestedOrigin allowed by the hostname
      *
      * @param array|string $allowedOrigins
-     * @param string $requestedOrigin
+     * @param string       $requestedOrigin
      *
      * @return null|string
      */
@@ -33,7 +33,7 @@ if (!function_exists('cors_get_allowed_origin')) {
 
         if (in_array($requestedOrigin, $allowedOrigins)) {
             $allowedOrigin = $requestedOrigin;
-        } else if (in_array('*', $allowedOrigins)) {
+        } elseif (in_array('*', $allowedOrigins)) {
             $allowedOrigin = !empty($requestedOrigin) ? $requestedOrigin : '*';
         } else {
             $allowedOrigin = null;
@@ -45,7 +45,7 @@ if (!function_exists('cors_get_allowed_origin')) {
 
 if (!function_exists('cors_is_origin_allowed')) {
     /**
-     * Checks whether an requested host is allowed
+     * Checks whether an requested host is allowed.
      *
      * @param $allowedOrigins
      * @param $requestedOrigin
@@ -54,6 +54,6 @@ if (!function_exists('cors_is_origin_allowed')) {
      */
     function cors_is_origin_allowed($allowedOrigins, $requestedOrigin)
     {
-        return cors_get_allowed_origin($allowedOrigins, $requestedOrigin) !== null;
+        return null !== cors_get_allowed_origin($allowedOrigins, $requestedOrigin);
     }
 }

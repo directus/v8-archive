@@ -11,9 +11,6 @@ use Directus\Util\ArrayUtils;
 
 class Activity extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->get('', [$this, 'all']);
@@ -24,9 +21,6 @@ class Activity extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function all(Request $request, Response $response)
@@ -38,9 +32,6 @@ class Activity extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function read(Request $request, Response $response)
@@ -55,9 +46,6 @@ class Activity extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function createComment(Request $request, Response $response)
@@ -73,9 +61,6 @@ class Activity extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function updateComment(Request $request, Response $response)
@@ -92,9 +77,6 @@ class Activity extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function deleteComment(Request $request, Response $response)

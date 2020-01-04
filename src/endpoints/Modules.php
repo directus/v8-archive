@@ -10,9 +10,6 @@ use Directus\Services\ModulesService;
 
 class Modules extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->get('', [$this, 'all']);

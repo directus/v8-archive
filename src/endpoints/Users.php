@@ -13,12 +13,9 @@ use Directus\Services\UsersService;
 
 class Users extends Route
 {
-    /** @var $usersGateway DirectusUsersTableGateway */
+    /** @var DirectusUsersTableGateway $usersGateway */
     protected $usersGateway;
 
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->get('', [$this, 'all']);
@@ -41,9 +38,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function all(Request $request, Response $response)
@@ -57,9 +51,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function create(Request $request, Response $response)
@@ -79,9 +70,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function read(Request $request, Response $response)
@@ -96,9 +84,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function invite(Request $request, Response $response)
@@ -115,9 +100,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function update(Request $request, Response $response)
@@ -132,7 +114,7 @@ class Users extends Route
 
         $id = $request->getAttribute('id');
 
-        if (strpos($id, ',') !== false) {
+        if (false !== strpos($id, ',')) {
             return $this->batch($request, $response);
         }
 
@@ -146,9 +128,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function delete(Request $request, Response $response)
@@ -156,7 +135,7 @@ class Users extends Route
         $service = new UsersService($this->container);
 
         $id = $request->getAttribute('id');
-        if (strpos($id, ',') !== false) {
+        if (false !== strpos($id, ',')) {
             return $this->batch($request, $response);
         }
 
@@ -169,43 +148,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     *
-     * @throws \Exception
-     */
-    protected function batch(Request $request, Response $response)
-    {
-        $service = new UsersService($this->container);
-
-        $payload = $request->getParsedBody();
-        $params = $request->getQueryParams();
-
-        $responseData = null;
-        if ($request->isPost()) {
-            $responseData = $service->batchCreate($payload, $params);
-        } else if ($request->isPatch()) {
-            if ($request->getAttribute('id')) {
-                $ids = explode(',', $request->getAttribute('id'));
-                $responseData = $service->batchUpdateWithIds( $ids, $payload, $params);
-            } else {
-                $responseData = $service->batchUpdate($payload, $params);
-            }
-        } else if ($request->isDelete()) {
-            $ids = explode(',', $request->getAttribute('id'));
-            $service->batchDeleteWithIds($ids, $params);
-        }
-
-        return $this->responseWithData($request, $response, $responseData);
-    }
-
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function userRevisions(Request $request, Response $response)
@@ -221,9 +163,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function oneUserRevision(Request $request, Response $response)
@@ -240,9 +179,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function trackPage(Request $request, Response $response)
@@ -259,9 +195,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function acceptInvitation(Request $request, Response $response)
@@ -275,9 +208,6 @@ class Users extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function activate2FA(Request $request, Response $response)
@@ -293,4 +223,33 @@ class Users extends Route
         return $this->responseWithData($request, $response, $responseData);
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @return Response
+     */
+    protected function batch(Request $request, Response $response)
+    {
+        $service = new UsersService($this->container);
+
+        $payload = $request->getParsedBody();
+        $params = $request->getQueryParams();
+
+        $responseData = null;
+        if ($request->isPost()) {
+            $responseData = $service->batchCreate($payload, $params);
+        } elseif ($request->isPatch()) {
+            if ($request->getAttribute('id')) {
+                $ids = explode(',', $request->getAttribute('id'));
+                $responseData = $service->batchUpdateWithIds($ids, $payload, $params);
+            } else {
+                $responseData = $service->batchUpdate($payload, $params);
+            }
+        } elseif ($request->isDelete()) {
+            $ids = explode(',', $request->getAttribute('id'));
+            $service->batchDeleteWithIds($ids, $params);
+        }
+
+        return $this->responseWithData($request, $response, $responseData);
+    }
 }

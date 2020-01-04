@@ -6,15 +6,11 @@ use Directus\Application\Application;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
-use Directus\Exception\Exception;
 use Directus\Services\FoldersService;
 use Directus\Util\ArrayUtils;
 
 class Folders extends Route
 {
-    /**
-     * @param Application $app
-     */
     public function __invoke(Application $app)
     {
         $app->get('', [$this, 'allFolders']);
@@ -25,9 +21,6 @@ class Folders extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function allFolders(Request $request, Response $response)
@@ -41,9 +34,6 @@ class Folders extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function createFolder(Request $request, Response $response)
@@ -59,9 +49,6 @@ class Folders extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function readFolder(Request $request, Response $response)
@@ -76,9 +63,6 @@ class Folders extends Route
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function updateFolder(Request $request, Response $response)
@@ -94,11 +78,7 @@ class Folders extends Route
         return $this->responseWithData($request, $response, $responseData);
     }
 
-
     /**
-     * @param Request $request
-     * @param Response $response
-     *
      * @return Response
      */
     public function deleteFolder(Request $request, Response $response)

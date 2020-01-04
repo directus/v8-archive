@@ -6,7 +6,7 @@ use Ramsey\Uuid\Uuid;
 
 if (!function_exists('generate_uuid1')) {
     /**
-     * Generates a UUID v1 string
+     * Generates a UUID v1 string.
      *
      * @return string
      */
@@ -18,7 +18,7 @@ if (!function_exists('generate_uuid1')) {
 
 if (!function_exists('generate_uuid3')) {
     /**
-     * Generates a UUID v3 string
+     * Generates a UUID v3 string.
      *
      * @param string $namespace
      * @param string $name
@@ -36,7 +36,7 @@ if (!function_exists('generate_uuid3')) {
 
 if (!function_exists('generate_uuid4')) {
     /**
-     * Generates a UUID v4 string
+     * Generates a UUID v4 string.
      *
      * @return string
      */
@@ -48,7 +48,7 @@ if (!function_exists('generate_uuid4')) {
 
 if (!function_exists('generate_uuid5')) {
     /**
-     * Generates a UUID v5 string
+     * Generates a UUID v5 string.
      *
      * @param string $namespace
      * @param string $name
@@ -57,7 +57,7 @@ if (!function_exists('generate_uuid5')) {
      */
     function generate_uuid5($namespace, $name)
     {
-        if ($namespace === null) {
+        if (null === $namespace) {
             $namespace = Uuid::NAMESPACE_DNS;
         }
 

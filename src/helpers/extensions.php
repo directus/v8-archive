@@ -10,11 +10,11 @@ if (!function_exists('get_custom_x')) {
     /**
      * @param string $type
      * @param string $path
-     * @param bool $onlyDirectories Ignores files in the given path
-     *
-     * @return array
+     * @param bool   $onlyDirectories Ignores files in the given path
      *
      * @throws Exception
+     *
+     * @return array
      */
     function get_custom_x($type, $path, $onlyDirectories = false)
     {
@@ -39,7 +39,7 @@ if (!function_exists('get_custom_x')) {
             /**
              * For windows system the path is '\' instead of '/'. So we need to check for both slashes.
              */
-            $isDirectory = $dirname !== '/' && $dirname !== '\\';
+            $isDirectory = '/' !== $dirname && '\\' !== $dirname;
 
             // TODO: Need to improve logic
             if (in_array($dirname, $ignoredDirectories)) {
@@ -84,14 +84,14 @@ if (!function_exists('get_custom_x')) {
 
 if (!function_exists('get_custom_endpoints')) {
     /**
-     * Get the list of custom endpoints information
+     * Get the list of custom endpoints information.
      *
      * @param string $path
-     * @param bool $onlyDirectories
-     *
-     * @return array
+     * @param bool   $onlyDirectories
      *
      * @throws \Directus\Exception\Exception
+     *
+     * @return array
      */
     function get_custom_endpoints($path, $onlyDirectories = false)
     {
@@ -101,17 +101,15 @@ if (!function_exists('get_custom_endpoints')) {
 
 if (!function_exists('create_group_route_from_array')) {
     /**
-     * Creates a grouped routes in the given app
+     * Creates a grouped routes in the given app.
      *
-     * @param \Directus\Application\Application $app
      * @param string $groupName
-     * @param array $endpoints
      */
-    function create_group_route_from_array(\Directus\Application\Application $app, $groupName, array $endpoints)
+    function create_group_route_from_array(Application $app, $groupName, array $endpoints)
     {
-        $app->group('/' . trim($groupName, '/'), function () use ($endpoints, $app) {
+        $app->group('/'.trim($groupName, '/'), function () use ($endpoints, $app) {
             foreach ($endpoints as $routePath => $endpoint) {
-                $isGroup = \Directus\Util\ArrayUtils::get($endpoint, 'group', false) === true;
+                $isGroup = true === \Directus\Util\ArrayUtils::get($endpoint, 'group', false);
 
                 if ($isGroup) {
                     create_group_route_from_array(
@@ -129,11 +127,9 @@ if (!function_exists('create_group_route_from_array')) {
 
 if (!function_exists('create_route_from_array')) {
     /**
-     * Add a route to the given application
+     * Add a route to the given application.
      *
-     * @param Application $app
      * @param string $routePath
-     * @param array $options
      *
      * @throws Exception
      */
@@ -153,7 +149,7 @@ if (!function_exists('create_route_from_array')) {
 
         // Make sure the route path always start with a forward slash when it's not an empty string
         if ($routePath) {
-            $routePath = '/' . ltrim($routePath, '/');
+            $routePath = '/'.ltrim($routePath, '/');
         }
 
         $app->map($methods, $routePath, $handler);
@@ -162,10 +158,10 @@ if (!function_exists('create_route_from_array')) {
 
 if (!function_exists('get_custom_hooks')) {
     /**
-     * Get a list of hooks in the given path
+     * Get a list of hooks in the given path.
      *
      * @param string $path
-     * @param bool $onlyDirectories
+     * @param bool   $onlyDirectories
      *
      * @return array
      */
