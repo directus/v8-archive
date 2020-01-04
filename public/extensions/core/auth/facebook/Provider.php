@@ -10,30 +10,30 @@ class Provider extends TwoSocialProvider
     /**
      * @var Facebook
      */
-    protected $provider = null;
+    protected $provider;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getScopes()
     {
         return [
-            'email'
+            'email',
         ];
     }
 
     /**
-     * Creates the facebook provider oAuth client
+     * Creates the facebook provider oAuth client.
      *
      * @return Facebook
      */
     protected function createProvider()
     {
         $this->provider = new Facebook([
-            'clientId'          => $this->config->get('client_id'),
-            'clientSecret'      => $this->config->get('client_secret'),
-            'redirectUri'       => $this->getRedirectUrl(),
-            'graphApiVersion'   => $this->config->get('graph_api_version'),
+            'clientId' => $this->config->get('client_id'),
+            'clientSecret' => $this->config->get('client_secret'),
+            'redirectUri' => $this->getRedirectUrl(),
+            'graphApiVersion' => $this->config->get('graph_api_version'),
         ]);
 
         return $this->provider;

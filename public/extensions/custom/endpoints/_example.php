@@ -12,10 +12,10 @@ return [
             return $response->withJson([
                 'data' => [
                     'item 1',
-                    'item 2'
-                ]
+                    'item 2',
+                ],
             ]);
-        }
+        },
     ],
     '/datetime' => [
         'group' => true,
@@ -29,9 +29,11 @@ return [
                     switch ($when) {
                         case 'yesterday':
                             $datetime->modify('-1 day');
+
                             break;
                         case 'tomorrow':
                             $datetime->modify('+1 day');
+
                             break;
                         default:
                             // When empty we fallback to 'today' option
@@ -39,7 +41,8 @@ return [
                                 throw new \Directus\Exception\Exception(
                                     sprintf(
                                         'Unknown: %. Options available: %s',
-                                        $when, implode(['today', 'yesterday', 'tomorrow'])
+                                        $when,
+                                        implode(['today', 'yesterday', 'tomorrow'])
                                     )
                                 );
                             }
@@ -47,20 +50,20 @@ return [
 
                     return $response->withJson([
                         'data' => [
-                            'date' => $result = $datetime->format('Y-m-d')
-                        ]
+                            'date' => $result = $datetime->format('Y-m-d'),
+                        ],
                     ]);
-                }
+                },
             ],
             '/time' => [
                 'handler' => function ($request, $response) {
                     return $response->withJSON([
                         'data' => [
-                            'time' => date('H:i:s', time())
-                        ]
+                            'time' => date('H:i:s', time()),
+                        ],
                     ]);
-                }
-            ]
-        ]
-    ]
+                },
+            ],
+        ],
+    ],
 ];

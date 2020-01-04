@@ -22,7 +22,7 @@ class CustomHasher implements \Directus\Hash\Hasher\HasherInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function verify($string, $hash, array $options = [])
     {

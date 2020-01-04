@@ -3,7 +3,7 @@
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 
-require_once __DIR__ . '/../functions.php';
+require_once __DIR__.'/../functions.php';
 
 class Home
 {

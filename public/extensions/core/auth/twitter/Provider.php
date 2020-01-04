@@ -10,29 +10,29 @@ class Provider extends OneSocialProvider
     /**
      * @var Twitter
      */
-    protected $provider = null;
+    protected $provider;
 
     /**
-     * Creates the Twitter provider oAuth client
+     * {@inheritdoc}
+     */
+    public function getScopes()
+    {
+        return null;
+    }
+
+    /**
+     * Creates the Twitter provider oAuth client.
      *
      * @return Twitter
      */
     protected function createProvider()
     {
         $this->provider = new Twitter([
-            'identifier'    => $this->config->get('identifier'),
-            'secret'        => $this->config->get('secret'),
-            'callback_uri'  => $this->getRedirectUrl(),
+            'identifier' => $this->config->get('identifier'),
+            'secret' => $this->config->get('secret'),
+            'callback_uri' => $this->getRedirectUrl(),
         ]);
 
         return $this->provider;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getScopes()
-    {
-        return null;
     }
 }
