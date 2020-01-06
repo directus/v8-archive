@@ -6,6 +6,9 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputOption;
 
 use Directus\Console2\Commands\CacheClearCommand;
+use Directus\Console2\Commands\MaintenanceOffCommand;
+use Directus\Console2\Commands\MaintenanceOnCommand;
+use Directus\Console2\Commands\MaintenanceStatusCommand;
 use function \Directus\base_path;
 
 /**
@@ -19,6 +22,9 @@ class CLI extends Application
 
         $this->addCommands([
             new CacheClearCommand(),
+            new MaintenanceOffCommand(),
+            new MaintenanceOnCommand(),
+            new MaintenanceStatusCommand(),
        ]);
     }
 
