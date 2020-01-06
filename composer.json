@@ -42,7 +42,8 @@
     "webonyx/graphql-php": "^0.13.0",
     "char0n/ffmpeg-php": "^3.0.0",
     "pragmarx/google2fa": "^5.0",
-    "guzzlehttp/guzzle": "~6.0"
+    "guzzlehttp/guzzle": "~6.0",
+    "symfony/console": "^5.0"
   },
   "suggest": {
     "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes",

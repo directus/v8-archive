@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+
+$loader = require realpath(__DIR__ . '/../') . '/vendor/autoload.php';
+
+use Directus\Console2\CLI;
+use Directus\Application\Application;
+
+$cli = new CLI(basename(__FILE__, '.php'), Application::DIRECTUS_VERSION);
+$cli->run();
