@@ -281,7 +281,7 @@ class RelationalTableGateway extends BaseTableGateway
                         ),
                         'action_by' => $currentUserId,
                         'action_on' => DateTimeUtils::nowInUTC()->toString(),
-                        'ip' => \Directus\get_request_ip(),
+                        'ip' => \Directus\get_request_host(),
                         'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                         'collection' => $tableName,
                         'parent_item' => isset($parentData['item']) ? $parentData['item'] : null,
@@ -322,7 +322,7 @@ class RelationalTableGateway extends BaseTableGateway
                             ),
                             'action_by' => $currentUserId,
                             'action_on' => DateTimeUtils::nowInUTC()->toString(),
-                            'ip' => \Directus\get_request_ip(),
+                            'ip' => \Directus\get_request_host(),
                             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                             'collection' => $tableName,
                             'item' => $rowId,
@@ -699,8 +699,8 @@ class RelationalTableGateway extends BaseTableGateway
                 if (!array_key_exists($foreignJoinColumn, $foreignRecord)) {
                     $foreignRecord[$foreignJoinColumn] = $parentRow[$this->primaryKeyFieldName];
                 }
-              
-              
+
+
                 $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
                     $foreignRecord,
@@ -2568,7 +2568,7 @@ class RelationalTableGateway extends BaseTableGateway
             ),
             'action_by' => $currentUserId,
             'action_on' => DateTimeUtils::nowInUTC()->toString(),
-            'ip' => \Directus\get_request_ip(),
+            'ip' => \Directus\get_request_host(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'collection' => $this->getTable(),
             'item' => ArrayUtils::get($record, $this->primaryKeyFieldName),
