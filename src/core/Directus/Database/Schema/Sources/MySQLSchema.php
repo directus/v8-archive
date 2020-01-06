@@ -321,7 +321,8 @@ class MySQLSchema extends AbstractSchema
             'collection_many',
             'field_many',
             'collection_one',
-            'field_one'
+            'field_one',
+            'junction_field'
         ]);
 
         $selectOne->from('directus_relations');
