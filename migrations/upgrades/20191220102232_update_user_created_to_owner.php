@@ -11,11 +11,15 @@ class UpdateUserCreatedToOwner extends AbstractMigration
         $this->execute(\Directus\phinx_update(
             $this->getAdapter(),
             'directus_fields',
-            [
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_OWNER,
-                'interface' => 'owner'
-            ],
+            ['type' => \Directus\Database\Schema\DataTypes::TYPE_OWNER],
             ['type' =>  'user_created']
+        ));
+
+        $this->execute(\Directus\phinx_update(
+            $this->getAdapter(),
+            'directus_fields',
+            ['interface' => 'owner'],
+            ['interface' => 'user_created']
         ));
     }
 }
