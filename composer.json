@@ -44,6 +44,10 @@
     "pragmarx/google2fa": "^5.0",
     "guzzlehttp/guzzle": "~6.0"
   },
+  "require-dev": {
+    "phpstan/phpstan": "^0.12.4",
+    "phpstan/phpstan-strict-rules": "^0.12.1"
+  },
   "suggest": {
     "paragonie/random_compat": "Generates cryptographically more secure pseudo-random bytes",
     "league/flysystem-aws-s3-v3": "Enables the usage of Amazon S3 adapter for storage",
