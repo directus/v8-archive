@@ -22,13 +22,13 @@ class UserModule extends ModuleBase
             'password' => ''
                 . PHP_EOL . "\t\t-e " . 'User e-mail address.'
                 . PHP_EOL . "\t\t-p " . 'New password for the user.'
-                . PHP_EOL . "\t\t-N " . 'Project Name.'
+                . PHP_EOL . "\t\t-k " . 'Project Key.'
                 . PHP_EOL . "\t\t-d " . 'Directus path. Default: ' . $this->getBasePath()
         ];
 
         $this->commands_help = [
             'password' => 'Change User Password: ' . PHP_EOL . PHP_EOL . "\t\t"
-                . $this->__module_name . ':password -e user_email -p new_password -N project_name -d directus_path' . PHP_EOL
+                . $this->__module_name . ':password -e user_email -p new_password -k project_key -d directus_path' . PHP_EOL
         ];
 
         $this->__module_name = 'user';
@@ -49,7 +49,7 @@ class UserModule extends ModuleBase
                 case 'p':
                     $data['user_password'] = $value;
                     break;
-                case 'N':
+                case 'k':
                     $data['project_name'] = $value;
                     break;
                 case 'd':
@@ -67,7 +67,7 @@ class UserModule extends ModuleBase
         }
 
         if (!isset($data['project_name'])) {
-            throw new WrongArgumentsException($this->__module_name . ':password ' . 'missing project name!');
+            throw new WrongArgumentsException($this->__module_name . ':password ' . 'missing project key!');
         }
 
         $user = new User($directus_path, $data['project_name']);
