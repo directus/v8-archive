@@ -203,7 +203,7 @@ class ItemsService extends AbstractService
             foreach ($payload[$colName] as $individual) {
                 if (!isset($individual['$delete'])) {
 
-                    $aliasField = $aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField();
+                    $aliasField = $aliasColumnDetails->getRelationship()->getJunctionField();
 
                     $validatePayload = $individual[$aliasField];
                     if (!isset($params['fields'])) {
