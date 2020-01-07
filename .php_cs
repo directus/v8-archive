@@ -2,13 +2,15 @@
 
 // See https://github.com/FriendsOfPHP/PHP-CS-Fixer for more details
 
-$excludes = [
-    'logs',
-    'vendor',
-];
-
 $finder = PhpCsFixer\Finder::create()
-    ->exclude($excludes)
+    // Folders to exclude
+    ->exclude([
+        'config',
+        'logs',
+        'vendor',
+    ])
+    // Filenames to exclude
+    ->notName('_*')
     ->in(__DIR__)
 ;
 
