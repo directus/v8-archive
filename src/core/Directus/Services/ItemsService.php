@@ -194,6 +194,7 @@ class ItemsService extends AbstractService
     {
         $colName = $aliasColumnDetails->getName();
         $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionManyToMany();
+
         if ($relationalCollectionName && isset($payload[$colName])) {
             $relationalCollectionPrimaryKey = SchemaService::getCollectionPrimaryKey($relationalCollectionName);
             $relationalCollectionPrimaryKeyObject = SchemaService::getField($relationalCollectionName, $relationalCollectionPrimaryKey);
@@ -201,7 +202,9 @@ class ItemsService extends AbstractService
 
             foreach ($payload[$colName] as $individual) {
                 if (!isset($individual['$delete'])) {
+
                     $aliasField = $aliasColumnDetails->getRelationship()->getJunctionOtherRelatedField();
+
                     $validatePayload = $individual[$aliasField];
                     if (!isset($params['fields'])) {
                         $params['fields'] = "*.*";
