@@ -6,3 +6,5 @@ parameters:
   paths:
     - public
     - src
+
+  checkMissingIterableValueType: false
