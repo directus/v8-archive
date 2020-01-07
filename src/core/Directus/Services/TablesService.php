@@ -1276,6 +1276,7 @@ class TablesService extends AbstractService
         $hookEmitter->run('collection.update:before', [$name, $data]);
 
         $toAdd = $toChange = $toDrop = [];
+
         foreach ($fields as $fieldData) {
             $field = $collection->getField($fieldData['field']);
 
@@ -1318,9 +1319,13 @@ class TablesService extends AbstractService
         $result = $schemaFactory->buildTable($table);
 
         $this->updateColumnsRelation($name, array_merge($toAdd, $toChange));
+
         foreach ($fields as $fieldData) {
-            $schemaFactory->addNotNullConstraint($fieldData);
+            if ($fieldData['type'] != DataTypes::TYPE_O2M) {
+                $schemaFactory->addNotNullConstraint($fieldData);
+            }
         }
+
         $hookEmitter->run('collection.update', [$name, $data]);
         $hookEmitter->run('collection.update:after', [$name, $data]);
 
