@@ -13,7 +13,7 @@ jobs:
         uses: shivammathur/setup-php@v1
         with:
           php-version: '7.3'
-          tools: phpstan, php-cs-fixer
+          tools: phpstan, php-cs-fixer, prestissimo
 
       - name: Install
         run:  composer install
