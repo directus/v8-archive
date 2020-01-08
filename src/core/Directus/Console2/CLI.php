@@ -12,6 +12,10 @@ use Directus\Console2\Commands\DatabaseUpgradeCommand;
 use Directus\Console2\Commands\MaintenanceOffCommand;
 use Directus\Console2\Commands\MaintenanceOnCommand;
 use Directus\Console2\Commands\MaintenanceStatusCommand;
+use Directus\Console2\Commands\UserChangePasswordCommand;
+use Directus\Console2\Commands\UserCreateCommand;
+use Directus\Console2\Commands\UserDeleteCommand;
+
 use function \Directus\base_path;
 
 /**
@@ -31,6 +35,9 @@ class CLI extends Application
             new MaintenanceOffCommand(),
             new MaintenanceOnCommand(),
             new MaintenanceStatusCommand(),
+            new UserChangePasswordCommand(),
+            new UserCreateCommand(),
+            new UserDeleteCommand()
        ]);
     }
 
