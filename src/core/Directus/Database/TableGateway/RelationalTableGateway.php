@@ -14,7 +14,7 @@ use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
-use Directus\Permissions\Exception\ForbiddenFieldReadException;
+use Directus\Exception\ErrorCodes;
 use Directus\Permissions\Exception\PermissionException;
 use Directus\Permissions\Exception\UnableFindOwnerItemsException;
 use Directus\Util\ArrayUtils;
@@ -33,6 +33,7 @@ class RelationalTableGateway extends BaseTableGateway
     const ACTIVITY_ENTRY_MODE_PARENT = 1;
     const ACTIVITY_ENTRY_MODE_CHILD = 2;
 
+    protected $exceptionMessages = [];
     protected $toManyCallStack = [];
 
     /**
@@ -919,6 +920,8 @@ class RelationalTableGateway extends BaseTableGateway
 
         $result['data'] = $data;
 
+        $result['messages'] = $this->exceptionMessages;
+
         return $result;
     }
 
@@ -1236,12 +1239,13 @@ class RelationalTableGateway extends BaseTableGateway
             foreach ($results as $index => &$item) {
                 $statusId = ArrayUtils::get($item, $statusField->getName());
                 $blacklist = $this->acl->getReadFieldBlacklist($this->table, $statusId);
+
                 $item = ArrayUtils::omit($item, $blacklist);
+
                 if (empty($item)) {
                     unset($results[$index]);
                 }
             }
-
             $results = array_values($results);
         }
 
@@ -2074,7 +2078,14 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getCollectionMany();
+
             if ($this->acl && !$this->acl->canReadOnce($relatedTableName)) {
+                $this->exceptionMessages[] = [
+                    'type' => 'warning',
+                    'message' => "Can't read `" . $relatedTableName . "`: read access to `" . $relatedTableName . "` collection denied",
+                    'code' => ErrorCodes::WARNING_ACCESS_DENIED,
+                    'fields' => [$alias->getName()],
+                ];
                 continue;
             }
 
@@ -2197,7 +2208,12 @@ class RelationalTableGateway extends BaseTableGateway
                         $primaryKeyName => $entry[$column->getName()]
                     ];
                 }
-
+                $this->exceptionMessages[] = [
+                    'type' => 'warning',
+                    'message' => "Can't read `" . $relatedTable . "`: read access to `" . $relatedTable . "` collection denied",
+                    'code' => ErrorCodes::WARNING_ACCESS_DENIED,
+                    'fields' => [$column->getName()],
+                ];
                 continue;
             }
 
