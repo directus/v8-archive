@@ -6,6 +6,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputOption;
 
 use Directus\Console2\Commands\CacheClearCommand;
+use Directus\Console2\Commands\ConfigCreateCommand;
 use Directus\Console2\Commands\DatabaseUpgradeCommand;
 use Directus\Console2\Commands\MaintenanceOffCommand;
 use Directus\Console2\Commands\MaintenanceOnCommand;
@@ -23,6 +24,7 @@ class CLI extends Application
 
         $this->addCommands([
             new CacheClearCommand(),
+            new ConfigCreateCommand(),
             new DatabaseUpgradeCommand(),
             new MaintenanceOffCommand(),
             new MaintenanceOnCommand(),
