@@ -22,10 +22,7 @@ class DatabaseUpgradeCommand extends AbstractProjectCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $basePath = $input->getOption('base-path');
-        $project = $input->getOption('project');
-
-        InstallerUtils::updateTables($basePath, $project);
-        return 0;
+        $output->writeln("command not implemented");
+        return 1;
     }
 }
