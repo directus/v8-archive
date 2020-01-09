@@ -173,8 +173,15 @@ class ItemsService extends AbstractService
             if (!empty($recordData) && array_key_exists($column->getName(), $recordData)) {
 
                 $columnName = $column->getName();
-
-                $collectionFields[$columnName] = array_key_exists($columnName, $collectionFields) ? $collectionFields[$columnName] : (DataTypes::isJson($column->getType()) ? (array) $recordData[$columnName] : $recordData[$columnName]);
+                if (array_key_exists($columnName, $collectionFields)) {
+                    if ($column->hasRelationship() && !array_filter($collectionFields[$columnName])) {
+                        $collectionFields[$columnName] = DataTypes::isJson($column->getType()) ? (array) $recordData[$columnName] : $recordData[$columnName];
+                    } else {
+                        $collectionFields[$columnName] =  $collectionFields[$columnName];
+                    }
+                } else {
+                    $collectionFields[$columnName] = DataTypes::isJson($column->getType()) ? (array) $recordData[$columnName] : $recordData[$columnName];
+                }
             }
         }
         $this->validatePayload($collection, null,  $collectionFields, $params);
@@ -195,6 +202,7 @@ class ItemsService extends AbstractService
 
             foreach ($payload[$colName] as $individual) {
                 if (!isset($individual['$delete'])) {
+
                     $aliasField = $aliasColumnDetails->getRelationship()->getJunctionField();
 
                     $validatePayload = $individual[$aliasField];

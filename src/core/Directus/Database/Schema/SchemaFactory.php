@@ -99,6 +99,11 @@ class SchemaFactory
     // Zend DB does not support NotNull constraint. This function will add/remove not null constraint from particular column
     public function addNotNullConstraint($column)
     {
+        // Make sure we don't add the constraint for alias type columns
+        if (DataTypes::isAliasType($column['type'])) {
+            return;
+        }
+
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
 
@@ -107,6 +112,7 @@ class SchemaFactory
         $queryFormat .= $column['required'] ? ' Not Null' : ' Null';
 
         $sqlQuery = $sql->getAdapter();
+
         if (!empty($column['length'])) {
             $query = sprintf($queryFormat, $column['collection'], $column['field'], $column['datatype'], $column['length']);
         } else {
