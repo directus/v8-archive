@@ -1,0 +1,50 @@
+name: Code Analysis
+on: [push, pull_request]
+jobs:
+  static-code-analysis:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - "ubuntu-latest"
+          #- "windows-latest"
+          #- "macOS-latest"
+        php:
+          - "7.2"
+          - "7.3"
+          - "7.4"
+    name: PHP ${{ matrix.php }} checks on ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v1
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring
+          coverage: pcov
+          tools: prestissimo
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Enable cache for dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Check for linting error
+        run: composer run test:lint
+
+      - name: Execute static code analysis
+        run: composer run test:analysis
+
+      - name: Execute tests and code coverage
+        run: composer run test:coverage

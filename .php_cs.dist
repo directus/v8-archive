@@ -1,0 +1,20 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->exclude(["vendor"])
+    ->in(__DIR__)
+    ->append([
+        "./bin/directus"
+    ]);
+
+return PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
+    ->setUsingCache(true)
+    ->setLineEnding("\n")
+    ->setRules([
+        "@PhpCsFixer" => true,
+        "@PhpCsFixer:risky" => true,
+        "declare_strict_types" => true,
+    ])
+    ->setCacheFile(__DIR__ . "/.php_cs.cache")
+    ->setFinder($finder);
