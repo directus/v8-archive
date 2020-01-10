@@ -52,5 +52,5 @@ jobs:
       - name: Coverage report
         env:
           COVERALLS_REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        if: success() && matrix.php == "7.4"
+        if: success() && matrix.php == '7.4'
         run: composer run test:coverage:reports
