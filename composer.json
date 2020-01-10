@@ -42,7 +42,7 @@
     "test:lint": "php-cs-fixer fix --verbose --diff --dry-run --config=etc/.php_cs.dist",
     "test:analysis": "phpstan --ansi --configuration=etc/phpstan.neon analyse",
     "test:coverage": "phpunit --bootstrap vendor/autoload.php --testdox --coverage-clover=var/coverage.xml --whitelist=src tests",
-    "test:coverage:report": "php-coveralls",
+    "test:coverage:report": "coveralls var/coverage.xml",
     "lint": "php-cs-fixer fix --config=etc/.php_cs.dist"
   },
   "config": {
