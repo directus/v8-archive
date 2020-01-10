@@ -15,6 +15,9 @@ jobs:
           - "7.4"
     name: PHP ${{ matrix.php }} checks on ${{ matrix.os }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Install environment
         uses: shivammathur/setup-php@v1
         with:
@@ -33,9 +36,6 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
-
-      - name: Checkout
-        uses: actions/checkout@v2
 
       - name: Install dependencies
         run: composer install
