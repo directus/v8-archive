@@ -38,7 +38,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install
+        run: composer install --no-interaction
 
       - name: Linting
         run: composer run test:lint
@@ -50,7 +50,7 @@ jobs:
         run: composer run test:coverage
 
       - name: Coverage report
-        run: composer run test:coverage:report
-        if: matrix.php == '7.4' && success()
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          COVERALLS_REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        if: success() && matrix.php == "7.4"
+        run: composer run test:coverage:reports
