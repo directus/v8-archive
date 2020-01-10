@@ -41,7 +41,7 @@ if (file_exists($maintenanceFlagPath)) {
 try {
     $app = \Directus\create_app_with_project_name($basePath, $projectName);
 } catch (ErrorException $e) {
-    if($e->getCode() == Directus\Config\Exception\UnknownProjectException::ERROR_CODE){
+    if ($e->getCode() == Directus\Config\Exception\UnknownProjectException::ERROR_CODE) {
         return \Directus\create_unknown_project_app($basePath);
     }
     http_response_code($e->getStatusCode());
@@ -212,10 +212,6 @@ $app->group('/{project}', function () use ($middleware) {
     $this->group('/scim', function () {
         $this->group('/v2', \Directus\Api\Routes\ScimTwo::class);
     })->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
-    $this->group('/utils', \Directus\Api\Routes\Utils::class)
-        ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
     $this->group('/mail', \Directus\Api\Routes\Mail::class)
