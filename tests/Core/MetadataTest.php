@@ -13,8 +13,23 @@ use PHPUnit\Framework\TestCase;
  */
 final class MetadataTest extends TestCase
 {
+    /**
+     * Test if version returns a semver compatible string.
+     *
+     * @covers \Metadata::getVersion
+     */
     public function testContainsVersionInformation(): void
     {
         static::assertRegExp('/^\\d+.\\d+.\\d+$/', Metadata::getVersion());
+    }
+
+    /**
+     * Test the root project path.
+     *
+     * @covers \Metadata::getRootDir
+     */
+    public function testRootProjectPath(): void
+    {
+        static::assertSame(realpath(__DIR__.'/../..'), Metadata::getRootDir());
     }
 }

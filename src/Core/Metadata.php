@@ -14,7 +14,12 @@ final class Metadata
      */
     public static function getRootDir(): string
     {
-        return __DIR__.'/../..';
+        $path = realpath(__DIR__.'/../..');
+        if (false === $path) {
+            throw new \Exception('Failed to get package root directory');
+        }
+
+        return $path;
     }
 
     /**
