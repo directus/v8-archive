@@ -1789,11 +1789,13 @@ class RelationalTableGateway extends BaseTableGateway
             //Logic for blacklisted fields
             $field = explode('.', $column);
             $field = array_shift($field);
-            $fieldReadBlackListDetails = $this->acl->getStatusesOnReadFieldBlacklist($this->getTable(), $field);
-            if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
-                throw new Exception\ForbiddenFieldAccessException($field);
-            } else if (isset($fieldReadBlackListDetails['statuses']) && !empty($fieldReadBlackListDetails['statuses'])) {
-                $blackListStatuses = array_merge($blackListStatuses, array_values($fieldReadBlackListDetails['statuses']));
+            if ($this->acl) {
+                $fieldReadBlackListDetails = $this->acl->getStatusesOnReadFieldBlacklist($this->getTable(), $field);
+                if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
+                    throw new Exception\ForbiddenFieldAccessException($field);
+                } else if (isset($fieldReadBlackListDetails['statuses']) && !empty($fieldReadBlackListDetails['statuses'])) {
+                    $blackListStatuses = array_merge($blackListStatuses, array_values($fieldReadBlackListDetails['statuses']));
+                }
             }
 
             if (!(!is_string($column) || strpos($column, '.') === false)) {
