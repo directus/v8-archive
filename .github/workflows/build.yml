@@ -1,7 +1,7 @@
-name: Code Analysis
+name: Build
 on: [push, pull_request]
 jobs:
-  static-code-analysis:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -15,36 +15,42 @@ jobs:
           - "7.4"
     name: PHP ${{ matrix.php }} checks on ${{ matrix.os }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install PHP
+      - name: Install environment
         uses: shivammathur/setup-php@v1
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring
+          extensions: curl, mbstring
           coverage: pcov
           tools: prestissimo
 
-      - name: Get composer cache directory
+      - name: Cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      - name: Enable cache for dependencies
+      - name: Cache dependencies
         uses: actions/cache@v1
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Install dependencies
         run: composer install
 
-      - name: Check for linting error
+      - name: Linting
         run: composer run test:lint
 
-      - name: Execute static code analysis
+      - name: Static code analysis
         run: composer run test:analysis
 
-      - name: Execute tests and code coverage
+      - name: Tests and coverage
         run: composer run test:coverage
+
+      - name: Coverage report
+        run: composer run test:coverage:report
+        if: matrix.php == '7.4' && success()
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}

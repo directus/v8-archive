@@ -19,6 +19,7 @@
     "php": ">=7.2"
   },
   "require-dev": {
+    "cedx/coveralls": "^11.2",
     "friendsofphp/php-cs-fixer": "^2.16",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan": "^0.12.4",
@@ -38,10 +39,11 @@
   },
   "scripts": {
     "test": "phpunit --bootstrap vendor/autoload.php --testdox tests",
-    "test:lint": "php-cs-fixer fix --verbose --diff --dry-run",
-    "test:analysis": "phpstan --ansi analyse",
-    "test:coverage": "phpunit --bootstrap vendor/autoload.php --testdox tests --coverage-clover=coverage.xml",
-    "lint": "php-cs-fixer fix"
+    "test:lint": "php-cs-fixer fix --verbose --diff --dry-run --config=etc/.php_cs.dist",
+    "test:analysis": "phpstan --ansi --configuration=etc/phpstan.neon analyse",
+    "test:coverage": "phpunit --bootstrap vendor/autoload.php --testdox --coverage-clover=var/coverage.xml --whitelist=src tests",
+    "test:coverage:report": "php-coveralls",
+    "lint": "php-cs-fixer fix --config=etc/.php_cs.dist"
   },
   "config": {
     "sort-packages": true,
