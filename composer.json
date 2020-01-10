@@ -1,7 +1,6 @@
 {
     "name": "directus/directus",
     "description": "Directus",
-    "type": "library",
     "license": "GPLv3",
     "keywords": [
         "directus",
