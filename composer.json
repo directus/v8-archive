@@ -1,47 +1,50 @@
 {
-    "name": "directus/directus",
-    "description": "Directus",
-    "license": "GPLv3",
-    "keywords": [
-        "directus",
-        "laravel"
-    ],
-    "authors": [
-        {
-            "name": "WoLfulus",
-            "email": "wolfulus@gmail.com"
-        }
-    ],
-    "require": {
-        "php": ">=7.2"
-    },
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.16",
-        "phpstan/extension-installer": "^1.0",
-        "phpstan/phpstan": "^0.12.4",
-        "phpstan/phpstan-phpunit": "^0.12.5",
-        "phpstan/phpstan-strict-rules": "^0.12.1",
-        "phpunit/phpunit": "^8"
-    },
-    "autoload": {
-        "psr-4": {
-            "Directus\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Directus\\Tests\\": "tests/"
-        }
-    },
-    "scripts": {
-        "test": "phpunit --bootstrap vendor/autoload.php --testdox tests",
-        "test:lint": "php-cs-fixer fix --verbose --diff --dry-run",
-        "test:analysis": "phpstan --ansi analyse",
-        "test:coverage": "phpunit --bootstrap vendor/autoload.php --testdox tests --coverage-clover=coverage.xml",
-        "lint": "php-cs-fixer fix"
-    },
-    "config": {
-        "sort-packages": true,
-        "optimize-autoloader": true
+  "name": "directus/directus",
+  "description": "Directus",
+  "license": "GPLv3",
+  "keywords": [
+    "directus",
+    "laravel"
+  ],
+  "authors": [
+    {
+      "name": "WoLfulus",
+      "email": "wolfulus@gmail.com"
     }
+  ],
+  "bin": [
+    "./bin/directus"
+  ],
+  "require": {
+    "php": ">=7.2"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16",
+    "phpstan/extension-installer": "^1.0",
+    "phpstan/phpstan": "^0.12.4",
+    "phpstan/phpstan-phpunit": "^0.12.5",
+    "phpstan/phpstan-strict-rules": "^0.12.1",
+    "phpunit/phpunit": "^8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Directus\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Directus\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --bootstrap vendor/autoload.php --testdox tests",
+    "test:lint": "php-cs-fixer fix --verbose --diff --dry-run",
+    "test:analysis": "phpstan --ansi analyse",
+    "test:coverage": "phpunit --bootstrap vendor/autoload.php --testdox tests --coverage-clover=coverage.xml",
+    "lint": "php-cs-fixer fix"
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true
+  }
 }
