@@ -41,7 +41,7 @@ if (file_exists($maintenanceFlagPath)) {
 try {
     $app = \Directus\create_app_with_project_name($basePath, $projectName);
 } catch (ErrorException $e) {
-    if($e->getCode() == Directus\Config\Exception\UnknownProjectException::ERROR_CODE){
+    if ($e->getCode() == Directus\Config\Exception\UnknownProjectException::ERROR_CODE) {
         return \Directus\create_unknown_project_app($basePath);
     }
     http_response_code($e->getStatusCode());
@@ -283,12 +283,6 @@ $app->group('/modules', \Directus\Api\Routes\Modules::class)
     ->add($middleware['database_migration']);
 
 $app->group('/server', \Directus\Api\Routes\Server::class);
-$app->group('/types', \Directus\Api\Routes\Types::class)
-    ->add($middleware['rate_limit_user'])
-    ->add($middleware['auth_user'])
-    ->add($middleware['auth'])
-    ->add($middleware['table_gateway'])
-    ->add($middleware['database_migration']);
 
 $app->add(new \Directus\Application\Http\Middleware\ResponseCacheMiddleware($app->getContainer()));
 
