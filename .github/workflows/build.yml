@@ -18,6 +18,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Fetch history
+        run: git fetch --prune --unshallow
+
       - name: Install environment
         uses: shivammathur/setup-php@v1
         with:
