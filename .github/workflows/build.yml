@@ -41,7 +41,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-interaction
+        run: composer install --no-interaction --no-progress --no-suggest
 
       - name: Linting
         run: composer run test:lint
