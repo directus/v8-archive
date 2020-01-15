@@ -54,3 +54,10 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
         if: success() && matrix.php == '7.4'
         run: composer run test:coverage:report
+
+      - name: Sonar Scanner
+        uses: sonarsource/sonarcloud-github-action@master
+        if: success() && matrix.php == '7.4'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
