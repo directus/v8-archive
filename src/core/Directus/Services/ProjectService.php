@@ -4,6 +4,7 @@ namespace Directus\Services;
 
 use Directus\Application\Http\Request;
 use Directus\Config\Context;
+use Directus\Config\SuperAdminToken;
 use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\InvalidConfigPathException;
@@ -71,16 +72,14 @@ class ProjectService extends AbstractService
 
         $projectNames = $scannedDirectory;
 
-        $superadminFilePath = $basePath.'/config/__api.json';
-        if (empty($projectNames)) {
-            $configStub = InstallerUtils::createJsonFileContent($data);
-            file_put_contents($superadminFilePath, $configStub);
-        } else {
-            $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
-            if ($data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
-                throw new UnauthorizedException('Permission denied: Superadmin Only');
-            }
+        if (!empty($projectNames)) {
+            SuperAdminToken::assert($data['super_admin_token']);
         }
+
+        // TODO: this two lines below is duplicated in InstallerModule,
+        //       maybe refactor this into a single place?
+        $configStub = InstallerUtils::createJsonFileContent($data);
+        file_put_contents(SuperAdminToken::path(), $configStub);
 
         $basePath = $this->container->get('path_base');
         $force = ArrayUtils::pull($data, 'force', false);
