@@ -76,6 +76,7 @@ class InstallModule extends ModuleBase
             switch ($key) {
                 case 'a':
                     $data['super_admin_token'] = $value;
+                    break;
                 case 'k':
                     $data['project'] = (string) $value;
                     break;
