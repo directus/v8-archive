@@ -3,6 +3,7 @@
 namespace Directus\Console\Modules;
 
 use Directus\Config\Context;
+use Directus\Config\SuperAdminToken;
 use Directus\Console\Common\Exception\PasswordChangeException;
 use Directus\Console\Common\Exception\UserUpdateException;
 use Directus\Console\Common\Setting;
@@ -124,31 +125,33 @@ class InstallModule extends ModuleBase
         $scannedDirectory = \Directus\scan_folder($this->getBasePath().'/config');
         $projectNames = $scannedDirectory;
 
-        $superadminFilePath = $this->getBasePath().'/config/__api.json';
-        if(empty($projectNames)){
-            $requiredAttributes = ['db_name', 'db_user'];
-            $data['super_admin_token'] = StringUtils::randomString(16,false);
-        }else{
-            $requiredAttributes = ['db_name', 'db_user', 'super_admin_token'];
-            $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
-            if (!is_null($data['super_admin_token']) && $data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
-                throw new UnauthorizedException('Permission denied: Superadmin Only');
-            }
+        if (!empty($projectName)) {
+            SuperAdminToken::assert($data['super_admin_token']);
         }
+
+        $superAdminGenerated = false;
+        if (empty($projectNames) && !isset($data['super_admin_token'])) {
+            $data['super_admin_token'] = StringUtils::randomString(16, false);
+            $superAdminGenerated = true;
+        }
+
+        $requiredAttributes = ['db_name', 'db_user', 'super_admin_token'];
         if (!ArrayUtils::contains($data, $requiredAttributes)) {
             throw new \InvalidArgumentException(
-                'Creating config files required: ' . implode(', ', $requiredAttributes)
+                'Creating config files required: '.implode(', ', $requiredAttributes)
             );
         }
-        if(empty($projectNames)){
+
+        if (empty($projectNames) && !Context::is_env()) {
             $configStub = InstallerUtils::createJsonFileContent($data);
-            file_put_contents($superadminFilePath, $configStub);
+            file_put_contents(SuperAdminToken::path(), $configStub);
         }
+
         InstallerUtils::createConfig($directusPath, $data, $force);
 
-        if(empty($projectNames)){
-            echo PHP_EOL . "Make sure to copy the generated Super-Admin password below. You won't be able to see it again!". PHP_EOL;
-            echo PHP_EOL . $data['super_admin_token'] . PHP_EOL;
+        if (empty($projectNames) && $superAdminGenerated) {
+            echo PHP_EOL."Make sure to copy the generated Super-Admin password below. You won't be able to see it again!".PHP_EOL;
+            echo PHP_EOL.$data['super_admin_token'].PHP_EOL;
         }
     }
 
