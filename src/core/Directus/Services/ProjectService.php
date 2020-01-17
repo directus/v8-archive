@@ -61,7 +61,7 @@ class ProjectService extends AbstractService
             'user_email' => 'required|email',
             'user_password' => 'required|string',
             'user_token' => 'string',
-            ]);
+        ]);
 
         // If the first installtion is executing then add the api.json file to store the password.
         // For every installation after the first one, user must pass that same password to create the next project.
