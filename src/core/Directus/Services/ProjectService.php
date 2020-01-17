@@ -15,7 +15,6 @@ use Directus\Exception\ProjectAlreadyExistException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\Installation\InstallerUtils;
-use Directus\Util\StringUtils;
 
 class ProjectService extends AbstractService
 {
@@ -61,7 +60,7 @@ class ProjectService extends AbstractService
             'app_url' => 'string',
             'user_email' => 'required|email',
             'user_password' => 'required|string',
-            'user_token' => 'string'
+            'user_token' => 'string',
             ]);
 
         // If the first installtion is executing then add the api.json file to store the password.
@@ -73,10 +72,10 @@ class ProjectService extends AbstractService
         $projectNames = $scannedDirectory;
 
         $superadminFilePath = $basePath.'/config/__api.json';
-        if(empty($projectNames)){
+        if (empty($projectNames)) {
             $configStub = InstallerUtils::createJsonFileContent($data);
             file_put_contents($superadminFilePath, $configStub);
-        }else{
+        } else {
             $superadminFileData = json_decode(file_get_contents($superadminFilePath), true);
             if ($data['super_admin_token'] !== $superadminFileData['super_admin_token']) {
                 throw new UnauthorizedException('Permission denied: Superadmin Only');
@@ -120,9 +119,8 @@ class ProjectService extends AbstractService
         }
     }
 
-
     /**
-     * Deletes a project with the given name
+     * Deletes a project with the given name.
      *
      * @param string $name
      *
@@ -133,7 +131,7 @@ class ProjectService extends AbstractService
     {
         $data = $request->getQueryParams();
 
-        $this->validate($data,[
+        $this->validate($data, [
             'super_admin_token' => 'required',
         ]);
 
@@ -156,7 +154,7 @@ class ProjectService extends AbstractService
             InstallerUtils::ensureConfigFileExists($basePath, $name);
         } catch (InvalidPathException $e) {
             throw new NotFoundException(
-                'Unknown Project: ' . $name
+                'Unknown Project: '.$name
             );
         }
 
@@ -165,14 +163,14 @@ class ProjectService extends AbstractService
     }
 
     /**
-     * Checks whether .lock file exists
+     * Checks whether .lock file exists.
      *
      * @return bool
      */
     protected function isLocked()
     {
         $basePath = $this->container->get('path_base');
-        $lockFilePath = $basePath . '/.lock';
+        $lockFilePath = $basePath.'/.lock';
 
         return file_exists($lockFilePath) && is_file($lockFilePath);
     }
