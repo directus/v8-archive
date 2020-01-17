@@ -3,6 +3,7 @@
 namespace Directus\Services;
 
 use Directus\Application\Http\Request;
+use Directus\Config\Context;
 use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\InvalidConfigPathException;
@@ -24,7 +25,11 @@ class ProjectService extends AbstractService
             throw new ForbiddenException('Creating new instance is locked');
         }
 
-        $this->validate($data,[
+        if (Context::is_env()) {
+            throw new ForbiddenException('Project creation is disabled under environment variables.');
+        }
+
+        $this->validate($data, [
             'project' => 'required|string|regex:/^[0-9a-z_-]+$/i',
             'private' => 'bool',
             'force' => 'bool',

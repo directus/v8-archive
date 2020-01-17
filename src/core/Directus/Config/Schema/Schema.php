@@ -2,6 +2,8 @@
 
 namespace Directus\Config\Schema;
 
+use Directus\Config\Context;
+
 /**
  * Config schema
  */
@@ -10,8 +12,9 @@ class Schema {
      * Gets the configuration schema
      * @return Node
      */
-    public static function get() {
-        $isEnv = getenv("DIRECTUS_USE_ENV") === "1";
+    public static function get()
+    {
+        $isEnv = Context::is_env();
         if ($isEnv) {
             $loggerPath = "php://stdout";
         } else {

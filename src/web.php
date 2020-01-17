@@ -16,7 +16,7 @@ $projectName = \Directus\get_api_project_from_request();
 // It returns 401 Unauthorized error to any endpoint except /server/ping
 if (!$projectName) {
     $schema = Schema::get();
-    if (getenv("DIRECTUS_USE_ENV") === "1") {
+    if (Context::is_env()) {
         $configData = $schema->value(Context::from_env());
     } else {
         $configData = $schema->value([]);

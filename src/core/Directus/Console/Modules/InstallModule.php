@@ -2,7 +2,7 @@
 
 namespace Directus\Console\Modules;
 
-use Directus\Database\Exception\ConnectionFailedException;
+use Directus\Config\Context;
 use Directus\Console\Common\Exception\PasswordChangeException;
 use Directus\Console\Common\Exception\UserUpdateException;
 use Directus\Console\Common\Exception\InvalidDatabaseConnectionException;
@@ -174,8 +174,7 @@ class InstallModule extends ModuleBase
             }
         }
 
-
-        if (getenv('DIRECTUS_USE_ENV') === "1") {
+        if (Context::is_env()) {
             $data = [
                 'project' => '_',
                 'db_name' => getenv('DIRECTUS_DATABASE_NAME'),

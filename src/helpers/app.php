@@ -85,8 +85,8 @@ if (!function_exists('get_project_config')) {
         $config = [];
         $schema = Schema::get();
 
-        if (getenv("DIRECTUS_USE_ENV") === "1") {
-            $configFilePath = "__env__";
+        if (Context::is_env()) {
+            $configFilePath = '__env__';
             $configData = $schema->value(Context::from_env());
         } else {
             if (!file_exists($configFilePath)) {

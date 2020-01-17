@@ -34,8 +34,8 @@ class Server extends Route
     {
         // When using Directus in Docker (or any other service that relies on environment variables), always use `_` for
         // the project key
-        if (getenv("DIRECTUS_USE_ENV") === "1") {
-            $projectNames[] = "_";
+        if (Context::is_env()) {
+            $projectNames[] = '_';
         } else {
             $basePath = \Directus\get_app_base_path();
             $scannedDirectory = \Directus\scan_folder($basePath.'/config');
