@@ -11,31 +11,54 @@ use RuntimeException;
 class SuperAdminToken
 {
     /**
+     * Environment variable name.
+     */
+    public const ENV_NAME = 'DIRECTUS_SUPER_ADMIN_TOKEN';
+
+    /**
      * Gets the super admin token.
      *
      * @return string
      */
     public static function get()
     {
+        if (!static::exists()) {
+            throw new RuntimeException('Cannot find super admin token variable.');
+        }
+
         if (Context::is_env()) {
-            $token = getenv('DIRECTUS_SUPER_ADMIN_TOKEN');
-            if (!$token) {
-                throw new RuntimeException('Environment variable `DIRECTUS_SUPER_ADMIN_TOKEN` is not set.');
-            }
-
-            return $token;
+            return getenv(static::ENV_NAME);
         }
 
-        $basePath = \Directus\get_app_base_path();
-        $filePath = $basePath.'/config/__api.json';
-
-        if (!file_exists($filePath)) {
-            throw new RuntimeException('Cannot find config/__api.json file.');
-        }
-
-        $fileData = json_decode(file_get_contents($filePath), true);
+        $fileData = json_decode(file_get_contents(static::path()), true);
 
         return $fileData['super_admin_token'];
+    }
+
+    /**
+     * Gets the token file path.
+     */
+    public static function path()
+    {
+        $basePath = \Directus\get_app_base_path();
+
+        return $basePath.'/config/__api.json';
+    }
+
+    /**
+     * Check if super admin token exists.
+     */
+    public static function exists()
+    {
+        if (Context::is_env()) {
+            if (getenv(static::ENV_NAME) === false) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return file_exists(static::getPath());
     }
 
     /**
