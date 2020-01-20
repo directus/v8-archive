@@ -305,10 +305,14 @@ if (!function_exists('get_request_authorization_token')) {
         $response = [];
 
         if ($request->getParam('access_token')) {
-            $response['type'] =  DirectusUserSessionsTableGateway::TOKEN_JWT;
-            $response['token'] =  $request->getParam('access_token');
-        } elseif ($request->hasHeader('Php-Auth-User')) {
-            $response['type'] =  DirectusUserSessionsTableGateway::TOKEN_JWT;
+            $response['type'] = DirectusUserSessionsTableGateway::TOKEN_JWT;
+            $response['token'] = $request->getParam('access_token');
+
+            return $response;
+        }
+
+        if ($request->hasHeader('Php-Auth-User')) {
+            $response['type'] = DirectusUserSessionsTableGateway::TOKEN_JWT;
             $authUser = $request->getHeader('Php-Auth-User');
             $authPassword = $request->getHeader('Php-Auth-Pw');
 
@@ -321,10 +325,14 @@ if (!function_exists('get_request_authorization_token')) {
             }
 
             if ($authUser && (empty($authPassword) || $authUser === $authPassword)) {
-                $response['token'] =  $authUser;
+                $response['token'] = $authUser;
             }
-        } elseif ($request->hasHeader('Authorization')) {
-            $response['type'] =  DirectusUserSessionsTableGateway::TOKEN_JWT;
+
+            return $response;
+        }
+
+        if ($request->hasHeader('Authorization')) {
+            $response['type'] = DirectusUserSessionsTableGateway::TOKEN_JWT;
             $authorizationHeader = $request->getHeader('Authorization');
 
             // If there's multiple Authorization header, pick first, ignore the rest
@@ -334,12 +342,21 @@ if (!function_exists('get_request_authorization_token')) {
 
             if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
                 $response['token'] = $matches[1];
+
+                return $response;
             }
-        } elseif ($request->hasHeader('Cookie')) {
+
+            // let it fallback to cookie checks if authorization is empty or invalid format
+        }
+
+        if ($request->hasHeader('Cookie')) {
             $response['type'] = DirectusUserSessionsTableGateway::TOKEN_COOKIE;
             $authorizationHeader = $request->getCookieParam(get_project_session_cookie_name($request));
             $response['token'] = $authorizationHeader;
+
+            return $response;
         }
+
         return $response;
     }
 }
