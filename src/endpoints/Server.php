@@ -9,6 +9,7 @@ use Directus\Application\Http\Response;
 use Directus\Exception\NotInstalledException;
 use Directus\Util\StringUtils;
 use Directus\Services\ServerService;
+use Directus\Config\Context;
 
 class Server extends Route
 {
@@ -37,7 +38,7 @@ class Server extends Route
             $projectNames[] = '_';
         } else {
             $basePath = \Directus\get_app_base_path();
-            $scannedDirectory = \Directus\scan_folder($basePath.'/config');
+            $scannedDirectory = \Directus\scan_folder($basePath . '/config');
 
             $configFiles = $scannedDirectory;
 
@@ -95,9 +96,9 @@ class Server extends Route
                 ],
             ],
             'permissions' => [
-                'public' => substr(sprintf('%o', fileperms($basePath.'/public')), -4),
-                'logs' => substr(sprintf('%o', fileperms($basePath.'/logs')), -4),
-                'uploads' => substr(sprintf('%o', fileperms($basePath.'/public/uploads')), -4),
+                'public' => substr(sprintf('%o', fileperms($basePath . '/public')), -4),
+                'logs' => substr(sprintf('%o', fileperms($basePath . '/logs')), -4),
+                'uploads' => substr(sprintf('%o', fileperms($basePath . '/public/uploads')), -4),
             ],
         ];
 
