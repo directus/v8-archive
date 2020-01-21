@@ -16,5 +16,14 @@ class UpdateTypeOfCollectionListing extends AbstractMigration
                 'null' => true
             ])->update();
         }
+
+        // -------------------------------------------------------------------------
+        // Update module_listing column
+        // -------------------------------------------------------------------------
+        if ($rolesTable->hasColumn('module_listing')) {
+            $rolesTable->changeColumn('module_listing', 'text', [
+                'null' => true
+            ])->update();
+        }
     }
 }
