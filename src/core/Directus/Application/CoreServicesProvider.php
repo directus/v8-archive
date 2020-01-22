@@ -323,6 +323,10 @@ class CoreServicesProvider
                     $columns[] = 'filename_disk';
                     $payload->set('columns', $columns);
                 }
+                if (!in_array('filename_download', $columns)) {
+                    $columns[] = 'filename_download';
+                    $payload->set('columns', $columns);
+                }
                 return $payload;
             });
 
@@ -647,9 +651,9 @@ class CoreServicesProvider
             $emitter->addAction('auth.request:credentials', function () use ($container) {
                 /** @var Session $session */
                 $session = $container->get('session');
-                $useTelemetry =  get_directus_setting('telemetry',true);
+                $useTelemetry =  get_directus_setting('telemetry', true);
 
-                if($useTelemetry) {
+                if ($useTelemetry) {
                     if ($session->getStorage()->get('telemetry') === true) {
                         return;
                     }
@@ -784,7 +788,7 @@ class CoreServicesProvider
 
                     $socialAuth->register($providerName, new $class($container, array_merge([
                         'custom' => $custom,
-                        'callback_url' => \Directus\get_url('/'.get_api_project_from_request().'/auth/sso/' . $providerName . '/callback')
+                        'callback_url' => \Directus\get_url('/' . get_api_project_from_request() . '/auth/sso/' . $providerName . '/callback')
                     ], $providerConfig)));
                 }
             }
@@ -843,7 +847,7 @@ class CoreServicesProvider
 
             $pool = new VoidCachePool();
 
-            if(!$config->get('cache.enabled'))
+            if (!$config->get('cache.enabled'))
                 return $pool;
 
             if (is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
@@ -928,7 +932,7 @@ class CoreServicesProvider
                     $auth = (isset($poolConfig['auth'])) ? $poolConfig['auth'] : null;
 
                     if ($adapter == 'rediscluster') {
-                        $client = new \RedisCluster(NULL,["$host:$port"]);
+                        $client = new \RedisCluster(NULL, ["$host:$port"]);
                     } else {
                         $client = new \Redis();
                         if ($socket) {
