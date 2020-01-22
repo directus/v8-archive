@@ -3,7 +3,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class AddThumbUrlPatternSetting extends AbstractMigration
+class AddAssetURLNamingSetting extends AbstractMigration
 {
     public function change()
     {
@@ -23,7 +23,7 @@ class AddThumbUrlPatternSetting extends AbstractMigration
                 'options' => json_encode([
                     'choices' => [
                         'private_hash' => 'Private Hash (Obfuscated)',
-                        'file_name' => 'File Name (Readable)'
+                        'filename_download' => 'File Name (Readable)'
                     ]
                 ])
             ])->save();
@@ -92,6 +92,7 @@ class AddThumbUrlPatternSetting extends AbstractMigration
         // -------------------------------------------------------------------------
         // Save the changes
         // -------------------------------------------------------------------------
+        $fieldsTable->save();
         $settingsTable->save();
     }
 

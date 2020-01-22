@@ -270,7 +270,7 @@ class CreateSettingsTable extends AbstractMigration
                 'options' => json_encode([
                     'choices' => [
                         'private_hash' => 'Private Hash (Obfuscated)',
-                        'file_name' => 'File Name (Readable)'
+                        'filename_download' => 'File Name (Readable)'
                     ]
                 ])
             ],
