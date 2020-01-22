@@ -260,7 +260,7 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'collection' => 'directus_settings',
-                'field' => 'thumbnail_url_pattern',
+                'field' => 'asset_url_naming',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'dropdown',
                 'locked' => 1,
@@ -448,7 +448,7 @@ class CreateSettingsTable extends AbstractMigration
                 'value' => 'uuid'
             ],
             [
-                'key' => 'thumbnail_url_pattern',
+                'key' => 'asset_url_naming',
                 'value' => 'private_hash'
             ],
             [

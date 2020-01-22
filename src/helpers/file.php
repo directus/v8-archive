@@ -203,7 +203,7 @@ if (!function_exists('get_thumbnails')) {
     function get_thumbnails(array $row)
     {
 
-        $thumbnailURLPattern =  get_directus_setting('thumbnail_url_pattern');
+        $thumbnailURLPattern =  get_directus_setting('asset_url_naming');
         $urlAlias = $thumbnailURLPattern == "private_hash" ? $row['private_hash'] : $row['filename_download'];
 
         $filename = $row['filename_disk'];

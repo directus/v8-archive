@@ -10,10 +10,10 @@ class AddThumbUrlPatternSetting extends AbstractMigration
         $fieldsTable = $this->table('directus_fields');
         $settingsTable = $this->table('directus_settings');
 
-        if (!$this->checkFieldExist('directus_settings', 'thumbnail_url_pattern')) {
+        if (!$this->checkFieldExist('directus_settings', 'asset_url_naming')) {
             $fieldsTable->insert([
                 'collection' => 'directus_settings',
-                'field' => 'thumbnail_url_pattern',
+                'field' => 'asset_url_naming',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'dropdown',
                 'locked' => 1,
@@ -78,7 +78,7 @@ class AddThumbUrlPatternSetting extends AbstractMigration
         // -------------------------------------------------------------------------
         $newSettings = [
             [
-                'key' => 'thumbnail_url_pattern',
+                'key' => 'asset_url_naming',
                 'value' => 'private_hash'
             ],
         ];
