@@ -409,7 +409,7 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'key' => 'default_locale',
-                'value' => 'en-US',
+                'value' => NULL,
             ],
             [
                 'key' => 'telemetry',
