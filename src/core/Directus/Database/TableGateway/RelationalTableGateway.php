@@ -2578,8 +2578,8 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         // Save parent log entry
-        $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
-        $logData = [
+        $activityTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_ACTIVITY, $this->adapter);
+        $activityTableGateway->insert([
             'action' => DirectusActivityTableGateway::makeLogActionFromTableName(
                 $this->table,
                 $action
@@ -2591,15 +2591,14 @@ class RelationalTableGateway extends BaseTableGateway
             'collection' => $this->getTable(),
             'item' => ArrayUtils::get($record, $this->primaryKeyFieldName),
             'comment' => ArrayUtils::get($params, 'activity_comment')
-        ];
-        $parentLogEntry->populate($logData, false);
-        $parentLogEntry->save();
+        ]);
+        $parentLogEntry = $activityTableGateway->getLastInsertValue();
 
         // Add Revisions
         $revisionTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_REVISIONS, $this->adapter);
         if ($action !== DirectusActivityTableGateway::ACTION_DELETE) {
             $revisionTableGateway->insert([
-                'activity' => $parentLogEntry->getId(),
+                'activity' => $parentLogEntry,
                 'collection' => $this->getTable(),
                 'item' => $rowId,
                 'data' => json_encode($record),
