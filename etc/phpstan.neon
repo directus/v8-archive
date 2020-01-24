@@ -5,3 +5,4 @@ parameters:
     - ../bin/directus
     - ../src
     - ../tests
+  checkMissingIterableValueType: false

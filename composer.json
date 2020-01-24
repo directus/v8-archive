@@ -16,15 +16,18 @@
     "./bin/directus"
   ],
   "require": {
-    "php": ">=7.2"
+    "php": ">=7.2",
+    "illuminate/http": "^6",
+    "illuminate/routing": "^6",
+    "illuminate/support": "^6"
   },
   "require-dev": {
     "cedx/coveralls": "^11.2",
     "friendsofphp/php-cs-fixer": "^2.16",
     "phpstan/extension-installer": "^1.0",
-    "phpstan/phpstan": "^0.12.4",
-    "phpstan/phpstan-phpunit": "^0.12.5",
-    "phpstan/phpstan-strict-rules": "^0.12.1",
+    "phpstan/phpstan": "^0.12",
+    "phpstan/phpstan-phpunit": "^0.12",
+    "phpstan/phpstan-strict-rules": "^0.12",
     "phpunit/phpunit": "^8"
   },
   "autoload": {
@@ -37,16 +40,26 @@
       "Directus\\Tests\\": "tests/"
     }
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "scripts": {
-    "test": "phpunit --bootstrap vendor/autoload.php --testdox tests",
+    "test": "phpunit --colors --bootstrap vendor/autoload.php --testdox tests",
     "test:lint": "php-cs-fixer fix --verbose --diff --dry-run --config=etc/.php_cs.dist",
     "test:analysis": "phpstan --ansi --configuration=etc/phpstan.neon analyse",
-    "test:coverage": "phpunit --bootstrap vendor/autoload.php --testdox --coverage-html=var/coverage --coverage-clover=var/coverage.xml --whitelist=src tests",
+    "test:coverage": "phpunit --colors --bootstrap vendor/autoload.php --testdox --log-junit=./var/phpunit.xml --coverage-html=./var/html --coverage-clover=./var/coverage.xml --whitelist=src tests",
     "test:coverage:report": "coveralls var/coverage.xml",
     "lint": "php-cs-fixer fix --config=etc/.php_cs.dist"
   },
   "config": {
     "sort-packages": true,
+    "preferred-install": "dist",
     "optimize-autoloader": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Directus\\Laravel\\ServiceProvider"
+      ]
+    }
   }
 }
