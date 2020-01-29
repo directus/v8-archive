@@ -433,7 +433,7 @@ class CreateSettingsTable extends AbstractMigration
             ],
             [
                 'key' => 'login_attempts_allowed',
-                'value' => '10'
+                'value' => '25'
             ],
             [
                 'key' => 'trusted_proxies',
