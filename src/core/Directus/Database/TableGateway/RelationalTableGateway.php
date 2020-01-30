@@ -2074,8 +2074,9 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleColumns = $this->getTableSchema()->getFields(array_keys($columnsTree));
+
         foreach ($visibleColumns as $alias) {
-            if (!DataTypes::isO2MType($alias->getType())) {
+            if (!$alias->hasRelationship() || !DataTypes::isO2MType($alias->getType())) {
                 continue;
             }
 
@@ -2204,12 +2205,15 @@ class RelationalTableGateway extends BaseTableGateway
             if ($this->acl && !$this->acl->canReadOnce($relatedTable)) {
                 $tableGateway = new RelationalTableGateway($relatedTable, $this->adapter, null);
                 $primaryKeyName = $tableGateway->primaryKeyFieldName;
-
                 foreach ($entries as $i => $entry) {
-                    $entries[$i][$column->getName()] = [
-                        $primaryKeyName => $entry[$column->getName()]
-                    ];
+                    if (isset($entry[$column->getName()])) {
+
+                        $entries[$i][$column->getName()] = [
+                            $primaryKeyName => $entry[$column->getName()]
+                        ];
+                    }
                 }
+
                 $this->exceptionMessages[] = [
                     'type' => 'warning',
                     'message' => "Can't read `" . $relatedTable . "`: read access to `" . $relatedTable . "` collection denied",
