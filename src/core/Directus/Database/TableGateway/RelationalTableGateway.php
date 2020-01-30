@@ -920,7 +920,9 @@ class RelationalTableGateway extends BaseTableGateway
 
         $result['data'] = $data;
 
-        $result['messages'] = $this->exceptionMessages;
+        if(!empty($this->exceptionMessages)){
+            $result['messages'] = $this->exceptionMessages;
+        }
 
         return $result;
     }
