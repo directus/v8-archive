@@ -96,6 +96,7 @@ class CoreServicesProvider
         $container['filesystem'] = $this->getFileSystem();
         $container['filesystem_thumb'] = $this->getThumbFilesystem();
         $container['files'] = $this->getFiles();
+        $container['files_thumb'] = $this->getThumbFiles();
         $container['mailer_transport'] = $this->getMailerTransportManager();
         $container['mailer'] = $this->getMailer();
         $container['mail_view'] = $this->getMailView();
@@ -1169,6 +1170,29 @@ class CoreServicesProvider
             $filesSettings = get_directus_files_settings();
 
             $filesystem = $container->get('filesystem');
+            $config = $container->get('config');
+            $config = $config->get('storage', []);
+            $emitter = $container->get('hook_emitter');
+
+            return new Files(
+                $filesystem,
+                $config,
+                $filesSettings,
+                $emitter
+            );
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getThumbFiles()
+    {
+        return function (Container $container) {
+            // Convert result into a key-value array
+            $filesSettings = get_directus_files_settings();
+
+            $filesystem = $container->get('filesystem_thumb');
             $config = $container->get('config');
             $config = $config->get('storage', []);
             $emitter = $container->get('hook_emitter');
