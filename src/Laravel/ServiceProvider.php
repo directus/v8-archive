@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Directus\Laravel;
 
+use Directus\Laravel\Commands\Migrate;
 use Directus\Laravel\Middlewares\ProjectMiddleware;
 use Directus\Laravel\Middlewares\ResponseMiddleware;
 use Illuminate\Routing\Router;
@@ -48,12 +49,26 @@ class ServiceProvider extends IlluminateServiceProvider
             __DIR__.'/Admin/Assets' => public_path(config('directus.routes.admin', '/admin')),
         ], 'public');
 
+        // Migrations
+
+        // $this->loadMigrationsFrom(__DIR__.'/../Core/Migrations');
+
         /*
         // TODO: better way to do route configuration
         $this->publishes([
             __DIR__.'/Routes/directus.php' => base_path('routes/_directus.php'),
         ], 'routes');
         */
+
+        // Commands
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                Migrate::class,
+            ]);
+
+            return;
+        }
 
         // Middlewares
 

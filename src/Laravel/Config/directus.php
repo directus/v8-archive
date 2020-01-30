@@ -7,12 +7,10 @@ return [
         'base' => '/',
         'admin' => '/admin',
     ],
-    'configs' => [
-        [
-            'driver' => 'php',
-            'options' => [
-                'path' => __DIR__.'/projects/{project}.php',
-            ],
+    'config' => [
+        'driver' => 'php',
+        'options' => [
+            'path' => __DIR__.'/projects/{project}.php',
         ],
     ],
 ];

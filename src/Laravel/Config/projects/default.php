@@ -3,5 +3,12 @@
 declare(strict_types=1);
 
 return [
-    'database' => 'directus',
+    'databases' => [
+        'project' => [
+            'connection' => 'directus',
+        ],
+        'system' => [
+            'connection' => 'directus',
+        ],
+    ],
 ];

@@ -18,7 +18,7 @@ final class UtilsTest extends TestCase
      *
      * @covers \Directus\Core\Utils::getPackageDir
      */
-    public function testContainsVersionInformation(): void
+    public function testDirectoryIsNotEmpty(): void
     {
         $dir = Utils::getPackageDir();
         static::assertNotEmpty($dir, 'Should not be empty');
