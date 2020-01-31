@@ -123,6 +123,7 @@ class Options
             throw new MissingOptions($missing);
         }
 
+        $this->values = $data;
         foreach ($this->schema as $key => $prop) {
             if (Arr::has($data, $key)) {
                 $value = Arr::get($data, $key);
@@ -155,7 +156,7 @@ class Options
      */
     public function get(string $key)
     {
-        return Arr::get($this->values, $key, null);
+        return Arr::get($this->values, $key);
     }
 
     /**

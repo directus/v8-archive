@@ -200,14 +200,19 @@ final class OptionsTest extends DirectusTestCase
         $options = new Options([
             'parent.child1',
             'parent.child2',
+            'parent.child3.child1',
         ], [
             'parent' => [
                 'child1' => 1234,
                 'child2' => 4321,
+                'child3' => [
+                    'child1' => 1111,
+                ],
             ],
         ]);
 
         static::assertEquals(1234, $options->get('parent.child1'));
         static::assertEquals(4321, $options->get('parent.child2'));
+        static::assertEquals(1111, $options->get('parent.child3.child1'));
     }
 }
