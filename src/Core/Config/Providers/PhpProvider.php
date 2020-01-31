@@ -36,6 +36,8 @@ class PhpProvider extends ArrayProvider
             throw new FileNotFound($file);
         }
 
-        parent::__construct(require $file);
+        parent::__construct([
+            ArrayProvider::OPTION_DATA => require $file,
+        ]);
     }
 }

@@ -40,7 +40,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Directus\\Tests\\": "tests/Directus/"
+      "Directus\\Tests\\": "tests/src/",
+      "Directus\\Tests\\Helpers\\": "tests/helpers/"
     }
   },
   "minimum-stability": "dev",

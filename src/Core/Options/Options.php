@@ -106,13 +106,17 @@ class Options
      */
     public function feed(array $data)
     {
-        $others = array_keys(Arr::except($data, $this->props));
+        $keys = array_keys(Arr::dot($data));
+        $others = array_filter(array_diff($this->props, $keys), function ($key) {
+            return !Arr::has($this->schema, $key);
+        });
+
         if (!empty($others)) {
             throw new UnknownOptions($others);
         }
 
         $missing = Arr::where($this->required, function ($key) use ($data) {
-            return !Arr::exists($data, $key);
+            return !Arr::has($data, $key);
         });
 
         if (!empty($missing)) {
@@ -120,8 +124,8 @@ class Options
         }
 
         foreach ($this->schema as $key => $prop) {
-            if (\array_key_exists($key, $data)) {
-                $value = $data[$key];
+            if (Arr::has($data, $key)) {
+                $value = Arr::get($data, $key);
             } else {
                 $value = $prop['default'];
             }
@@ -130,7 +134,7 @@ class Options
                 throw new InvalidOption($key);
             }
 
-            $this->values = Arr::set($this->values, $key, $prop['convert']($value));
+            Arr::set($this->values, $key, $prop['convert']($value));
         }
     }
 

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Directus\Tests\Core;
 
 use Directus\Core\Utils;
-use PHPUnit\Framework\TestCase;
+use Directus\Tests\Helpers\DirectusTestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-final class UtilsTest extends TestCase
+final class UtilsTest extends DirectusTestCase
 {
     /**
      * Test if version returns a semver compatible string.

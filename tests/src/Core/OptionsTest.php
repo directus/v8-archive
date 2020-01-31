@@ -7,15 +7,12 @@ namespace Directus\Tests\Core;
 use Directus\Core\Options\Exception\EmptySchema;
 use Directus\Core\Options\Exception\InvalidOption;
 use Directus\Core\Options\Options;
-use PHPUnit\Framework\TestCase;
+use Directus\Tests\Helpers\DirectusTestCase;
 
 /**
  * Options tests.
- *
- * @internal
- * @coversNothing
  */
-final class OptionsTest extends TestCase
+final class OptionsTest extends DirectusTestCase
 {
     /**
      * Test option creation.
@@ -31,7 +28,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testCreateWithStringProps()
     {
@@ -47,7 +44,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testCreateWithComplexProps()
     {
@@ -66,7 +63,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testCreateWithMixedProps()
     {
@@ -85,7 +82,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testOptionalParameters()
     {
@@ -105,7 +102,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testOptionalImmediateDefaultParameters()
     {
@@ -121,7 +118,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testDefaultValue()
     {
@@ -137,7 +134,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testValueValidation()
     {
@@ -155,7 +152,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testValueConversion()
     {
@@ -178,7 +175,7 @@ final class OptionsTest extends TestCase
     /**
      * Test option creation.
      *
-     * @covers \Directus\Core\Options\Options::__construct
+     * @covers \Directus\Core\Options\Options::feed
      */
     public function testDefaultValueConversion()
     {
@@ -191,5 +188,26 @@ final class OptionsTest extends TestCase
 
         static::assertEquals(12345, $options->get('var'));
         static::assertIsInt($options->get('var'));
+    }
+
+    /**
+     * Test option creation.
+     *
+     * @covers \Directus\Core\Options\Options::feed
+     */
+    public function testSubPropertyAccess()
+    {
+        $options = new Options([
+            'parent.child1',
+            'parent.child2',
+        ], [
+            'parent' => [
+                'child1' => 1234,
+                'child2' => 4321,
+            ],
+        ]);
+
+        static::assertEquals(1234, $options->get('parent.child1'));
+        static::assertEquals(4321, $options->get('parent.child2'));
     }
 }

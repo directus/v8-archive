@@ -7,7 +7,7 @@ namespace Directus\Tests\Core;
 use Directus\Core\Config\Exception\FileNotFound;
 use Directus\Core\Config\Providers\PhpProvider;
 use Directus\Core\Options\Exception\MissingOptions;
-use PHPUnit\Framework\TestCase;
+use Directus\Tests\Helpers\DirectusTestCase;
 
 /**
  * PHP Provider tests.
@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  * @internal
  * @coversNothing
  */
-final class PhpProviderTest extends TestCase
+final class PhpProviderTest extends DirectusTestCase
 {
     /**
      * Provider.
@@ -30,7 +30,7 @@ final class PhpProviderTest extends TestCase
     protected function setUp(): void
     {
         $this->provider = new PhpProvider([
-            'path' => __DIR__.'/../../../fixtures/config/directus.php',
+            'path' => $this->getDataFilePath('config/simple.php'),
         ]);
     }
 
@@ -67,7 +67,6 @@ final class PhpProviderTest extends TestCase
      */
     public function testGetConfig(): void
     {
-        $provider = $this->getProvider();
-        static::assertEquals('mysql', $provider->get('project1.database.driver'));
+        static::assertEquals('world', $this->provider->get('hello'));
     }
 }
