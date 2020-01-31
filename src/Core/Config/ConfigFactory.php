@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Directus\Core\Config;
 
-use Directus\Core\Config\Exception\ProviderInitializationFailed;
 use Directus\Core\Config\Exception\UnknownProvider;
 use Directus\Core\Config\Providers\PhpProvider;
 
@@ -23,8 +22,8 @@ class ConfigFactory
     /**
      * Registers a config driver.
      *
-     * @param string $name
      * @param [type] $class
+     * @param mixed  $provider
      */
     public static function register(string $name, $provider)
     {
@@ -35,11 +34,10 @@ class ConfigFactory
      * Gets an instance of a config loader.
      *
      * @param string $driver
-     * @param array  $options
      */
     public static function create(string $provider, array $options): ConfigProviderInterface
     {
-        if (!array_key_exists($provider, static::$providers)) {
+        if (!\array_key_exists($provider, static::$providers)) {
             throw new UnknownProvider();
         }
 

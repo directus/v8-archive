@@ -11,8 +11,6 @@ interface ConfigProviderInterface
 {
     /**
      * Constructs the provider.
-     *
-     * @param array $options
      */
     public function __construct(array $options);
 
@@ -21,10 +19,11 @@ interface ConfigProviderInterface
      *
      * @param string $context
      * @param array  $data
+     * @param mixed  $default
      *
      * @return mixed
      */
-    public function get(string $key);
+    public function get(string $key, $default = null);
 
     /**
      * Updates a configuration.
@@ -32,8 +31,6 @@ interface ConfigProviderInterface
      * @param string $context
      * @param array  $data
      * @param mixed  $value
-     *
-     * @return bool
      */
     public function set(string $key, $value): bool;
 }

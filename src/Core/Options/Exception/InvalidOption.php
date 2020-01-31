@@ -11,11 +11,9 @@ class InvalidOption extends OptionsException
 {
     /**
      * Constructs the exception.
-     *
-     * @param string $option
      */
     public function __construct(string $option)
     {
-        parent::__construct("Invalid option value: ${option}");
+        parent::__construct("Invalid option value: {$option}");
     }
 }

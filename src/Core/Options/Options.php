@@ -57,8 +57,8 @@ class Options
         }
 
         $this->schema = array_replace_recursive([], ...array_map(function ($key, $value) {
-            if (is_string($key)) {
-                if (!is_array($value)) {
+            if (\is_string($key)) {
+                if (!\is_array($value)) {
                     $value = [
                         'default' => $value,
                     ];
@@ -69,34 +69,32 @@ class Options
             }
 
             return array_replace_recursive([], [
-                "${key}" => [
+                "{$key}" => [
                     'validate' => function () { return true; },
                     'convert' => function ($value) { return $value; },
                 ],
             ], [
-                "${key}" => $value,
+                "{$key}" => $value,
             ]);
         }, array_keys($schema), array_values($schema)));
 
         $this->props = array_keys($this->schema);
 
         $this->required = Arr::where($this->props, function ($prop) {
-            return !array_key_exists('default', $this->schema[$prop]);
+            return !\array_key_exists('default', $this->schema[$prop]);
         });
 
         $this->optional = Arr::where($this->props, function ($prop) {
-            return array_key_exists('default', $this->schema[$prop]);
+            return \array_key_exists('default', $this->schema[$prop]);
         });
 
-        if (!is_null($values)) {
+        if (null !== $values) {
             $this->feed($values);
         }
     }
 
     /**
      * Undocumented function.
-     *
-     * @param array $data
      */
     public function feed(array $data)
     {
@@ -114,7 +112,7 @@ class Options
         }
 
         foreach ($this->schema as $key => $prop) {
-            if (array_key_exists($key, $data)) {
+            if (\array_key_exists($key, $data)) {
                 $value = $data[$key];
             } else {
                 $value = $prop['default'];
@@ -131,8 +129,7 @@ class Options
     /**
      * Sets an item in the collection with the given key-value.
      *
-     * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
      */
     public function set(string $key, $value): void
     {
@@ -142,8 +139,7 @@ class Options
     /**
      * Gets an item in the collection with the given key.
      *
-     * @param string $key
-     * @param mixed  $default
+     * @param mixed $default
      */
     public function get(string $key, $default = null)
     {
@@ -152,10 +148,6 @@ class Options
 
     /**
      * Checks wheter an item exists in the collection with the given key.
-     *
-     * @param string $key
-     *
-     * @return bool
      */
     public function has(string $key): bool
     {

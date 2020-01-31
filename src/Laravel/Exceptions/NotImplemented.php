@@ -16,7 +16,7 @@ final class NotImplemented extends DirectusException
      */
     public function __construct(?string $method = null)
     {
-        if ($method === null) {
+        if (null === $method) {
             $trace = $this->getTrace()[0];
             if (!empty($trace['class'])) {
                 $method = $trace['class'].':'.$trace['function'];

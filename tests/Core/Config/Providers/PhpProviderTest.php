@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Directus\Tests\Core;
 
+use Directus\Core\Config\Exception\FileNotFound;
 use Directus\Core\Config\Providers\PhpProvider;
 use Directus\Core\Options\Exception\MissingOptions;
 use PHPUnit\Framework\TestCase;
 
 /**
  * PHP Provider tests.
+ *
+ * @internal
+ * @coversNothing
  */
 final class PhpProviderTest extends TestCase
 {
@@ -22,7 +26,7 @@ final class PhpProviderTest extends TestCase
     {
         $this->expectException(MissingOptions::class);
 
-        $provider = new PhpProvider([]);
+        new PhpProvider([]);
     }
 
     /**
@@ -32,8 +36,10 @@ final class PhpProviderTest extends TestCase
      */
     public function testPathShouldExists(): void
     {
-        $this->expectException(MissingOptions::class);
+        $this->expectException(FileNotFound::class);
 
-        $provider = new PhpProvider([]);
+        new PhpProvider([
+            'path' => __DIR__.'/not_found',
+        ]);
     }
 }

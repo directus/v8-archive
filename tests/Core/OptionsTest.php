@@ -1,13 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Directus\Tests\Core;
 
-use Directus\Core\Options\Options;
 use Directus\Core\Options\Exception\EmptySchema;
+use Directus\Core\Options\Options;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Options tests.
+ *
+ * @internal
+ * @coversNothing
  */
 final class OptionsTest extends TestCase
 {
@@ -34,8 +39,8 @@ final class OptionsTest extends TestCase
             'var2' => 'world',
         ]);
 
-        static::assertEquals($options->get('var1'), 'hello');
-        static::assertEquals($options->get('var2'), 'world');
+        static::assertSame($options->get('var1'), 'hello');
+        static::assertSame($options->get('var2'), 'world');
     }
 
     /**
@@ -53,8 +58,8 @@ final class OptionsTest extends TestCase
             'var2' => 'world',
         ]);
 
-        static::assertEquals($options->get('var1'), 'hello');
-        static::assertEquals($options->get('var2'), 'world');
+        static::assertSame($options->get('var1'), 'hello');
+        static::assertSame($options->get('var2'), 'world');
     }
 
     /**
@@ -72,8 +77,8 @@ final class OptionsTest extends TestCase
             'var2' => 'world',
         ]);
 
-        static::assertEquals($options->get('var1'), 'hello');
-        static::assertEquals($options->get('var2'), 'world');
+        static::assertSame($options->get('var1'), 'hello');
+        static::assertSame($options->get('var2'), 'world');
     }
 
     /**
@@ -92,8 +97,8 @@ final class OptionsTest extends TestCase
             'var1' => 'hello',
         ]);
 
-        static::assertEquals($options->get('var1'), 'hello');
-        static::assertEquals($options->get('var2'), 'worldssss');
+        static::assertSame($options->get('var1'), 'hello');
+        static::assertSame($options->get('var2'), 'worldssss');
     }
 
     /**
@@ -108,7 +113,7 @@ final class OptionsTest extends TestCase
             'var2' => 'default_value',
         ], []);
 
-        static::assertEquals($options->get('var1'), 12345);
-        static::assertEquals($options->get('var2'), 'default_value');
+        static::assertSame($options->get('var1'), 12345);
+        static::assertSame($options->get('var2'), 'default_value');
     }
 }

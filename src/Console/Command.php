@@ -14,8 +14,6 @@ abstract class Command extends SymfonyCommand
 {
     /**
      * Gets the project instance.
-     *
-     * @return \Directus\Core\Project
      */
     protected function getProject(): Project
     {

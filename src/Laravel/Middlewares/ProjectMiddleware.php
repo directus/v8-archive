@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Directus\Laravel\Middlewares;
 
 use Closure;
@@ -13,7 +15,6 @@ final class ProjectMiddleware
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
      *
      * @return mixed
      */
@@ -22,7 +23,7 @@ final class ProjectMiddleware
         $parameters = $request->route()->parameters();
 
         // TODO: tenant/project identification
-        if (array_key_exists('project', $parameters)) {
+        if (\array_key_exists('project', $parameters)) {
             // $request->route()->setParameter("project");
         }
 

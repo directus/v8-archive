@@ -11,8 +11,6 @@ class MissingOptions extends OptionsException
 {
     /**
      * Constructs the exception.
-     *
-     * @param array $keys
      */
     public function __construct(array $keys = [])
     {

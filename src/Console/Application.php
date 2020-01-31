@@ -24,7 +24,7 @@ class Application extends SymfonyApplication
      *
      * @var \Directus\Core\Project
      */
-    private $project = null;
+    private $project;
 
     /**
      * Constructor.
@@ -45,19 +45,6 @@ class Application extends SymfonyApplication
     /**
      * Extends the application to provide global inputs.
      */
-    protected function getDefaultInputDefinition(): InputDefinition
-    {
-        $definition = parent::getDefaultInputDefinition();
-        $definition->addOption(
-            new InputOption('project', null, InputOption::VALUE_REQUIRED, 'Project key')
-        );
-
-        return $definition;
-    }
-
-    /**
-     * Extends the application to provide global inputs.
-     */
     public function onCommand(ConsoleCommandEvent $event)
     {
         $output = $event->getOutput();
@@ -68,11 +55,22 @@ class Application extends SymfonyApplication
 
     /**
      * Gets the project instance.
-     *
-     * @return \Directus\Core\Project
      */
     public function getProject(): Project
     {
         return $this->project;
+    }
+
+    /**
+     * Extends the application to provide global inputs.
+     */
+    protected function getDefaultInputDefinition(): InputDefinition
+    {
+        $definition = parent::getDefaultInputDefinition();
+        $definition->addOption(
+            new InputOption('project', null, InputOption::VALUE_REQUIRED, 'Project key')
+        );
+
+        return $definition;
     }
 }

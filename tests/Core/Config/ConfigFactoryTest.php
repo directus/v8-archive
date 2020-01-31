@@ -9,6 +9,9 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Configuration tests.
+ *
+ * @internal
+ * @coversNothing
  */
 final class ConfigFactoryTest extends TestCase
 {
@@ -19,8 +22,9 @@ final class ConfigFactoryTest extends TestCase
      */
     public function testPhpDriver(): void
     {
-        ConfigFactory::create('php', [
-            'path' => __DIR__.'/../../fixtures/file.php',
+        $config = ConfigFactory::create('php', [
+            'path' => __DIR__.'/../../fixtures/config/full.php',
         ]);
+        static::assertSame($config->get('hello'), 'world');
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Directus\Core\Database\Migrations;
 
 /**
@@ -18,7 +20,7 @@ trait TableMigration
     protected function table(): string
     {
         $prefix = 'directus_';
-        if (function_exists('config')) {
+        if (\function_exists('config')) {
             $prefix = config('directus.database.prefix', $prefix);
         }
 

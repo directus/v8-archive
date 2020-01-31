@@ -12,8 +12,8 @@ use Directus\Laravel\Controllers\ActivityController;
 use Directus\Laravel\Controllers\AuthController;
 use Directus\Laravel\Controllers\CollectionsController;
 use Directus\Laravel\Controllers\ItemsController;
-use Illuminate\Support\Facades\Route;
 use Directus\Laravel\Controllers\ServerController;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Makes all directus routes.

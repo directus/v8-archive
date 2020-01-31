@@ -22,14 +22,12 @@ class Migrate extends Command
     {
         $this
             ->setDescription('Migrates a project database to the current version.')
-            ->setHelp('This runs migrations in the target project database.');
+            ->setHelp('This runs migrations in the target project database.')
+        ;
     }
 
     /**
      * Execute command.
-     *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

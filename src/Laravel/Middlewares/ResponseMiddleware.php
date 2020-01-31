@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Directus\Laravel\Middlewares;
 
 use Closure;
@@ -19,8 +21,6 @@ final class ResponseMiddleware
 
     /**
      * JsonMiddleware constructor.
-     *
-     * @param ResponseFactory $factory
      */
     public function __construct(ResponseFactory $factory)
     {
@@ -31,7 +31,6 @@ final class ResponseMiddleware
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
      *
      * @return mixed
      */

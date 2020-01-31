@@ -46,8 +46,6 @@ abstract class DirectusException extends Exception
 
     /**
      * Exception response renderer.
-     *
-     * @return JsonResponse
      */
     public function render(): JsonResponse
     {
