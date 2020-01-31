@@ -18,6 +18,23 @@ use PHPUnit\Framework\TestCase;
 final class PhpProviderTest extends TestCase
 {
     /**
+     * Provider.
+     *
+     * @var PhpProvider
+     */
+    protected $provider;
+
+    /**
+     * Setup.
+     */
+    protected function setUp(): void
+    {
+        $this->provider = new PhpProvider([
+            'path' => __DIR__.'/../../../fixtures/config/directus.php',
+        ]);
+    }
+
+    /**
      * Test the creation of php provider.
      *
      * @covers \Directus\Core\Config\Providers\PhpProvider::__construct
@@ -41,5 +58,16 @@ final class PhpProviderTest extends TestCase
         new PhpProvider([
             'path' => __DIR__.'/not_found',
         ]);
+    }
+
+    /**
+     * Test the creation of php provider.
+     *
+     * @covers \Directus\Core\Config\Providers\PhpProvider::get
+     */
+    public function testGetConfig(): void
+    {
+        $provider = $this->getProvider();
+        static::assertEquals('mysql', $provider->get('project1.database.driver'));
     }
 }

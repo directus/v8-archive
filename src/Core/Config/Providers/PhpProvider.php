@@ -4,27 +4,18 @@ declare(strict_types=1);
 
 namespace Directus\Core\Config\Providers;
 
-use Directus\Core\Config\ConfigProviderInterface;
 use Directus\Core\Config\Exception\FileNotFound;
 use Directus\Core\Options\Options;
-use Illuminate\Support\Arr;
 
 /**
- * PHP loader.
+ * PHP provider.
  */
-class PhpProvider implements ConfigProviderInterface
+class PhpProvider extends ArrayProvider
 {
     /**
      * Path.
      */
     public const OPTION_PATH = 'path';
-
-    /**
-     * Config data.
-     *
-     * @var array
-     */
-    private $data = [];
 
     /**
      * Options.
@@ -34,7 +25,7 @@ class PhpProvider implements ConfigProviderInterface
     private $options;
 
     /**
-     * Initializes the loader.
+     * Initializes the provider.
      */
     public function __construct(array $options)
     {
@@ -45,24 +36,6 @@ class PhpProvider implements ConfigProviderInterface
             throw new FileNotFound($file);
         }
 
-        $this->data = require $file;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function get(string $key, $default = null)
-    {
-        return Arr::get($this->data, $key, $default);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function set(string $key, $value): bool
-    {
-        $this->data = Arr::set($this->data, $key, $value);
-
-        return true;
+        parent::__construct(require $file);
     }
 }

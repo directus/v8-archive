@@ -10,6 +10,9 @@ use Directus\Core\Options\Exception\MissingOptions;
 use Directus\Core\Options\Exception\UnknownOptions;
 use Illuminate\Support\Arr;
 
+/**
+ * Options collection and validation class.
+ */
 class Options
 {
     /**
@@ -40,6 +43,11 @@ class Options
      */
     protected $required = [];
 
+    /**
+     * List of optional props.
+     *
+     * @var array
+     */
     protected $optional = [];
 
     /**
@@ -141,9 +149,9 @@ class Options
      *
      * @param mixed $default
      */
-    public function get(string $key, $default = null)
+    public function get(string $key)
     {
-        return Arr::get($this->values, $key, $default);
+        return Arr::get($this->values, $key, null);
     }
 
     /**
@@ -152,10 +160,5 @@ class Options
     public function has(string $key): bool
     {
         return Arr::has($this->values, $key);
-    }
-
-    public function forget(string $key)
-    {
-        return Arr::forget($this->values, $key);
     }
 }
