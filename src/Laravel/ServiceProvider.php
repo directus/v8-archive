@@ -29,7 +29,7 @@ class ServiceProvider extends IlluminateServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__.'/Config/directus.php',
-            'directus',
+            'directus'
         );
     }
 

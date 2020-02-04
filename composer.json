@@ -64,7 +64,7 @@
       "@task:static-analysis",
       "@task:test:with-coverage"
     ],
-    "lint": "php-cs-fixer fix --config=etc/.php_cs.dist"
+    "lint": "php-cs-fixer fix --verbose --diff --config=etc/.php_cs.dist"
   },
   "config": {
     "sort-packages": true,
