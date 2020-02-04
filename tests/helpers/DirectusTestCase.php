@@ -19,7 +19,7 @@ abstract class DirectusTestCase extends TestCase
     protected function getDataFilePath($path): string
     {
         $path = str_replace('\\', '/', $path);
-        if (\strlen($path) > 0 && '/' === $path[0]) {
+        if (\strlen($path) > 0 && $path[0] === '/') {
             $path = substr($path, 1);
         }
 

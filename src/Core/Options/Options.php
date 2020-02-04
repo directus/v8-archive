@@ -59,7 +59,7 @@ final class Options
     {
         $this->values = [];
 
-        if (0 === \count($schema)) {
+        if (\count($schema) === 0) {
             throw new EmptySchema();
         }
 
@@ -110,7 +110,7 @@ final class Options
             return !Arr::has($this->schema, $key);
         });
 
-        if (0 === \count($others)) {
+        if (\count($others) === 0) {
             throw new UnknownOptions($others);
         }
 
@@ -118,7 +118,7 @@ final class Options
             return !Arr::has($data, $key);
         });
 
-        if (0 === \count($missing)) {
+        if (\count($missing) === 0) {
             throw new MissingOptions($missing);
         }
 

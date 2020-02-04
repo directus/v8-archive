@@ -15,7 +15,7 @@ final class Version
     public static function getVersion(): string
     {
         $version = file_get_contents(Utils::getPackageDir().'/VERSION');
-        if (false === $version) {
+        if ($version === false) {
             return '0.0.0';
         }
 
