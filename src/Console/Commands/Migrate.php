@@ -18,7 +18,7 @@ class Migrate extends Command
     /**
      * Configures the command.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Migrates a project database to the current version.')
@@ -29,7 +29,7 @@ class Migrate extends Command
     /**
      * Execute command.
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->getProject();
 

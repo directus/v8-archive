@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Directus\Tests\Core;
+namespace Directus\Tests\Core\Config\Providers;
 
 use Directus\Core\Config\Exception\FileNotFound;
 use Directus\Core\Config\Providers\PhpProvider;
@@ -67,6 +67,6 @@ final class PhpProviderTest extends DirectusTestCase
      */
     public function testGetConfig(): void
     {
-        static::assertEquals('world', $this->provider->get('hello'));
+        static::assertSame('world', $this->provider->get('hello'));
     }
 }

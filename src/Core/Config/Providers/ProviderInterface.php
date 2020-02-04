@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Directus\Core\Config;
+namespace Directus\Core\Config\Providers;
 
 /**
  * Directus config.
  */
-interface ConfigProviderInterface
+interface ProviderInterface
 {
     /**
      * Constructs the provider.
@@ -17,9 +17,7 @@ interface ConfigProviderInterface
     /**
      * Gets a configuration.
      *
-     * @param string $context
-     * @param array  $data
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return mixed
      */
@@ -28,9 +26,7 @@ interface ConfigProviderInterface
     /**
      * Updates a configuration.
      *
-     * @param string $context
-     * @param array  $data
-     * @param mixed  $value
+     * @param mixed $value
      */
     public function set(string $key, $value): bool;
 }

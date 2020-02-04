@@ -8,11 +8,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * PHP Provider tests.
- *
- * @internal
- * @coversNothing
  */
-class DirectusTestCase extends TestCase
+abstract class DirectusTestCase extends TestCase
 {
     /**
      * Resolves a path to a data file.
@@ -22,7 +19,7 @@ class DirectusTestCase extends TestCase
     protected function getDataFilePath($path): string
     {
         $path = str_replace('\\', '/', $path);
-        if (strlen($path) > 0 && $path[0] == '/') {
+        if (\strlen($path) > 0 && '/' === $path[0]) {
             $path = substr($path, 1);
         }
 

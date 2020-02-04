@@ -14,5 +14,5 @@ $project->migrate();
 Globally
 
 ```
-directus migrate --project php://./projects/my_project.php
+directus migrate --
 ```

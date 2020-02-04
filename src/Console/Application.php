@@ -27,6 +27,13 @@ class Application extends SymfonyApplication
     private $project;
 
     /**
+     * Configuration loader.
+     *
+     * @var \Directus\Core\Config\Providers\ProviderInterface
+     */
+    //private $config;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -45,12 +52,15 @@ class Application extends SymfonyApplication
     /**
      * Extends the application to provide global inputs.
      */
-    public function onCommand(ConsoleCommandEvent $event)
+    public function onCommand(ConsoleCommandEvent $event): void
     {
         $output = $event->getOutput();
-        $output->writeln('COMMAND EXECUTING: '.$event->getCommand()->getName());
-        $this->loader = ConfigFactory::create();
-        $this->project = $event->getInput()->getOption('project');
+        $command = $event->getCommand();
+        if (null !== $command) {
+            $output->writeln('COMMAND EXECUTING: '.$command->getName());
+        }
+        //$this->config = ConfigFactory::create();
+        $this->project = (string) ($event->getInput()->getOption('project'));
     }
 
     /**

@@ -25,6 +25,8 @@ final class ConfigFactoryTest extends DirectusTestCase
         $config = ConfigFactory::create('php', [
             'path' => $this->getDataFilePath('config/config.php'),
         ]);
-        //static::assertEquals('world', $config->get('hello'));
+
+        static::assertSame('mysql', $config->get('project1.database.driver'));
+        static::assertSame('sqlite', $config->get('project2.database.driver'));
     }
 }

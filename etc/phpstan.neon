@@ -6,3 +6,5 @@ parameters:
     - ../src
     - ../tests
   checkMissingIterableValueType: false
+  autoload_directories:
+    - ../src/Core/Migrations

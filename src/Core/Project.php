@@ -19,14 +19,14 @@ final class Project
     /**
      * Installs the project.
      */
-    public function install()
+    public function install(): void
     {
     }
 
     /**
      * Performs a database migration.
      */
-    public function migrate()
+    public function migrate(): void
     {
     }
 }

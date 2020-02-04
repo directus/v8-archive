@@ -13,54 +13,53 @@ use Illuminate\Support\Arr;
 /**
  * Options collection and validation class.
  */
-class Options
+final class Options
 {
     /**
      * Collection items.
      *
      * @var array
      */
-    protected $values = [];
+    private $values = [];
 
     /**
      * List of schema rules.
      *
      * @var array
      */
-    protected $schema = [];
+    private $schema = [];
 
     /**
      * List of properties.
      *
      * @var array
      */
-    protected $props = [];
+    private $props = [];
 
     /**
      * List of required props.
      *
      * @var array
      */
-    protected $required = [];
+    private $required = [];
 
     /**
      * List of optional props.
      *
      * @var array
      */
-    protected $optional = [];
+    private $optional = [];
 
     /**
      * Collection constructor.
      *
-     * @param array $items
      * @param array $values
      */
     public function __construct(array $schema, ?array $values = null)
     {
         $this->values = [];
 
-        if (empty($schema)) {
+        if (0 === \count($schema)) {
             throw new EmptySchema();
         }
 
@@ -78,7 +77,7 @@ class Options
 
             return array_replace_recursive([], [
                 "{$key}" => [
-                    'validate' => function () { return true; },
+                    'validate' => function (): bool { return true; },
                     'convert' => function ($value) { return $value; },
                 ],
             ], [
@@ -88,11 +87,11 @@ class Options
 
         $this->props = array_keys($this->schema);
 
-        $this->required = Arr::where($this->props, function ($prop) {
+        $this->required = Arr::where($this->props, function ($prop): bool {
             return !\array_key_exists('default', $this->schema[$prop]);
         });
 
-        $this->optional = Arr::where($this->props, function ($prop) {
+        $this->optional = Arr::where($this->props, function ($prop): bool {
             return \array_key_exists('default', $this->schema[$prop]);
         });
 
@@ -104,22 +103,22 @@ class Options
     /**
      * Undocumented function.
      */
-    public function feed(array $data)
+    public function feed(array $data): void
     {
         $keys = array_keys(Arr::dot($data));
-        $others = array_filter(array_diff($this->props, $keys), function ($key) {
+        $others = array_filter(array_diff($this->props, $keys), function ($key): bool {
             return !Arr::has($this->schema, $key);
         });
 
-        if (!empty($others)) {
+        if (0 === \count($others)) {
             throw new UnknownOptions($others);
         }
 
-        $missing = Arr::where($this->required, function ($key) use ($data) {
+        $missing = Arr::where($this->required, function ($key) use ($data): bool {
             return !Arr::has($data, $key);
         });
 
-        if (!empty($missing)) {
+        if (0 === \count($missing)) {
             throw new MissingOptions($missing);
         }
 
@@ -152,7 +151,7 @@ class Options
     /**
      * Gets an item in the collection with the given key.
      *
-     * @param mixed $default
+     * @return mixed
      */
     public function get(string $key)
     {

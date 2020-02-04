@@ -18,7 +18,7 @@ final class NotImplemented extends DirectusException
     {
         if (null === $method) {
             $trace = $this->getTrace()[0];
-            if (!empty($trace['class'])) {
+            if (isset($trace['class']) && '' !== $trace['class']) {
                 $method = $trace['class'].':'.$trace['function'];
             } else {
                 $method = $trace['function'];

@@ -17,7 +17,7 @@ class CreateFieldsTable extends Migration
     /**
      * Table name.
      */
-    public function tableName()
+    public function tableName(): string
     {
         return 'fields';
     }
@@ -25,9 +25,9 @@ class CreateFieldsTable extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create($this->table(), function (Blueprint $table) {
+        Schema::create($this->table(), function (Blueprint $table): void {
             $table->bigIncrements('id');
         });
     }
@@ -35,7 +35,7 @@ class CreateFieldsTable extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists($this->table());
     }

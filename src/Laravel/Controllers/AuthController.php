@@ -36,12 +36,18 @@ class AuthController extends Controller
         throw new NotImplemented();
     }
 
-    public function ssoProvider($provider): void
+    /**
+     * SSO Provider.
+     */
+    public function ssoProvider(string $provider): void
     {
         throw new NotImplemented();
     }
 
-    public function ssoCallback($provider): void
+    /**
+     * SSO Callback.
+     */
+    public function ssoCallback(string $provider): void
     {
         throw new NotImplemented();
     }

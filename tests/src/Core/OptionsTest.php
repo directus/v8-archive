@@ -11,6 +11,9 @@ use Directus\Tests\Helpers\DirectusTestCase;
 
 /**
  * Options tests.
+ *
+ * @internal
+ * @coversNothing
  */
 final class OptionsTest extends DirectusTestCase
 {
@@ -19,7 +22,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::__construct
      */
-    public function testFailToCreateWithEmptySchema()
+    public function testFailToCreateWithEmptySchema(): void
     {
         $this->expectException(EmptySchema::class);
         new Options([]);
@@ -30,7 +33,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testCreateWithStringProps()
+    public function testCreateWithStringProps(): void
     {
         $options = new Options(['var1', 'var2'], [
             'var1' => 'hello',
@@ -46,7 +49,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testCreateWithComplexProps()
+    public function testCreateWithComplexProps(): void
     {
         $options = new Options([
             'var1' => [],
@@ -65,7 +68,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testCreateWithMixedProps()
+    public function testCreateWithMixedProps(): void
     {
         $options = new Options([
             'var1',
@@ -84,7 +87,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testOptionalParameters()
+    public function testOptionalParameters(): void
     {
         $options = new Options([
             'var1',
@@ -104,7 +107,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testOptionalImmediateDefaultParameters()
+    public function testOptionalImmediateDefaultParameters(): void
     {
         $options = new Options([
             'var1' => 12345,
@@ -120,7 +123,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testDefaultValue()
+    public function testDefaultValue(): void
     {
         $options = new Options([
             'var' => [
@@ -128,7 +131,7 @@ final class OptionsTest extends DirectusTestCase
             ],
         ], []);
 
-        static::assertEquals('hello', $options->get('var'));
+        static::assertSame('hello', $options->get('var'));
     }
 
     /**
@@ -136,7 +139,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testValueValidation()
+    public function testValueValidation(): void
     {
         $this->expectException(InvalidOption::class);
 
@@ -154,7 +157,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testValueConversion()
+    public function testValueConversion(): void
     {
         $options = new Options([
             'var1' => [
@@ -177,7 +180,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testDefaultValueConversion()
+    public function testDefaultValueConversion(): void
     {
         $options = new Options([
             'var' => [
@@ -186,7 +189,7 @@ final class OptionsTest extends DirectusTestCase
             ],
         ], []);
 
-        static::assertEquals(12345, $options->get('var'));
+        static::assertSame(12345, $options->get('var'));
         static::assertIsInt($options->get('var'));
     }
 
@@ -195,7 +198,7 @@ final class OptionsTest extends DirectusTestCase
      *
      * @covers \Directus\Core\Options\Options::feed
      */
-    public function testSubPropertyAccess()
+    public function testSubPropertyAccess(): void
     {
         $options = new Options([
             'parent.child1',
@@ -211,8 +214,8 @@ final class OptionsTest extends DirectusTestCase
             ],
         ]);
 
-        static::assertEquals(1234, $options->get('parent.child1'));
-        static::assertEquals(4321, $options->get('parent.child2'));
-        static::assertEquals(1111, $options->get('parent.child3.child1'));
+        static::assertSame(1234, $options->get('parent.child1'));
+        static::assertSame(4321, $options->get('parent.child2'));
+        static::assertSame(1111, $options->get('parent.child3.child1'));
     }
 }

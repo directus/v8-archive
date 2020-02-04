@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Directus\Core\Config\Providers;
 
-use Directus\Core\Config\ConfigProviderInterface;
 use Directus\Core\Options\Options;
 use Illuminate\Support\Arr;
 
 /**
  * Array provider.
  */
-class ArrayProvider implements ConfigProviderInterface
+class ArrayProvider implements ProviderInterface
 {
     /**
      * Path.

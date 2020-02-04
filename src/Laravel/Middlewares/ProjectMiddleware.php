@@ -20,7 +20,12 @@ final class ProjectMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $parameters = $request->route()->parameters();
+        $route = $request->route();
+        if (!$route) {
+            return $next($request);
+        }
+
+        $parameters = $route->parameters();
 
         // TODO: tenant/project identification
         if (\array_key_exists('project', $parameters)) {

@@ -43,14 +43,8 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --no-suggest
 
-      - name: Linting
-        run: composer run test:lint
-
-      - name: Static code analysis
-        run: composer run test:analysis
-
-      - name: Tests and coverage
-        run: composer run test:coverage
+      - name: Lint, static analysis, tests + coverage
+        run: composer run test:ci
 
       - name: Coverage report
         env:

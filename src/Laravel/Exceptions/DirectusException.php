@@ -42,6 +42,7 @@ abstract class DirectusException extends Exception
         $this->exceptionCode = $code;
         $this->exceptionStatus = $status;
         $this->exceptionDetails = $details;
+        parent::__construct();
     }
 
     /**
@@ -55,7 +56,7 @@ abstract class DirectusException extends Exception
             ],
         ];
 
-        if (!empty($this->exceptionDetails)) {
+        if (isset($this->exceptionDetails) && $this->exceptionDetails !== null) {
             $response['error']['details'] = $this->exceptionDetails;
         }
 

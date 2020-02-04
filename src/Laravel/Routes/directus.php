@@ -18,14 +18,14 @@ use Illuminate\Support\Facades\Route;
 /**
  * Makes all directus routes.
  */
-(function () {
+(function (): void {
     $base = config('directus.routes.base', '');
 
     // Directus base
-    Route::group(['prefix' => $base], function () {
+    Route::group(['prefix' => $base], function (): void {
         // Server
         // https://docs.directus.io/api/server.html#server
-        Route::group(['prefix' => 'server'], function () {
+        Route::group(['prefix' => 'server'], function (): void {
             Route::get('info', [ServerController::class, 'info']);
             Route::get('ping', [ServerController::class, 'ping']);
             Route::get('projects', [ServerController::class, 'projects']);
@@ -33,10 +33,10 @@ use Illuminate\Support\Facades\Route;
 
         // Project
         //
-        Route::group(['prefix' => '{project}'], function () {
+        Route::group(['prefix' => '{project}'], function (): void {
             // Activity
             // https://docs.directus.io/api/activity.html#activity
-            Route::group(['prefix' => 'activity'], function () {
+            Route::group(['prefix' => 'activity'], function (): void {
                 Route::get('', [ActivityController::class, 'all']);
                 Route::get('{id}', [ActivityController::class, 'fetch']);
                 Route::post('comment', [ActivityController::class, 'createComment']);
@@ -46,7 +46,7 @@ use Illuminate\Support\Facades\Route;
 
             // Authentication
             // https://docs.directus.io/api/authentication.html#authentication
-            Route::group(['prefix' => 'auth'], function () {
+            Route::group(['prefix' => 'auth'], function (): void {
                 Route::post('authenticate', [AuthController::class, 'authenticate']);
                 Route::post('refresh', [AuthController::class, 'refresh']);
                 Route::post('password/request', [AuthController::class, 'passwordRequest']);
@@ -58,7 +58,7 @@ use Illuminate\Support\Facades\Route;
 
             // Items
             // https://docs.directus.io/api/items.html#items
-            Route::group(['prefix' => 'items/{collection}'], function () {
+            Route::group(['prefix' => 'items/{collection}'], function (): void {
                 Route::get('', [ItemsController::class, 'all']);
                 Route::post('', [ItemsController::class, 'create']);
                 Route::get('{id}', [ItemsController::class, 'fetch']);
@@ -70,7 +70,7 @@ use Illuminate\Support\Facades\Route;
 
             // Collections
             // https://docs.directus.io/api/collections.html#collections
-            Route::group(['prefix' => 'collections'], function () {
+            Route::group(['prefix' => 'collections'], function (): void {
                 Route::get('', [CollectionsController::class, 'all']);
                 Route::get('{collection}', [CollectionsController::class, 'fetch']);
                 Route::post('', [CollectionsController::class, 'create']);
