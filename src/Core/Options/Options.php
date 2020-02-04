@@ -48,7 +48,7 @@ final class Options
      *
      * @var array
      */
-    private $optional = [];
+    //private $optional = [];
 
     /**
      * Collection constructor.
@@ -71,6 +71,10 @@ final class Options
                     ];
                 }
             } else {
+                if (!\is_string($value)) {
+                    throw new InvalidOption((string) $value);
+                }
+
                 $key = $value;
                 $value = [];
             }
@@ -91,9 +95,11 @@ final class Options
             return !\array_key_exists('default', $this->schema[$prop]);
         });
 
+        /*
         $this->optional = Arr::where($this->props, function ($prop): bool {
             return \array_key_exists('default', $this->schema[$prop]);
         });
+        */
 
         if (null !== $values) {
             $this->feed($values);
@@ -110,7 +116,7 @@ final class Options
             return !Arr::has($this->schema, $key);
         });
 
-        if (\count($others) === 0) {
+        if (\count($others) > 0) {
             throw new UnknownOptions($others);
         }
 
@@ -118,12 +124,13 @@ final class Options
             return !Arr::has($data, $key);
         });
 
-        if (\count($missing) === 0) {
+        if (\count($missing) > 0) {
             throw new MissingOptions($missing);
         }
 
         $this->values = $data;
         foreach ($this->schema as $key => $prop) {
+            $key = (string) $key;
             if (Arr::has($data, $key)) {
                 $value = Arr::get($data, $key);
             } else {

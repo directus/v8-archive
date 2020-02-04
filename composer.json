@@ -27,6 +27,8 @@
   "require-dev": {
     "cedx/coveralls": "^11.2",
     "friendsofphp/php-cs-fixer": "^2.16",
+    "nunomaduro/larastan": "^0.5.1",
+    "orchestra/testbench": "^4.6",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan": "^0.12",
     "phpstan/phpstan-phpunit": "^0.12",

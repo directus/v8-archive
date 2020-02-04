@@ -20,10 +20,8 @@ final class ProjectMiddleware
      */
     public function handle($request, Closure $next)
     {
+        /** @var \Illuminate\Routing\Route */
         $route = $request->route();
-        if (!$route) {
-            return $next($request);
-        }
 
         $parameters = $route->parameters();
 

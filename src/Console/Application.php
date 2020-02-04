@@ -59,8 +59,13 @@ class Application extends SymfonyApplication
         if (null !== $command) {
             $output->writeln('COMMAND EXECUTING: '.$command->getName());
         }
+
+        /** @var string */
+        $projectName = $event->getInput()->getOption('project');
+
         //$this->config = ConfigFactory::create();
-        $this->project = (string) ($event->getInput()->getOption('project'));
+
+        //$this->project = $project;
     }
 
     /**
