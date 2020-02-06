@@ -53,37 +53,34 @@ class Thumbnailer
      */
     public function __construct(Filesystem $main, Filesystem $thumb, array $config, $path = '', array $params)
     {
-        try {
-            // $this->files = $files;
-            $this->filesystem = $main;
-            $this->filesystemThumb = $thumb;
-            $this->config = $config;
-            $this->params = $params;
+        
+        // $this->files = $files;
+        $this->filesystem = $main;
+        $this->filesystemThumb = $thumb;
+        $this->config = $config;
+        $this->params = $params;
 
-            $this->thumbnailParams = $this->validateThumbnailParams($path, $params);
+        $this->thumbnailParams = $this->validateThumbnailParams($path, $params);
 
-            // // check if the original file exists in storage
-            if (!$this->filesystem->exists($this->fileName)) {
-                throw new Exception($this->fileName . ' does not exist.'); // original file doesn't exist
-            }
-
-            $this->validateThumbnailWhitelist($params);
-
-            $otherParams = $params;
-            unset($otherParams['width'], $otherParams['height'], $otherParams['fit'], $otherParams['quality']);
-
-            if (count($otherParams) > 0) {
-                ksort($otherParams);
-                $paramsString = '';
-                foreach ($otherParams as $key => $value) {
-                    $paramsString .= ',' . substr($key, 0, 1) . $value;
-                }
-            }
-
-            $this->thumbnailDir = 'w' . $params['width'] . ',h' . $params['height'] . ',f' . $params['fit'] . ',q' . $params['quality'] . $paramsString;
-        } catch (Exception $e) {
-            throw $e;
+        // // check if the original file exists in storage
+        if (!$this->filesystem->exists($this->fileName)) {
+            throw new Exception($this->fileName . ' does not exist.'); // original file doesn't exist
         }
+
+        $this->validateThumbnailWhitelist($params);
+
+        $otherParams = $params;
+        unset($otherParams['width'], $otherParams['height'], $otherParams['fit'], $otherParams['quality']);
+
+        if (count($otherParams) > 0) {
+            ksort($otherParams);
+            $paramsString = '';
+            foreach ($otherParams as $key => $value) {
+                $paramsString .= ',' . substr($key, 0, 1) . $value;
+            }
+        }
+
+        $this->thumbnailDir = 'w' . $params['width'] . ',h' . $params['height'] . ',f' . $params['fit'] . ',q' . $params['quality'] . $paramsString;    
     }
 
     /**
@@ -104,16 +101,12 @@ class Thumbnailer
      * @return string|null
      */
     public function get()
-    {
-        try {
-            if ($this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName)) {
-                $img = $this->filesystemThumb->read($this->thumbnailDir . '/' . $this->thumbnailFileName);
-            }
-
-            return isset($img) && $img ? $img : null;
-        } catch (Exception $e) {
-            throw $e;
+    {      
+        if ($this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName)) {
+            $img = $this->filesystemThumb->read($this->thumbnailDir . '/' . $this->thumbnailFileName);
         }
+
+        return isset($img) && $img ? $img : null;      
     }
 
     /**
@@ -124,19 +117,15 @@ class Thumbnailer
      */
     public function getThumbnailMimeType()
     {
-        try {
-            if ($this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName)) {
-                if (strtolower(pathinfo($this->thumbnailFileName, PATHINFO_EXTENSION)) === 'webp') {
-                    return 'image/webp';
-                }
-                $img = Image::make($this->filesystemThumb->read($this->thumbnailDir . '/' . $this->thumbnailFileName));
-                return $img->mime();
+        if ($this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName)) {
+            if (strtolower(pathinfo($this->thumbnailFileName, PATHINFO_EXTENSION)) === 'webp') {
+                return 'image/webp';
             }
-
-            return 'application/octet-stream';
-        } catch (Exception $e) {
-            throw $e;
+            $img = Image::make($this->filesystemThumb->read($this->thumbnailDir . '/' . $this->thumbnailFileName));
+            return $img->mime();
         }
+
+        return 'application/octet-stream';
     }
 
     /**
@@ -164,32 +153,28 @@ class Thumbnailer
      */
     public function contain()
     {
-        try {
-            // action options
-            $options = $this->getSupportedActionOptions($this->$params);
+        // action options
+        $options = $this->getSupportedActionOptions($this->$params);
 
-            // open file image resource
-            $img = $this->load();
+        // open file image resource
+        $img = $this->load();
 
-            // crop image
-            $img->resize($this->width, $this->height, function ($constraint) {
-                $constraint->aspectRatio();
-                if (ArrayUtils::get($options, 'preventUpsize')) {
-                    $constraint->upsize();
-                }
-            });
-
-            if (ArrayUtils::get($options, 'resizeCanvas')) {
-                $img->resizeCanvas($this->width, $this->height, ArrayUtils::get($options, 'position', 'center'), ArrayUtils::get($options, 'resizeRelative', false), ArrayUtils::get($options, 'canvasBackground', [255, 255, 255, 0]));
+        // crop image
+        $img->resize($this->width, $this->height, function ($constraint) {
+            $constraint->aspectRatio();
+            if (ArrayUtils::get($options, 'preventUpsize')) {
+                $constraint->upsize();
             }
+        });
 
-            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->quality : null));
-            $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
-
-            return $encodedImg;
-        } catch (Exception $e) {
-            throw $e;
+        if (ArrayUtils::get($options, 'resizeCanvas')) {
+            $img->resizeCanvas($this->width, $this->height, ArrayUtils::get($options, 'position', 'center'), ArrayUtils::get($options, 'resizeRelative', false), ArrayUtils::get($options, 'canvasBackground', [255, 255, 255, 0]));
         }
+
+        $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->quality : null));
+        $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
+
+        return $encodedImg;
     }
 
     /**
@@ -202,25 +187,20 @@ class Thumbnailer
      */
     public function crop()
     {
-        try {
+        // action options
+        $options = $this->getSupportedActionOptions($this->action);
 
-            // action options
-            $options = $this->getSupportedActionOptions($this->action);
+        // open file image resource
+        $img = $this->load();
 
-            // open file image resource
-            $img = $this->load();
+        // resize/crop image
+        $img->fit($this->width, $this->height, function ($constraint) {
+        }, ArrayUtils::get($options, 'position', 'center'));
 
-            // resize/crop image
-            $img->fit($this->width, $this->height, function ($constraint) {
-            }, ArrayUtils::get($options, 'position', 'center'));
+        $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->quality : null));
+        $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
 
-            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->quality : null));
-            $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
-
-            return $encodedImg;
-        } catch (Exception $e) {
-            throw $e;
-        }
+        return $encodedImg;
     }
 
     /**
