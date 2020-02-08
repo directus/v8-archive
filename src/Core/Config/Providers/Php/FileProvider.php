@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Directus\Core\Config\Providers;
+namespace Directus\Core\Config\Providers\Php;
 
 use Directus\Core\Config\Exception\FileNotFound;
+use Directus\Core\Config\Providers\ArrayProvider;
 use Directus\Core\Options\Options;
 
 /**
  * PHP provider.
  */
-class PhpProvider extends ArrayProvider
+class FileProvider extends ArrayProvider
 {
     /**
      * Path.

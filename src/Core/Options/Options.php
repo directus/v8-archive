@@ -7,7 +7,6 @@ namespace Directus\Core\Options;
 use Directus\Core\Options\Exception\EmptySchema;
 use Directus\Core\Options\Exception\InvalidOption;
 use Directus\Core\Options\Exception\MissingOptions;
-use Directus\Core\Options\Exception\UnknownOptions;
 use Illuminate\Support\Arr;
 
 /**
@@ -15,6 +14,13 @@ use Illuminate\Support\Arr;
  */
 final class Options
 {
+    /**
+     * Default values.
+     */
+    public const PROP_DEFAULT = 'default';
+    public const PROP_CONVERT = 'convert';
+    public const PROP_VALIDATE = 'validate';
+
     /**
      * Collection items.
      *
@@ -44,13 +50,6 @@ final class Options
     private $required = [];
 
     /**
-     * List of optional props.
-     *
-     * @var array
-     */
-    //private $optional = [];
-
-    /**
      * Collection constructor.
      *
      * @param array $values
@@ -67,7 +66,7 @@ final class Options
             if (\is_string($key)) {
                 if (!\is_array($value)) {
                     $value = [
-                        'default' => $value,
+                        static::PROP_DEFAULT => $value,
                     ];
                 }
             } else {
@@ -81,8 +80,8 @@ final class Options
 
             return array_replace_recursive([], [
                 "{$key}" => [
-                    'validate' => function (): bool { return true; },
-                    'convert' => function ($value) { return $value; },
+                    static::PROP_VALIDATE => function (): bool { return true; },
+                    static::PROP_CONVERT => function ($value) { return $value; },
                 ],
             ], [
                 "{$key}" => $value,
@@ -92,14 +91,8 @@ final class Options
         $this->props = array_keys($this->schema);
 
         $this->required = Arr::where($this->props, function ($prop): bool {
-            return !\array_key_exists('default', $this->schema[$prop]);
+            return !\array_key_exists(static::PROP_DEFAULT, $this->schema[$prop]);
         });
-
-        /*
-        $this->optional = Arr::where($this->props, function ($prop): bool {
-            return \array_key_exists('default', $this->schema[$prop]);
-        });
-        */
 
         if (null !== $values) {
             $this->feed($values);
@@ -107,19 +100,10 @@ final class Options
     }
 
     /**
-     * Undocumented function.
+     * Feeds data to options class.
      */
     public function feed(array $data): void
     {
-        $keys = array_keys(Arr::dot($data));
-        $others = array_filter(array_diff($this->props, $keys), function ($key): bool {
-            return !Arr::has($this->schema, $key);
-        });
-
-        if (\count($others) > 0) {
-            throw new UnknownOptions($others);
-        }
-
         $missing = Arr::where($this->required, function ($key) use ($data): bool {
             return !Arr::has($data, $key);
         });
@@ -134,25 +118,15 @@ final class Options
             if (Arr::has($data, $key)) {
                 $value = Arr::get($data, $key);
             } else {
-                $value = $prop['default'];
+                $value = $prop[static::PROP_DEFAULT];
             }
 
-            if (!$prop['validate']($value)) {
+            if (!$prop[static::PROP_VALIDATE]($value)) {
                 throw new InvalidOption($key);
             }
 
-            Arr::set($this->values, $key, $prop['convert']($value));
+            Arr::set($this->values, $key, $prop[static::PROP_CONVERT]($value));
         }
-    }
-
-    /**
-     * Sets an item in the collection with the given key-value.
-     *
-     * @param mixed $value
-     */
-    public function set(string $key, $value): void
-    {
-        Arr::set($this->values, $key, $value);
     }
 
     /**

@@ -4,16 +4,26 @@ declare(strict_types=1);
 
 namespace Directus\Core;
 
+use Directus\Core\Config\ConfigInterface;
+
 /**
  * Directus project.
  */
 final class Project
 {
     /**
+     * Config.
+     *
+     * @var ConfigInterface
+     */
+    private $config;
+
+    /**
      * Project constructor.
      */
-    public function __construct()
+    public function __construct(ConfigInterface $config)
     {
+        $this->config = $config;
     }
 
     /**
@@ -21,6 +31,7 @@ final class Project
      */
     public function install(): void
     {
+        $this->config->get('name');
     }
 
     /**

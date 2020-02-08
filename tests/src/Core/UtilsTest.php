@@ -14,8 +14,6 @@ use Directus\Tests\Helpers\DirectusTestCase;
 final class UtilsTest extends DirectusTestCase
 {
     /**
-     * Test if version returns a semver compatible string.
-     *
      * @covers \Directus\Core\Utils::getPackageDir
      */
     public function testDirectoryIsNotEmpty(): void

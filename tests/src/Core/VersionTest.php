@@ -14,8 +14,6 @@ use Directus\Tests\Helpers\DirectusTestCase;
 final class VersionTest extends DirectusTestCase
 {
     /**
-     * Test if version returns a semver compatible string.
-     *
      * @covers \Directus\Core\Version::getVersion
      */
     public function testContainsVersionInformation(): void

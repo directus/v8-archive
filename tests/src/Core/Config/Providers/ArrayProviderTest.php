@@ -34,8 +34,6 @@ final class ArrayProviderTest extends DirectusTestCase
     }
 
     /**
-     * Test the creation of array provider.
-     *
      * @covers \Directus\Core\Config\Providers\ArrayProvider::__construct
      */
     public function testDataShouldBeRequired(): void
@@ -46,23 +44,10 @@ final class ArrayProviderTest extends DirectusTestCase
     }
 
     /**
-     * Test the creation of array provider.
-     *
      * @covers \Directus\Core\Config\Providers\ArrayProvider::get
      */
     public function testGetConfig(): void
     {
         static::assertSame('world', $this->provider->get('hello'));
-    }
-
-    /**
-     * Test the creation of array provider.
-     *
-     * @covers \Directus\Core\Config\Providers\ArrayProvider::set
-     */
-    public function testSetConfig(): void
-    {
-        $this->provider->set('hello', 'bob');
-        static::assertSame('bob', $this->provider->get('hello'));
     }
 }

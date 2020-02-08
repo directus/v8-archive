@@ -14,11 +14,7 @@ final class Utils
      */
     public static function getPackageDir(): string
     {
-        $path = realpath(__DIR__.'/../..');
-        if ($path === false) {
-            throw new \Exception('Failed to get package directory');
-        }
-
-        return $path;
+        // @var string
+        return (string) realpath(__DIR__.'/../..');
     }
 }

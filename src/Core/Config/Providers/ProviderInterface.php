@@ -23,10 +23,10 @@ interface ProviderInterface
      */
     public function get(string $key, $default = null);
 
-    /**
+    /*
      * Updates a configuration.
      *
      * @param mixed $value
      */
-    public function set(string $key, $value): bool;
+    // public function set(string $key, $value): bool;
 }

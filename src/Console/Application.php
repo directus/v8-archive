@@ -63,7 +63,7 @@ class Application extends SymfonyApplication
         /** @var string */
         $projectName = $event->getInput()->getOption('project');
 
-        //$this->config = ConfigFactory::create();
+        //$this->config = Config::create();
 
         //$this->project = $project;
     }

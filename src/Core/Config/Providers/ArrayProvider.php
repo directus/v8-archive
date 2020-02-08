@@ -41,13 +41,13 @@ class ArrayProvider implements ProviderInterface
         return Arr::get($this->data, $key, $default);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    // {@inheritdoc}
+    /*
     public function set(string $key, $value): bool
     {
         $this->data = Arr::set($this->data, $key, $value);
 
         return true;
     }
+    */
 }

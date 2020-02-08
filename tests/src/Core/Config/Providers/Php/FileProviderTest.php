@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Directus\Tests\Core\Config\Providers;
+namespace Directus\Tests\Core\Config\Providers\Php;
 
 use Directus\Core\Config\Exception\FileNotFound;
-use Directus\Core\Config\Providers\PhpProvider;
+use Directus\Core\Config\Providers\Php\FileProvider;
 use Directus\Core\Options\Exception\MissingOptions;
 use Directus\Tests\Helpers\DirectusTestCase;
 
@@ -15,12 +15,12 @@ use Directus\Tests\Helpers\DirectusTestCase;
  * @internal
  * @coversNothing
  */
-final class PhpProviderTest extends DirectusTestCase
+final class FileProviderTest extends DirectusTestCase
 {
     /**
      * Provider.
      *
-     * @var PhpProvider
+     * @var FileProvider
      */
     protected $provider;
 
@@ -29,7 +29,7 @@ final class PhpProviderTest extends DirectusTestCase
      */
     protected function setUp(): void
     {
-        $this->provider = new PhpProvider([
+        $this->provider = new FileProvider([
             'path' => $this->getDataFilePath('config/simple.php'),
         ]);
     }
@@ -37,25 +37,25 @@ final class PhpProviderTest extends DirectusTestCase
     /**
      * Test the creation of php provider.
      *
-     * @covers \Directus\Core\Config\Providers\PhpProvider::__construct
+     * @covers \Directus\Core\Config\Providers\Php\FileProvider::__construct
      */
     public function testPathShouldBeRequired(): void
     {
         $this->expectException(MissingOptions::class);
 
-        new PhpProvider([]);
+        new FileProvider([]);
     }
 
     /**
      * Test the creation of php provider.
      *
-     * @covers \Directus\Core\Config\Providers\PhpProvider::__construct
+     * @covers \Directus\Core\Config\Providers\Php\FileProvider::__construct
      */
     public function testPathShouldExists(): void
     {
         $this->expectException(FileNotFound::class);
 
-        new PhpProvider([
+        new FileProvider([
             'path' => __DIR__.'/not_found',
         ]);
     }
@@ -63,7 +63,7 @@ final class PhpProviderTest extends DirectusTestCase
     /**
      * Test the creation of php provider.
      *
-     * @covers \Directus\Core\Config\Providers\PhpProvider::get
+     * @covers \Directus\Core\Config\Providers\Php\FileProvider::get
      */
     public function testGetConfig(): void
     {

@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Directus\Tests\Core;
+namespace Directus\Tests\Core\Options;
 
 use Directus\Core\Options\Exception\EmptySchema;
 use Directus\Core\Options\Exception\InvalidOption;
+use Directus\Core\Options\Exception\MissingOptions;
 use Directus\Core\Options\Options;
 use Directus\Tests\Helpers\DirectusTestCase;
 
@@ -18,8 +19,6 @@ use Directus\Tests\Helpers\DirectusTestCase;
 final class OptionsTest extends DirectusTestCase
 {
     /**
-     * Test option creation.
-     *
      * @covers \Directus\Core\Options\Options::__construct
      */
     public function testFailToCreateWithEmptySchema(): void
@@ -29,8 +28,7 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
+     * @covers \Directus\Core\Options\Options::__construct
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testCreateWithStringProps(): void
@@ -45,8 +43,7 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
+     * @covers \Directus\Core\Options\Options::__construct
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testCreateWithComplexProps(): void
@@ -64,8 +61,7 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
+     * @covers \Directus\Core\Options\Options::__construct
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testCreateWithMixedProps(): void
@@ -83,8 +79,19 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
+     * @covers \Directus\Core\Options\Options::__construct
+     */
+    public function testFailDirectIfNotString(): void
+    {
+        $this->expectException(InvalidOption::class);
+
+        new Options([
+            'var1',
+            true,
+        ]);
+    }
+
+    /**
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testOptionalParameters(): void
@@ -103,8 +110,6 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testOptionalImmediateDefaultParameters(): void
@@ -119,8 +124,6 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testDefaultValue(): void
@@ -135,8 +138,7 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
+     * @covers \Directus\Core\Options\Exception\InvalidOption
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testValueValidation(): void
@@ -153,8 +155,6 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testValueConversion(): void
@@ -176,8 +176,6 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testDefaultValueConversion(): void
@@ -194,8 +192,6 @@ final class OptionsTest extends DirectusTestCase
     }
 
     /**
-     * Test option creation.
-     *
      * @covers \Directus\Core\Options\Options::feed
      */
     public function testSubPropertyAccess(): void
@@ -217,5 +213,64 @@ final class OptionsTest extends DirectusTestCase
         static::assertSame(1234, $options->get('parent.child1'));
         static::assertSame(4321, $options->get('parent.child2'));
         static::assertSame(1111, $options->get('parent.child3.child1'));
+    }
+
+    /**
+     * @covers \Directus\Core\Options\Exception\MissingOptions
+     * @covers \Directus\Core\Options\Options::feed
+     */
+    public function testFailToCreateWithMissingOptions(): void
+    {
+        $this->expectException(MissingOptions::class);
+        $this->expectExceptionMessage('Missing required options: b, c');
+
+        $options = new Options(['a', 'b', 'c']);
+        $options->feed([
+            'a' => 'value',
+        ]);
+    }
+
+    /**
+     * @covers \Directus\Core\Options\Options::get
+     */
+    public function testGetItemsAndSubItems(): void
+    {
+        $options = new Options([
+            'a',
+        ], [
+            'a' => [
+                'b' => [
+                    'c' => [
+                        'd' => 1234,
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame(1234, $options->get('a.b.c.d'));
+    }
+
+    /**
+     * @covers \Directus\Core\Options\Options::has
+     */
+    public function testHasItems(): void
+    {
+        $options = new Options([
+            'a',
+        ], [
+            'a' => [
+                'b' => [
+                    'c' => [
+                        'd' => 1234,
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertTrue($options->has('a.b.c.d'));
+        static::assertTrue($options->has('a.b.c'));
+        static::assertTrue($options->has('a.b'));
+        static::assertTrue($options->has('a'));
+        static::assertFalse($options->has('b'));
     }
 }
