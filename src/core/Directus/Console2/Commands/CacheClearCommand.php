@@ -21,7 +21,7 @@ class CacheClearCommand extends AbstractProjectCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $basePath = $input->getOption('base-path');
-        $project = $input->getOption('project');
+        $project = $input->getArgument('project-key');
 
         $app = create_app_with_project_name($basePath, $project);
         $cache = $app->getContainer()->get('cache')->clear();
