@@ -2,11 +2,10 @@
 
 namespace Directus\Console2\Commands;
 
+use Directus\Util\MaintenanceUtils;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
-use Directus\Util\MaintenanceUtils;
 
 class MaintenanceStatusCommand extends Command
 {
@@ -25,6 +24,7 @@ class MaintenanceStatusCommand extends Command
             'maintenance mode is %s',
             MaintenanceUtils::status($input->getOption('base-path'))
         ));
+
         return 0;
     }
 }

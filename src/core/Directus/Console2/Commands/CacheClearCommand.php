@@ -2,11 +2,9 @@
 
 namespace Directus\Console2\Commands;
 
-use Symfony\Component\Console\Command\Command;
+use function Directus\create_app_with_project_name;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
-use function \Directus\create_app_with_project_name;
 
 class CacheClearCommand extends AbstractProjectCommand
 {
@@ -28,7 +26,8 @@ class CacheClearCommand extends AbstractProjectCommand
         $app = create_app_with_project_name($basePath, $project);
         $cache = $app->getContainer()->get('cache')->clear();
 
-        $output->writeln("successfully cleared cache");
+        $output->writeln('successfully cleared cache');
+
         return 0;
     }
 }

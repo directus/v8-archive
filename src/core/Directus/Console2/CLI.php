@@ -2,9 +2,7 @@
 
 namespace Directus\Console2;
 
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\InputOption;
-
+use function Directus\base_path;
 use Directus\Console2\Commands\CacheClearCommand;
 use Directus\Console2\Commands\ConfigCreateCommand;
 use Directus\Console2\Commands\DatabaseDropCommand;
@@ -18,11 +16,11 @@ use Directus\Console2\Commands\MaintenanceStatusCommand;
 use Directus\Console2\Commands\UserChangePasswordCommand;
 use Directus\Console2\Commands\UserCreateCommand;
 use Directus\Console2\Commands\UserDeleteCommand;
-
-use function \Directus\base_path;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
- * Directus CLI application
+ * Directus CLI application.
  */
 class CLI extends Application
 {
@@ -43,8 +41,8 @@ class CLI extends Application
             new MaintenanceStatusCommand(),
             new UserChangePasswordCommand(),
             new UserCreateCommand(),
-            new UserDeleteCommand()
-       ]);
+            new UserDeleteCommand(),
+        ]);
     }
 
     protected function getDefaultInputDefinition()

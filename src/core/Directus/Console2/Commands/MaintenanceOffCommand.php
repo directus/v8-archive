@@ -2,11 +2,10 @@
 
 namespace Directus\Console2\Commands;
 
+use Directus\Util\MaintenanceUtils;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
-use Directus\Util\MaintenanceUtils;
 
 class MaintenanceOffCommand extends Command
 {
@@ -23,6 +22,7 @@ class MaintenanceOffCommand extends Command
     {
         MaintenanceUtils::off($input->getOption('base-path'));
         $output->writeln('maintenance mode deactivated');
+
         return 0;
     }
 }
