@@ -2,6 +2,7 @@
 
 namespace Directus\Console2\Commands;
 
+use Directus\Util\Installation\InstallerUtils;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,20 +17,34 @@ class ConfigCreateCommand extends AbstractProjectCommand
         $this
             ->setDescription('Create a new configuration file')
 
-            ->addOption('type', null, InputOption::VALUE_OPTIONAL, 'Type of the database server', 'mysql')
-            ->addOption('host', null, InputOption::VALUE_OPTIONAL, 'Host of the database server', 'localhost')
-            ->addOption('port', null, InputOption::VALUE_OPTIONAL, 'Port of the database server', '3306')
-            ->addOption('name', null, InputOption::VALUE_OPTIONAL, 'Name of the database', 'directus')
-            ->addOption('user', null, InputOption::VALUE_OPTIONAL, 'Username for the database connection', 'directus')
-            ->addOption('pass', null, InputOption::VALUE_OPTIONAL, 'Password for the database connection', 'directus')
-            ->addOption('cors', null, InputOption::VALUE_OPTIONAL, 'Enable CORS', false)
-            ->addOption('url', null, InputOption::VALUE_OPTIONAL, 'Directus base URI', '/')
+            ->addOption('db-type', null, InputOption::VALUE_REQUIRED, 'Type of the database server', 'mysql')
+            ->addOption('db-host', null, InputOption::VALUE_REQUIRED, 'Host of the database server', 'localhost')
+            ->addOption('db-port', null, InputOption::VALUE_REQUIRED, 'Port of the database server', '3306')
+            ->addOption('db-name', null, InputOption::VALUE_REQUIRED, 'Name of the database', 'directus')
+            ->addOption('db-user', null, InputOption::VALUE_REQUIRED, 'Username for the database connection', 'directus')
+            ->addOption('db-pass', null, InputOption::VALUE_REQUIRED, 'Password for the database connection', 'directus')
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Overwrite existing configuration file')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln("command not implemented");
-        return 1;
+        $data = [
+            'project' => $input->getArgument('project-key'),
+            'db_type' => $inpupt->getOption('db-type'),
+            'db_host' => $inpupt->getOption('db-host'),
+            'db_port' => $inpupt->getOption('db-port'),
+            'db_name' => $inpupt->getOption('db-name'),
+            'db_user' => $inpupt->getOption('db-user'),
+            'db_password' => $inpupt->getOption('db-pass'),
+        ];
+
+        InstallerUtils::createConfig(
+            $input->getOption('base-path'),
+            $data,
+            $input->getOption('force')
+        );
+
+        return 0;
     }
 }
