@@ -10,6 +10,9 @@
     "name": "WoLfulus",
     "email": "wolfulus@gmail.com"
   }],
+  "bin": [
+    "./bin/directus"
+  ],
   "require": {
     "php": ">=7.2",
     "doctrine/dbal": "^2.10",
