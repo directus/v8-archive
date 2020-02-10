@@ -6,15 +6,10 @@
     "directus",
     "laravel"
   ],
-  "authors": [
-    {
-      "name": "WoLfulus",
-      "email": "wolfulus@gmail.com"
-    }
-  ],
-  "bin": [
-    "./bin/directus"
-  ],
+  "authors": [{
+    "name": "WoLfulus",
+    "email": "wolfulus@gmail.com"
+  }],
   "require": {
     "php": ">=7.2",
     "doctrine/dbal": "^2.10",
