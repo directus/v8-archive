@@ -3,6 +3,7 @@
 /.idea
 /.vscode
 /phpunit.xml
+/.ddev
 Thumbs.db
 .DS_Store
 .phpunit.result.cache
