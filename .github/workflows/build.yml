@@ -44,13 +44,13 @@ jobs:
         run: composer install --no-interaction --no-progress --no-suggest
 
       - name: Lint, static analysis, tests + coverage
-        run: composer run test:ci
+        run: composer run ci
 
       - name: Coverage report
         env:
           COVERALLS_REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
         if: success() && matrix.php == '7.4'
-        run: composer run task:coverage:report
+        run: composer run coverage:report
 
       - name: Sonar Scanner
         uses: sonarsource/sonarcloud-github-action@master

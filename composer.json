@@ -53,7 +53,11 @@
     ],
     "test": "phpunit --colors=always --configuration=.phpunit.xml",
     "test:with-coverage": "phpunit --colors=always --configuration=.phpunit.xml --log-junit=build/phpunit.xml --coverage-html=build/html --coverage-clover=build/coverage.xml",
-    "coverage:report": "coveralls build/coverage.xml"
+    "coverage:report": "coveralls build/coverage.xml",
+    "ci": [
+      "@lint",
+      "@test:with-coverage"
+    ]
   },
   "config": {
     "sort-packages": true,
