@@ -1,10 +1,10 @@
 parameters:
   level: 8
   paths:
-    - ../bin
-    - ../bin/directus
-    - ../src
-    - ../tests
+    - bin
+    - bin/directus
+    - src
+    - tests
   checkMissingIterableValueType: false
   autoload_directories:
-    - ../src/Core/Migrations
+    - src/Core/Migrations
