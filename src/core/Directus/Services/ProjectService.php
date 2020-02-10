@@ -2,6 +2,9 @@
 
 namespace Directus\Services;
 
+use Directus\Application\Http\Request;
+use Directus\Config\Context;
+use Directus\Config\SuperAdminToken;
 use Directus\Database\Exception\ConnectionFailedException;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\InvalidConfigPathException;
@@ -21,11 +24,16 @@ class ProjectService extends AbstractService
             throw new ForbiddenException('Creating new instance is locked');
         }
 
-        $this->validate($data, [
-            'project' => 'string|regex:/^[0-9a-z_-]+$/i',
+        if (Context::is_env()) {
+            throw new ForbiddenException('Project creation is disabled under environment variables.');
+        }
 
+        $this->validate($data, [
+            'project' => 'required|string|regex:/^[0-9a-z_-]+$/i',
+            'private' => 'bool',
             'force' => 'bool',
             'existing' => 'bool',
+            'super_admin_token' => 'required',
 
             'db_host' => 'string',
             'db_port' => 'numeric',
@@ -52,8 +60,25 @@ class ProjectService extends AbstractService
             'app_url' => 'string',
             'user_email' => 'required|email',
             'user_password' => 'required|string',
-            'user_token' => 'string'
+            'user_token' => 'string',
         ]);
+
+        // If the first installtion is executing then add the api.json file to store the password.
+        // For every installation after the first one, user must pass that same password to create the next project.
+
+        $basePath = \Directus\get_app_base_path();
+        $scannedDirectory = \Directus\scan_folder($basePath.'/config');
+
+        $projectNames = $scannedDirectory;
+
+        if (!empty($projectNames)) {
+            SuperAdminToken::assert($data['super_admin_token']);
+        }
+
+        // TODO: this two lines below is duplicated in InstallerModule,
+        //       maybe refactor this into a single place?
+        $configStub = InstallerUtils::createJsonFileContent($data);
+        file_put_contents(SuperAdminToken::path(), $configStub);
 
         $basePath = $this->container->get('path_base');
         $force = ArrayUtils::pull($data, 'force', false);
@@ -65,14 +90,10 @@ class ProjectService extends AbstractService
         }
 
         $projectName = ArrayUtils::pull($data, 'project');
-        if (empty($projectName)) {
-            $projectName = '_';
-        }
-
         $data['project'] = $projectName;
 
         try {
-         InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
+            InstallerUtils::ensureCanCreateConfig($basePath, $data, $force);
         } catch (InvalidConfigPathException $e) {
             throw new ProjectAlreadyExistException($projectName);
         }
@@ -97,15 +118,24 @@ class ProjectService extends AbstractService
     }
 
     /**
-     * Deletes a project with the given name
+     * Deletes a project with the given name.
      *
      * @param string $name
      *
      * @throws NotFoundException
      * @throws UnprocessableEntityException
      */
-    public function delete($name)
+    public function delete(Request $request)
     {
+        $data = $request->getQueryParams();
+
+        $this->validate($data, [
+            'super_admin_token' => 'required',
+        ]);
+
+        SuperAdminToken::assert($data['super_admin_token']);
+
+        $name = $request->getAttribute('name');
         if (!is_string($name) || !$name) {
             throw new UnprocessableEntityException('Invalid project name');
         }
@@ -117,7 +147,7 @@ class ProjectService extends AbstractService
             InstallerUtils::ensureConfigFileExists($basePath, $name);
         } catch (InvalidPathException $e) {
             throw new NotFoundException(
-                'Unknown Project: ' . $name
+                'Unknown Project: '.$name
             );
         }
 
@@ -126,14 +156,14 @@ class ProjectService extends AbstractService
     }
 
     /**
-     * Checks whether .lock file exists
+     * Checks whether .lock file exists.
      *
      * @return bool
      */
     protected function isLocked()
     {
         $basePath = $this->container->get('path_base');
-        $lockFilePath = $basePath . '/.lock';
+        $lockFilePath = $basePath.'/.lock';
 
         return file_exists($lockFilePath) && is_file($lockFilePath);
     }

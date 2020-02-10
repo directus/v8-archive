@@ -2,31 +2,31 @@
 
 namespace Directus\Config\Schema;
 
+use Directus\Config\Context;
+
 /**
- * Config schema
+ * Config schema.
  */
-class Schema {
+class Schema
+{
     /**
-     * Gets the configuration schema
+     * Gets the configuration schema.
+     *
      * @return Node
      */
-    public static function get() {
-        $isEnv = getenv("DIRECTUS_USE_ENV") === "1";
+    public static function get()
+    {
+        $isEnv = Context::is_env();
         if ($isEnv) {
-            $loggerPath = "php://stdout";
+            $loggerPath = 'php://stdout';
         } else {
-            $loggerPath = realpath(__DIR__ . '/../../../../../logs');
+            $loggerPath = realpath(__DIR__.'/../../../../../logs');
         }
 
         return new Group('directus', [
-            new Group('app', [
-                new Value('env', Types::STRING, 'production'),
-                new Value('timezone', Types::STRING, 'America/New_York'),
-            ]),
-            new Group('settings', [
-                new Group('logger', [
-                    new Value('path', Types::STRING, $loggerPath),
-                ])
+            new Value('env', Types::STRING, 'production'),
+            new Group('logger', [
+                new Value('path', Types::STRING, $loggerPath),
             ]),
             new Group('database', [
                 new Value('type', Types::STRING, 'mysql'),
@@ -36,8 +36,9 @@ class Schema {
                 new Value('username', Types::STRING, 'root'),
                 new Value('password', Types::STRING, 'root'),
                 new Value('engine', Types::STRING, 'InnoDB'),
-                new Value('chartset', Types::STRING, 'utf8mb4'),
+                new Value('charset', Types::STRING, 'utf8mb4'),
                 new Value('socket', Types::STRING, ''),
+                new Value('driver_options?', Types::ARRAY, []),
             ]),
             new Group('cache', [
                 new Value('enabled', Types::BOOLEAN, false),
@@ -46,14 +47,16 @@ class Schema {
                     new Value('adapter', Types::STRING, 'filesystem'),
                     new Value('path', Types::STRING, '../cache/'),
                     new Value('host', Types::STRING, 'localhost'),
+                    new Value('auth', Types::STRING, null),
                     new Value('port', Types::INTEGER, 6379),
-                ])
+                ]),
             ]),
             new Group('storage', [
                 new Value('adapter', Types::STRING, 'local'),
                 new Value('root', Types::STRING, 'public/uploads/_/originals'),
                 new Value('root_url', Types::STRING, '/uploads/_/originals'),
-                new Value('thumb_root', Types::STRING, 'public/uploads/_/thumbnails'),
+                new Value('thumb_root', Types::STRING, 'public/uploads/_/generated'),
+                new Value('proxy_downloads?', Types::BOOLEAN, false),
 
                 // S3
                 new Value('key?', Types::STRING, 's3-key'),
@@ -64,15 +67,26 @@ class Schema {
                 new Value('endpoint?', Types::STRING, 's3-endpoint'),
                 new Group('options', [
                     new Value('ACL', Types::STRING, 'public-read'),
-                    new Value('Cache-Control', Types::STRING, 'max-age=604800')
+                    new Value('Cache-Control', Types::STRING, 'max-age=604800'),
                 ]),
+
+                // OSS
+                new Value('OSS_ACCESS_ID?', Types::STRING, 'oss-access-id'),
+                new Value('OSS_ACCESS_KEY?', Types::STRING, 'oss-access-secret'),
+                new Value('OSS_BUCKET?', Types::STRING, 'oss-bucket'),
+                new Value('OSS_ENDPOINT?', Types::STRING, 'oss-endpoint'),
 
                 // TODO: Missing keys?
             ]),
             new Group('mail', [
                 new Group('default', [
                     new Value('transport', Types::STRING, 'sendmail'),
-                    new Value('from', Types::STRING, 'admin@example.com')
+                    new Value('from', Types::STRING, 'admin@example.com'),
+                    new Value('host?', Types::STRING, ''),
+                    new Value('port?', Types::STRING, ''),
+                    new Value('username?', Types::STRING, ''),
+                    new Value('password?', Types::STRING, ''),
+                    new Value('encryption?', Types::STRING, ''),
                 ]),
             ]),
             new Group('cors', [
@@ -84,7 +98,7 @@ class Schema {
                     'PUT',
                     'PATCH',
                     'DELETE',
-                    'HEAD'
+                    'HEAD',
                 ]),
                 new Value('headers', Types::ARRAY, []),
                 new Value('exposed_headers', Types::ARRAY, []),
@@ -104,10 +118,6 @@ class Schema {
                 new Value('actions', Types::ARRAY, []),
                 new Value('filters', Types::ARRAY, []),
             ]),
-            new Group('feedback', [
-                new Value('token', Types::STRING, 'a-kind-of-unique-token'),
-                new Value('login', Types::STRING, true),
-            ]),
             new Value('tableBlacklist', Types::ARRAY, []),
             new Group('auth', [
                 new Value('secret_key', Types::STRING, '<type-a-secret-authentication-key-string>'),
@@ -116,7 +126,7 @@ class Schema {
                     new Group('okta?', [
                         new Value('client_id', Types::STRING, ''),
                         new Value('client_secret', Types::STRING, ''),
-                        new Value('base_url', Types::STRING, 'https://dev-000000.oktapreview.com/oauth2/default')
+                        new Value('base_url', Types::STRING, 'https://dev-000000.oktapreview.com/oauth2/default'),
                     ]),
                     new Group('github?', [
                         new Value('client_id', Types::STRING, ''),

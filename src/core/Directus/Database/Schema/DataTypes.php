@@ -28,8 +28,9 @@ final class DataTypes
     const TYPE_UUID                 = 'uuid';
     const TYPE_DATETIME_CREATED     = 'datetime_created';
     const TYPE_DATETIME_UPDATED     = 'datetime_updated';
-    const TYPE_USER_CREATED         = 'user_created';
+    const TYPE_OWNER                = 'owner';
     const TYPE_USER_UPDATED         = 'user_updated';
+    const TYPE_USER                 = 'user';
 
     /**
      * Returns a list all data types
@@ -63,8 +64,9 @@ final class DataTypes
             static::TYPE_UUID,
             static::TYPE_DATETIME_CREATED,
             static::TYPE_DATETIME_UPDATED,
-            static::TYPE_USER_CREATED,
+            static::TYPE_OWNER,
             static::TYPE_USER_UPDATED,
+            static::TYPE_USER,
         ];
     }
 
@@ -325,6 +327,18 @@ final class DataTypes
             static::TYPE_DATETIME_UPDATED
         ];
     }
+    /**
+     * Returns all the system user types
+     *
+     * @return array
+     */
+    public static function getSystemUserType()
+    {
+        return [
+            static::TYPE_OWNER,
+            static::TYPE_USER_UPDATED
+        ];
+    }
 
     /**
      * Checks whether or not the given type is system datetime type
@@ -336,6 +350,18 @@ final class DataTypes
     public static function isSystemDateTimeType($type)
     {
         return in_array(strtolower($type), static::getSystemDateTimeTypes());
+    }
+
+    /**
+     * Checks whether or not the given type is system user type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isSystemUserType($type)
+    {
+        return in_array(strtolower($type), static::getSystemUserType());
     }
 
     /**
@@ -360,7 +386,7 @@ final class DataTypes
     public static function getUniqueTypes()
     {
         return array_merge([
-            static::TYPE_USER_CREATED,
+            static::TYPE_OWNER,
             static::TYPE_USER_UPDATED,
             static::TYPE_STATUS,
             static::TYPE_SORT,
@@ -410,8 +436,9 @@ final class DataTypes
     public static function getUsersType()
     {
         return [
-            static::TYPE_USER_CREATED,
+            static::TYPE_OWNER,
             static::TYPE_USER_UPDATED,
+            static::TYPE_USER,
         ];
     }
 

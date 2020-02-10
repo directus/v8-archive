@@ -2,6 +2,10 @@
 
 namespace Directus\Services;
 
+use function Directus\get_directus_path;
+use function Directus\get_api_project_from_request;
+use function Directus\get_url;
+use Directus\Util\DateTimeUtils;
 use Directus\Authentication\Exception\ExpiredRequestTokenException;
 use Directus\Authentication\Exception\InvalidRequestTokenException;
 use Directus\Authentication\Exception\InvalidTokenException;
@@ -10,33 +14,40 @@ use Directus\Authentication\Exception\ExpiredResetPasswordToken;
 use Directus\Authentication\Exception\InvalidResetPasswordTokenException;
 use Directus\Authentication\Exception\UserNotFoundException;
 use Directus\Authentication\Exception\UserWithEmailNotFoundException;
+use Directus\Authentication\Exception\TFAEnforcedException;
 use Directus\Authentication\Sso\OneSocialProvider;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Sso\Social;
 use Directus\Authentication\Sso\TwoSocialProvider;
 use Directus\Authentication\User\UserInterface;
+use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\DirectusActivityTableGateway;
+use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
 use Directus\Exception\UnauthorizedException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Util\ArrayUtils;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
+use Zend\Db\Sql\Update;
 
 class AuthService extends AbstractService
 {
+    const AUTH_VALIDATION_ERROR_CODE = 114;
+
     /**
      * Gets the user token using the authentication email/password combination
      *
      * @param string $email
      * @param string $password
+     * @param string $otp
      *
      * @return array
      *
      * @throws UnauthorizedException
      */
-    public function loginWithCredentials($email, $password)
+    public function loginWithCredentials($email, $password, $otp = null, $mode = null)
     {
-        $this->validateCredentials($email, $password);
+        $this->validateCredentials($email, $password, $otp);
 
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
@@ -44,7 +55,8 @@ class AuthService extends AbstractService
         /** @var UserInterface $user */
         $user = $auth->login([
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'otp' => $otp
         ]);
 
         $hookEmitter = $this->container->get('hook_emitter');
@@ -55,11 +67,59 @@ class AuthService extends AbstractService
         $activityTableGateway = $this->createTableGateway('directus_activity', false);
         $activityTableGateway->recordLogin($user->get('id'));
 
-        return [
-            'data' => [
-                'token' => $this->generateAuthToken($user)
-            ]
-        ];
+        /** @var UsersService $usersService */
+        $usersService = new UsersService($this->container);
+        $tfa_enforced = $usersService->has2FAEnforced($user->getId());
+
+        switch ($mode) {
+            case DirectusUserSessionsTableGateway::TOKEN_COOKIE:
+                $user = $this->findOrCreateStaticToken($user);
+                $responseData['user'] = $user;
+                break;
+            case DirectusUserSessionsTableGateway::TOKEN_JWT:
+            default:
+                $token = $this->generateAuthToken($user);
+                $user = $user->toArray();
+                $responseData = [
+                    'token' => $token,
+                    'user' => $user
+                ];
+        }
+        $responseObject['data'] = $responseData;
+
+        if (!is_null($user)) {
+            $needs2FA = $tfa_enforced && $user['2fa_secret'] == null;
+            if ($needs2FA) {
+                $responseObject['error'] = [
+                    'code' => TFAEnforcedException::ERROR_CODE,
+                    'message' => TFAEnforcedException::ERROR_MESSAGE
+                ];
+            }
+        }
+        return $responseObject;
+    }
+
+    /**
+     * @param array $user
+     *
+     * @return array
+     *
+     */
+    public function findOrCreateStaticToken(&$user)
+    {
+        $user = $user->toArray();
+        if (empty($user['token'])) {
+            $token = StringUtils::randomString(24, false);
+            $userTable = $this->createTableGateway(SchemaManager::COLLECTION_USERS, false);
+            $Update = new Update(SchemaManager::COLLECTION_USERS);
+            $Update->set(['token' => $token]);
+            $Update->where([
+                'id' => $user['id']
+            ]);
+            $userTable->updateWith($Update);
+            $user['token'] = $token;
+        }
+        return $user;
     }
 
     /**
@@ -158,7 +218,7 @@ class AuthService extends AbstractService
         );
     }
 
-    public function handleAuthenticationRequestCallback($name, $generateRequestToken = false)
+    public function handleAuthenticationRequestCallback($name, $generateRequestToken = false, $mode = null)
     {
         /** @var Social $socialAuth */
         $socialAuth = $this->container->get('external_auth');
@@ -168,16 +228,23 @@ class AuthService extends AbstractService
         $serviceUser = $service->handle();
 
         $user = $this->authenticateWithEmail($serviceUser->getEmail());
-        if ($generateRequestToken) {
-            $token = $this->generateRequestToken($user);
-        } else {
-            $token = $this->generateAuthToken($user);
+
+        switch ($mode) {
+            case DirectusUserSessionsTableGateway::TOKEN_COOKIE:
+                $user = $this->findOrCreateStaticToken($user);
+                $responseData['user'] = $user;
+                break;
+            case DirectusUserSessionsTableGateway::TOKEN_JWT:
+            default:
+                $token = $generateRequestToken ? $this->generateRequestToken($user) : $this->generateAuthToken($user);
+                $responseData = [
+                    'token' => $token,
+                    'user' => $user->toArray()
+                ];
         }
 
         return [
-            'data' => [
-                'token' => $token
-            ]
+            'data' => $responseData
         ];
     }
 
@@ -326,13 +393,21 @@ class AuthService extends AbstractService
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
         $user = $auth->findUserWithEmail($email);
-
         $resetToken = $auth->generateResetPasswordToken($user);
 
-        \Directus\send_forgot_password_email($user->toArray(), $resetToken);
+        // Storing the reset_token into password_reset_token to validate it.
+        $userProvider = $auth->getUserProvider();
+        $userProvider->update($user, [
+            'password_reset_token' => $resetToken,
+        ]);
+        // Sending the project key in the query param makes sure the app will use the correct project
+        // to send the new password to
+        $resetUrl = get_url() . 'admin/#/reset-password?token=' . $resetToken . '&project=' . get_api_project_from_request();
+
+        \Directus\send_forgot_password_email($user->toArray(), $resetUrl);
     }
 
-    public function resetPasswordWithToken($token)
+    public function resetPasswordWithToken($token, $newPassword)
     {
         if (!JWTUtils::isJWT($token)) {
             throw new InvalidResetPasswordTokenException($token);
@@ -345,6 +420,7 @@ class AuthService extends AbstractService
         $payload = JWTUtils::getPayload($token);
 
         if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_RESET_PASSWORD, $payload)) {
+
             throw new InvalidResetPasswordTokenException($token);
         }
 
@@ -363,12 +439,14 @@ class AuthService extends AbstractService
             throw new InvalidResetPasswordTokenException($token);
         }
 
-        $newPassword = StringUtils::randomString(16);
+        if ($user->password_reset_token == null || $user->password_reset_token != $token) {
+            throw new ExpiredResetPasswordToken($token);
+        }
+
         $userProvider->update($user, [
+            'password_reset_token' => null,
             'password' => $auth->hashPassword($newPassword)
         ]);
-
-        \Directus\send_reset_password_email($user->toArray(), $newPassword);
     }
 
     public function refreshToken($token)
@@ -382,29 +460,46 @@ class AuthService extends AbstractService
         /** @var Provider $auth */
         $auth = $this->container->get('auth');
 
-        return ['data' => ['token' => $auth->refreshToken($token)]];
+        $payload = JWTUtils::getPayload($token);
+        $userProvider = $auth->getUserProvider();
+        $user = $userProvider->find($payload->id);
+
+        /** @var UsersService $usersService */
+        $usersService = new UsersService($this->container);
+
+        $tfa_enforced = $usersService->has2FAEnforced($user->getId());
+
+        if ($tfa_enforced && $user->get2FASecret() == null) {
+            $new_token = $auth->refreshToken($token, true);
+        } else {
+            $new_token = $auth->refreshToken($token);
+        }
+
+        return ['data' => ['token' => $new_token]];
     }
 
     /**
-     * Validates email+password credentials
+     * Validates email+password+otp credentials
      *
      * @param $email
      * @param $password
+     * @param $otp
      *
      * @throws UnprocessableEntityException
      */
-    protected function validateCredentials($email, $password)
+    protected function validateCredentials($email, $password, $otp)
     {
         $payload = [
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'otp' => $otp
         ];
         $constraints = [
             'email' => 'required|string|email',
-            'password' => 'required|string'
+            'password' => 'required|string',
         ];
 
         // throws an exception if the constraints are not met
-        $this->validate($payload, $constraints);
+        $this->validate($payload, $constraints, self::AUTH_VALIDATION_ERROR_CODE);
     }
 }

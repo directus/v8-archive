@@ -3,6 +3,7 @@ Icon
 *.log
 .cache
 .vscode
+.ddev
 
 # Ignore dev files
 /.idea
@@ -23,9 +24,7 @@ deploy.*
 
 # Ignore configuration files
 /config/*
-!/config/migrations.php
-!/config/migrations.upgrades.php
-!/config/api_sample.php
+!/config/_example.php
 
 # PHPUnit
 /phpunit.xml
@@ -67,3 +66,6 @@ deploy.*
 #See https://github.com/slimphp/Slim/issues/1829
 #php -S localhost:8000 cliserver.php
 public/cliserver.php
+
+# Cache generated while filesystem adapter
+/cache/*

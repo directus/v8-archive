@@ -2,9 +2,10 @@
 
 namespace Directus\Filesystem;
 
+use Char0n\FFMpegPHP\Movie;
 use Directus\Application\Application;
 use function Directus\filename_put_ext;
-use function Directus\generate_uuid5;
+use function Directus\generate_uuid4;
 use function Directus\is_a_url;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
@@ -71,10 +72,22 @@ class Files
 
     public function delete($file)
     {
-        if ($this->exists($file['filename'])) {
+        if ($this->exists($file['filename_disk'])) {
             $this->emitter->run('file.delete', [$file]);
-            $this->filesystem->getAdapter()->delete($file['filename']);
+            $this->filesystem->getAdapter()->delete($file['filename_disk']);
             $this->emitter->run('file.delete:after', [$file]);
+        }
+    }
+    public function deleteThumb($file)
+    {
+        $ignoreableFiles = ['.DS_Store', '..', '.'];
+        $scannedDirectory = array_values(array_diff(scandir($this->filesystem->getPath()), $ignoreableFiles));
+
+        foreach ($scannedDirectory as $directory) {
+            $fileName = $directory . '/' . $file['filename_disk'];
+            if ($this->exists($fileName)) {
+                $this->filesystem->getAdapter()->delete($fileName);
+            }
         }
     }
 
@@ -164,6 +177,23 @@ class Files
     }
 
     /**
+     * Check strpos in array
+     *
+     * @param string $haystack - The string to search in.
+     * @param array $needle - Array to search from string
+     *
+     * @return boolean
+     */
+    function strposarray($haystack, $needle)
+    {
+        if (!is_array($needle)) $needle = array($needle);
+        foreach ($needle as $query) {
+            if (strpos($haystack, $query) !== false) return true;
+        }
+        return false;
+    }
+
+    /**
      * Get Image from URL
      *
      * @param $url
@@ -193,8 +223,8 @@ class Files
         }
 
         $contentType = $this->getMimeTypeFromContentType($contentType);
-
-        if (strpos($contentType, 'image/') === false) {
+        $comparableContentType = ['image/', 'pdf'];
+        if (!$this->strposarray($contentType, $comparableContentType)) {
             return $info;
         }
 
@@ -248,11 +278,14 @@ class Files
     /**
      * Copy base64 data into Directus Media
      *
-     * @param string $fileData - base64 data
+     * @param string $fileData - base64 data or directus_files object
      * @param string $fileName - name of the file
      * @param bool $replace
      *
      * @return array
+     *
+     * @todo Refactor this to be clearer what's going on. $fileData can be anything,
+     *       all kinds of things are happening, and nothing is documented
      */
     public function saveData($fileData, $fileName, $replace = false)
     {
@@ -272,39 +305,76 @@ class Files
         }
         // @TODO: merge with upload()
         $fileName = $this->getFileName($fileName, $replace !== true);
-
         $filePath = $this->getConfig('root') . '/' . $fileName;
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+        $event = $replace ? 'file.update' : 'file.save';
+        $this->emitter->run($event, ['name' => $fileName, 'size' => $size]);
 
+        // On name change, the file would be overwritten with the empty file data.
+        // This prevents you can't update a file to a zero-byte file.
+        if (!empty($fileData)) {
+            $this->write($fileName, $fileData, $replace);
+        }
 
+        $this->emitter->run($event . ':after', ['name' => $fileName, 'size' => $size]);
 
-        $this->emitter->run('file.save', ['name' => $fileName, 'size' => $size]);
-        $this->write($fileName, $fileData, $replace);
-        $this->emitter->run('file.save:after', ['name' => $fileName, 'size' => $size]);
+        #open local tmp file since s3 bucket is private
+        if (isset($fileData->file)) {
+            $handle = fopen($fileData->file, 'rb');
+            $tmp = tempnam(sys_get_temp_dir(), $fileName);
+            file_put_contents($tmp, $handle);
+        }
 
         unset($fileData);
 
         $fileData = $this->getFileInfo($fileName);
         $fileData['title'] = Formatting::fileNameToFileTitle($title);
-        $fileData['filename'] = basename($filePath);
+        $fileData['filename_disk'] = basename($filePath);
         $fileData['storage'] = $this->config['adapter'];
 
         $fileData = array_merge($this->defaults, $fileData);
 
-        return [
-            // The MIME type will be based on its extension, rather than its content
-            'type' => MimeTypeUtils::getFromFilename($fileData['filename']),
-            'filename' => $fileData['filename'],
-            'title' => $fileData['title'],
+        # Updates for file meta data tags
+        if (strpos($fileData['type'], 'video') !== false) {
+            #use ffprobe on local file, can't stream data to it or reference
+            $output = shell_exec("ffprobe {$tmp} -show_entries format=duration:stream=height,width -v quiet -of json");
+            #echo($output);
+            $media = json_decode($output);
+            $width = $media->streams[0]->width;
+            $height = $media->streams[0]->height;
+            $duration = $media->format->duration;   #seconds
+
+        } elseif (strpos($fileData['type'], 'audio') !== false) {
+            $output = shell_exec("ffprobe {$tmp} -show_entries format=duration -v quiet -of json");
+            $media = json_decode($output);
+            $duration = $media->format->duration;
+        }
+        if (isset($handle)) {
+            fclose($handle);
+        }
+        unset($tmpData);
+
+        $response = [
+            // The MIME type will be based on its extension, rather than its extension
+            'type' => MimeTypeUtils::getFromFilename($fileData['filename_disk']),
+            'filename_disk' => $fileData['filename_disk'],
             'tags' => $fileData['tags'],
             'description' => $fileData['description'],
             'location' => $fileData['location'],
             'charset' => $fileData['charset'],
             'filesize' => $fileData['size'],
-            'width' => $fileData['width'],
-            'height' => $fileData['height'],
+            'width' => isset($width) ? $width : $fileData['width'],
+            'height' => isset($height) ? $height : $fileData['height'],
             'storage' => $fileData['storage'],
             'checksum' => $checksum,
+            'duration' => isset($duration) ? $duration : 0
         ];
+
+        if (!$replace) {
+            $response['title'] = $fileData['title'];
+        }
+
+        return $response;
     }
 
     /**
@@ -320,13 +390,13 @@ class Files
             return [];
         }
 
-        $fileName = isset($fileInfo['filename']) ? $fileInfo['filename'] : md5(time()) . '.jpg';
-        $thumbnailData = $this->saveData($fileInfo['data'], $fileName);
+        $fileName = isset($fileInfo['filename_disk']) ? $fileInfo['filename_disk'] : md5(time()) . '.jpg';
+        $thumbnailData = $this->saveData($fileInfo['data'], $fileName, $fileInfo['fileId']);
 
         return array_merge(
             $fileInfo,
             ArrayUtils::pick($thumbnailData, [
-                'filename',
+                'filename_disk',
             ])
         );
     }
@@ -355,6 +425,7 @@ class Files
 
     public function getFileInfoFromPath($path)
     {
+
         $mime = $this->filesystem->getAdapter()->getMimetype($path);
 
         $typeTokens = explode('/', $mime);
@@ -630,16 +701,14 @@ class Files
      */
     private function getFileName($fileName, $unique = true)
     {
-        switch ($this->getSettings('file_naming')) {
-            case 'uuid':
-                $fileName = $this->uuidFileName($fileName);
-                break;
-        }
-
         if ($unique) {
+            switch ($this->getSettings('file_naming')) {
+                case 'uuid':
+                    $fileName = $this->uuidFileName($fileName);
+                    break;
+            }
             $fileName = $this->uniqueName($fileName, $this->filesystem->getPath());
         }
-
         return $fileName;
     }
 
@@ -653,7 +722,7 @@ class Files
     private function uuidFileName($fileName)
     {
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-        $fileHashName = generate_uuid5(null, $fileName);
+        $fileHashName = generate_uuid4();
 
         return $fileHashName . '.' . $ext;
     }
@@ -678,22 +747,22 @@ class Files
     }
     /**
      * Get a file size and type info from base64 data , URL ,multipart form data
-     * 
+     *
      * @param string $data
      *
      * @return array file size and type
      */
     public function getFileSizeType($data)
     {
-        $result=[];
+        $result = [];
         if (is_a_url($data)) {
             $dataInfo = $this->getLink($data);
             $result['mimeType'] = isset($dataInfo['type']) ? $dataInfo['type'] : null;
             $result['size'] = isset($dataInfo['filesize']) ? $dataInfo['filesize'] : (isset($dataInfo['size']) ? $dataInfo['size'] : null);
-        }else if(is_object($data)) {
-            $result['mimeType']=$data->getClientMediaType();
-            $result['size']=$data->getSize();
-        }else if(strpos($data, 'data:') === 0){
+        } else if (is_object($data)) {
+            $result['mimeType'] = $data->getClientMediaType();
+            $result['size'] = $data->getSize();
+        } else if (strpos($data, 'data:') === 0) {
             $parts = explode(',', $data);
             $file = $parts[1];
             $dataInfo = $this->getFileInfoFromData(base64_decode($file));

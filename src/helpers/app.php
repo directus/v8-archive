@@ -13,18 +13,19 @@ use Directus\Config\Config;
 use Directus\Config\Context;
 use Directus\Config\Schema\Schema;
 use Directus\Config\Exception\UnknownProjectException;
-use Directus\Config\Exception\InvalidProjectException;
 use Directus\Exception\Exception;
 use Directus\Exception\UnauthorizedException;
+use Directus\Util\Installation\InstallerUtils;
+use Directus\Util\StringUtils;
 use Slim\Http\Body;
 
-if (!function_exists('create_app'))  {
+if (!function_exists('create_app')) {
     /**
-     * Creates an api application
+     * Creates an api application.
      *
      * @param string $basePath
-     * @param array $config
-     * @param array $values
+     * @param array  $config
+     * @param array  $values
      *
      * @return \Directus\Application\Application
      */
@@ -40,7 +41,7 @@ if (!function_exists('create_app'))  {
 
 if (!function_exists('create_app_with_project_name')) {
     /**
-     * Creates an api application with the given environment
+     * Creates an api application with the given environment.
      *
      * @param $basePath
      * @param $name
@@ -58,7 +59,7 @@ if (!function_exists('create_app_with_project_name')) {
 
 if (!function_exists('get_project_config')) {
     /**
-     * Returns the configuration for a given project
+     * Returns the configuration for a given project.
      *
      * @param string|null $name
      * @param string|null $basePath
@@ -67,7 +68,7 @@ if (!function_exists('get_project_config')) {
      *
      * @throws Exception
      */
-    function get_project_config($name = null, $basePath = null)
+    function get_project_config($name, $basePath = null)
     {
         static $configs = [];
 
@@ -75,13 +76,7 @@ if (!function_exists('get_project_config')) {
             $basePath = get_app_base_path();
         }
 
-        $configPath = $basePath . '/config';
-
-        if (!empty($name) && $name !== '_') {
-            $configFilePath = sprintf('%s/api.%s.php', $configPath, $name);
-        } else {
-            $configFilePath = $configPath . '/api.php';
-        }
+        $configFilePath = InstallerUtils::createConfigPath($basePath, $name);
 
         if (isset($configs[$configFilePath])) {
             return $configs[$configFilePath];
@@ -90,11 +85,8 @@ if (!function_exists('get_project_config')) {
         $config = [];
         $schema = Schema::get();
 
-        if (getenv("DIRECTUS_USE_ENV") === "1") {
-            if ($name !== "_") {
-                throw new InvalidProjectException();
-            }
-            $configFilePath = "__env__";
+        if (Context::is_env()) {
+            $configFilePath = '__env__';
             $configData = $schema->value(Context::from_env());
         } else {
             if (!file_exists($configFilePath)) {
@@ -112,7 +104,7 @@ if (!function_exists('get_project_config')) {
 
 if (!function_exists('get_app_base_path')) {
     /**
-     * Returns the application base path
+     * Returns the application base path.
      *
      * @return string
      */
@@ -124,9 +116,36 @@ if (!function_exists('get_app_base_path')) {
     }
 }
 
+if (!function_exists('scan_folder')) {
+    /**
+     * Scan folder and return the php files (Project Configurations).
+     *
+     * @return string
+     */
+    function scan_folder($folder)
+    {
+        $projectNames = [];
+        $ignoreableFiles = ['.DS_Store', '..', '.'];
+        $scannedDirectory = array_values(array_diff(scandir($folder), $ignoreableFiles));
+        if (!empty($scannedDirectory)) {
+            foreach ($scannedDirectory as $fileName) {
+                $fileObject = explode('.', $fileName);
+
+                if (end($fileObject) == 'php') {
+                    if (strlen($fileObject[0]) == 1 || StringUtils::startsWith($fileName, '_') === false) {
+                        $projectNames[] = implode('.', $fileObject);
+                    }
+                }
+            }
+        }
+
+        return $projectNames;
+    }
+}
+
 if (!function_exists('ping_route')) {
     /**
-     * Returns a ping route
+     * Returns a ping route.
      *
      * @param \Directus\Application\Application $app
      *
@@ -154,7 +173,7 @@ if (!function_exists('ping_route')) {
 
 if (!function_exists('create_ping_route')) {
     /**
-     * Create a new ping the server route
+     * Create a new ping the server route.
      *
      * @param Application $app
      *
@@ -162,7 +181,7 @@ if (!function_exists('create_ping_route')) {
      */
     function create_ping_route(Application $app)
     {
-        /**
+        /*
          * Ping the server
          */
         $app->get('/ping', ping_route($app))
@@ -175,7 +194,7 @@ if (!function_exists('create_ping_route')) {
 
 if (!function_exists('create_install_route')) {
     /**
-     * Create a new install route
+     * Create a new install route.
      *
      * @param Application $app
      *
@@ -191,11 +210,11 @@ if (!function_exists('create_install_route')) {
 
 if (!function_exists('create_ping_server')) {
     /**
-     * Creates a simple app
+     * Creates a simple app.
      *
      * @param string $basePath
-     * @param array $config
-     * @param array $values
+     * @param array  $config
+     * @param array  $values
      *
      * @return Application
      */
@@ -203,8 +222,8 @@ if (!function_exists('create_ping_server')) {
     {
         $app = create_app($basePath, array_merge([
             'app' => [
-                'env' => 'production'
-            ]
+                'env' => 'production',
+            ],
         ], $config), $values);
 
         $app->group('/server', function () {
@@ -217,11 +236,11 @@ if (!function_exists('create_ping_server')) {
 
 if (!function_exists('create_default_app')) {
     /**
-     * Creates a simple app
+     * Creates a simple app.
      *
      * @param string $basePath
-     * @param array $config
-     * @param array $values
+     * @param array  $config
+     * @param array  $values
      *
      * @return Application
      */
@@ -235,15 +254,15 @@ if (!function_exists('create_default_app')) {
 
         $app = create_app($basePath, array_merge([
             'app' => [
-                'env' => 'production'
-            ]
+                'env' => 'production',
+            ],
         ], $config), $values);
 
         $app->add(new CorsMiddleware($app->getContainer(), true));
 
-        $app->group('/server', function () {
-            create_ping_route($this);
-        });
+        $app->get('/', \Directus\Api\Routes\Home::class);
+        $app->group('/server', \Directus\Api\Routes\Server::class);
+
         create_install_route($app);
 
         return $app;
@@ -252,11 +271,11 @@ if (!function_exists('create_default_app')) {
 
 if (!function_exists('create_unknown_project_app')) {
     /**
-     * Creates a simple Application when the project name is unknown
+     * Creates a simple Application when the project name is unknown.
      *
      * @param string $basePath
-     * @param array $config
-     * @param array $values
+     * @param array  $config
+     * @param array  $values
      *
      * @return Application
      */
@@ -267,14 +286,14 @@ if (!function_exists('create_unknown_project_app')) {
                 return function () {
                     throw new UnauthorizedException('Unauthorized request');
                 };
-            }
+            },
         ]));
     }
 }
 
 if (!function_exists('ping_server')) {
     /**
-     * Ping the API Server
+     * Ping the API Server.
      *
      * @return bool
      */

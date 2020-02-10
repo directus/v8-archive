@@ -607,8 +607,8 @@ class TablesService extends AbstractService
         if (!$collection) {
             throw new CollectionNotFoundException($collectionName);
         }
-
         $field = $collection->getField($fieldName);
+
         if (!$field) {
             throw new FieldNotFoundException($fieldName);
         }
@@ -626,6 +626,7 @@ class TablesService extends AbstractService
 
         // $this->invalidateCacheTags(['tableColumnsSchema_'.$tableName, 'columnSchema_'.$tableName.'_'.$columnName]);
         $resultData = $this->addOrUpdateFieldInfo($collectionName, $fieldName, $data);
+
         // ----------------------------------------------------------------------------
 
         $hookEmitter->run('field.update', [$collectionName, $fieldName, $data]);
@@ -746,23 +747,35 @@ class TablesService extends AbstractService
             throw new UnprocessableEntityException('Cannot delete the last field');
         }
 
-        if (!$columnObject->isAlias()) {
+        if ($columnObject->isAlias() === false) {
             if (!$this->dropColumnSchema($collectionName, $fieldName)) {
                 throw new ErrorException('Error deleting the field');
             }
         }
 
-        if ($columnObject->hasRelationship()) {
-            $this->removeColumnRelationship($columnObject,$params);
+        if (
+            $columnObject->hasRelationship() &&
+            // Don't remove relational columns for native relationships (users / files)
+            DataTypes::isUsersType($columnObject->getType()) === false &&
+            DataTypes::isFilesType($columnObject->getType()) === false
+        ) {
+            $this->removeColumnRelationship($columnObject, $params);
         }
 
         if ($columnObject->isManaged()) {
             /**
              * Remove O2M field if M2O interface deleted as O2M will only work if M2O exist
              */
-            if($columnObject->isManyToOne()){
-              $this->removeRelatedColumnInfo($columnObject);
+
+            if (
+                $columnObject->isManyToOne() &&
+                // Don't remove relational columns for native relationships (users / files)
+                DataTypes::isUsersType($columnObject->getType()) === false &&
+                DataTypes::isFilesType($columnObject->getType()) === false
+            ) {
+                $this->removeRelatedColumnInfo($columnObject);
             }
+
             $this->removeColumnInfo($collectionName, $fieldName);
         }
     }
@@ -847,6 +860,7 @@ class TablesService extends AbstractService
             'collection' => $collection,
             'field' => $field,
         ]);
+
 
         // Get the Directus based on the source type
         if (ArrayUtils::get($data, 'type') === null) {
@@ -976,7 +990,7 @@ class TablesService extends AbstractService
         if (!empty($junctionEntries['data'])) {
             $tableGateway->delete($junctionConditions);
 
-            if(isset($params['delete_junction'])){
+            if (isset($params['delete_junction'])) {
                 $this->dropTable($relationship->getCollectionMany());
             }
 
@@ -984,7 +998,6 @@ class TablesService extends AbstractService
         } else {
             return $tableGateway->update($data, $conditions['values']);
         }
-
     }
 
     /**
@@ -1263,6 +1276,7 @@ class TablesService extends AbstractService
         $hookEmitter->run('collection.update:before', [$name, $data]);
 
         $toAdd = $toChange = $toDrop = [];
+
         foreach ($fields as $fieldData) {
             $field = $collection->getField($fieldData['field']);
 
@@ -1295,6 +1309,7 @@ class TablesService extends AbstractService
             }
         }
 
+
         $table = $schemaFactory->alterTable($name, [
             'add' => $toAdd,
             'change' => $toChange,
@@ -1302,7 +1317,12 @@ class TablesService extends AbstractService
         ]);
 
         $result = $schemaFactory->buildTable($table);
+
         $this->updateColumnsRelation($name, array_merge($toAdd, $toChange));
+
+        foreach ($fields as $fieldData) {
+            $schemaFactory->addNotNullConstraint($fieldData);
+        }
 
         $hookEmitter->run('collection.update', [$name, $data]);
         $hookEmitter->run('collection.update:after', [$name, $data]);

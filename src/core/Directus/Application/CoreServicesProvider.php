@@ -69,6 +69,8 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Slim\Views\Twig;
 use Zend\Db\TableGateway\TableGateway;
+use Directus\Api\Routes\Roles;
+use function Directus\get_random_string;
 
 class CoreServicesProvider
 {
@@ -94,6 +96,7 @@ class CoreServicesProvider
         $container['filesystem'] = $this->getFileSystem();
         $container['filesystem_thumb'] = $this->getThumbFilesystem();
         $container['files'] = $this->getFiles();
+        $container['files_thumb'] = $this->getThumbFiles();
         $container['mailer_transport'] = $this->getMailerTransportManager();
         $container['mailer'] = $this->getMailer();
         $container['mail_view'] = $this->getMailView();
@@ -124,8 +127,8 @@ class CoreServicesProvider
             // TODO: Move log configuration outside "slim app" settings
             $path = $container->get('path_base') . '/logs';
             $config = $container->get('config');
-            if ($config->has('settings.logger.path')) {
-                $path = $config->get('settings.logger.path');
+            if ($config->has('logger.path')) {
+                $path = $config->get('logger.path');
             }
 
             $pathIsStream = $path == 'php://stdout' || $path == 'php://stderr';
@@ -183,7 +186,7 @@ class CoreServicesProvider
             $hookEmitter = $container['hook_emitter'];
 
             return new ErrorHandler($hookEmitter, [
-                'env' => $container->get('config')->get('app.env', 'development')
+                'env' => $container->get('config')->get('env', 'development')
             ]);
         };
 
@@ -211,15 +214,6 @@ class CoreServicesProvider
             };
             foreach (['item.create:after', 'item.delete:after', 'item.update:after', 'collection.update:after', 'collection.delete:after'] as $action) {
                 $emitter->addAction($action, $cacheTableTagInvalidator);
-            }
-
-            $cacheEntityTagInvalidator = function ($tableName, $ids) use ($cachePool) {
-                foreach ($ids as $id) {
-                    $cachePool->invalidateTags(['entity_' . $tableName . '_' . $id]);
-                }
-            };
-            foreach (['item.delete:after', 'item.update:after'] as $action) {
-                $emitter->addAction($action, $cacheEntityTagInvalidator);
             }
 
             $emitter->addAction('item.update.directus_permissions:after', function ($data) use ($container, $cachePool) {
@@ -299,66 +293,8 @@ class CoreServicesProvider
 
                 return $payload;
             }, Emitter::P_HIGH);
-            $savesFile = function (Payload $payload, $replace = false) use ($container) {
-                $collectionName = $payload->attribute('collection_name');
-                if ($collectionName !== SchemaManager::COLLECTION_FILES) {
-                    return;
-                }
 
-                if ($replace === true && !$payload->has('data')) {
-                    return;
-                }
-
-                // NOTE: "data" should be ignore if it isn't a string on update
-                if ($replace === true && !is_string($payload->get('data'))) {
-                    $payload->remove('data');
-                    return;
-                }
-
-                $data = $payload->getData();
-
-                /** @var \Directus\Filesystem\Files $files */
-                $files = $container->get('files');
-
-                $fileData = ArrayUtils::get($data, 'data');
-
-                $dataInfo = [];
-                if (is_a_url($fileData)) {
-                    $dataInfo = $files->getLink($fileData);
-                    // Set the URL payload data
-                    $payload['data'] = ArrayUtils::get($dataInfo, 'data');
-                    $payload['filename'] = ArrayUtils::get($dataInfo, 'filename');
-                } else if(!is_object($fileData)) {
-                    $dataInfo = $files->getDataInfo($fileData);
-                }
-
-                $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
-
-                if (strpos($type, 'embed/') === 0) {
-                    $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename'])));
-                } else {
-                    $recordData = $files->saveData($payload['data'], $payload['filename'], $replace);
-                }
-
-                // NOTE: Use the user input title, tags, description and location when exists.
-                $recordData = ArrayUtils::defaults($recordData, ArrayUtils::pick($data, [
-                    'title',
-                    'tags',
-                    'description',
-                    'location',
-                ]));
-
-                $payload->replace($recordData);
-                $payload->remove('data');
-                $payload->remove('html');
-                if (!$replace) {
-                    /** @var Acl $auth */
-                    $acl = $container->get('acl');
-                    $payload->set('uploaded_by', $acl->getUserId());
-                    $payload->set('uploaded_on', DateTimeUtils::now()->toString());
-                }
-            };
-            $emitter->addFilter('item.update:before', function (Payload $payload) use ($container, $savesFile) {
+            $emitter->addFilter('item.update:before', function (Payload $payload) use ($container) {
                 $collection = SchemaService::getCollection($payload->attribute('collection_name'));
 
                 /** @var Acl $acl */
@@ -376,22 +312,20 @@ class CoreServicesProvider
                     $payload->remove('date_uploaded');
                 }
 
-                $savesFile($payload, true);
-
                 return $payload;
             }, Emitter::P_HIGH);
-            $emitter->addFilter('item.create:before', function (Payload $payload) use ($savesFile) {
-                $savesFile($payload, false);
 
-                return $payload;
-            });
             $addFilesUrl = function ($rows) {
                 return \Directus\append_storage_information($rows);
             };
             $emitter->addFilter('item.read.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
-                if (!in_array('filename', $columns)) {
-                    $columns[] = 'filename';
+                if (!in_array('filename_disk', $columns)) {
+                    $columns[] = 'filename_disk';
+                    $payload->set('columns', $columns);
+                }
+                if (!in_array('filename_download', $columns)) {
+                    $columns[] = 'filename_download';
                     $payload->set('columns', $columns);
                 }
                 return $payload;
@@ -555,7 +489,6 @@ class CoreServicesProvider
             $emitter->addFilter('item.read.directus_files', function (Payload $payload) use ($addFilesUrl, $container) {
 
                 $rows = $addFilesUrl($payload->getData());
-
                 $payload->replace($rows);
 
                 return $payload;
@@ -684,63 +617,58 @@ class CoreServicesProvider
 
             $emitter->addFilter('item.create:before', $onInsertOrUpdate);
             $emitter->addFilter('item.update:before', $onInsertOrUpdate);
-            $preventUsePublicGroup = function (Payload $payload) use ($container) {
-                $data = $payload->getData();
-                if (!ArrayUtils::has($data, 'role')) {
-                    return $payload;
-                }
 
-                $roleId = ArrayUtils::get($data, 'role');
-                if (is_array($roleId)) {
-                    $roleId = ArrayUtils::get($roleId, 'id');
-                }
-
-                if (!$roleId) {
-                    return $payload;
-                }
-
-                $zendDb = $container->get('database');
+            $beforeSavingFiles = function ($payload) use ($container) {
                 $acl = $container->get('acl');
-                $tableGateway = new BaseTableGateway(SchemaManager::COLLECTION_ROLES, $zendDb, $acl);
-                $row = $tableGateway->select(['id' => $roleId])->current();
-                if (strtolower($row->name) === 'public') {
-                    throw new ForbiddenException('Users cannot be added into the public group');
+                if (!$acl->canCreate('directus_files')) {
+                    throw new ForbiddenException('You are not allowed to upload files');
                 }
 
                 return $payload;
             };
-            $emitter->addFilter('item.create.directus_user_roles:before', $preventUsePublicGroup);
-            $emitter->addFilter('item.update.directus_user_roles:before', $preventUsePublicGroup);
-            $beforeSavingFiles = function ($payload) use ($container) {
+            $beforeUpdatingFiles = function ($payload) use ($container) {
                 $acl = $container->get('acl');
                 if (!$acl->canUpdate('directus_files')) {
-                    throw new ForbiddenException('You are not allowed to upload, edit or delete files');
+                    throw new ForbiddenException('You are not allowed to edit files');
+                }
+
+                return $payload;
+            };
+            $beforeDeletingFiles = function ($payload) use ($container) {
+                $acl = $container->get('acl');
+                if (!$acl->canDelete('directus_files')) {
+                    throw new ForbiddenException('You are not allowed to delete files');
                 }
 
                 return $payload;
             };
             $emitter->addAction('file.save', $beforeSavingFiles);
+            $emitter->addAction('file.update', $beforeUpdatingFiles);
             // TODO: Make insert actions and filters
             $emitter->addFilter('item.create.directus_files:before', $beforeSavingFiles);
-            $emitter->addFilter('item.update.directus_files:before', $beforeSavingFiles);
-            $emitter->addFilter('item.delete.directus_files:before', $beforeSavingFiles);
+            $emitter->addFilter('item.update.directus_files:before', $beforeUpdatingFiles);
+            $emitter->addFilter('item.delete.directus_files:before', $beforeDeletingFiles);
 
             $emitter->addAction('auth.request:credentials', function () use ($container) {
                 /** @var Session $session */
                 $session = $container->get('session');
-                if ($session->getStorage()->get('telemetry') === true) {
-                    return;
+                $useTelemetry =  get_directus_setting('telemetry', true);
+
+                if ($useTelemetry) {
+                    if ($session->getStorage()->get('telemetry') === true) {
+                        return;
+                    }
+
+                    $data = [
+                        'version' => Application::DIRECTUS_VERSION,
+                        'url' => get_url(),
+                        'type' => 'api'
+                    ];
+                    \Directus\request_send_json('POST', 'https://telemetry.directus.io/count', $data);
+
+                    // NOTE: this only works when the client sends subsequent request with the same cookie
+                    $session->getStorage()->set('telemetry', true);
                 }
-
-                $data = [
-                    'version' => Application::DIRECTUS_VERSION,
-                    'url' => get_url(),
-                    'type' => 'api'
-                ];
-                \Directus\request_send_json('POST', 'https://telemetry.directus.io/count', $data);
-
-                // NOTE: this only works when the client sends subsequent request with the same cookie
-                $session->getStorage()->set('telemetry', true);
             });
 
             return $emitter;
@@ -861,7 +789,7 @@ class CoreServicesProvider
 
                     $socialAuth->register($providerName, new $class($container, array_merge([
                         'custom' => $custom,
-                        'callback_url' => \Directus\get_url('/_/auth/sso/' . $providerName . '/callback')
+                        'callback_url' => \Directus\get_url('/' . get_api_project_from_request() . '/auth/sso/' . $providerName . '/callback')
                     ], $providerConfig)));
                 }
             }
@@ -918,14 +846,17 @@ class CoreServicesProvider
                 $poolConfig = ['adapter' => 'void'];
             }
 
+            $pool = new VoidCachePool();
+
+            if (!$config->get('cache.enabled'))
+                return $pool;
+
             if (is_object($poolConfig) && $poolConfig instanceof PhpCachePool) {
                 $pool = $poolConfig;
             } else {
-                if (!in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'memcache', 'redis', 'void'])) {
+                if (!in_array($poolConfig['adapter'], ['apc', 'apcu', 'array', 'filesystem', 'memcached', 'memcache', 'redis', 'rediscluster', 'void'])) {
                     throw new InvalidCacheAdapterException();
                 }
-
-                $pool = new VoidCachePool();
 
                 $adapter = $poolConfig['adapter'];
 
@@ -990,7 +921,7 @@ class CoreServicesProvider
                     $pool = $adapter == 'memcached' ? new MemcachedCachePool($client) : new MemcacheCachePool($client);
                 }
 
-                if ($adapter == 'redis') {
+                if ($adapter == 'redis' || $adapter == 'rediscluster') {
 
                     if (!extension_loaded('redis')) {
                         throw new InvalidCacheConfigurationException($adapter);
@@ -999,13 +930,21 @@ class CoreServicesProvider
                     $host = (isset($poolConfig['host'])) ? $poolConfig['host'] : 'localhost';
                     $port = (isset($poolConfig['port'])) ? $poolConfig['port'] : 6379;
                     $socket = (isset($poolConfig['socket'])) ? $poolConfig['socket'] : null;
+                    $auth = (isset($poolConfig['auth'])) ? $poolConfig['auth'] : null;
 
-                    $client = new \Redis();
-
-                    if ($socket) {
-                        $client->connect($socket);
+                    if ($adapter == 'rediscluster') {
+                        $client = new \RedisCluster(NULL, ["$host:$port"]);
                     } else {
-                        $client->connect($host, $port);
+                        $client = new \Redis();
+                        if ($socket) {
+                            $client->connect($socket);
+                        } else {
+                            $client->connect($host, $port);
+                        }
+                    }
+
+                    if ($auth) {
+                        $client->auth($auth);
                     }
 
                     $pool = new RedisCachePool($client);
@@ -1231,6 +1170,29 @@ class CoreServicesProvider
             $filesSettings = get_directus_files_settings();
 
             $filesystem = $container->get('filesystem');
+            $config = $container->get('config');
+            $config = $config->get('storage', []);
+            $emitter = $container->get('hook_emitter');
+
+            return new Files(
+                $filesystem,
+                $config,
+                $filesSettings,
+                $emitter
+            );
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function getThumbFiles()
+    {
+        return function (Container $container) {
+            // Convert result into a key-value array
+            $filesSettings = get_directus_files_settings();
+
+            $filesystem = $container->get('filesystem_thumb');
             $config = $container->get('config');
             $config = $config->get('storage', []);
             $emitter = $container->get('hook_emitter');

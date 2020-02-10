@@ -15,7 +15,6 @@ class SchemaManager
 {
     // Tables
     const COLLECTION_ACTIVITY            = 'directus_activity';
-    const COLLECTION_ACTIVITY_SEEN       = 'directus_activity_seen';
     const COLLECTION_COLLECTIONS         = 'directus_collections';
     const COLLECTION_COLLECTION_PRESETS  = 'directus_collection_presets';
     const COLLECTION_FIELDS              = 'directus_fields';
@@ -27,8 +26,9 @@ class SchemaManager
     const COLLECTION_RELATIONS           = 'directus_relations';
     const COLLECTION_REVISIONS           = 'directus_revisions';
     const COLLECTION_SETTINGS            = 'directus_settings';
-    const COLLECTION_USER_ROLES          = 'directus_user_roles';
     const COLLECTION_USERS               = 'directus_users';
+    const COLLECTION_WEBHOOKS            = 'directus_webhooks';
+    const COLLECTION_USER_SESSIONS       = 'directus_user_sessions';
 
     /**
      * Schema source instance
@@ -492,7 +492,6 @@ class SchemaManager
     {
         return [
             static::COLLECTION_ACTIVITY,
-            static::COLLECTION_ACTIVITY_SEEN,
             static::COLLECTION_COLLECTIONS,
             static::COLLECTION_COLLECTION_PRESETS,
             static::COLLECTION_FIELDS,
@@ -504,8 +503,9 @@ class SchemaManager
             static::COLLECTION_RELATIONS,
             static::COLLECTION_REVISIONS,
             static::COLLECTION_SETTINGS,
-            static::COLLECTION_USER_ROLES,
-            static::COLLECTION_USERS
+            static::COLLECTION_USERS,
+            static::COLLECTION_WEBHOOKS,
+            static::COLLECTION_USER_SESSIONS
         ];
     }
 
@@ -789,7 +789,7 @@ class SchemaManager
         // save the column into the data
         // @NOTE: this is the early implementation of cache
         // soon this will be change to cache
-        $this->data['tables'][$name] = $schema;
+        $this->data['collections'][$name] = $schema;
     }
 
     protected function addField(Field $column)

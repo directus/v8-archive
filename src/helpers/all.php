@@ -8,9 +8,13 @@ use Directus\Exception\Exception;
 use Directus\Hook\Emitter;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
+use Directus\Database\TableGateway\DirectusUserSessionsTableGateway;
 use Directus\Util\Installation\InstallerUtils;
+use Directus\Services\WebhookService;
+use Directus\Database\TableGateway\BaseTableGateway;
 use Directus\Util\JWTUtils;
 use Directus\Util\StringUtils;
+use Directus\Services\UserSessionService;
 use Phinx\Db\Adapter\AdapterInterface;
 use RKA\Middleware\ProxyDetection;
 use Slim\Http\Cookies;
@@ -19,31 +23,34 @@ use Slim\Http\Headers;
 use Slim\Http\RequestBody;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
+use Directus\Authentication\Exception\InvalidTokenException;
 
-require __DIR__ . '/constants.php';
-require __DIR__ . '/app.php';
-require __DIR__ . '/arrays.php';
-require __DIR__ . '/bytes.php';
-require __DIR__ . '/cors.php';
-require __DIR__ . '/extensions.php';
-require __DIR__ . '/file.php';
-require __DIR__ . '/items.php';
-require __DIR__ . '/mail.php';
-require __DIR__ . '/regex.php';
-require __DIR__ . '/request.php';
-require __DIR__ . '/server.php';
-require __DIR__ . '/settings.php';
-require __DIR__ . '/sorting.php';
-require __DIR__ . '/url.php';
-require __DIR__ . '/uuid.php';
+const TOKEN_CIPHER_METHOD = 'aes-128-ctr';
+
+require __DIR__.'/constants.php';
+require __DIR__.'/app.php';
+require __DIR__.'/arrays.php';
+require __DIR__.'/bytes.php';
+require __DIR__.'/cors.php';
+require __DIR__.'/extensions.php';
+require __DIR__.'/file.php';
+require __DIR__.'/items.php';
+require __DIR__.'/mail.php';
+require __DIR__.'/regex.php';
+require __DIR__.'/request.php';
+require __DIR__.'/server.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/sorting.php';
+require __DIR__.'/url.php';
+require __DIR__.'/uuid.php';
 
 if (!function_exists('uc_convert')) {
     /**
-     * Converts a string to title
+     * Converts a string to title.
      *
-     * @param string $text The string to convert.
+     * @param string $text the string to convert
      *
-     * @return string Formatted string.
+     * @return string formatted string
      */
     function uc_convert($text)
     {
@@ -78,13 +85,13 @@ if (!function_exists('uc_convert')) {
             'Csv' => 'CSV',
             'Ios' => 'iOS',
             'Iso' => 'ISO',
-            'Rngr' => 'RNGR'
+            'Rngr' => 'RNGR',
         ];
 
         $searchPattern = array_keys($specialCaps);
         $replaceValues = array_values($specialCaps);
         foreach ($searchPattern as $key => $value) {
-            $searchPattern[$key] = ("/\b" . $value . "\b/");
+            $searchPattern[$key] = ("/\b".$value."\b/");
         }
 
         return preg_replace($searchPattern, $replaceValues, $phrase);
@@ -93,7 +100,7 @@ if (!function_exists('uc_convert')) {
 
 if (!function_exists('get_directus_path')) {
     /**
-     * Gets the Directus path (subdirectory based on the host)
+     * Gets the Directus path (subdirectory based on the host).
      *
      * @param string $subPath
      *
@@ -106,27 +113,27 @@ if (!function_exists('get_directus_path')) {
         $path = trim($path, '/');
         $subPath = ltrim($subPath, '/');
 
-        return (empty($path) ? '/' : sprintf('/%s/', $path)) . $subPath;
+        return (empty($path) ? '/' : sprintf('/%s/', $path)).$subPath;
     }
 }
 
 if (!function_exists('normalize_path')) {
     /**
-    * Normalize a filesystem path.
-    *
-    * On windows systems, replaces backslashes with forward slashes.
-    * Ensures that no duplicate slashes exist.
-    *
-    * from WordPress source code
-    *
-    * @param string $path Path to normalize.
-    *
-    * @return string Normalized path.
-    */
+     * Normalize a filesystem path.
+     *
+     * On windows systems, replaces backslashes with forward slashes.
+     * Ensures that no duplicate slashes exist.
+     *
+     * from WordPress source code
+     *
+     * @param string $path path to normalize
+     *
+     * @return string normalized path
+     */
     function normalize_path($path)
     {
         $path = str_replace('\\', '/', $path);
-        $path = preg_replace('|/+|','/', $path);
+        $path = preg_replace('|/+|', '/', $path);
 
         return $path;
     }
@@ -134,7 +141,7 @@ if (!function_exists('normalize_path')) {
 
 if (!function_exists('get_url')) {
     /**
-     * Get Directus URL
+     * Get Directus URL.
      *
      * @param $path - Extra path to add to the url
      *
@@ -142,13 +149,28 @@ if (!function_exists('get_url')) {
      */
     function get_url($path = '')
     {
-        return create_uri_from_global()->getBaseUrl() . '/' . ltrim($path, '/');
+        return create_uri_from_global()->getBaseUrl().'/'.ltrim($path, '/');
+    }
+}
+
+if (!function_exists('get_base_path')) {
+    /**
+     * Get Directus' base path.
+     *
+     * If Directus is running in a folder, this will return the names of the folder
+     * that Directus is running in, f.e. /directus/public/
+     *
+     * @return string
+     */
+    function get_base_path()
+    {
+        return create_uri_from_global()->getBasePath().'/';
     }
 }
 
 if (!function_exists('create_request_from_global')) {
     /**
-     * Create a Request object from global variables
+     * Create a Request object from global variables.
      *
      * @param array $options
      *
@@ -193,7 +215,7 @@ if (!function_exists('create_request_from_global')) {
 
 if (!function_exists('create_uri_from_global')) {
     /**
-     * Creates a uri object based on $_SERVER
+     * Creates a uri object based on $_SERVER.
      *
      * Snippet copied from Slim URI class
      *
@@ -214,7 +236,7 @@ if (!function_exists('create_uri_from_global')) {
 
 if (!function_exists('get_virtual_path')) {
     /**
-     * Gets the virtual request path
+     * Gets the virtual request path.
      *
      * @return string
      */
@@ -226,7 +248,7 @@ if (!function_exists('get_virtual_path')) {
 
 if (!function_exists('get_api_project_from_request')) {
     /**
-     * Gets the project name from the request uri
+     * Gets the project name from the request uri.
      *
      * @return string
      */
@@ -245,8 +267,20 @@ if (!function_exists('get_api_project_from_request')) {
                 'check_proxy' => false,
             ]);
 
-            $authToken = get_request_authorization_token($request);
-            if (JWTUtils::isJWT($authToken)) {
+            if ($request->hasHeader('Authorization')) {
+                $authorizationHeader = $request->getHeader('Authorization');
+
+                // If there's multiple Authorization header, pick first, ignore the rest
+                if (is_array($authorizationHeader)) {
+                    $authorizationHeader = array_shift($authorizationHeader);
+                }
+
+                if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
+                    $authToken = $matches[1];
+                }
+            }
+
+            if (isset($authToken)) {
                 $name = JWTUtils::getPayload($authToken, 'project');
             } else {
                 $name = get_request_project_name($request);
@@ -259,19 +293,25 @@ if (!function_exists('get_api_project_from_request')) {
 
 if (!function_exists('get_request_authorization_token')) {
     /**
-     * Returns the authorization token from a request object
+     * Returns the authorization token from a request object.
      *
      * @param Request $request
      *
-     * @return null|string
+     * @return string|null
      */
     function get_request_authorization_token(Request $request)
     {
-        $authToken = null;
+        $response = [];
 
         if ($request->getParam('access_token')) {
-            $authToken = $request->getParam('access_token');
-        } elseif ($request->hasHeader('Php-Auth-User')) {
+            $response['type'] = DirectusUserSessionsTableGateway::TOKEN_JWT;
+            $response['token'] = $request->getParam('access_token');
+
+            return $response;
+        }
+
+        if ($request->hasHeader('Php-Auth-User')) {
+            $response['type'] = DirectusUserSessionsTableGateway::TOKEN_JWT;
             $authUser = $request->getHeader('Php-Auth-User');
             $authPassword = $request->getHeader('Php-Auth-Pw');
 
@@ -284,9 +324,14 @@ if (!function_exists('get_request_authorization_token')) {
             }
 
             if ($authUser && (empty($authPassword) || $authUser === $authPassword)) {
-                $authToken = $authUser;
+                $response['token'] = $authUser;
             }
-        } elseif ($request->hasHeader('Authorization')) {
+
+            return $response;
+        }
+
+        if ($request->hasHeader('Authorization')) {
+            $response['type'] = DirectusUserSessionsTableGateway::TOKEN_JWT;
             $authorizationHeader = $request->getHeader('Authorization');
 
             // If there's multiple Authorization header, pick first, ignore the rest
@@ -295,28 +340,133 @@ if (!function_exists('get_request_authorization_token')) {
             }
 
             if (is_string($authorizationHeader) && preg_match("/Bearer\s+(.*)$/i", $authorizationHeader, $matches)) {
-                $authToken = $matches[1];
+                $response['token'] = $matches[1];
+
+                return $response;
+            }
+
+            // let it fallback to cookie checks if authorization is empty or invalid format
+        }
+
+        if ($request->hasHeader('Cookie')) {
+            $response['type'] = DirectusUserSessionsTableGateway::TOKEN_COOKIE;
+            $authorizationHeader = $request->getCookieParam(get_project_session_cookie_name($request));
+            $response['token'] = $authorizationHeader;
+
+            return $response;
+        }
+
+        return $response;
+    }
+}
+
+if (!function_exists('get_project_session_cookie_name')) {
+    /**
+     * Returns the session cookie name of current project.
+     *
+     * @param Request $request
+     *
+     * @return string|null
+     */
+    function get_project_session_cookie_name($request)
+    {
+        $projectName = get_api_project_from_request($request);
+
+        return 'directus-'.$projectName.'-session';
+    }
+}
+
+if (!function_exists('get_static_token_based_on_type')) {
+    /**
+     * Returns the static token of users table from a encrypted token of sessions table.
+     *
+     * @param Request $request
+     *
+     * @return string|null
+     */
+    function get_static_token_based_on_type($tokenObject)
+    {
+        $accessToken = null;
+        if (!empty($tokenObject['token'])) {
+            switch ($tokenObject['type']) {
+                case DirectusUserSessionsTableGateway::TOKEN_COOKIE:
+                    $container = Application::getInstance()->getContainer();
+                    $decryptedToken = decrypt_static_token($tokenObject['token']);
+                    $userSessionService = new UserSessionService($container);
+                    $userSession = $userSessionService->find(['token' => $decryptedToken]);
+                    if ($userSession) {
+                        $user = $container->get('auth')->getUserProvider()->find($userSession['user'])->toArray();
+                        $accessToken = $user['token'];
+                    } else {
+                        throw new InvalidTokenException();
+                    }
+                    break;
+                default:
+                    $accessToken = $tokenObject['token'];
+                    break;
             }
         }
 
-        return $authToken;
+        return $accessToken;
+    }
+}
+
+if (!function_exists('encrypt_static_token')) {
+    /**
+     * Returns the encrypted static token.
+     *
+     * @param Request $request
+     *
+     * @return string|null
+     */
+    function encrypt_static_token($token)
+    {
+        $app = Application::getInstance();
+        $config = $app->getConfig();
+        $secret = $config->get('auth.secret_key');
+        $enc_key = openssl_digest($secret, 'SHA256', true);
+        $enc_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length(TOKEN_CIPHER_METHOD));
+        $cryptedToken = openssl_encrypt($token, TOKEN_CIPHER_METHOD, $enc_key, 0, $enc_iv).'::'.bin2hex($enc_iv);
+
+        return $cryptedToken;
+    }
+}
+
+if (!function_exists('decrypt_static_token')) {
+    /**
+     * Returns the decrypted static token.
+     *
+     * @param Request $request
+     *
+     * @return string|null
+     */
+    function decrypt_static_token($token)
+    {
+        $app = Application::getInstance();
+        $config = $app->getConfig();
+        $secret = $config->get('auth.secret_key');
+        list($cryptedToken, $enc_iv) = explode('::', $token);
+        $enc_key = openssl_digest($secret, 'SHA256', true);
+        $token = openssl_decrypt($cryptedToken, TOKEN_CIPHER_METHOD, $enc_key, 0, hex2bin($enc_iv));
+
+        return $token;
     }
 }
 
 if (!function_exists('get_request_project_name')) {
     /**
-     * Returns the project name from a request object
+     * Returns the project name from a request object.
      *
      * @param Request $request
      *
-     * @return null|string
+     * @return string|null
      */
     function get_request_project_name(Request $request)
     {
         $name = null;
         if ($request->getQueryParam('project')) {
             $name = $request->getQueryParam('project');
-        } else if ($request->hasHeader('X-Directus-Project')) {
+        } elseif ($request->hasHeader('X-Directus-Project')) {
             $name = $request->getHeader('X-Directus-Project');
         }
 
@@ -326,10 +476,10 @@ if (!function_exists('get_request_project_name')) {
 
 if (!function_exists('create_config_path')) {
     /**
-     * Creates the configuration path for a project
+     * Creates the configuration path for a project.
      *
-     * @param string $basePath
-     * @param null|string $project
+     * @param string      $basePath
+     * @param string|null $project
      *
      * @return string
      */
@@ -341,20 +491,21 @@ if (!function_exists('create_config_path')) {
 
 if (!function_exists('create_maintenanceflag_path')) {
     /**
-     * Returns the path for the maintenance flag file
+     * Returns the path for the maintenance flag file.
      *
      * @param string $basePath
      *
      * @return string
      */
-    function create_maintenanceflag_path($basePath) {
-        return $basePath . '/logs/maintenance';
+    function create_maintenanceflag_path($basePath)
+    {
+        return $basePath.'/logs/maintenance';
     }
 }
 
 if (!function_exists('get_reserved_endpoint_names')) {
     /**
-     * Returns a list of reserved endpoint names
+     * Returns a list of reserved endpoint names.
      *
      * @return array
      */
@@ -363,17 +514,17 @@ if (!function_exists('get_reserved_endpoint_names')) {
         return [
             'server',
             'interfaces',
-            'pages',
+            'modules',
             'layouts',
             'types',
-            'projects'
+            'projects',
         ];
     }
 }
 
 if (!function_exists('get_file_info')) {
     /**
-     * Get info about a file, return extensive information about images (more to come)
+     * Get info about a file, return extensive information about images (more to come).
      *
      * @return array File info
      */
@@ -404,10 +555,10 @@ if (!function_exists('get_file_info')) {
 
 if (!function_exists('template')) {
     /**
-     * Renders a single line. Looks for {{ var }}
+     * Renders a single line. Looks for {{ var }}.
      *
      * @param string $string
-     * @param array $parameters
+     * @param array  $parameters
      *
      * @return string
      */
@@ -427,7 +578,9 @@ if (!function_exists('to_name_value')) {
         $data = [];
         foreach ($array as $name => $value) {
             $row = ['name' => $name, 'value' => $value];
-            if (isset($keys)) $row = array_merge($row, $keys);
+            if (isset($keys)) {
+                $row = array_merge($row, $keys);
+            }
             array_push($data, $row);
         }
 
@@ -439,7 +592,9 @@ if (!function_exists('find')) {
     function find($array, $key, $value)
     {
         foreach ($array as $item) {
-            if (isset($item[$key]) && ($item[$key] == $value)) return $item;
+            if (isset($item[$key]) && ($item[$key] == $value)) {
+                return $item;
+            }
         }
     }
 }
@@ -448,7 +603,7 @@ if (!function_exists('is_numeric_array')) {
     // http://stackoverflow.com/questions/902857/php-getting-array-type
     function is_numeric_array($array)
     {
-        return ($array == array_values($array));
+        return $array == array_values($array);
     }
 }
 
@@ -473,7 +628,7 @@ if (!function_exists('debug')) {
 
 if (!function_exists('register_global_hooks')) {
     /**
-     * Register all the hooks from the configuration file
+     * Register all the hooks from the configuration file.
      *
      * @param Application $app
      */
@@ -486,7 +641,7 @@ if (!function_exists('register_global_hooks')) {
 
 if (!function_exists('register_extensions_hooks')) {
     /**
-     * Register all extensions hooks
+     * Register all extensions hooks.
      *
      * @param Application $app
      */
@@ -499,7 +654,7 @@ if (!function_exists('register_extensions_hooks')) {
 
         register_hooks_list(
             $app,
-            get_custom_hooks('public/extensions/core/pages', true)
+            get_custom_hooks('public/extensions/core/modules', true)
         );
 
         register_hooks_list(
@@ -509,12 +664,44 @@ if (!function_exists('register_extensions_hooks')) {
     }
 }
 
-if (!function_exists('register_hooks_list')) {
+if (!function_exists('register_webhooks')) {
     /**
-     * Register an array of hooks (containing a list of actions and filters)
+     * Register all the hooks from the directus_webhooks table.
      *
      * @param Application $app
-     * @param array $hooksList
+     */
+    function register_webhooks(Application $app)
+    {
+        $app = Application::getInstance();
+        BaseTableGateway::setContainer($app->getContainer());
+        try {
+            $webhook = new WebhookService($app->getContainer());
+            $webhookData = $webhook->findAll(['status' => \Directus\Api\Routes\Webhook::STATUS_ACTIVE], false);
+            $result = [];
+            foreach ($webhookData['data'] as $hook) {
+                $action = explode(':', $hook['directus_action']);
+                $result['hooks']['actions'][$action[0].'.'.$hook['collection'].':'.$action[1]] = function ($data) use ($hook) {
+                    $client = new \GuzzleHttp\Client();
+                    $response = [];
+                    if ($hook['http_action'] == WebhookService::HTTP_ACTION_POST) {
+                        $response['json'] = ($data);
+                    }
+                    $client->request($hook['http_action'], $hook['url'], $response);
+                };
+            }
+            register_hooks_list($app, $result);
+        } catch (\Exception $e) {
+            return true;
+        }
+    }
+}
+
+if (!function_exists('register_hooks_list')) {
+    /**
+     * Register an array of hooks (containing a list of actions and filters).
+     *
+     * @param Application $app
+     * @param array       $hooksList
      */
     function register_hooks_list(Application $app, array $hooksList)
     {
@@ -527,11 +714,11 @@ if (!function_exists('register_hooks_list')) {
 
 if (!function_exists('register_hooks')) {
     /**
-     * Load one or multiple listeners
+     * Load one or multiple listeners.
      *
-     * @param Application $app
+     * @param Application    $app
      * @param array|\Closure $listeners
-     * @param bool $areFilters
+     * @param bool           $areFilters
      */
     function register_hooks(Application $app, $listeners, $areFilters = false)
     {
@@ -555,13 +742,13 @@ if (!function_exists('register_hooks')) {
 
 if (!function_exists('register_hook')) {
     /**
-     * Register a hook listeners
+     * Register a hook listeners.
      *
-     * @param Emitter $emitter
-     * @param string $name
+     * @param Emitter  $emitter
+     * @param string   $name
      * @param callable $listener
      * @param int|null $priority
-     * @param bool $areFilters
+     * @param bool     $areFilters
      */
     function register_hook(Emitter $emitter, $name, $listener, $priority = null, $areFilters = false)
     {
@@ -575,10 +762,10 @@ if (!function_exists('register_hook')) {
 
 if (!function_exists('register_action_hook')) {
     /**
-     * Register a hook action
+     * Register a hook action.
      *
-     * @param Emitter $emitter
-     * @param string $name
+     * @param Emitter  $emitter
+     * @param string   $name
      * @param callable $listener
      * @param int|null $priority
      */
@@ -590,12 +777,12 @@ if (!function_exists('register_action_hook')) {
 
 if (!function_exists('register_hook_filter')) {
     /**
-     * Register a hook action
+     * Register a hook action.
      *
      * @param \Directus\Hook\Emitter $emitter
-     * @param string $name
-     * @param callable $listener
-     * @param int|null $priority
+     * @param string                 $name
+     * @param callable               $listener
+     * @param int|null               $priority
      */
     function register_filter_hook(\Directus\Hook\Emitter $emitter, $name, $listener, $priority = null)
     {
@@ -605,7 +792,7 @@ if (!function_exists('register_hook_filter')) {
 
 if (!function_exists('get_default_timezone')) {
     /**
-     * Returns the default timezone
+     * Returns the default timezone.
      *
      * @param Application $app
      *
@@ -613,15 +800,7 @@ if (!function_exists('get_default_timezone')) {
      */
     function get_default_timezone(Application $app = null)
     {
-        if ($app == null) {
-            $app = Application::getInstance();
-        }
-
-        if (!$app || !($timezone = $app->getConfig()->get('app.timezone'))) {
-            $timezone = date_default_timezone_get();
-        }
-
-        return $timezone;
+        return date_default_timezone_get();
     }
 }
 
@@ -665,14 +844,14 @@ if (!function_exists('base_path')) {
     {
         $app = Application::getInstance();
 
-        $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__ . '/../../');
+        $path = $app ? $app->getContainer()->get('path_base') : realpath(__DIR__.'/../../');
 
         if (!is_string($suffix)) {
             throw new Exception('suffix must be a string');
         }
 
         if ($suffix) {
-            $path = rtrim($path, '/') . '/' . ltrim($suffix, '/');
+            $path = rtrim($path, '/').'/'.ltrim($suffix, '/');
         }
 
         return $path;
@@ -681,7 +860,7 @@ if (!function_exists('base_path')) {
 
 if (!function_exists('get_fake_timezones')) {
     /**
-     * Gets the list of fake timezone map to an real one
+     * Gets the list of fake timezone map to an real one.
      *
      * @return array
      */
@@ -709,14 +888,14 @@ if (!function_exists('get_fake_timezones')) {
             'Pacific/Marshall_Is' => 'Pacific/Fiji',
             'Asia/Solomon_Is' => 'Asia/Magadan',
             'Asia/New_Caledonia' => 'Asia/Magadan',
-            'Pacific/Wellington' => 'Pacific/Auckland'
+            'Pacific/Wellington' => 'Pacific/Auckland',
         ];
     }
 }
 
 if (!function_exists('get_real_timezone')) {
     /**
-     * Gets the real name of the timezone name
+     * Gets the real name of the timezone name.
      *
      * we have fake it until php makes it
      *
@@ -727,6 +906,7 @@ if (!function_exists('get_real_timezone')) {
     function get_real_timezone($name)
     {
         $fakes = get_fake_timezones();
+
         return isset($fakes[$name]) ? $fakes[$name] : $name;
     }
 }
@@ -1164,7 +1344,7 @@ if (!function_exists('get_country_list')) {
 
 if (!function_exists('find_directories')) {
     /**
-     * Gets directories inside the given path
+     * Gets directories inside the given path.
      *
      * @param $path
      *
@@ -1172,7 +1352,7 @@ if (!function_exists('find_directories')) {
      */
     function find_directories($path)
     {
-        return array_filter(glob(rtrim($path, '/') . '/*', GLOB_ONLYDIR), function ($path) {
+        return array_filter(glob(rtrim($path, '/').'/*', GLOB_ONLYDIR), function ($path) {
             $name = basename($path);
 
             return $name[0] !== '_';
@@ -1185,11 +1365,11 @@ if (!function_exists('find_files')) {
      * Find files inside $paths, directories and file name starting with "_" will be ignored.
      *
      *
-     * @param string $searchPaths
-     * @param int $flags
-     * @param string $pattern
-     * @param bool|int $includeSubDirectories
-     * @param callable - $ignore filter
+     * @param string     $searchPaths
+     * @param int        $flags
+     * @param string     $pattern
+     * @param bool|int   $includeSubDirectories
+     * @param callable - $ignore                filter
      *
      * @return array
      */
@@ -1208,15 +1388,15 @@ if (!function_exists('find_files')) {
         $filesPath = [];
         foreach ($searchPaths as $searchPath) {
             $searchPath = rtrim($searchPath, '/');
-            $result = array_filter(glob($searchPath . '/' . rtrim($pattern, '/'), $flags), $validPath);
+            $result = array_filter(glob($searchPath.'/'.rtrim($pattern, '/'), $flags), $validPath);
             $filesPath = array_merge($filesPath, $result);
 
-            if ($includeSubDirectories === true || (int)$includeSubDirectories > 0) {
+            if ($includeSubDirectories === true || (int) $includeSubDirectories > 0) {
                 if (is_numeric($includeSubDirectories)) {
-                    $includeSubDirectories--;
+                    --$includeSubDirectories;
                 }
 
-                foreach (glob($searchPath . '/*', GLOB_ONLYDIR) as $subDir) {
+                foreach (glob($searchPath.'/*', GLOB_ONLYDIR) as $subDir) {
                     if ($validPath($subDir)) {
                         $result = find_files($subDir, $flags, $pattern, $includeSubDirectories);
                         $filesPath = array_merge($filesPath, $result);
@@ -1231,9 +1411,9 @@ if (!function_exists('find_files')) {
 
 if (!function_exists('find_js_files')) {
     /**
-     * Find JS files in the given path
+     * Find JS files in the given path.
      *
-     * @param string $paths
+     * @param string   $paths
      * @param bool|int $includeSubDirectories
      *
      * @return array
@@ -1246,9 +1426,9 @@ if (!function_exists('find_js_files')) {
 
 if (!function_exists('find_json_files')) {
     /**
-     * Find JSON files in the given path
+     * Find JSON files in the given path.
      *
-     * @param string $paths
+     * @param string   $paths
      * @param bool|int $includeSubDirectories
      *
      * @return array
@@ -1261,9 +1441,9 @@ if (!function_exists('find_json_files')) {
 
 if (!function_exists('find_log_files')) {
     /**
-     * Find .log files in the given path
+     * Find .log files in the given path.
      *
-     * @param string $paths
+     * @param string   $paths
      * @param bool|int $includeSubDirectories
      *
      * @return array
@@ -1276,9 +1456,9 @@ if (!function_exists('find_log_files')) {
 
 if (!function_exists('find_php_files')) {
     /**
-     * Find PHP files in the given path
+     * Find PHP files in the given path.
      *
-     * @param string $paths
+     * @param string   $paths
      * @param bool|int $includeSubDirectories
      *
      * @return array
@@ -1291,9 +1471,9 @@ if (!function_exists('find_php_files')) {
 
 if (!function_exists('find_html_files')) {
     /**
-     * Find HTML files in the given path
+     * Find HTML files in the given path.
      *
-     * @param string $paths
+     * @param string   $paths
      * @param bool|int $includeSubDirectories
      *
      * @return array
@@ -1306,9 +1486,9 @@ if (!function_exists('find_html_files')) {
 
 if (!function_exists('find_twig_files')) {
     /**
-     * Find Twig files in the given path
+     * Find Twig files in the given path.
      *
-     * @param string $paths
+     * @param string   $paths
      * @param bool|int $includeSubDirectories
      *
      * @return array
@@ -1332,9 +1512,23 @@ if (!function_exists('get_request_ip')) {
     }
 }
 
+if (!function_exists('get_request_host')) {
+    function get_request_host()
+    {
+        /**
+         * Return localhost if the IP is from local env.
+         *
+         * @return string
+         */
+        $ip = get_request_ip();
+
+        return in_array($ip, ['127.0.0.1', '::1']) ? 'localhost' : $ip;
+    }
+}
+
 if (!function_exists('get_missing_requirements')) {
     /**
-     * Gets an array of errors message when there's a missing requirements
+     * Gets an array of errors message when there's a missing requirements.
      *
      * @return array
      */
@@ -1366,7 +1560,7 @@ if (!function_exists('get_missing_requirements')) {
             $errors[] = 'Your host needs to have cURL extension enabled to run this version of Directus!';
         }
 
-        if (!file_exists(base_path() . '/vendor/autoload.php')) {
+        if (!file_exists(base_path().'/vendor/autoload.php')) {
             $errors[] = 'Composer dependencies must be installed first.';
         }
 
@@ -1376,9 +1570,9 @@ if (!function_exists('get_missing_requirements')) {
 
 if (!function_exists('display_missing_requirements_html')) {
     /**
-     * Display an html error page
+     * Display an html error page.
      *
-     * @param array $errors
+     * @param array                             $errors
      * @param \Directus\Application\Application $app
      */
     function display_missing_requirements_html($errors, $app)
@@ -1386,7 +1580,7 @@ if (!function_exists('display_missing_requirements_html')) {
         $projectInfo = get_project_info();
 
         $data = array_merge($projectInfo, [
-            'errors' => $errors
+            'errors' => $errors,
         ]);
 
         $app->response()->header('Content-Type', 'text/html; charset=utf-8');
@@ -1396,10 +1590,10 @@ if (!function_exists('display_missing_requirements_html')) {
 
 if (!function_exists('define_constant')) {
     /**
-     * Define a constant if it does not exist
+     * Define a constant if it does not exist.
      *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return bool
      */
@@ -1418,10 +1612,10 @@ if (!function_exists('define_constant')) {
 
 if (!function_exists('get_columns_flat_at')) {
     /**
-     * Get all the columns name in the given level
+     * Get all the columns name in the given level.
      *
      * @param array $columns
-     * @param int $level
+     * @param int   $level
      *
      * @return array
      */
@@ -1443,23 +1637,23 @@ if (!function_exists('get_columns_flat_at')) {
 
 if (!function_exists('get_csv_flat_columns')) {
     /**
-     * Gets a CSV flat columns list from the given array
+     * Gets a CSV flat columns list from the given array.
      *
      * @param array $columns
-     * @param null $prefix
+     * @param null  $prefix
      *
      * @return string
      */
     function get_csv_flat_columns(array $columns, $prefix = null)
     {
         $flatColumns = [];
-        $prefix = $prefix === null ? '' : $prefix . '.';
+        $prefix = $prefix === null ? '' : $prefix.'.';
 
         foreach ($columns as $key => $value) {
             if (is_array($value)) {
-                $value = get_csv_flat_columns($value, $prefix . $key);
+                $value = get_csv_flat_columns($value, $prefix.$key);
             } else {
-                $value = $prefix . $key;
+                $value = $prefix.$key;
             }
 
             $flatColumns[] = $value;
@@ -1471,7 +1665,7 @@ if (!function_exists('get_csv_flat_columns')) {
 
 if (!function_exists('get_array_flat_columns')) {
     /**
-     * Gets an array flat columns list from the given array
+     * Gets an array flat columns list from the given array.
      *
      * @param $columns
      *
@@ -1490,7 +1684,7 @@ if (!function_exists('get_array_flat_columns')) {
 
 if (!function_exists('get_unflat_columns')) {
     /**
-     * Gets the unflat version of flat (dot-notated) column list
+     * Gets the unflat version of flat (dot-notated) column list.
      *
      * @param string|array $columns
      *
@@ -1519,13 +1713,13 @@ if (!function_exists('get_unflat_columns')) {
 
                     $child = get_unflat_columns($parts[1]);
                     if (isset($names[$parts[0]][key($child)])) {
-                        $childValue = array_merge($names[$parts[0]][key($child)], current($child));
+                        $childValue = array_merge_recursive($names[$parts[0]][key($child)], current($child));
                     } else {
                         $childValue = current($child);
                     }
 
                     $names[$parts[0]][key($child)] = $childValue;
-                };
+                }
             }
         }
 
@@ -1535,7 +1729,7 @@ if (!function_exists('get_unflat_columns')) {
 
 if (!function_exists('column_identifier_reverse')) {
     /**
-     * Reverse a dot notation column identifier
+     * Reverse a dot notation column identifier.
      *
      * Ex: posts.comments.author.email => email.author.comments.posts
      *
@@ -1557,7 +1751,7 @@ if (!function_exists('column_identifier_reverse')) {
 
 if (!function_exists('compact_sort_to_array')) {
     /**
-     * Converts compact sorting column to array
+     * Converts compact sorting column to array.
      *
      * Example: -<field> to [field => 'DESC']
      *
@@ -1580,7 +1774,7 @@ if (!function_exists('compact_sort_to_array')) {
         }
 
         return [
-            $field => $order
+            $field => $order,
         ];
     }
 }
@@ -1605,7 +1799,7 @@ if (!function_exists('convert_param_columns')) {
 
 if (!function_exists('is_valid_regex_pattern')) {
     /**
-     * Checks whether the given pattern is a valid regex
+     * Checks whether the given pattern is a valid regex.
      *
      * @param string $pattern
      *
@@ -1625,7 +1819,7 @@ if (!function_exists('is_valid_regex_pattern')) {
 
 if (!function_exists('is_custom_validation')) {
     /**
-     * Checks whether the given value is a custom validation
+     * Checks whether the given value is a custom validation.
      *
      * @param string $value
      *
@@ -1633,7 +1827,7 @@ if (!function_exists('is_custom_validation')) {
      */
     function is_custom_validation($value)
     {
-        return in_array(strtolower((string)$value), [
+        return in_array(strtolower((string) $value), [
             '$email',
         ]);
     }
@@ -1641,7 +1835,7 @@ if (!function_exists('is_custom_validation')) {
 
 if (!function_exists('get_custom_validation_name')) {
     /**
-     * Returns the custom validation constraint name
+     * Returns the custom validation constraint name.
      *
      * @param string $value
      *
@@ -1649,18 +1843,18 @@ if (!function_exists('get_custom_validation_name')) {
      */
     function get_custom_validation_name($value)
     {
-        return strtolower(substr((string)$value, 1));
+        return strtolower(substr((string) $value, 1));
     }
 }
 
 if (!function_exists('env')) {
     /**
-     * Returns an environment variable
+     * Returns an environment variable.
      *
      * @param string $key
-     * @param null $default
+     * @param null   $default
      *
-     * @return array|false|null|string
+     * @return array|false|string|null
      */
     function env($key, $default = null)
     {
@@ -1677,9 +1871,9 @@ if (!function_exists('env')) {
 if (!function_exists('phinx_update')) {
     /**
      * @param AdapterInterface $adapter
-     * @param string $table
-     * @param array $data
-     * @param array $conditions
+     * @param string           $table
+     * @param array            $data
+     * @param array            $conditions
      *
      * @return string
      */
@@ -1707,7 +1901,7 @@ if (!function_exists('phinx_update')) {
 
 if (!function_exists('is_valid_datetime')) {
     /**
-     * Checks if the given datetime string has the given datetime format
+     * Checks if the given datetime string has the given datetime format.
      *
      * @param string $value
      * @param string $format
@@ -1724,7 +1918,7 @@ if (!function_exists('is_valid_datetime')) {
 
 if (!function_exists('is_iso8601_datetime')) {
     /**
-     * Checks if the given datetime string is a ISO 8601 datetime format
+     * Checks if the given datetime string is a ISO 8601 datetime format.
      *
      * @param string $value
      *
@@ -1741,7 +1935,7 @@ if (!function_exists('is_iso8601_datetime')) {
 
 if (!function_exists('is_iso8601_format_one')) {
     /**
-     * Checks whether the given string is a iso format (1)
+     * Checks whether the given string is a iso format (1).
      *
      * Format: 2019-01-04T16:12:05+00:00
      *
@@ -1762,7 +1956,7 @@ if (!function_exists('is_iso8601_format_one')) {
 
 if (!function_exists('is_iso8601_format_two')) {
     /**
-     * Checks whether the given string is a iso format (2)
+     * Checks whether the given string is a iso format (2).
      *
      * Format: 2019-01-04T16:12:05Z
      *
@@ -1783,7 +1977,7 @@ if (!function_exists('is_iso8601_format_two')) {
 
 if (!function_exists('is_iso8601_format_three')) {
     /**
-     * Checks whether the given string is a iso format (3)
+     * Checks whether the given string is a iso format (3).
      *
      * Format: 20190104T161205Z
      *
@@ -1804,7 +1998,7 @@ if (!function_exists('is_iso8601_format_three')) {
 
 if (!function_exists('is_iso8601_format_four')) {
     /**
-     * Checks whether the given string is a iso format (4)
+     * Checks whether the given string is a iso format (4).
      *
      * Format: 2019-02-06T10:53:31-0500
      *
@@ -1825,11 +2019,11 @@ if (!function_exists('is_iso8601_format_four')) {
 
 if (!function_exists('get_iso8601_format')) {
     /**
-     * Returns the iso format based on the datetime value
+     * Returns the iso format based on the datetime value.
      *
      * @param string $value
      *
-     * @return null|string
+     * @return string|null
      */
     function get_iso8601_format($value)
     {
@@ -1841,11 +2035,11 @@ if (!function_exists('get_iso8601_format')) {
 
         if (is_iso8601_format_one($value)) {
             $format = DateTimeUtils::ISO8601_FORMAT_ONE;
-        } else if (is_iso8601_format_two($value)) {
+        } elseif (is_iso8601_format_two($value)) {
             $format = DateTimeUtils::ISO8601_FORMAT_TWO;
-        } else if (is_iso8601_format_three($value)) {
+        } elseif (is_iso8601_format_three($value)) {
             $format = DateTimeUtils::ISO8601_FORMAT_THREE;
-        } else if (is_iso8601_format_four($value)) {
+        } elseif (is_iso8601_format_four($value)) {
             $format = DateTimeUtils::ISO8601;
         }
 
@@ -1866,7 +2060,7 @@ if (!function_exists('normalize_exception')) {
         }
 
         $stack = [
-            sprintf("%s: %s in %s:%d\nStack trace:", get_class($e), $e->getMessage(), $e->getFile(), $e->getLine())
+            sprintf("%s: %s in %s:%d\nStack trace:", get_class($e), $e->getMessage(), $e->getFile(), $e->getLine()),
         ];
 
         // format: stack index - filename - line - call
@@ -1876,7 +2070,7 @@ if (!function_exists('normalize_exception')) {
             $line = isset($trace['line']) ? sprintf('(%s)', $trace['line']) : '';
 
             if (isset($trace['class'])) {
-                $call = $trace['class'] . $trace['type'] . $trace['function'];
+                $call = $trace['class'].$trace['type'].$trace['function'];
             } else {
                 $call = $trace['function'];
             }
@@ -1896,7 +2090,7 @@ if (!function_exists('normalize_exception')) {
 
 if (!function_exists('is_empty')) {
     /**
-     * Checks whether or not the value is empty|null
+     * Checks whether or not the value is empty|null.
      *
      * @param mixed $value
      *

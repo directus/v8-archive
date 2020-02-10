@@ -14,7 +14,7 @@ use Directus\Database\SchemaService;
 use Directus\Exception\ErrorException;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Permissions\Exception\ForbiddenCollectionReadException;
-use Directus\Permissions\Exception\ForbiddenFieldReadException;
+use Directus\Exception\ErrorCodes;
 use Directus\Permissions\Exception\PermissionException;
 use Directus\Permissions\Exception\UnableFindOwnerItemsException;
 use Directus\Util\ArrayUtils;
@@ -33,6 +33,7 @@ class RelationalTableGateway extends BaseTableGateway
     const ACTIVITY_ENTRY_MODE_PARENT = 1;
     const ACTIVITY_ENTRY_MODE_CHILD = 2;
 
+    protected $exceptionMessages = [];
     protected $toManyCallStack = [];
 
     /**
@@ -174,7 +175,8 @@ class RelationalTableGateway extends BaseTableGateway
             $column = $tableSchema->getField($key);
 
             // NOTE: Each interface or the API should handle the `alias` type
-            if ($column && $column->isOneToMany()) {
+            //Ignore all the alias fields except file interface > data
+            if ($column && (($column->isAlias() && $this->getTable() !== SchemaManager::COLLECTION_FILES)) || $column->isOneToMany()) {
                 continue;
             }
 
@@ -240,7 +242,7 @@ class RelationalTableGateway extends BaseTableGateway
             $deltaRecordData = $parentRecordWithoutAlias;
         } else {
             $deltaRecordData = array_intersect_key(
-                ArrayUtils::omit((array)$parentRecordWithoutAlias, $this->primaryKeyFieldName),
+                ArrayUtils::omit((array) $parentRecordWithoutAlias, $this->primaryKeyFieldName),
                 $fullRecordData
             );
         }
@@ -280,7 +282,7 @@ class RelationalTableGateway extends BaseTableGateway
                         ),
                         'action_by' => $currentUserId,
                         'action_on' => DateTimeUtils::nowInUTC()->toString(),
-                        'ip' => \Directus\get_request_ip(),
+                        'ip' => \Directus\get_request_host(),
                         'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                         'collection' => $tableName,
                         'parent_item' => isset($parentData['item']) ? $parentData['item'] : null,
@@ -321,7 +323,7 @@ class RelationalTableGateway extends BaseTableGateway
                             ),
                             'action_by' => $currentUserId,
                             'action_on' => DateTimeUtils::nowInUTC()->toString(),
-                            'ip' => \Directus\get_request_ip(),
+                            'ip' => \Directus\get_request_host(),
                             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
                             'collection' => $tableName,
                             'item' => $rowId,
@@ -400,7 +402,8 @@ class RelationalTableGateway extends BaseTableGateway
             $column = $tableSchema->getField($key);
 
             // NOTE: Each interface or the API should handle the `alias` type
-            if ($column && $column->isOneToMany()) {
+            //Ignore all the alias fields except file interface > data
+            if ($column && (($column->isAlias() && $this->getTable() !== SchemaManager::COLLECTION_FILES)) || ($column && $column->isOneToMany())) {
                 continue;
             }
 
@@ -518,7 +521,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $draftRecord = $TableGateway->addOrUpdateToManyRelationships($tableSchema, $draftRecord, $nestedLogEntries, $nestedCollectionRelationshipsChanged, $parentData);
         $deltaRecordData = array_intersect_key(
-            ArrayUtils::omit((array)$parentRecordWithoutAlias, $this->primaryKeyFieldName),
+            ArrayUtils::omit((array) $parentRecordWithoutAlias, $this->primaryKeyFieldName),
             $newRecordObject
         );
 
@@ -608,8 +611,8 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             // TODO: Remove the hardcode consition of file
-            if ($this->recordDataContainsNonPrimaryKeyData($foreignRow, $foreignTableSchema->getPrimaryKeyName()) && $field->getType() != "file" ) {
-                 // NOTE: using manageRecordUpdate instead of addOrUpdateRecordByArray to update related data
+            if ($this->recordDataContainsNonPrimaryKeyData($foreignRow, $foreignTableSchema->getPrimaryKeyName()) && $field->getType() != "file") {
+                // NOTE: using manageRecordUpdate instead of addOrUpdateRecordByArray to update related data
                 $foreignRow = $ForeignTable->manageRecordUpdate($foreignTableName, $foreignRow);
             }
 
@@ -656,6 +659,11 @@ class RelationalTableGateway extends BaseTableGateway
             $foreignTableName = $relationship->getCollectionMany();
             $foreignJoinColumn = $relationship->getFieldMany();
 
+            // we need to store all the deleted items ids
+            // so we can use it to compare against items that were deleted in previous iterations.
+            // if we don't check against already deleted IDs, then the recursion will re-create the deleted item.
+            static $hasBeenDeletedIds = [];
+
             $ForeignTable = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
             foreach ($foreignDataSet as &$foreignRecord) {
                 if (empty($foreignRecord)) {
@@ -667,10 +675,23 @@ class RelationalTableGateway extends BaseTableGateway
                 // due to our basic "cache" implementation on schema layer
                 $hasPrimaryKey = isset($foreignRecord[$ForeignTable->primaryKeyFieldName]);
 
+                // check if this foreignRecord was already deleted from a previous recursive iterations.
+                $foreignTableHasBeenDeletedIds = \Directus\array_get($hasBeenDeletedIds, $ForeignTable->getTable());
+                if ($hasPrimaryKey && !empty($foreignTableHasBeenDeletedIds)) {
+                    $id = $foreignRecord[$ForeignTable->primaryKeyFieldName];
+
+                    // skip if already deleted
+                    // otherwise, it will re-create the deleted item/record
+                    if (in_array($id, $foreignTableHasBeenDeletedIds))
+                        continue;
+                }
+
                 if ($hasPrimaryKey && ArrayUtils::get($foreignRecord, $this->deleteFlag) === true) {
                     $Where = new Where();
                     $Where->equalTo($ForeignTable->primaryKeyFieldName, $foreignRecord[$ForeignTable->primaryKeyFieldName]);
                     $ForeignTable->delete($Where);
+
+                    $hasBeenDeletedIds[$ForeignTable->getTable()][] = $foreignRecord[$ForeignTable->primaryKeyFieldName];
 
                     continue;
                 }
@@ -680,20 +701,6 @@ class RelationalTableGateway extends BaseTableGateway
                     $foreignRecord[$foreignJoinColumn] = $parentRow[$this->primaryKeyFieldName];
                 }
 
-                //To avoid duplicate entries for translation interface
-                if (strtolower($field->getType()) == DataTypes::TYPE_TRANSLATION && !$hasPrimaryKey) {
-                    $translationLanguageField = $field->getOptions('translationLanguageField');
-                    $translationRecordExistCondition = [
-                        $foreignJoinColumn => $foreignRecord[$foreignJoinColumn],
-                        $translationLanguageField => $foreignRecord[$translationLanguageField]
-                    ];
-                    $translationTableGateway = new RelationalTableGateway($foreignTableName, $this->adapter, $this->acl);
-                    $translationRecordExist = $translationTableGateway->getItems(['filter' => $translationRecordExistCondition]);
-                    if (!empty($translationRecordExist['data'])) {
-                        $translationRecordExist = array_shift($translationRecordExist['data']);
-                        $foreignRecord[$ForeignTable->primaryKeyFieldName] = $translationRecordExist[$ForeignTable->primaryKeyFieldName];
-                    }
-                }
 
                 $foreignRecord = $ForeignTable->manageRecordUpdate(
                     $foreignTableName,
@@ -721,7 +728,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         // Set default rows limit from db settings
         if ($defaultLimit) {
-            $defaultParams['limit'] = (int)$defaultLimit;
+            $defaultParams['limit'] = (int) $defaultLimit;
         }
 
         // Fetch only one if single param is set
@@ -757,6 +764,11 @@ class RelationalTableGateway extends BaseTableGateway
 
         if ($statusList) {
             $params['status'] = $statusList;
+        }
+
+        // If page is defined as param then add offset dynamically.
+        if (!isset($params['offset']) && isset($params['page']) && isset($params['limit'])) {
+            $params['offset'] = $params['limit'] * ($params['page'] - 1);
         }
 
         $params = array_merge($defaultParams, $params);
@@ -908,6 +920,10 @@ class RelationalTableGateway extends BaseTableGateway
 
         $result['data'] = $data;
 
+        if(!empty($this->exceptionMessages)){
+            $result['messages'] = $this->exceptionMessages;
+        }
+
         return $result;
     }
 
@@ -982,7 +998,7 @@ class RelationalTableGateway extends BaseTableGateway
             $condition = new In($fieldName, $this->getNonSoftDeleteStatuses());
         }
         $countedData['total_count'] = $this->countTotal($condition);
-        
+
         if (in_array('total_count', $list)) {
             $metadata['total_count'] = $this->countTotal($condition);
         }
@@ -993,7 +1009,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         if (in_array('filter_count', $list) || in_array('page', $list)) {
-            $metadata = $this->createMetadataPagination($metadata, $_GET,$countedData);
+            $metadata = $this->createMetadataPagination($metadata, $this::$container->get('request')->getQueryParams(), $countedData);
         }
 
         return $metadata;
@@ -1009,7 +1025,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     public function createMetadataPagination(array $metadata = [], array $params = [], array $countedData = [])
     {
-        if (empty($params)) $params = $_GET;
+        if (empty($params)) $params = $this::$container->get('request')->getQueryParams();
 
         $filtered = ArrayUtils::get($params, 'filter') || ArrayUtils::get($params, 'q');
 
@@ -1022,10 +1038,11 @@ class RelationalTableGateway extends BaseTableGateway
         $pathname = explode('?', ArrayUtils::get($_SERVER, 'REQUEST_URI'));
         $url = trim(\Directus\get_url(), '/') . reset($pathname);
 
-        $meta_param=explode(',',$params['meta']);
-        if((in_array('filter_count',$meta_param) || in_array('*',$meta_param))) {
+        $meta_param = explode(',', ArrayUtils::get($params, 'meta', ''));
+
+        if ((in_array('filter_count', $meta_param) || in_array('*', $meta_param))) {
             $metadata['filter_count'] = $countedData['total_count'];
-        } 
+        }
 
         if ($filtered) {
             $filteredparams = array_merge($params, [
@@ -1036,11 +1053,11 @@ class RelationalTableGateway extends BaseTableGateway
 
             $entries = $this->fetchItems($filteredparams);
             $total = count($entries);
-            if(in_array('filter_count',$meta_param) || in_array('*',$meta_param)){
+            if (in_array('filter_count', $meta_param) || in_array('*', $meta_param)) {
                 $metadata['filter_count'] = $total;
             }
         }
-        
+
         $limit = $limit < 1 ? $rows : $limit;
         $pages = $total ? ceil($total / $limit) : 1;
         $page = $page > $pages ? $pages : ($page && $offset >= 0 ? (floor($offset / $limit) + 1) : $page);
@@ -1054,8 +1071,8 @@ class RelationalTableGateway extends BaseTableGateway
             $last = ($pages < 2) ? null : (($pages - 1) * $limit);
         }
 
-        
-        if(in_array('page',$meta_param) || in_array('*',$meta_param)) {
+
+        if (in_array('page', $meta_param) || in_array('*', $meta_param)) {
             $metadata = array_merge($metadata, [
                 "limit" => $limit,
                 "offset" => $offset,
@@ -1093,12 +1110,14 @@ class RelationalTableGateway extends BaseTableGateway
         $params = $this->applyDefaultEntriesSelectParams($params);
         $fields = ArrayUtils::get($params, 'fields');
 
+
         // TODO: Check for all collections + fields permission/existence before querying
         // TODO: Create a new TableGateway Query Builder based on Query\Builder
         $builder = new Builder($this->getAdapter());
         $builder->from($this->getTable());
 
         $selectedFields = $this->getSelectedNonAliasFields($fields ?: ['*']);
+
         if (!in_array($collectionObject->getPrimaryKeyName(), $selectedFields)) {
             array_unshift($selectedFields, $collectionObject->getPrimaryKeyName());
         }
@@ -1108,9 +1127,15 @@ class RelationalTableGateway extends BaseTableGateway
             array_unshift($selectedFields, $statusField->getName());
         }
 
-        // NOTE: Make sure to have the `type` field for files to determine if the supports thumbnails
-        if ($this->table == SchemaManager::COLLECTION_FILES && !in_array('type', $selectedFields)) {
-            $selectedFields[] = 'type';
+        if ($this->table == SchemaManager::COLLECTION_FILES) {
+            // NOTE: Make sure to have the `type` field for files to determine if the supports thumbnails
+            if (!in_array('type', $selectedFields)) {
+                $selectedFields[] = 'type';
+            }
+            // NOTE: Make sure to have the `private_hash` field for files to display in URLs
+            if (!in_array('private_hash', $selectedFields)) {
+                $selectedFields[] = 'private_hash';
+            }
         }
 
         $builder->columns($selectedFields);
@@ -1185,11 +1210,15 @@ class RelationalTableGateway extends BaseTableGateway
                 'lang' => ArrayUtils::get($params, 'lang')
             ];
 
-            $results = $this->loadRelationalData(
+            $resultArray = $this->loadRelationalData(
                 $results,
                 \Directus\get_array_flat_columns($relatedFields),
                 $relationalParams
             );
+
+            if (!empty($resultArray)) {
+                $results = $resultArray;
+            }
         }
 
         // When the params column list doesn't include the primary key
@@ -1212,12 +1241,13 @@ class RelationalTableGateway extends BaseTableGateway
             foreach ($results as $index => &$item) {
                 $statusId = ArrayUtils::get($item, $statusField->getName());
                 $blacklist = $this->acl->getReadFieldBlacklist($this->table, $statusId);
+
                 $item = ArrayUtils::omit($item, $blacklist);
+
                 if (empty($item)) {
                     unset($results[$index]);
                 }
             }
-
             $results = array_values($results);
         }
 
@@ -1296,7 +1326,7 @@ class RelationalTableGateway extends BaseTableGateway
             'logical' => $logical
         ];
     }
-    
+
     protected function parseDotFilters(Builder $mainQuery, array $filters)
     {
         foreach ($filters as $column => $condition) {
@@ -1534,7 +1564,7 @@ class RelationalTableGateway extends BaseTableGateway
                     return trim($item);
                 }, explode(',', $value));
             } else if ($operator == 'has') {
-                $value = (int)$value;
+                $value = (int) $value;
             }
 
             $primaryKey = $this->getTableSchema($table)->getPrimaryField()->getName();
@@ -1601,7 +1631,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         return in_array($operator, $operators) && empty($value) && !is_numeric($value);
     }
-    
+
     /**
      * Process single relation field filter
      *
@@ -1609,9 +1639,10 @@ class RelationalTableGateway extends BaseTableGateway
      * @param string $column
      * @param array | string $condition
      *
-     * @return 
+     * @return
      */
-    protected function processRelationalFilter(Builder $mainQuery, $column, $condition){
+    protected function processRelationalFilter(Builder $mainQuery, $column, $condition)
+    {
         $columnList = $filterColumns = explode('.', $column);
         $columnsTable = [
             $this->getTable()
@@ -1750,7 +1781,7 @@ class RelationalTableGateway extends BaseTableGateway
             $mainTable
         );
     }
-    
+
     /**
      * Process Select Filters (Where conditions)
      *
@@ -1764,19 +1795,21 @@ class RelationalTableGateway extends BaseTableGateway
             //Logic for blacklisted fields
             $field = explode('.', $column);
             $field = array_shift($field);
-            $fieldReadBlackListDetails = $this->acl->getStatusesOnReadFieldBlacklist($this->getTable(), $field);
-            if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
-                throw new Exception\ForbiddenFieldAccessException($field);
-            } else if (isset($fieldReadBlackListDetails['statuses']) && !empty($fieldReadBlackListDetails['statuses'])) {
-                $blackListStatuses = array_merge($blackListStatuses, array_values($fieldReadBlackListDetails['statuses']));
+            if ($this->acl) {
+                $fieldReadBlackListDetails = $this->acl->getStatusesOnReadFieldBlacklist($this->getTable(), $field);
+                if (isset($fieldReadBlackListDetails['isReadBlackList']) && $fieldReadBlackListDetails['isReadBlackList']) {
+                    throw new Exception\ForbiddenFieldAccessException($field);
+                } else if (isset($fieldReadBlackListDetails['statuses']) && !empty($fieldReadBlackListDetails['statuses'])) {
+                    $blackListStatuses = array_merge($blackListStatuses, array_values($fieldReadBlackListDetails['statuses']));
+                }
             }
-            
-            if (!(!is_string($column) || strpos($column, '.') === false)){
+
+            if (!(!is_string($column) || strpos($column, '.') === false)) {
                 //Process relational & non relation field filters sequentially
                 //Earlier, all the relation field filters were processing first and then non relation fields, due to that logical operators were not working in mix filters
                 //Reference #1149
                 $this->processRelationalFilter($query, $column, $conditions);
-            }else{
+            } else {
                 if ($conditions instanceof Filter) {
                     $column =  $conditions->getIdentifier();
                     $conditions = $conditions->getValue();
@@ -1863,19 +1896,36 @@ class RelationalTableGateway extends BaseTableGateway
                     $relatedRightColumn = $relationship->getFieldMany();
                     $relatedTableColumns = SchemaService::getAllCollectionFields($relatedTable);
 
-                    $query->from($table);
-                    // TODO: Test here it may be not setting the proper primary key name
-                    // TODO: Only make this condition if it actually have conditions in the sub query
-                    $query->orWhereRelational($this->primaryKeyFieldName, $relatedTable, null, $relatedRightColumn, function (Builder $query) use ($column, $relatedTable, $relatedTableColumns, $search) {
-                        foreach ($relatedTableColumns as $column) {
+                    //Condition for table related to same table with O2M, to avoid right join of same tables
+                    if ($relatedTable == $table) {
+                        $relatedQuery = new Builder($this->getAdapter());
+                        $relatedQuery->columns([$relatedRightColumn]);
+                        $relatedQuery->from($relatedTable);
+
+                        foreach ($relatedTableColumns as $relatedColumn) {
                             // NOTE: Only search numeric or string type columns
-                            $isNumeric = $this->getSchemaManager()->getSource()->isNumericType($column->getType());
-                            $isString = $this->getSchemaManager()->getSource()->isStringType($column->getType());
-                            if (!$column->isAlias() && ($isNumeric || $isString)) {
-                                $query->orWhereLike($column->getName(), $search, false);
+                            $isNumeric = $this->getSchemaManager()->isFieldNumericType($relatedColumn);
+                            $isString = $this->getSchemaManager()->isFieldStringType($relatedColumn);
+                            if (!$relatedColumn->isAlias() && ($isNumeric || $isString)) {
+                                $relatedQuery->orWhereLike($relatedColumn->getName(), $search, false);
                             }
                         }
-                    });
+                        $query->orWhereIn($this->primaryKeyFieldName, $relatedQuery);
+                    } else {
+                        $query->from($table);
+                        // TODO: Test here it may be not setting the proper primary key name
+                        // TODO: Only make this condition if it actually have conditions in the sub query
+                        $query->orWhereRelational($this->primaryKeyFieldName, $relatedTable, null, $relatedRightColumn, function (Builder $query) use ($column, $relatedTable, $relatedTableColumns, $search) {
+                            foreach ($relatedTableColumns as $relatedColumn) {
+                                // NOTE: Only search numeric or string type columns
+                                $isNumeric = $this->getSchemaManager()->isFieldNumericType($relatedColumn);
+                                $isString = $this->getSchemaManager()->isFieldStringType($relatedColumn);
+                                if (!$relatedColumn->isAlias() && ($isNumeric || $isString)) {
+                                    $query->orWhereLike($relatedColumn->getName(), $search, false);
+                                }
+                            }
+                        });
+                    }
                 } else if (!$column->isAlias()) {
                     $query->orWhereLike($column->getName(), $search);
                 }
@@ -1920,7 +1970,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     protected function processLimit(Builder $query, $limit)
     {
-        $query->limit((int)$limit);
+        $query->limit((int) $limit);
     }
 
     /**
@@ -1931,7 +1981,7 @@ class RelationalTableGateway extends BaseTableGateway
      */
     protected function processOffset(Builder $query, $offset)
     {
-        $query->offset((int)$offset);
+        $query->offset((int) $offset);
     }
 
     /**
@@ -2026,13 +2076,21 @@ class RelationalTableGateway extends BaseTableGateway
     {
         $columnsTree = \Directus\get_unflat_columns($columns);
         $visibleColumns = $this->getTableSchema()->getFields(array_keys($columnsTree));
+
         foreach ($visibleColumns as $alias) {
-            if (!DataTypes::isO2MType($alias->getType())) {
+            if (!$alias->hasRelationship() || !DataTypes::isO2MType($alias->getType())) {
                 continue;
             }
 
             $relatedTableName = $alias->getRelationship()->getCollectionMany();
+
             if ($this->acl && !$this->acl->canReadOnce($relatedTableName)) {
+                $this->exceptionMessages[] = [
+                    'type' => 'warning',
+                    'message' => "Can't read `" . $relatedTableName . "`: read access to `" . $relatedTableName . "` collection denied",
+                    'code' => ErrorCodes::WARNING_ACCESS_DENIED,
+                    'fields' => [$alias->getName()],
+                ];
                 continue;
             }
 
@@ -2046,10 +2104,14 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
+            $filterFields = [];
+
             // Only select the fields not on the currently authenticated user group's read field blacklist
             $relationalColumnName = $alias->getRelationship()->getFieldMany();
             $tableGateway = new RelationalTableGateway($relatedTableName, $this->adapter, $this->acl);
-            $filterFields = \Directus\get_array_flat_columns($columnsTree[$alias->getName()]);
+            if (!empty($columnsTree[$alias->getName()])) {
+                $filterFields = \Directus\get_array_flat_columns($columnsTree[$alias->getName()]);
+            }
             $filters = [];
 
             if (ArrayUtils::get($params, 'lang') && DataTypes::isTranslationsType($alias->getType())) {
@@ -2067,7 +2129,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $results = $tableGateway->fetchItems(array_merge([
-                'fields' => array_merge([$relationalColumnName], $filterFields),
+                'fields' => !empty($filterFields)  ? array_merge([$relationalColumnName], $filterFields) : [$relationalColumnName],
                 // Fetch all related data
                 'limit' => -1,
                 'filter' => array_merge($filters, [
@@ -2076,7 +2138,9 @@ class RelationalTableGateway extends BaseTableGateway
             ], $params));
 
             $relatedEntries = [];
-            $selectedFields = $tableGateway->getSelectedFields($filterFields);
+            if (!empty($filterFields)) {
+                $selectedFields = $tableGateway->getSelectedFields($filterFields);
+            }
 
             foreach ($results as $row) {
                 // Quick fix
@@ -2143,13 +2207,21 @@ class RelationalTableGateway extends BaseTableGateway
             if ($this->acl && !$this->acl->canReadOnce($relatedTable)) {
                 $tableGateway = new RelationalTableGateway($relatedTable, $this->adapter, null);
                 $primaryKeyName = $tableGateway->primaryKeyFieldName;
-
                 foreach ($entries as $i => $entry) {
-                    $entries[$i][$column->getName()] = [
-                        $primaryKeyName => $entry[$column->getName()]
-                    ];
+                    if (isset($entry[$column->getName()])) {
+
+                        $entries[$i][$column->getName()] = [
+                            $primaryKeyName => $entry[$column->getName()]
+                        ];
+                    }
                 }
 
+                $this->exceptionMessages[] = [
+                    'type' => 'warning',
+                    'message' => "Can't read `" . $relatedTable . "`: read access to `" . $relatedTable . "` collection denied",
+                    'code' => ErrorCodes::WARNING_ACCESS_DENIED,
+                    'fields' => [$column->getName()],
+                ];
                 continue;
             }
 
@@ -2220,21 +2292,30 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             // Replace foreign keys with foreign rows
-            foreach ($entries as &$parentRow) {
+            foreach ($entries as $key => &$parentRow) {
                 if (array_key_exists($relationalColumnName, $parentRow)) {
                     // @NOTE: Not always will be a integer
                     // @NOTE: But what about UUIDS and slugs?
-                    $foreign_id = (string)$parentRow[$relationalColumnName];
+                    $foreign_id = (string) $parentRow[$relationalColumnName];
                     $parentRow[$relationalColumnName] = null;
+
+                    // if the foreign_key is empty, then there's nothing more to do
+                    if (empty($foreign_id))
+                        continue;
+
                     // "Did we retrieve the foreign row with this foreign ID in our recent query of the foreign table"?
                     if (array_key_exists($foreign_id, $relatedEntries)) {
                         $parentRow[$relationalColumnName] = $relatedEntries[$foreign_id];
+                    } else {
+                        // when foreign_id is not empty but there's no $relatedEntries,
+                        // then it means it was soft-deleted.
+                        $parentRow[$relationalColumnName] = null;
                     }
                 }
             }
         }
 
-        return $entries;
+        return array_values($entries);
     }
 
     /**
@@ -2266,6 +2347,7 @@ class RelationalTableGateway extends BaseTableGateway
     public function getSelectedNonAliasFields(array $fields)
     {
         $nonAliasFields = SchemaService::getAllNonAliasCollectionFieldsName($this->getTableSchema()->getName());
+
         $allFields = $this->replaceWildcardFieldWith(
             $fields,
             $nonAliasFields
@@ -2422,7 +2504,7 @@ class RelationalTableGateway extends BaseTableGateway
         $results = $statement->execute();
         $row = $results->current();
 
-        return (int)$row['total'];
+        return (int) $row['total'];
     }
 
     /**
@@ -2454,7 +2536,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $stats = [];
         foreach ($results as $row) {
-            $stats[$row[$statusFieldName]] = (int)$row['quantity'];
+            $stats[$row[$statusFieldName]] = (int) $row['quantity'];
         }
 
         $statusMap = $this->getStatusMapping();
@@ -2502,28 +2584,27 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         // Save parent log entry
-        $parentLogEntry = BaseRowGateway::makeRowGatewayFromTableName('id', 'directus_activity', $this->adapter);
-        $logData = [
+        $activityTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_ACTIVITY, $this->adapter);
+        $activityTableGateway->insert([
             'action' => DirectusActivityTableGateway::makeLogActionFromTableName(
                 $this->table,
                 $action
             ),
             'action_by' => $currentUserId,
             'action_on' => DateTimeUtils::nowInUTC()->toString(),
-            'ip' => \Directus\get_request_ip(),
+            'ip' => \Directus\get_request_host(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'collection' => $this->getTable(),
             'item' => ArrayUtils::get($record, $this->primaryKeyFieldName),
             'comment' => ArrayUtils::get($params, 'activity_comment')
-        ];
-        $parentLogEntry->populate($logData, false);
-        $parentLogEntry->save();
+        ]);
+        $parentLogEntry = $activityTableGateway->getLastInsertValue();
 
         // Add Revisions
         $revisionTableGateway = new RelationalTableGateway(SchemaManager::COLLECTION_REVISIONS, $this->adapter);
         if ($action !== DirectusActivityTableGateway::ACTION_DELETE) {
             $revisionTableGateway->insert([
-                'activity' => $parentLogEntry->getId(),
+                'activity' => $parentLogEntry,
                 'collection' => $this->getTable(),
                 'item' => $rowId,
                 'data' => json_encode($record),

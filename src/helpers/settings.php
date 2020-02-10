@@ -89,11 +89,8 @@ if (!function_exists('get_directus_thumbnail_settings')) {
     function get_directus_thumbnail_settings()
     {
         return get_directus_settings_by_keys([
-            'thumbnail_dimensions',
-            'thumbnail_not_found_location',
-            'thumbnail_quality_tags',
-            'thumbnail_actions',
-            'thumbnail_cache_ttl',
+            'asset_whitelist',
+            'asset_whitelist_system'
         ]);
     }
 }
@@ -156,27 +153,55 @@ if (!function_exists('get_project_info')) {
      */
     function get_project_info()
     {
-        $settings = get_directus_settings_by_keys(['project_name', 'logo']);
-
-        if (array_get($settings, 'logo')) {
-            $settings['logo'] = get_project_logo_data(array_get($settings, 'logo'));
-        }
-
-        array_rename($settings, [
-            'logo' => 'project_logo',
+        $settings = get_directus_settings_by_keys([
+            'project_name',
+            'project_logo',
+            'project_color',
+            'project_foreground',
+            'project_background',
+            'project_public_note',
+            'default_locale',
+            'telemetry'
         ]);
+
+        // TODO:
+        // Typecasting of these values should be done the same way as in the `/settings` endpoint.
+
+        $settings['project_logo'] = array_get($settings, 'project_logo')
+            ? get_file_data(array_get($settings, 'project_logo'))
+            : null;
+
+        $settings['project_foreground'] =
+            array_get($settings, 'project_foreground')
+            ? get_file_data(array_get($settings, 'project_foreground'))
+            : null;
+
+        $settings['project_background'] =
+            array_get($settings, 'project_background')
+            ? get_file_data(array_get($settings, 'project_background'))
+            : null;
+
+        $settings['project_public_note'] =
+            array_get($settings, 'project_public_note')
+            ? array_get($settings, 'project_public_note')
+            : null;
+
+        $settings['telemetry'] =
+            array_get($settings, 'telemetry') && $settings['telemetry']
+            ? true
+            : false;
 
         return $settings;
     }
 }
 
-if (!function_exists('get_project_logo_data')) {
+if (!function_exists('get_file_data')) {
     /**
      * @param int $id
      *
      * @return array
      */
-    function get_project_logo_data($id)
+    function get_file_data($id)
     {
         /** @var RelationalTableGateway $table */
         $table = TableGatewayFactory::create('directus_files', ['acl' => false]);

@@ -3,8 +3,10 @@
 namespace Directus\Authentication;
 
 use Directus\Authentication\Exception\ExpiredTokenException;
+use Directus\Authentication\Exception\InvalidOTPException;
 use Directus\Authentication\Exception\InvalidTokenException;
 use Directus\Authentication\Exception\InvalidUserCredentialsException;
+use Directus\Authentication\Exception\Missing2FAPasswordException;
 use Directus\Authentication\Exception\UserInactiveException;
 use Directus\Authentication\Exception\UserNotAuthenticatedException;
 use Directus\Authentication\Exception\UserNotFoundException;
@@ -23,6 +25,7 @@ use function Directus\get_directus_setting;
 use Directus\Util\ArrayUtils;
 use Directus\Util\DateTimeUtils;
 use Directus\Util\JWTUtils;
+use PragmaRX\Google2FA\Google2FA;
 
 class Provider
 {
@@ -86,7 +89,7 @@ class Provider
         $this->user = null;
         $this->secretKey = $options['secret_key'];
         $this->publicKey = ArrayUtils::get($options, 'public_key');
-        $this->ttl = (int)$ttl;
+        $this->ttl = (int) $ttl;
     }
 
     /**
@@ -109,17 +112,19 @@ class Provider
      * @return UserInterface
      *
      * @throws InvalidUserCredentialsException
+     * @throws Missing2FAPasswordException
      * @throws UserInactiveException
      */
     public function login(array $credentials)
     {
         $email = ArrayUtils::get($credentials, 'email');
         $password = ArrayUtils::get($credentials, 'password');
+        $otp = ArrayUtils::get($credentials, 'otp');
 
         $user = null;
         if ($email && $password) {
             // Verify Credentials
-            $user = $this->findUserWithCredentials($email, $password);
+            $user = $this->findUserWithCredentials($email, $password, $otp);
             $this->setUser($user);
         }
 
@@ -153,8 +158,10 @@ class Provider
      * @return UserInterface
      *
      * @throws InvalidUserCredentialsException
+     * @throws InvalidOTPException
+     * @throws Missing2FAPasswordException
      */
-    public function findUserWithCredentials($email, $password)
+    public function findUserWithCredentials($email, $password, $otp = null)
     {
         try {
             $user = $this->findUserWithEmail($email);
@@ -164,9 +171,23 @@ class Provider
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
         if (!password_verify($password, $user->get('password'))) {
-            
+
             $this->recordActivityAndCheckLoginAttempt($user);
             throw new InvalidUserCredentialsException();
+        }
+
+        $tfa_secret = $user->get2FASecret();
+
+        if ($tfa_secret) {
+            $ga = new Google2FA();
+
+            if ($otp == null) {
+                throw new Missing2FAPasswordException();
+            }
+
+            if (!$ga->verifyKey($tfa_secret, $otp, 2)) {
+                throw new InvalidOTPException();
+            }
         }
 
         $this->user = $user;
@@ -186,21 +207,21 @@ class Provider
         $activityTableGateway->recordAction($userId, SchemaManager::COLLECTION_USERS, DirectusActivityTableGateway::ACTION_INVALID_CREDENTIALS);
 
         $loginAttemptsAllowed = get_directus_setting('login_attempts_allowed');
-        
-        if(!empty($loginAttemptsAllowed)){
+
+        if (!empty($loginAttemptsAllowed)) {
 
             // We added 'Invalid credentials' entry before this condition so need to increase this counter with 1
             $totalLoginAttemptsAllowed = $loginAttemptsAllowed + 1;
 
             $invalidLoginAttempts = $activityTableGateway->getInvalidLoginAttempts($userId, $totalLoginAttemptsAllowed);
-            if(!empty($invalidLoginAttempts)){
+            if (!empty($invalidLoginAttempts)) {
                 $lastInvalidCredentialsEntry = current($invalidLoginAttempts);
                 $firstInvalidCredentialsEntry = end($invalidLoginAttempts);
-              
+
                 $lastLoginAttempt = $activityTableGateway->getLastLoginOrStatusUpdateAttempt($userId);
-              
-                if(!empty($lastLoginAttempt) && !in_array($lastLoginAttempt['id'], range($firstInvalidCredentialsEntry['id'], $lastInvalidCredentialsEntry['id'])) &&  count($invalidLoginAttempts) > $loginAttemptsAllowed){
-                    
+
+                if (!empty($lastLoginAttempt) && !in_array($lastLoginAttempt['id'], range($firstInvalidCredentialsEntry['id'], $lastInvalidCredentialsEntry['id'])) &&  count($invalidLoginAttempts) > $loginAttemptsAllowed) {
+
                     $tableGateway = TableGatewayFactory::create(SchemaManager::COLLECTION_USERS, ['acl' => false]);
                     $update = [
                         'status' => DirectusUsersTableGateway::STATUS_SUSPENDED
@@ -405,6 +426,8 @@ class Provider
      *
      * @param UserInterface $user
      *
+     * @param bool $needs2FA Whether the User needs 2FA
+     *
      * @return string
      */
     public function generateAuthToken(UserInterface $user)
@@ -414,6 +437,7 @@ class Provider
             // 'group' => $user->getGroupId(),
             'exp' => $this->getNewExpirationTime()
         ];
+
 
         return $this->generateToken(JWTUtils::TYPE_AUTH, $payload);
     }
@@ -480,11 +504,11 @@ class Provider
      */
     public function generateToken($type, array $payload)
     {
-        $payload['type'] = (string)$type;
+        $payload['type'] = (string) $type;
         $payload['key'] = $this->getPublicKey();
         $payload['project'] = get_api_project_from_request();
 
-        return JWTUtils::encode($payload, $this->getSecretKey(), $this->getTokenAlgorithm());
+        return JWTUtils::encode($payload, $this->getSecretKey($payload['project']), $this->getTokenAlgorithm());
     }
 
     /**
@@ -497,17 +521,18 @@ class Provider
      * @throws ExpiredTokenException
      * @throws InvalidTokenException
      */
-    public function refreshToken($token)
+    public function refreshToken($token, $needs2FA = false)
     {
         $payload = $this->getTokenPayload($token);
 
         if (!JWTUtils::hasPayloadType(JWTUtils::TYPE_AUTH, $payload)) {
             throw new InvalidTokenException();
         }
-
         $payload->exp = $this->getNewExpirationTime();
 
-        return JWTUtils::encode($payload, $this->getSecretKey(), $this->getTokenAlgorithm());
+        $payload->needs2FA = $needs2FA;
+
+        return JWTUtils::encode($payload, $this->getSecretKey(get_api_project_from_request()), $this->getTokenAlgorithm());
     }
 
     /**
@@ -576,11 +601,11 @@ class Provider
     /**
      * Authentication secret key
      *
-     * @param string|null $project
+     * @param string $project
      *
      * @return string
      */
-    public function getSecretKey($project = null)
+    public function getSecretKey($project)
     {
         if ($project) {
             $config = get_project_config($project);

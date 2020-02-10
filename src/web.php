@@ -4,17 +4,9 @@ use Directus\Config\Context;
 use Directus\Config\Schema\Schema;
 use Directus\Exception\ErrorException;
 
-$basePath =  realpath(__DIR__ . '/../');
+$basePath = realpath(__DIR__.'/../');
 
-require $basePath . '/vendor/autoload.php';
-
-// Creates a simple endpoint to test the server rewriting
-// If the server responds "pong" it means the rewriting works
-// NOTE: The API requires the default project to be configured to properly works
-//       It should work without the default project being configured
-if (!file_exists($basePath . '/config/api.php')) {
-    return \Directus\create_default_app($basePath);
-}
+require $basePath.'/vendor/autoload.php';
 
 // Get Environment name
 $projectName = \Directus\get_api_project_from_request();
@@ -24,14 +16,14 @@ $projectName = \Directus\get_api_project_from_request();
 // It returns 401 Unauthorized error to any endpoint except /server/ping
 if (!$projectName) {
     $schema = Schema::get();
-    if (getenv("DIRECTUS_USE_ENV") === "1") {
+    if (Context::is_env()) {
         $configData = $schema->value(Context::from_env());
     } else {
         $configData = $schema->value([]);
     }
+
     return \Directus\create_unknown_project_app($basePath, $configData);
 }
-
 
 $maintenanceFlagPath = \Directus\create_maintenanceflag_path($basePath);
 if (file_exists($maintenanceFlagPath)) {
@@ -40,8 +32,8 @@ if (file_exists($maintenanceFlagPath)) {
     echo json_encode([
         'error' => [
             'code' => 21,
-            'message' => 'This API instance is currently down for maintenance. Please try again later.'
-        ]
+            'message' => 'This API instance is currently down for maintenance. Please try again later.',
+        ],
     ]);
     exit;
 }
@@ -49,13 +41,16 @@ if (file_exists($maintenanceFlagPath)) {
 try {
     $app = \Directus\create_app_with_project_name($basePath, $projectName);
 } catch (ErrorException $e) {
+    if ($e->getCode() == Directus\Config\Exception\UnknownProjectException::ERROR_CODE) {
+        return \Directus\create_unknown_project_app($basePath);
+    }
     http_response_code($e->getStatusCode());
     header('Content-Type: application/json');
     echo json_encode([
         'error' => [
             'code' => $e->getCode(),
-            'message' => $e->getMessage()
-        ]
+            'message' => $e->getMessage(),
+        ],
     ]);
     exit;
 }
@@ -76,7 +71,7 @@ try {
 
 $errorReporting = E_ALL;
 $displayErrors = 1;
-if ($app->getConfig()->get('app.env', 'development') === 'production') {
+if ($app->getConfig()->get('env', 'development') === 'production') {
     $displayErrors = $errorReporting = 0;
 }
 
@@ -93,18 +88,18 @@ $container = $app->getContainer();
 try {
     \Directus\register_global_hooks($app);
     \Directus\register_extensions_hooks($app);
+    \Directus\register_webhooks($app);
 } catch (ErrorException $e) {
     http_response_code($e->getStatusCode());
     header('Content-Type: application/json');
     echo json_encode([
         'error' => [
             'code' => $e->getCode(),
-            'message' => $e->getMessage()
-        ]
+            'message' => $e->getMessage(),
+        ],
     ]);
     exit;
 }
-
 
 $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 
@@ -116,6 +111,7 @@ $app->getContainer()->get('hook_emitter')->run('application.boot', $app);
 //       Ex: $app->add(['global', 'auth']);
 $middleware = [
     'table_gateway' => new \Directus\Application\Http\Middleware\TableGatewayMiddleware($app->getContainer()),
+    'database_migration' => new \Directus\Application\Http\Middleware\DatabaseMigrationMiddleware($app->getContainer()),
     'rate_limit_ip' => new \Directus\Application\Http\Middleware\IpRateLimitMiddleware($app->getContainer()),
     'ip' => new RKA\Middleware\IpAddress(),
     'proxy' => new \Directus\Application\Http\Middleware\ProxyMiddleware(),
@@ -135,19 +131,10 @@ $app->add($middleware['rate_limit_ip'])
 
 $app->get('/', \Directus\Api\Routes\Home::class)
     ->add($middleware['rate_limit_user'])
-    ->add($middleware['auth_user'])
-    ->add($middleware['auth'])
-    ->add($middleware['auth_ignore_origin'])
+    ->add($middleware['database_migration'])
     ->add($middleware['table_gateway']);
 
-$app->group('/projects', function () use ($middleware) {
-    $this->post('', \Directus\Api\Routes\ProjectsCreate::class);
-
-    $this->delete('/{name}', \Directus\Api\Routes\ProjectsDelete::class)
-        ->add($middleware['auth_admin'])
-        ->add($middleware['auth'])
-        ->add($middleware['auth_ignore_origin']);
-})->add($middleware['table_gateway']);
+$app->get('/{project}/assets/{id}', \Directus\Api\Routes\Assets::class);
 
 $app->group('/{project}', function () use ($middleware) {
     $this->get('/', \Directus\Api\Routes\ProjectHome::class)
@@ -172,6 +159,10 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
     $this->group('/files', \Directus\Api\Routes\Files::class)
+        ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
+    $this->group('/folders', \Directus\Api\Routes\Folders::class)
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
@@ -202,12 +193,17 @@ $app->group('/{project}', function () use ($middleware) {
     $this->group('/settings', \Directus\Api\Routes\Settings::class)
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
+        ->add($middleware['database_migration'])
         ->add($middleware['table_gateway']);
     $this->group('/collections', \Directus\Api\Routes\Collections::class)
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
     $this->group('/users', \Directus\Api\Routes\Users::class)
+        ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
+    $this->group('/webhooks', \Directus\Api\Routes\Webhook::class)
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
@@ -236,8 +232,8 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
 
-    $this->group('/pages', function () {
-        $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/pages', true);
+    $this->group('/modules', function () {
+        $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/modules', true);
 
         foreach ($endpointsList as $name => $endpoints) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
@@ -263,33 +259,34 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['rate_limit_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
-});
+})->add($middleware['database_migration']);
 
 $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
     ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
-    ->add($middleware['auth_ignore_origin'])
-    ->add($middleware['table_gateway']);
+    ->add($middleware['table_gateway'])
+    ->add($middleware['database_migration']);
 $app->group('/layouts', \Directus\Api\Routes\Layouts::class)
     ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
-    ->add($middleware['auth_ignore_origin'])
-    ->add($middleware['table_gateway']);
-$app->group('/pages', \Directus\Api\Routes\Pages::class)
+    ->add($middleware['table_gateway'])
+    ->add($middleware['database_migration']);
+$app->group('/modules', \Directus\Api\Routes\Modules::class)
     ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
-    ->add($middleware['auth_ignore_origin'])
-    ->add($middleware['table_gateway']);
+    ->add($middleware['table_gateway'])
+    ->add($middleware['database_migration']);
+
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['rate_limit_user'])
     ->add($middleware['auth_user'])
     ->add($middleware['auth'])
-    ->add($middleware['auth_ignore_origin'])
-    ->add($middleware['table_gateway']);
+    ->add($middleware['table_gateway'])
+    ->add($middleware['database_migration']);
 
 $app->add(new \Directus\Application\Http\Middleware\ResponseCacheMiddleware($app->getContainer()));
 

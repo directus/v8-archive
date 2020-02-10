@@ -47,6 +47,7 @@ use Zend\Db\Sql\Update;
 use Zend\Db\TableGateway\Feature;
 use Zend\Db\TableGateway\Feature\RowGatewayFeature;
 use Zend\Db\TableGateway\TableGateway;
+use function Directus\get_random_string;
 
 class BaseTableGateway extends TableGateway
 {
@@ -376,7 +377,7 @@ class BaseTableGateway extends TableGateway
             $hookName = 'item.create.' . SchemaManager::COLLECTION_FILES;
             // TODO: Implement once execute. Allowing a hook callback to run once.
             $listenerId = static::$emitter->addAction($hookName, function ($data) use (&$recordData) {
-                $recordData['filename'] = $data['filename'];
+                $recordData['filename_disk'] = $data['filename_disk'];
             }, Emitter::P_LOW);
         }
 
@@ -388,7 +389,6 @@ class BaseTableGateway extends TableGateway
         }
 
         $TableGateway->insert($recordData);
-
         if (static::$emitter && $listenerId) {
             static::$emitter->removeListenerWithIndex($listenerId);
         }
@@ -399,9 +399,8 @@ class BaseTableGateway extends TableGateway
             $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
         }
 
-        $this->afterAddOrUpdate($recordData);
-
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($this->table);
+
         return $TableGateway->fetchAll(function (Select $select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
@@ -426,26 +425,6 @@ class BaseTableGateway extends TableGateway
         }
 
         $recordId = $recordData[$primaryKey];
-        if ($collectionName === SchemaManager::COLLECTION_FILES) {
-            $select = new Select($collectionName);
-            $select->columns(['filename']);
-            $select->where([
-                $primaryKey => $recordId
-            ]);
-            $select->limit(1);
-            $result = $TableGateway->ignoreFilters()->selectWith($select);
-
-            if ($result->count() === 0) {
-                throw new ItemNotFoundException();
-            }
-
-            $currentItem = $result->current()->toArray();
-
-            $originalFilename = ArrayUtils::get($currentItem, 'filename');
-            $recordData = array_merge([
-                'filename' => $originalFilename
-            ], $recordData);
-        }
 
         $Update = new Update($collectionName);
         $Update->set($recordData);
@@ -453,20 +432,6 @@ class BaseTableGateway extends TableGateway
             $primaryKey => $recordId
         ]);
         $TableGateway->updateWith($Update);
-
-        $replace = true;
-        if ($collectionName === SchemaManager::COLLECTION_FILES && static::$container) {
-            $changeFilename = $originalFilename && $recordData['filename'] !== $originalFilename;
-            $replace = !$changeFilename;
-
-            if ($changeFilename) {
-                /** @var Files $Files */
-                $Files = static::$container->get('files');
-                $Files->delete(['filename' => $originalFilename]);
-            }
-        }
-
-        $this->afterAddOrUpdate($recordData, $replace);
 
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($collectionName);
         return $TableGateway->fetchAll(function ($select) use ($recordData, $columns, $primaryKey) {
@@ -532,6 +497,12 @@ class BaseTableGateway extends TableGateway
         $columnsTableGateway = new TableGateway(SchemaManager::COLLECTION_FIELDS, $this->adapter);
         $columnsTableGateway->delete([
             'collection' => $tableName
+        ]);
+
+        // Remove entries from directus_relations
+        $columnsTableGateway = new TableGateway(SchemaManager::COLLECTION_RELATIONS, $this->adapter);
+        $columnsTableGateway->delete([
+            'collection_many' => $tableName
         ]);
 
         // Remove table from directus_tables
@@ -674,7 +645,7 @@ class BaseTableGateway extends TableGateway
     public function castFloatIfNumeric(&$value, $key)
     {
         if ($key != 'table_name') {
-            $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float)$value : $value;
+            $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float) $value : $value;
         }
     }
 
@@ -711,7 +682,6 @@ class BaseTableGateway extends TableGateway
     protected function executeSelect(Select $select)
     {
 
-
         $useFilter = $this->shouldUseFilter();
         unset($this->options['filter']);
 
@@ -721,7 +691,6 @@ class BaseTableGateway extends TableGateway
 
         $selectState = $select->getRawState();
         $selectCollectionName = $selectState['table'];
-
 
         if ($useFilter) {
             $selectState = $this->applyHooks([
@@ -878,6 +847,15 @@ class BaseTableGateway extends TableGateway
             $this->runAfterUpdateHooks($updateTable, $updateData);
         }
 
+        //Invalidate individual cache
+        if (static::$container) {
+            $config = static::$container->get('config');
+            if ($config->get('cache.enabled')) {
+                $cachePool = static::$container->get('cache');
+                $cachePool->invalidateTags(['entity_' . $updateTable . '_' . $result[$this->primaryKeyFieldName]]);
+            }
+        }
+
         return $result;
     }
 
@@ -933,13 +911,24 @@ class BaseTableGateway extends TableGateway
                 );
             }
 
+
+            //Invalidate individual cache
+            if (static::$container) {
+                $config = static::$container->get('config');
+            }
             foreach ($ids as $id) {
                 $deleteData = $deletedObject[$id];
                 $this->runHook('item.delete', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete:after', [$deleteTable, $deleteData]);
                 $this->runHook('item.delete.' . $deleteTable, [$deleteData]);
                 $this->runHook('item.delete.' . $deleteTable . ':after', [$deleteData]);
+                if (isset($config) && $config->get('cache.enabled')) {
+                    $cachePool = static::$container->get('cache');
+                    $cachePool->invalidateTags(['entity_' . $deleteTable . '_' . $deleteData[$this->primaryKeyFieldName]]);
+                }
             }
+
+
 
             return $result;
         }
@@ -1160,9 +1149,6 @@ class BaseTableGateway extends TableGateway
                 case SchemaManager::COLLECTION_USERS:
                     $userCreatedField = $collectionObject->getField('id');
                     break;
-                case SchemaManager::COLLECTION_USER_ROLES:
-                    $userCreatedField = $collectionObject->getField('user');
-                    break;
             }
         }
 
@@ -1178,7 +1164,7 @@ class BaseTableGateway extends TableGateway
         }
 
         // If User can read all items, nothing else needs to be checked
-        if ($this->acl->canReadAll($this->table)) {
+        if (empty($statuses) && $this->acl->canReadAll($this->table)) {
             return;
         }
 
@@ -1238,12 +1224,12 @@ class BaseTableGateway extends TableGateway
      * @throws \Exception
      */
     public function enforceUpdatePermission(Update $update)
-    {        
+    {
         $collectionObject = $this->getTableSchema();
         $statusField = $collectionObject->getStatusField();
-        $updateState = $update->getRawState();        
+        $updateState = $update->getRawState();
         $updateData = $updateState['set'];
-        
+
         //If a collection has status field then records are not actually deleting, they are soft deleting
         //Check delete permission for soft delete
         if (
@@ -1253,13 +1239,13 @@ class BaseTableGateway extends TableGateway
                 ArrayUtils::get($updateData, $collectionObject->getStatusField()->getName()),
                 $this->getStatusMapping()->getSoftDeleteStatusesValue()
             )
-        ) { 
+        ) {
             $delete = $this->sql->delete();
-            $delete->where($updateState['where']);            
+            $delete->where($updateState['where']);
             $this->enforceDeletePermission($delete);
             return;
         }
-        
+
         if ($this->acl->canUpdateAll($this->table) && $this->acl->isAdmin()) {
             return;
         }
@@ -1788,62 +1774,13 @@ class BaseTableGateway extends TableGateway
     }
 
     /**
-     * @param array $record
-     * @param bool $replace
-     */
-    protected function afterAddOrUpdate(array $record, $replace = false)
-    {
-        // TODO: Move this to a proper hook
-        $hasData = ArrayUtils::has($record, 'data') && is_string($record['data']);
-        $isFilesCollection = $this->table == SchemaManager::COLLECTION_FILES;
-
-        if (!static::$container || !$hasData || !$isFilesCollection) {
-            return;
-        }
-
-        $Files = static::$container->get('files');
-
-        $updateArray = [];
-        if ($Files->getSettings('file_naming') == 'id') {
-            $ext = $thumbnailExt = pathinfo($record['filename'], PATHINFO_EXTENSION);
-            $fileId = $record[$this->primaryKeyFieldName];
-            // TODO: The left padding should be based on the max length of the primary
-            $newFilename = filename_put_ext(str_pad(
-                $fileId,
-                11,
-                '0',
-                STR_PAD_LEFT
-            ), $ext);
-
-            // overwrite a file with this file content if it already exists
-            if (!$replace) {
-                $Files->rename(
-                    $record['filename'],
-                    $newFilename,
-                    true
-                );
-            }
-
-            $updateArray['filename'] = $newFilename;
-            $record['filename'] = $updateArray['filename'];
-        }
-
-        if (!empty($updateArray)) {
-            $Update = new Update($this->table);
-            $Update->set($updateArray);
-            $Update->where([$this->primaryKeyFieldName => $record[$this->primaryKeyFieldName]]);
-            $this->updateWith($Update);
-        }
-    }
-
-    /**
      * Checks whether or not null should be sorted last
      *
      * @return bool
      */
     protected function shouldNullSortedLast()
     {
-        return (bool)get_directus_setting('sort_null_last', true);
+        return (bool) get_directus_setting('sort_null_last', true);
     }
 
     /**

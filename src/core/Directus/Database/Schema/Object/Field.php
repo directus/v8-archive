@@ -333,6 +333,16 @@ class Field extends AbstractObject
     }
 
     /**
+     * Checks whether this column is system user interface
+     *
+     * @return bool
+     */
+    public function isSystemUserType()
+    {
+        return DataTypes::isSystemUserType($this->getType());
+    }
+
+    /**
      * Checks whether or not the field is a status type
      *
      * @return bool
@@ -367,9 +377,9 @@ class Field extends AbstractObject
      *
      * @return bool
      */
-    public function isUserCreatedType()
+    public function isOwnerType()
     {
-        return $this->isType(DataTypes::TYPE_USER_CREATED);
+        return $this->isType(DataTypes::TYPE_OWNER);
     }
 
     /**

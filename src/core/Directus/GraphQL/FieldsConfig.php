@@ -50,7 +50,10 @@ class FieldsConfig
                     $fields[$v['field']] = Types::directusFile();
                     break;
                 case 'integer':
-                    $fields[$v['field']] = ($v['interface'] == 'primary-key') ? $fields[$v['field']] = Types::id() : Types::int();
+                    $fields[$v['field']] = Types::int();
+                    if ($v['primary_key']) {
+                        $fields[$v['field']] = Types::id();
+                    }
                     break;
                 case 'decimal':
                     $fields[$v['field']] = Types::float();
@@ -66,9 +69,9 @@ class FieldsConfig
                     $relation = $this->getRelation('o2m', $v['collection'], $v['field']);
                     $temp = [];
                     $temp['type'] = Types::listOf(Types::userCollection($relation['collection_one']));
-                    $temp['resolve'] = function ($value) use ($relation) {
+                    $temp['resolve'] = function ($value, $args, $context, $info) use ($relation) {
                         $data = [];
-                        foreach ($value[$relation['collection_one']] as  $v) {
+                        foreach ($value[$info->fieldName] as  $v) {
                             $data[] = $v[$relation['field_many']];
                         }
                         return $data;
@@ -88,7 +91,7 @@ class FieldsConfig
                     $relation = $this->getRelation('translation', $v['collection'], $v['field']);
                     $fields[$v['field']] = Types::listOf(Types::userCollection($relation['collection_many']));
                     break;
-                case 'user_created':
+                case 'owner':
                 case 'user_updated':
                     $fields[$v['field']] = Types::directusUser();
                     break;

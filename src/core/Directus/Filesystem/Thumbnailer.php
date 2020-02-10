@@ -10,7 +10,8 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Exception;
 use Imagick;
 
-class Thumbnailer {
+class Thumbnailer
+{
 
     /**
      * Thumbnail params extracted from url
@@ -59,30 +60,27 @@ class Thumbnailer {
             $this->config = $config;
             $this->params = $params;
 
-            $this->thumbnailParams = $this->extractThumbnailParams($path);
+            $this->thumbnailParams = $this->validateThumbnailParams($path, $params);
 
-            // check if the original file exists in storage
-            if (! $this->filesystem->exists($this->fileName)) {
+            // // check if the original file exists in storage
+            if (!$this->filesystem->exists($this->fileName)) {
                 throw new Exception($this->fileName . ' does not exist.'); // original file doesn't exist
             }
 
-            // check if dimensions are supported
-            if (! $this->isSupportedThumbnailDimension($this->width, $this->height)) {
-                throw new Exception('Invalid dimensions.');
+            $this->validateThumbnailWhitelist($params);
+
+            $otherParams = $params;
+            unset($otherParams['width'], $otherParams['height'], $otherParams['fit'], $otherParams['quality']);
+
+            if (count($otherParams) > 0) {
+                ksort($otherParams);
+                $paramsString = '';
+                foreach ($otherParams as $key => $value) {
+                    $paramsString .= ',' . substr($key, 0, 1) . $value;
+                }
             }
 
-            // check if action is supported
-            if ( $this->action && ! $this->isSupportedAction($this->action)) {
-                throw new Exception('Invalid action.');
-            }
-
-            // check if quality is supported
-            if ( $this->quality && ! $this->isSupportedQualityTag($this->quality)) {
-                throw new Exception('Invalid quality.');
-            }
-
-            // relative to configuration['storage']['thumb_root']
-            $this->thumbnailDir = $this->width . '/' . $this->height . ($this->action ? '/' . $this->action : '') . ($this->quality ? '/' . $this->quality : '');
+            $this->thumbnailDir = 'w' . $params['width'] . ',h' . $params['height'] . ',f' . $params['fit'] . ',q' . $params['quality'] . $paramsString;
         } catch (Exception $e) {
             throw $e;
         }
@@ -108,14 +106,12 @@ class Thumbnailer {
     public function get()
     {
         try {
-            if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName) ) {
+            if ($this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName)) {
                 $img = $this->filesystemThumb->read($this->thumbnailDir . '/' . $this->thumbnailFileName);
             }
 
             return isset($img) && $img ? $img : null;
-        }
-
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -129,8 +125,8 @@ class Thumbnailer {
     public function getThumbnailMimeType()
     {
         try {
-            if( $this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName) ) {
-                if(strtolower(pathinfo($this->thumbnailFileName, PATHINFO_EXTENSION)) === 'webp') {
+            if ($this->filesystemThumb->exists($this->thumbnailDir . '/' . $this->thumbnailFileName)) {
+                if (strtolower(pathinfo($this->thumbnailFileName, PATHINFO_EXTENSION)) === 'webp') {
                     return 'image/webp';
                 }
                 $img = Image::make($this->filesystemThumb->read($this->thumbnailDir . '/' . $this->thumbnailFileName));
@@ -138,9 +134,7 @@ class Thumbnailer {
             }
 
             return 'application/octet-stream';
-        }
-
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -150,7 +144,8 @@ class Thumbnailer {
      * @throws Exception
      * @return string image content
      */
-    public function load () {
+    public function load()
+    {
         $content = $this->filesystem->read($this->fileName);
         $ext = pathinfo($this->fileName, PATHINFO_EXTENSION);
         if (Thumbnail::isNonImageFormatSupported($ext)) {
@@ -171,7 +166,7 @@ class Thumbnailer {
     {
         try {
             // action options
-            $options = $this->getSupportedActionOptions($this->action);
+            $options = $this->getSupportedActionOptions($this->$params);
 
             // open file image resource
             $img = $this->load();
@@ -188,13 +183,11 @@ class Thumbnailer {
                 $img->resizeCanvas($this->width, $this->height, ArrayUtils::get($options, 'position', 'center'), ArrayUtils::get($options, 'resizeRelative', false), ArrayUtils::get($options, 'canvasBackground', [255, 255, 255, 0]));
             }
 
-            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->translateQuality($this->quality) : null));
+            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->quality : null));
             $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
 
             return $encodedImg;
-        }
-
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -218,27 +211,27 @@ class Thumbnailer {
             $img = $this->load();
 
             // resize/crop image
-            $img->fit($this->width, $this->height, function($constraint){}, ArrayUtils::get($options, 'position', 'center'));
+            $img->fit($this->width, $this->height, function ($constraint) {
+            }, ArrayUtils::get($options, 'position', 'center'));
 
-            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->translateQuality($this->quality) : null));
+            $encodedImg = (string) $img->encode($this->format, ($this->quality ? $this->quality : null));
             $this->filesystemThumb->write($this->thumbnailDir . '/' . $this->thumbnailFileName, $encodedImg);
 
             return $encodedImg;
-        }
-
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
 
     /**
-     * Parse url and extract thumbnail params
+     * validate params and file extensions and return it
      *
      * @param string $thumbnailUrlPath
+     * @param array $params
      * @throws Exception
      * @return array
      */
-    public function extractThumbnailParams($thumbnailUrlPath)
+    public function validateThumbnailParams($thumbnailUrlPath, $params)
     {
         // cache
         if ($this->thumbnailParams) {
@@ -248,34 +241,36 @@ class Thumbnailer {
         // get URL parts
         // https://docs.directus.io/guides/thumbnailer.html#url-syntax
         $urlSegments = explode('/', $thumbnailUrlPath);
-        if (count($urlSegments) < 6) {
-            throw new Exception('Invalid URL syntax.');
-        }
 
         // pull the env out of the segments
         array_shift($urlSegments);
 
         // set thumbnail parameters
         $thumbnailParams = [
-            'action' => filter_var($urlSegments[2], FILTER_SANITIZE_STRING),
-            'height' => filter_var($urlSegments[1], FILTER_SANITIZE_NUMBER_INT),
-            'quality' => filter_var($urlSegments[3], FILTER_SANITIZE_STRING),
-            'width' => filter_var($urlSegments[0], FILTER_SANITIZE_NUMBER_INT),
+            'fit' => filter_var($params['fit'], FILTER_SANITIZE_STRING),
+            'height' => filter_var($params['height'], FILTER_SANITIZE_NUMBER_INT),
+            'quality' => filter_var($params['quality'], FILTER_SANITIZE_STRING),
+            'width' => filter_var($params['width'], FILTER_SANITIZE_NUMBER_INT),
         ];
 
-        // validate parameters
-        if (! ArrayUtils::contains($thumbnailParams, [
-            'width',
-            'height'
-        ])) {
-            throw new Exception('No height or width provided.');
+        if ($thumbnailParams['width'] == null || $thumbnailParams['width'] == '') {
+            throw new Exception('No width is provided.');
+        }
+        if ($thumbnailParams['height'] == null || $thumbnailParams['height'] == '') {
+            throw new Exception('No height is provided.');
+        }
+        if ($thumbnailParams['fit'] == null || $thumbnailParams['fit'] == '') {
+            throw new Exception('No fit is provided.');
+        }
+        if ($thumbnailParams['quality'] == null || $thumbnailParams['quality'] == '') {
+            throw new Exception('No quality is provided.');
         }
 
         // make sure filename is valid
-        $filename = implode('/', array_slice($urlSegments, 4));
+        $filename = $urlSegments[1];
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         $name = pathinfo($filename, PATHINFO_FILENAME);
-        if (! $this->isSupportedFileExtension($ext)) {
+        if (!$this->isSupportedFileExtension($ext)) {
             throw new Exception('Invalid file extension.');
         }
 
@@ -284,18 +279,17 @@ class Thumbnailer {
         $thumbnailParams['fileName'] = $filename;
         $format = strtolower(ArrayUtils::get($this->params, 'format') ?: $ext);
 
-        if (! $this->isSupportedFileExtension($format)) {
+        if (!$this->isSupportedFileExtension($format)) {
             throw new Exception('Invalid file format.');
         }
 
         // Check format against image extension
-        if(
+        if (
             $format !== NULL &&
             strtolower($ext) !== $format &&
             !(
                 ($format === 'jpeg' || $format === 'jpg') &&
-                (strtolower($ext) === 'jpeg' || strtolower($ext) === 'jpg')
-            )
+                (strtolower($ext) === 'jpeg' || strtolower($ext) === 'jpg'))
         ) {
             $thumbnailParams['thumbnailFileName'] = $name . '.' . $format;
         } else {
@@ -304,6 +298,42 @@ class Thumbnailer {
 
         return $thumbnailParams;
     }
+
+    /**
+     * validate params against thumbnail whitelist
+     *
+     * @param array $params
+     * @throws Exception
+     * @return boolean
+     */
+
+    public function validateThumbnailWhitelist($params)
+    {
+        $userWhitelist = json_decode(ArrayUtils::get($this->getConfig(), 'asset_whitelist'), true);
+
+        $thumbnailWhitelistEnabled = empty($userWhitelist) === false;
+
+        if ($thumbnailWhitelistEnabled) {
+            if (is_string($userWhitelist)) {
+                $userWhitelist = json_decode($userWhitelist, true);
+            }
+            $result = false;
+            foreach ($userWhitelist as $key => $value) {
+                if (
+                    $value['width'] == $params['width'] &&
+                    $value['height'] == $params['height'] &&
+                    $value['fit'] == $params['fit'] &&
+                    $value['quality'] == $params['quality']
+                ) {
+                    $result = true;
+                }
+            }
+            if (!$result) {
+                throw new Exception();
+            }
+        }
+    }
+
 
     /**
      * Translate quality text to number and return
@@ -449,7 +479,7 @@ class Thumbnailer {
             $actions = json_decode($actions, true);
         }
 
-        return array_merge($this->getDefaultActions(), (array)$actions);
+        return array_merge($this->getDefaultActions(), (array) $actions);
     }
 
     /**
@@ -501,7 +531,7 @@ class Thumbnailer {
                 $value
             );
         } else {
-            $value = (array)$value;
+            $value = (array) $value;
         }
 
         return $value;

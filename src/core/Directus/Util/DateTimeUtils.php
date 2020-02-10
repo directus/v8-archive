@@ -3,6 +3,7 @@
 namespace Directus\Util;
 
 use DateTimeZone;
+use function Directus\get_project_config;
 
 class DateTimeUtils extends \DateTime
 {
@@ -84,7 +85,6 @@ class DateTimeUtils extends \DateTime
         }
 
         parent::__construct($time, $timezone);
-
         if ($time === null) {
             $this->setTimestamp(time());
         }
@@ -188,7 +188,6 @@ class DateTimeUtils extends \DateTime
                 sprintf('Unknown or bad timezone (%s)', $timezone)
             );
         }
-
         return $timezone;
     }
 
@@ -282,6 +281,9 @@ class DateTimeUtils extends \DateTime
         return $this->format('c');
     }
 
+    public function toRFC2616Format() {
+        return $this->format('D, d M Y H:i:s T');
+    }
     /**
      * Returns a string format of the datetime
      *
