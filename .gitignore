@@ -16,6 +16,7 @@
 
 # Composer
 /vendor
+composer.lock
 composer.phar
 
 ## Github Linux .gitignore
