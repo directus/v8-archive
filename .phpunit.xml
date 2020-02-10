@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.5/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="./vendor/autoload.php"
          testdox="true"
-         colors="true"
-         verbose="true">
+         colors="true">
 
     <testsuites>
         <testsuite name="default">
@@ -13,8 +12,15 @@
         </testsuite>
     </testsuites>
 
+    <logging>
+        <log type="coverage-clover" target="./dist/coverage.xml"/>
+        <log type="coverage-html" target="./dist/html"/>
+        <log type="junit" target="./dist/phpunit.xml"/>
+    </logging>
+
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+        <!-- <whitelist processUncoveredFilesFromWhitelist="true"> -->
+        <whitelist>
             <directory suffix=".php">src</directory>
         </whitelist>
     </filter>
