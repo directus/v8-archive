@@ -2,6 +2,7 @@
 
 namespace Directus\Console2\Commands;
 
+use Directus\Console\Common\Setting;
 use Directus\Util\Installation\InstallerUtils;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,7 +16,11 @@ class DatabaseInstallCommand extends AbstractProjectCommand
     {
         parent::configure();
         $this
-            ->setDescription('Populate the database')
+            ->setDescription('Populate the database and create an administrator')
+            ->addOption('project-name', null, InputOption::VALUE_REQUIRED, 'Project name')
+            ->addOption('project-url', null, InputOption::VALUE_REQUIRED, 'Project url')
+            ->addOption('email', 'e', InputOption::VALUE_REQUIRED, 'Administrator e-mail address', 'admin@example.com')
+            ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Administrator password', 'password')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Overwrite existing database')
         ;
     }
@@ -23,13 +28,13 @@ class DatabaseInstallCommand extends AbstractProjectCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $basePath = $input->getOption('base-path');
-        $project = $input->getArgument('project-key');
+        $projectKey = $input->getArgument('project-key');
         $force = $input->getOption('force');
 
-        $config = InstallerUtils::createApp($basePath, $project)->getConfig();
+        $config = InstallerUtils::createApp($basePath, $projectKey)->getConfig();
 
         $data = [
-            'project' => $project,
+            'project' => $projectKey,
             'db_name' => $config['database']['name'],
             'db_host' => $config['database']['host'],
             'db_port' => $config['database']['port'],
@@ -38,8 +43,20 @@ class DatabaseInstallCommand extends AbstractProjectCommand
         ];
 
         InstallerUtils::ensureCanCreateTables($basePath, $data, $force);
-        InstallerUtils::createTables($basePath, $project, $force);
-        InstallerUtils::addUpgradeMigrations($basePath, $project);
+        InstallerUtils::createTables($basePath, $projectKey, $force);
+        InstallerUtils::addUpgradeMigrations($basePath, $projectKey);
+
+        $data = [
+            'app_url' => $input->getOption('project-url'),
+            'project_name' => $input->getOption('project-name'),
+            'user_email' => $input->getOption('email'),
+            'user_password' => $input->getOption('password'),
+        ];
+
+        $setting = new Setting($basePath, $projectKey);
+
+        InstallerUtils::addDefaultSettings($basePath, $data, $projectKey);
+        InstallerUtils::addDefaultUser($basePath, $data, $projectKey);
 
         return 0;
     }
