@@ -49,22 +49,22 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "scripts": {
-    "task:linter": "php-cs-fixer fix --verbose --diff --dry-run --config=etc/.php_cs.dist",
+    "task:lint": "php-cs-fixer fix --verbose --diff --dry-run --config=etc/.php_cs.dist",
     "task:static-analysis": "phpstan --memory-limit=2G --ansi --configuration=etc/phpstan.neon analyse",
     "task:test": "phpunit --colors=always --bootstrap vendor/autoload.php --testdox tests",
     "task:test:with-coverage": "phpunit --colors=always --bootstrap vendor/autoload.php --testdox --log-junit=./var/phpunit.xml --coverage-html=./var/html --coverage-clover=./var/coverage.xml --whitelist=src tests",
     "task:coverage:report": "coveralls var/coverage.xml",
     "test": [
-      "@task:linter",
+      "@task:lint",
       "@task:static-analysis",
       "@task:test"
     ],
     "test:ci": [
-      "@task:linter",
+      "@task:lint",
       "@task:static-analysis",
       "@task:test:with-coverage"
     ],
-    "lint": "php-cs-fixer fix --verbose --diff --config=etc/.php_cs.dist"
+    "format": "php-cs-fixer fix --verbose --diff --config=etc/.php_cs.dist"
   },
   "config": {
     "sort-packages": true,
