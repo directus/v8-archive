@@ -6,8 +6,8 @@ use function Directus\base_path;
 use Directus\Console2\Commands\CacheClearCommand;
 use Directus\Console2\Commands\ConfigCreateCommand;
 use Directus\Console2\Commands\DatabaseDumpCommand;
+use Directus\Console2\Commands\DatabaseImportCommand;
 use Directus\Console2\Commands\DatabaseInstallCommand;
-use Directus\Console2\Commands\DatabaseRestoreCommand;
 use Directus\Console2\Commands\DatabaseUpgradeCommand;
 use Directus\Console2\Commands\DatabaseWipeCommand;
 use Directus\Console2\Commands\MaintenanceOffCommand;
@@ -32,8 +32,8 @@ class CLI extends Application
             new CacheClearCommand(),
             new ConfigCreateCommand(),
             new DatabaseDumpCommand(),
+            new DatabaseImportCommand(),
             new DatabaseInstallCommand(),
-            new DatabaseRestoreCommand(),
             new DatabaseUpgradeCommand(),
             new DatabaseWipeCommand(),
             new MaintenanceOffCommand(),
