@@ -31,12 +31,12 @@ class ConfigCreateCommand extends AbstractProjectCommand
     {
         $data = [
             'project' => $input->getArgument('project-key'),
-            'db_type' => $inpupt->getOption('db-type'),
-            'db_host' => $inpupt->getOption('db-host'),
-            'db_port' => $inpupt->getOption('db-port'),
-            'db_name' => $inpupt->getOption('db-name'),
-            'db_user' => $inpupt->getOption('db-user'),
-            'db_password' => $inpupt->getOption('db-pass'),
+            'db_type' => $input->getOption('db-type'),
+            'db_host' => $input->getOption('db-host'),
+            'db_port' => $input->getOption('db-port'),
+            'db_name' => $input->getOption('db-name'),
+            'db_user' => $input->getOption('db-user'),
+            'db_password' => $input->getOption('db-pass'),
         ];
 
         InstallerUtils::createConfig(
