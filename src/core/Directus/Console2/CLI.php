@@ -5,11 +5,11 @@ namespace Directus\Console2;
 use function Directus\base_path;
 use Directus\Console2\Commands\CacheClearCommand;
 use Directus\Console2\Commands\ConfigCreateCommand;
-use Directus\Console2\Commands\DatabaseDropCommand;
 use Directus\Console2\Commands\DatabaseDumpCommand;
 use Directus\Console2\Commands\DatabaseInstallCommand;
 use Directus\Console2\Commands\DatabaseRestoreCommand;
 use Directus\Console2\Commands\DatabaseUpgradeCommand;
+use Directus\Console2\Commands\DatabaseWipeCommand;
 use Directus\Console2\Commands\MaintenanceOffCommand;
 use Directus\Console2\Commands\MaintenanceOnCommand;
 use Directus\Console2\Commands\MaintenanceStatusCommand;
@@ -31,11 +31,11 @@ class CLI extends Application
         $this->addCommands([
             new CacheClearCommand(),
             new ConfigCreateCommand(),
-            new DatabaseDropCommand(),
             new DatabaseDumpCommand(),
             new DatabaseInstallCommand(),
             new DatabaseRestoreCommand(),
             new DatabaseUpgradeCommand(),
+            new DatabaseWipeCommand(),
             new MaintenanceOffCommand(),
             new MaintenanceOnCommand(),
             new MaintenanceStatusCommand(),
