@@ -48,6 +48,7 @@ use Zend\Db\Sql\Ddl\Constraint\PrimaryKey;
 use Zend\Db\Sql\Ddl\Constraint\UniqueKey;
 use Zend\Db\Sql\Ddl\CreateTable;
 use Zend\Db\Sql\Sql;
+use Directus\Database\Exception\FieldRequiredException;
 
 class SchemaFactory
 {
@@ -113,6 +114,17 @@ class SchemaFactory
 
         $sqlQuery = $sql->getAdapter();
 
+        // Throws an exception when trying to make the field required and there are items with no value for that field in collection
+
+        if($column['required']) {
+            $selectQuery = sprintf('SELECT * FROM `%s` WHERE `%s` IS NULL',$column['collection'],$column['field']);
+            $result=$sqlQuery->query($selectQuery)->execute();
+            $entries=iterator_to_array($result);
+            if(count($entries) > 0) {
+               throw new FieldRequiredException();
+            }
+        }
+    
         if (!empty($column['length'])) {
             $query = sprintf($queryFormat, $column['collection'], $column['field'], $column['datatype'], $column['length']);
         } else {
