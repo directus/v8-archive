@@ -28,7 +28,7 @@
     "cedx/coveralls": "^11.2",
     "friendsofphp/php-cs-fixer": "^2.16",
     "nunomaduro/larastan": "^0.5.1",
-    "orchestra/testbench": "^4.6",
+    "orchestra/testbench": "^4.0",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan": "^0.12",
     "phpstan/phpstan-phpunit": "^0.12",
@@ -74,7 +74,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Directus\\Laravel\\ServiceProvider"
+        "Directus\\Laravel\\Providers\\DirectusProvider"
       ]
     }
   }

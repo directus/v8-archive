@@ -9,7 +9,7 @@ use Closure;
 /**
  * Project middleware.
  */
-final class ProjectMiddleware
+final class DirectusMiddleware
 {
     /**
      * Handle an incoming request.

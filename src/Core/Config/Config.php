@@ -13,7 +13,7 @@ use Directus\Core\Config\Providers\ProviderInterface;
 /**
  * Config factory.
  */
-class Config
+class Config implements ConfigInterface
 {
     /**
      * Config driver factories.
@@ -60,7 +60,7 @@ class Config
     /**
      * Gets an instance of a config loader.
      */
-    public static function create(string $project, string $provider, array $options): self
+    public static function create(string $project, string $provider, array $options): ConfigInterface
     {
         if (!\array_key_exists($provider, static::$providers)) {
             throw new UnknownProvider();
@@ -73,11 +73,15 @@ class Config
     }
 
     /**
-     * Gets a configuration from provider.
-     *
-     * @param mixed $default
-     *
-     * @return mixed
+     * {@inheritdoc}
+     */
+    public function key(): string
+    {
+        return $this->project;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function get(string $key, $default = null)
     {

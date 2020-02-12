@@ -16,14 +16,22 @@ final class Project
      *
      * @var ConfigInterface
      */
-    private $config;
+    private $_config;
 
     /**
      * Project constructor.
      */
     public function __construct(ConfigInterface $config)
     {
-        $this->config = $config;
+        $this->_config = $config;
+    }
+
+    /**
+     * Gets the config instance.
+     */
+    public function config(): ConfigInterface
+    {
+        return $this->_config;
     }
 
     /**
@@ -31,7 +39,6 @@ final class Project
      */
     public function install(): void
     {
-        $this->config->get('name');
     }
 
     /**

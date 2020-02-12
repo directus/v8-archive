@@ -17,4 +17,9 @@ interface ConfigInterface
      * @return mixed
      */
     public function get(string $key, $default = null);
+
+    /**
+     * Gets the project key.
+     */
+    public function key(): string;
 }

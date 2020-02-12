@@ -42,6 +42,20 @@ To install Directus laravel package, for now you should add the git repository t
     ]
 ```
 
+## (OR) Add a local repository
+
+If you want to use a local repository, you should use a symlink instead.
+
+```json
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/path/to/directus/api",
+            "symlink": true
+        }
+    ],
+```
+
 ## Add the dependency
 
 ```

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 return [
     'databases' => [
-        'project' => [
-            'connection' => 'directus',
+        'data' => [
+            'connection' => 'default',
         ],
         'system' => [
-            'connection' => 'directus',
+            'connection' => 'default',
+            'prefix' => 'default_',
         ],
     ],
 ];

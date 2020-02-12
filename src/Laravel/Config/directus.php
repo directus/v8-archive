@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 return [
     'routes' => [
-        'base' => '/',
+        'root' => '/',
         'admin' => '/admin',
     ],
     'config' => [
-        'driver' => 'php',
+        'provider' => 'php',
         'options' => [
             'path' => __DIR__.'/projects/{project}.php',
+        ],
+    ],
+    'identification' => [
+        'method' => 'path',
+        'options' => [
+            'pattern' => '{project}.localtest.me',
         ],
     ],
 ];

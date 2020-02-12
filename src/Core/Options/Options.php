@@ -12,7 +12,7 @@ use Illuminate\Support\Arr;
 /**
  * Options collection and validation class.
  */
-final class Options
+class Options
 {
     /**
      * Default values.
