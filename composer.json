@@ -49,13 +49,13 @@
   "scripts": {
     "format": "php-cs-fixer --ansi fix",
     "lint:cs-fixer": "php-cs-fixer --ansi fix --diff --dry-run",
-    "lint:phpstan": "phpstan --ansi --memory-limit=2G --configuration=.phpstan.neon analyse",
+    "lint:phpstan": "phpstan --ansi --memory-limit=2G analyse",
     "lint": [
       "@lint:cs-fixer",
       "@lint:phpstan"
     ],
-    "test": "phpunit --colors=always --configuration=.phpunit.xml",
-    "test:with-coverage": "phpunit --colors=always --configuration=.phpunit.xml",
+    "test": "phpunit --colors=always",
+    "test:with-coverage": "phpunit --colors=always",
     "coverage:report": "coveralls dist/coverage.xml",
     "ci": [
       "@lint",
