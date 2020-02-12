@@ -2,6 +2,7 @@
 
 namespace Directus\Application\Http\Middleware;
 
+use Directus\Api\Routes\Auth;
 use Directus\Cache\Response as CacheResponse;
 use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
@@ -77,14 +78,10 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                 $userSessionService->destroy([
                     'token_expired_at < ?' => DateTimeUtils::now()->toString()
                 ]);
-                $expirationMinutes =  get_directus_setting('auto_sign_out');
 
-                if($expirationMinutes == NULL || $expirationMinutes == ''){
-                    //If auto sign out value is null or blank set the cookie expiry time to 10 years
-                    $expiry = new \DateTimeImmutable('now + 10 years');;
-                } else {
-                    $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
-                }
+                //Use the common function for getting expiration time
+                $auth=new Auth($this->container);
+                $expiry = $auth->getCookieExpiryTime();
 
                 switch ($authorizationTokenObject['type']) {
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE:
