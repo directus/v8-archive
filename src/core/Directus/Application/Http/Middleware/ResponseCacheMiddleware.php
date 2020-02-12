@@ -78,7 +78,13 @@ class ResponseCacheMiddleware extends AbstractMiddleware
                     'token_expired_at < ?' => DateTimeUtils::now()->toString()
                 ]);
                 $expirationMinutes =  get_directus_setting('auto_sign_out');
-                $expiry = new \DateTimeImmutable('now + ' . $expirationMinutes . 'minutes');
+
+                if($expirationMinutes == NULL || $expirationMinutes == ''){
+                    //If auto sign out value is null or blank set the cookie expiry time to 10 years
+                    $expiry = new \DateTimeImmutable('now + 10 years');;
+                } else {
+                    $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
+                }
 
                 switch ($authorizationTokenObject['type']) {
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE:
