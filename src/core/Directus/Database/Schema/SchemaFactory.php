@@ -109,6 +109,7 @@ class SchemaFactory
 
         $queryFormat = 'ALTER TABLE `%s`  MODIFY COLUMN `%s` %s';
         $queryFormat .= !empty($column['length']) ? '(%s)' : '';
+        $queryFormat .= !$column['signed'] ? ' Unsigned' : '';
         $queryFormat .= $column['required'] ? ' Not Null' : ' Null';
 
         $sqlQuery = $sql->getAdapter();
@@ -118,7 +119,7 @@ class SchemaFactory
         } else {
             $query = sprintf($queryFormat, $column['collection'], $column['field'], $column['datatype']);
         }
-
+       
         $sqlQuery->query($query)->execute();
     }
     /**
