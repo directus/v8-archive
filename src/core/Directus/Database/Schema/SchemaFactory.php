@@ -219,7 +219,7 @@ class SchemaFactory
 
         $column = $this->createColumnFromType($name, $dataType);
         $nullable= 1;
-        if($data['nullable']){
+        if($data['required']){
             $nullable= 0;
         }
         $column->setNullable($nullable);
