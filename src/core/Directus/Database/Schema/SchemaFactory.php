@@ -212,13 +212,16 @@ class SchemaFactory
         $unique = ArrayUtils::get($data, 'unique', false);
         $primaryKey = ArrayUtils::get($data, 'primary_key', false);
         $length = ArrayUtils::get($data, 'length', $this->schemaManager->getFieldDefaultLength($type));
-        $nullable = ArrayUtils::get($data, 'nullable', true);
         $default = ArrayUtils::get($data, 'default_value', null);
         $unsigned = !ArrayUtils::get($data, 'signed', false);
         $note = ArrayUtils::get($data, 'note');
         // ZendDB doesn't support encoding nor collation
 
         $column = $this->createColumnFromType($name, $dataType);
+        $nullable= 1;
+        if($data['nullable']){
+            $nullable= 0;
+        }
         $column->setNullable($nullable);
         $column->setDefault($default);
         $column->setOption('comment', $note);
