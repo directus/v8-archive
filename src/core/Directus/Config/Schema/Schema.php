@@ -23,7 +23,7 @@ class Schema
             $loggerPath = realpath(__DIR__.'/../../../../../logs');
         }
 
-        return new Group('directus', [
+        $group = new Group('directus', [
             new Value('env', Types::STRING, 'production'),
             new Group('logger', [
                 new Value('path', Types::STRING, $loggerPath),
@@ -151,5 +151,53 @@ class Schema
             ]),
             new Value('ext?', Types::ARRAY, []),
         ]);
+        if (Context::has_custom_context()) {
+            foreach (array_keys($_ENV) as $key) {
+                if (substr($key, 0,16) === "DIRECTUS_CUSTOM_") {
+                    $value = $_ENV[$key];
+                    $customKey = substr($key, 16);
+                    $customNode = explode('|', $value);
+                    $path = explode('_', $customKey);
+                    $child = new Value($customNode[0], strtolower($customNode[1]), $customNode[2]);
+                    $group = self::saveCustomNode($group, $path, $child);
+                }
+            }
+        }
+        return $group;
     }
+
+    private static function normalizeNodeName($element)
+    {
+        return preg_replace('/[^a-zA-Z0-9]/', '', $element);
+    }
+
+    /**
+     * @param Group|Node|Node[] $group
+     * @param array $keys
+     * @param Value $newChild
+     * @return Group
+     */
+    private static function saveCustomNode($group, $keys, $newChild) {
+        $key = strtolower(self::normalizeNodeName(array_shift($keys)));
+        /** @var Group[] $children */
+        if (count($keys) == 0) {
+            $group->addChild($newChild);
+            return $group;
+        }
+        foreach($group->children() as $child) {
+            if ($child->key() === $key) {
+                if (count($keys) >= 1) {
+                    return self::saveCustomNode($child, $keys, $newChild);
+                }
+            }
+        }
+        // there are still keys left and the current key is not found means we need a new child
+        if (count($keys) > 0) {
+            $newGroup = new Group($key, []);
+            $newGroup = self::saveCustomNode($newGroup, $keys, $newChild);
+            $group->addChild($newGroup);
+        }
+        return $group;
+    }
+
 }
