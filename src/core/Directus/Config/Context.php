@@ -127,4 +127,9 @@ class Context
     {
         return getenv('DIRECTUS_USE_ENV') === '1';
     }
+
+    public static function has_custom_context()
+    {
+        return getenv('DIRECTUS_USE_CUSTOM_CONTEXT') === '1';
+    }
 }
