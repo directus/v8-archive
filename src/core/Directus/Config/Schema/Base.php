@@ -128,11 +128,18 @@ abstract class Base implements Node
     }
 
     /**
-     * @param self $child
+     * @param self $newChild
+     * @return Base
      */
-    public function addChild($child)
+    public function addChild($newChild)
     {
-        $child->parent($this);
-        $this->_children[] = $child;
+        $newChild->parent($this);
+        $children = array_filter($this->_children, function ($child) use ($newChild) {
+            /** @var Base $child */
+            return $child->key() !== $newChild->key();
+        });
+        $children[] = $newChild;
+        $this->children($children);
+        return $this;
     }
 }
