@@ -121,7 +121,7 @@ abstract class Base implements Node
      */
     protected function normalize($context) {
         foreach ($context as $context_key => $context_value) {
-            $context[strtolower(str_replace("-", "", str_replace("_", "", $context_key)))] = $context_value;
+            $context[strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $context_key))] = $context_value;
         }
 
         return $context;
