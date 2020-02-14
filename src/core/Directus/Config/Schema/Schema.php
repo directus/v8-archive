@@ -172,32 +172,29 @@ class Schema
     }
 
     /**
-     * @param Group|Node|Node[] $group
+     * @param Base|Node|Node[] $group
      * @param array $keys
      * @param Value $newChild
-     * @return Group
+     * @return Base
      */
-    private static function saveCustomNode($group, $keys, $newChild) {
+    private static function saveCustomNode($group, $keys, $newChild)
+    {
         $key = strtolower(self::normalizeNodeName(array_shift($keys)));
-        /** @var Group[] $children */
         if (count($keys) == 0) {
-            $group->addChild($newChild);
-            return $group;
+            return $group->addChild($newChild);
         }
         foreach($group->children() as $child) {
             if ($child->key() === $key) {
                 if (count($keys) >= 1) {
-                    return self::saveCustomNode($child, $keys, $newChild);
+                    return $group->addChild(self::saveCustomNode($child, $keys, $newChild));
                 }
             }
         }
-        // there are still keys left and the current key is not found means we need a new child
         if (count($keys) > 0) {
             $newGroup = new Group($key, []);
             $newGroup = self::saveCustomNode($newGroup, $keys, $newChild);
-            $group->addChild($newGroup);
+            return $group->addChild($newGroup);
         }
         return $group;
     }
-
 }
