@@ -783,6 +783,10 @@ class CoreServicesProvider
                     $class = array_get($providerInfo, 'provider');
                     $custom = array_get($providerInfo, 'custom');
 
+                    if ($custom && !class_exists($class)) {
+                        require_once(\Directus\base_path().'public/extensions/custom/auth/'.$providerName.'/Provider.php');
+                    }
+
                     if (!class_exists($class)) {
                         throw new RuntimeException(sprintf('Class %s not found', $class));
                     }
