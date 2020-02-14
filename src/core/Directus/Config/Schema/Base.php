@@ -126,4 +126,13 @@ abstract class Base implements Node
 
         return $context;
     }
+
+    /**
+     * @param self $child
+     */
+    public function addChild($child)
+    {
+        $child->parent($this);
+        $this->_children[] = $child;
+    }
 }
