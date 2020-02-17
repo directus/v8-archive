@@ -95,33 +95,6 @@ class SchemaFactory
         return $table;
     }
 
-    // // Todo
-    // // Zend DB does not support NotNull constraint. This function will add/remove not null constraint from particular column
-    // public function addNotNullConstraint($column)
-    // {
-    //     // Make sure we don't add the constraint for alias type columns
-    //     if (DataTypes::isAliasType($column['type'])) {
-    //         return;
-    //     }
-
-    //     $connection = $this->schemaManager->getSource()->getConnection();
-    //     $sql = new Sql($connection);
-
-    //     $queryFormat = 'ALTER TABLE `%s`  MODIFY COLUMN `%s` %s';
-    //     $queryFormat .= !empty($column['length']) ? '(%s)' : '';
-    //     $queryFormat .= !$column['signed'] ? ' Unsigned' : '';
-    //     $queryFormat .= $column['required'] ? ' Not Null' : ' Null';
-
-    //     $sqlQuery = $sql->getAdapter();
-
-    //     if (!empty($column['length'])) {
-    //         $query = sprintf($queryFormat, $column['collection'], $column['field'], $column['datatype'], $column['length']);
-    //     } else {
-    //         $query = sprintf($queryFormat, $column['collection'], $column['field'], $column['datatype']);
-    //     }
-       
-    //     $sqlQuery->query($query)->execute();
-    // }
     /**
      * Alter an existing table
      *
@@ -218,10 +191,7 @@ class SchemaFactory
         // ZendDB doesn't support encoding nor collation
 
         $column = $this->createColumnFromType($name, $dataType);
-        $nullable= 1;
-        if($data['required']){
-            $nullable= 0;
-        }
+        $nullable= ($data['required']) ? 0 : 1;
         $column->setNullable($nullable);
         $column->setDefault($default);
         $column->setOption('comment', $note);
