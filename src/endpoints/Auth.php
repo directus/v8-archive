@@ -116,7 +116,7 @@ class Auth extends Route
      */
     public function storeCookieSession($request,$response,$data){
         $authorizationTokenObject = get_request_authorization_token($request);
-        $expiry= $this->getCookieExpiryTime();
+        $expiry= $this->getSessionExpiryTime();
         $userSessionService = new UserSessionService($this->container);
 
         if(!empty($authorizationTokenObject['token'])){
@@ -159,7 +159,7 @@ class Auth extends Route
      */
     public function storeJwtSession($data){
 
-        $expiry= $this->getCookieExpiryTime();
+        $expiry= $this->getSessionExpiryTime();
 
         $userSessionService = new UserSessionService($this->container);
         $userSessionService->create([
@@ -468,11 +468,11 @@ class Auth extends Route
 
      /**
      *
-     * Returns cookie expiration time 
+     * Returns session expiration time 
      * 
      * @return Response
      */
-    public function getCookieExpiryTime()
+    public function getSessionExpiryTime()
     {
         $expirationMinutes =  get_directus_setting('auto_sign_out');
 

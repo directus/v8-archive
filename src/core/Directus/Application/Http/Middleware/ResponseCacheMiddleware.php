@@ -81,7 +81,7 @@ class ResponseCacheMiddleware extends AbstractMiddleware
 
                 //Use the common function for getting expiration time
                 $auth=new Auth($this->container);
-                $expiry = $auth->getCookieExpiryTime();
+                $expiry = $auth->getSessionExpiryTime();
 
                 switch ($authorizationTokenObject['type']) {
                     case DirectusUserSessionsTableGateway::TOKEN_COOKIE:
