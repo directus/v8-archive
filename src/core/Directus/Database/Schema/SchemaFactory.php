@@ -114,17 +114,6 @@ class SchemaFactory
 
         $sqlQuery = $sql->getAdapter();
 
-        // Throws an exception when trying to make the field required and there are items with no value for that field in collection
-
-        if($column['required']) {
-            $selectQuery = sprintf('SELECT * FROM `%s` WHERE `%s` IS NULL',$column['collection'],$column['field']);
-            $result=$sqlQuery->query($selectQuery)->execute();
-            $entries=iterator_to_array($result);
-            if(count($entries) > 0) {
-               throw new FieldRequiredException();
-            }
-        }
-    
         if (!empty($column['length'])) {
             $query = sprintf($queryFormat, $column['collection'], $column['field'], $column['datatype'], $column['length']);
         } else {
@@ -142,10 +131,15 @@ class SchemaFactory
      * @return AlterTable
      *
      * @throws FieldAlreadyHasUniqueKeyException
+     * @throws FieldRequiredException
      */
     public function alterTable($name, array $data)
     {
         $table = new AlterTable($name);
+
+        $connection = $this->schemaManager->getSource()->getConnection();
+        $sql = new Sql($connection);
+        $sqlQuery = $sql->getAdapter();
 
         $toAddColumnsData = ArrayUtils::get($data, 'add', []);
         $toAddColumns = $this->createColumns($toAddColumnsData);
@@ -166,6 +160,19 @@ class SchemaFactory
         }
 
         $toChangeColumnsData = ArrayUtils::get($data, 'change', []);
+
+        // Throws an exception when trying to make the field required and there are items with no value for that field in collection
+        foreach ($toChangeColumnsData as $column) {
+            if($column['required']) {
+                $selectQuery = sprintf('SELECT * FROM `%s` WHERE `%s` IS NULL',$name,$column['field']);
+                $result=$sqlQuery->query($selectQuery)->execute();
+                $entries=iterator_to_array($result);
+                if(count($entries) > 0) {
+                    throw new FieldRequiredException();
+                }
+            }
+        }
+
         $toChangeColumns = $this->createColumns($toChangeColumnsData);
         foreach ($toChangeColumns as $column) {
             $table->changeColumn($column->getName(), $column);
