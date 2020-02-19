@@ -108,7 +108,7 @@ class Auth extends Route
     }
 
     /**
-     * Return the session history of given user.
+     * Returns boolean that indicates if current session is active or not
      *
      * @param Request  $request
      * @param Response $response
@@ -129,7 +129,9 @@ class Auth extends Route
         }
 
         return $this->responseWithData($request, $response, [
-            'authenticated' => $authenticated,
+            'data' => [
+                'authenticated' => $authenticated,
+            ]
         ]);
     }
 
@@ -495,8 +497,8 @@ class Auth extends Route
 
      /**
      *
-     * Returns session expiration time 
-     * 
+     * Returns session expiration time
+     *
      * @return Response
      */
     public function getSessionExpiryTime()
