@@ -144,8 +144,7 @@ class Auth extends Route
     public function storeCookieSession($request, $response, $data)
     {
         $authorizationTokenObject = get_request_authorization_token($request);
-        $expirationMinutes = get_directus_setting('auto_sign_out');
-        $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
+        $expiry= $this->getSessionExpiryTime();
         $userSessionService = new UserSessionService($this->container);
 
         if (!empty($authorizationTokenObject['token'])) {
@@ -185,10 +184,8 @@ class Auth extends Route
      *
      * @return Response
      */
-    public function storeJwtSession($data)
-    {
-        $expirationMinutes = get_directus_setting('auto_sign_out');
-        $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
+    public function storeJwtSession($data){
+        $expiry= $this->getSessionExpiryTime();
 
         $userSessionService = new UserSessionService($this->container);
         $userSessionService->create([
@@ -494,5 +491,25 @@ class Auth extends Route
         );
 
         return $this->responseWithData($request, $response, $responseData);
+    }
+
+     /**
+     *
+     * Returns session expiration time 
+     * 
+     * @return Response
+     */
+    public function getSessionExpiryTime()
+    {
+        $expirationMinutes =  get_directus_setting('auto_sign_out');
+
+        if($expirationMinutes == NULL || $expirationMinutes == '' || $expirationMinutes <= 0){
+            //If auto sign out value is null or blank set the cookie expiry time to 10 years
+            $expiry = new \DateTimeImmutable('now + 10 years');;
+        } else {
+            $expiry = new \DateTimeImmutable('now + '.$expirationMinutes.'minutes');
+        }
+
+        return $expiry;
     }
 }
