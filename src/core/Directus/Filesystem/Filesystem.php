@@ -44,6 +44,18 @@ class Filesystem
     }
 
     /**
+     * Returns a readable stream for the given location
+     *
+     * @param string $location
+     * @return false|resource
+     * @throws \League\Flysystem\FileNotFoundException
+     */
+    public function readStream($location)
+    {
+        return $this->adapter->readStream($location);
+    }
+
+    /**
      * Writes data to th given location
      *
      * @param string $location
