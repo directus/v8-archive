@@ -624,7 +624,7 @@ class Files
     private function sanitizeName($fileName)
     {
         // Swap out Non "Letters" with a -
-        $fileName = preg_replace('/[^\\pL\d^\.]+/u', '-', $fileName);
+        $fileName = preg_replace('/[^_\\pL\d^\.]+/u', '-', $fileName);
 
         // Trim out extra -'s
         $fileName = trim($fileName, '-');
