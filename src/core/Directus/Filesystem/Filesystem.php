@@ -4,6 +4,7 @@ namespace Directus\Filesystem;
 
 use Directus\Filesystem\Exception\ForbiddenException;
 use League\Flysystem\FilesystemInterface as FlysystemInterface;
+use Slim\Http\UploadedFile;
 
 class Filesystem
 {
@@ -56,10 +57,10 @@ class Filesystem
     }
 
     /**
-     * Writes data to th given location
+     * Writes data to the given location
      *
      * @param string $location
-     * @param $data
+     * @param string|UploadedFile $data
      * @param bool $replace
      */
     public function write($location, $data, $replace = false)
@@ -109,6 +110,7 @@ class Filesystem
      */
     public function getPath($path = '')
     {
+        /** @var \League\Flysystem\AdapterInterface $adapter */
         $adapter = $this->adapter->getAdapter();
 
         if ($path) {
