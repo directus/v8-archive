@@ -107,6 +107,12 @@ class SchemaFactory
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
 
+        if (in_array($column['datatype'], [
+            'TINYTEXT', 'TEXT', 'MEDIUMTEXT', 'LONGTEXT',
+        ])) {
+            $column['length'] = null;
+        }
+
         $queryFormat = 'ALTER TABLE `%s`  MODIFY COLUMN `%s` %s';
         $queryFormat .= !empty($column['length']) ? '(%s)' : '';
         $queryFormat .= $column['required'] ? ' Not Null' : ' Null';
