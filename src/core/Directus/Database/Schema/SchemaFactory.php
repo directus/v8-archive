@@ -95,32 +95,6 @@ class SchemaFactory
         return $table;
     }
 
-    // Todo
-    // Zend DB does not support NotNull constraint. This function will add/remove not null constraint from particular column
-    public function addNotNullConstraint($column)
-    {
-        // Make sure we don't add the constraint for alias type columns
-        if (DataTypes::isAliasType($column['type'])) {
-            return;
-        }
-
-        $connection = $this->schemaManager->getSource()->getConnection();
-        $sql = new Sql($connection);
-
-        $queryFormat = 'ALTER TABLE `%s`  MODIFY COLUMN `%s` %s';
-        $queryFormat .= !empty($column['length']) ? '(%s)' : '';
-        $queryFormat .= $column['required'] ? ' Not Null' : ' Null';
-
-        $sqlQuery = $sql->getAdapter();
-
-        if (!empty($column['length'])) {
-            $query = sprintf($queryFormat, $column['collection'], $column['field'], $column['datatype'], $column['length']);
-        } else {
-            $query = sprintf($queryFormat, $column['collection'], $column['field'], $column['datatype']);
-        }
-
-        $sqlQuery->query($query)->execute();
-    }
     /**
      * Alter an existing table
      *
@@ -211,10 +185,10 @@ class SchemaFactory
         $unique = ArrayUtils::get($data, 'unique', false);
         $primaryKey = ArrayUtils::get($data, 'primary_key', false);
         $length = ArrayUtils::get($data, 'length', $this->schemaManager->getFieldDefaultLength($type));
-        $nullable = ArrayUtils::get($data, 'nullable', true);
         $default = ArrayUtils::get($data, 'default_value', null);
         $unsigned = !ArrayUtils::get($data, 'signed', false);
         $note = ArrayUtils::get($data, 'note');
+        $nullable = !ArrayUtils::get($data, 'required', false);
         // ZendDB doesn't support encoding nor collation
 
         $column = $this->createColumnFromType($name, $dataType);
