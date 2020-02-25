@@ -188,10 +188,10 @@ class SchemaFactory
         $default = ArrayUtils::get($data, 'default_value', null);
         $unsigned = !ArrayUtils::get($data, 'signed', false);
         $note = ArrayUtils::get($data, 'note');
+        $nullable = !ArrayUtils::get($data, 'required', false);
         // ZendDB doesn't support encoding nor collation
 
         $column = $this->createColumnFromType($name, $dataType);
-        $nullable= ($data['required']) ? 0 : 1;
         $column->setNullable($nullable);
         $column->setDefault($default);
         $column->setOption('comment', $note);
