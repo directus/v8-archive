@@ -160,14 +160,14 @@ class SchemaFactory
         }
 
         $toChangeColumnsData = ArrayUtils::get($data, 'change', []);
-
+        
         // Throws an exception when trying to make the field required and there are items with no value for that field in collection
         foreach ($toChangeColumnsData as $column) {
             if($column['required']) {
-                $selectQuery = sprintf('SELECT * FROM `%s` WHERE `%s` IS NULL',$name,$column['field']);
+                $selectQuery = sprintf('SELECT COUNT(*) as "count" FROM `%s` WHERE `%s` IS NULL',$name,$column['field']);
                 $result=$sqlQuery->query($selectQuery)->execute();
-                $entries=iterator_to_array($result);
-                if(count($entries) > 0) {
+                $entries=$result->current();
+                if($entries['count'] > 0) {
                     throw new FieldRequiredException();
                 }
             }
