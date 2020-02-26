@@ -267,7 +267,8 @@ class Auth extends Route
 
         try {
             $authService->sendResetPasswordToken(
-                $request->getParsedBodyParam('email')
+                $request->getParsedBodyParam('email'),
+                $request->getParsedBodyParam('customResetUrl')
             );
         } catch (\Exception $e) {
             $this->container->get('logger')->error($e->getMessage());
