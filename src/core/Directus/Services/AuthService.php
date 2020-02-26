@@ -385,9 +385,9 @@ class AuthService extends AbstractService
      * Sends a email with the reset password token
      *
      * @param $email
-     * @param $customResetUrl
+     * @param $reset_url
      */
-    public function sendResetPasswordToken($email, $customResetUrl)
+    public function sendResetPasswordToken($email, $reset_url)
     {
         $this->validate(['email' => $email], ['email' => 'required|email']);
 
@@ -404,8 +404,8 @@ class AuthService extends AbstractService
         // Sending the project key in the query param makes sure the app will use the correct project
         // to send the new password to
 
-        if ($customResetUrl) {
-            $resetUrl = $customResetUrl . '?token=' . $resetToken;
+        if ($reset_url) {
+            $resetUrl = $reset_url . '?token=' . $resetToken;
         } else {
             $resetUrl = get_url() . 'admin/#/reset-password?token=' . $resetToken . '&project=' . get_api_project_from_request();
         }
