@@ -405,7 +405,7 @@ class AuthService extends AbstractService
         // to send the new password to
 
         if ($customResetUrl) {
-            $resetUrl = $customResetUrl . '?token=' .$resetToken;
+            $resetUrl = $customResetUrl . '?token=' . $resetToken;
         } else {
             $resetUrl = get_url() . 'admin/#/reset-password?token=' . $resetToken . '&project=' . get_api_project_from_request();
         }
