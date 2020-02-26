@@ -48,6 +48,8 @@ use Zend\Db\Sql\Ddl\Constraint\PrimaryKey;
 use Zend\Db\Sql\Ddl\Constraint\UniqueKey;
 use Zend\Db\Sql\Ddl\CreateTable;
 use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Predicate\Expression;
+use Zend\Db\Sql\Select;
 use Directus\Database\Exception\FieldRequiredException;
 
 class SchemaFactory
@@ -139,8 +141,7 @@ class SchemaFactory
 
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
-        $sqlQuery = $sql->getAdapter();
-
+    
         $toAddColumnsData = ArrayUtils::get($data, 'add', []);
         $toAddColumns = $this->createColumns($toAddColumnsData);
         foreach ($toAddColumns as $column) {
@@ -164,9 +165,16 @@ class SchemaFactory
         // Throws an exception when trying to make the field required and there are items with no value for that field in collection
         foreach ($toChangeColumnsData as $column) {
             if($column['required']) {
-                $selectQuery = sprintf('SELECT COUNT(*) as "count" FROM `%s` WHERE `%s` IS NULL',$name,$column['field']);
-                $result=$sqlQuery->query($selectQuery)->execute();
-                $entries=$result->current();
+                $select = new Select();
+                $select->columns([
+                    'count' => new Expression('COUNT(*)')
+                ]);
+                $select->from($name);
+                $select->where->isNull($column['field']);
+                $statement = $sql->prepareStatementForSqlObject($select);
+                $result = $statement->execute();
+                $entries = $result->current();
+              
                 if($entries['count'] > 0) {
                     throw new FieldRequiredException();
                 }
