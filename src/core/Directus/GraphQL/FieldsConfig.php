@@ -184,6 +184,12 @@ class FieldsConfig
                     $filters[$v['field'] . '_null'] = Types::string();
                     $filters[$v['field'] . '_nnull'] = Types::string();
                     break;
+                case 'owner':
+                    $filters[$v['field'] . '_eq'] = Types::int();
+                    $filters[$v['field'] . '_neq'] = Types::int();
+                    $filters[$v['field'] . '_in'] = Types::string();
+                    $filters[$v['field'] . '_nin'] = Types::string();
+                    break;
 
                 default:
                     /* As the _has and _all not working properly
