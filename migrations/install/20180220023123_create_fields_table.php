@@ -38,7 +38,7 @@ class CreateFieldsTable extends AbstractMigration
             'default' => false
         ]);
         $table->addColumn('validation', 'string', [
-            'limit' => 255,
+            'limit' => 500,
             'null' => true,
             'default' => null
         ]);
@@ -143,7 +143,7 @@ class CreateFieldsTable extends AbstractMigration
                 'collection' => 'directus_fields',
                 'field' => 'locked',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
+                'interface' => 'switch',
                 'locked' => 1
             ],
             [
@@ -176,7 +176,7 @@ class CreateFieldsTable extends AbstractMigration
                 'collection' => 'directus_fields',
                 'field' => 'readonly',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
+                'interface' => 'switch',
                 'locked' => 1
             ],
             [
@@ -190,7 +190,7 @@ class CreateFieldsTable extends AbstractMigration
                 'collection' => 'directus_fields',
                 'field' => 'required',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
+                'interface' => 'switch',
                 'locked' => 1
             ],
             [
@@ -211,14 +211,14 @@ class CreateFieldsTable extends AbstractMigration
                 'collection' => 'directus_fields',
                 'field' => 'hidden_detail',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
+                'interface' => 'switch',
                 'locked' => 1
             ],
             [
                 'collection' => 'directus_fields',
                 'field' => 'hidden_browse',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_BOOLEAN,
-                'interface' => 'toggle',
+                'interface' => 'switch',
                 'locked' => 1
             ],
             [
@@ -237,15 +237,16 @@ class CreateFieldsTable extends AbstractMigration
             ],
         ];
 
-        foreach($data as $value){
-            if(!$this->checkFieldExist($value['collection'], $value['field'])){
+        foreach ($data as $value) {
+            if (!$this->checkFieldExist($value['collection'], $value['field'])) {
                 $fileds = $this->table('directus_fields');
                 $fileds->insert($value)->save();
             }
         }
     }
 
-    public function checkFieldExist($collection,$field){
+    public function checkFieldExist($collection, $field)
+    {
         $checkSql = sprintf('SELECT 1 FROM `directus_fields` WHERE `collection` = "%s" AND `field` = "%s";', $collection, $field);
         return $this->query($checkSql)->fetch();
     }

@@ -26,6 +26,7 @@ use Zend\Db\Sql\Select;
 use function Directus\get_directus_setting;
 use Directus\Validator\Exception\InvalidRequestException;
 use Zend\Db\TableGateway\TableGateway;
+use Directus\Exception\UnauthorizedException;
 
 class UsersService extends AbstractService
 {
@@ -67,8 +68,8 @@ class UsersService extends AbstractService
         $this->validatePayload($this->collection, array_keys($payload), $payload, $params);
 
         $passwordValidation = get_directus_setting('password_policy');
-        if(!empty($passwordValidation)){
-            $this->validate($payload,[static::PASSWORD_FIELD => ['regex:'.$passwordValidation ]]);
+        if (!empty($passwordValidation)) {
+            $this->validate($payload, [static::PASSWORD_FIELD => ['regex:' . $passwordValidation]]);
         }
 
         $this->checkItemExists($this->collection, $id);
@@ -87,7 +88,7 @@ class UsersService extends AbstractService
         );
         $newRecord = $tableGateway->updateRecord($id, $payload, $this->getCRUDParams($params));
 
-        if(!is_null(ArrayUtils::get($payload, $status->getName()))){
+        if (!is_null(ArrayUtils::get($payload, $status->getName()))) {
             $activityTableGateway = $this->createTableGateway(SchemaManager::COLLECTION_ACTIVITY);
             $activityTableGateway->recordAction(
                 $id,
@@ -140,11 +141,18 @@ class UsersService extends AbstractService
 
     public function findByIds($id, array $params = [])
     {
-        return $this->itemsService->findByIds(
-            $this->collection,
-            $this->getUserId($id),
-            $params
-        );
+        try {
+            return $this->itemsService->findByIds(
+                $this->collection,
+                $this->getUserId($id),
+                $params
+            );
+        } catch (\Exception $e) {
+            if ($e->getCode() == 203 && $id == "me") {
+                throw new UnauthorizedException('Unauthorized request');
+            }
+            throw $e;
+        }
     }
 
     public function findOne(array $params = [])
@@ -355,17 +363,17 @@ class UsersService extends AbstractService
     protected function isLastAdmin($id)
     {
         $result = $this->createTableGateway(SchemaManager::COLLECTION_USERS, false)->fetchAll(function (Select $select) use ($id) {
-            $select->columns(['role']);
-            $select->where(['role' => 1]);
-        });
+            $select->columns(['id']);
+            $select->where(['role' => 1 , 'status' =>  DirectusUsersTableGateway::STATUS_ACTIVE]);
+        })->toArray();
 
         $usersIds = [];
-        while ($result->valid()) {
-            $item = $result->current();
-            $usersIds[] = $item['user'];
-            $result->next();
+        if(count($result) > 0) {
+            foreach ($result as $key => $value) {
+                ArrayUtils::push($usersIds,$value['id']);
+            }
         }
-
+        
         return in_array($id, $usersIds) && count($usersIds) === 1;
     }
 
@@ -444,14 +452,14 @@ class UsersService extends AbstractService
 
         $ga = new Google2FA();
 
-        if (!$ga->verifyKey($tfa_secret, $otp, 2)){
+        if (!$ga->verifyKey($tfa_secret, $otp, 2)) {
             throw new InvalidOTPException();
         }
 
         return $this->update($id, ['2fa_secret' => $tfa_secret]);
     }
 
-     /**
+    /**
      * @param $collection
      * @param array $items
      * @param array $params

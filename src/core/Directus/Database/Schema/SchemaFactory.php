@@ -48,6 +48,9 @@ use Zend\Db\Sql\Ddl\Constraint\PrimaryKey;
 use Zend\Db\Sql\Ddl\Constraint\UniqueKey;
 use Zend\Db\Sql\Ddl\CreateTable;
 use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Predicate\Expression;
+use Zend\Db\Sql\Select;
+use Directus\Database\Exception\FieldRequiredException;
 
 class SchemaFactory
 {
@@ -104,11 +107,15 @@ class SchemaFactory
      * @return AlterTable
      *
      * @throws FieldAlreadyHasUniqueKeyException
+     * @throws FieldRequiredException
      */
     public function alterTable($name, array $data)
     {
         $table = new AlterTable($name);
 
+        $connection = $this->schemaManager->getSource()->getConnection();
+        $sql = new Sql($connection);
+    
         $toAddColumnsData = ArrayUtils::get($data, 'add', []);
         $toAddColumns = $this->createColumns($toAddColumnsData);
         foreach ($toAddColumns as $column) {
@@ -121,12 +128,33 @@ class SchemaFactory
 
             if (ArrayUtils::get($options, 'primary_key') == true) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
-            } if (ArrayUtils::get($options, 'unique') == true) {
+            }
+            if (ArrayUtils::get($options, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
 
         $toChangeColumnsData = ArrayUtils::get($data, 'change', []);
+        
+        // Throws an exception when trying to make the field required and there are items with no value for that field in collection
+        foreach ($toChangeColumnsData as $column) {
+            if($column['required']) {
+                $select = new Select();
+                $select->columns([
+                    'count' => new Expression('COUNT(*)')
+                ]);
+                $select->from($name);
+                $select->where->isNull($column['field']);
+                $statement = $sql->prepareStatementForSqlObject($select);
+                $result = $statement->execute();
+                $entries = $result->current();
+              
+                if($entries['count'] > 0) {
+                    throw new FieldRequiredException();
+                }
+            }
+        }
+
         $toChangeColumns = $this->createColumns($toChangeColumnsData);
         foreach ($toChangeColumns as $column) {
             $table->changeColumn($column->getName(), $column);
@@ -138,7 +166,8 @@ class SchemaFactory
 
             if (ArrayUtils::get($options, 'primary_key') == true) {
                 $table->addConstraint(new PrimaryKey($column->getName()));
-            } if (ArrayUtils::get($options, 'unique') == true) {
+            }
+            if (ArrayUtils::get($options, 'unique') == true) {
                 $table->addConstraint(new UniqueKey($column->getName()));
             }
         }
@@ -183,10 +212,10 @@ class SchemaFactory
         $unique = ArrayUtils::get($data, 'unique', false);
         $primaryKey = ArrayUtils::get($data, 'primary_key', false);
         $length = ArrayUtils::get($data, 'length', $this->schemaManager->getFieldDefaultLength($type));
-        $nullable = ArrayUtils::get($data, 'nullable', true);
         $default = ArrayUtils::get($data, 'default_value', null);
         $unsigned = !ArrayUtils::get($data, 'signed', false);
         $note = ArrayUtils::get($data, 'note');
+        $nullable = !ArrayUtils::get($data, 'required', false);
         // ZendDB doesn't support encoding nor collation
 
         $column = $this->createColumnFromType($name, $dataType);
@@ -229,14 +258,14 @@ class SchemaFactory
      *
      * @return \Zend\Db\Adapter\Driver\StatementInterface|\Zend\Db\ResultSet\ResultSet
      */
-    public function buildTable(AbstractSql $table,$charset="")
+    public function buildTable(AbstractSql $table, $charset = "")
     {
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
-        
+
         $tableQuery = $sql->buildSqlString($table);
-        $tableQuery = !empty($charset) ? $tableQuery."charset = ".$charset: $tableQuery;
-                
+        $tableQuery = !empty($charset) ? $tableQuery . "charset = " . $charset : $tableQuery;
+
         // TODO: Allow charset and comment
         return $connection->query(
             $tableQuery,
