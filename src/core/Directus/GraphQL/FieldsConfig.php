@@ -77,6 +77,20 @@ class FieldsConfig
                     $fields[$v['field']] = Types::userCollection($collection);
                     break;
                 case 'o2m':
+                    $relation = $this->getRelation('o2m', $v['collection'], $v['field']);
+                    if ($v['interface'] == 'one-to-many') {
+                        $fields[$v['field']] = Types::listOf(Types::userCollection($relation['collection_many']));
+                    } else {
+                        $fields[$v['field']] = [];
+                        $fields[$v['field']]['type'] = Types::listOf(Types::userCollection($relation['collection_one']));
+                        $fields[$v['field']]['resolve'] = function ($value, $args, $context, $info) use ($relation) {
+                            $data = [];
+                            foreach ($value[$info->fieldName] as $v) {
+                                $data[] = $v[$relation['field_many']];
+                            }
+                            return $data;
+                        };
+                    }
                 case 'translation': // translation is just an o2m collection
                     $collection = $this->getOtherCollectionOneToMany(
                         $v['collection'], $v['field']);
