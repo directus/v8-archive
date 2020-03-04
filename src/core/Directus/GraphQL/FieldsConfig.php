@@ -192,8 +192,8 @@ class FieldsConfig
                     break;
 
                 default:
-                    $filters[$v['field'] . '_all'] = Types::nonNull(Types::string());
-                    $filters[$v['field'] . '_has'] = Types::nonNull(Types::string());
+                    $filters[$v['field'] . '_all'] = Types::string();
+                    $filters[$v['field'] . '_has'] = Types::string();
             }
         }
         $filters['or'] = Types::listOf(Types::filters($this->collection));
