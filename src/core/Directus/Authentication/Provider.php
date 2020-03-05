@@ -80,7 +80,7 @@ class Provider
             throw new Exception('auth: secret key is required and it must be a string');
         }
 
-        $ttl = ArrayUtils::get($options, 'ttl', 20);
+        $ttl = get_directus_setting('auth_token_ttl', ArrayUtils::get($options, 'ttl', 20));
         if (!is_numeric($ttl)) {
             throw new Exception('ttl must be a number');
         }
@@ -435,7 +435,8 @@ class Provider
         $payload = [
             'id' => (int) $user->getId(),
             // 'group' => $user->getGroupId(),
-            'exp' => $this->getNewExpirationTime()
+            'exp' => $this->getNewExpirationTime(),
+            'ttl' => $this->ttl,
         ];
 
 
@@ -455,7 +456,8 @@ class Provider
             'type' => 'request_token',
             'id' => (int) $user->getId(),
             // 'group' => (int) $user->getGroupId(),
-            'exp' => time() + (20 * DateTimeUtils::MINUTE_IN_SECONDS),
+            'exp' => time() + ($this->ttl * DateTimeUtils::MINUTE_IN_SECONDS),
+            'ttl' => $this->ttl,
             'url' => \Directus\get_url(),
             'project' => \Directus\get_api_project_from_request()
         ];
@@ -476,7 +478,8 @@ class Provider
             'id' => (int) $user->getId(),
             'email' => $user->getEmail(),
             // TODO: Separate time expiration for reset password token
-            'exp' => $this->getNewExpirationTime()
+            'exp' => $this->getNewExpirationTime(),
+            'ttl' => $this->ttl
         ];
 
         return $this->generateToken(JWTUtils::TYPE_RESET_PASSWORD, $payload);
