@@ -65,7 +65,7 @@ class FilesystemFactory
 
         if (isset($config['endpoint']) && $config['endpoint']) {
           $options['endpoint'] = $config['endpoint'];
-          $options['use_path_style_endpoint'] = true;
+          $options['use_path_style_endpoint'] = $config['use_path_style_endpoint'];
         }
 
         $client = S3Client::factory($options);

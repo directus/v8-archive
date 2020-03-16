@@ -75,6 +75,7 @@ return [
         //    'Cache-Control' => 'max-age=604800'
         // ],
         // 'endpoint' => 's3-endpoint',
+        // 'use_path_style_endpoint?'=> true,
 
         // Aliyun OSS
         ////////////////////////////////////////

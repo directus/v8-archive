@@ -65,6 +65,7 @@ class Schema
                 new Value('version?', Types::STRING, 's3-version'),
                 new Value('bucket?', Types::STRING, 's3-bucket'),
                 new Value('endpoint?', Types::STRING, 's3-endpoint'),
+                new Value('use_path_style_endpoint?', Types::BOOLEAN, true),
                 new Group('options', [
                     new Value('ACL', Types::STRING, 'public-read'),
                     new Value('Cache-Control', Types::STRING, 'max-age=604800'),
