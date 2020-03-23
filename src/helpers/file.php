@@ -238,6 +238,7 @@ if (!function_exists('get_thumbnails')) {
             $thumbnailUrl = get_thumbnail_url($urlAlias, $thumbnail);
             $thumbnailRelativeUrl = get_thumbnail_path($urlAlias, $thumbnail, true);
             $thumbnails[] = [
+                'key' => $thumbnail['key'],
                 'url' => $thumbnailUrl,
                 'relative_url' => $thumbnailRelativeUrl,
                 'dimension' => $thumbnail['width'] . 'x' . $thumbnail['height'],
