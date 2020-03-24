@@ -111,6 +111,7 @@ class Files
             'title' => $fileData['title'],
             'tags' => $fileData['tags'],
             'description' => $fileData['caption'],
+            'metadata' => isset($file['metadata']) ? $file['metadata'] : null,
             'location' => $fileData['location'],
             'charset' => $fileData['charset'],
             'size' => $fileData['size'],
