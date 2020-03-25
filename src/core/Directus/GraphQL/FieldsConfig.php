@@ -184,14 +184,16 @@ class FieldsConfig
                     $filters[$v['field'] . '_null'] = Types::string();
                     $filters[$v['field'] . '_nnull'] = Types::string();
                     break;
+                case 'owner':
+                    $filters[$v['field'] . '_eq'] = Types::int();
+                    $filters[$v['field'] . '_neq'] = Types::int();
+                    $filters[$v['field'] . '_in'] = Types::string();
+                    $filters[$v['field'] . '_nin'] = Types::string();
+                    break;
 
                 default:
-                    /* As the _has and _all not working properly
-                    *  https://github.com/directus/api/issues/576
-                    *  We will fix once the issue in the REST endpoint will fix.
-                    */
-                    // $filters[$v['field'] . '_all'] = Types::nonNull(Types::string());
-                    // $filters[$v['field'] . '_has'] = Types::nonNull(Types::string());
+                    $filters[$v['field'] . '_all'] = Types::string();
+                    $filters[$v['field'] . '_has'] = Types::string();
             }
         }
         $filters['or'] = Types::listOf(Types::filters($this->collection));
