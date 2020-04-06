@@ -524,8 +524,8 @@ class MySQLSchema extends AbstractSchema
                     $format .= ' H:i:s';
                     $zeroData .= ' 00:00:00';
                 }
-
-                if ($data === $zeroData) {
+                
+                if (empty($data) || $data === $zeroData) {
                     $data = null;
                 }
                 $datetime = \DateTime::createFromFormat($format, $data);
