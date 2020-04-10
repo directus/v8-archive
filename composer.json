@@ -1,7 +1,7 @@
 {
   "name": "directus/api",
   "license": "GPL-3.0-only",
-  "description": "Directus 7 API wrapper for custom SQL databases",
+  "description": "Directus API wrapper for custom SQL databases",
   "repositories": [
     {
       "type": "git",
