@@ -21,6 +21,8 @@ class DirectusFieldType extends ObjectType
                     'type' => Types::string(),
                     'interface' => Types::string(),
                     'options' => Types::json(),
+                    'display' => Types::string(),
+                    'display_options' => Types::json(),
                     'locked' => Types::boolean(),
                     'translation' => Types::json(),
                     'readonly' => Types::boolean(),

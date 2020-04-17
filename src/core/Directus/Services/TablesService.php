@@ -848,6 +848,8 @@ class TablesService extends AbstractService
             'field' => $field,
             'type' => null,
             'interface' => null,
+            'display' => null,
+            'display_options' => null,
             'required' => false,
             'sort' => 0,
             'note' => null,
