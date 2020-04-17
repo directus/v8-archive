@@ -1202,8 +1202,27 @@ class RelationalTableGateway extends BaseTableGateway
         $results = $this->parseRecord($results);
 
         $columnsDepth = ArrayUtils::deepLevel(\Directus\get_unflat_columns($fields));
+
         if ($columnsDepth > 0) {
-            $relatedFields = $this->getSelectedRelatedFields($fields);
+            /**
+             * @NOTE
+             *
+             * If more than one relational field was fetched, for example fields=role,avatar.type,
+             * both would be considered relational and were fetched deep. However, in the above
+             * example, only avatar is supposed to be fetched relationally.
+             *
+             * The fix is to filter out all fields that aren't fetched past the root level (no dot
+             * notation), even though they're relational
+             *
+             * @SEE https://github.com/directus/api/issues/1858
+             */
+            $nestedFields = array_filter($fields, function($field) {
+                // The . in a field name in fields ( eg fields=avatar.type ) indicates that we want
+                // to fetch the data relationally nested.
+                return strpos($field, '.') !== false;
+            });
+
+            $relatedFields = $this->getSelectedRelatedFields($nestedFields);
 
             $relationalParams = [
                 'meta' => ArrayUtils::get($params, 'meta'),
