@@ -32,6 +32,15 @@ class CreateFieldsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $table->addColumn('display', 'string', [
+            'limit' => 64,
+            'null' => true,
+            'default' => null,
+        ]);
+        $table->addColumn('display_options', 'text', [
+            'null' => true,
+            'default' => null
+        ]);
         $table->addColumn('locked', 'boolean', [
             'signed' => false,
             'null' => false,
@@ -135,6 +144,20 @@ class CreateFieldsTable extends AbstractMigration
             [
                 'collection' => 'directus_fields',
                 'field' => 'options',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
+                'interface' => 'json',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'display',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1
+            ],
+            [
+                'collection' => 'directus_fields',
+                'field' => 'display_options',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_JSON,
                 'interface' => 'json',
                 'locked' => 1
