@@ -176,7 +176,7 @@ class Provider
         // Verify that the user has an id (exists), it returns empty user object otherwise
         if (!password_verify($password, $user->get('password'))) {
 			
-			$hookEmitter->run('auth.fail', [$user]);
+			$hookEmitter->run('auth.fail', [$user, 'app']);
             $this->recordActivityAndCheckLoginAttempt($user);
             throw new InvalidUserCredentialsException();
         }
@@ -197,7 +197,7 @@ class Provider
 
         $this->user = $user;
         
-        $hookEmitter->run('auth.success', [$user]);
+        $hookEmitter->run('auth.success', [$user, 'app']);
 
         return $user;
     }
