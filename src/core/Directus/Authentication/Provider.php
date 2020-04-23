@@ -2,6 +2,8 @@
 
 namespace Directus\Authentication;
 
+use Directus\Application\Application;
+
 use Directus\Authentication\Exception\ExpiredTokenException;
 use Directus\Authentication\Exception\InvalidOTPException;
 use Directus\Authentication\Exception\InvalidTokenException;
@@ -163,6 +165,8 @@ class Provider
      */
     public function findUserWithCredentials($email, $password, $otp = null)
     {
+        $hookEmitter = Application::getInstance()->getContainer()->get('hook_emitter');
+	    
         try {
             $user = $this->findUserWithEmail($email);
         } catch (UserWithEmailNotFoundException $e) {
@@ -171,7 +175,8 @@ class Provider
 
         // Verify that the user has an id (exists), it returns empty user object otherwise
         if (!password_verify($password, $user->get('password'))) {
-
+			
+			$hookEmitter->run('auth.fail', [$user]);
             $this->recordActivityAndCheckLoginAttempt($user);
             throw new InvalidUserCredentialsException();
         }
@@ -191,6 +196,8 @@ class Provider
         }
 
         $this->user = $user;
+        
+        $hookEmitter->run('auth.success', [$user]);
 
         return $user;
     }
