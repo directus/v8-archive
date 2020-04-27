@@ -47,6 +47,11 @@ class CreateCollectionsTable extends AbstractMigration
             'null' => true,
             'default' => null
         ]);
+        $table->addColumn('display_template', 'string', [
+            'null' => true,
+            'default' => null,
+            'limit' => 255
+        ]);
 
         $table->create();
         $data = [
@@ -149,7 +154,19 @@ class CreateCollectionsTable extends AbstractMigration
                 'sort' => 8,
                 'note' => 'The icon shown in the App\'s navigation sidebar.'
             ],
-
+            [
+                'collection' => 'directus_collections',
+                'field' => 'display_template',
+                'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
+                'interface' => 'text-input',
+                'locked' => 1,
+                'sort' => 3,
+                'width' => 'full',
+                'note' => 'What template to use to reference individual items in this collection.',
+                'options' => json_encode([
+                    'placeholder' => '{{ name }} – ({{ title }})'
+                ])
+            ],
         ];
 
         foreach($data as $value){
