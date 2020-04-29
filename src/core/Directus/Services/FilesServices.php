@@ -58,7 +58,7 @@ class FilesServices extends AbstractService
         }
 
         $recordData = $this->getSaveData($data, false);
-        
+
         $newFile = $tableGateway->createRecord($recordData, $this->getCRUDParams($params));
 
         return $tableGateway->wrapData(
@@ -86,7 +86,7 @@ class FilesServices extends AbstractService
         }
 
         $type = ArrayUtils::get($dataInfo, 'type', ArrayUtils::get($data, 'type'));
-      
+
         if (strpos($type, 'embed/') === 0) {
             $recordData = $files->saveEmbedData(array_merge($dataInfo, ArrayUtils::pick($data, ['filename_disk'])));
         } else {
@@ -105,7 +105,7 @@ class FilesServices extends AbstractService
         if (!$isUpdate) {
             $recordData['private_hash'] = get_random_string();
         }
-       
+
         return ArrayUtils::omit(array_merge($data, $recordData), ['data', 'html']);
     }
 
@@ -148,15 +148,16 @@ class FilesServices extends AbstractService
             if (get_directus_setting('file_mimetype_whitelist') != null) {
                 validate_file($result['mimeType'], 'mimeTypes');
             }
+
             if($result['mimeType'] != 'embed/vimeo' && $result['mimeType'] != 'embed/youtube'){
-              validate_file($result['size'], 'maxSize');
+                validate_file($result['size'], 'maxSize');
             }
         }
 
         $tableGateway = $this->createTableGateway($this->collection);
 
         $currentItem = $tableGateway->getOneData($id);
-        $currentFileName = ArrayUtils::get($currentItem, 'filename_disk');        
+        $currentFileName = ArrayUtils::get($currentItem, 'filename_disk');
 
         if (array_key_exists('filename_disk', $data) && $data['filename_disk'] !== $currentFileName) {
             $oldFilePath = $currentFileName;

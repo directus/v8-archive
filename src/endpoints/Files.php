@@ -26,6 +26,7 @@ class Files extends Route
     {
         $app->post('', [$this, 'create']);
         $app->get('/{id}', [$this, 'read']);
+        $app->post('/{id}', [$this, 'updateFileData']);
         $app->patch('/{id}', [$this, 'update']);
         $app->patch('', [$this, 'update']);
         $app->delete('/{id}', [$this, 'delete']);
@@ -96,6 +97,45 @@ class Files extends Route
     }
 
     /**
+     * Specialty POST request that allows you to override the file data itself using
+     * multipart/form-data. That enctype only plays nicely in PHP when using POST
+     * @param Request $request
+     * @param Response $response
+     *
+     * @return Response
+     */
+    public function updateFileData(Request $request, Response $response)
+    {
+        $this->validateRequestPayload($request);
+        $service = new FilesServices($this->container);
+        $uploadedFiles = $request->getUploadedFiles();
+        $payload = $request->getParsedBody();
+
+        if (count($uploadedFiles) > 1 || (isset($payload[0]) && is_array($payload[0]))) {
+            throw new BatchUploadNotAllowedException();
+        }
+
+        if (!empty($uploadedFiles)) {
+            /** @var UploadedFile $uploadedFile */
+            $uploadedFile = array_shift($uploadedFiles);
+            if (!\Directus\is_uploaded_file_okay($uploadedFile->getError())) {
+                throw new FailedUploadException($uploadedFile->getError());
+            }
+
+            $payload = array_merge([
+                'data' => $uploadedFile,
+            ], $payload);
+        }
+
+        $responseData = $service->update(
+            $request->getAttribute('id'),
+            $payload,
+            $request->getQueryParams()
+        );
+        return $this->responseWithData($request, $response, $responseData);
+    }
+
+    /**
      * @param Request $request
      * @param Response $response
      *
@@ -104,21 +144,23 @@ class Files extends Route
     public function update(Request $request, Response $response)
     {
         $this->validateRequestPayload($request);
-
+        $service = new FilesServices($this->container);
+        $uploadedFiles = $request->getUploadedFiles();
         $payload = $request->getParsedBody();
+
         if (isset($payload[0]) && is_array($payload[0])) {
             return $this->batch($request, $response);
         }
 
         $id = $request->getAttribute('id');
+
         if (strpos($id, ',') !== false) {
             return $this->batch($request, $response);
         }
 
-        $service = new FilesServices($this->container);
         $responseData = $service->update(
             $request->getAttribute('id'),
-            $request->getParsedBody(),
+            $payload,
             $request->getQueryParams()
         );
         return $this->responseWithData($request, $response, $responseData);
