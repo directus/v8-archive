@@ -1761,6 +1761,7 @@ class BaseTableGateway extends TableGateway
                 ($field && is_array($columnValue)
                     && (!DataTypes::isJson($field->getType())
                         && !DataTypes::isArray($field->getType())
+                        && !(DataTypes::isHashType($field->getType()) && isset($columnValue['hashed']))
                         // The owner of the alias should handle it
                         // either on hook or custom field validation to ignore any value
                         && !DataTypes::isAliasType($field->getType())))
