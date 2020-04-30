@@ -70,6 +70,13 @@ class Users extends Route
             return $this->batch($request, $response);
         }
         $service = new UsersService($this->container);
+        $acl = $this->container->get('acl');
+
+        if ($acl->isAdmin() && isset($payload['password_hashed'])) {
+            $payload['password'] = [ 'hashed' => $payload['password_hashed']];
+            unset($payload['password_hashed']);
+        } 
+        
         $responseData = $service->create(
             $payload,
             $request->getQueryParams()
@@ -124,11 +131,16 @@ class Users extends Route
     {
         $this->validateRequestPayload($request);
         $service = new UsersService($this->container);
+        $acl = $this->container->get('acl');
 
         $payload = $request->getParsedBody();
         if (isset($payload[0]) && is_array($payload[0])) {
             return $this->batch($request, $response);
         }
+        if ($acl->isAdmin() && isset($payload['password_hashed'])) {
+            $payload['password'] = [ 'hashed' => $payload['password_hashed']];
+            unset($payload['password_hashed']);
+        } 
 
         $id = $request->getAttribute('id');
 

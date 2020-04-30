@@ -498,7 +498,7 @@ class CoreServicesProvider
                 $rows = $payload->getData();
                 $userId = $acl->getUserId();
                 foreach ($rows as &$row) {
-                    $omit = [
+                    $omit = $acl->isAdmin() ? [] : [
                         'password'
                     ];
                     // Authenticated user can see their private info
@@ -553,6 +553,10 @@ class CoreServicesProvider
 
                     $type = $field->getType();
                     if (DataTypes::isHashType($type)) {
+                        if (is_array($value) && isset($value['hashed'])) {
+                            $payload->set($key, $value['hashed']);
+                            continue;
+                        }
                         $options = $field->getOptions() ?: ['hasher' => 'core'];
                         $hashedString = $hashManager->hash($value, $options);
                         $payload->set($key, $hashedString);
@@ -600,7 +604,6 @@ class CoreServicesProvider
                         $payload->set($key, $dateTime->toString(DateTimeUtils::DEFAULT_TIME_FORMAT));
                     }
                 }
-
                 return $payload;
             };
 
