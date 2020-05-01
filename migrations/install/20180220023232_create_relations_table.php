@@ -94,14 +94,14 @@ class CreateRelationsTable extends AbstractMigration
                 'collection_one' => 'directus_users'
             ],
             [
-                'collection_many' => 'directus_collections_presets',
+                'collection_many' => 'directus_collection_presets',
                 'field_many' => 'user',
                 'collection_one' => 'directus_users'
             ],
             [
-                'collection_many' => 'directus_collections_presets',
-                'field_many' => 'group',
-                'collection_one' => 'directus_groups'
+                'collection_many' => 'directus_collection_presets',
+                'field_many' => 'role',
+                'collection_one' => 'directus_roles'
             ],
             [
                 'collection_many' => 'directus_fields',
@@ -126,8 +126,8 @@ class CreateRelationsTable extends AbstractMigration
             ],
             [
                 'collection_many' => 'directus_permissions',
-                'field_many' => 'group',
-                'collection_one' => 'directus_groups'
+                'field_many' => 'role',
+                'collection_one' => 'directus_roles'
             ],
             [
                 'collection_many' => 'directus_revisions',
