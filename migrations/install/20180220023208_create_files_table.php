@@ -111,15 +111,6 @@ class CreateFilesTable extends AbstractMigration
         $data = [
             [
                 'collection' => 'directus_files',
-                'field' => 'preview',
-                'type' => \Directus\Database\Schema\DataTypes::TYPE_ALIAS,
-                'interface' => 'file-preview',
-                'locked' => 1,
-                'sort' => 1,
-                'width' => 'full'
-            ],
-            [
-                'collection' => 'directus_files',
                 'field' => 'title',
                 'type' => \Directus\Database\Schema\DataTypes::TYPE_STRING,
                 'interface' => 'text-input',
