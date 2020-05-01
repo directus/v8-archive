@@ -7,7 +7,6 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Services\SettingsService;
-use Directus\Services\FilesServices;
 use Directus\Util\ArrayUtils;
 use function Directus\regex_numeric_ids;
 use function Directus\get_directus_setting;
@@ -81,13 +80,6 @@ class Settings extends Route
         // this will return the value based on interface type
         $fieldTypeValueResolver = function ($type, $value) use ($service) {
             switch ($type) {
-                case 'file':
-                    try {
-                        $fileInstance = $service->findFile($value);
-                        return $fileInstance['data'] ?? null;
-                    } catch (\Exception $e) {
-                        return null;
-                    }
                 case 'integer':
                     return (int) $value;
                 case 'boolean':
@@ -173,9 +165,6 @@ class Settings extends Route
             if ($value['field'] == $setting) {
                 if ($inputData['value'] != null) {
                     switch ($value['type']) {
-                        case 'file':
-                            $inputData['value'] = isset($inputData['value']['id']) ? $inputData['value']['id'] : $inputData['value'];
-                            break;
                         case 'array':
                             $inputData['value'] = is_array($inputData['value']) ? implode(",", $inputData['value']) : $inputData['value'];
                             break;
@@ -190,33 +179,6 @@ class Settings extends Route
             }
         }
         return $inputData;
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     *
-     * @return Response
-     */
-    public function getInterfaceBasedOutput($setting, $fieldData)
-    {
-        $fileService = new FilesServices($this->container);
-        $response = $setting['value'];
-        foreach ($fieldData['data'] as $value) {
-            if ($value['field'] == $setting['key']) {
-                if ($setting['value'] != null) {
-                    switch ($value['type']) {
-                        case 'file':
-                            $responseData = $fileService->findByIds($setting['value'], []);
-                            if (!empty($responseData['data'])) {
-                                $response = $responseData['data'];
-                            }
-                            break;
-                    }
-                }
-            }
-        }
-        return $response;
     }
 
     /**
