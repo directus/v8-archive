@@ -7,7 +7,9 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Application\Route;
 use Directus\Services\CollectionPresetsService;
+use Directus\Services\ItemsService;
 use Directus\Util\ArrayUtils;
+use Directus\Database\Schema\SchemaManager;
 
 class CollectionPresets extends Route
 {
@@ -100,11 +102,17 @@ class CollectionPresets extends Route
      */
     public function delete(Request $request, Response $response)
     {
-        $service = new CollectionPresetsService($this->container);
-        $service->delete(
-            $request->getAttribute('id'),
-            $request->getQueryParams()
-        );
+        $id = $request->getAttribute('id');
+        $params = $request->getQueryParams();
+
+        $itemsService = new ItemsService($this->container);
+
+        if (strpos($id, ',') !== false) {
+            $ids = explode(',', $request->getAttribute('id'));
+            $itemsService->batchDeleteWithIds(SchemaManager::COLLECTION_COLLECTION_PRESETS, $ids, $params);
+        } else {
+            $itemsService->delete(SchemaManager::COLLECTION_COLLECTION_PRESETS, $id, $params);
+        }
 
         return $this->responseWithData($request, $response, []);
     }
