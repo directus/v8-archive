@@ -670,6 +670,12 @@ class RelationalTableGateway extends BaseTableGateway
                     continue;
                 }
 
+                if (is_scalar($foreignRecord)) {
+                    $id = $foreignRecord;
+                    $foreignRecord = [];
+                    $foreignRecord[$ForeignTable->primaryKeyFieldName] = $id;
+                }
+
                 // TODO: Fix a bug when fetching a single column
                 // before fetching all columns from a table
                 // due to our basic "cache" implementation on schema layer

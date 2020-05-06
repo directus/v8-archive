@@ -247,6 +247,7 @@ class ItemsService extends AbstractService
     {
         $colName = $aliasColumnDetails->getName();
         $relationalCollectionName = "";
+
         if ($aliasColumnDetails->isOneToMany()) {
             $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionMany();
             $parentCollectionName = $aliasColumnDetails->getRelationship()->getCollectionOne();
@@ -254,6 +255,7 @@ class ItemsService extends AbstractService
             $relationalCollectionName = $aliasColumnDetails->getRelationship()->getCollectionOne();
             $parentCollectionName = $aliasColumnDetails->getRelationship()->getCollectionMany();
         }
+
         if ($relationalCollectionName && isset($payload[$colName])) {
             $relationalCollectionPrimaryKey = SchemaService::getCollectionPrimaryKey($relationalCollectionName);
             $parentCollectionPrimaryKey = SchemaService::getCollectionPrimaryKey($parentCollectionName);
@@ -261,6 +263,11 @@ class ItemsService extends AbstractService
             $foreignJoinColumn = $aliasColumnDetails->getRelationship()->getFieldMany();
 
             foreach ($payload[$colName] as $individual) {
+                if (is_scalar($individual)) {
+                    $individual = [
+                        [$relationalCollectionPrimaryKey] => $individual
+                    ];
+                }
 
                 if (!isset($individual['$delete'])) {
                     foreach ($relationalCollectionColumns as $key => $column) {
@@ -361,6 +368,7 @@ class ItemsService extends AbstractService
 
         // Fetch the entry even if it's not "published"
         $params['status'] = '*';
+
         $newRecord = $tableGateway->updateRecord($id, $payload, $this->getCRUDParams($params));
 
         try {
