@@ -84,6 +84,8 @@ class Settings extends Route
                     return (int) $value;
                 case 'boolean':
                     return (bool) $value;
+                case 'json':
+                    return \json_decode($value);
                 default:
                     return $value;
             }
