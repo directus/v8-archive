@@ -48,6 +48,7 @@ use Zend\Db\TableGateway\Feature;
 use Zend\Db\TableGateway\Feature\RowGatewayFeature;
 use Zend\Db\TableGateway\TableGateway;
 use function Directus\get_random_string;
+use function Directus\generate_uuid4;
 
 class BaseTableGateway extends TableGateway
 {
@@ -388,13 +389,18 @@ class BaseTableGateway extends TableGateway
             $TableGateway->ignoreFilters();
         }
 
+        $columnObject = $this->getTableSchema()->getField($primaryKey);
+
+        if ($columnObject->getType() === DataTypes::TYPE_UUID) {
+            $recordData[$primaryKey] = generate_uuid4();
+        }
+
         $TableGateway->insert($recordData);
         if (static::$emitter && $listenerId) {
             static::$emitter->removeListenerWithIndex($listenerId);
         }
 
         // Only get the last inserted id, if the column has auto increment value
-        $columnObject = $this->getTableSchema()->getField($primaryKey);
         if ($columnObject->hasAutoIncrement()) {
             $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
         }

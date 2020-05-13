@@ -224,6 +224,11 @@ abstract class AbstractService
                 continue;
             }
 
+            // Empty UUIDs will be auto-generated
+            if ($field->isUUIDType()) {
+                continue;
+            }
+
             if ($field->getName() == "password" && isset($params['select_existing_or_update'])) {
                 continue;
             }

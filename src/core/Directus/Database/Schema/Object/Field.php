@@ -333,6 +333,16 @@ class Field extends AbstractObject
     }
 
     /**
+     * Checks whether this column is uuid type
+     *
+     * @return bool
+     */
+    public function isUUIDType()
+    {
+        return DataTypes::isUUIDType($this->getType());
+    }
+
+    /**
      * Checks whether this column is system user interface
      *
      * @return bool

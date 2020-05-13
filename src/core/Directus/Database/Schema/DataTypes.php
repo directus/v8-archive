@@ -167,6 +167,18 @@ final class DataTypes
     }
 
     /**
+     * Checks whether or not the given type is a uuid type
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isUUIDType($type)
+    {
+        return strtolower($type) === static::TYPE_UUID;
+    }
+
+    /**
      * Checks whether or not the given type is a date type
      *
      * @param string $type

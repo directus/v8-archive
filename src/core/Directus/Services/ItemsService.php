@@ -50,6 +50,7 @@ class ItemsService extends AbstractService
                 $this->validateAliasCollection($payload, $params, $aliasColumnDetails, []);
             }
         }
+
         $tableGateway = $this->createTableGateway($collection);
         $newRecord = $tableGateway->createRecord($payload, $this->getCRUDParams($params));
 
