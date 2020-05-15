@@ -67,7 +67,7 @@ class Schema
                 new Value('endpoint?', Types::STRING, 's3-endpoint'),
                 new Group('options', [
                     new Value('ACL', Types::STRING, 'public-read'),
-                    new Value('Cache-Control', Types::STRING, 'max-age=604800'),
+                    new Value('CacheControl', Types::STRING, 'max-age=604800'),
                 ]),
 
                 // OSS
@@ -75,6 +75,10 @@ class Schema
                 new Value('OSS_ACCESS_KEY?', Types::STRING, 'oss-access-secret'),
                 new Value('OSS_BUCKET?', Types::STRING, 'oss-bucket'),
                 new Value('OSS_ENDPOINT?', Types::STRING, 'oss-endpoint'),
+
+                // Azure
+                new Value('azure_connection_string', Types::STRING, 'azure-connection-string'),
+                new Value('azure_container', Types::STRING, 'azure-container'),
 
                 // TODO: Missing keys?
             ]),
