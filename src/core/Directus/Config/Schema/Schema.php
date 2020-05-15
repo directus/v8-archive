@@ -67,7 +67,7 @@ class Schema
                 new Value('endpoint?', Types::STRING, 's3-endpoint'),
                 new Group('options', [
                     new Value('ACL', Types::STRING, 'public-read'),
-                    new Value('Cache-Control', Types::STRING, 'max-age=604800'),
+                    new Value('CacheControl', Types::STRING, 'max-age=604800'),
                 ]),
 
                 // OSS

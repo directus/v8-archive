@@ -72,7 +72,7 @@ return [
         // 'bucket' => 's3-bucket',
         // 'options' => [
         //    'ACL' => 'public-read',
-        //    'Cache-Control' => 'max-age=604800'
+        //    'CacheControl' => 'max-age=604800'
         // ],
         // 'endpoint' => 's3-endpoint',
 
