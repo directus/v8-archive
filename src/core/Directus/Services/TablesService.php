@@ -165,14 +165,10 @@ class TablesService extends AbstractService
         $this->validate(['collection' => $name], ['collection' => 'required|string']);
 
         $tableGateway = $this->createTableGateway($this->collection);
-
-        try {
-            $result = $tableGateway->getItemsByIds($name, $params);
-            $collectionNames = StringUtils::csv((string) $name);
-            $result['data'] = $this->mergeMissingSchemaCollections($collectionNames, $result['data']);
-        } catch (ItemNotFoundException $e) {
-            throw $e;
-        }
+    
+        $result = $tableGateway->getItemsByIds($name, $params);
+        $collectionNames = StringUtils::csv((string) $name);
+        $result['data'] = $this->mergeMissingSchemaCollections($collectionNames, $result['data']);     
 
         if ($result['data'] === null) {
             throw new CollectionNotFoundException($name);

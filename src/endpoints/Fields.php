@@ -15,7 +15,6 @@ use Directus\Services\PermissionsService;
 use Directus\Util\ArrayUtils;
 use Directus\Util\StringUtils;
 use Directus\Database\Schema\DataTypes;
-use Directus\Exception\SQLException;
 
 class Fields extends Route
 {
@@ -48,17 +47,14 @@ class Fields extends Route
         $payload = $request->getParsedBody();
         $field = ArrayUtils::pull($payload, 'field');
 
-        try {
-            $responseData = $service->addColumn(
-                $request->getAttribute('collection'),
-                $field,
-                $payload,
-                $request->getQueryParams()
-            );
-        } catch (\Exception $e) {
-            throw new SQLException($e->getMessage());
-        }
-
+        
+        $responseData = $service->addColumn(
+            $request->getAttribute('collection'),
+            $field,
+            $payload,
+            $request->getQueryParams()
+        );
+        
         return $this->responseWithData($request, $response, $responseData);
     }
 
@@ -110,17 +106,13 @@ class Fields extends Route
             return $this->batch($request, $response);
         }
 
-        try {
-
-            $responseData = $service->changeColumn(
-                $request->getAttribute('collection'),
-                $request->getAttribute('field'),
-                $request->getParsedBody(),
-                $request->getQueryParams()
-            );
-        } catch (\Exception $e) {
-            throw new SQLException($e->getMessage());
-        }
+        $responseData = $service->changeColumn(
+            $request->getAttribute('collection'),
+            $request->getAttribute('field'),
+            $request->getParsedBody(),
+            $request->getQueryParams()
+        );
+    
 
         return $this->responseWithData($request, $response, $responseData);
     }

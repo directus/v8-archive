@@ -161,12 +161,8 @@ class FilesServices extends AbstractService
         if (array_key_exists('filename_disk', $data) && $data['filename_disk'] !== $currentFileName) {
             $oldFilePath = $currentFileName;
             $newFilePath = $data['filename_disk'];
-
-            try {
-                $this->container->get('filesystem')->getAdapter()->rename($oldFilePath, $newFilePath);
-            } catch (Exception $e) {
-                throw new InvalidRequestException($e);
-            }
+         
+            $this->container->get('filesystem')->getAdapter()->rename($oldFilePath, $newFilePath);
         }
 
         // getSaveData requires filename_disk to be set, in order for Filesystem/Files to read the file info
