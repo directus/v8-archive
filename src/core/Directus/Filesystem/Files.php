@@ -347,6 +347,7 @@ class Files
             'filesize' => $fileData['size'],
             'width' => isset($width) ? $width : $fileData['width'],
             'height' => isset($height) ? $height : $fileData['height'],
+            'metadata' => isset($file['metadata']) ? $file['metadata'] : null,
             'storage' => $fileData['storage'],
             'checksum' => $checksum,
             'duration' => isset($duration) ? $duration : 0
