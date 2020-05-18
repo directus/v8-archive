@@ -523,11 +523,12 @@ class Files
             $info['width'] = $imageInfo[0];
             $info['height'] = $imageInfo[1];
         }
+
         if (is_array($meta) && isset($meta['APP13'])) {
             $iptc = iptcparse($meta['APP13']);
 
             if (isset($iptc['2#120'])) {
-                $info['caption'] = $iptc['2#120'][0];
+                $info['description'] = $iptc['2#120'][0];
             }
 
             if (isset($iptc['2#005']) && $iptc['2#005'][0] != '') {
@@ -539,6 +540,7 @@ class Files
             }
 
             $location = [];
+
             if (isset($iptc['2#090']) && $iptc['2#090'][0] != '') {
                 $location[] = $iptc['2#090'][0];
             }
@@ -553,6 +555,8 @@ class Files
 
             $info['location'] = implode(', ', $location);
         }
+
+        return $info;
     }
 
     /**
