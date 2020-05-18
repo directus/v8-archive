@@ -7,6 +7,7 @@ use Directus\Application\Http\Request;
 use Directus\Application\Http\Response;
 use Directus\Services\AssetService;
 use Slim\Http\Stream;
+use function Directus\get_directus_setting;
 
 class Assets extends Route
 {
@@ -25,6 +26,12 @@ class Assets extends Route
             $response->setHeader('Content-type', $asset['mimeType']);
             $response->setHeader('Content-Disposition', 'filename="' . $asset['filename_download'] . '"');
             $response->setHeader('Last-Modified', $asset['last_modified']);
+
+            $ttl = get_directus_setting('thumbnail_cache_ttl');
+
+            if ($ttl) {
+                $response->setHeader('Cache-Control', 'max-age=' . $ttl . ', public');
+            }
 
             return $response->withBody(new Stream($asset['file']));
         } else {

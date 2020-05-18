@@ -98,8 +98,25 @@ class AssetService extends AbstractService
 
         $file = $result->current()->toArray();
 
-        // Get original image
-        if (count($params) == 0) {
+        // Get thumbnail
+        if (
+            isset($params['key']) ||
+            isset($params['w']) ||
+            isset($params['h']) ||
+            isset($params['f']) ||
+            isset($params['q'])
+        ) {
+            $this->fileName = $file['filename_disk'];
+            $this->fileNameDownload = $file['filename_download'];
+
+            try {
+                return $this->getThumbnail($params, $asStream);
+            } catch (Exception $e) {
+                throw new UnprocessableEntityException(sprintf($e->getMessage()));
+            }
+        }
+        // Get original file
+        else {
             $lastModified = $this->filesystem->getAdapter()->getTimestamp($file['filename_disk']);
             $lastModified = new DateTimeUtils(date('c', $lastModified));
 
@@ -116,15 +133,6 @@ class AssetService extends AbstractService
             $result['filename_download'] = $file['filename_download'];
 
             return $result;
-        } else {
-
-            $this->fileName = $file['filename_disk'];
-            $this->fileNameDownload = $file['filename_download'];
-            try {
-                return $this->getThumbnail($params, $asStream);
-            } catch (Exception $e) {
-                throw new UnprocessableEntityException(sprintf($e->getMessage()));
-            }
         }
     }
 
