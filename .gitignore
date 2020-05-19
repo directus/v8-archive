@@ -38,6 +38,11 @@ deploy.*
 # Custom extensions
 /public/extensions/custom/*/*
 
+##  Admin app
+/public/admin/*
+!/public/admin/index.php
+
+
 ##  Auth
 /public/extensions/custom/auth
 
