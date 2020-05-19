@@ -11,11 +11,8 @@ Options +SymLinksIfOwnerMatch
 <ifModule mod_rewrite.c>
     RewriteEngine On
 
-    # Map all admin endpoints to the admin app (except static files)
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^admin/(.*)   admin/index.html [NC,L]
-
-    # Map all other requests to invoke the API router (except static files)
+    RewriteRule ^/admin/index\.html$ - [L]
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule !^admin index.php?%{QUERY_STRING} [L]
 </ifModule>
