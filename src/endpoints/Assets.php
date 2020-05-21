@@ -24,8 +24,9 @@ class Assets extends Route
 
         if (isset($asset['file']) && $asset['mimeType']) {
             $response->setHeader('Content-type', $asset['mimeType']);
-            $response->setHeader('Content-Disposition', 'filename="' . $asset['filename_download'] . '"');
             $response->setHeader('Last-Modified', $asset['last_modified']);
+            $response->setHeader('Accept-Ranges', 'bytes');
+            $response->setHeader('Etag','"190d-5994b36b546c0"');
 
             $ttl = get_directus_setting('thumbnail_cache_ttl');
 
