@@ -826,10 +826,11 @@ class RelationalTableGateway extends BaseTableGateway
         
         ArrayUtils::set($parameters, 'limit', intval($limit));
         
-        if (!$hasStatusField) {
-	        ArrayUtils::remove($parameters, 'status');	        
-	        return $parameters;
-        }
+		if (!$hasStatusField) {
+		    if (ArrayUtils::get($parameters, 'status')) unset($parameters['status']);
+		    if (ArrayUtils::get($parameters, 'filter.status')) unset($parameters['filter']['status']);	        
+		    return $parameters;
+		}
         
         $status = ArrayUtils::pull($params, 'status');
         $statusList = $status ? StringUtils::safeCvs($status) : [];
@@ -2143,7 +2144,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getCollectionMany();
-
+            
             if ($this->acl && !$this->acl->canReadOnce($relatedTableName)) {
                 $this->exceptionMessages[] = [
                     'type' => 'warning',
@@ -2324,7 +2325,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             // Get the limit and status from the params: See more @ applyDefaultRelationalSelectParams
-                        
+                       
             $params = $this->applyDefaultRelationalSelectParams($this->parsedParams, $tableGateway->getTableSchema()->hasStatusField(), $params);
             
             $filterColumns = \Directus\get_array_flat_columns($columnsTree[$column->getName()]);
