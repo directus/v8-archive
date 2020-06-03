@@ -47,7 +47,7 @@ abstract class Base implements Node
             $name = substr($name, 0, -1);
         }
         $this->_name = $name;
-        $this->_key = str_replace("-", "", str_replace("_", "", strtolower($name)));
+        $this->_key = preg_replace('/[-_]/',"",strtolower($name) );
         $this->_children = $children;
         $this->_parent = null;
         foreach ($children as &$child) {

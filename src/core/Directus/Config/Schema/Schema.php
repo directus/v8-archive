@@ -3,12 +3,15 @@
 namespace Directus\Config\Schema;
 
 use Directus\Config\Context;
+use Exception;
 
 /**
  * Config schema.
  */
 class Schema
 {
+
+    static private $customNodes;
     /**
      * Gets the configuration schema.
      *
@@ -151,15 +154,11 @@ class Schema
             ]),
             new Value('ext?', Types::ARRAY, []),
         ]);
+
         if (Context::has_custom_context()) {
-            foreach (array_keys($_ENV) as $key) {
-                if (substr($key, 0,16) === "DIRECTUS_CUSTOM_") {
-                    $value = $_ENV[$key];
-                    $customKey = substr($key, 16);
-                    $customNode = explode('|', $value);
-                    $path = explode('_', $customKey);
-                    $child = new Value($customNode[0], strtolower($customNode[1]), $customNode[2]);
-                    $group = self::saveCustomNode($group, $path, $child);
+            foreach (self::$customNodes as $path => $nodes) {
+                foreach ($nodes as $node) {
+                    $group = self::saveCustomNode($group, explode('_', $path), $node);
                 }
             }
         }
@@ -196,5 +195,19 @@ class Schema
             return $group->addChild($newGroup);
         }
         return $group;
+    }
+
+    /**
+     * accepts a complete path to a custom config place
+     * @param string $path the path to be added to the config eg AUTH_SOCIAL-PROVIDER_KEYCLOAK
+     * @param Value $value
+     * @throws Exception
+     */
+    public static function registerCustomNode($path, $value) {
+        if (!($value instanceof Value)) {
+            throw new Exception('second parameter must be of type ' . Value::class);
+        }
+
+        self::$customNodes[$path][] = $value;
     }
 }
