@@ -32,7 +32,7 @@ trait CustomSchemaDefineTrait
      *
      * @throws Exception
      */
-    protected function addToSchema()
+    public function addToSchema()
     {
         foreach ($this->readCustomSchema() as $schemaEntity) {
             if (!array_key_exists('name', $schemaEntity) ||

@@ -2,6 +2,7 @@
 
 namespace Directus\Config\Schema;
 
+use Directus\Application\Application;
 use Directus\Config\Context;
 use Exception;
 
@@ -21,9 +22,16 @@ class Schema
 
             // check the class for implements, no need to create the class
             $interfaces = class_implements($customClassName[0]);
-
-            if (isset($interfaces[\CustomSchemaDefine::class ])) {
-                echo "Yes!";
+            if (isset($interfaces[\CustomSchemaDefine::class ]) &&
+                in_array(CustomSchemaDefineTrait::class, class_uses($customClassName))) {
+                try {
+                    /** @var CustomSchemaDefineTrait $instance */
+                    $instance = new $customClassName;
+                    $instance->addToSchema();
+                } catch (\Exception $exception) {
+                    $app = Application::getInstance();
+                    $app->getContainer()->get('logger')->error($exception->getMessage());
+                }
             }
         }
     }
