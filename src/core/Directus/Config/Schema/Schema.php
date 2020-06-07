@@ -10,7 +10,23 @@ use Exception;
  */
 class Schema
 {
+    public static function readCustomConfig($path) {
+        if (file_exists($path . 'CustomSchema.php')) {
+            $classes = get_declared_classes();
+            require_once $path . 'CustomSchema.php';
+            $customClassName = array_diff($classes, get_declared_classes());
+            if (count($customClassName) == 0) {
+                return;
+            }
 
+            // check the class for implements, no need to create the class
+            $interfaces = class_implements($customClassName[0]);
+
+            if (isset($interfaces[\CustomSchemaDefine::class ])) {
+                echo "Yes!";
+            }
+        }
+    }
     static private $customNodes;
     /**
      * Gets the configuration schema.

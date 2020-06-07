@@ -762,28 +762,30 @@ class CoreServicesProvider
     }
 
 
+
     /**
      * @return Closure
      */
     protected function getExternalAuth()
     {
         return function (Container $container) {
+
+            $coreSso = get_custom_x('auth', 'public/extensions/core/auth', true);
+            $customSso = get_custom_x('auth', 'public/extensions/custom/auth', true);
+
             $config = $container->get('config');
             $providersConfig = $config->get('auth.social_providers', []);
 
             $socialAuth = new Social();
 
-            $coreSso = get_custom_x('auth', 'public/extensions/core/auth', true);
-            $customSso = get_custom_x('auth', 'public/extensions/custom/auth', true);
-
             // Flag the customs providers in order to choose the correct path for the icons
-            $customSso = array_map(function ($config) {
+            $mappedCustomSso = array_map(function ($config) {
                 $config['custom'] = true;
 
                 return $config;
             }, $customSso);
 
-            $ssoProviders = array_merge($coreSso, $customSso);
+            $ssoProviders = array_merge($coreSso, $mappedCustomSso);
             foreach ($providersConfig as $providerName => $providerConfig) {
                 if (!is_array($providerConfig)) {
                     continue;
