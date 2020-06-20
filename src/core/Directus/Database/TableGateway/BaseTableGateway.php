@@ -645,7 +645,24 @@ class BaseTableGateway extends TableGateway
     public function castFloatIfNumeric(&$value, $key)
     {
         if ($key != 'table_name') {
-            $value = is_numeric($value) && preg_match('/^-?(?:\d+|\d*\.\d+)$/', $value) ? (float) $value : $value;
+
+            // anything that "looks like" a number
+            if(is_numeric($value)) {
+
+                // match any string with a comma
+                // e.g. "3.14159265358979323846264338327950288419"
+                // warning: number will be truncated to 16 digits (IEEE 754)
+                if(preg_match('/^-?(\d*\.\d+)$/', $value) === TRUE) {
+                    $value = (float) $value;
+                }
+
+                // match any string with an integer number
+                // of any integer number, e.g.
+                // "+/-14159265358979323846264338327950288419"
+                // +/-14159265358979323846264338327950288419
+                else
+                    $value = (int) $value;
+            }
         }
     }
 
