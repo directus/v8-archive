@@ -35,6 +35,8 @@ class Provider extends TwoSocialProvider
             'redirectUri'       => $this->getRedirectUrl(),
             'hostedDomain'      => $this->config->get('hosted_domain'),
             'useOidcMode'       => (bool) $this->config->get('use_oidc_mode'),
+            'accessType'        => 'offline',
+            'prompt'            => 'consent',
         ]);
 
         return $this->provider;
