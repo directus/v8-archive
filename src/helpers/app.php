@@ -221,9 +221,7 @@ if (!function_exists('create_ping_server')) {
     function create_ping_server($basePath, array $config = [], array $values = [])
     {
         $app = create_app($basePath, array_merge([
-            'app' => [
-                'env' => 'production',
-            ],
+            'env' => 'production'
         ], $config), $values);
 
         $app->group('/server', function () {
@@ -253,9 +251,7 @@ if (!function_exists('create_default_app')) {
         }
 
         $app = create_app($basePath, array_merge([
-            'app' => [
-                'env' => 'production',
-            ],
+            'env' => 'production'
         ], $config), $values);
 
         $app->add(new CorsMiddleware($app->getContainer(), true));
