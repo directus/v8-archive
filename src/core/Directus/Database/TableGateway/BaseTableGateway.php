@@ -398,9 +398,26 @@ class BaseTableGateway extends TableGateway
         if ($columnObject->hasAutoIncrement()) {
             $recordData[$primaryKey] = $TableGateway->getLastInsertValue();
         }
+        else if ($columnObject->hasPrimaryKey())
+        {
+            // identify the autoincrement field+value to retrieve the new record
+            $fieldAutoIncrement = null;
+            foreach($this->getTableSchema()->getFields() as $f) {
+                if ($f->hasAutoIncrement()) {
+                    $fieldAutoIncrement = $f->getName();
+                    $lastInsertValue = $TableGateway->getLastInsertValue();
+                    break;
+                }
+            }
+
+            // retrieve the full record
+            if (isset($fieldAutoIncrement)) {
+                $record = $this->findOneBy($fieldAutoIncrement, $lastInsertValue);
+                $recordData[$primaryKey] = $record[$primaryKey];
+            }
+        }
 
         $columns = SchemaService::getAllNonAliasCollectionFieldNames($this->table);
-
         return $TableGateway->fetchAll(function (Select $select) use ($recordData, $columns, $primaryKey) {
             $select
                 ->columns($columns)
@@ -814,6 +831,22 @@ class BaseTableGateway extends TableGateway
         }
 
         $resultData = $insertTableGateway->find($generatedValue);
+
+        // try to retrieve the record using another field
+        if (empty($resultData)) {
+            $columnObject = $this->getTableSchema()->getField($this->primaryKeyFieldName);
+            if ($columnObject->hasPrimaryKey()) {
+                $fieldAutoIncrement = null;
+                foreach($this->getTableSchema()->getFields() as $f) {
+                    $fieldAutoIncrement = $f->getName();
+                    $lastInsertValue = $this->getLastInsertValue();
+                    break;
+                }
+
+                if (isset($fieldAutoIncrement))
+                    $resultData = $this->findOneBy($fieldAutoIncrement, $lastInsertValue);
+            }
+        }
 
         if ($useFilter) {
             $this->runHook('item.create', [$insertTable, $resultData]);
