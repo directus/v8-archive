@@ -1,5 +1,6 @@
 <?php
 
+use Dotenv\Dotenv;
 use Directus\Config\Context;
 use Directus\Config\Schema\Schema;
 use Directus\Exception\ErrorException;
@@ -7,6 +8,9 @@ use Directus\Exception\ErrorException;
 $basePath = realpath(__DIR__.'/../');
 
 require $basePath.'/vendor/autoload.php';
+
+$env = Dotenv::createImmutable($basePath);
+$env->safeLoad();
 
 // Get Environment name
 $projectName = \Directus\get_api_project_from_request();
