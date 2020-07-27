@@ -14,13 +14,14 @@ if (!file_exists(__DIR__.'/app')) {
 }
 
 chdir(__DIR__.'/app');
-
-if (!file_exists(__DIR__.'/app/dist')) {
-    passthru('yarn');
-    passthru('yarn build');
-}
-
+passthru('git pull');
+passthru('yarn');
+passthru('yarn build');
 chdir(__DIR__);
+
+if (file_exists(__DIR__.'/public/admin')) {
+    passthru('rm -rf public/admin/');
+}
 
 passthru('mv app/dist/ public/admin/');
 

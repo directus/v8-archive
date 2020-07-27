@@ -5,7 +5,7 @@
 
 ## Description
 
-The Directus API is a PHP powered REST / GraphQL API that acts as a layer on top of a relational database. 
+The Directus API is a PHP powered REST / GraphQL API that acts as a layer on top of a relational database.
 
 ## Installation / Usage
 
@@ -15,10 +15,20 @@ The Directus API is a PHP powered REST / GraphQL API that acts as a layer on top
 2. Install the depencencies using `composer`: `composer install`
 3. Run the application using any local server, like MAMP, DDEV, Docker, or any other (preferably) Apache installation.
 
+### Built-in PHP server
+
+You can use PHP embedded server to quick run Directus locally for development.
+
+1. Make sure to have `composer`, `php`, `yarn` and `git` installed and available.
+2. Clone the repo.
+3. Install dependencies using `composer install`.
+4. Install the admin interface using `composer admin`.
+5. Run the server using `composer dev`.
+
 ## Core Team
 
-* [Ben Haynes](https://github.com/benhaynes) _(Project Lead)_
-* [Rijk van Zanten](https://github.com/rijkvanzanten) _(Tech Lead)_
+-   [Ben Haynes](https://github.com/benhaynes) _(Project Lead)_
+-   [Rijk van Zanten](https://github.com/rijkvanzanten) _(Tech Lead)_
 
 [Advisors, Sponsors, Partners, and Key Contributors](https://directus.io/organization.html#the-team)
 
