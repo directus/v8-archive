@@ -1,0 +1,19 @@
+<?php
+
+require "./vendor/autoload.php";
+
+use \Dotenv\Dotenv;
+use Illuminate\Support\ProcessUtils;
+use \Symfony\Component\Process\PhpExecutableFinder;
+
+$env = Dotenv::createImmutable(__DIR__);
+$env->safeLoad();
+
+chdir (__DIR__."/public");
+
+passthru(sprintf("%s -S %s:%s %s",
+    ProcessUtils::escapeArgument((new PhpExecutableFinder())->find(false)),
+    $_ENV['DIRECTUS_HOST'] ?? '127.0.0.1',
+    $_ENV['DIRECTUS_PORT'] ?? '8000',
+    ProcessUtils::escapeArgument(__DIR__."/server.php")
+));

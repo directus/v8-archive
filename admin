@@ -1,0 +1,27 @@
+<?php
+
+require './vendor/autoload.php';
+
+use \Dotenv\Dotenv;
+use Illuminate\Support\ProcessUtils;
+use \Symfony\Component\Process\PhpExecutableFinder;
+
+$env = Dotenv::createImmutable(__DIR__);
+$env->safeLoad();
+
+if (!file_exists(__DIR__.'/app')) {
+    passthru('git clone git@github.com:directus/app.git -b master');
+}
+
+chdir(__DIR__.'/app');
+
+if (!file_exists(__DIR__.'/app/dist')) {
+    passthru('yarn');
+    passthru('yarn build');
+}
+
+chdir(__DIR__);
+
+passthru('mv app/dist/ public/admin/');
+
+echo 'Finished.';
