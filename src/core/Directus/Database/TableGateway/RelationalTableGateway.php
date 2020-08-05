@@ -906,16 +906,16 @@ class RelationalTableGateway extends BaseTableGateway
      *
      * @return array
      */
-    public function wrapData($data, $single = false, $meta = false)
+    public function wrapData($data, $single = false, $meta = false, $params = [])
     {
-        $result = [];
+        $result = [];      
 
         if ($meta) {
             if (!is_array($meta)) {
                 $meta = StringUtils::csv($meta);
             }
 
-            $result['meta'] = $this->createMetadata($data, $single, $meta);
+            $result['meta'] = $this->createMetadata($data, $single, $meta, $params);
         }
 
         $result['data'] = $data;
@@ -927,13 +927,13 @@ class RelationalTableGateway extends BaseTableGateway
         return $result;
     }
 
-    public function createMetadata($entriesData, $single, $list = [])
+    public function createMetadata($entriesData, $single, $list = [], $params = [])
     {
         $singleEntry = $single || !ArrayUtils::isNumericKeys($entriesData);
         $metadata = $this->createGlobalMetadata($singleEntry, $list);
 
         if (!$singleEntry) {
-            $metadata = array_merge($metadata, $this->createEntriesMetadata($entriesData, $list));
+            $metadata = array_merge($metadata, $this->createEntriesMetadata($entriesData, $list, $params));
         }
 
         return $metadata;
@@ -975,7 +975,7 @@ class RelationalTableGateway extends BaseTableGateway
      *
      * @return array
      */
-    public function createEntriesMetadata(array $entries, array $list = [])
+    public function createEntriesMetadata(array $entries, array $list = [], array $params = [])
     {
         $allKeys = ['result_count', 'total_count', 'filter_count', 'status', 'page'];
         $tableSchema = $this->getTableSchema($this->table);
@@ -1009,7 +1009,7 @@ class RelationalTableGateway extends BaseTableGateway
         }
 
         if (in_array('filter_count', $list) || in_array('page', $list)) {
-            $metadata = $this->createMetadataPagination($metadata, $this::$container->get('request')->getQueryParams(), $countedData);
+            $metadata = $this->createMetadataPagination($metadata, $params, $countedData);
         }
 
         return $metadata;
@@ -1286,7 +1286,7 @@ class RelationalTableGateway extends BaseTableGateway
 
         $items = $this->fetchItems($params);
 
-        return $this->wrapData($items, $single, $meta);
+        return $this->wrapData($items, $single, $meta, $params);
     }
 
     /**
@@ -2296,7 +2296,8 @@ class RelationalTableGateway extends BaseTableGateway
                 $tableGateway->wrapData(
                     $relatedEntries[$rowId],
                     true,
-                    ArrayUtils::get($params, 'meta', 0)
+                    ArrayUtils::get($params, 'meta', 0),
+                    $params
                 );
             }
 

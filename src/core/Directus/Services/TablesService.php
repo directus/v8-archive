@@ -232,7 +232,8 @@ class TablesService extends AbstractService
             $result = $tableGateway->wrapData(
                 $this->mergeSchemaField($columnObject),
                 true,
-                ArrayUtils::pick($params, 'meta')
+                ArrayUtils::pick($params, 'meta'),
+                $params
             );
         }
 
