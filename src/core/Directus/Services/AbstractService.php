@@ -11,6 +11,7 @@ use Directus\Database\RowGateway\BaseRowGateway;
 use Directus\Database\Schema\DataTypes;
 use Directus\Database\Schema\SchemaManager;
 use Directus\Database\TableGateway\RelationalTableGateway;
+use Directus\Database\SchemaService;
 use Directus\Database\TableGatewayFactory;
 use Directus\Exception\ForbiddenException;
 use Directus\Exception\UnprocessableEntityException;
@@ -379,7 +380,7 @@ abstract class AbstractService
      */
     protected function validatePayload($collectionName, $fields, array $payload, array $params, $skipRelatedCollectionField = '')
     {
-        $columnsToValidate = [];
+        $columnsToValidate = SchemaService::getFieldsName($collectionName);
 
         // TODO: Validate empty request
         // If the user PATCH, POST or PUT with empty body, must throw an exception to avoid continue the execution
