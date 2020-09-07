@@ -15,7 +15,7 @@
     "zendframework/zend-db": "dev-directus",
     "league/flysystem": "^1.0",
     "swiftmailer/swiftmailer": "^5.4",
-    "league/oauth2-google": "^2.0",
+    "league/oauth2-google": "^3.0",
     "league/oauth2-github": "^2.0",
     "league/oauth2-facebook": "^2.0",
     "league/oauth1-client": "^1.7",
