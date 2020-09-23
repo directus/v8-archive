@@ -299,9 +299,12 @@ class CoreServicesProvider
 
                 /** @var Acl $acl */
                 $acl = $container->get('acl');
+
                 if ($dateCreated = $collection->getDateCreatedField()) {
-                    $dateCreatedValue =  DateTimeUtils::createFromDateTime(new \DateTime($payload[$dateCreated->getName()]));
-                    $payload[$dateCreated->getName()] = $dateCreatedValue->toUTCString();
+                    if ($payload[$dateCreated->getName()] !== null) {
+                        $dateCreatedValue =  DateTimeUtils::createFromDateTime(new \DateTime($payload[$dateCreated->getName()]));
+                        $payload[$dateCreated->getName()] = $dateCreatedValue->toUTCString();
+                    }
                 }
                 
                 if ($dateModified = $collection->getDateModifiedField()) {
