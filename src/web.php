@@ -232,25 +232,21 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
 
-    $this->group('/modules', function () {
-        $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/modules', true);
-
-        foreach ($endpointsList as $name => $endpoints) {
-            \Directus\create_group_route_from_array($this, $name, $endpoints);
-        }
-    })
+    $this->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
         ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
 
-    $this->group('/interfaces', function () {
-        $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/interfaces', true);
-
-        foreach ($endpointsList as $name => $endpoints) {
-            \Directus\create_group_route_from_array($this, $name, $endpoints);
-        }
-    })
+    $this->group('/layouts', \Directus\Api\Routes\Layouts::class)
         ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth_user'])
+        ->add($middleware['auth'])
+        ->add($middleware['table_gateway']);
+
+    $this->group('/modules', \Directus\Api\Routes\Modules::class)
+        ->add($middleware['rate_limit_user'])
+        ->add($middleware['auth_user'])
         ->add($middleware['auth'])
         ->add($middleware['table_gateway']);
 
@@ -261,24 +257,7 @@ $app->group('/{project}', function () use ($middleware) {
         ->add($middleware['table_gateway']);
 })->add($middleware['database_migration']);
 
-$app->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
-    ->add($middleware['rate_limit_user'])
-    ->add($middleware['auth_user'])
-    ->add($middleware['auth'])
-    ->add($middleware['table_gateway'])
-    ->add($middleware['database_migration']);
-$app->group('/layouts', \Directus\Api\Routes\Layouts::class)
-    ->add($middleware['rate_limit_user'])
-    ->add($middleware['auth_user'])
-    ->add($middleware['auth'])
-    ->add($middleware['table_gateway'])
-    ->add($middleware['database_migration']);
-$app->group('/modules', \Directus\Api\Routes\Modules::class)
-    ->add($middleware['rate_limit_user'])
-    ->add($middleware['auth_user'])
-    ->add($middleware['auth'])
-    ->add($middleware['table_gateway'])
-    ->add($middleware['database_migration']);
+
 
 $app->group('/server', \Directus\Api\Routes\Server::class);
 $app->group('/types', \Directus\Api\Routes\Types::class)
