@@ -409,6 +409,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $parentRecordWithoutAlias[$key] = $data;
         }
+        $parentRecordWithoutAlias = $this->parseRecord($parentRecordWithoutAlias);
 
         $newRecordObject = $tableGateway->addRecordByArray($parentRecordWithoutAlias);
 
@@ -489,6 +490,7 @@ class RelationalTableGateway extends BaseTableGateway
 
             $parentRecordWithoutAlias[$key] = $data;
         }
+        $parentRecordWithoutAlias = $this->parseRecord($parentRecordWithoutAlias);
 
         $parentRecordWithoutAlias[$this->primaryKeyFieldName] = $id;
 
