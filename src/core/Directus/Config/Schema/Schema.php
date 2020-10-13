@@ -2,13 +2,40 @@
 
 namespace Directus\Config\Schema;
 
+use Directus\Application\Application;
 use Directus\Config\Context;
+use Exception;
 
 /**
  * Config schema.
  */
 class Schema
 {
+    public static function readCustomConfig($path) {
+        if (file_exists($path . 'CustomSchema.php')) {
+            $classes = get_declared_classes();
+            require_once $path . 'CustomSchema.php';
+            $customClassName = array_diff($classes, get_declared_classes());
+            if (count($customClassName) == 0) {
+                return;
+            }
+
+            // check the class for implements, no need to create the class
+            $interfaces = class_implements($customClassName[0]);
+            if (isset($interfaces[\CustomSchemaDefine::class ]) &&
+                in_array(CustomSchemaDefineTrait::class, class_uses($customClassName))) {
+                try {
+                    /** @var CustomSchemaDefineTrait $instance */
+                    $instance = new $customClassName;
+                    $instance->addToSchema();
+                } catch (\Exception $exception) {
+                    $app = Application::getInstance();
+                    $app->getContainer()->get('logger')->error($exception->getMessage());
+                }
+            }
+        }
+    }
+    static private $customNodes;
     /**
      * Gets the configuration schema.
      *
@@ -23,7 +50,7 @@ class Schema
             $loggerPath = realpath(__DIR__.'/../../../../../logs');
         }
 
-        return new Group('directus', [
+        $group = new Group('directus', [
             new Value('env', Types::STRING, 'production'),
             new Group('logger', [
                 new Value('path', Types::STRING, $loggerPath),
@@ -160,5 +187,60 @@ class Schema
             ]),
             new Value('ext?', Types::ARRAY, []),
         ]);
+
+        if (Context::has_custom_context()) {
+            foreach (self::$customNodes as $path => $nodes) {
+                foreach ($nodes as $node) {
+                    $group = self::saveCustomNode($group, explode('_', $path), $node);
+                }
+            }
+        }
+        return $group;
+    }
+
+    private static function normalizeNodeName($element)
+    {
+        return preg_replace('/[^a-zA-Z0-9]/', '', $element);
+    }
+
+    /**
+     * @param Base|Node|Node[] $group
+     * @param array $keys
+     * @param Value $newChild
+     * @return Base
+     */
+    private static function saveCustomNode($group, $keys, $newChild)
+    {
+        $key = strtolower(self::normalizeNodeName(array_shift($keys)));
+        if (count($keys) == 0) {
+            return $group->addChild($newChild);
+        }
+        foreach($group->children() as $child) {
+            if ($child->key() === $key) {
+                if (count($keys) >= 1) {
+                    return $group->addChild(self::saveCustomNode($child, $keys, $newChild));
+                }
+            }
+        }
+        if (count($keys) > 0) {
+            $newGroup = new Group($key, []);
+            $newGroup = self::saveCustomNode($newGroup, $keys, $newChild);
+            return $group->addChild($newGroup);
+        }
+        return $group;
+    }
+
+    /**
+     * accepts a complete path to a custom config place
+     * @param string $path the path to be added to the config eg AUTH_SOCIAL-PROVIDER_KEYCLOAK
+     * @param Value $value
+     * @throws Exception
+     */
+    public static function registerCustomNode($path, $value) {
+        if (!($value instanceof Value)) {
+            throw new Exception('second parameter must be of type ' . Value::class);
+        }
+
+        self::$customNodes[$path][] = $value;
     }
 }

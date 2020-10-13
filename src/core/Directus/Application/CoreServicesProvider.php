@@ -11,8 +11,19 @@ use Cache\Adapter\Memcache\MemcacheCachePool;
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
 use Cache\Adapter\Void\VoidCachePool;
+use Closure;
 use Cocur\Slugify\Slugify;
+use CustomSchemaDefine;
 use Directus\Application\ErrorHandlers\ErrorHandler;
+use Directus\Config\Schema\CustomSchemaDefineTrait;
+use Directus\Database\Schema\Sources\MySQLSchema;
+use Exception;
+use Memcache;
+use Memcached;
+use PDO;
+use Redis;
+use RedisCluster;
+use function Directus\append_storage_information;
 use function Directus\array_get;
 use Directus\Authentication\Provider;
 use Directus\Authentication\Sso\Social;
@@ -39,8 +50,10 @@ use Directus\Exception\RuntimeException;
 use Directus\Filesystem\Files;
 use Directus\Filesystem\Filesystem;
 use Directus\Filesystem\FilesystemFactory;
+use function Directus\base_path;
 use function Directus\generate_uuid4;
 use function Directus\get_api_project_from_request;
+use function Directus\get_custom_x;
 use function Directus\get_directus_files_settings;
 use function Directus\get_directus_setting;
 use function Directus\get_url;
@@ -71,6 +84,7 @@ use Slim\Views\Twig;
 use Zend\Db\TableGateway\TableGateway;
 use Directus\Api\Routes\Roles;
 use function Directus\get_random_string;
+use function Directus\request_send_json;
 
 class CoreServicesProvider
 {
@@ -111,7 +125,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getLogger()
     {
@@ -173,7 +187,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getErrorHandler()
     {
@@ -194,7 +208,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getEmitter()
     {
@@ -324,7 +338,7 @@ class CoreServicesProvider
             }, Emitter::P_HIGH);
 
             $addFilesUrl = function ($rows) {
-                return \Directus\append_storage_information($rows);
+                return append_storage_information($rows);
             };
             $emitter->addFilter('item.read.directus_files:before', function (Payload $payload) {
                 $columns = $payload->get('columns');
@@ -672,7 +686,7 @@ class CoreServicesProvider
                         'url' => get_url(),
                         'type' => 'api'
                     ];
-                    \Directus\request_send_json('POST', 'https://telemetry.directus.io/count', $data);
+                    request_send_json('POST', 'https://telemetry.directus.io/count', $data);
 
                     // NOTE: this only works when the client sends subsequent request with the same cookie
                     $session->getStorage()->set('telemetry', true);
@@ -684,7 +698,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getDatabase()
     {
@@ -708,8 +722,8 @@ class CoreServicesProvider
 
             if (strtolower($type) === 'mysql') {
                 $defaultConfig = [
-                    \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
+                    PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+                    PDO::MYSQL_ATTR_INIT_COMMAND => sprintf('SET NAMES "%s"', $charset)
                 ];
             }
 
@@ -727,7 +741,7 @@ class CoreServicesProvider
             try {
                 $db = new Connection($parameters);
                 $db->connect();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 throw new ConnectionFailedException($e);
             }
 
@@ -736,7 +750,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getAuth()
     {
@@ -756,28 +770,31 @@ class CoreServicesProvider
         };
     }
 
+
+
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getExternalAuth()
     {
         return function (Container $container) {
+
+            $coreSso = get_custom_x('auth', 'public/extensions/core/auth', true);
+            $customSso = get_custom_x('auth', 'public/extensions/custom/auth', true);
+
             $config = $container->get('config');
             $providersConfig = $config->get('auth.social_providers', []);
 
             $socialAuth = new Social();
 
-            $coreSso = \Directus\get_custom_x('auth', 'public/extensions/core/auth', true);
-            $customSso = \Directus\get_custom_x('auth', 'public/extensions/custom/auth', true);
-
             // Flag the customs providers in order to choose the correct path for the icons
-            $customSso = array_map(function ($config) {
+            $mappedCustomSso = array_map(function ($config) {
                 $config['custom'] = true;
 
                 return $config;
             }, $customSso);
 
-            $ssoProviders = array_merge($coreSso, $customSso);
+            $ssoProviders = array_merge($coreSso, $mappedCustomSso);
             foreach ($providersConfig as $providerName => $providerConfig) {
                 if (!is_array($providerConfig)) {
                     continue;
@@ -792,13 +809,17 @@ class CoreServicesProvider
                     $class = array_get($providerInfo, 'provider');
                     $custom = array_get($providerInfo, 'custom');
 
+                    if ($custom && !class_exists($class)) {
+                        require_once(base_path().'public/extensions/custom/auth/'.$providerName.'/Provider.php');
+                    }
+
                     if (!class_exists($class)) {
                         throw new RuntimeException(sprintf('Class %s not found', $class));
                     }
 
                     $socialAuth->register($providerName, new $class($container, array_merge([
                         'custom' => $custom,
-                        'callback_url' => \Directus\get_url('/' . get_api_project_from_request() . '/auth/sso/' . $providerName . '/callback')
+                        'callback_url' => get_url('/' . get_api_project_from_request() . '/auth/sso/' . $providerName . '/callback')
                     ], $providerConfig)));
                 }
             }
@@ -808,7 +829,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getSession()
     {
@@ -823,7 +844,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getSlugify()
     {
@@ -833,7 +854,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getAcl()
     {
@@ -843,7 +864,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getCache()
     {
@@ -908,7 +929,7 @@ class CoreServicesProvider
                         throw new InvalidCacheConfigurationException($adapter);
                     }
 
-                    $client = $adapter == 'memcached' ? new \Memcached() : new \Memcache();
+                    $client = $adapter == 'memcached' ? new Memcached() : new Memcache();
                     if (isset($poolConfig['url'])) {
                         $urls = explode(';', $poolConfig['url']);
                         if ($urls ===  false) {
@@ -942,9 +963,9 @@ class CoreServicesProvider
                     $auth = (isset($poolConfig['auth'])) ? $poolConfig['auth'] : null;
 
                     if ($adapter == 'rediscluster') {
-                        $client = new \RedisCluster(NULL, ["$host:$port"]);
+                        $client = new RedisCluster(NULL, ["$host:$port"]);
                     } else {
-                        $client = new \Redis();
+                        $client = new Redis();
                         if ($socket) {
                             $client->connect($socket);
                         } else {
@@ -965,7 +986,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getSchemaAdapter()
     {
@@ -975,7 +996,7 @@ class CoreServicesProvider
 
             switch ($databaseName) {
                 case 'MySQL':
-                    return new \Directus\Database\Schema\Sources\MySQLSchema($adapter);
+                    return new MySQLSchema($adapter);
                     // case 'SQLServer':
                     //    return new SQLServerSchema($adapter);
                     // case 'SQLite':
@@ -984,12 +1005,12 @@ class CoreServicesProvider
                     //     return new PostgresSchema($adapter);
             }
 
-            throw new \Exception('Unknown/Unsupported database: ' . $databaseName);
+            throw new Exception('Unknown/Unsupported database: ' . $databaseName);
         };
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getSchemaManager()
     {
@@ -1001,7 +1022,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getSchemaFactory()
     {
@@ -1013,7 +1034,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getResponseCache()
     {
@@ -1023,7 +1044,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getHashManager()
     {
@@ -1071,7 +1092,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getThumbFilesystem()
     {
@@ -1083,7 +1104,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getMailerTransportManager()
     {
@@ -1112,7 +1133,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getMailer()
     {
@@ -1122,7 +1143,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getSettings()
     {
@@ -1135,7 +1156,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getStatusMapping()
     {
@@ -1155,7 +1176,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getMailView()
     {
@@ -1170,7 +1191,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getFiles()
     {
@@ -1193,7 +1214,7 @@ class CoreServicesProvider
     }
 
     /**
-     * @return \Closure
+     * @return Closure
      */
     protected function getThumbFiles()
     {
@@ -1224,7 +1245,7 @@ class CoreServicesProvider
             // Fetch files settings
             try {
                 $settings = get_directus_files_settings();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $settings = [];
                 /** @var Logger $logger */
                 $logger = $container->get('logger');
@@ -1264,7 +1285,7 @@ class CoreServicesProvider
      *
      * @param Container $mainContainer
      *
-     * @return \Closure
+     * @return Closure
      *
      * @internal param Container $container
      *
@@ -1289,7 +1310,7 @@ class CoreServicesProvider
     /**
      * @param Container $container Application container
      *
-     * @return \Closure
+     * @return Closure
      */
     protected function getAuthService(Container $container)
     {

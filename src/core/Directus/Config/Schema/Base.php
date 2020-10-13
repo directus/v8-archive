@@ -47,7 +47,7 @@ abstract class Base implements Node
             $name = substr($name, 0, -1);
         }
         $this->_name = $name;
-        $this->_key = str_replace("-", "", str_replace("_", "", strtolower($name)));
+        $this->_key = preg_replace('/[-_]/',"",strtolower($name) );
         $this->_children = $children;
         $this->_parent = null;
         foreach ($children as &$child) {
@@ -121,9 +121,25 @@ abstract class Base implements Node
      */
     protected function normalize($context) {
         foreach ($context as $context_key => $context_value) {
-            $context[strtolower(str_replace("-", "", str_replace("_", "", $context_key)))] = $context_value;
+            $context[strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $context_key))] = $context_value;
         }
 
         return $context;
+    }
+
+    /**
+     * @param self $newChild
+     * @return Base
+     */
+    public function addChild($newChild)
+    {
+        $newChild->parent($this);
+        $children = array_filter($this->_children, function ($child) use ($newChild) {
+            /** @var Base $child */
+            return $child->key() !== $newChild->key();
+        });
+        $children[] = $newChild;
+        $this->children($children);
+        return $this;
     }
 }

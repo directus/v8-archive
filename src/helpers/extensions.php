@@ -3,6 +3,7 @@
 namespace Directus;
 
 use Directus\Application\Application;
+use Directus\Config\Schema\Schema;
 use Directus\Exception\Exception;
 use Directus\Util\ArrayUtils;
 
@@ -36,10 +37,7 @@ if (!function_exists('get_custom_x')) {
             $pathInfo = pathinfo($relativePath);
             $dirname = $pathInfo['dirname'];
             $extensionName = $pathInfo['filename'];
-            /**
-             * For windows system the path is '\' instead of '/'. So we need to check for both slashes.
-             */
-            $isDirectory = $dirname !== '/' && $dirname !== '\\';
+            $isDirectory = $dirname !== DIRECTORY_SEPARATOR;
 
             // TODO: Need to improve logic
             if (in_array($dirname, $ignoredDirectories)) {
@@ -50,6 +48,7 @@ if (!function_exists('get_custom_x')) {
                 if ($pathInfo['filename'] === $type) {
                     $ignoredDirectories[] = $dirname;
                     $extensionName = ltrim($dirname, '/');
+                    Schema::readCustomConfig($dirname);
                 } else {
                     continue;
                 }
