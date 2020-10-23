@@ -122,9 +122,11 @@ $middleware = [
     'auth_optional' => new \Directus\Application\Http\Middleware\AuthenticationOptionalMiddleware($app->getContainer()),
     'auth_ignore_origin' => new \Directus\Application\Http\Middleware\AuthenticationIgnoreOriginMiddleware($app->getContainer()),
     'rate_limit_user' => new \Directus\Application\Http\Middleware\UserRateLimitMiddleware($app->getContainer()),
+    'cache' => new \Directus\Application\Http\Middleware\ResponseCacheMiddleware($app->getContainer()),
 ];
 
-$app->add($middleware['rate_limit_ip'])
+$app->add($middleware['cache'])
+    ->add($middleware['rate_limit_ip'])
     ->add($middleware['proxy'])
     ->add($middleware['ip'])
     ->add($middleware['cors']);
@@ -139,88 +141,47 @@ $app->get('/{project}/assets/{id}', \Directus\Api\Routes\Assets::class);
 $app->group('/{project}', function () use ($middleware) {
     $this->get('/', \Directus\Api\Routes\ProjectHome::class)
         ->add($middleware['auth_user'])
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['auth_optional'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['auth_optional']);
     $this->post('/update', \Directus\Api\Routes\ProjectUpdate::class)
         ->add($middleware['auth_admin'])
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/activity', \Directus\Api\Routes\Activity::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
-    $this->group('/auth', \Directus\Api\Routes\Auth::class)
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
+    $this->group('/auth', \Directus\Api\Routes\Auth::class);
     $this->group('/fields', \Directus\Api\Routes\Fields::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/files', \Directus\Api\Routes\Files::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/folders', \Directus\Api\Routes\Folders::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/items', \Directus\Api\Routes\Items::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/collection_presets', \Directus\Api\Routes\CollectionPresets::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/permissions', \Directus\Api\Routes\Permissions::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/relations', \Directus\Api\Routes\Relations::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/revisions', \Directus\Api\Routes\Revisions::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/roles', \Directus\Api\Routes\Roles::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/settings', \Directus\Api\Routes\Settings::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['database_migration'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/collections', \Directus\Api\Routes\Collections::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/users', \Directus\Api\Routes\Users::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/webhooks', \Directus\Api\Routes\Webhook::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/scim', function () {
         $this->group('/v2', \Directus\Api\Routes\ScimTwo::class);
-    })->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+    })->add($middleware['rate_limit_user']);
     $this->group('/utils', \Directus\Api\Routes\Utils::class)
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['rate_limit_user']);
     $this->group('/mail', \Directus\Api\Routes\Mail::class)
         ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+        ->add($middleware['auth_user']);
 
     $this->group('/custom', function () {
         $endpointsList = \Directus\get_custom_endpoints('public/extensions/custom/endpoints');
@@ -228,9 +189,7 @@ $app->group('/{project}', function () use ($middleware) {
         foreach ($endpointsList as $name => $endpoints) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
-    })
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+    });
 
     $this->group('/modules', function () {
         $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/modules', true);
@@ -238,10 +197,7 @@ $app->group('/{project}', function () use ($middleware) {
         foreach ($endpointsList as $name => $endpoints) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
-    })
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+    })->add($middleware['rate_limit_user']);
 
     $this->group('/interfaces', function () {
         $endpointsList = \Directus\get_custom_endpoints('public/extensions/core/interfaces', true);
@@ -249,17 +205,13 @@ $app->group('/{project}', function () use ($middleware) {
         foreach ($endpointsList as $name => $endpoints) {
             \Directus\create_group_route_from_array($this, $name, $endpoints);
         }
-    })
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
+    })->add($middleware['rate_limit_user']);
 
     $this->group('/gql', \Directus\Api\Routes\GraphQL::class)
         ->add($middleware['auth_admin'])
-        ->add($middleware['rate_limit_user'])
-        ->add($middleware['auth'])
-        ->add($middleware['table_gateway']);
-})->add($middleware['database_migration']);
+        ->add($middleware['rate_limit_user']);
+})->add($middleware['auth'])
+    ->add($middleware['table_gateway']);
 
 $app->group('/interfaces', \Directus\Api\Routes\Interfaces::class)
     ->add($middleware['rate_limit_user'])
@@ -287,7 +239,5 @@ $app->group('/types', \Directus\Api\Routes\Types::class)
     ->add($middleware['auth'])
     ->add($middleware['table_gateway'])
     ->add($middleware['database_migration']);
-
-$app->add(new \Directus\Application\Http\Middleware\ResponseCacheMiddleware($app->getContainer()));
 
 return $app;
