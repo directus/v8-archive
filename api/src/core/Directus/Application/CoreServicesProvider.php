@@ -11,7 +11,6 @@ use Cache\Adapter\Memcache\MemcacheCachePool;
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use Cache\Adapter\Redis\RedisCachePool;
 use Cache\Adapter\Void\VoidCachePool;
-use Cocur\Slugify\Slugify;
 use Directus\Application\ErrorHandlers\ErrorHandler;
 use function Directus\array_get;
 use Directus\Authentication\Provider;
@@ -84,7 +83,7 @@ class CoreServicesProvider
         $container['auth'] = $this->getAuth();
         $container['external_auth'] = $this->getExternalAuth();
         $container['session'] = $this->getSession();
-        $container['slugify'] = $this->getSlugify();
+        // $container['slugify'] = $this->getSlugify();
         $container['acl'] = $this->getAcl();
         $container['errorHandler'] = $this->getErrorHandler();
         $container['phpErrorHandler'] = $this->getErrorHandler();
@@ -533,21 +532,6 @@ class CoreServicesProvider
                 $collectionName = $payload->attribute('collection_name');
                 $collection = $schemaManager->getCollection($collectionName);
                 $isSystemCollection = $schemaManager->isSystemCollection($collectionName);
-                /** @var Field[] $slugMirrorFields */
-                $slugMirrorFields = [];
-
-                // Find all slug field mirroredField values
-                foreach ($collection->getFields() as $field) {
-                    if (!$field || !DataTypes::isSlugType($field->getType())) {
-                        continue;
-                    }
-
-                    $fieldOptions = $options = $field->getOptions() ?: [];
-                    $mirroredFieldName = ArrayUtils::get($fieldOptions, 'mirroredField');
-                    if ($mirroredFieldName && ($mirroredField = $collection->getField($mirroredFieldName)) && DataTypes::isStringType($mirroredField->getType())) {
-                        $slugMirrorFields[$mirroredFieldName] = $field;
-                    }
-                }
 
                 // TODO: Use iterator instead of looping through a copy of the payload data (while ($payload->valid))
                 $data = $payload->getData();
@@ -564,24 +548,6 @@ class CoreServicesProvider
                         $options = $field->getOptions() ?: ['hasher' => 'core'];
                         $hashedString = $hashManager->hash($value, $options);
                         $payload->set($key, $hashedString);
-
-                        continue;
-                    }
-
-                    if (array_key_exists($key, $slugMirrorFields) && !$payload->has($slugMirrorFields[$key]->getName())) {
-                        /** @var Slugify $slugify */
-                        $slugify = $container->get('slugify');
-
-                        $slugField = $slugMirrorFields[$key];
-                        $slugOptions = $slugField->getOptions() ?: [];
-
-                        ArrayUtils::renameSome($slugOptions, [
-                            'forceLowercase' => 'lowercase',
-                        ]);
-
-                        $slugOptions = ArrayUtils::defaults(['lowercase' => true], $slugOptions);
-
-                        $payload->set($slugField->getName(), $slugify->slugify($value, $slugOptions));
 
                         continue;
                     }
@@ -819,16 +785,6 @@ class CoreServicesProvider
             $session->getStorage()->start();
 
             return $session;
-        };
-    }
-
-    /**
-     * @return \Closure
-     */
-    protected function getSlugify()
-    {
-        return function () {
-            return new Slugify();
         };
     }
 
