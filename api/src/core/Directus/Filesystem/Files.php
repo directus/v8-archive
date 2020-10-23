@@ -374,7 +374,7 @@ class Files
         }
 
         $fileName = isset($fileInfo['filename_disk']) ? $fileInfo['filename_disk'] : md5(time()) . '.jpg';
-        $thumbnailData = $this->saveData($fileInfo['data'], $fileName, $fileInfo['fileId']);
+        $thumbnailData = $this->saveData($fileInfo['data'], $fileName, !empty($fileInfo['fileId']));
 
         return array_merge(
             $fileInfo,
