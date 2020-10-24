@@ -115,7 +115,7 @@ class SchemaFactory
 
         $connection = $this->schemaManager->getSource()->getConnection();
         $sql = new Sql($connection);
-    
+
         $toAddColumnsData = ArrayUtils::get($data, 'add', []);
         $toAddColumns = $this->createColumns($toAddColumnsData);
         foreach ($toAddColumns as $column) {
@@ -135,7 +135,7 @@ class SchemaFactory
         }
 
         $toChangeColumnsData = ArrayUtils::get($data, 'change', []);
-        
+
         // Throws an exception when trying to make the field required and there are items with no value for that field in collection
         foreach ($toChangeColumnsData as $column) {
             if($column['required']) {
@@ -235,7 +235,7 @@ class SchemaFactory
         }
 
         // CollectionLength are SET or ENUM data type
-        if ($column instanceof AbstractPrecisionColumn) {
+        if ($column instanceof AbstractPrecisionColumn && !empty($length)) {
             $parts = !is_array($length) ? explode(',', $length) : $length;
             $column->setDigits($parts[0]);
             $column->setDecimal(isset($parts[1]) ? $parts[1] : 0);
