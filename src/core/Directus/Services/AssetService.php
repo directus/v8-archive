@@ -3,6 +3,7 @@
 namespace Directus\Services;
 
 use Exception;
+use Intervention\Image\Image;
 use Zend\Db\Sql\Select;
 use Directus\Util\ArrayUtils;
 use Directus\Filesystem\Thumbnail;
@@ -12,7 +13,7 @@ use Directus\Database\Schema\SchemaManager;
 use Directus\Exception\UnprocessableEntityException;
 use Directus\Database\Exception\ItemNotFoundException;
 use function Directus\get_directus_thumbnail_settings;
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\ImageManagerStatic;
 use Directus\Util\DateTimeUtils;
 use function Directus\get_directus_setting;
 
@@ -360,7 +361,7 @@ class AssetService extends AbstractService
     /**
      * Replace PDF files with a JPG thumbnail
      * @throws Exception
-     * @return string image content
+     * @return Image image content
      */
     public function load()
     {
@@ -369,7 +370,7 @@ class AssetService extends AbstractService
         if (Thumbnail::isNonImageFormatSupported($ext)) {
             $content = Thumbnail::createImageFromNonImage($content);
         }
-        return Image::make($content);
+        return ImageManagerStatic::make($content);
     }
 
     /**
@@ -455,7 +456,7 @@ class AssetService extends AbstractService
                 if (strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) == 'webp') {
                     return 'image/webp';
                 }
-                $img = Image::make($this->filesystemThumb->read($path . '/' . $fileName));
+                $img = ImageManagerStatic::make($this->filesystemThumb->read($path . '/' . $fileName));
                 return $img->mime();
             }
             return 'application/octet-stream';
