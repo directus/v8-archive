@@ -157,28 +157,24 @@ class AssetService extends AbstractService
         $this->thumbnailDir = 'w' . $this->thumbnailParams['width'] . ',h' . $this->thumbnailParams['height'] .
             ',f' . $this->thumbnailParams['fit'] . ',q' . $this->thumbnailParams['quality'];
 
-        try {
-            $image = $this->getExistingThumbnail($asStream);
+        $image = $this->getExistingThumbnail($asStream);
 
-            if (!$image) {
-                switch ($this->thumbnailParams['fit']) {
-                    case 'contain':
-                        $image = $this->contain($asStream);
-                        break;
-                    case 'crop':
-                    default:
-                        $image = $this->crop($asStream);
-                }
+        if (!$image) {
+            switch ($this->thumbnailParams['fit']) {
+                case 'contain':
+                    $image = $this->contain($asStream);
+                    break;
+                case 'crop':
+                default:
+                    $image = $this->crop($asStream);
             }
-
-            $result['mimeType'] = $this->getThumbnailMimeType($this->thumbnailDir, $this->fileName);
-            $result['last_modified'] = $this->getThumbnailLastModified($this->thumbnailDir, $this->fileName);
-            $result['file'] = $image;
-            $result['filename_download'] = $this->fileNameDownload;
-            return $result;
-        } catch (Exception $e) {
-            throw $e;
         }
+
+        $result['mimeType'] = $this->getThumbnailMimeType($this->thumbnailDir, $this->fileName);
+        $result['last_modified'] = $this->getThumbnailLastModified($this->thumbnailDir, $this->fileName);
+        $result['file'] = $image;
+        $result['filename_download'] = $this->fileNameDownload;
+        return $result;
     }
 
     /**
@@ -342,19 +338,15 @@ class AssetService extends AbstractService
      */
     public function getExistingThumbnail($asStream = false)
     {
-        try {
-            $location = $this->thumbnailDir . '/' . $this->thumbnailParams['thumbnailFileName'];
-            if ($this->filesystemThumb->exists($location)) {
-                if ($asStream === false) {
-                    $img = $this->filesystemThumb->read($location);
-                } else {
-                    $img = $this->filesystemThumb->readStream($location);
-                }
+        $location = $this->thumbnailDir . '/' . $this->thumbnailParams['thumbnailFileName'];
+        if ($this->filesystemThumb->exists($location)) {
+            if ($asStream === false) {
+                $img = $this->filesystemThumb->read($location);
+            } else {
+                $img = $this->filesystemThumb->readStream($location);
             }
-            return isset($img) && $img ? $img : null;
-        } catch (Exception $e) {
-            throw $e;
         }
+        return isset($img) && $img ? $img : null;
     }
 
     /**
@@ -383,22 +375,18 @@ class AssetService extends AbstractService
      */
     public function contain($asStream = false)
     {
-        try {
-            $img = $this->load();
-            $img->resize($this->thumbnailParams['width'], $this->thumbnailParams['height'], function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $encodedImg = (string) $img->encode($this->thumbnailParams['format'], ($this->thumbnailParams['quality'] ? $this->thumbnailParams['quality'] : null));
-            $location = $this->thumbnailDir . '/' . $this->thumbnailParams['thumbnailFileName'];
-            $this->filesystemThumb->write($location, $encodedImg);
+        $img = $this->load();
+        $img->resize($this->thumbnailParams['width'], $this->thumbnailParams['height'], function ($constraint) {
+            $constraint->aspectRatio();
+        });
+        $encodedImg = (string) $img->encode($this->thumbnailParams['format'], ($this->thumbnailParams['quality'] ? $this->thumbnailParams['quality'] : null));
+        $location = $this->thumbnailDir . '/' . $this->thumbnailParams['thumbnailFileName'];
+        $this->filesystemThumb->write($location, $encodedImg);
 
-            if ($asStream === false) {
-                return $encodedImg;
-            }
-            return $this->filesystemThumb->readStream($location);
-        } catch (Exception $e) {
-            throw $e;
+        if ($asStream === false) {
+            return $encodedImg;
         }
+        return $this->filesystemThumb->readStream($location);
     }
 
     /**
@@ -412,21 +400,17 @@ class AssetService extends AbstractService
      */
     public function crop($asStream = false)
     {
-        try {
-            $img = $this->load();
-            $img->fit($this->thumbnailParams['width'], $this->thumbnailParams['height'], function ($constraint) {
-            });
-            $encodedImg = (string) $img->encode($this->thumbnailParams['format'], ($this->thumbnailParams['quality'] ? $this->thumbnailParams['quality'] : null));
-            $location = $this->thumbnailDir . '/' . $this->thumbnailParams['thumbnailFileName'];
-            $this->filesystemThumb->write($location, $encodedImg);
+        $img = $this->load();
+        $img->fit($this->thumbnailParams['width'], $this->thumbnailParams['height'], function ($constraint) {
+        });
+        $encodedImg = (string) $img->encode($this->thumbnailParams['format'], ($this->thumbnailParams['quality'] ? $this->thumbnailParams['quality'] : null));
+        $location = $this->thumbnailDir . '/' . $this->thumbnailParams['thumbnailFileName'];
+        $this->filesystemThumb->write($location, $encodedImg);
 
-            if ($asStream === false) {
-                return $encodedImg;
-            }
-            return $this->filesystemThumb->readStream($location);
-        } catch (Exception $e) {
-            throw $e;
+        if ($asStream === false) {
+            return $encodedImg;
         }
+        return $this->filesystemThumb->readStream($location);
     }
 
     public function getDefaultThumbnail()
@@ -450,28 +434,20 @@ class AssetService extends AbstractService
 
     public function getThumbnailMimeType($path, $fileName)
     {
-        try {
-            if ($this->filesystemThumb->exists($path . '/' . $fileName)) {
-                if (strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) == 'webp') {
-                    return 'image/webp';
-                }
-                $img = Image::make($this->filesystemThumb->read($path . '/' . $fileName));
-                return $img->mime();
+        if ($this->filesystemThumb->exists($path . '/' . $fileName)) {
+            if (strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) == 'webp') {
+                return 'image/webp';
             }
-            return 'application/octet-stream';
-        } catch (Exception $e) {
-            throw $e;
+            $img = Image::make($this->filesystemThumb->read($path . '/' . $fileName));
+            return $img->mime();
         }
+        return 'application/octet-stream';
     }
 
     public function getThumbnailLastModified($path, $fileName)
     {
-        try {
-            $lastModified = $this->filesystemThumb->getAdapter()->getTimestamp($path . '/' . $fileName);
-            $lastModified = new DateTimeUtils(date('c', $lastModified));
-            return $lastModified->toRFC2616Format();
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $lastModified = $this->filesystemThumb->getAdapter()->getTimestamp($path . '/' . $fileName);
+        $lastModified = new DateTimeUtils(date('c', $lastModified));
+        return $lastModified->toRFC2616Format();
     }
 }
