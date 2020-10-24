@@ -220,6 +220,7 @@ if (!function_exists('create_ping_server')) {
      */
     function create_ping_server($basePath, array $config = [], array $values = [])
     {
+        // patch 2020-10-24：https://github.com/directus/api/pull/1956/files
         $app = create_app($basePath, array_merge([
             'env' => 'production'
         ], $config), $values);
@@ -250,6 +251,7 @@ if (!function_exists('create_default_app')) {
             };
         }
 
+        // patch 2020-10-24：https://github.com/directus/api/pull/1956/files
         $app = create_app($basePath, array_merge([
             'env' => 'production'
         ], $config), $values);
