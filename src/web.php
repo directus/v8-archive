@@ -281,12 +281,6 @@ $app->group('/modules', \Directus\Api\Routes\Modules::class)
     ->add($middleware['database_migration']);
 
 $app->group('/server', \Directus\Api\Routes\Server::class);
-$app->group('/types', \Directus\Api\Routes\Types::class)
-    ->add($middleware['rate_limit_user'])
-    ->add($middleware['auth_user'])
-    ->add($middleware['auth'])
-    ->add($middleware['table_gateway'])
-    ->add($middleware['database_migration']);
 
 $app->add(new \Directus\Application\Http\Middleware\ResponseCacheMiddleware($app->getContainer()));
 
