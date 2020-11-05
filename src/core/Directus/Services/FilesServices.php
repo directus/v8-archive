@@ -95,12 +95,16 @@ class FilesServices extends AbstractService
         }
 
         // NOTE: Use the user input title, tags, description and location when exists.
-        $recordData = ArrayUtils::defaults($recordData, ArrayUtils::pick($data, [
-            'title',
-            'tags',
-            'description',
-            'location',
-        ]));
+        $exifTags = array('title','tags','description','location');
+        $recordData = ArrayUtils::defaults($recordData, ArrayUtils::pick($data, $exifTags));
+
+        foreach ($exifTags as $key) {
+            if(array_key_exists($key, $recordData)) {
+                // NOTE: remove all non-utf8 characters from exif metadata, because they'll break
+                // the mysql insert on zend
+                $recordData[$key] = iconv("UTF-8","UTF-8//IGNORE",$recordData[$key]);
+            }
+        }
 
         if (!$isUpdate) {
             $recordData['private_hash'] = get_random_string();
