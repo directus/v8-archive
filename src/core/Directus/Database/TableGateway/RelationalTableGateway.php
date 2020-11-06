@@ -35,6 +35,8 @@ class RelationalTableGateway extends BaseTableGateway
 
     protected $exceptionMessages = [];
     protected $toManyCallStack = [];
+    
+    protected $parsedParams = [];
 
     /**
      * @var array
@@ -798,6 +800,54 @@ class RelationalTableGateway extends BaseTableGateway
     }
 
     /**
+     * Get params for relationship collections
+     *
+     * @param array $params - current parameter object
+     * @param boolean $hasStatusField - does the collection have a status field
+     * @param array $parameters - new parameter object
+     *
+     * @return array|mixed
+     */
+    public function applyDefaultRelationalSelectParams(array $params, $hasStatusField = false, array $parameters = [])
+    {
+        $defaultParams = $this->defaultEntriesSelectParams;
+        $defaultLimit = $this->getSettings('default_limit');
+        
+        // Apply Status and Limit from Parent
+        // TODO: Allow relational parameters via Collection - E.G: relations.<collection>.limit or relations.<collection>.status
+        $limit = ArrayUtils::pull($params, 'limit');
+        
+        if (!$limit && $defaultLimit) {
+	        $limit = $defaultLimit;
+        }
+        else if (!$limit && $defaultParams) {
+	        $limit = ArrayUtils::get($defaultParams, 'limit');
+        }
+        
+        ArrayUtils::set($parameters, 'limit', intval($limit));
+        
+		if (!$hasStatusField) {
+		    if (ArrayUtils::get($parameters, 'status')) unset($parameters['status']);
+		    if (ArrayUtils::get($parameters, 'filter.status')) unset($parameters['filter']['status']);	        
+		    return $parameters;
+		}
+        
+        $status = ArrayUtils::pull($params, 'status');
+        $statusList = $status ? StringUtils::safeCvs($status) : [];
+        $allStatus = in_array('*', $statusList);
+
+        if ($allStatus) {
+            $statusList = null;
+        } 
+
+        if ($statusList) {
+            ArrayUtils::set($parameters, 'filter.status.in', $statusList);
+        } 
+		
+        return $parameters;
+    }
+
+    /**
      * @param array $params
      * @param Builder $builder
      *
@@ -1283,6 +1333,8 @@ class RelationalTableGateway extends BaseTableGateway
         if (!$single && $id !== null && $idsCount == 1) {
             $single = $params['single'] = true;
         }
+        
+        $this->parsedParams = $params;
 
         $items = $this->fetchItems($params);
 
@@ -2092,7 +2144,7 @@ class RelationalTableGateway extends BaseTableGateway
             }
 
             $relatedTableName = $alias->getRelationship()->getCollectionMany();
-
+            
             if ($this->acl && !$this->acl->canReadOnce($relatedTableName)) {
                 $this->exceptionMessages[] = [
                     'type' => 'warning',
@@ -2137,14 +2189,17 @@ class RelationalTableGateway extends BaseTableGateway
                 }
             }
 
-            $results = $tableGateway->fetchItems(array_merge([
+            // Get the limit and status from the params: See more @ applyDefaultRelationalSelectParams
+            
+            $params = $this->applyDefaultRelationalSelectParams($this->parsedParams, $tableGateway->getTableSchema()->hasStatusField(), $params);
+            $parameters = array_merge_recursive([
                 'fields' => !empty($filterFields)  ? array_merge([$relationalColumnName], $filterFields) : [$relationalColumnName],
-                // Fetch all related data
-                'limit' => -1,
                 'filter' => array_merge($filters, [
                     $relationalColumnName => ['in' => $ids]
                 ]),
-            ], $params));
+            ], $params);
+
+            $results = $tableGateway->fetchItems($parameters);
 
             $relatedEntries = [];
             if (!empty($filterFields)) {
@@ -2269,17 +2324,21 @@ class RelationalTableGateway extends BaseTableGateway
                 continue;
             }
 
+            // Get the limit and status from the params: See more @ applyDefaultRelationalSelectParams
+                       
+            $params = $this->applyDefaultRelationalSelectParams($this->parsedParams, $tableGateway->getTableSchema()->hasStatusField(), $params);
+            
             $filterColumns = \Directus\get_array_flat_columns($columnsTree[$column->getName()]);
-            // Fetch the foreign data
-            $results = $tableGateway->fetchItems(array_merge([
-                // Fetch all related data
-                'limit' => -1,
+            $parameters = array_merge_recursive([
                 // Make sure to include the primary key
                 'fields' => array_merge([$primaryKeyName], $filterColumns),
                 'filter' => [
                     $primaryKeyName => ['in' => $ids]
                 ],
-            ], $params));
+            ], $params);
+            
+            // Fetch the foreign data
+            $results = $tableGateway->fetchItems($parameters);
 
             $relatedEntries = [];
             foreach ($results as $row) {
