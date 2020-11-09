@@ -867,6 +867,9 @@ class BaseTableGateway extends TableGateway
      */
     protected function executeUpdate(Update $update)
     {
+        $ids = [];
+        $updatedObject = [];
+
         $useFilter = $this->shouldUseFilter();
         unset($this->options['filter']);
 
@@ -877,6 +880,18 @@ class BaseTableGateway extends TableGateway
         $updateState = $update->getRawState();
         $updateTable = $this->getRawTableNameFromQueryStateTable($updateState['table']);
         $updateData = $updateState['set'];
+
+        // Runs select PK with passed updates's $where before updating, to use those for the even hook
+        if ($pk = $this->primaryKeyFieldName) {
+            $select = $this->sql->select();
+            $select->where($updateState['where']);
+            $results = parent::executeSelect($select);
+
+            foreach ($results as $result) {
+                $ids[] = $result[$this->primaryKeyFieldName];
+                $updatedObject[$result[$this->primaryKeyFieldName]] = $result->toArray();
+            }
+        }
 
         if ($useFilter) {
             $updateData = $this->runBeforeUpdateHooks($updateTable, $updateData);
@@ -900,9 +915,13 @@ class BaseTableGateway extends TableGateway
         //Invalidate individual cache
         if (static::$container) {
             $config = static::$container->get('config');
-            if ($config->get('cache.enabled')) {
+        }
+        foreach ($ids as $id) {
+            $updatedData = $updatedObject[$id];
+
+            if (isset($config) && $config->get('cache.enabled')) {
                 $cachePool = static::$container->get('cache');
-                $cachePool->invalidateTags(['entity_' . $updateTable . '_' . $result[$this->primaryKeyFieldName]]);
+                $cachePool->invalidateTags(['entity_' . $updateTable . '_' . $updatedData[$this->primaryKeyFieldName]]);
             }
         }
 
