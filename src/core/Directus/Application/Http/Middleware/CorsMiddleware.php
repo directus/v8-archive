@@ -62,7 +62,7 @@ class CorsMiddleware extends AbstractMiddleware
                // TODO: Remove withHeaders calls here
                 return $response
                     ->withHeader('Access-Control-Allow-Credentials', 'true')
-                    ->withHeader('Access-Control-Allow-Headers', ['X-Directus-Project', 'Content-Type', 'Authorization']);
+                    ->withAddedHeader('Access-Control-Allow-Headers', ['X-Directus-Project', 'Content-Type', 'Authorization']);
             } else {
                 $this->processActualHeaders($request, $response);
             }
