@@ -1,0 +1,16 @@
+template: |
+  # What's Changed
+
+  $CHANGES
+
+categories:
+  - title: ':boom: New'
+    label: 'enhancement'
+  - title: ':bug: Bug Fixes'
+    label: 'bug'
+  - title: ':book: Documentation'
+    label: 'documentation'
+  - title: ':arrow_up: Dependency Updates'
+    label: 'dependencies'
+  - title: ':anger::exclamation: Breaking Changes'
+    label: 'breaking changes'

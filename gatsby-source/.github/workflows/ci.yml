@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+
+  test:
+    name: Test (node-${{ matrix.node-version }})
+    needs:
+      - lint
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 13.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup environment
+        run: |
+          pip3 install setuptools
+          pip3 install docker-compose
+          docker-compose up -d
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: yarn test
+      - run: sleep 30 # Wait 30 seconds for the Directus API to be ready
+      - run: yarn e2e
+
+  publish:
+    name: Publish
+    if: startsWith(github.ref, 'refs/tags') # Only publish on tags
+    needs:
+      - lint
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          registry-url: https://registry.npmjs.org/
+          scope: '@directus'
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,70 @@
+{
+  "name": "@directus/gatsby-source-directus",
+  "version": "0.2.9",
+  "description": "A Gatsby source plugin to pull content from a Directus CMS backend.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "gatsby-node.js",
+  "scripts": {
+    "test": "jest tests",
+    "e2e": "jest e2e",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint . --ext .ts && prettier --check \"**/*.{js,ts,json,md,yml,yaml}\"",
+    "format": "prettier --write \"**/*.{js,ts,json,md,yml,yaml}\"",
+    "release": "npm version -m \":rocket: Release %s\"",
+    "postrelease": "git push --follow-tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/directus/gatsby-source.git"
+  },
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin",
+    "gatsby-source",
+    "gatsby-source-plugin",
+    "gatsby-source-directus",
+    "gatsby-directus",
+    "directus",
+    "directus-cms"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/directus/gatsby-source/issues"
+  },
+  "homepage": "https://github.com/directus/gatsby-source#readme",
+  "dependencies": {
+    "@directus/sdk-js": "^6.3.0",
+    "colors": "^1.4.0",
+    "gatsby-node-helpers": "^0.3.0",
+    "gatsby-source-filesystem": "^2.3.35",
+    "pluralize": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.2",
+    "@types/jest": "^26.0.15",
+    "@types/pluralize": "0.0.29",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
+    "axios": "^0.21.0",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint": "^7.12.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.2",
+    "jest": "^26.6.1",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.2",
+    "typescript": "^4.0.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{js,ts,json,md,yml,yaml}": "prettier --write"
+  }
+}
