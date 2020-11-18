@@ -1,31 +1,7 @@
 # 👩‍💻 Contributing
 
 > Our small team truly appreciates every contribution made by our community: feature requests, bug reports, and especially pull requests!. If you have _any_ questions please reach out to our Core team on [Slack](https://directus.chat).
-
-## Repositories
-
-It is important to understand how our codebases are organized and why. Directus is decoupled, which means that the Application and API have separate codebases within two different GitHub repositories. Let's go through each of our main repositories in more detail.
-
-### [directus/api](https://github.com/directus/api)
-
-An API wrapper for custom SQL databases. It allows _projects_ to easily communicate with the SQL databases, and is the "engine" of the Directus Suite.
-
-### [directus/app](https://github.com/directus/app)
-
-An admin GUI for managing Directus API instances. It allows _humans_ to interact with the API, and wraps the API with a friendly user interface so that anyone can manage content through their web browser.
-
-### [directus/directus](https://github.com/directus/directus)
-
-A readonly combined build of the API and App. There is no unique code here, it is simply a convenient way to install the Directus API, App, and all dependencies.
-
-### [directus/docs](https://github.com/directus/docs)
-
-This is what you're looking at right now. It stores all of the Documentation for Directus in markdown files that are easily editable by the community. [Our web Docs](https://docs.directus.io/) are automatically generated from these files using [VuePress](https://vuepress.vuejs.org/).
-
-### [directus/docker](https://github.com/directus/docker)
-
-This is the code used to generate the official Docker images for Directus 7. These images are available through our [Docker Hub](https://hub.docker.com/u/directus/).
-
+se images are available through our [Docker Hub](https://hub.docker.com/u/directus/).
 
 ## Feature Requests
 
@@ -63,7 +39,7 @@ Our core team is always working hard to implement the most highly-requested comm
 Before we get into the full-blown "proper" way to do a pull request, let's quickly cover an easier method you can use for _small_ fixes. This way is especially useful for fixing quick typos in the docs, but is not as safe for code changes since it bypasses validation and linting.
 
 1. Sign in to GitHub
-2. Go to the file you want to edit (eg: [this page](https://github.com/directus/docs/blob/master/getting-started/contributing.md))
+2. Go to the file you want to edit (eg: [this page](https://github.com/directus/directus-8-legacy/blob/master/getting-started/contributing.md))
 3. Click the pencil icon to "Edit this file"
 4. Make any changes
 5. Describe and submit your changes within "Propose file change"

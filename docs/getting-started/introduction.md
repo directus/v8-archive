@@ -82,7 +82,7 @@ Directus is completely free and open-source, but we also offer a [Content-as-a-S
 
 ### Directus Docs
 
-This is what you're reading right now. We believe that maintaining great Documentation is just as important as releasing great software. Luckily our docs are all written in markdown in a [public repository](https://github.com/directus/docs) so the community can help!
+This is what you're reading right now. We believe that maintaining great Documentation is just as important as releasing great software. Luckily our docs are all written in markdown in a [public repository](https://github.com/directus/directus-8-legacy) so the community can help!
 
 ### Directus Demos
 

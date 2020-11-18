@@ -58,7 +58,7 @@ module.exports = {
   ],
   themeConfig: {
     lastUpdated: "Last Updated",
-    repo: "directus/docs",
+    repo: "directus/directus-8-legacy",
     docsDir: "",
     editLinks: true,
     serviceWorker: true,

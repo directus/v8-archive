@@ -42,7 +42,7 @@ $items = $tableGateway->getItems($params);
 // ];
 ```
 
-For `params` it can be used any [Query Parameters](https://github.com/directus/docs/blob/master/api/reference.md#query-parameters) supported by the API.
+For `params` it can be used any [Query Parameters](https://github.com/directus/directus-8-legacy/blob/master/docs/api/reference.md#query-parameters) supported by the API.
 
 ### Zend DB TableGateway
 

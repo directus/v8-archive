@@ -1,10 +1,10 @@
 {
-  "name": "@directus/docs",
+  "name": "directus-documentation",
   "private": true,
   "version": "1.0.0",
   "description": "Directus Docs",
   "main": "index.js",
-  "repository": "directus/docs-v7",
+  "repository": "directus/directus-8-legacy",
   "keywords": [
     "directus",
     "docs"
@@ -21,9 +21,9 @@
   ],
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/directus/docs/issues"
+    "url": "https://github.com/directus/directus-8-legacy/issues"
   },
-  "homepage": "https://github.com/directus/docs#readme",
+  "homepage": "https://github.com/directus/directus-8-legacy#readme",
   "devDependencies": {
     "node-sass": "^4.13.0",
     "sass-loader": "^8.0.1"
