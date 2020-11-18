@@ -1,0 +1,87 @@
+footer {
+  position: relative;
+  background-color: $lightest-gray;
+  margin-top: 160px;
+  padding: 80px 0 80px;
+  text-align: center;
+
+  .cta {
+    width: 100%;
+    padding: 40px;
+    margin-bottom: 60px;
+    background-color: $body-background;
+    border-radius: $border-radius;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    @media (max-width: $breakpoint-small) {
+      padding: 30px 20px;
+      margin-bottom: 40px;
+    }
+    div {
+      max-width: 500px;
+      h2 {
+        color: $darkest-gray;
+        font-size: 32px;
+        line-height: 48px;
+        font-weight: 300;
+        margin-top: 0;
+        margin-bottom: 5px;
+      }
+      p {
+        color: $gray;
+        line-height: 26px;
+      }
+    }
+    @media (max-width: $breakpoint-medium) {
+      flex-wrap: wrap;
+      justify-content: center;
+      div {
+        text-align: center;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 32px;
+      }
+    }
+  }
+
+  .logo svg {
+    margin-bottom: 40px;
+  }
+
+  .social {
+    margin-bottom: 20px;
+    text-align: center;
+    a {
+      svg {
+        width: 40px;
+        margin-right: 20px;
+        vertical-align: middle;
+        path,
+        polygon {
+          fill: $light-gray !important;
+          transition: $fast $transition all;
+        }
+      }
+      &:hover svg path,
+      &:hover svg polygon {
+        fill: $darker-gray !important;
+      }
+    }
+  }
+
+  .legal {
+    color: $light-gray;
+    a:hover {
+      color: $darker-gray;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: 80px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+}

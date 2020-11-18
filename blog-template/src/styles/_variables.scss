@@ -1,0 +1,29 @@
+$border-radius: 3px;
+$box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05);
+
+$transition: cubic-bezier(0.4, 0, 0.2, 1);
+$transition-in: cubic-bezier(0, 0, 0.2, 1);
+$transition-out: cubic-bezier(0.4, 0, 1, 1);
+
+$fast: 125ms;
+$medium: 200ms;
+$slow: 300ms;
+
+$black: #000;
+$darkest-gray: #263238;
+$darker-gray: #37474f;
+$dark-gray: #546e7a;
+$gray: #78909c;
+$light-gray: #90a4ae;
+$lighter-gray: #cfd8dc;
+$lightest-gray: #eceff1;
+$white: #fff;
+$body-background: #f6f7f8;
+$accent: #2196F3;
+$accent-dark: #1565C0;
+$accent-light: #BBDEFB;
+
+$breakpoint-small: 600px;
+$breakpoint-medium: 800px;
+$breakpoint-large: 1000px;
+$breakpoint-extra-large: 1200px;

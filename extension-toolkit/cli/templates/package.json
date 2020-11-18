@@ -1,0 +1,21 @@
+{
+  "name": "<%= name %>",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "build": "directus-extensions build",
+    "dev": "directus-extensions watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@directus/extension-toolkit": "^0.0.1"
+  },
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.6.0",
+    "sass": "^1.17.3",
+    "vue-template-compiler": "^2.6.10"
+  }
+}

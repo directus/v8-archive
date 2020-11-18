@@ -1,0 +1,20 @@
+{
+  "name": "$t:stock",
+  "version": "1.0.0",
+  "icon": "show_chart",
+  "types": ["string"],
+  "options": {},
+  "translation": {
+    "en-US": {
+      "stock": "Stock",
+      "placeholder_text": "eg: TSLA",
+      "details_open": "Open",
+      "details_mktcap": "Mkt Cap",
+      "details_high": "High",
+      "details_52whigh": "52w High",
+      "details_low": "Low",
+      "details_52wlow": "52w Low",
+      "swap_units": "Swap Units"
+    }
+  }
+}

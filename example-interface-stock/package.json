@@ -1,0 +1,38 @@
+{
+  "name": "example-stock-interface",
+  "private": true,
+  "version": "1.0.0",
+  "description": "An example custom interface for Directus 7",
+  "main": "index.js",
+  "scripts": {
+    "build": "directus-extensions build"
+  },
+  "repository": "directus/example-stock-interface",
+  "keywords": [
+    "example",
+    "interface",
+    "directus",
+    "stock"
+  ],
+  "author": "Ben Haynes <ben@rngr.org>",
+  "contributors": [
+    "Rijk van Zanten <rijkvanzanten@me.com>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/directus/example-stock-interface/issues"
+  },
+  "homepage": "https://github.com/directus/example-stock-interface#readme",
+  "devDependencies": {
+    "@directus/extension-toolkit": "0.0.5",
+    "@vue/component-compiler-utils": "^3.0.0",
+    "sass": "^1.19.0",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "dependencies": {
+    "@directus/mixins": "^1.1.0",
+    "chart.js": "^2.8.0",
+    "hex-to-rgba": "^1.0.2",
+    "number-abbreviate": "^2.0.0"
+  }
+}

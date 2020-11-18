@@ -1,0 +1,12 @@
+{
+  "htmlWhitespaceSensitivity": "ignore",
+  "printWidth": 120,
+  "overrides": [
+    {
+      "files": "*.liquid",
+      "options": {
+        "parser": "html"
+      }
+    }
+  ]
+}
