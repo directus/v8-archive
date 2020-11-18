@@ -23,20 +23,6 @@
 
 > NOTE: SDK v6+ is meant to be used with Directus v8+
 
-## Installation
-
-Install the package using [npm](https://www.npmjs.com) or [Yarn](https://yarnpkg.com/):
-```sh
-npm install @directus/sdk-js --production
-# or with yarn
-yarn add @directus/sdk-js
-```
-
-Or use a service that distributes npm packages like [unpkg](https://unpkg.org), see [here](https://unpkg.com/browse/@directus/sdk-js/dist/umd/):
-```html
-<script src="https://unpkg.com/@directus/sdk-js/dist/umd/directus-sdk.min.js"></script>
-```
-
 ### TypeScript
 
 This package provides full [TypeScript](https://www.typescriptlang.org/) support because it is built with it. No need to install declaration files or typings. For more information about usage and the signatures
