@@ -1,0 +1,9 @@
+io/swagger/client/api/UtilsApiTest.class
+io/swagger/client/api/GroupsApiTest.class
+io/swagger/client/api/SettingsApiTest.class
+io/swagger/client/api/FilesApiTest.class
+io/swagger/client/api/MessagesApiTest.class
+io/swagger/client/api/PreferencesApiTest.class
+io/swagger/client/api/ActivityApiTest.class
+io/swagger/client/api/TablesApiTest.class
+io/swagger/client/api/BookmarksApiTest.class

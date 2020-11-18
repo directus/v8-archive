@@ -1,0 +1,19 @@
+# C sharp
+
+**/[Bb]in/
+**/[Oo]bj/
+packages/
+
+# VS Code
+
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# Project
+
+TestResult.xml
+
+# NuGet
+
+*.nupkg

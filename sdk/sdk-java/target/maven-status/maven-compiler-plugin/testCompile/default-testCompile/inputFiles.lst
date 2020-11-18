@@ -1,0 +1,9 @@
+/sdks/java_sdk/src/test/java/io/swagger/client/api/SettingsApiTest.java
+/sdks/java_sdk/src/test/java/io/swagger/client/api/GroupsApiTest.java
+/sdks/java_sdk/src/test/java/io/swagger/client/api/ActivityApiTest.java
+/sdks/java_sdk/src/test/java/io/swagger/client/api/BookmarksApiTest.java
+/sdks/java_sdk/src/test/java/io/swagger/client/api/MessagesApiTest.java
+/sdks/java_sdk/src/test/java/io/swagger/client/api/PreferencesApiTest.java
+/sdks/java_sdk/src/test/java/io/swagger/client/api/FilesApiTest.java
+/sdks/java_sdk/src/test/java/io/swagger/client/api/UtilsApiTest.java
+/sdks/java_sdk/src/test/java/io/swagger/client/api/TablesApiTest.java

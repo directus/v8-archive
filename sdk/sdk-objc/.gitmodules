@@ -1,0 +1,3 @@
+[submodule "External/STHTTPRequest"]
+	path = External/STHTTPRequest
+	url = https://github.com/nst/STHTTPRequest.git

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15D21" minimumToolsVersion="Xcode 7.0">
+
+    <entity name="DRCTSGetActivityManagedObject" representedClassName="DRCTSGetActivityManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetActivityMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetActivityDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetActivityDataManagedObject" representedClassName="DRCTSGetActivityDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="action" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="tableName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="rowId" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="user" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="datetime" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="data" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetActivityMetaManagedObject" representedClassName="DRCTSGetActivityMetaManagedObject" syncable="YES">
+        <attribute name="total" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="table" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetBookmarkManagedObject" representedClassName="DRCTSGetBookmarkManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetBookmarksDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetBookmarksManagedObject" representedClassName="DRCTSGetBookmarksManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetBookmarksMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetBookmarksDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetBookmarksDataManagedObject" representedClassName="DRCTSGetBookmarksDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="user" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="iconClass" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="active" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="section" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetBookmarksMetaManagedObject" representedClassName="DRCTSGetBookmarksMetaManagedObject" syncable="YES">
+        <attribute name="type"  attributeType="String" syncable="YES"/>
+        <attribute name="table"  attributeType="String" syncable="YES"/>
+        <attribute name="total" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="delete" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="active" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="draft" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="totalEntries" optional="YES" attributeType="Integer 16" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetFileManagedObject" representedClassName="DRCTSGetFileManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetFilesDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetFilesManagedObject" representedClassName="DRCTSGetFilesManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetFilesDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetFilesDataManagedObject" representedClassName="DRCTSGetFilesDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="active" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="location" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="caption" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="charset" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="tags" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="width" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="height" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="size" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="embedId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="dateUploaded" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="storageAdapter" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetGroupManagedObject" representedClassName="DRCTSGetGroupManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetGroupsDataDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetGroupsManagedObject" representedClassName="DRCTSGetGroupsManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetGroupsDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetGroupsDataManagedObject" representedClassName="DRCTSGetGroupsDataManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetGroupsDataMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetGroupsDataDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetGroupsDataDataManagedObject" representedClassName="DRCTSGetGroupsDataDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="_description" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="restrictToIpWhitelist" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="navOverride" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="showActivity" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="showMessages" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="showUsers" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="showFiles" optional="YES" attributeType="Integer 16" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetGroupsDataMetaManagedObject" representedClassName="DRCTSGetGroupsDataMetaManagedObject" syncable="YES">
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="table" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="total" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="totalEntries" optional="YES" attributeType="Integer 16" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetMessageManagedObject" representedClassName="DRCTSGetMessageManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetMessagesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetMessagesDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetMessagesManagedObject" representedClassName="DRCTSGetMessagesManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetMessagesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetMessagesDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetMessagesDataManagedObject" representedClassName="DRCTSGetMessagesDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="from" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="subject" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="message" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="attachment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="datetime" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="responseTo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="read" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <relationship name="responses" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetMessagesResponsesManagedObject" syncable="YES"/>
+        <attribute name="recipients" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="dateUpdated" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetMessagesMetaManagedObject" representedClassName="DRCTSGetMessagesMetaManagedObject" syncable="YES">
+        <attribute name="read" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="unread" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="total" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="maxId" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="table" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetMessagesResponsesManagedObject" representedClassName="DRCTSGetMessagesResponsesManagedObject" syncable="YES">
+        <attribute name="rows" optional="YES" attributeType="Transformable" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetPreferencesManagedObject" representedClassName="DRCTSGetPreferencesManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetPreferencesDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetPreferencesDataManagedObject" representedClassName="DRCTSGetPreferencesDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="user" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="tableName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="columnsVisible" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sort" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sortOrder" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="status" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="searchString" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetPrivilegesManagedObject" representedClassName="DRCTSGetPrivilegesManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetPrivilegesDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetPrivilegesDataManagedObject" representedClassName="DRCTSGetPrivilegesDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="tableName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="groupId" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="readFieldBlacklist" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="writeFieldBlacklist" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="navListed" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="statusId" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="allowView" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="allowAdd" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="allowEdit" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="allowDelete" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="allowAlter" optional="YES" attributeType="Integer 16" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetPrivilegesForTableManagedObject" representedClassName="DRCTSGetPrivilegesForTableManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetPrivilegesDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetSettingsManagedObject" representedClassName="DRCTSGetSettingsManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetSettingsDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetSettingsDataManagedObject" representedClassName="DRCTSGetSettingsDataManagedObject" syncable="YES">
+        <relationship name="global" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetSettingsDataGlobalManagedObject" syncable="YES"/>
+        <relationship name="files" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetSettingsDataFilesManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetSettingsDataFilesManagedObject" representedClassName="DRCTSGetSettingsDataFilesManagedObject" syncable="YES">
+        <attribute name="allowedThumbnails" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="thumbnailQuality" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="thumbnailSize" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="fileNaming" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="thumbnailCropEnabled" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="youtubeApiKey" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetSettingsDataGlobalManagedObject" representedClassName="DRCTSGetSettingsDataGlobalManagedObject" syncable="YES">
+        <attribute name="cmsUserAutoSignOut" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="projectName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="projectUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="cmsColor" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="rowsPerPage" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="cmsThumbnailUrl" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetSettingsForManagedObject" representedClassName="DRCTSGetSettingsForManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetSettingsForMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetSettingsDataGlobalManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetSettingsForMetaManagedObject" representedClassName="DRCTSGetSettingsForMetaManagedObject" syncable="YES">
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="table" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="settingsCollection" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableManagedObject" representedClassName="DRCTSGetTableManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTableDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableColumnManagedObject" representedClassName="DRCTSGetTableColumnManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTableColumnDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableColumnDataManagedObject" representedClassName="DRCTSGetTableColumnDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="columnName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="charLength" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isNullable" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sort" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="system" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="master" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="hiddenList" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="hiddenInput" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="required" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="columnType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isWritable" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="ui" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="options" optional="YES" attributeType="Transformable" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableColumnsManagedObject" representedClassName="DRCTSGetTableColumnsManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetTableColumnsDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableColumnsDataManagedObject" representedClassName="DRCTSGetTableColumnsDataManagedObject" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="_id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="columnName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="length" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="precision" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="scale" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="sort" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="defaultValue" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="nullable" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="key" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="extraOptions" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="options" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="tableName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="required" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="ui" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="hiddenList" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="hiddenInput" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="relationship" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableDataManagedObject" representedClassName="DRCTSGetTableDataManagedObject" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="_id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="tableName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="columns" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="preferences" optional="YES" attributeType="" syncable="YES"/>
+        <attribute name="primaryColumn" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="schema" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="hidden" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="single" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="defaultStatus" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="userCreateColumn" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="userUpdateColumn" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="dateCreateColumn" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="dateUpdateColumn" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="dateCreated" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="rowCount" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="footer" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="listView" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="columnGroupings" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="filterColumnBlacklist" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableRowManagedObject" representedClassName="DRCTSGetTableRowManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTableRowsDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableRowsManagedObject" representedClassName="DRCTSGetTableRowsManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTableRowsMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetTableRowsDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableRowsDataManagedObject" representedClassName="DRCTSGetTableRowsDataManagedObject" syncable="YES">
+        <attribute name="_id" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="active" optional="YES" attributeType="Integer 16" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTableRowsMetaManagedObject" representedClassName="DRCTSGetTableRowsMetaManagedObject" syncable="YES">
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="table" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="total" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="active" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="delete" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="draft" optional="YES" attributeType="Integer 16" syncable="YES"/>
+        <attribute name="totalEntries" optional="YES" attributeType="Integer 16" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTablesManagedObject" representedClassName="DRCTSGetTablesManagedObject" syncable="YES">
+        <relationship name="meta" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DRCTSGetTablesMetaManagedObject" syncable="YES"/>
+        <relationship name="data" optional="YES" toMany="YES" ordered="YES" deletionRule="Cascade" destinationEntity="DRCTSGetTablesDataManagedObject" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTablesDataManagedObject" representedClassName="DRCTSGetTablesDataManagedObject" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="DRCTSGetTablesMetaManagedObject" representedClassName="DRCTSGetTablesMetaManagedObject" syncable="YES">
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="table" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    
+</model>
