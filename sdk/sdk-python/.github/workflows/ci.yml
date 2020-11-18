@@ -1,0 +1,51 @@
+name: CI
+
+on: push
+
+env:
+  PIP_CACHE_DIR: ~/.cache/pip
+
+jobs:
+  # lint:
+  #   name: Lint
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #
+  #     - uses: actions/setup-python@v1
+  #       with:
+  #         python-version: 3.x
+  #
+  #     - run: make lint
+
+  test:
+    name: Test (python${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v1
+        with:
+          path: $PIP_CACHE_DIR
+          key: ${{ runner.os }}-pip-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup environement
+        run: |
+          pip install docker-compose
+          docker-compose up -d
+
+      - run: make install
+      - run: sleep 15 # Wait 15 seconds for the Directus API to be ready
+      - run: make test
