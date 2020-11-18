@@ -1,0 +1,25 @@
+sudo: required
+language: minimal
+
+services:
+  - docker
+
+before_install:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+git:
+  depth: 1
+  quiet: true
+
+script:
+  - ./bin/travis
+
+notifications:
+  slack:
+    secure: ZtvJs5evzliFuzTEUOWlcgjCpP0K0vhhjD4AEsaEsd4sFSLWZ6/u2nLXUe5971Ius44YGDEBRRIwqtFZU4L4Ykc22W7h/E9hlpkXWfbW5BCXCmLghbls5p7wEEqY5/YCGI2SJMukxuTYWwLxx2nvoa373DIpJv/ADEa1ADfaghOGAxRYFuhLLtJ/U/qKwDl3H4uPLuqQZSofwj/7HBsQQrqYBKyfdII+MUKaEiTnu5zvro7Gd/DDRjjTNiQ2lAAaLQUH+rQCANtpue0ylth9A39WjkDXY++iglupz9yFT9u2wh5eBREckKg6FKbU3fGebY3UUT+LCShQigfiB4vOkCzu239BUvCj3Hu90V6AQ2nFkW64M1CEeqoR/BLGrgmO91gxdngSUu4hYochJJtnAyqu1E4zCiUuWyOY8G+GIrcbAe6Y6Wo/UnukrZI0DlnfLwVWZBsBQZZvq9QvXMFDPw4m6Ip8DLEXIJch3YAKbtkoZZdoYZddktXhp06jSQMkY/Li/by4Bhy0+cdiNFLerocFe3qwocs7kngJLA/bl8h7zA6/HBfsAgcuAvfFlVfOEFydWmhLnO3Bf6cU8Bnoil+UJqFb/5k5KBdIAmPOzBU3gvxqBJAE2g2UlbCqwuIEF8k0Y/YKJcihscgPZJVGiu6TGqCGWsEcvhdgAsJI9Sc=
+
+branches:
+  only:
+    - master
+    - develop
+    - /^v\d+\.\d+\.\d+.*$/

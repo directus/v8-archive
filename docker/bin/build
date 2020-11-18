@@ -1,0 +1,237 @@
+#!/usr/bin/env bash
+
+set -e
+
+root=$(cd $(dirname ${0})/../; pwd)
+source ${root}/bin/source/argsf
+source ${root}/bin/source/utils
+
+#
+# CLI header
+#
+function show_header() {
+  header=${1:-"directus builder"}
+  details=${2:-""}
+  has_details=false
+  if [ "${details}" != "" ]; then
+    has_details=true
+  fi
+
+  set +e
+  has_figlet=false
+  command -v figlet > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+    has_figlet=true
+  fi
+  set -e
+
+  contents=""
+  if [ ${has_figlet} == true ]; then
+    if [ ${has_details} == true ]; then
+      contents="$(figlet ${header})\n\n> ${details}\n"
+    else
+      contents="$(figlet ${header})\n"
+    fi
+  else
+    if [ ${has_details} == true ]; then
+      contents="$(printf ">\n> [ ${header} ]\n>\n> ${details}\n>")\n"
+    else
+      contents="$(printf ">\n> [ ${header} ]\n>\n")\n"
+    fi
+  fi
+
+  echo -e "\e[32m${contents}\e[0m"
+}
+
+#
+# Builds dist help
+#
+function build_help() {
+  echo "
+    Performs builds of images.
+
+    Usage:
+
+      build --version v8.0.0
+
+    Options:
+
+      Optional:
+
+        --kind <kind>         The kind of image to build. For example: apache
+                              [default: apache]
+        --version <version>   The project version to fetch and build.
+                              [default: latest]
+        --ref <ref>           The git reference (can be a commit, a branch name or a tag).
+                              [default: \${version}]
+        --repository <repo>   The GitHub repository to fetch from (format: user/repo).
+                              This can also be a local machine folder containing the git
+                              repository.
+                              [default: directus/directus]
+        --image <image>       The image name.
+                              [default: directus/directus]
+
+    Flags:
+      --help                Shows this screen.
+      --push                Push the output images after each build.
+                            [default: not set]
+      --fresh               Fetches a clean repository and build from it. Takes longer.
+                            [default: not set]
+  " | cut -c 5-
+}
+
+#
+# Builds dist images
+#
+function build() {
+  kind=$(argument kind "apache")
+  version=$(argument version "")
+  release=$(argument release "${version}")
+  ref=$(argument ref "")
+  repository=$(argument repository "directus/directus")
+  image=$(argument image "${repository}")
+  push=$(flagd push)
+  fresh=$(flagd fresh)
+  context_dir="${root}/images/${kind}"
+
+  is_dir=false
+  if [ -d "${repository}" ]; then
+    is_dir=true
+  elif ! [[ $repository =~ ^[_a-zA-Z0-9-]+/[_a-zA-Z0-9-]+$ ]]; then
+    echo "Invalid repository name: '${repository}'"
+    return 1
+  fi
+
+  if [ "${version}" == "${release}" ]; then
+    release="$(version_to_release ${version})"
+  fi
+
+  if [ "${ref}" == "" ]; then
+    ref="${release}"
+  fi
+
+  if [ $is_dir == false ]; then
+    if [ "${release}" == "" ]; then
+      release=$(fetch_latest_release ${repository})
+      if [ "${ref}" == "" ]; then
+        ref="${release}"
+      fi
+    fi
+
+    repository_url="https://github.com/${repository}.git"
+    repository_dir="${root}/temp/${repository}/${ref}"
+
+    if [ $fresh == true ]; then
+      if [ -d "${repository_dir}" ]; then
+        rm -rf "${repository_dir}"
+      fi
+      git clone --quiet "$repository_url" "${repository_dir}"
+    else
+      if ! [ -d "${repository_dir}" ]; then
+        git clone --quiet "$repository_url" "${repository_dir}"
+      fi
+    fi
+  else
+    if [ "${release}" == "" ]; then
+      echo "Please set a release when working with local repositories"
+      exit 1
+    fi
+
+    repository_url="$(git remote get-url origin)"
+    repository_dir=$(realpath "${repository}")
+  fi
+
+  cd "${repository_dir}"
+
+  show_header "build" "version='${version}', release='${release}' kind='${kind}', repo='${repository}', ref='${ref}'"
+
+  if [ $is_dir == false ]; then
+    repository_data=$(git ls-remote ${repository_url} -q ${ref} 2> /dev/null)
+    if [ "${repository_data}" == "" ]; then
+      if [ "$(git cat-file -t ${ref} 2> /dev/null)" == "commit" ]; then
+        repository_from="commit"
+        repository_commit="$(git rev-parse ${ref})"
+      else
+        echo "Invalid repository ref: ${ref}"
+        return 1
+      fi
+    else
+      repository_ref=$(echo ${repository_data} | awk '{print $2}')
+      repository_commit=$(echo ${repository_data} | awk '{print $1}')
+      if [[ $repository_ref =~ ^refs/heads/.* ]]; then
+        repository_from="branch"
+      elif [[ $repository_ref =~ ^refs/tags/.* ]]; then
+        repository_from="tag"
+      else
+        echo "Unknown repository reference: ${ref}"
+        return 1
+      fi
+    fi
+  else
+    repository_ref="local"
+    repository_from="local"
+    repository_commit="local"
+  fi
+
+  echo "Building ${image}:${version}-${kind} using a ${repository_from} (commit ${repository_commit})"
+  echo ""
+
+  if [ $is_dir == false ]; then
+    git fetch --all
+    git checkout ${repository_commit}
+  fi
+
+  if ! [ -f ".dockerignore" ]; then
+    echo ".git" >> ".dockerignore"
+    echo ".vscode" >> ".dockerignore"
+    echo "**/.git" >> ".dockerignore"
+    echo "**/.vscode" >> ".dockerignore"
+  fi
+
+  cd "${root}"
+
+  if [ -e "./context" ]; then
+    rm -rf ./context
+  fi
+  mkdir -p ./context/directus
+
+  cp -ra "${context_dir}/." "./context/"
+  cp -ra "${repository_dir}/." "./context/directus/"
+
+  temp_image="temp-directus-${kind}:${repository_commit:0:8}"
+  docker build -t ${temp_image} ./context
+
+  images=$(make_tags ${image} ${kind} ${version})
+
+  echo "Tags = ${images}"
+
+  for image in $images
+  do
+    echo Tagging ${image}
+    docker tag "${temp_image}" "${image}"
+    if [ $push == true ]; then
+      docker push ${image}
+    fi
+  done
+
+  docker image rm ${temp_image}
+}
+
+#
+# Bootstrap
+#
+function main() {
+  help=$(flagd help)
+
+  if [ $help == true ]; then
+    show_header "directus"
+    build_help
+    exit 0
+  fi
+
+  build
+  exit $?
+}
+
+main
+exit $?

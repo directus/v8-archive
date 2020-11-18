@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo "$@" >> /usr/local/etc/php/conf.d/docker-php-custom.ini

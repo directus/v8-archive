@@ -1,0 +1,16 @@
+graph BT;
+
+classDef image-core fill:#fee9b2,stroke:#333,stroke-width:1px
+classDef image-base fill:#f9fce1,stroke:#333,stroke-width:1px
+classDef image-dist fill:#d3f6f3,stroke:#333,stroke-width:1px
+
+core(core images)
+base(base images)
+dist(dist images)
+
+class core image-core
+class base image-base
+class dist image-dist
+
+dist -.-> base
+base -.-> core

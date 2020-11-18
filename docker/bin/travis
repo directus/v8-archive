@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+
+version="${TRAVIS_TAG}"
+branch="${TRAVIS_BRANCH:-"master"}"
+
+if [ "${branch}" == "master" ]; then
+  LOGIN_PAYLOAD="{\"username\":\"${DOCKER_USERNAME}\",\"password\":\"${DOCKER_PASSWORD}\"}"
+  TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d "${LOGIN_PAYLOAD}" https://hub.docker.com/v2/users/login/ | jq -r .token)
+  REPO_URL="https://hub.docker.com/v2/repositories/directus/directus/"
+  RESPONSE_CODE=$(curl -s --write-out %{response_code} --output /dev/null -H "Authorization: JWT ${TOKEN}" -X PATCH --data-urlencode full_description@./README.md ${REPO_URL})
+  if [ $RESPONSE_CODE -eq 200 ]; then
+    echo "Updated directus readme"
+  else
+    echo "Cannot update README: HTTP $RESPONSE_CODE"
+    exit 1
+  fi
+fi
+
+if [ "${version}" != "" ]; then
+  $(dirname ${0})/build --version "${version}" --push
+else
+  $(dirname ${0})/build --version "${branch}" --ref "master"
+fi
+

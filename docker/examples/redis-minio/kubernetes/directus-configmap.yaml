@@ -1,0 +1,34 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: directus-configmap
+data:
+  DIRECTUS_ENV: "production"
+
+  # These are now required, make sure to always set
+  # to something unique while in production
+  DIRECTUS_AUTH_PUBLICKEY: "some random secret"
+  DIRECTUS_AUTH_SECRETKEY: "another random secret"
+
+  DIRECTUS_DATABASE_HOST: "mysql"
+  DIRECTUS_DATABASE_PORT: "6446"
+  DIRECTUS_DATABASE_NAME: "directus"
+  DIRECTUS_DATABASE_USERNAME: "directus"
+  DIRECTUS_DATABASE_PASSWORD: "directus"
+
+  DIRECTUS_CACHE_ENABLED: "true"
+  DIRECTUS_CACHE_RESPONSETTL: "604800" # 1 week
+  DIRECTUS_CACHE_POOL_ADAPTER: "redis"
+  DIRECTUS_CACHE_POOL_HOST: "redis-master"
+  DIRECTUS_CACHE_POOL_PORT: "6379"
+
+  DIRECTUS_STORAGE_ADAPTER: "s3"
+  DIRECTUS_STORAGE_ROOT: "/pub/directus/originals"
+  DIRECTUS_STORAGE_ROOTURL: "http://minio.company.private/112233/pub/directus/originals" # Or in my case with a redirection, https://static.company.com/112233/directus/originals
+  DIRECTUS_STORAGE_THUMB_ROOT: "/pub/directus/thumbnails"
+  DIRECTUS_STORAGE_KEY: "user"
+  DIRECTUS_STORAGE_SECRET: "secret"
+  DIRECTUS_STORAGE_VERSION: "latest"
+  DIRECTUS_STORAGE_BUCKET: "112233"
+  DIRECTUS_STORAGE_REGION: ""
+  DIRECTUS_STORAGE_ENDPOINT: "http://minio.company.private"

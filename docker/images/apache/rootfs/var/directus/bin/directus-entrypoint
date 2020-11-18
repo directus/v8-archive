@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+source $(dirname $0)/argsf
+
+#
+# Installation process
+#
+
+function install() {
+  install_title=$(argument title "${DIRECTUS_INSTALL_TITLE:-Directus}")
+  install_email=$(argument email "${DIRECTUS_INSTALL_EMAIL:-"admin@example.com"}")
+  install_password=$(argument password "${DIRECTUS_INSTALL_PASSWORD:-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)}")
+
+  install_force=$(flagd force)
+  if [ "${DIRECTUS_INSTALL_FORCE:-0}" != "0" ]; then
+    install_force=true
+  fi
+
+  echo "Installing database..."
+
+  if [ ${install_force} == true ]; then
+    /var/directus/bin/directus install:database -f
+    if [ "$?" != "0" ]; then
+      echo ""
+      echo "Seems like database failed to install."
+      echo "Please check the error message above."
+      echo ""
+      return 1
+    fi
+  else
+    /var/directus/bin/directus install:database
+    if [ "$?" != "0" ]; then
+      echo ""
+      echo "Seems like database failed to install."
+      echo "Please check the error message above or use --force if necessary"
+      echo "DANGER: '--force' will delete your database for setting it up again"
+      echo ""
+      return 1
+    fi
+  fi
+
+  echo "Registering user..."
+
+  /var/directus/bin/directus install:install -e "${install_email}" -p "${install_password}" -t "${install_title}"
+  if [ "$?" != "0" ]; then
+    echo ""
+    echo "Seems like database failed to install."
+    echo "Please check the error message above."
+    echo ""
+    return 1
+  fi
+
+  echo "-------------------------------------------------------------"
+  echo ""
+  echo "  ${install_title} installation completed, you can now"
+  echo "  login with the following credentials:"
+  echo ""
+  echo "      Email: ${install_email}"
+  echo "   Password: ${install_password}"
+  echo ""
+  echo "-------------------------------------------------------------"
+
+  return 0
+}
+
+#
+# Seeds the volume folders
+#
+
+function seed_volumes() {
+  seed=false
+  if [ ! -f /var/directus/config/.directus ]; then
+    seed=true
+  elif [ ! -f /var/directus/public/uploads/.directus ]; then
+    seed=true
+  fi
+
+  if [ $seed == true ]; then
+    directus-setup seed-volumes
+  fi
+}
+
+#
+# Bootstrap
+#
+
+function main() {
+  command=${1:-""}
+  if [ "${command}" == "install" ] || [ "${DIRECTUS_INSTALL}" == "auto" ]; then
+    install
+    exit $?
+  fi
+
+  if [ "${command}" == "apache2-foreground" ]; then
+    if [ "${DIRECTUS_USE_ENV}" != "0" ]; then
+      if [ "${DIRECTUS_AUTH_SECRETKEY}" == "" ]; then
+        echo "Missing required DIRECTUS_AUTH_SECRETKEY environment variable."
+        echo "> Please refer to docs if unsure what to do in this case."
+        exit 1
+      fi
+
+      if [ "${DIRECTUS_AUTH_PUBLICKEY}" == "" ]; then
+        echo "Missing required DIRECTUS_AUTH_PUBLICKEY environment variable."
+        echo "> Please refer to docs if unsure what to do in this case."
+        exit 1
+      fi
+
+      if [ "${DIRECTUS_AUTH_PUBLICKEY}" == "${DIRECTUS_AUTH_SECRETKEY}" ]; then
+        echo "DIRECTUS_AUTH_PUBLICKEY value cannot be equal to DIRECTUS_AUTH_SECRETKEY."
+        echo "> Please refer to docs if unsure what to do in this case."
+        exit 1
+      fi
+    fi
+  fi
+
+  seed_volumes
+
+  # Forward commands
+  exec /usr/local/bin/docker-php-entrypoint $@
+}
+
+main $@

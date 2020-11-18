@@ -1,0 +1,64 @@
+version: "3"
+services:
+  #
+  # Database
+  #
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: "directus"
+      MYSQL_USER: "directus"
+      MYSQL_PASSWORD: "directus"
+      MYSQL_ROOT_PASSWORD: "directus"
+    #ports: # Expose it if you want to access MySQL server
+    #  - 3306:3306
+    networks:
+      - database
+
+  #
+  # Directus instance.
+  # This should serve directus and won't work before database
+  # is properly installed by running the installer.
+  #
+  directus:
+    image: directus/directus:v8-apache
+    environment:
+      # App
+      DIRECTUS_ENV: "production"
+
+      # These are now required, make sure to always set
+      # to something unique while in production
+      DIRECTUS_AUTH_PUBLICKEY: "some random secret"
+      DIRECTUS_AUTH_SECRETKEY: "another random secret"
+
+      # Database
+      DIRECTUS_DATABASE_HOST: "mysql"
+      DIRECTUS_DATABASE_PORT: "3306"
+      DIRECTUS_DATABASE_NAME: "directus"
+      DIRECTUS_DATABASE_USERNAME: "directus"
+      DIRECTUS_DATABASE_PASSWORD: "directus"
+
+    # Uploads gets saved in uploads folder
+    volumes:
+      - ./data/config:/var/directus/config
+      - ./data/uploads:/var/directus/public/uploads
+
+    networks:
+      - database
+      - http
+
+  #
+  # Caddy for HTTPS
+  # https://caddyserver.com/docs/
+  #
+  caddy:
+    image: caddy/caddy
+    command: "caddy reverse-proxy --to http://directus"
+    ports:
+      - 8443:443
+    networks:
+      - http
+
+networks:
+  database:
+  http:

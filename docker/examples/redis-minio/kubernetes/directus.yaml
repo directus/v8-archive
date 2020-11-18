@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: directus
+  labels:
+    app: directus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: directus
+  template:
+    metadata:
+      labels:
+        app: directus
+    spec:
+      containers:
+        - name: directus
+          image: directus/directus:v8.2-apache
+          envFrom:
+          - configMapRef:
+              name: directus-configmap
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: directus
+  name: directus-loadbalancer
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 31016
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: directus
+  sessionAffinity: None
+  type: LoadBalancer
+status:

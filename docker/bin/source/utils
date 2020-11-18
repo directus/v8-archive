@@ -1,0 +1,116 @@
+#
+# Get root dir
+#
+function root_dir() {
+  if [ "${DIRECTUS_DOCKER_ROOT}" != "" ]; then
+    echo ${DIRECTUS_DOCKER_ROOT}
+  else
+    echo $(cd $(dirname ${0})/../; pwd)
+  fi
+}
+
+#
+# Call a script inside the bin folder
+#
+function call() {
+  $(root_dir)/bin/extras/${1} ${@:2}
+}
+
+#
+# Fetches the latest release
+#
+function fetch_latest_release() {
+  repository="${1}"
+  release=$(curl -fsSLI -o /dev/null -w "%{url_effective}\n" https://github.com/${repository}/releases/latest)
+  if [ "${release}" == "https://github.com/${repository}/releases" ]; then
+    >&2 echo "No releases found for repository \"${repository}\"."
+    return 1
+  fi
+  echo ${release##*/}
+}
+
+#
+# Strips out docker build from a version information
+#
+function version_to_release() {
+  version=${1}
+  call semver get major ${version} > /dev/null 2>&1
+  if [ "$?" != "0" ]; then
+    echo "${version}"
+  else
+    final=""
+    if [ "${version:0:1}" == "v" ]; then
+      final="v"
+    fi
+
+    final="${final}$(call semver get major ${version})"
+    final="${final}.$(call semver get minor ${version})"
+    final="${final}.$(call semver get patch ${version})"
+
+    prerel="$(call semver get prerel ${version})"
+    if [ "${prerel}" != "" ]; then
+      final="${final}-${prerel}"
+    fi
+
+    build="$(call semver get build ${version})"
+    if [ "${build}" != "" ]; then
+      if [ "${build:0:6}" != "docker" ]; then
+        final="${final}+${build}"
+      fi
+    fi
+    echo "${final}"
+  fi
+}
+
+#
+# Makes a set of tags
+#
+function make_tags() {
+  image=${1}
+  kind=${2}
+  version=${3}
+  prefix=${4}
+  suffix=${5}
+  call semver get major ${version} > /dev/null 2>&1
+  if [ "$?" != "0" ]; then
+    echo "${image}:${prefix}${version}-${kind}${suffix}"
+  else
+    if [ "${version:0:1}" == "v" ]; then
+      prefix="${prefix}v"
+    fi
+
+    major="$(call semver get major ${version})"
+    minor="${major}.$(call semver get minor ${version})"
+    patch="${minor}.$(call semver get patch ${version})"
+
+    prerel="$(call semver get prerel ${version})"
+    if [ "${prerel}" == "" ]; then
+      is_prerel=false
+    else
+      is_prerel=true
+    fi
+
+    build="$(call semver get build ${version})"
+    if [ "${build}" == "" ]; then
+      is_build=false
+    else
+      is_build=true
+    fi
+
+    if [ "${is_prerel}" == "true" ]; then
+      echo "${image}:${prefix}${major}-${prerel}-${kind}${suffix}"
+      echo "${image}:${prefix}${minor}-${prerel}-${kind}${suffix}"
+      echo "${image}:${prefix}${patch}-${prerel}-${kind}${suffix}"
+      if [ "${is_build}" == "true" ]; then
+        echo "${image}:${prefix}${major}-${prerel}-${build}-${kind}${suffix}"
+      fi
+    else
+      echo "${image}:${prefix}${major}-${kind}${suffix}"
+      echo "${image}:${prefix}${minor}-${kind}${suffix}"
+      echo "${image}:${prefix}${patch}-${kind}${suffix}"
+      if [ "${is_build}" == "true" ]; then
+        echo "${image}:${prefix}${patch}-${build}-${kind}${suffix}"
+      fi
+    fi
+  fi
+}

@@ -1,0 +1,59 @@
+version: "3"
+services:
+  #
+  # Databases
+  #
+  project1:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: "directus"
+      MYSQL_USER: "directus"
+      MYSQL_PASSWORD: "directus"
+      MYSQL_ROOT_PASSWORD: "directus"
+    #ports: # Expose it if you want to access this MySQL server on port 3306
+    #  - 3306:3306
+    networks:
+      - databases
+
+  project2:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: "directus"
+      MYSQL_USER: "directus"
+      MYSQL_PASSWORD: "directus"
+      MYSQL_ROOT_PASSWORD: "directus"
+    #ports: # Expose it if you want to access this MySQL server on port 3307
+    #  - 3307:3306
+    networks:
+      - databases
+
+  #
+  # Directus
+  #
+  directus:
+    image: directus/directus:v8-apache
+    environment:
+      # Disables environment loading (required)
+      DIRECTUS_USE_ENV: "0"
+    volumes:
+      - ./data/config:/var/directus/config
+      - ./data/uploads:/var/directus/public/uploads
+    networks:
+      - databases
+      - http
+
+  #
+  # Caddy for HTTPS
+  # https://caddyserver.com/docs/
+  #
+  caddy:
+    image: caddy/caddy
+    command: "caddy reverse-proxy --to http://directus"
+    ports:
+      - 8443:443
+    networks:
+      - http
+
+networks:
+  databases:
+  http:

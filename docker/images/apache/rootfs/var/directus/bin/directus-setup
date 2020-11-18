@@ -1,0 +1,137 @@
+#!/bin/bash
+
+set -e
+
+#
+# Install composer executable
+#
+
+function cmd_install_composer() {
+  echo "Installing composer..."
+  EXPECTED_SIGNATURE="$(curl https://composer.github.io/installer.sig)"
+  php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+  ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+
+  if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ];
+  then
+      >&2 echo 'ERROR: Invalid installer signature'
+      rm composer-setup.php
+      exit 1
+  fi
+  php composer-setup.php --filename=composer --install-dir /usr/local/bin --quiet
+  RESULT=$?
+  rm composer-setup.php
+  return $RESULT
+}
+
+#
+# Prestissimo
+#
+
+function cmd_install_prestissimo() {
+  echo "Installing prestissimo..."
+  composer global require hirak/prestissimo
+}
+
+#
+# Dependencies
+#
+
+function cmd_install_dependencies() {
+  # Check and install dependencies
+  if [ ! -d /var/directus/public ]; then
+    echo "Application files not found."
+    exit 1
+  fi
+
+  # Makes life easier when mounting code
+  if [ -f /var/directus/composer.json ]; then
+    if [ ! -d /var/directus/vendor ]; then
+      pushd /var/directus > /dev/null
+      composer install -a --no-interaction
+      popd > /dev/null
+    fi
+  fi
+}
+
+#
+# Apache configuration
+#
+
+function cmd_configure_apache() {
+  echo "Configuring apache..."
+  a2enmod rewrite headers
+  a2dissite 000-default
+  a2enconf directus
+  a2ensite directus
+}
+
+#
+# PHP configuration
+#
+
+function cmd_configure_php() {
+  echo "Configuring PHP..."
+  php-ini-add "memory_limit=512M"
+}
+
+#
+# Initial setup
+#
+
+function cmd_initial() {
+  cmd_install_composer
+  cmd_install_prestissimo
+  cmd_configure_apache
+  cmd_configure_php
+}
+
+#
+# Takes a copy copy of volumes
+#
+
+function cmd_backup_volumes() {
+  mkdir -p /backup/config/
+  rsync -a /var/directus/config/ /backup/config/
+  mkdir -p /backup/uploads/
+  rsync -a /var/directus/public/uploads/ /backup/uploads/
+}
+
+#
+# Takes a copy copy of volumes
+#
+
+function cmd_seed_volumes() {
+  rsync -a --ignore-existing /backup/config/ /var/directus/config/
+  rsync -a --ignore-existing /backup/uploads/ /var/directus/public/uploads/
+}
+
+
+#
+# Bootstrap
+#
+
+function main() {
+  command="${1}"
+  if [ "${command}" == "" ]; then
+    echo "Unspecified directus setup command. Usage: directus-setup <command>"
+    exit 1
+  fi
+
+  command="${command//\-/_}"
+
+  set +e
+  declare -f cmd_${command} > /dev/null
+  result=$?
+  set -e
+
+  if [ "${result}" == "0" ]; then
+    cmd_${command}
+    exit $?
+  fi
+
+  echo "Directus setup command not found: \"${1}\""
+  exit 1
+}
+
+main $@
