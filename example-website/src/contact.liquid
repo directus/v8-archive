@@ -1,0 +1,18 @@
+---
+layout: layouts/base.liquid
+title: Contact
+permalink: /contact/index.html
+---
+
+<p class="contact">
+	<a href="mailto:{{about_us.general_email}}">{{about_us.general_email}}</a>
+	<a href="mailto:{{about_us.new_business_email}}">{{about_us.new_business_email}}</a>
+</p>
+
+<div class="locations">
+	{% for location in locations %}
+	<article>
+		<img src="{% cachefile location.exterior_image.private_hash, 'directus-medium-crop' %}" />
+	</article>
+	{% endfor %}
+</div>

@@ -1,0 +1,89 @@
+//////////////////////////////////////////////////////////////////////////////
+// Fonts
+
+// rubik-regular - latin
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Rubik'), local('Rubik-Regular'),
+       url('../fonts/rubik-v9-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/rubik-v9-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+// playfair-display-700 - latin-ext_latin
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Playfair Display Bold'), local('PlayfairDisplay-Bold'),
+       url('../fonts/playfair-display-v18-latin-ext_latin-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/playfair-display-v18-latin-ext_latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+// karla-regular - latin-ext_latin
+@font-face {
+  font-family: 'Karla';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Karla'), local('Karla-Regular'),
+       url('../fonts/karla-v13-latin-ext_latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/karla-v13-latin-ext_latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+// karla-italic - latin-ext_latin
+@font-face {
+  font-family: 'Karla';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Karla Italic'), local('Karla-Italic'),
+       url('../fonts/karla-v13-latin-ext_latin-italic.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/karla-v13-latin-ext_latin-italic.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+// karla-700 - latin-ext_latin
+@font-face {
+  font-family: 'Karla';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Karla Bold'), local('Karla-Bold'),
+       url('../fonts/karla-v13-latin-ext_latin-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/karla-v13-latin-ext_latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Headings
+
+h1,
+.h1 {
+	font-family: $font-serif;
+  font-size: size(52);
+  line-height: size(60);
+  font-weight: 700;
+
+  @media (max-width: $bp-small) {
+    font-size: size(40);
+    line-height: size(46);
+  }
+}
+
+h2,
+.h2,
+h3,
+.h3 {
+	font-family: 'Rubik';
+  font-size: size(22);
+  line-height: size(27);
+  font-weight: 400;
+
+  @media (max-width: $bp-small) {
+    font-size: size(18);
+    line-height: size(22);
+  }
+}
+
+sup {
+	font-size: 13px;
+	vertical-align: super;
+	line-height: 0;
+}

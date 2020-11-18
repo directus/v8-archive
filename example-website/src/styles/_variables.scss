@@ -1,0 +1,44 @@
+//////////////////////////////////////////////////////////////////////////////
+// Colors
+
+$primary: blue;
+$secondary: green;
+$black: #000000;
+$light-gray: #CCCCCC;
+$white: #FFFFFF;
+
+//////////////////////////////////////////////////////////////////////////////
+// Typography
+
+$font-serif: 'Playfair Display', serif;
+$font-sans-serif: 'Karla', sans-serif;
+
+//////////////////////////////////////////////////////////////////////////////
+// Breakpoints
+
+$bp-small: 600px;
+$bp-medium: 750px;
+$bp-large: 900px;
+$bp-x-large: 1200px;
+
+//////////////////////////////////////////////////////////////////////////////
+// Transitions
+
+$fast: 150ms;
+$normal: 200ms;
+$slow: 450ms;
+
+$transition-in: cubic-bezier(0.0, 0.0, 0.2, 1);
+$transition: cubic-bezier(0.4, 0.0, 0.2, 1);
+$transition-out: cubic-bezier(0.4, 0.0, 1, 1);
+
+//////////////////////////////////////////////////////////////////////////////
+// Misc
+
+$page-width: 800px;
+$page-margin: 50px;
+$page-margin-small: 25px;
+$border-radius: 0px;
+$box-shadow: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.14);
+
+//////////////////////////////////////////////////////////////////////////////

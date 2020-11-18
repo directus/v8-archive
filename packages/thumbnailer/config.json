@@ -1,0 +1,30 @@
+{
+    "404imageLocation":"./img-not-found.png",    
+    "thumbnailDirectory":".",
+    "supportedThumbnailDimensions":[
+            "100x100",
+            "300x200",
+            "100x200"
+    ],
+    "supportedQualityTags":{
+            "poor":25,
+            "good":50,
+            "better":75,
+            "best":100  
+     },
+     "supportedActions":{            
+            "contain":{
+                "options":{
+                    "resizeCanvas":false,
+                    "position":"center",
+                    "resizeRelative":false,
+                    "canvasBackground":"ccc"
+                 }
+             }, 
+             "crop":{
+                "options":{
+                    "position":"center"
+                 }
+            }
+     }
+}

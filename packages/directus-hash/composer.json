@@ -1,0 +1,23 @@
+{
+  "name": "directus/hash",
+  "description": "Directus Hash Library",
+  "keywords": [
+    "directus",
+    "hash"
+  ],
+  "license": "GPL-3.0-only",
+  "require": {
+    "php": "^5.6 || ^7.0",
+    "directus/utils": "2.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "Directus\\Hash\\": ""
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.x-dev"
+    }
+  }
+}

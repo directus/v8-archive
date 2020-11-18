@@ -1,0 +1,79 @@
+---
+layout: layouts/base.liquid
+title: Labs
+permalink: /
+---
+
+<!-- T̷h̵e̸ ̴n̵o̴n̷e̶x̵i̵s̷t̴e̸n̷c̵e̷ ̴o̵f̸ ̴a̶b̸s̴o̴l̶u̶t̶e̵ ̸r̸e̵s̵t̸ ̴m̷e̶a̶n̵s̴ ̴t̴h̵a̵t̷ ̷o̶n̵e̵ ̷c̴a̵n̴ ̵n̸o̸t̵ ̸g̷i̵v̷e̸ ̵a̵n̶ ̴e̸v̷e̶n̴t̴ ̶a̸n̶ ̸a̵b̸s̴o̵l̸u̶t̸e̴ ̸p̵o̴s̷i̵t̸i̸o̵n̶ ̴i̴n̴ ̶s̴p̸a̶c̵e̸.̶ -->
+
+<section class="fill center" id="monospace">
+	<div class="center fadeIn">
+		<h2 class="sticky">MonoSpace Labs</h2>
+		<h1>Story Time.</h1>
+		<p>
+			We are a premium digital innovation lab operating at the intersection of design and development. Our leadership brings decades of experience working with industry-leading brands, such as Prada, Google, MoMA, AT&T, and Snapchat.
+			<!-- January 1<sup>st</sup>, 2020 -->
+		</p>
+	</div>
+</section>
+
+<section class="fill center" id="services">
+	<div class="center fadeIn">
+		<h2>MonoSpace Services</h2>
+		<h1>A Precise Instrument.</h1>
+		<p>
+			Our small workshop offers a full-suite of creative and technical solutions, including User Experience, Creative Design, Rapid Prototyping, Development, Database Architecture, and Content Management.
+			<!-- <code>2020-01-01</code>
+			<pre>import SmoothScroll from 'smooth-scroll';
+import $ from 'cash-dom';</pre> -->
+		</p>
+	</div>
+</section>
+
+<section class="fill center" id="locations">
+	<div class="center fadeIn">
+		<h2>MonoSpace Locations</h2>
+		<h1>Internationalization IRL.</h1>
+		<p>
+			Global projects require a global presence. Take a peek inside some our offices around the world: <a href="#">New York</a>, <a href="#">Hong Kong</a>, <a href="#">Beverly Hills</a>, <a href="#">Ahmebad</a>, <a href="#">New Haven</a> and <a href="#">Amsterdam</a>.
+		</p>
+	</div>
+</section>
+
+<section class="fill center" id="news">
+	<div class="center fadeIn">
+		<h2>MonoSpace News</h2>
+		<h1>Thoughts, Hopes, Wishes &amp; Dreams.</h1>
+		<p>
+			All of this text is editable. Simply click anywhere in the paragraph or heading text and start typing. You can copy and paste your own content in to see what it looks like with these font combinations.
+		</p>
+		<ol class="articles">
+			{% for article in news %}
+			<li class="fadeIn">
+				<a href="/news/{{ article.title | slug }}" class="hover-arrow">
+				<h2>Twelve Days Ago</h2>
+				<h1>{{ article.title }}<span class="arrow">⟶</span></h1>
+				<p>{{ article.summary }}</p>
+				</a>
+			</li>
+			{% endfor %}
+		</ol>
+	</div>
+</section>
+
+<section class="fill center" id="contact">
+	<div class="center fadeIn">
+		<h2>MonoSpace Engage</h2>
+		<h1>Let's Chat.</h1>
+		<form id="email" autocomplete="off">
+			<input class="h2" id="email_input" type="email" name="email" placeholder="Email address...">
+			<button type="submit" form="email" value="Submit">↩</button>
+		</form>
+		<p>
+			Interested in learning more about MonoSpace? Provide your email above and we'll reach out to schedule a time to chat.
+		</p>
+	</div>
+</section>
+
+<!-- <img src="{% cachefile 'https://images.unsplash.com/photo-1575859430954-850fee09e27b?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max' %}">
+ -->

@@ -1,0 +1,18 @@
+---
+layout: layouts/base.liquid
+title: News
+permalink: /news/index.html
+---
+
+<h1>News</h1>
+
+<ol>
+	{% for article in news %}
+	<li>
+		<a href="/news/{{ article.title | slug }}">
+			<h2>{{ article.title }}</h2>
+			<p>{{ article.summary }}</p>
+		</a>
+	</li>
+	{% endfor %}
+</ol>

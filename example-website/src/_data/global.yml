@@ -1,0 +1,7 @@
+# Add trailing slash to base_url.
+# OG / favicon image paths are appended to it
+base_url: https://thumper.dev/
+
+title: MonoSpace
+description: Digital Innovation Lab
+color: '#FFFFFF'

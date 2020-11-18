@@ -1,0 +1,215 @@
+//////////////////////////////////////////////////////////////////////////////
+// Navigation Fade/Slide In
+
+@keyframes navfadeIn {
+  0% {
+  	opacity: 0;
+    transform: translateX(-10px);
+  }
+  100% {
+  	opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Arrow Hover
+
+.hover-arrow {
+	&:hover {
+		.arrow {
+			opacity: 1;
+			transform: translateX(0px);
+		}
+	}
+	.arrow {
+		display: inline-block;
+		margin-left: 20px;
+		opacity: 0;
+		transform: translateX(-10px);
+		transition: $fast $transition all;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// RGB Prism Effect
+
+.rgb {
+	position: relative;
+	cursor: pointer;
+	&:hover {
+		.rgb-r,
+		.rgb-g,
+		.rgb-b {
+			opacity: 0.75;
+		}
+	}
+}
+
+.rgb-a {
+	opacity: 0 !important;
+}
+
+.rgb-r,
+.rgb-g,
+.rgb-b {
+	mix-blend-mode: multiply;
+	position: absolute;
+	top: 0;
+	transition: transform 1000ms ease-in-out, opacity $fast $transition;
+	opacity: 0.1;
+}
+
+.rgb-r {
+	color: #FF0000;
+	transform: rotate(0deg) translate(0px, 0px);
+}
+.rgb-g {
+	color: #00FF00;
+	transform: rotate(0deg) translate(0px, 0px);
+}
+.rgb-b {
+	color: #0000FF;
+	transform: rotate(0deg) translate(0px, 0px);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Vertical Rules
+
+@function vrfadeIn($val) {
+  @return ($val * 50) * 1ms;
+}
+
+@keyframes vrfadeIn {
+  0% {
+  	opacity: 0;
+    transform: translateX(-10px);
+  }
+  100% {
+  	opacity: 0.05;
+    transform: translateX(0);
+  }
+}
+
+.vr {
+	position: absolute;
+	top: 0;
+	width: 1px;
+	height: 100%;
+	background-color: #000000;
+	opacity: 0;
+	z-index: 1;
+	pointer-events: none;
+
+	animation: 1s ease-out 0s 1 vrfadeIn;
+	animation-fill-mode: forwards;
+
+	&:nth-of-type(01) { left: -1200px; animation-delay: vrfadeIn(0); }
+	&:nth-of-type(02) { left: -1100px; animation-delay: vrfadeIn(1); }
+	&:nth-of-type(03) { left: -1000px; animation-delay: vrfadeIn(2); }
+	&:nth-of-type(04) { left:  -900px; animation-delay: vrfadeIn(3); }
+	&:nth-of-type(05) { left:  -800px; animation-delay: vrfadeIn(4); }
+	&:nth-of-type(06) { left:  -700px; animation-delay: vrfadeIn(5); }
+	&:nth-of-type(07) { left:  -600px; animation-delay: vrfadeIn(6); }
+	&:nth-of-type(08) { left:  -500px; animation-delay: vrfadeIn(7); }
+	&:nth-of-type(09) { left:  -400px; animation-delay: vrfadeIn(8); }
+	&:nth-of-type(10) { left:  -300px; animation-delay: vrfadeIn(9); }
+	&:nth-of-type(11) { left:  -200px; animation-delay: vrfadeIn(10); }
+	&:nth-of-type(12) { left:  -100px; animation-delay: vrfadeIn(11); }
+
+	&:nth-of-type(13) { left:      0%; animation-delay: vrfadeIn(12); }
+	&:nth-of-type(14) { left:   12.5%; animation-delay: vrfadeIn(13); }
+	&:nth-of-type(15) { left:     25%; animation-delay: vrfadeIn(14); }
+	&:nth-of-type(16) { left:   37.5%; animation-delay: vrfadeIn(15); }
+	&:nth-of-type(17) { left:     50%; animation-delay: vrfadeIn(16); }
+	&:nth-of-type(18) { left:   62.5%; animation-delay: vrfadeIn(17); }
+	&:nth-of-type(19) { left:     75%; animation-delay: vrfadeIn(18); }
+	&:nth-of-type(20) { left:   87.5%; animation-delay: vrfadeIn(19); }
+	&:nth-of-type(21) { left:    100%; animation-delay: vrfadeIn(20); }
+
+	&:nth-of-type(22) { left:   900px; animation-delay: vrfadeIn(21); }
+	&:nth-of-type(23) { left:  1000px; animation-delay: vrfadeIn(22); }
+	&:nth-of-type(24) { left:  1100px; animation-delay: vrfadeIn(23); }
+	&:nth-of-type(25) { left:  1200px; animation-delay: vrfadeIn(24); }
+	&:nth-of-type(26) { left:  1300px; animation-delay: vrfadeIn(25); }
+	&:nth-of-type(27) { left:  1400px; animation-delay: vrfadeIn(26); }
+	&:nth-of-type(28) { left:  1500px; animation-delay: vrfadeIn(27); }
+	&:nth-of-type(29) { left:  1600px; animation-delay: vrfadeIn(28); }
+	&:nth-of-type(30) { left:  1700px; animation-delay: vrfadeIn(29); }
+	&:nth-of-type(31) { left:  1800px; animation-delay: vrfadeIn(30); }
+	&:nth-of-type(32) { left:  1900px; animation-delay: vrfadeIn(31); }
+	&:nth-of-type(33) { left:  2000px; animation-delay: vrfadeIn(32); }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Fancy Link Underlines — All this for a slightly nicer link underline
+
+p {
+	a {
+		background:
+			linear-gradient($white, $white),
+			linear-gradient($white, $white),
+			linear-gradient($light-gray, $light-gray);
+		background-size:
+			.05em 1px,
+			.05em 1px,
+			1px 1px;
+		background-repeat:
+			no-repeat,
+			no-repeat,
+			repeat-x;
+		text-shadow:
+			0.03em 0 $white, -0.03em 0 $white, 0 0.03em $white, 0 -0.03em $white,
+			0.06em 0 $white, -0.06em 0 $white, 0.09em 0 $white, -0.09em 0 $white,
+			0.12em 0 $white, -0.12em 0 $white, 0.15em 0 $white, -0.15em 0 $white;
+		background-position:
+			0 90%,
+			100% 90%,
+			0 90%;
+		text-decoration: none;
+		transition: color .15s;
+
+		&::selection {
+			background-image: none;
+			color: $white;
+			text-shadow: none;
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Other
+
+.sticky {
+	position: sticky;
+	top: 25px;
+}
+
+.back {
+	display: inline-block;
+	opacity: 0.1;
+	cursor: pointer;
+	transition: all $fast ease-out;
+	margin-bottom: 20px;
+	&:hover {
+		opacity: 1;
+		transform: translateX(-10px);
+		padding-right: 10px;
+	}
+}
+
+// .contact {
+// 	a {
+// 		display: block;
+// 		text-align: right;
+// 		margin-bottom: 1vw;
+// 		font-size: 5vw;
+// 	}
+// }
+
+// .locations {
+// 	display: flex;
+// 	justify-content: space-around;
+// }
+
+//////////////////////////////////////////////////////////////////////////////

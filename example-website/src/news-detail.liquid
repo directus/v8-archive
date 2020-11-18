@@ -1,0 +1,29 @@
+---
+layout: layouts/base.liquid
+pagination:
+  data: news
+  alias: article
+  size: 1
+permalink: /news/{{ article.title | slug }}/index.html
+---
+
+<article>
+	<a href="/#news" class="back h1">⟵</a>
+	<time class="h2" datetime="{{ article.published_on }}">{{ article.published_on | formatdate }}</time>
+	<h1>{{ article.title }}</h1>
+	<div class="byline">By {{ article.author.first_name }} {{ article.author.last_name }}</div>
+	<div class="body">
+		{{ article.body }}
+	</div>
+	<div class="tags">
+		{{ article.tags | tags }}
+	</div>
+</article>
+
+{% comment %}
+This is an example comment. Everything in between the comment/endcomment tags is ignored
+in build
+
+{{ article | dump }}
+
+{% endcomment %}

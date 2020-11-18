@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>{{ global.title }} {{ article.title | default: title }}</title>
+
+		<meta name="title" content="{{ global.title }} {{ article.title | default: title }}">
+		<meta name="description" content="Meta descriptions can be any length, but Google generally truncates snippets to ~155–160 characters.">
+
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="{{ global.base_url }}">
+		<meta property="og:title" content="{{ global.title }}">
+		<meta property="og:description" content="{{ global.description }}">
+		<meta property="og:image" content="{{ global.base_url }}og-image.png">
+
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:url" content="{{ global.base_url }}">
+		<meta property="twitter:title" content="{{ global.title }}">
+		<meta property="twitter:description" content="{{ global.description }}">
+		<meta property="twitter:image" content="{{ global.base_url }}og-image.png">
+
+		<meta name="apple-mobile-web-app-title" content="{{ global.title }}">
+		<meta name="application-name" content="{{ global.title }}">
+		<meta name="msapplication-TileColor" content="#FFFFFF">
+		<meta name="msapplication-config" content="/favicons/transparent/browserconfig.xml">
+		<meta name="theme-color" content="#000000">
+
+		<link rel="apple-touch-icon" sizes="180x180" href="/favicons/transparent/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicons/transparent/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicons/transparent/favicon-16x16.png">
+		<link rel="manifest" href="/favicons/transparent/site.webmanifest">
+		<link rel="mask-icon" href="/favicons/transparent/safari-pinned-tab.svg" color="#000000">
+		<link rel="shortcut icon" href="/favicons/transparent/favicon.ico">
+
+		{% if env.isDev %}
+		<link rel="stylesheet" href="/styles/index.css" />
+		<script src="/index.js" defer></script>
+		{% endif %}
+
+		{% if env.isProd %}
+		<link rel="stylesheet" href="/{{rev.index}}" />
+		<script module src="/{{rev.indexModern}}" defer></script>
+		<script nomodule src="/{{rev.indexLegacy}}" defer></script>
+		{% endif %}
+
+		{% include 'partials/ga.liquid' %}
+	</head>
+	<body class="loading">
+		{% include 'partials/header.liquid' %}
+		<main>
+			{{ content }}
+			{% for i in (1..33) %}
+			<span class="vr"></span>
+			{% endfor %}
+
+			{% include 'partials/footer.liquid' %}
+		</main>
+	</body>
+</html>
