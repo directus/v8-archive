@@ -19,6 +19,8 @@ use Directus\Util\DateTimeUtils;
 class ResponseCacheMiddleware extends AbstractMiddleware
 {
     private $header_keys_can_cached = array("Content-Type");
+    private $project_pathes_need_forcerefresh = array("/");
+
     /**
      * @param Request $request
      * @param Response $response
@@ -42,17 +44,12 @@ class ResponseCacheMiddleware extends AbstractMiddleware
             unset($parameters['refresh_cache']);
 
             $requestPath = $request->getUri()->getPath();
-            $forceRefreshPath = [
-                "/",
-                "/collections",
-                "/collection_presets",
-            ];
+
+            // custom force refresh patch
             $project = \Directus\get_api_project_from_request();
-            if (empty($project) || !StringUtils::startsWith($requestPath, "/${project}")) {
-                $forceRefresh = true;
-            } else {
-                foreach ($forceRefreshPath as $path) {
-                    if ($requestPath ==  "/${project}${path}") {
+            if ($project) {
+                foreach ($this->project_pathes_need_forcerefresh as $path) {
+                    if ($requestPath == "/${project}${path}") {
                         $forceRefresh = true;
                         break;
                     }
@@ -74,7 +71,6 @@ class ResponseCacheMiddleware extends AbstractMiddleware
         if ($config->get('cache.enabled') && $key && !$forceRefresh && $cachedResponse = $cache->get($key)) {
             $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
             $body->write($cachedResponse['body']);
-            $this->purge_header_for_cache($cachedResponse['headers']);
             $response = $response->withBody($body)->withHeaders($cachedResponse['headers']);
         } else {
             /** @var Response $response */

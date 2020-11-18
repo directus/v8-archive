@@ -200,27 +200,29 @@ class CoreServicesProvider
         return function (Container $container) {
             $emitter = new Emitter();
             $cachePool = $container->get('cache');
+            $project = get_api_project_from_request();
 
             // Cache subscriptions
-            $emitter->addAction('postUpdate', function (RelationalTableGateway $gateway, $data) use ($cachePool) {
+            $emitter->addAction('postUpdate', function (RelationalTableGateway $gateway, $data) use ($cachePool, $project) {
                 if (isset($data[$gateway->primaryKeyFieldName])) {
-                    $cachePool->invalidateTags(['entity_' . $gateway->getTable() . '_' . $data[$gateway->primaryKeyFieldName]]);
+                    $tableName = $gateway->getTable();
+                    $cachePool->invalidateTags(["${project}_entity_${tableName}_${data[$gateway->primaryKeyFieldName]}"]);
                 }
             });
 
-            $cacheTableTagInvalidator = function ($tableName) use ($cachePool) {
-                $cachePool->invalidateTags(['table_' . $tableName]);
+            $cacheTableTagInvalidator = function ($tableName) use ($cachePool, $project) {
+                $cachePool->invalidateTags(["${project}_table_${tableName}"]);
             };
             foreach (['item.create:after', 'item.delete:after', 'item.update:after', 'collection.update:after', 'collection.delete:after'] as $action) {
                 $emitter->addAction($action, $cacheTableTagInvalidator);
             }
 
-            $emitter->addAction('item.update.directus_permissions:after', function ($data) use ($container, $cachePool) {
+            $emitter->addAction('item.update.directus_permissions:after', function ($data) use ($container, $cachePool, $project) {
                 $acl = $container->get('acl');
                 $dbConnection = $container->get('database');
                 $privileges = new DirectusPermissionsTableGateway($dbConnection, $acl);
                 $record = $privileges->fetchById($data['id']);
-                $cachePool->invalidateTags(['permissions_collection_' . $record['collection']]);
+                $cachePool->invalidateTags(["${project}_permissions_collection_${record['collection']}"]);
             });
             // /Cache subscriptions
 
@@ -305,7 +307,7 @@ class CoreServicesProvider
                         $payload[$dateCreated->getName()] = $dateCreatedValue->toUTCString();
                     }
                 }
-                
+
                 if ($dateModified = $collection->getDateModifiedField()) {
                     $payload[$dateModified->getName()] = DateTimeUtils::nowInUTC()->toString();
                 }

@@ -916,12 +916,13 @@ class BaseTableGateway extends TableGateway
         if (static::$container) {
             $config = static::$container->get('config');
         }
+        $project = \Directus\get_api_project_from_request();
         foreach ($ids as $id) {
             $updatedData = $updatedObject[$id];
 
             if (isset($config) && $config->get('cache.enabled')) {
                 $cachePool = static::$container->get('cache');
-                $cachePool->invalidateTags(['entity_' . $updateTable . '_' . $updatedData[$this->primaryKeyFieldName]]);
+                $cachePool->invalidateTags(["${project}_entity_${updateTable}_${updatedData[$this->primaryKeyFieldName]}"]);
             }
         }
 
@@ -985,6 +986,7 @@ class BaseTableGateway extends TableGateway
             if (static::$container) {
                 $config = static::$container->get('config');
             }
+            $project = \Directus\get_api_project_from_request();
             foreach ($ids as $id) {
                 $deleteData = $deletedObject[$id];
                 $this->runHook('item.delete', [$deleteTable, $deleteData]);
@@ -993,7 +995,7 @@ class BaseTableGateway extends TableGateway
                 $this->runHook('item.delete.' . $deleteTable . ':after', [$deleteData]);
                 if (isset($config) && $config->get('cache.enabled')) {
                     $cachePool = static::$container->get('cache');
-                    $cachePool->invalidateTags(['entity_' . $deleteTable . '_' . $deleteData[$this->primaryKeyFieldName]]);
+                    $cachePool->invalidateTags(["${project}_entity_${deleteTable}_${deleteData[$this->primaryKeyFieldName]}"]);
                 }
             }
 

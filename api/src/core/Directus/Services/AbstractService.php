@@ -310,23 +310,24 @@ abstract class AbstractService
     protected function getDataAndSetResponseCacheTags(callable $callable, array $callableParams = [], $pkName = null)
     {
         $container = $this->container;
+        $project = \Directus\get_api_project_from_request();
 
         if (is_array($callable) && $callable[0] instanceof RelationalTableGateway) {
             /** @var $callable[0] RelationalTableGateway */
             $pkName = $callable[0]->primaryKeyFieldName;
         }
 
-        $setIdTags = function (Payload $payload) use ($pkName, $container) {
+        $setIdTags = function (Payload $payload) use ($pkName, $project) {
             $collectionName = $payload->attribute('collection_name');
-
-            $this->tagResponseCache('table_' . $collectionName);
+            $this->tagResponseCache("${project}");
+            $this->tagResponseCache("${project}_table_${collectionName}");
             // Note: See other reference to permissions_collection_<>
             // to proper set a new tag now that group doesn't exist anymore
-            $this->tagResponseCache('permissions_collection_' . $collectionName);
+            $this->tagResponseCache("${project}_permissions_collection_$collectionName");
 
             foreach ($payload->getData() as $item) {
                 if (isset($item[$pkName])) {
-                    $this->tagResponseCache('entity_' . $collectionName . '_' . $item[$pkName]);
+                    $this->tagResponseCache("${project}_entity_${collectionName}_${item[$pkName]}");
                 }
             }
 
