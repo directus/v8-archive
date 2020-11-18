@@ -22,7 +22,7 @@ If are using the Directus Suite version, this version is missing the `composer.j
 
 `composer require league/flysystem-aws-s3-v3`
 
-Then simply set the following into your configuration file (by default `config/api.php`):
+Then simply set the following into your configuration file (by default `config/<project-name>.php`):
 
 ```php
 'storage' => [
@@ -36,16 +36,18 @@ Then simply set the following into your configuration file (by default `config/a
       'ACL' => 'public-read',
       'CacheControl' => 'max-age=604800'
     ],
-    'endpoint' => 's3-endpoint',
+    'endpoint' => 's3-endpoint || http://s3-<region>.amazonaws.com',
     'root' => '/',
     'thumb_root' => '/thumbnails',
-    'root_url' => 'http://<bucket>.s3-<region>.amazonaws.com',
+    'root_url' => '/',
 ]
 ```
 
 - The `root` option indicates the root path of all uploads.
 - The `thumb_root` option indicates the root path where all the thumbnails are going to be stored.
 - The `root_url` is the URL to access all the files stored in the bucket, such as your bucket url, or AWS CloudFront URL.
+- The `endpoint` is the url which s3 is accessed usually in the format of `http://s3-<region>.amazonaws.com`
+- The `key` and `secret` is created by IAM access keys
 
 Read more  about the ACL permissions here: https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl.
 

@@ -595,7 +595,7 @@ Returns the [file object](#the-file-object) for the file that was just updated.
 
 ```json
 {
-  "data": {
+  "data": [{
     "id": 50,
     "storage": "local",
     "filename_disk": "904695e3-bd5b-4ba5-a569-6f481f08a285.jpeg",
@@ -635,7 +635,7 @@ Returns the [file object](#the-file-object) for the file that was just updated.
       ],
       "embed": null
     }
-  }
+  }]
 }
 ```
 

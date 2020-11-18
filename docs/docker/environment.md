@@ -67,6 +67,10 @@
 | DIRECTUS_STORAGE_OSSBUCKET      | string  | "oss-bucket"                 |
 | DIRECTUS_STORAGE_OSSENDPOINT    | string  | "oss-endpoint"               |
 
+:::tip
+If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 API (https://docs.ovh.com/gb/en/public-cloud/getting_started_with_the_swift_S3_API/) to connect to your object storage using the s3 adpater.
+:::
+
 ### Storage Options
 
 | Variable                               | Type   | Default Value    |

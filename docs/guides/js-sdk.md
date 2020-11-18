@@ -135,9 +135,30 @@ async function fetchAllItems() {
 
 ## Reference
 
-Note that all of the following methods are asynchronous and return promises.
+Note that all of the following methods are asynchronous and return promises, unless explicitely noted.
 
 If you think a method is missing, please reach out on GitHub or [Slack](https://directus.chat)!
+
+### Asset
+
+#### `getAssetUrl(private_hash, params?)`
+
+Return the URL of an asset's original or thumbnail.
+
+See [API Assets (Thumbnails)](../api/assets.md) for the structure of the `params` object.
+If `params` is empty or `undefined`, the URL of the original will be returned.
+
+:::tip
+This method is synchronous.
+:::
+
+#### `getAsset(private_hash, params?)`
+
+Return an asset's original or its thumbnail as an ArrayBuffer.
+
+See [API Assets (Thumbnails)](../api/assets.md) for the structure of the `params` object.
+If `params` is empty or `undefined`, the URL of the original will be returned.
+
 
 ### Authentication
 
