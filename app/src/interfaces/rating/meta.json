@@ -1,0 +1,43 @@
+{
+  "name": "$t:rating",
+  "version": "1.0.1",
+  "types": ["integer", "decimal"],
+  "icon": "star",
+  "fieldset": true,
+  "recommended": {
+    "length": 10
+  },
+  "options": {
+    "active_color": {
+      "name": "$t:active_color",
+      "comment": "$t:active_color_comment",
+      "interface": "color-palette",
+      "default": "amber"
+    },
+    "max_stars": {
+      "name": "$t:max_stars",
+      "comment": "$t:max_stars_comment",
+      "interface": "numeric",
+      "default": 5
+    },
+    "display": {
+      "name": "$t:display",
+      "comment": "$t:display_comment",
+      "interface": "button-group",
+      "default": "star",
+      "type": "JSON",
+      "options": {
+        "choices": [
+          {
+            "label": "Numbers",
+            "value": "number"
+          },
+          {
+            "label": "Stars",
+            "value": "star"
+          }
+        ]
+      }
+    }
+  }
+}

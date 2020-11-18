@@ -1,0 +1,41 @@
+{
+  "layouts": {
+    "calendar": {
+      "calendar": "Kalender",
+      "fields": "Bidang",
+      "today": "hari ini",
+      "events": "Kegiatan",
+      "moreEvents": "dan {amount} lainnya...",
+      "noEvents": "belum ada kegiatan!",
+      "date": "Date",
+      "datetime": "Datetime",
+      "time": "Time",
+      "title": "Judul",
+      "color": "Warna"
+    },
+    "cards": {
+      "cards": "Kartu",
+      "title": "Judul",
+      "subtitle": "Subjudul",
+      "src": "Sumber Gambar",
+      "content": "Isi konten",
+      "fit": "Cocok"
+    },
+    "tabular": {
+      "tabular": "Tabel",
+      "fields": "Bidang"
+    },
+    "timeline": {
+      "timeline": "Lini masa",
+      "fields": "Bidang",
+      "today": "hari ini",
+      "events": "Kegiatan",
+      "moreEvents": "dan {amount} lainnya...",
+      "noEvents": "belum ada kegiatan!",
+      "date": "Date",
+      "content": "Konten",
+      "title": "Judul",
+      "color": "Warna"
+    }
+  }
+}

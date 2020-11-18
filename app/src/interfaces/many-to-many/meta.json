@@ -1,0 +1,35 @@
+{
+  "name": "$t:m2m",
+  "version": "1.0.2",
+  "types": ["o2m"],
+  "relation": "m2m",
+  "icon": "compare_arrows",
+  "options": {
+    "fields": {
+      "name": "$t:visible_columns",
+      "comment": "$t:visible_columns_comment",
+      "interface": "text-input",
+      "placeholder": "name,description"
+    },
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:template_placeholder"
+      }
+    },
+    "allow_create": {
+      "name": "$t:allow_create",
+      "comment": "$t:allow_create_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "allow_select": {
+      "name": "$t:allow_select",
+      "comment": "$t:allow_select_comment",
+      "interface": "switch",
+      "default": true
+    }
+  }
+}

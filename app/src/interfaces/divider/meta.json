@@ -1,0 +1,50 @@
+{
+  "name": "$t:divider",
+  "version": "1.0.0",
+  "types": ["alias"],
+  "icon": "horizontal_split",
+  "hideLabel": true,
+  "recommended": {
+    "required": false
+  },
+  "options": {
+    "style": {
+      "name": "$t:style-name",
+      "comment": "$t:style-comment",
+      "default": "large",
+      "interface": "dropdown",
+      "options": {
+        "choices": {
+          "small": "Small",
+          "medium": "Medium",
+          "large": "Large"
+        }
+      }
+    },
+    "title": {
+      "name": "$t:input-name",
+      "comment": "$t:input-comment",
+      "interface": "text-input",
+      "default": "A Section Title"
+    },
+    "description": {
+      "name": "$t:desc-name",
+      "comment": "$t:desc-comment",
+      "interface": "text-input"
+    },
+    "hr": {
+      "name": "$t:hr-name",
+      "comment": "$t:hr-comment",
+      "interface": "switch",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    "margin": {
+      "name": "$t:margin-name",
+      "comment": "$t:margin-comment",
+      "interface": "switch",
+      "type": "BOOLEAN",
+      "default": true
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "$t:color",
+  "version": "1.0.1",
+  "types": ["string"],
+  "icon": "colorize",
+  "recommended": {
+    "length": 20
+  },
+  "options": {
+    "format": {
+      "name": "$t:format",
+      "comment": "$t:format_comment",
+      "interface": "dropdown",
+      "default": "hex",
+      "options": {
+        "choices": {
+          "hex": "Hex",
+          "rgb": "RGB",
+          "hsl": "HSL"
+        }
+      }
+    },
+    "palette": {
+      "name": "$t:palette",
+      "comment": "$t:palette_comment",
+      "interface": "tags",
+      "type": "array",
+      "options": {
+        "wrapWithDelimiter": false
+      },
+      "default": [
+        "#E91E63", "#F44336", "#FF9800", "#FFC107", "#FFEB3B", "#CDDC39",
+        "#4CAF50", "#00BCD4", "#2196F3", "#3F51B5", "#9C27B0", "#607D8B"
+      ]
+    },
+    "paletteOnly": {
+      "name": "$t:palette_only",
+      "comment": "$t:palette_only_comment",
+      "interface": "switch",
+      "default": false
+    }
+  }
+}

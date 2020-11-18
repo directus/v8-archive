@@ -1,0 +1,67 @@
+{
+  "name": "$t:tags",
+  "version": "1.1.0",
+  "types": ["array", "string"],
+  "icon": "local_offer",
+  "recommended": {
+    "length": 2000
+  },
+  "options": {
+    "alphabetize": {
+      "name": "$t:alphabetize",
+      "comment": "$t:alphabetize_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "lowercase": {
+      "name": "$t:lowercase",
+      "comment": "$t:lowercase_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "wrap": {
+      "name": "$t:wrap",
+      "comment": "$t:wrap_comment",
+      "interface": "switch",
+      "default": false
+    },
+    "format": {
+      "name": "$t:format",
+      "comment": "$t:format_comment",
+      "interface": "switch",
+      "default": false
+    },
+    "sanitize": {
+      "name": "$t:sanitize",
+      "comment": "$t:sanitize_comment",
+      "interface": "switch",
+      "default": false
+    },
+    "iconLeft": {
+      "name": "$t:icon_left",
+      "comment": "$t:icon_left_comment",
+      "interface": "icon",
+      "advanced": true
+    },
+    "iconRight": {
+      "name": "$t:icon_right",
+      "comment": "$t:icon_right_comment",
+      "interface": "icon",
+      "default": "local_offer",
+      "advanced": true
+    },
+    "validation": {
+      "name": "$t:validation",
+      "comment": "$t:validation_comment",
+      "interface": "text-input",
+      "advanced": true
+    },
+    "validationMessage": {
+      "name": "$t:validation_message",
+      "comment": "$t:validation_message_comment",
+      "interface": "text-input",
+      "default": "Please enter a valid tag",
+      "advanced": true
+    }
+  }
+}

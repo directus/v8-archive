@@ -1,0 +1,37 @@
+{
+	"name": "$t:slug",
+	"version": "1.0.2",
+	"types": [
+		"slug"
+	],
+	"icon": "link",
+	"recommended": {
+		"length": 200
+	},
+	"options": {
+		"placeholder": {
+			"name": "$t:placeholder_name",
+			"comment": "$t:placeholder_comment",
+			"interface": "text-input",
+			"length": 200,
+			"default": "A unique label..."
+		},
+		"onlyOnCreate": {
+			"name": "$t:only_on_create",
+			"comment": "$t:only_on_create_comment",
+			"interface": "switch",
+			"default": true
+		},
+		"forceLowercase": {
+			"name": "$t:force_lowercase",
+			"comment": "$t:force_lowercase_comment",
+			"interface": "switch",
+			"default": true
+		},
+		"mirroredField": {
+			"name": "$t:mirrored_field",
+			"comment": "$t:mirrored_field_comment",
+			"interface": "text-input"
+		}
+	}
+}

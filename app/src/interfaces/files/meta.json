@@ -1,0 +1,48 @@
+{
+  "name": "$t:files",
+  "version": "1.1.0",
+  "types": ["o2m"],
+  "relation": {
+    "type": "m2m",
+    "relatedCollection": "directus_files"
+  },
+  "icon": "insert_drive_file",
+  "recommended": {
+    "length": 10
+  },
+  "options": {
+    "fields": {
+      "name": "$t:visible_columns",
+      "comment": "$t:visible_columns_comment",
+      "interface": "text-input",
+      "placeholder": "title",
+      "default": "title"
+    },
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:template_placeholder"
+      },
+      "default": "{{ title }}"
+    },
+    "allow_create": {
+      "name": "$t:allow_create",
+      "comment": "$t:allow_create_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "allow_select": {
+      "name": "$t:allow_select",
+      "comment": "$t:allow_select_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "accept": {
+      "name": "$t:accept",
+      "comment": "$t:accept_comment",
+      "interface": "text-input"
+    }
+  }
+}

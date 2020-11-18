@@ -1,0 +1,114 @@
+{
+  "name": "$t:status",
+  "version": "1.1.0",
+  "types": ["status"],
+  "recommended": {
+    "defaultValue": "draft",
+    "length": 20
+  },
+  "fieldset": true,
+  "icon": "outlined_flag",
+  "options": {
+    "simpleBadge": {
+      "name": "$t:simple_badge",
+      "comment": "$t:simple_badge_comment",
+      "interface": "switch",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    "status_mapping": {
+      "name": "$t:status_mapping",
+      "comment": "$t:status_mapping_comment",
+      "interface": "repeater",
+      "type": "JSON",
+      "options": {
+        "structure": "object",
+        "structure_key": "value",
+        "template": "{{name}} ({{value}})",
+        "fields": [
+          {
+            "field": "name",
+            "interface": "text-input",
+            "type": "String"
+          },
+          {
+            "field": "value",
+            "interface": "text-input",
+            "type": "String"
+          },
+          {
+            "field": "text_color",
+            "interface": "color-palette",
+            "type": "String"
+          },
+          {
+            "field": "background_color",
+            "interface": "color-palette",
+            "type": "String"
+          },
+          {
+            "field": "browse_subdued",
+            "interface": "switch",
+            "type": "boolean"
+          },
+          {
+            "field": "browse_badge",
+            "interface": "switch",
+            "type": "boolean"
+          },
+          {
+            "field": "soft_delete",
+            "interface": "switch",
+            "type": "boolean"
+          },
+          {
+            "field": "required_fields",
+            "interface": "switch",
+            "type": "boolean"
+          },
+          {
+            "field": "published",
+            "interface": "switch",
+            "type": "boolean"
+          }
+        ]
+      },
+      "default": {
+        "published": {
+          "name": "$t:published",
+          "value": "published",
+          "text_color": "blue-100",
+          "background_color": "blue",
+          "browse_subdued": false,
+          "browse_badge": true,
+          "soft_delete": false,
+          "published": true,
+          "required_fields": true
+        },
+        "draft": {
+          "name": "$t:draft",
+          "value": "draft",
+          "text_color": "blue-grey-100",
+          "background_color": "blue-grey",
+          "browse_subdued": true,
+          "browse_badge": true,
+          "soft_delete": false,
+          "published": false,
+          "required_fields": false
+        },
+        "deleted": {
+          "name": "$t:deleted",
+          "value": "deleted",
+          "text_color": "red-100",
+          "background_color": "red",
+          "browse_subdued": true,
+          "browse_badge": true,
+          "soft_delete": true,
+          "published": false,
+          "required_fields": false
+        }
+      }
+    }
+  }
+}
+

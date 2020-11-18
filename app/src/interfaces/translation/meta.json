@@ -1,0 +1,47 @@
+{
+  "name": "$t:translation",
+  "version": "1.0.0",
+  "types": ["translation"],
+  "relation": "o2m",
+  "icon": "translate",
+  "options": {
+    "languageField": {
+      "name": "$t:language_field",
+      "comment": "$t:language_field_comment",
+      "interface": "text-input",
+      "options": {
+        "monospace": true
+      }
+    },
+    "languages": {
+      "name": "$t:languages",
+      "interface": "key-value",
+      "default": {
+        "en": "English",
+        "es": "Spanish",
+        "de": "German",
+        "fr": "French",
+        "pt": "Portuguese",
+        "zh": "Chinese",
+        "ru": "Russian"
+      },
+      "options": {
+        "keyOptions": {
+          "placeholder": "Code (en-US)",
+          "monospace": true
+        },
+        "valueOptions": {
+          "placeholder": "Name (English)"
+        }
+      }
+    },
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "{{title}} — {{summary}}"
+      }
+    }
+  }
+}

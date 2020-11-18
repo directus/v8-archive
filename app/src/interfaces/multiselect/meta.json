@@ -1,0 +1,75 @@
+{
+  "name": "$t:multiselect",
+  "version": "1.0.1",
+  "types": ["array"],
+  "icon": "playlist_add_check",
+  "recommended": {
+    "length": 100
+  },
+  "options": {
+    "choices": {
+      "name": "$t:choices",
+      "comment": "$t:choices_comment",
+      "interface": "key-value",
+      "type": "JSON",
+      "options": {
+        "dataType": "value",
+        "fields": [
+          {
+            "field": "name",
+            "interface": "text-input",
+            "type": "String",
+            "preview": true
+          },
+          {
+            "field": "value",
+            "interface": "text-input",
+            "type": "String",
+            "index": true
+          }
+        ]
+      },
+      "default": {
+        "value1": "$t:option 1",
+        "value2": "$t:option 2",
+        "value3": "$t:option 3",
+        "value4": "$t:option 4",
+        "value5": "$t:option 5"
+      }
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "text-input",
+      "length": 200
+    },
+    "size": {
+      "name": "$t:size",
+      "comment": "$t:size_comment",
+      "interface": "numeric",
+      "options": {
+        "min": 3,
+        "max": 20
+      },
+      "default": 6
+    },
+    "wrapWithDelimiter": {
+      "name": "$t:wrap",
+      "comment": "$t:wrap_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "formatting": {
+      "name": "$t:format",
+      "comment": "$t:format_comment",
+      "interface": "radio-buttons",
+      "default": "text",
+      "options": {
+        "choices": {
+          "text": "Display Text",
+          "value": "Value"
+        }
+      }
+    }
+  }
+}

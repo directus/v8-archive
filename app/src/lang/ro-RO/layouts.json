@@ -1,0 +1,41 @@
+{
+  "layouts": {
+    "calendar": {
+      "calendar": "Calendar",
+      "fields": "Fields",
+      "today": "astăzi",
+      "events": "Evenimente",
+      "moreEvents": "adaugă încă {amount}...",
+      "noEvents": "nici un eveniment încă!",
+      "date": "Date",
+      "datetime": "Datetime",
+      "time": "Time",
+      "title": "Titlu",
+      "color": "Color"
+    },
+    "cards": {
+      "cards": "Carduri",
+      "title": "Titlu",
+      "subtitle": "Subtitlu",
+      "src": "Sursa Imaginii",
+      "content": "Conținut Corp",
+      "fit": "Potrivire"
+    },
+    "tabular": {
+      "tabular": "Tabel",
+      "fields": "Fields"
+    },
+    "timeline": {
+      "timeline": "Cronologie",
+      "fields": "Fields",
+      "today": "astăzi",
+      "events": "Evenimente",
+      "moreEvents": "adaugă încă {amount}...",
+      "noEvents": "nici un eveniment încă!",
+      "date": "Date",
+      "content": "Conținut",
+      "title": "Titlu",
+      "color": "Color"
+    }
+  }
+}

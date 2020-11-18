@@ -1,0 +1,4 @@
+diff a/src/store/modules/relations/getters.js b/src/store/modules/relations/getters.js	(rejected hunks)
+@@ -43 +42 @@ export function o2m(state, getters, { collections }) {
+-          field_one: collections[result.collection_one].fields[result.field_one],
++          field_one: collections[result.collection_one].fields[result.field_one]

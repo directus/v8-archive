@@ -1,0 +1,252 @@
+/* These are four overrides for Material Design icon buttons.
+This could be simplified by creating ONE class to remove all default icons,
+and another to setup all MD icons, then we only need classes to set the "content" icon names.
+The main problem with this approach is that there is no class for selecting format buttons,
+so the aria label is used — but that is based on locale. */
+
+.tox-tbtn[aria-label="Bold"] .tox-icon svg {
+  display: none;
+}
+
+.tox-tbtn[aria-label='Bold'] .tox-icon:after {
+  content: "format_bold";
+  display: inline-block;
+  font-family: "Material Icons";
+  font-feature-settings: "liga";
+  font-size: 24px;
+  margin-top: 4px;
+  color: var(--input-text-color);
+}
+
+.tox-tbtn[aria-label="Italic"] .tox-icon svg {
+  display: none;
+}
+
+.tox-tbtn[aria-label='Italic'] .tox-icon:after {
+  content: "format_italic";
+  display: inline-block;
+  font-family: "Material Icons";
+  font-feature-settings: "liga";
+  font-size: 24px;
+  margin-top: 4px;
+  color: var(--input-text-color);
+}
+
+.tox-tbtn[aria-label="Underline"] .tox-icon svg {
+  display: none;
+}
+
+.tox-tbtn[aria-label='Underline'] .tox-icon:after {
+  content: "format_underlined";
+  display: inline-block;
+  font-family: "Material Icons";
+  font-feature-settings: "liga";
+  font-size: 24px;
+  margin-top: 4px;
+  color: var(--input-text-color);
+}
+
+.tox-tbtn[aria-label="Insert/edit link"] .tox-icon svg {
+  display: none;
+}
+
+.tox-tbtn[aria-label='Insert/edit link'] .tox-icon:after {
+  content: "insert_link";
+  display: inline-block;
+  font-family: "Material Icons";
+  font-feature-settings: "liga";
+  font-size: 24px;
+  margin-top: 4px;
+  color: var(--input-text-color);
+}
+
+/* Editor */
+
+.tox .tox-edit-area__iframe {
+  background-color: var(--input-background-color);
+}
+
+.tox-tinymce {
+  border: var(--input-border-width) solid var(--input-border-color);
+  border-radius: var(--border-radius);
+  color: var(--page-text-color);
+  transition: var(--fast) var(--transition);
+  transition-property: color, border-color;
+  min-height: 300px;
+}
+
+.tox-tinymce:hover {
+  border-color: var(--input-border-color-hover);
+}
+
+.tox-tinymce:focus {
+  border-color: var(--input-border-color-focus);
+}
+
+.tox .tox-toolbar,
+.tox .tox-toolbar__primary,
+.tox .tox-toolbar__overflow {
+  background: url("data:image/svg+xml;charset=utf8,%3Csvg height='39px' viewBox='0 0 40 39px' width='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='37px' width='100' height='2' fill='%23cfd8dc'/%3E%3C/svg%3E")
+    left 0 top 0 var(--input-background-color-alt);
+}
+
+body.dark .tox .tox-toolbar,
+body.dark .tox .tox-toolbar__primary,
+body.dark .tox .tox-toolbar__overflow {
+  background: url("data:image/svg+xml;charset=utf8,%3Csvg height='39px' viewBox='0 0 40 39px' width='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='37px' width='100' height='2' fill='%23455a64'/%3E%3C/svg%3E")
+    left 0 top 0 var(--input-background-color-alt);
+}
+
+@media (prefers-color-scheme: dark) {
+  body.auto .tox .tox-toolbar,
+  body.auto .tox .tox-toolbar__primary,
+  body.auto .tox .tox-toolbar__overflow {
+    background: url("data:image/svg+xml;charset=utf8,%3Csvg height='39px' viewBox='0 0 40 39px' width='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='37px' width='100' height='2' fill='%23455a64'/%3E%3C/svg%3E")
+      left 0 top 0 var(--input-background-color-alt);
+  }
+}
+
+.tox .tox-tbtn--enabled,
+.tox .tox-tbtn--enabled:hover,
+.tox .tox-tbtn:hover {
+  background: var(--input-border-color);
+  color: var(--input-text-color);
+}
+
+.tox .tox-tbtn {
+  color: var(--input-text-color);
+  margin-right: 2px;
+}
+
+.tox .tox-tbtn svg {
+  fill: var(--input-text-color);
+}
+
+.mce-content-body {
+  margin: 20px;
+}
+
+/* Modal */
+
+.tox .tox-dialog-wrap__backdrop {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.tox .tox-dialog {
+  border: none;
+  box-shadow: none;
+  background-color: var(--modal-background-color);
+  color: var(--page-text-color);
+}
+
+.tox .tox-dialog--width-lg {
+  max-width: 800px;
+}
+
+.tox .tox-dialog__header {
+  padding: 16px 24px 0 24px;
+  background-color: var(--modal-background-color);
+  color: var(--page-text-color);
+}
+
+.tox .tox-dialog__body-content {
+  padding: 24px 24px;
+
+}
+
+.tox .tox-dialog__footer {
+  padding: 0 24px 24px;
+  background-color: var(--modal-background-color);
+  color: var(--page-text-color);
+}
+
+.tox .tox-textfield,
+.tox .tox-toolbar-textfield,
+.tox .tox-selectfield select,
+.tox .tox-textarea {
+  border: var(--input-border-width) solid var(--input-border-color);
+  border-radius: var(--border-radius);
+  color: var(--page-text-color);
+  background-color: var(--input-background-color);
+  transition: var(--fast) var(--transition);
+  font-family: monospace;
+  padding: 12px;
+}
+
+.tox .tox-textfield:focus,
+.tox .tox-selectfield select:focus,
+.tox .tox-textarea:focus {
+  border-color: var(--input-icon-color);
+}
+
+.tox .tox-dialog__footer {
+  border-top: none;
+}
+
+.tox .tox-button {
+  background-color: var(--button-primary-background-color);
+  border-color: var(--button-primary-background-color);
+  border: var(--input-border-width) solid var(--button-primary-background-color);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  -webkit-transition: var(--fast) var(--transition);
+  transition: var(--fast) var(--transition);
+  transition-property: border-color, background-color, color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px 1px;
+  height: 44px;
+  min-width: 136px;
+  color: var(--white);
+  font-size: 16px;
+  line-height: 19px;
+  font-weight: 500;
+}
+
+.tox .tox-button:hover:not(:disabled) {
+  background-color: var(--button-primary-background-color-hover);
+  border-color: var(--button-primary-background-color-hover);
+}
+
+.tox .tox-button--secondary {
+  background-color: var(--button-secondary-background-color);
+  border-color: var(--button-secondary-background-color);
+  color: var(--button-secondary-text-color);
+}
+
+.tox .tox-button--secondary:hover:not(:disabled) {
+  background-color: var(--button-secondary-background-color-hover);
+  border-color: var(--button-secondary-background-color-hover);
+  color: var(--button-secondary-text-color);
+}
+
+.tox .tox-button--naked {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--input-icon-color);
+  min-width: auto;
+  height: auto;
+}
+
+.tox .tox-button--naked.tox-button--icon:hover:not(:disabled) {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--input-text-color);
+}
+
+.tox .tox-form__group {
+  margin-top: 24px;
+}
+
+.tox .tox-label,
+.tox .tox-toolbar-label {
+  font-size: var(--size-2);
+  margin-bottom: 10px;
+  color: var(--page-text-color);
+}
+
+.tox.tox-tinymce-aux {
+	z-index: 1500;
+}

@@ -1,0 +1,39 @@
+{
+  "name": "$t:radio",
+  "version": "1.0.1",
+  "types": ["string"],
+  "fieldset": true,
+  "icon": "radio_button_checked",
+  "recommended": {
+    "length": 100
+  },
+  "options": {
+    "choices": {
+      "name": "$t:choices",
+      "comment": "$t:choices_comment",
+      "interface": "key-value",
+      "type": "JSON",
+      "options": {
+        "keyInterface": "text-input",
+        "keyType": "string",
+        "keyOptions": {
+          "placeholder": "key",
+          "monospace": true
+        },
+        "valueInterface": "text-input",
+        "valueType": "string",
+        "valueOptions": {
+          "placeholder": "value",
+          "monospace": true
+        }
+      }
+    },
+    "format": {
+      "name": "$t:format",
+      "comment": "$t:format_comment",
+      "interface": "switch",
+      "type": "BOOLEAN",
+      "default": true
+    }
+  }
+}

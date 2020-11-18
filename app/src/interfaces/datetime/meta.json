@@ -1,0 +1,62 @@
+{
+  "name": "$t:datetime",
+  "version": "1.0.1",
+  "types": ["datetime", "datetime_updated", "datetime_created"],
+  "icon": "access_time",
+  "options": {
+    "min": {
+      "name": "$t:min",
+      "comment": "$t:min_comment",
+      "interface": "datetime"
+    },
+    "max": {
+      "name": "$t:max",
+      "comment": "$t:max_comment",
+      "interface": "datetime"
+    },
+    "localized": {
+      "name": "$t:localized",
+      "comment": "$t:localized_comment",
+      "interface": "switch",
+      "value": true
+    },
+    "showRelative": {
+      "name": "$t:relative",
+      "interface": "switch",
+      "comment": "$t:relative_comment",
+      "value": false
+    },
+    "iconLeft": {
+      "name": "$t:icon_left",
+      "comment": "$t:icon_left_comment",
+      "interface": "icon",
+      "advanced": true
+    },
+    "iconRight": {
+      "name": "$t:icon_right",
+      "comment": "$t:icon_right_comment",
+      "interface": "icon",
+      "advanced": true
+    },
+    "defaultToCurrentDatetime": {
+      "name": "$t:default_to_current_datetime",
+      "comment": "$t:default_to_current_datetime_comment",
+      "interface": "switch",
+      "advanced": true
+    },
+    "format": {
+      "name": "$t:format",
+      "comment": "$t:format_comment",
+      "interface": "dropdown",
+      "advanced": true,
+      "default": "mdy",
+      "options": {
+        "choices": {
+          "mdy": "mm/dd/yyyy hh:mm:ss",
+          "dmy": "dd/mm/yyyy hh:mm:ss",
+          "ymd": "yyyy-mm-dd hh:mm:ss"
+        }
+      }
+    }
+  }
+}

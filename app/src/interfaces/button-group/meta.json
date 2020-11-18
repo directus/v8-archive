@@ -1,0 +1,66 @@
+{
+  "name": "$t:button_group",
+  "version": "1.0.0",
+  "types": ["string"],
+  "fieldset": true,
+  "icon": "view_week",
+  "options": {
+    "choices": {
+      "name": "$t:choices",
+      "comment": "$t:choices_comment",
+      "interface": "repeater",
+      "type": "JSON",
+      "options": {
+        "fields": [
+          {
+            "field": "groups",
+            "width": "full",
+            "interface": "repeater",
+            "type": "JSON",
+            "options": {
+              "template": "{{ label }}",
+              "fields": [
+                {
+                  "field": "label",
+                  "interface": "text-input",
+                  "type": "String",
+                  "preview": true
+                },
+                {
+                  "field": "value",
+                  "interface": "text-input",
+                  "type": "String"
+                },
+                {
+                  "field": "icon",
+                  "width": "full",
+                  "interface": "icon",
+                  "type": "String"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "theme": {
+      "name": "$t:theme",
+      "comment": "$t:theme_comment",
+      "interface": "button-group",
+      "type": "JSON",
+      "default": "solid",
+      "options": {
+        "choices": [
+          {
+            "label": "Solid",
+            "value": "solid"
+          },
+          {
+            "label": "Outline",
+            "value": "outline"
+          }
+        ]
+      }
+    }
+  }
+}

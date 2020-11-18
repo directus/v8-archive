@@ -1,0 +1,41 @@
+{
+  "layouts": {
+    "calendar": {
+      "calendar": "Kalendarz",
+      "fields": "Pola",
+      "today": "dziś",
+      "events": "Wydarzenia",
+      "moreEvents": "i {amount} więcej...",
+      "noEvents": "brak wydarzeń!",
+      "date": "Data",
+      "datetime": "Datetime",
+      "time": "Czas",
+      "title": "Tytuł",
+      "color": "Color"
+    },
+    "cards": {
+      "cards": "Karty",
+      "title": "Tytuł",
+      "subtitle": "Subtytuł",
+      "src": "Źródło obrazu",
+      "content": "Treść",
+      "fit": "Dopasuj"
+    },
+    "tabular": {
+      "tabular": "Tabela",
+      "fields": "Pola"
+    },
+    "timeline": {
+      "timeline": "Oś czasu",
+      "fields": "Pola",
+      "today": "dziś",
+      "events": "Wydarzenia",
+      "moreEvents": "i {amount} więcej...",
+      "noEvents": "brak wydarzeń!",
+      "date": "Data",
+      "content": "Treść",
+      "title": "Tytuł",
+      "color": "Color"
+    }
+  }
+}

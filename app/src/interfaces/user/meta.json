@@ -1,0 +1,24 @@
+{
+  "name": "$t:user",
+  "version": "1.0.1",
+  "types": ["user", "integer", "owner", "user_updated"],
+  "icon": "account_circle",
+  "relation": "user",
+  "recommended": {
+    "length": 10
+  },
+  "options": {
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "default": "{{first_name}} {{last_name}}"
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "text-input",
+      "default": "Choose a User"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "$t:interface-types",
+  "version": "1.0.0",
+  "types": ["json"],
+  "icon": "category",
+  "options": {
+    "interfaceField": {
+      "name": "$t:interface-field",
+      "interface": "text-input",
+      "comment": "$t:placeholder-comment",
+      "default": "$t:placeholder-default",
+      "length": 200
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "$t:input",
+  "version": "1.0.1",
+  "icon": "text_fields",
+  "types": ["string", "lang"],
+  "recommended": {
+    "length": 200
+  },
+  "options": {
+    "placeholder": {
+      "name": "$t:placeholder",
+      "interface": "text-input",
+      "length": 200
+    },
+    "trim": {
+      "name": "$t:trim",
+      "comment": "$t:trim_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "showCharacterCount": {
+      "name": "$t:char_count",
+      "comment": "$t:char_count_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "iconLeft": {
+      "name": "$t:icon_left",
+      "comment": "$t:icon_left_comment",
+      "interface": "icon",
+      "advanced": true
+    },
+    "iconRight": {
+      "name": "$t:icon_right",
+      "comment": "$t:icon_right_comment",
+      "interface": "icon",
+      "advanced": true
+    },
+    "formatValue": {
+      "name": "$t:format",
+      "comment": "$t:format_comment",
+      "interface": "switch",
+      "default": false
+    },
+    "monospace": {
+      "name": "$t:monospace",
+      "comment": "$t:monospace_comment",
+      "interface": "switch",
+      "default": false
+    }
+  }
+}

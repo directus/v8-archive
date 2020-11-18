@@ -1,0 +1,64 @@
+{
+  "name": "$t:map",
+  "version": "1.0.1",
+  "types": ["json"],
+  "fieldset": true,
+  "icon": "place",
+  "options": {
+    "height": {
+      "name": "$t:height",
+      "interface": "text-input",
+      "default": 400
+    },
+    "mapLat": {
+      "name": "$t:map_lat",
+      "comment": "$t:map_lat_comment",
+      "interface": "text-input",
+      "default": 40.72803624
+    },
+    "mapLng": {
+      "name": "$t:map_lng",
+      "comment": "$t:map_lng_comment",
+      "interface": "text-input",
+      "default": -73.948963880
+    },
+    "defaultZoom": {
+      "name": "$t:default_zoom",
+      "comment": "$t:default_zoom_comment",
+      "interface": "text-input",
+      "default": 12
+    },
+    "maxZoom": {
+      "name": "$t:max_zoom",
+      "comment": "$t:max_zoom_comment",
+      "interface": "text-input",
+      "default": 17
+    },
+    "address_to_code": {
+      "name": "$t:address_to_code",
+      "comment": "$t:address_to_code_comment",
+      "interface": "switch",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    "theme": {
+      "name": "$t:theme",
+      "comment": "$t:theme_comment",
+      "interface": "button-group",
+      "type": "JSON",
+      "default": "https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
+      "options": {
+        "choices": [
+          {
+            "label": "Grayscale",
+            "value": "https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png"
+          },
+          {
+            "label": "Color",
+            "value": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
+          }
+        ]
+      }
+    }
+  }
+}

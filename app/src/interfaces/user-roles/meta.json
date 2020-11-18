@@ -1,0 +1,20 @@
+{
+  "name": "$t:user-roles",
+  "version": "1.0.0",
+  "types": ["m2o"],
+  "relation": "m2o",
+  "icon": "perm_identity",
+  "options": {
+    "relational": {
+      "name": "$t:relational",
+      "comment": "$t:relational_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "showPublic": {
+      "name": "$t:show_public",
+      "interface": "switch",
+      "default": false
+    }
+  }
+}

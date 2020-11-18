@@ -1,0 +1,67 @@
+{
+  "name": "$t:file",
+  "version": "1.1.0",
+  "types": ["file"],
+  "icon": "insert_drive_file",
+  "relation": "file",
+  "recommended": {
+    "length": 10
+  },
+  "options": {
+	"crop": {
+		"name": "$t:crop_preview",
+		"comment": "$t:crop_preview_comment",
+		"default": true,
+		"interface": "switch"
+	},
+    "viewType": {
+      "name": "$t:view_type",
+      "comment": "$t:view_type_comment",
+      "default": "cards",
+      "interface": "text-input"
+    },
+    "viewOptions": {
+      "name": "$t:view_options",
+      "comment": "$t:view_options_comment",
+      "interface": "json",
+      "options": {
+        "language": "application/json"
+      },
+      "default": {
+        "title": "title",
+        "subtitle": "type",
+        "content": "description",
+        "src": "data"
+      }
+    },
+    "viewQuery": {
+      "name": "$t:view_query",
+      "comment": "$t:view_query_comment",
+      "interface": "json",
+      "options": {
+        "language": "application/json"
+      },
+      "default": {}
+    },
+    "filters": {
+      "name": "$t:filters",
+      "comment": "$t:filters_comment",
+      "interface": "json",
+      "options": {
+        "language": "application/json"
+      },
+      "default": []
+    },
+    "accept": {
+      "name": "$t:accept",
+      "comment": "$t:accept_comment",
+      "interface": "text-input"
+	},
+	"allowDelete": {
+		"name": "$t:allow_delete",
+		"comment": "$t:allow_delete_comment",
+		"interface": "switch",
+		"default": false
+	}
+  }
+}

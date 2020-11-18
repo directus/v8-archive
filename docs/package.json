@@ -1,0 +1,37 @@
+{
+  "name": "@directus/docs",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Directus Docs",
+  "main": "index.js",
+  "repository": "directus/docs-v7",
+  "keywords": [
+    "directus",
+    "docs"
+  ],
+  "scripts": {
+    "dev": "vuepress dev .",
+    "build": "vuepress build .",
+    "eject": "vuepress eject"
+  },
+  "author": "Rijk van Zanten <rijkvanzanten@me.com>",
+  "contributors": [
+    "Ben Haynes <ben@rngr.org>",
+    "Welling Guzmán <welling@rngr.org>"
+  ],
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/directus/docs/issues"
+  },
+  "homepage": "https://github.com/directus/docs#readme",
+  "devDependencies": {
+    "node-sass": "^4.13.0",
+    "sass-loader": "^8.0.1"
+  },
+  "dependencies": {
+    "@vuepress/plugin-medium-zoom": "^1.1.0",
+    "markdown-it-include": "^1.1.0",
+    "vue-tabs-component": "^1.5.0",
+    "vuepress": "^1.1.0"
+  }
+}

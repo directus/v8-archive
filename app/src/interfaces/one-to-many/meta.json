@@ -1,0 +1,55 @@
+{
+  "name": "$t:o2m",
+  "version": "2.0.2",
+  "types": ["o2m"],
+  "options": {
+    "fields": {
+      "name": "$t:visible_columns",
+      "comment": "$t:visible_columns_comment",
+      "interface": "text-input",
+      "placeholder": "name,description"
+    },
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:template_placeholder"
+      }
+    },
+    "sort_field": {
+      "name": "$t:sort_field",
+      "comment": "$t:sort_field_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "E.g.: sort"
+      }
+    },
+    "delete_mode": {
+      "name": "$t:delete_mode",
+      "comment": "$t:delete_mode_comment",
+      "interface": "dropdown",
+      "default": "relation",
+      "options": {
+        "choices": {
+          "relation": "Nullify relationship",
+          "item": "Delete related item"
+        }
+      }
+    },
+    "allow_create": {
+      "name": "$t:allow_create",
+      "comment": "$t:allow_create_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "allow_select": {
+      "name": "$t:allow_select",
+      "comment": "$t:allow_select_comment",
+      "interface": "switch",
+      "default": true
+    }
+  },
+  "relation": "o2m",
+  "icon": "call_split"
+}

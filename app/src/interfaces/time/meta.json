@@ -1,0 +1,14 @@
+{
+  "name": "$t:time",
+  "version": "1.0.0",
+  "types": ["time"],
+  "icon": "access_time",
+  "options": {
+    "display24HourClock": {
+      "name": "$t:24hour",
+      "comment": "$t:24hour_comment",
+      "interface": "switch",
+      "default": true
+    }
+  }
+}

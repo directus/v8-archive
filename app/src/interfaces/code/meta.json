@@ -1,0 +1,40 @@
+{
+  "name": "$t:code",
+  "version": "1.0.0",
+  "types": ["string", "json"],
+  "icon": "code",
+  "recommended": {
+    "length": 2000
+  },
+  "options": {
+    "language": {
+      "name": "$t:language",
+      "comment": "$t:language_comment",
+      "interface": "dropdown",
+      "default": "text/plain",
+      "options": {
+        "choices": {
+          "text/plain": "Plain Text",
+          "text/javascript": "JavaScript",
+          "application/json": "JSON",
+          "text/x-vue": "Vue",
+          "application/x-httpd-php": "PHP"
+        }
+      }
+    },
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "code",
+      "options": {
+        "language": "text/plain"
+      }
+    },
+     "lineNumber": {
+      "name": "$t:lineNumber",
+      "comment": "$t:lineNumber_comment",
+      "interface": "switch",
+      "default": true
+    }
+  }
+}

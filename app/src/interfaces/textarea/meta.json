@@ -1,0 +1,37 @@
+{
+  "name": "$t:textarea",
+  "version": "1.0.0",
+  "types": ["string"],
+  "icon": "text_fields",
+  "recommended": {
+    "length": 2000
+  },
+  "options": {
+    "rows": {
+      "name": "$t:rows",
+      "comment": "$t:rows_comment",
+      "interface": "numeric",
+      "options": {
+        "min": 5,
+        "max": 100
+      },
+      "default": 8
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "text-input",
+      "length": 200
+    },
+    "serif": {
+      "name": "$t:serif",
+      "comment": "$t:serif_comment",
+      "interface": "switch",
+      "default": false,
+      "options": {
+        "labelOn": "Serif Font",
+        "labelOff": "Sans-Serif Font"
+      }
+    }
+  }
+}

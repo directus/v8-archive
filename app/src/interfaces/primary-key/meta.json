@@ -1,0 +1,17 @@
+{
+  "name": "$t:primary_key",
+  "version": "1.0.1",
+  "types": ["integer", "string"],
+  "icon": "vpn_key",
+  "recommended": {
+    "length": 10
+  },
+  "options": {
+    "monospace": {
+      "name": "$t:monospace",
+      "comment": "$t:monospace_comment",
+      "interface": "switch",
+      "default": true
+    }
+  }
+}

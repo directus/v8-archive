@@ -1,0 +1,25 @@
+{
+  "name": "$t:collections",
+  "version": "1.0.1",
+  "types": ["string"],
+  "icon": "category",
+  "recommended": {
+    "length": 100
+  },
+  "options": {
+    "placeholder": {
+      "name": "$t:placeholder",
+      "interface": "text-input",
+      "comment": "$t:placeholder_comment",
+      "default": "$t:placeholder_default",
+      "length": 200
+    },
+    "include_system": {
+      "name": "$t:include_system",
+      "comment": "$t:include_system_comment",
+      "interface": "switch",
+      "type": "BOOLEAN",
+      "default": false
+    }
+  }
+}

@@ -1,0 +1,2 @@
+#### single <def-type>optional</def-type>
+Return the result as if it was a single item. Useful for selecting a single item based on filters and search queries. Will force `limit` to be 1. [Learn more](/api/query/single.html)

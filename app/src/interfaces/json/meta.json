@@ -1,0 +1,13 @@
+{
+  "name": "JSON",
+  "version": "1.0.0",
+  "types": ["json"],
+  "icon": "code",
+  "options": {
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "json"
+    }
+  }
+}

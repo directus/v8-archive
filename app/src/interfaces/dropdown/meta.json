@@ -1,0 +1,57 @@
+{
+  "name": "$t:dropdown",
+  "version": "1.0.2",
+  "types": ["string"],
+  "icon": "arrow_drop_down_circle",
+  "recommended": {
+    "length": 100
+  },
+  "options": {
+    "choices": {
+      "name": "$t:choices",
+      "comment": "$t:choices_comment",
+      "interface": "key-value",
+      "type": "JSON",
+      "options": {
+        "keyInterface": "text-input",
+        "keyType": "string",
+        "keyOptions": {
+          "placeholder": "key",
+          "monospace": true
+        },
+        "valueInterface": "text-input",
+        "valueType": "string",
+        "valueOptions": {
+          "placeholder": "value",
+          "monospace": true
+        }
+      }
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "interface": "text-input",
+      "comment": "$t:placeholder_comment",
+      "default": "$t:placeholder_default",
+      "length": 200
+    },
+    "allow_other": {
+      "name": "$t:allow_other",
+      "comment": "$t:allow_other_comment",
+      "interface": "switch",
+      "default": false
+    },
+    "formatting": {
+      "name": "$t:formatting",
+      "comment": "$t:formatting_comment",
+      "interface": "switch",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    "icon": {
+      "name": "$t:icon",
+      "comment": "$t:icon_comment",
+      "interface": "icon",
+      "advanced": true
+    }
+  }
+}

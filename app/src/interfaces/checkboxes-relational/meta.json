@@ -1,0 +1,33 @@
+{
+  "name": "$t:checkboxes_relational",
+  "version": "1.0.0",
+  "types": ["o2m"],
+  "relation": "m2m",
+  "fieldset": true,
+  "icon": "check_box",
+  "options": {
+    "grid": {
+      "name": "$t:grid",
+      "comment": "$t:grid_comment",
+      "interface": "numeric",
+      "type": "INT",
+      "default": 2
+    },
+    "template": {
+      "name": "$t:item_template",
+      "comment": "$t:item_template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:item_template_placeholder"
+      }
+    },
+    "listing_template": {
+      "name": "$t:listing_template",
+      "comment": "$t:listing_template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:listing_template_placeholder"
+      }
+    }
+  }
+}

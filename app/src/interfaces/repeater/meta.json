@@ -1,0 +1,153 @@
+{
+  "name": "$t:repeater",
+  "version": "1.0.0",
+  "icon": "replay",
+  "types": ["json"],
+  "recommended": {
+    "length": 200
+  },
+  "options": {
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:template_placeholder",
+        "monospace": true
+      }
+    },
+    "fields": {
+      "name": "$t:fields",
+      "interface": "repeater",
+      "type": "JSON",
+      "options": {
+        "template": "{{field}} - {{interface}}",
+        "datatype": "array",
+        "fields": [
+          {
+            "field": "field",
+            "interface": "text-input",
+            "type": "string",
+            "width": "half",
+            "options": {
+              "placeholder": "Choose a name for this field",
+              "monospace": true,
+              "formatValue": true
+            },
+            "required": true
+          },
+          {
+            "field": "width",
+            "interface": "dropdown",
+            "type": "string",
+            "width": "half",
+            "default": "half",
+            "options": {
+              "choices": {
+                "half": "Half Width (Wraps)",
+                "half-left": "Half Width (Left Only)",
+                "half-right": "Half Width (Right Only)",
+                "full": "Full Width"
+              }
+            }
+          },
+          {
+            "interface": "interfaces",
+            "field": "interface",
+            "type": "string",
+            "width": "half",
+            "default": "text-input",
+            "options": {
+              "relational": false,
+              "status": false
+            }
+          },
+          {
+            "field": "type",
+            "interface": "interface-types",
+            "width": "half",
+            "type": "string",
+            "options": {
+              "interfaceField": "interface"
+            }
+          },
+          {
+            "field": "default",
+            "interface": "text-input",
+            "width": "half",
+            "type": "string"
+          },
+          {
+            "field": "note",
+            "interface": "text-input",
+            "width": "half",
+            "type": "string"
+          },
+          {
+            "interface": "interface-options",
+            "field": "options",
+            "type": "string",
+            "width": "full",
+            "preview": false,
+            "default": {},
+            "options": {
+              "interfaceField": "interface"
+            }
+          }
+        ]
+      }
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "text-input",
+      "type": "string",
+      "default": "New Item...",
+      "advanced": true
+    },
+    "createItemText": {
+      "name": "$t:create_item_text",
+      "comment": "$t:create_item_text_comment",
+      "interface": "text-input",
+      "type": "string",
+      "default": "Create Item",
+      "advanced": true
+    },
+    "limit": {
+      "name": "$t:limit",
+      "comment": "$t:limit_comment",
+      "interface": "numeric",
+      "default": null,
+      "advanced": true
+    },
+    "duplicable": {
+      "name": "$t:duplicable",
+      "comment": "$t:duplicable_comment",
+      "interface": "switch",
+      "advanced": true
+    },
+    "structure": {
+      "name": "$t:structure",
+      "comment": "$t:structure_comment",
+      "interface": "dropdown",
+      "default": "array",
+      "type": "JSON",
+      "options": {
+        "choices": {
+          "array": "Array",
+          "object": "Object"
+        }
+      },
+      "advanced": true
+    },
+    "structure_key": {
+      "name": "$t:structure_key",
+      "comment": "$t:structure_key_comment",
+      "interface": "text-input",
+      "advanced": true,
+      "options": {
+        "monospace": true
+      }
+    }
+  }
+}

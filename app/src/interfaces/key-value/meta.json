@@ -1,0 +1,60 @@
+{
+  "name": "Key / Value",
+  "version": "1.0.0",
+  "icon": "list_alt",
+  "types": ["json"],
+  "options": {
+    "keyInterface": {
+      "name": "$t:key_interface",
+      "interface": "interfaces",
+      "default": "text-input",
+      "options": {
+        "relational": false
+      }
+    },
+    "keyType": {
+      "name": "$t:key_data_type",
+      "interface": "interface-types",
+      "default": "string",
+      "options": {
+        "interfaceField": "keyInterface"
+      }
+    },
+    "keyOptions": {
+      "name": "$t:key_options",
+      "interface": "interface-options",
+      "default": {
+        "placeholder": "Key"
+      },
+      "options": {
+        "interfaceField": "keyInterface"
+      }
+    },
+    "valueInterface": {
+      "name": "$t:value_interface",
+      "interface": "interfaces",
+      "default": "text-input",
+      "options": {
+        "relational": false
+      }
+    },
+    "valueType": {
+      "name": "$t:value_data_type",
+      "interface": "interface-types",
+      "default": "string",
+      "options": {
+        "interfaceField": "valueInterface"
+      }
+    },
+    "valueOptions": {
+      "name": "$t:value_options",
+      "interface": "interface-options",
+      "default": {
+        "placeholder": "Value"
+      },
+      "options": {
+        "interfaceField": "valueInterface"
+      }
+    }
+  }
+}

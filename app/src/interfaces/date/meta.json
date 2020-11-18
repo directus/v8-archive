@@ -1,0 +1,42 @@
+{
+  "name": "$t:date",
+  "version": "1.0.0",
+  "types": ["date"],
+  "icon": "event",
+  "options": {
+    "min": {
+      "name": "$t:min",
+      "comment": "$t:min_comment",
+      "interface": "date"
+    },
+    "max": {
+      "name": "$t:max",
+      "comment": "$t:max_comment",
+      "interface": "date"
+    },
+    "localized": {
+      "name": "$t:localized",
+      "comment": "$t:localized_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "showRelative": {
+      "name": "$t:relative",
+      "comment": "$t:relative_comment",
+      "interface": "switch",
+      "default": true
+    },
+    "iconLeft": {
+      "name": "$t:icon_left",
+      "comment": "$t:icon_left_comment",
+      "interface": "icon",
+      "advanced": true
+    },
+    "iconRight": {
+      "name": "$t:icon_right",
+      "comment": "$t:icon_right_comment",
+      "interface": "icon",
+      "advanced": true
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "$t:datetime_created",
+  "version": "1.0.0",
+  "types": ["datetime_created"],
+  "icon": "access_time",
+  "options": {
+    "showRelative": {
+      "name": "$t:relative",
+      "interface": "switch",
+      "comment": "$t:relative_comment",
+      "value": false
+    }
+  }
+}

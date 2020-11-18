@@ -1,0 +1,48 @@
+{
+  "name": "$t:hashed",
+  "version": "1.0.1",
+  "types": ["hash"],
+  "icon": "security",
+  "recommended": {
+    "length": 100
+  },
+  "options": {
+    "hide": {
+      "name": "$t:hide",
+      "comment": "$t:hide_comment",
+      "interface": "switch",
+      "default": false
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "text-input",
+      "length": 100,
+      "default": "Enter a value..."
+    },
+    "showHash": {
+      "name": "$t:show_hash",
+      "comment": "$t:show_hash_comment",
+      "interface": "switch",
+      "default": false
+    },
+    "hashingType": {
+      "name": "$t:hashing_type",
+      "comment": "$t:hashing_type_comment",
+      "interface": "dropdown",
+      "default": "core",
+      "options": {
+        "choices": {
+          "core": "Default",
+          "bcrypt": "bcrypt",
+          "md5": "md5",
+          "sha1": "SHA-1",
+          "sha224": "SHA-224",
+          "sha256": "SHA-256",
+          "sha384": "SHA-384",
+          "sha512": "SHA-512"
+        }
+      }
+    }
+  }
+}

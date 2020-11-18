@@ -1,0 +1,44 @@
+{
+  "name": "$t:m2o",
+  "version": "1.0.1",
+  "types": ["m2o"],
+  "relation": "m2o",
+  "icon": "call_merge",
+  "options": {
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:template_placeholder"
+      }
+    },
+    "visible_fields": {
+      "name": "$t:visible_fields",
+      "comment": "$t:visible_fields_note",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:visible_fields_placeholder"
+      }
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "text-input",
+      "length": 200,
+      "default": "$t:select_one"
+    },
+    "threshold": {
+      "name": "$t:threshold",
+      "comment": "$t:threshold_comment",
+      "interface": "numeric",
+      "default": 20
+    },
+    "icon": {
+      "name": "$t:icon",
+      "comment": "$t:icon_comment",
+      "interface": "icon",
+      "advanced": true
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "$t:interfaces",
+  "types": ["string"],
+  "icon": "category",
+  "recommended": {
+    "length": 100
+  },
+  "options": {
+    "placeholder": {
+      "name": "$t:placeholder",
+      "interface": "text-input",
+      "comment": "$t:placeholder_comment",
+      "default": "$t:placeholder_default",
+      "length": 200
+    },
+    "relational": {
+      "name": "$t:relational",
+      "interface": "switch",
+      "default": true
+    },
+    "status": {
+      "name": "$t:include_status",
+      "interface": "switch",
+      "default": true
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "$t:markdown",
+  "version": "1.0.0",
+  "types": ["string"],
+  "icon": "text_fields",
+  "recommended": {
+    "length": 65534
+  },
+  "options": {
+    "tabbed": {
+      "name": "$t:tabbed_preview",
+      "comment": "$t:tabbed_preview_comment",
+      "interface": "switch",
+      "options": {
+        "labelOn": "$t:tabbed_preview_on",
+        "labelOff": "$t:tabbed_preview_off"
+      },
+      "default": true
+    },
+    "rows": {
+      "name": "$t:rows",
+      "comment": "$t:rows_comment",
+      "interface": "numeric",
+      "options": {
+        "min": 5,
+        "max": 100
+      },
+      "default": 12
+    },
+    "placeholder": {
+      "name": "$t:placeholder",
+      "comment": "$t:placeholder_comment",
+      "interface": "textarea",
+      "default": "Enter **markdown** here...",
+      "placeholder": "Enter **markdown** here..."
+    }
+  }
+}
