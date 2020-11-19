@@ -16,6 +16,10 @@
 
 <p>&nbsp;</p>
 
+## Usage
+
+To build this archive to a ready to use bundle, run the `build.sh` file
+
 ----
 
 <p align="center">

@@ -1,13 +1,12 @@
 #!/usr/bin/env zsh
 
 # Setup a temp folder we can clone the repos in
-rm -rf ./directus-build;
+rm -rf ./_directus-v8-build;
 
 # Clone and install everything we need for the API
-git clone git@github.com:directus/v8-archive.git -b master;
-cd v8-archive/api;
+cd api;
 
-php /usr/local/bin/composer.phar install -a --no-dev;
+composer install;
 
 # Clone, install and build everything for the app
 cd ../app;
@@ -17,16 +16,12 @@ yarn build;
 
 cd ..;
 
-# # Move the app into the API
+# Move the app into the API
 mv app/dist/ api/public/admin/;
 
-cd ..;
-
-mkdir directus-build;
+mkdir _directus-v8-build;
 
 # Copy the required files from the api into the directus master branch
-cp -r ./v8-archive/api/{bin,composer.json,config,logs,migrations,public,src,vendor} directus-build/
-
-rm -rf v8-archive;
+cp -r ./api/{bin,composer.json,config,logs,migrations,public,src,vendor} _directus-v8-build/
 
 echo "✨ All done!"
