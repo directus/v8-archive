@@ -39,7 +39,13 @@
 					<v-icon :name="selectionIcon" />
 				</button>
 
-				<img v-if="src && !error" :alt="title" :src="src" @error="onImageError" />
+				<img
+					v-if="src && !error"
+					:alt="title"
+					:src="src"
+					loading="lazy"
+					@error="onImageError"
+				/>
 
 				<v-icon v-if="error" class="error icon" name="broken_image" x-large color="white" />
 
