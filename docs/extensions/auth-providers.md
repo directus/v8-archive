@@ -127,4 +127,4 @@ These are the steps taken when the Directus App attempts to log a user in using 
 4. Provider redirects back to the API
 5. The API checks the authentication
 6. The API redirects back to the application using the referral domain from the initial step 1 request. The API adds the data to the query string. If it's an error, it's going to be in the `?error` parameter, if it's successful it will add the Request Token in the `token` parameter.
-7. The client will need to use the Request Token from Step 6 to make a `POST` request to the API to `/auth/access_token` with a `request_token` as a required param to fetch the Access Token.
+7. The client will need to use the Request Token from Step 6 to make a `POST` request to the API to `/auth/sso/access_token` with a `request_token` as a required param to fetch the Access Token.
