@@ -1049,7 +1049,6 @@ class RelationalTableGateway extends BaseTableGateway
 
         $meta_param = explode(',', ArrayUtils::get($params, 'meta', ''));
 
-        //filter_count performance hotfix
         if ($filtered && (in_array('filter_count', $meta_param) || in_array('*', $meta_param) || in_array('page', $meta_param))) {
             $metadata['filter_count'] = $this->countFilterTotal($params);
         }
@@ -1105,7 +1104,6 @@ class RelationalTableGateway extends BaseTableGateway
         $collectionObject = $this->getTableSchema();
 
         $params = $this->applyDefaultEntriesSelectParams($params);
-        //filter_count performance hotfix
         $fields = $countOnly ? ['*'] : ArrayUtils::get($params, 'fields');
 
         // TODO: Check for all collections + fields permission/existence before querying
@@ -1135,7 +1133,6 @@ class RelationalTableGateway extends BaseTableGateway
             }
         }
 
-        //filter_count performance hotfix
         $selectedFields = $countOnly ? ['total' => new Expression('COUNT(*)')] : $selectedFields;
         $builder->columns($selectedFields);
 
