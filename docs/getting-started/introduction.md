@@ -2,6 +2,10 @@
 
 > These Docs will help get you up-and-running quickly, guide you through advanced features, and explain the concepts that make Directus so unique.
 
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 ## What is Directus?
 
 **Directus is an open-source suite of software that wraps custom SQL databases with a dynamic API and intuitive Admin App.** It allows both administrators and non-technical users to view and manage the content/data stored in pure SQL databases. It can be used as a headless CMS for managing project content, a database client for modeling and viewing raw data, or as customizable WebApp.
