@@ -34,7 +34,7 @@
     "jsonlint-mod": "^1.7.5",
     "leaflet": "^1.6.0",
     "lodash": "^4.17.19",
-    "marked": "^0.8.0",
+    "marked": "^4.0.10",
     "micromustache": "5",
     "mousetrap": "^1.6.3",
     "portal-vue": "^2.1.7",
