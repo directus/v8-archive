@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/directus/directus-8-legacy#readme",
   "devDependencies": {
-    "node-sass": "^4.13.0",
+    "node-sass": "^7.0.0",
     "sass-loader": "^8.0.1"
   },
   "dependencies": {
