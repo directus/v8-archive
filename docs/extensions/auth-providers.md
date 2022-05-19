@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Auth Providers
 
 > Directus offers built-in authentication using securely hashed passwords. Alternatively, you can enable any of our Single Sign-On (SSO) services or create your own adapter for custom authentication. Directus also supports SCIM for external user management.

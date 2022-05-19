@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Soft Delete
 
 >  A [Collection](/guides/collections.md) with Soft Delete enabled doesn't delete items permanently, it keeps the data in the database flagged as deleted. You enable Soft Delete on a Collection basis by adding the [Status](/guides/status.md) field to it. Items which are soft-deleted stay in the database but aren't visible in the App or API unless explicitly requested by an Admin [using the `status` parameter](/api/reference.md#status). 

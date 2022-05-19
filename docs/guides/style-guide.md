@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Directus Style Guide
 
 > A lot of thought has gone into the Directus brand, user-experience (UX), and user-interface (UI). Therefore it is important to follow this guide precisely so that consistency is maintained across the App and all extensions.

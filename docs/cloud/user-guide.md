@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Cloud User Guide
 
 ### This guide provides an overview of the Directus Cloud Dashboard and explains how to use each of its features. If you have any other questions along the way, feel free to reach out to our support staff using the chat window of the [Cloud Dashboard](https://dashboard.directus.cloud/?chat=open).

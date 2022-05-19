@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Hooks
 
 > Directus provides event hooks for all actions performed within the App or API. You can use these hooks to run any arbitrary code when a certain thing in the system happens. You can use this for automated build triggers, webhooks, or other automated systems.
@@ -43,7 +47,7 @@ return [
 #### Below is the list of action hooks
 
 | Action Hook                          | Parameters                |
-| ------------------------------------ | ------------------------- |
+|--------------------------------------|---------------------------|
 | `item.create:before`                 | `($collectionName,$data)` |
 | `item.create`                        | `($collectionName,$data)` |
 | `item.create:after`                  | `($collectionName,$data)` |
@@ -76,7 +80,7 @@ If you're creating a custom Module, Layout, or Interface, you might want to add 
 Action Hooks execute a piece of code _without_ altering the data being passed through it. For example, an Action Hook might send an email to a user when an new article is created. Below is a listing of actions that fire an event.
 
 | Name                       | Description                                                                                                                                                                                                                               |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `application.boot`         | Before all endpoints are set. The app object is passed.                                                                                                                                                                                   |
 | `application.error`        | An app exception has been thrown. The exception object is passed.                                                                                                                                                                         |
 | `auth.request:credentials` | User requested token via credentials. The user object is passed.                                                                                                                                                                          |
@@ -121,7 +125,7 @@ return [
 Filter Hooks are similar to Actions but alter the data that passes through it. For example a Filter Hook might set a UUID for a new article before it is stored in the database.
 
 | Name                 | Description                                                                                                                                                                                                 |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `item.create:before` | Item is created. You can also limit to a specific collection using `item.create.[collection-name]:before`. Supports `:before` (has to be set explicitly)                                                    |
 | `item.read`          | Item is read. You can also limit to a specific collection using `item.read.[collection-name]`. Supports `:after` (default)                                                                                  |
 | `item.update:before` | Item is updated. You can also limit to a specific collection using `item.update.[collection-name]:before`. Supports `:before` (has to be set explicitly)                                                    |
@@ -149,7 +153,7 @@ return [
 #### Useful Methods when working with the Payload
 
 | Name                     | Description                                                        |
-| ------------------------ | ------------------------------------------------------------------ |
+|--------------------------|--------------------------------------------------------------------|
 | `getData()`              | Get the payload data                                               |
 | `attribute($key)`        | Get an attribute key. eg: `$payload->attribute('collection_name')` |
 | `get($key)`              | Get an element by its key                                          |

@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Storage Adapters
 
 > Storage Adapters allow you to save Directus files anywhere. The default storage adapter is the API server's filesystem, but you can also use the included adapter for AWS-S3 or create your own.

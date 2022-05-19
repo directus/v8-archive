@@ -1,4 +1,8 @@
-﻿# App Admin Guide
+﻿:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
+# App Admin Guide
 
 > This guide is written for administrators looking to configure Directus. It is meant to cover setup after installation. If you still need to install Directus, you can follow our dedicated section on [Installing Directus](../getting-started/installation.html).
 

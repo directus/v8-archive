@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Setup Development Environment using DDEV
 
 [DDEV](https://ddev.readthedocs.io/en/stable/) allows running the API on your machine using docker which saves you from installing and configuring the dependencies.

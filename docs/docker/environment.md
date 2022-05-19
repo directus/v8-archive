@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Environment Variables
 
 ## All variables
@@ -5,7 +9,7 @@
 ### General
 
 | Variable                | Type   | Default Value |
-| ----------------------- | ------ | ------------- |
+|-------------------------|--------|---------------|
 | DIRECTUS_ENV            | string | "production"  |
 | DIRECTUS_TABLEBLACKLIST | array  | []            |
 | DIRECTUS_EXT            | array  | []            |
@@ -13,13 +17,13 @@
 ### Logger
 
 | Variable             | Type   | Default Value |
-| -------------------- | ------ | ------------- |
+|----------------------|--------|---------------|
 | DIRECTUS_LOGGER_PATH | string | dynamic       |
 
 ### Database
 
 | Variable                        | Type    | Default Value |
-| ------------------------------- | ------- | ------------- |
+|---------------------------------|---------|---------------|
 | DIRECTUS_DATABASE_TYPE          | string  | "mysql"       |
 | DIRECTUS_DATABASE_HOST          | string  | "localhost"   |
 | DIRECTUS_DATABASE_PORT          | integer | 3306          |
@@ -34,14 +38,14 @@
 ### Cache
 
 | Variable                   | Type    | Default Value |
-| -------------------------- | ------- | ------------- |
+|----------------------------|---------|---------------|
 | DIRECTUS_CACHE_ENABLED     | boolean | false         |
 | DIRECTUS_CACHE_RESPONSETTL | integer | 3600          |
 
 ### Cache Pool
 
 | Variable                    | Type    | Default Value |
-| --------------------------- | ------- | ------------- |
+|-----------------------------|---------|---------------|
 | DIRECTUS_CACHE_POOL_ADAPTER | string  | "filesystem"  |
 | DIRECTUS_CACHE_POOL_PATH    | string  | "../cache/"   |
 | DIRECTUS_CACHE_POOL_HOST    | string  | "localhost"   |
@@ -50,7 +54,7 @@
 ### Storage
 
 | Variable                        | Type    | Default Value                |
-| ------------------------------- | ------- | ---------------------------- |
+|---------------------------------|---------|------------------------------|
 | DIRECTUS_STORAGE_ADAPTER        | string  | "local"                      |
 | DIRECTUS_STORAGE_ROOT           | string  | "public/uploads/_/originals" |
 | DIRECTUS_STORAGE_ROOTURL        | string  | "/uploads/_/originals"       |
@@ -73,15 +77,15 @@ If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 A
 
 ### Storage Options
 
-| Variable                               | Type   | Default Value    |
-| -------------------------------------- | ------ | ---------------- |
-| DIRECTUS_STORAGE_OPTIONS_ACL           | string | "public-read"    |
-| DIRECTUS_STORAGE_OPTIONS_CACHECONTROL  | string | "max-age=604800" |
+| Variable                              | Type   | Default Value    |
+|---------------------------------------|--------|------------------|
+| DIRECTUS_STORAGE_OPTIONS_ACL          | string | "public-read"    |
+| DIRECTUS_STORAGE_OPTIONS_CACHECONTROL | string | "max-age=604800" |
 
 ### Mail
 
 | Variable                         | Type   | Default Value       | Possible Value |
-| -------------------------------- | ------ | ------------------- | -------------- |
+|----------------------------------|--------|---------------------|----------------|
 | DIRECTUS_MAIL_DEFAULT_TRANSPORT  | string | "sendmail"          | "smtp"         |
 | DIRECTUS_MAIL_DEFAULT_FROM       | string | "admin@example.com" |                |
 | DIRECTUS_MAIL_DEFAULT_HOST       | string | ""                  |                |
@@ -93,7 +97,7 @@ If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 A
 ### CORS
 
 | Variable                     | Type    | Default Value                                |
-| ---------------------------- | ------- | -------------------------------------------- |
+|------------------------------|---------|----------------------------------------------|
 | DIRECTUS_CORS_ENABLED        | boolean | true                                         |
 | DIRECTUS_CORS_ORIGIN         | array   | ["*"]                                        |
 | DIRECTUS_CORS_METHODS        | array   | ["GET","POST","PUT","PATCH","DELETE","HEAD"] |
@@ -105,7 +109,7 @@ If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 A
 ### Rate limiter
 
 | Variable                    | Type    | Default Value |
-| --------------------------- | ------- | ------------- |
+|-----------------------------|---------|---------------|
 | DIRECTUS_RATELIMIT_ENABLED  | boolean | false         |
 | DIRECTUS_RATELIMIT_LIMIT    | integer | 100           |
 | DIRECTUS_RATELIMIT_INTERVAL | integer | 60            |
@@ -117,14 +121,14 @@ If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 A
 ### Auth
 
 | Variable                | Type   | Default Value                             |
-| ----------------------- | ------ | ----------------------------------------- |
+|-------------------------|--------|-------------------------------------------|
 | DIRECTUS_AUTH_SECRETKEY | string | "type-a-secret-authentication-key-string" |
 | DIRECTUS_AUTH_PUBLICKEY | string | "type-a-public-authentication-key-string" |
 
 ### Auth (OKTA)
 
 | Variable                                        | Type   | Default Value                                       |
-| ----------------------------------------------- | ------ | --------------------------------------------------- |
+|-------------------------------------------------|--------|-----------------------------------------------------|
 | DIRECTUS_AUTH_SOCIALPROVIDERS_OKTA_CLIENTID     | string | ""                                                  |
 | DIRECTUS_AUTH_SOCIALPROVIDERS_OKTA_CLIENTSECRET | string | ""                                                  |
 | DIRECTUS_AUTH_SOCIALPROVIDERS_OKTA_BASEURL      | string | "https://dev-000000.oktapreview.com/oauth2/default" |
@@ -132,14 +136,14 @@ If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 A
 ### Auth (GitHub)
 
 | Variable                                          | Type   | Default Value |
-| ------------------------------------------------- | ------ | ------------- |
+|---------------------------------------------------|--------|---------------|
 | DIRECTUS_AUTH_SOCIALPROVIDERS_GITHUB_CLIENTID     | string | ""            |
 | DIRECTUS_AUTH_SOCIALPROVIDERS_GITHUB_CLIENTSECRET | string | ""            |
 
 ### Auth (Facebook)
 
 | Variable                                               | Type   | Default Value |
-| ------------------------------------------------------ | ------ | ------------- |
+|--------------------------------------------------------|--------|---------------|
 | DIRECTUS_AUTH_SOCIALPROVIDERS_FACEBOOK_CLIENTID        | string | ""            |
 | DIRECTUS_AUTH_SOCIALPROVIDERS_FACEBOOK_CLIENTSECRET    | string | ""            |
 | DIRECTUS_AUTH_SOCIALPROVIDERS_FACEBOOK_GRAPHAPIVERSION | string | "v2.8"        |
@@ -147,7 +151,7 @@ If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 A
 ### Auth (Google)
 
 | Variable                                          | Type    | Default Value |
-| ------------------------------------------------- | ------- | ------------- |
+|---------------------------------------------------|---------|---------------|
 | DIRECTUS_AUTH_SOCIALPROVIDERS_GOOGLE_CLIENTID     | string  | ""            |
 | DIRECTUS_AUTH_SOCIALPROVIDERS_GOOGLE_CLIENTSECRET | string  | ""            |
 | DIRECTUS_AUTH_SOCIALPROVIDERS_GOOGLE_HOSTEDDOMAIN | string  | "*"           |
@@ -156,7 +160,7 @@ If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 A
 ### Auth (Twitter)
 
 | Variable                                         | Type   | Default Value |
-| ------------------------------------------------ | ------ | ------------- |
+|--------------------------------------------------|--------|---------------|
 | DIRECTUS_AUTH_SOCIALPROVIDERS_TWITTER_IDENTIFIER | string | ""            |
 | DIRECTUS_AUTH_SOCIALPROVIDERS_TWITTER_SECRET     | string | ""            |
 
@@ -164,15 +168,15 @@ If you own an OVH Cloud Storage (OpenStack) instance, you can use the Swift S3 A
 
 ### General
 
-| Variable                  | Type   | Default Value       |
-| ------------------------- | ------ | ------------------- |
-| DIRECTUS_USE_ENV          | number | 1                   |
+| Variable         | Type   | Default Value |
+|------------------|--------|---------------|
+| DIRECTUS_USE_ENV | number | 1             |
 
 ### Installation process
 
 | Variable                  | Type    | Default Value       |
-| ------------------------- | ------- | ------------------- |
+|---------------------------|---------|---------------------|
 | DIRECTUS_INSTALL_TITLE    | string  | "Directus"          |
 | DIRECTUS_INSTALL_EMAIL    | string  | "admin@example.com" |
 | DIRECTUS_INSTALL_PASSWORD | string  | random              |
-| DIRECTUS_INSTALL_FORCE    | boolean | false               | 
+| DIRECTUS_INSTALL_FORCE    | boolean | false               |

@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Directus Cloud Overview
 
 ### Directus Cloud is the easiest way to get started with Directus. It allows you to spin up new projects in seconds, and keeps those project safe and up-to-date. This page will give an overview of the features that make our Cloud platform an ideal choice for your project.

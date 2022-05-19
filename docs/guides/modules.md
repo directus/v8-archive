@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Modules
 
 > Everything within Directus is grouped into Modules. Each defines a different section, with its own navigation and pages. Directus comes with several system modules preinstalled, such as Collections, the File Library, and the User Diretory.

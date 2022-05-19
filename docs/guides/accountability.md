@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Accountability
 
 > Directus stores detailed records of every change made to data through the App and API. This gives a comprehensive overview of who did what, and when.

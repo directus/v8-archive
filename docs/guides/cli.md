@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Command-Line Interface
 
 > Directus CLI provides commands that allow you to perform various tasks such as installation, resetting a user's email, or upgrading the database to the most recent Directus schema.
@@ -5,7 +9,7 @@
 ## Commands List
 
 | Name                                                 | Description                        |
-| ---------------------------------------------------- | ---------------------------------- |
+|------------------------------------------------------|------------------------------------|
 | [`install:config`](#configure-directus)              | Create a configuration file        |
 | [`install:database`](#populate-the-database-schema)  | Create the default tables and data |
 | [`install:install`](#install-initial-configurations) | Create initial configuration data  |
@@ -45,21 +49,21 @@ This command will overwrite any existing default configuration file at `config/_
 php bin/directus install:config -h <db_host> -n <db_name> -u <db_user> -p <db_pass> -e <directus_email> -s <db_unix_socket>
 ```
 
-| Option         | Description
-| -------------- | -----------------------------
-| `t`            | Database type. (**Only `mysql` supported**)
-| `h`            | Database host
-| `P`            | Database port
-| `n`            | Database name (it must already exist)
-| `u`            | Database user's name
-| `p`            | Database user's password
-| `e`            | (Optional) The Directus email that will be used as sender in the mailing process
-| `s`            | Database unix socket
-| `a`            | Super Admin Token
-| `c`            | Enable/Disable CORS
-| `k`            | Unique Project's name (it must be required when creating new project in existing Directus setup)
-| `timezone`     | API Server default timezone
-| `f`            | Force file overwritten
+| Option     | Description                                                                                      |
+|------------|--------------------------------------------------------------------------------------------------|
+| `t`        | Database type. (**Only `mysql` supported**)                                                      |
+| `h`        | Database host                                                                                    |
+| `P`        | Database port                                                                                    |
+| `n`        | Database name (it must already exist)                                                            |
+| `u`        | Database user's name                                                                             |
+| `p`        | Database user's password                                                                         |
+| `e`        | (Optional) The Directus email that will be used as sender in the mailing process                 |
+| `s`        | Database unix socket                                                                             |
+| `a`        | Super Admin Token                                                                                |
+| `c`        | Enable/Disable CORS                                                                              |
+| `k`        | Unique Project's name (it must be required when creating new project in existing Directus setup) |
+| `timezone` | API Server default timezone                                                                      |
+| `f`        | Force file overwritten                                                                           |
 
 #### Example: http://example.local
 
@@ -90,7 +94,7 @@ php bin/directus install:install -e <admin_email> -p <admin_password> -t <site_n
 ```
 
 | Option     | Description                                                  |
-| ---------- | ------------------------------------------------------------ |
+|------------|--------------------------------------------------------------|
 | `e`        | Admin email                                                  |
 | `p`        | Admin password                                               |
 | `T`        | Admin Static Auth Token                                      |

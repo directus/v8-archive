@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Extending Directus
 
 > To keep the core codebase as simple and clean as possible, all edge-case functionality is added through extensions. Directus is completely modular and extensible, so you'll never hit a ceiling or outgrow the framework.

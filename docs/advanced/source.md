@@ -1,3 +1,6 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
 # Setup Development Environment
 
 > If you would like to make contributions to the Directus codebase then you'll need to install the App and API from source. However, you do not need to do this to build new extensions.

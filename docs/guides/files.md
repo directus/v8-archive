@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Files & Thumbnails
 
 > Directus offers a full Digital Asset Management (DAM) system, multiple storage adapters, private file permissions, and on-demand thumbnail generation.
@@ -66,8 +70,8 @@ Removing all options from the Thumbnail Whitelist will allow *any* images to be 
 
 For easier comparison, both of the examples below were requested at `200` width, `200` height, and `75` quality. The `crop` thumbnail forces the dimensions, trimming the outside edges if needed. The `contain` thumbnail always maintains its aspect ratio, shrinking the image to fit _within_ the dimensions.
 
-| Crop | Contain |
-|------|------|
+| Crop                                                                   | Contain                                                                      |
+|------------------------------------------------------------------------|------------------------------------------------------------------------------|
 | ![Crop](../img/asset-generator/200-200-crop-75.jpg)<br>_8KB • 200x200_ | ![Contain](../img/asset-generator/200-200-contain-75.jpg)<br>_6KB • 200x133_ |
 
 :::tip
@@ -78,8 +82,8 @@ Images are never stretched or distorted even when changing the aspect ratio.
 
 The quality parameter can be any integer from `0-100`. Qualities closer to `0` have more compression artifacts therefore poor image quality, but lower filesizes. Values closer to `100` have less compression and better image quality, but larger filesizes. Below are four possible qualities (200x200 crop) to visually compare the balance between compression and filesize.
 
-| 25% | 50% | 75% | 100% |
-|------|------|--------|------|
+| 25%                                                         | 50%                                                         | 75%                                                         | 100%                                                           |
+|-------------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------|
 | ![25%](../img/asset-generator/200-200-crop-25.jpg)<br>_4KB_ | ![50%](../img/asset-generator/200-200-crop-50.jpg)<br>_6KB_ | ![75%](../img/asset-generator/200-200-crop-75.jpg)<br>_8KB_ | ![100%](../img/asset-generator/200-200-crop-100.jpg)<br>_38KB_ |
 
 ## File Settings

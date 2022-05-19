@@ -1,3 +1,6 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
 # Data Access
 
 Directus uses Zend DB to access data from the database. It has its own class `Directus\Database\TableGateway\RelationalTableGateway` extending `Zend\Db\TableGateway\TableGateway` to add some Directus logic.

@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Roles
 
 > Roles allow for grouping users and controlling their access to data within the App and API. There are also two system roles for configuring administrators and public data access.

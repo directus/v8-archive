@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Installing by manual upload (FTP)
 
 This method of installing is less than ideal, as you'll be in charge of replacing the correct files in order to update the platform.
