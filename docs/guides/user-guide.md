@@ -1,4 +1,8 @@
-﻿# App User Guide
+﻿:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
+# App User Guide
 
 > This guide is written for non-technical users just getting started with Directus — it does not cover setup or other Admin features. If you're completely new to the platform it is recommended that you read our [Introduction to Directus](../getting-started/introduction.html).
 

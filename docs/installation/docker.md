@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Installing using Docker
 
 If you're already familiar with Docker, you are probably looking for our official docker images over [Docker Hub](https://hub.docker.com/r/directus/directus). We have more detailed information about our docker images on [our docker documentation page](/docker/overview.md).

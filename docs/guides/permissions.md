@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Permissions
 
 > Directus permissions are extremely granular and powerful, but don't feel overwhelmed, you don't need to use or even understand the more advanced features to setup basic roles.

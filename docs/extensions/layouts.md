@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Layouts
 
 > Layouts are different ways to view or even interact with data on the Item Browse page. Directus includes List and Card layouts out-of-the-box, but others can easily be created to fit specific needs.

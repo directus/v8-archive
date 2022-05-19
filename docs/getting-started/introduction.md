@@ -1,10 +1,10 @@
-# 🐰 Welcome to the Directus Docs!
-
-> These Docs will help get you up-and-running quickly, guide you through advanced features, and explain the concepts that make Directus so unique.
-
 :::danger Legacy Version
 These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
 :::
+
+# 🐰 Welcome to the Directus Docs!
+
+> These Docs will help get you up-and-running quickly, guide you through advanced features, and explain the concepts that make Directus so unique.
 
 ## What is Directus?
 

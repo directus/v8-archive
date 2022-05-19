@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Authentication
 
 > Directus is serious about security, and takes every precaution to ensure your data is kept secure. Below are a few of the features we employ to safeguard your projects.

@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # ❤️ Supporting Directus
 
 > **Directus is both premium and free — two things that don't often go together.** It takes significant resources to maintain and advance the platform. If you'd like to help keep Directus active and open-source please consider supporting it through one of the methods below.

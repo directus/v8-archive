@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Using the DigitalOcean One-Click
 
 Our friends over at [DigitalOcean](https://digitalocean.com) provide an easy-to-use one-click for automatically configuring new Droplets with Directus pre-installed.

@@ -1,3 +1,6 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
 # Server Setup
 
 > While only Apache is _officially_ supported, to get Directus working on most servers all you need to do is ensure that traffic is routed to the correct files. Let's take a look at some common examples below.

@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Use Cases
 
 Directus is a simple, unopinionated tool that makes no assumptions about how it will be used. Sometimes that makes it difficult to

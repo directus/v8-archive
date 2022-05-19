@@ -1,3 +1,6 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
 # Legacy Upgrades
 
 > One does not simply `git pull origin master` to upgrade from Directus 6.
@@ -39,27 +42,27 @@ This has been replaced by `directus_fields`. Previously all relationships were c
 
 This table is fairly similar between versions. Below is a column mapping:
 
-| v6 | v7 | Details |
-|---|---|---|
-| `id`                | `id` | Same in v7 |
-| `status`            | --  | Removed in v7 |
-| `name`              | `filename` | Renamed in v7 |
-| `title`             | `title` | Same in v7 |
-| `location`          | `location` | Same in v7 |
-| `caption`           | `description` | Renamed in v7 |
-| `type`              | `type` | Same in v7 |
-| `charset`           | `charset` | Same in v7 |
-| `tags`              | `tags` | Same in v7 |
-| `width`             | `width` | Same in v7 |
-| `height`            | `height` | Same in v7 |
-| `size`              | `filesize` | Renamed in v7 |
-| `embed_id`          | `embed` | Renamed in v7 |
-| `user`              | `uploaded_by` | Renamed in v7 |
-| `date_uploaded`     | `uploaded_on` | Renamed in v7 |
-| `storage_adapter`   | `storage` | Renamed in v7 |
-| --                  | `duration` | Add this new v7 field: `INT(11)` |
-| --                  | `folder` | Add this new v7 field: `INT(11)` |
-| --                  | `metadata` | Add this new v7 field: `TEXT` |
+| v6                | v7            | Details                          |
+|-------------------|---------------|----------------------------------|
+| `id`              | `id`          | Same in v7                       |
+| `status`          | --            | Removed in v7                    |
+| `name`            | `filename`    | Renamed in v7                    |
+| `title`           | `title`       | Same in v7                       |
+| `location`        | `location`    | Same in v7                       |
+| `caption`         | `description` | Renamed in v7                    |
+| `type`            | `type`        | Same in v7                       |
+| `charset`         | `charset`     | Same in v7                       |
+| `tags`            | `tags`        | Same in v7                       |
+| `width`           | `width`       | Same in v7                       |
+| `height`          | `height`      | Same in v7                       |
+| `size`            | `filesize`    | Renamed in v7                    |
+| `embed_id`        | `embed`       | Renamed in v7                    |
+| `user`            | `uploaded_by` | Renamed in v7                    |
+| `date_uploaded`   | `uploaded_on` | Renamed in v7                    |
+| `storage_adapter` | `storage`     | Renamed in v7                    |
+| --                | `duration`    | Add this new v7 field: `INT(11)` |
+| --                | `folder`      | Add this new v7 field: `INT(11)` |
+| --                | `metadata`    | Add this new v7 field: `TEXT`    |
 
 :::tip
 You'll also want to make sure all files are moved to match the storage path in your v7 api.php config file.
@@ -69,14 +72,14 @@ You'll also want to make sure all files are moved to match the storage path in y
 
 Simple O2M user groups have been replaced by a M2M user roles (`directus_roles` and `directus_user_roles`). Even though these are functionally the same now, we've made this schema change to allow users to have _multiple_ roles (with merged permissions) in the future without a breaking change in the schema.
 
-| v6 | v7 | Details |
-|---|---|---|
-| `id`                | `id` | Same in v7 |
-| `name`              | `name`  | Same in v7 |
-| `description`       | `description` | Same in v7
-| `restrict_to_ip_whitelist`  | `ip_whitelist` | Renamed in v7
-| `nav_override`       | `nav_blacklist` | New name and structure
-| --                  | `external_id` | Add this new v7 field: `VARCHAR(255)` |
+| v6                         | v7              | Details                               |
+|----------------------------|-----------------|---------------------------------------|
+| `id`                       | `id`            | Same in v7                            |
+| `name`                     | `name`          | Same in v7                            |
+| `description`              | `description`   | Same in v7                            |
+| `restrict_to_ip_whitelist` | `ip_whitelist`  | Renamed in v7                         |
+| `nav_override`             | `nav_blacklist` | New name and structure                |
+| --                         | `external_id`   | Add this new v7 field: `VARCHAR(255)` |
 
 
 ### `directus_messages`
@@ -95,23 +98,23 @@ Just like bookmarks, preferences in v7 are now stored in `directus_collection_pr
 
 This has been renamed to `directus_permissions` and we've replaced the INTEGER based privilege values with an easier-to-read STRING permissions in v7. While you could try updating columns (see below) we'd recommend re-creating permissions in v7. There are several new permissions allowed to take advantage of, and permissions isn't something you want to mess up in migration.
 
-| v6 | v7 | Details |
-|---|---|---|
-| `id`                | `id` | Same in v7 |
-| `table_name`        | `collection`  | Renamed in v7 |
-| `allow_view`        | `read` | Renamed in v7 |
-| `allow_add`        | `create` | Renamed in v7 |
-| `allow_edit`        | `update` | Renamed in v7 |
-| `allow_delete`        | `delete` | Renamed in v7 |
-| `allow_alter`        | -- | Removed in v7 |
-| `group_id`        | `role` | Renamed in v7 |
-| `read_field_blacklist`        | `read_field_blacklist` | Renamed in v7 |
-| `write_field_blacklist`        | `write_field_blacklist` | Renamed in v7 |
-| `nav_listed`        | -- | Removed in v7 |
-| `status_id`        | `status` | Renamed in v7 |
-| --        | `comment` | Added in v7 |
-| --        | `explain` | Added in v7 |
-| --        | `status_blacklist` | Added in v7 |
+| v6                      | v7                      | Details       |
+|-------------------------|-------------------------|---------------|
+| `id`                    | `id`                    | Same in v7    |
+| `table_name`            | `collection`            | Renamed in v7 |
+| `allow_view`            | `read`                  | Renamed in v7 |
+| `allow_add`             | `create`                | Renamed in v7 |
+| `allow_edit`            | `update`                | Renamed in v7 |
+| `allow_delete`          | `delete`                | Renamed in v7 |
+| `allow_alter`           | --                      | Removed in v7 |
+| `group_id`              | `role`                  | Renamed in v7 |
+| `read_field_blacklist`  | `read_field_blacklist`  | Renamed in v7 |
+| `write_field_blacklist` | `write_field_blacklist` | Renamed in v7 |
+| `nav_listed`            | --                      | Removed in v7 |
+| `status_id`             | `status`                | Renamed in v7 |
+| --                      | `comment`               | Added in v7   |
+| --                      | `explain`               | Added in v7   |
+| --                      | `status_blacklist`      | Added in v7   |
 
 ### `directus_schema_migrations`
 
@@ -137,23 +140,23 @@ Other fields have been removed, but `hidden` and `single` are the main options s
 
 Same name and basic structure, below are the main differences:
 
-| v6 | v7 | Details |
-|---|---|---|
-| `id`                | `id` | Same in v7 |
-| `status`  | `status`  | Now uses a string-based status
-| `first_name`  | `first_name`  | Same in v7
-| `last_name`  | `last_name`  | Same in v7
-| `email`  | `email`  | Same in v7
-| `password`  | `password`  | Same in v7. Confirm that both use bcrypt algorithm
-| `token`  | `token`  | Same in v7
-| `position`  | `title`  | Renamed in v7
-| `email_messages`  | `email_notifications`  | Renamed in v7
-| `last_access`  | `last_access_on`  | Renamed in v7
-| `last_page`  | `last_page`  | Same in v7
-| `group`  | --  | Replaced by M2M roles
-| `avatar_file_id`  | `avatar`  | Renamed in v7
-| `location`  | `company`  | Renamed in v7
-| `language`  | `locale`  | From `en` to `en-US` format
-| `timezone`  | `timezone`  | Same as in v7
+| v6               | v7                    | Details                                            |
+|------------------|-----------------------|----------------------------------------------------|
+| `id`             | `id`                  | Same in v7                                         |
+| `status`         | `status`              | Now uses a string-based status                     |
+| `first_name`     | `first_name`          | Same in v7                                         |
+| `last_name`      | `last_name`           | Same in v7                                         |
+| `email`          | `email`               | Same in v7                                         |
+| `password`       | `password`            | Same in v7. Confirm that both use bcrypt algorithm |
+| `token`          | `token`               | Same in v7                                         |
+| `position`       | `title`               | Renamed in v7                                      |
+| `email_messages` | `email_notifications` | Renamed in v7                                      |
+| `last_access`    | `last_access_on`      | Renamed in v7                                      |
+| `last_page`      | `last_page`           | Same in v7                                         |
+| `group`          | --                    | Replaced by M2M roles                              |
+| `avatar_file_id` | `avatar`              | Renamed in v7                                      |
+| `location`       | `company`             | Renamed in v7                                      |
+| `language`       | `locale`              | From `en` to `en-US` format                        |
+| `timezone`       | `timezone`            | Same as in v7                                      |
 
 **All other v6 fields have been removed**

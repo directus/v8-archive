@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Layouts
 
 > Layouts are the App's presentation layer for collections. They can be used to browse, visualize, or interact with items at the collection level. Table, Cards, Timeline, Map, Calendar, and Chart are all examples of different layout options.

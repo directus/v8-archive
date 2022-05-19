@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Custom Mail Template
 
 You are able to create new templates files to replace current templates. The way this works is that you are able to create one or more of the 6 templates files into `public/extensions/custom/mail` and this file will have priority over the core template. These are Twig template files.

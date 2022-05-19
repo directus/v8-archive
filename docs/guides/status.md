@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Status
 
 > The Status interface adds soft-delete and workflow options to its parent collection. Let's take a look at how to properly configure it to take full advantage of its power and flexibility.
@@ -6,14 +10,14 @@
 
 There are three status options added by default, however you can add as many as you'd like. Each option has paramenters that define how it will look and work.
 
-Option              | Description
-------------------- | -----------------------------------
-`key`               | String (Numbers can be used as strings). Each option object is defined by a key, this key is the value that is saved into the database
-`name`              | String. The name presented to the user in the App
-`text_color`        | Directus Color Name. The text color of the badge on the browse items page
-`background_color`  | Directus Color Name. The background color of the badge (or dot if using the Simple Badge option)
-`browse_badge`      | Boolean. Whether to show the badge on the browse items page or not
-`soft_delete`       | Boolean. If true, items will not be returned by default in the App or API. Only Admin users have access to soft-deleted items
+| Option             | Description                                                                                                                            |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `key`              | String (Numbers can be used as strings). Each option object is defined by a key, this key is the value that is saved into the database |
+| `name`             | String. The name presented to the user in the App                                                                                      |
+| `text_color`       | Directus Color Name. The text color of the badge on the browse items page                                                              |
+| `background_color` | Directus Color Name. The background color of the badge (or dot if using the Simple Badge option)                                       |
+| `browse_badge`     | Boolean. Whether to show the badge on the browse items page or not                                                                     |
+| `soft_delete`      | Boolean. If true, items will not be returned by default in the App or API. Only Admin users have access to soft-deleted items          |
 
 ### Example
 

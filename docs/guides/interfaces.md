@@ -1,3 +1,7 @@
+:::danger Legacy Version
+These are the docs for Directus 8, a legacy version of the platform. If you're looking for the current Directus 9 documentation, go here: [https://docs.directus.io](https://docs.directus.io)
+:::
+
 # Interfaces
 
 > Interfaces determine how a field's value is presented or edited. For example, a _boolean_ value might use a Toggle, Switch, Checkbox, Pill-Box, Icon, or even a Dropdown interface.
