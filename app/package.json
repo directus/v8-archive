@@ -42,7 +42,7 @@
     "shortid": "^2.2.15",
     "slug": "^2.1.0",
     "snarkdown": "^1.2.2",
-    "tinymce": "^5.2.2",
+    "tinymce": "^5.10.7",
     "v-tooltip": "^2.0.2",
     "vue": "^2.6.10",
     "vue-codemirror": "^4.0.6",
