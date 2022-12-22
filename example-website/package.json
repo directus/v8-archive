@@ -43,7 +43,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "html-minifier": "^4.0.0",
     "js-yaml": "^3.13.1",
-    "liquidjs": "^9.6.0",
+    "liquidjs": "^10.0.0",
     "through2": "^3.0.1",
     "to-camel-case": "^1.0.0",
     "webpack": "^4.41.4",
